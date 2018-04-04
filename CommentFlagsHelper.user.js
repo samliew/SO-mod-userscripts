@@ -12,12 +12,18 @@
 
     // Special characters must be escaped with \\
     var chattyKeywords = [
-        'thanks?', 'up-?voted?', 'updated', 'edited', 'added', 'corrected', 'done', 'worked', 'works', 'glad', 'appreciated?', 'email', 'contact', 'good', 'great', 'correct'
+        'thanks?', 'up-?voted?', 'updated', 'edited', 'added', 'corrected', 'done', 'worked', 'works', 'glad', 'appreciated?', 'email', 'contact', 'good', 'great', 'correct', 'sorry',
     ];
 
-    // Highlight common chatty keywords
+    // If comment is short, highlight common chatty keywords
     $('.comment-summary').each(function() {
-        this.innerHTML = this.innerHTML.replace(new RegExp('(' + chattyKeywords.join('|') + ')', 'gi'), '<b style="color:red">$1</b>');
+        if(this.innerText.length < 100)
+            this.innerHTML = this.innerHTML.replace(new RegExp('(' + chattyKeywords.join('|') + ')', 'gi'), '<b style="color:red">$1</b>');
+    });
+
+    // Warning when declining comment flags
+    $('.cancel-comment-flag').click(function(evt) {
+        return confirm('Really DECLINE this flag?') ? true : evt.preventDefault();
     });
 
     // On any page update
