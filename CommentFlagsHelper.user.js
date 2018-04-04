@@ -12,12 +12,13 @@
 
     // Special characters must be escaped with \\
     var chattyKeywords = [
-        'thanks?', 'up-?voted?', 'updated', 'edited', 'added', 'corrected', 'done', 'worked', 'works', 'glad', 'appreciated?', 'email', 'contact', 'good', 'great', 'correct', 'sorry',
+        'thanks?', 'up-?voted?', 'updated', 'edited', 'added', 'corrected', 'done', 'worked', 'works', 'glad',
+        'appreciated?', 'email', 'contact', 'good', 'great', 'correct', 'sorry', '\\+1', 'love',
     ];
 
     // If comment is short, highlight common chatty keywords
     $('.comment-summary').each(function() {
-        if(this.innerText.length < 100)
+        if(this.innerText.length < 150)
             this.innerHTML = this.innerHTML.replace(new RegExp('(' + chattyKeywords.join('|') + ')', 'gi'), '<b style="color:red">$1</b>');
     });
 
