@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Comment Flags Helper
-// @description  Highlights flagged user comments in expanded posts, Always expand comments if post is expanded
+// @description  Highlights flagged user comments in expanded posts, Always expand comments if post is expanded, Highlight common chatty keywords
 // @match        https://stackoverflow.com/admin/dashboard?flagtype=comment*
 // @match        https://meta.stackoverflow.com/admin/dashboard?flagtype=comment*
 // @match        https://*.stackexchange.com/admin/dashboard?flagtype=comment*
@@ -9,6 +9,16 @@
 
 (function() {
     'use strict';
+
+    // Special characters must be escaped with \\
+    var chattyKeywords = [
+        'thanks?', 'up-?voted?', 'updated', 'edited', 'added', 'corrected', 'done', 'worked', 'works', 'glad', 'appreciated?', 'email', 'contact', 'good', 'great', 'correct'
+    ];
+
+    // Highlight common chatty keywords
+    $('.comment-summary').each(function() {
+        this.innerHTML = this.innerHTML.replace(new RegExp('(' + chattyKeywords.join('|') + ')', 'gi'), '<b style="color:red">$1</b>');
+    });
 
     // On any page update
     $(document).ajaxComplete(function() {
