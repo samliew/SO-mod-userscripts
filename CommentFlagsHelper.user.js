@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Comment Flags Helper
 // @description  Highlights flagged user comments in expanded posts, Always expand comments if post is expanded, Highlight common chatty keywords
-// @match        https://stackoverflow.com/admin/dashboard?flagtype=comment*
-// @match        https://meta.stackoverflow.com/admin/dashboard?flagtype=comment*
-// @match        https://*.stackexchange.com/admin/dashboard?flagtype=comment*
+// @match        https://*stackoverflow.com/admin/dashboard?flag*=comment*
+// @match        https://meta.stackoverflow.com/admin/dashboard?flag*=comment*
+// @match        https://*.stackexchange.com/admin/dashboard?flag*=comment*
 // @author       @samliew
 // ==/UserScript==
 
