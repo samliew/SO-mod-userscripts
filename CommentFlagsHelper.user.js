@@ -22,10 +22,8 @@
             this.innerHTML = this.innerHTML.replace(new RegExp('(' + chattyKeywords.join('|') + ')', 'gi'), '<b style="color:red">$1</b>');
     });
 
-    // Warning when declining comment flags
-    $('.cancel-comment-flag').click(function(evt) {
-        return confirm('Really DECLINE this flag?') ? true : evt.preventDefault();
-    });
+    // Change "dismiss" to "decline"
+    $('.cancel-comment-flag').text('decline');
 
     // On any page update
     $(document).ajaxComplete(function() {
