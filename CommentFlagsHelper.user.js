@@ -15,24 +15,24 @@
 
     // Special characters must be escaped with \\
     var rudeKeywords = [
-        'fuck', 'arse', 'cunt', 'dick', 'cock', 'pussy', 'hell', 'stupid', 'idiot', '!!+', '\\?\\?+',
+        'fuck', '\\barse', 'cunt', 'dick', '\\bcock', 'pussy', '\\bhell', 'stupid', 'idiot', '!!+', '\\?\\?+',
         'grow\\s?up', 'shame', 'wtf', 'garbage', 'trash', 'spam', 'damn', 'stop', 'horrible', 'inability', 'bother',
         'nonsense', 'never\\s?work', 'illogical', 'fraud', 'crap', 'report(ed)?', 'get\\s?lost', 'go\\s?away',
-        'useless', 'delete.+(answer|question)', 'move on',
+        'useless', 'delete[\\w\\s]+(answer|question|comment)', 'move on', 'learn',
     ];
 
     // Special characters must be escaped with \\
     var chattyKeywords = [
-        'thanks?', 'up-?voted?', 'updated', 'edited', 'added', '(in)?correct(ed)?', 'done', 'worked', 'works', 'glad',
+        'thanks?', 'welcome', 'up-?voted?', 'updated', 'edited', 'added', '(in)?correct(ed)?', 'done', 'worked', 'works', 'glad',
         'appreciated?', 'my email', 'email me', 'contact', 'good', 'great', 'sorry', '\\+1', 'love', 'wow', 'pointless', 'no\\s?(body|one)',
-        'homework', 'no\\s?idea', 'your\\s?mind', 'try\\s?it', 'typo', 'wrong', 'unclear', 'regret', 'we\b', 'every\\s?(body|one)',
-        'exactly', 'check',
+        'homework', 'no\\s?idea', 'your\\s?mind', 'try\\s?it', 'typo', 'wrong', 'unclear', 'regret', 'we\\b', 'every\\s?(body|one)',
+        'exactly', 'check', 'lol', '\\bha(ha)+',
     ];
 
     $('.comment-summary, tr.deleted-row > td > span').each(function() {
 
         // Highlight common chatty keywords
-        this.innerHTML = this.innerHTML.replace(new RegExp('(' + chattyKeywords.join('|') + ')', 'gi'), '<b style="color:orange">$1</b>');
+        this.innerHTML = this.innerHTML.replace(new RegExp('(' + chattyKeywords.join('|') + ')', 'gi'), '<b style="color:coral">$1</b>');
 
         // Highlight common rude keywords
         this.innerHTML = this.innerHTML.replace(new RegExp('(' + rudeKeywords.join('|') + ')', 'gi'), '<b style="color:red">$1</b>');
@@ -50,7 +50,9 @@
         // Highlight flagged user comments in expanded posts
         var $user = $('.js-flagged-comments .comment-link + a');
         $user.each(function() {
-            $(this).parents('.messageDivider').find('.comment-user').filter((i,e) => e.href === this.href).closest('.comment').children().css('background', '#ffc');
+            $(this).parents('.messageDivider')
+                .find('.comment-user').filter((i,e) => e.href === this.href)
+                .closest('.comment').children().css('background', '#ffc');
         });
     });
 
