@@ -23,10 +23,10 @@
 
     // Special characters must be escaped with \\
     var chattyKeywords = [
-        'thanks?', 'welcome', 'up-?voted?', 'updated', 'edited', 'added', '(in)?correct(ed)?', 'done', 'worked', 'works', 'glad',
+        'thanks?( you)?', 'thx', 'welcome', 'up-?voted?', 'updated', 'edited', 'added', '(in)?correct(ed)?', 'done', 'worked', 'works', 'glad',
         'appreciated?', 'my email', 'email me', 'contact', 'good', 'great', 'sorry', '\\+1', 'love', 'wow', 'pointless', 'no\\s?(body|one)',
         'homework', 'no\\s?idea', 'your\\s?mind', 'try\\s?it', 'typo', 'wrong', 'unclear', 'regret', 'we\\b', 'every\\s?(body|one)',
-        'exactly', 'check', 'lol', '\\bha(ha)+',
+        'exactly', 'check', 'lol', '\\bha(ha)+', 'congrats?', 'nice',
     ];
 
     $('.comment-summary, tr.deleted-row > td > span').each(function() {
