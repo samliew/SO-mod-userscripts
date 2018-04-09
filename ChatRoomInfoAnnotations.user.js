@@ -18,7 +18,7 @@
             setRequestHeader.call(this, name, value);
         };
         return xhr;
-    };
+    }
 
     function doPageload() {
 
@@ -40,17 +40,17 @@
                     var annotations = $('li > b:first', annotlist);
                     var numAnno = annotations.filter((i,e) => e.innerText.indexOf('Annotation') > -1).length;
                     var numSusp = annotations.filter((i,e) => e.innerText.indexOf('Suspension') > -1).length;
-                    
+
                     // Add annotation count
                     if(numAnno + numSusp > 0) {
-                        $('<div id="annotation-count" title="This user has ' + numAnno + ' moderator annotations and has been suspended ' + numSusp + ' times"><a href="/admin/annotations/' + uid + '">' + (numAnno + numSusp) + '</a></div>');
+                        $('<div id="annotation-count" title="This user has ' + numAnno + ' moderator annotations and has been suspended ' + numSusp + ' times"><a href="/admin/annotations/' + uid + '">' + (numAnno + numSusp) + '</a></div>')
                             .prependTo('#user-'+uid);
                     }
                 }
             });
 
         });
-    };
+    }
 
     function appendStyles() {
 
@@ -62,7 +62,7 @@
 </style>
 `;
         $('body').append(styles);
-    };
+    }
 
     // On page load
     doPageload();
