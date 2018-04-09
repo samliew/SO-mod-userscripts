@@ -43,7 +43,7 @@
                 xhr: jQueryXhrOverride,
                 success: function(data) {
 
-                    var domResult = $('<span/>').html(data);
+                    var domResult = $(data);
                     var numAnno = domResult.find('li b').filter((i,e) => e.innerText.indexOf('Annotation') > -1).length;
                     var numSusp = domResult.find('li b').filter((i,e) => e.innerText.indexOf('Suspension') > -1).length;
                     if(numAnno + numSusp === 0) return;
