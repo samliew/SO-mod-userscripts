@@ -13,6 +13,10 @@
 
         $('.post-user-info, .user-details').find('a[href^="/users/"]').each(function() {
 
+            // Ignore mods
+            var modFlair = $(this).next('.mod-flair');
+            if(modFlair.length) return;
+
             // Add Votes and IP-xref links after the user link
             var uid = this.href.match(/\d+/);
             $('<div class="mod-userlinks">[ <a href="https://stackoverflow.com/users/account-info/'+uid+'" target="_blank">mod</a> | <a href="https://stackoverflow.com/admin/show-user-votes/'+uid+'" target="_blank">votes</a> | <a href="https://stackoverflow.com/admin/xref-user-ips/'+uid+'" target="_blank">xref</a> ]</div>')
