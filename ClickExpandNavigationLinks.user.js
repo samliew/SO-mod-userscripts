@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Click expand navigation links
-// @description  On pagination dots click, adds all in-between page links
+// @name         Hover expand navigation links
+// @description  On pagination dots mouseover, adds all in-between page links
 // @match        https://stackoverflow.com/*
 // @match        https://meta.stackoverflow.com/*
 // @match        https://*.stackexchange.com/*
@@ -12,7 +12,7 @@
 
     function doPageload() {
 
-        $('.page-numbers.dots').click(function() {
+        $('.page-numbers.dots').on('click mouseover', null, function() {
 
             var prevNum = +($(this).prev().text());
             var nextNum = +($(this).next().text());
