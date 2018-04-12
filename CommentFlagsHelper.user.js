@@ -45,15 +45,17 @@
         // Change "dismiss" link to "decline"
         $('.cancel-comment-flag').text('decline');
 
-        // Start from bottom link
-        $('<button>Review from bottom</button>')
-            .click(function() {
-                reviewFromBottom = true;
-                $(this).remove();
-                $('.flagged-posts.moderator').css('margin-top', '600px');
-                window.scrollTo(0,999999);
-            })
-            .prependTo('.flag-container');
+        // Start from bottom link (only when more than 5 flags present on page
+        if($('.messageDivider').length > 5) {
+            $('<button>Review from bottom</button>')
+                .click(function() {
+                    reviewFromBottom = true;
+                    $(this).remove();
+                    $('.flagged-posts.moderator').css('margin-top', '600px');
+                    window.scrollTo(0,999999);
+                })
+                .prependTo('.flag-container');
+        }
 
         // On any action, hide post immediately
         $('.delete-comment, .cancel-comment-flag').click(function() {
