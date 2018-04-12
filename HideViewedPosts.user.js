@@ -5,6 +5,7 @@
 // @match        https://meta.stackoverflow.com/admin/dashboard*
 // @match        https://*.stackexchange.com/admin/dashboard?flag*=comment*
 // @author       @samliew
+// @version      1.0
 // ==/UserScript==
 
 (function() {
