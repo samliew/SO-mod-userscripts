@@ -6,7 +6,7 @@
 // @match        https://*.stackexchange.com/*
 // @exclude      https://stackoverflow.com/c/*
 // @author       @samliew
-// @version      1.2.1
+// @version      1.2.2
 // ==/UserScript==
 
 (function() {
@@ -16,7 +16,7 @@
         if(location.pathname.indexOf('/users/message/') === 0 || location.pathname.indexOf('/admin/cm-message/') === 0) {
             return $('.msg-moderator:first a[href^="/users/"]').last().attr('href').match(/\d+/)[0];
         }
-        if(/\/(users?|-user-|)\//.test(location.href)) {
+        if(/\/(users?|-user-)\//.test(location.href)) {
             return location.href.match(/\d+/);
         }
         return null;
