@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Mod User Quicklinks Everywhere
-// @description  Adds user moderation links to all pages of user profile, Adds quicklinks to user infobox in posts
+// @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages, Adds quicklinks to user infobox in posts
 // @match        https://stackoverflow.com/*
 // @match        https://meta.stackoverflow.com/*
 // @match        https://*.stackexchange.com/*
