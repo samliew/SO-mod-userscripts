@@ -1,10 +1,15 @@
 // ==UserScript==
 // @name         Serial Voting Flags Helper
-// @description  Adds links to user Mod Dashboard, Votes, IP-xref links next to username link
+// @description  Adds links to user's Mod Dashboard, Votes, IP-xref below user infobox in posts
 // @match        https://stackoverflow.com/*
 // @match        https://*.stackexchange.com/*
 // @author       @samliew
 // ==/UserScript==
+
+/* 
+    This script is now replaced with ModUserQuicklinksEverywhere and may not be maintained!
+    https://github.com/samliew/SO-mod-userscripts/blob/master/ModUserQuicklinksEverywhere.user.js
+*/
 
 (function() {
     'use strict';
