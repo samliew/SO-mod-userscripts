@@ -4,6 +4,7 @@
 // @match        https://stackoverflow.com/*
 // @match        https://meta.stackoverflow.com/*
 // @match        https://*.stackexchange.com/*
+// @exclude      https://stackoverflow.com/c/*
 // @author       @samliew
 // ==/UserScript==
 
