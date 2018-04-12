@@ -13,6 +13,8 @@
 (function() {
     'use strict';
 
+    var reviewFromBottom = false;
+
     function doPageload() {
 
         // Special characters must be escaped with \\
@@ -46,11 +48,17 @@
         // Start from bottom link
         $('<button>Review from bottom</button>')
             .click(function() {
+                reviewFromBottom = true;
                 $(this).remove();
                 $('.flagged-posts.moderator').css('margin-top', '600px');
                 window.scrollTo(0,999999);
             })
             .prependTo('.flag-container');
+
+        // On any action, hide post immediately
+        $('.delete-comment, .cancel-comment-flag').click(function() {
+            $(this).parents('.flagged-post-row').hide();
+        });
     }
 
     function listenToPageUpdates() {
@@ -68,6 +76,11 @@
                     .find('.comment-user').filter((i,e) => e.href === this.href)
                     .closest('.comment').children().css('background', '#ffc');
             });
+
+            // Continue reviewing from bottom of page
+            if(reviewFromBottom) {
+                window.scrollTo(0,999999);
+            }
         });
     }
 
