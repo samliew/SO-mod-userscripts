@@ -6,6 +6,7 @@
 // @match        https://*.stackexchange.com/*
 // @exclude      https://stackoverflow.com/c/*
 // @author       @samliew
+// @version      1.0
 // ==/UserScript==
 
 (function() {
@@ -79,13 +80,29 @@ body > .mod-links {
     position: fixed;
     z-index: 10001;
     top: 50px;
-    left: -1px;
+    right: 100%;
     min-width: 125px;
     max-width: 190px;
     width: calc((100vw - 1100px) / 2);
     padding: 10px 5px 0;
     border: 1px solid #ccc;
     background: white;
+}
+body > .mod-links:after {
+    content: 'user';
+    position: absolute;
+    left: 100%;
+    top: 5px;
+    width: 40px;
+    height: 30px;
+    padding: 5px 8px;
+    background: white;
+    border: 1px solid #ccc;
+    border-left: none;
+}
+body > .mod-links:hover {
+    left: -1px;
+    right: initial;
 }
 body > .mod-links .details {
     margin-bottom: 15px;
