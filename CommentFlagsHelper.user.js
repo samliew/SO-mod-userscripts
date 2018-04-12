@@ -92,7 +92,8 @@
 <style>
 #footer,
 .t-flag,
-t-flag ~ .module,
+.t-flag ~ .module,
+.module p.more-info,
 #mod-history + div:not([class]) {
     display: none;
 }
