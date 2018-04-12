@@ -17,6 +17,9 @@
             var modFlair = $(this).next('.mod-flair');
             if(modFlair.length) return;
 
+            // Ignore users who has quicklinks added to their profile already
+            if($(this).find('.mod-userlinks').length !== 0) return;
+
             // Add Votes and IP-xref links after the user link
             var uid = this.href.match(/\d+/);
             $('<div class="mod-userlinks">[ <a href="/users/account-info/'+uid+'" target="_blank">mod</a> | <a href="/admin/show-user-votes/'+uid+'" target="_blank">votes</a> | <a href="/admin/xref-user-ips/'+uid+'" target="_blank">xref</a> ]</div>')
