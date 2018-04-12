@@ -4,6 +4,7 @@
 // @match        https://chat.stackoverflow.com/rooms/info/*
 // @match        https://chat.stackexchange.com/rooms/info/*
 // @author       @samliew
+// @version      1.0
 // ==/UserScript==
 
 (function() {
