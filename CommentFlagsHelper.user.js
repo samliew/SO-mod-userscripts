@@ -63,10 +63,10 @@
             var $post = $(this).parents('.flagged-post-row');
 
             // Remove current comment from DOM
-            $(this).parents('tr.message-divider').next('.comment').addBack().remove();
+            $(this).parents('tr.message-divider').next('tr.comment').addBack().remove();
 
             // Remove post immediately if no comments remaining
-            if($post.find('.comment').length === 0) $post.remove();
+            if($post.find('.js-flagged-comments tr.comment').length === 0) $post.remove();
         });
     }
 
