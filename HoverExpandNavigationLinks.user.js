@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Hover expand navigation links
-// @description  On pagination dots mouseover, adds all in-between page links
+// @name         Hover Expand Navigation Links
+// @description  On pagination dots "..." mouseover, adds all in-between page links
 // @match        https://stackoverflow.com/*
 // @match        https://meta.stackoverflow.com/*
 // @match        https://*.stackexchange.com/*
