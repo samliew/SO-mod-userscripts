@@ -6,7 +6,7 @@
 // @match        https://*.stackexchange.com/*
 // @exclude      https://stackoverflow.com/c/*
 // @author       @samliew
-// @version      1.2.2
+// @version      1.2.3
 // ==/UserScript==
 
 (function() {
@@ -125,7 +125,7 @@
     margin-bottom: 10px;
 }
 #usersidebar .details > div:nth-child(-n + 2),
-#usersidebar .details > div:nth-child(n+3):nth-child(-n+4),
+#usersidebar .details > div:nth-child(n+7):nth-child(-n+8),
 #usersidebar .details > div:nth-child(n + 17) {
     display: none;
 }
