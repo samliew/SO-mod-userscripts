@@ -13,47 +13,131 @@
 (function() {
     'use strict';
 
-    // Special characters must be escaped with \\
-    var rudeKeywords = [
-        'fuck', '\\barse', 'cunt', 'dick', '\\bcock', 'pussy', '\\bhell', 'stupid', 'idiot', '!!+', '\\?\\?+',
-        'grow\\s?up', 'shame', 'wtf', 'garbage', 'trash', 'spam', 'damn', 'stop', 'horrible', 'inability', 'bother',
-        'nonsense', 'never\\s?work', 'illogical', 'fraud', 'crap', 'report(ed)?', 'get\\s?lost', 'go\\s?away',
-        'useless', 'delete[\\w\\s]+(answer|question|comment)', 'move on', 'learn',
-    ];
+    function doPageload() {
 
-    // Special characters must be escaped with \\
-    var chattyKeywords = [
-        'thanks?( you)?', 'thx', 'welcome', 'up-?voted?', 'updated', 'edited', 'added', '(in)?correct(ed)?', 'done', 'worked', 'works', 'glad',
-        'appreciated?', 'my email', 'email me', 'contact', 'good', 'great', 'sorry', '\\+1', 'love', 'wow', 'pointless', 'no\\s?(body|one)',
-        'homework', 'no\\s?idea', 'your\\s?mind', 'try\\s?it', 'typo', 'wrong', 'unclear', 'regret', 'we\\b', 'every\\s?(body|one)',
-        'exactly', 'check', 'lol', '\\bha(ha)+', 'congrats?', 'nice',
-    ];
+        // Special characters must be escaped with \\
+        var rudeKeywords = [
+            'fuck', '\\barse', 'cunt', 'dick', '\\bcock', 'pussy', '\\bhell', 'stupid', 'idiot', '!!+', '\\?\\?+',
+            'grow\\s?up', 'shame', 'wtf', 'garbage', 'trash', 'spam', 'damn', 'stop', 'horrible', 'inability', 'bother',
+            'nonsense', 'never\\s?work', 'illogical', 'fraud', 'crap', 'reported', 'get\\s?lost', 'go\\s?away',
+            'useless', 'delete[\\w\\s]+(answer|question|comment)', 'move on', 'learn',
+        ];
 
-    $('.comment-summary, tr.deleted-row > td > span').each(function() {
+        // Special characters must be escaped with \\
+        var chattyKeywords = [
+            'thanks?', 'welcome', 'up-?voted?', 'updated', 'edited', 'added', '(in)?correct(ed)?', 'done', 'worked', 'works', 'glad',
+            'appreciated?', 'my email', 'email me', 'contact', 'good', 'great', 'sorry', '\\+1', 'love', 'wow', 'pointless', 'no\\s?(body|one)',
+            'homework', 'no\\s?idea', 'your\\s?mind', 'try\\s?it', 'typo', 'wrong', 'unclear', 'regret', 'we\\b', 'every\\s?(body|one)',
+            'exactly', 'check', 'lol', '\\bha(ha)+',
+        ];
 
-        // Highlight common chatty keywords
-        this.innerHTML = this.innerHTML.replace(new RegExp('(' + chattyKeywords.join('|') + ')', 'gi'), '<b style="color:coral">$1</b>');
+        $('.comment-summary, tr.deleted-row > td > span').each(function() {
 
-        // Highlight common rude keywords
-        this.innerHTML = this.innerHTML.replace(new RegExp('(' + rudeKeywords.join('|') + ')', 'gi'), '<b style="color:red">$1</b>');
-    });
+            // Highlight common chatty keywords
+            this.innerHTML = this.innerHTML.replace(new RegExp('(' + chattyKeywords.join('|') + ')', 'gi'), '<b style="color:coral">$1</b>');
 
-    // Change "dismiss" link to "decline"
-    $('.cancel-comment-flag').text('decline');
-
-    // On any page update
-    $(document).ajaxComplete(function() {
-
-        // Always expand comments if post is expanded
-        $('.js-show-link.comments-link').trigger('click');
-
-        // Highlight flagged user comments in expanded posts
-        var $user = $('.js-flagged-comments .comment-link + a');
-        $user.each(function() {
-            $(this).parents('.messageDivider')
-                .find('.comment-user').filter((i,e) => e.href === this.href)
-                .closest('.comment').children().css('background', '#ffc');
+            // Highlight common rude keywords
+            this.innerHTML = this.innerHTML.replace(new RegExp('(' + rudeKeywords.join('|') + ')', 'gi'), '<b style="color:red">$1</b>');
         });
-    });
+
+        // Change "dismiss" link to "decline"
+        $('.cancel-comment-flag').text('decline');
+
+        // Start from bottom link
+        $('<button>Review from bottom</button>')
+            .click(function() {
+                $(this).remove();
+                $('.flagged-posts.moderator').css('margin-top', '600px');
+                window.scrollTo(0,999999);
+            })
+            .prependTo('.flag-container');
+    }
+
+    function listenToPageUpdates() {
+
+        // On any page update
+        $(document).ajaxComplete(function() {
+
+            // Always expand comments if post is expanded
+            $('.js-show-link.comments-link').trigger('click');
+
+            // Highlight flagged user comments in expanded posts
+            var $user = $('.js-flagged-comments .comment-link + a');
+            $user.each(function() {
+                $(this).parents('.messageDivider')
+                    .find('.comment-user').filter((i,e) => e.href === this.href)
+                    .closest('.comment').children().css('background', '#ffc');
+            });
+        });
+    }
+
+    function appendStyles() {
+
+        var styles = `
+<style>
+#footer,
+.t-flag,
+t-flag ~ .module,
+#mod-history + div:not([class]) {
+    display: none;
+}
+.flag-container {
+    position: relative;
+}
+#mod-history {
+    position: absolute;
+    top: 0;
+    max-height: 150px;
+    overflow-y: auto;
+    background: white;
+    z-index: 1;
+}
+.flagged-posts.moderator {
+    margin-top: 150px;
+}
+.expander-arrow-small-hide {
+    transform: scale3d(2,2,1);
+    margin-right: 10px;
+}
+tr.message-divider>td:last-child {
+    position: relative;
+    padding-right: 140px;
+}
+tr.comment>td {
+    height: 48px;
+}
+.revision-comment {
+    color: #663;
+    font-style: italic;
+}
+.flag-issue.comment {
+    float: none !important;
+    position: absolute;
+    display: inline-block;
+    top: 0;
+    right: 0;
+    padding: 5px 0;
+    font-size: 0;
+}
+.delete-comment,
+.cancel-comment-flag {
+    margin-left: 20px;
+    padding: 5px 8px;
+    font-size: 1rem;
+    background: #eee;
+}
+.cancel-comment-flag:hover {
+    color: white;
+    background: red;
+}
+</style>
+`;
+        $('body').append(styles);
+    }
+
+    // On page load
+    appendStyles();
+    doPageload();
+    listenToPageUpdates();
 
 })();
