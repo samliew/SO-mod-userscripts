@@ -6,7 +6,7 @@
 // @match        https://*.stackexchange.com/*
 // @exclude      https://stackoverflow.com/c/*
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 // ==/UserScript==
 
 (function() {
@@ -30,9 +30,11 @@
                 var username = $(data).find('h1').first().get(0).childNodes[0].nodeValue;
 
                 // Modify quicklinks and user details, then append to page
-                var $quicklinks = $dataHtml.find('div.mod-links');
+                var $quicklinks = $dataHtml.find('div.mod-links').attr('id', 'usersidebar');
                 $quicklinks.find('.mod-actions').last().remove();
-                var $infoHeader = $quicklinks.find('.title-section').last().text(username).prependTo($quicklinks);
+                var $infoHeader = $quicklinks.find('.title-section').click(function() {
+                    $(this).nextAll('div,ul').first().slideToggle(150);
+                }).last().text(username).prependTo($quicklinks);
                 var $info = $dataHtml.find('.mod-section .details').insertAfter($infoHeader);
                 $info.children('.row').each(function() {
                     $(this).children().first().unwrap();
@@ -76,7 +78,7 @@
 
         var styles = `
 <style>
-body > .mod-links {
+#usersidebar {
     position: fixed;
     z-index: 10001;
     top: 50px;
@@ -84,11 +86,13 @@ body > .mod-links {
     min-width: 125px;
     max-width: 190px;
     width: calc((100vw - 1100px) / 2);
+    max-height: calc(100vh - 50px);
     padding: 10px 5px 0;
     border: 1px solid #ccc;
     background: white;
+    opacity: 0.7;
 }
-body > .mod-links:after {
+#usersidebar:after {
     content: 'user';
     position: absolute;
     left: 100%;
@@ -100,24 +104,39 @@ body > .mod-links:after {
     border: 1px solid #ccc;
     border-left: none;
 }
-body > .mod-links:hover {
+#usersidebar:hover {
     left: -1px;
     right: initial;
+    opacity: 1;
 }
-body > .mod-links .details {
+#usersidebar .title-section {
+    cursor: pointer;
+}
+#usersidebar .details {
     margin-bottom: 15px;
 }
-body > .mod-links .details .info-header {
+#usersidebar .details .info-header {
     font-size: 0.95em;
     font-style: italic;
     color: #777;
 }
-body > .mod-links .details .info-value {
+#usersidebar .details .info-value {
     margin-bottom: 10px;
 }
+#usersidebar .details > div:nth-child(-n + 2),
+#usersidebar .details > div:nth-child(n+3):nth-child(-n+4),
+#usersidebar .details > div:nth-child(n + 17) {
+    display: none;
+}
 .mod-userlinks {
-    font-size: 0.85em;
-    text-transform: uppercase;
+    display: none;
+    font-size: 1em;
+    transform: scale(0.9, 0.9);
+    transform-origin: left center;
+}
+.post-user-info:hover .mod-userlinks,
+.user-info:hover .mod-userlinks {
+    display: block;
 }
 </style>
 `;
