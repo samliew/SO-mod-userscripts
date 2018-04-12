@@ -6,7 +6,7 @@
 // @match        https://*.stackexchange.com/*
 // @exclude      https://stackoverflow.com/c/*
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 // ==/UserScript==
 
 (function() {
@@ -86,9 +86,7 @@
     z-index: 10001;
     top: 50px;
     right: 100%;
-    min-width: 125px;
-    max-width: 190px;
-    width: calc((100vw - 1100px) / 2);
+    width: 190px;
     max-height: calc(100vh - 50px);
     padding: 10px 5px 0;
     border: 1px solid #ccc;
