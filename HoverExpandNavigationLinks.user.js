@@ -5,6 +5,7 @@
 // @match        https://meta.stackoverflow.com/*
 // @match        https://*.stackexchange.com/*
 // @author       @samliew
+// @version      1.0
 // ==/UserScript==
 
 (function() {
