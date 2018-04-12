@@ -8,6 +8,7 @@
 // @match        https://*.stackexchange.com/admin/dashboard?flag*=comment*
 // @match        https://*.stackexchange.com/admin/users/*/post-comments*
 // @author       @samliew
+// @version      1.0
 // ==/UserScript==
 
 (function() {
