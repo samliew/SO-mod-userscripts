@@ -45,8 +45,8 @@
         // Change "dismiss" link to "decline"
         $('.cancel-comment-flag').text('decline');
 
-        // Start from bottom link (only when more than 5 flags present on page
-        if($('.messageDivider').length > 5) {
+        // Start from bottom link (only when more than 3 posts present on page
+        if($('.flagged-post-row').length > 3) {
             $('<button>Review from bottom</button>')
                 .click(function() {
                     reviewFromBottom = true;
@@ -57,9 +57,16 @@
                 .prependTo('.flag-container');
         }
 
-        // On any action, hide post immediately
+        // On delete/dismiss comment action
         $('.delete-comment, .cancel-comment-flag').click(function() {
-            $(this).parents('.flagged-post-row').hide();
+
+            var $post = $(this).parents('.flagged-post-row');
+
+            // Remove current comment from DOM
+            $(this).parents('tr.message-divider').next('.comment').addBack().remove();
+
+            // Remove post immediately if no comments remaining
+            if($post.find('.comment').length === 0) $post.remove();
         });
     }
 
@@ -79,7 +86,7 @@
                     .closest('.comment').children().css('background', '#ffc');
             });
 
-            // Continue reviewing from bottom of page
+            // Continue reviewing from bottom of page if previously selected
             if(reviewFromBottom) {
                 window.scrollTo(0,999999);
             }
