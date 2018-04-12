@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Chat room general annotations
+// @name         Chat Room Info Annotations
 // @description  Display users' annotations in chat room info (first 10 users only)
 // @match        https://chat.stackoverflow.com/rooms/info/*
 // @match        https://chat.stackexchange.com/rooms/info/*
