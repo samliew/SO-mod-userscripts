@@ -1,12 +1,11 @@
 // ==UserScript==
 // @name         Mod User Quicklinks Everywhere
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages, Adds quicklinks to user infobox in posts
-// @match        https://stackoverflow.com/*
-// @match        https://meta.stackoverflow.com/*
-// @match        https://*.stackexchange.com/*
-// @exclude      https://stackoverflow.com/c/*
+// @match        *stackoverflow.com/*
+// @match        *.stackexchange.com/*
+// @exclude      *stackoverflow.com/c/*
 // @author       @samliew
-// @version      1.2.3
+// @version      1.2.4
 // ==/UserScript==
 
 (function() {
@@ -16,7 +15,7 @@
         if(location.pathname.indexOf('/users/message/') === 0 || location.pathname.indexOf('/admin/cm-message/') === 0) {
             return $('.msg-moderator:first a[href^="/users/"]').last().attr('href').match(/\d+/)[0];
         }
-        if(/\/(users?|-user-)\//.test(location.href)) {
+        if(/(\/users?\/|-user-)/.test(location.href)) {
             return location.href.match(/\d+/);
         }
         return null;
