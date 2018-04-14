@@ -5,19 +5,17 @@
 // @author       @samliew
 // @version      1.2.5
 //
-// @include      /^https:\/\/(.*\.)?stackoverflow\.com/.*$/
-// @include      /^https:\/\/(.*\.)?serverfault\.com/.*$/
-// @include      /^https:\/\/(.*\.)?superuser\.com/.*$/
-// @include      /^https:\/\/(.*\.)?stackexchange\.com/.*$/
-// @include      /^https:\/\/(.*\.)?askubuntu\.com/.*$/
-// @include      /^https:\/\/(.*\.)?mathoverflow\.net/.*$/
-// @include      /^https:\/\/discuss\.area51\.stackexchange\.com/.*$/
-// @include      /^https:\/\/stackapps\.com/.*$/
+// @include      https://stackoverflow.com/*
+// @include      https://serverfault.com/*
+// @include      https://superuser.com/*
+// @include      https://askubuntu.com/*
+// @include      https://mathoverflow.net/*
+// @include      https://stackexchange.com/*
 //
-// @exclude      *://chat.stackexchange.com/*
-// @exclude      *://chat.stackoverflow.com/*
-// @exclude      *://chat.meta.stackexchange.com/*
-// @exclude      *://stackoverflow.com/c/*
+// @exclude      https://chat.stackexchange.com/*
+// @exclude      https://chat.stackoverflow.com/*
+// @exclude      https://chat.meta.stackexchange.com/*
+// @exclude      https://stackoverflow.com/c/*
 // ==/UserScript==
 
 (function() {
