@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         Chat Room Info Annotations
-// @description  Display users' annotations in chat room info (first 10 users only)
-// @match        https://chat.stackoverflow.com/rooms/info/*
-// @match        https://chat.stackexchange.com/rooms/info/*
+// @description  Display users' annotations in chat room info
+// @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
+//
+// @include      https://chat.stackoverflow.com/rooms/info/*
+// @include      https://chat.stackexchange.com/rooms/info/*
 // ==/UserScript==
 
 (function() {
@@ -23,8 +25,17 @@
 
     function doPageload() {
 
-        $('#room-usercards-container').find('.usercard').slice(0, 10).each(function() {
+        var $users = $('#room-usercards-container').find('.usercard');
 
+        // Load 10 users at a time
+        for(var i = 0; i < Math.ceil($users.length / 10); i++) {
+            setTimeout(u => getUsersInfo(u), 1500 * i, $users.slice(i * 10, i * 10 + 10));
+        }
+    }
+
+    function getUsersInfo($users) {
+
+        $users.each(function() {
             // Ignore mods
             var modFlair = $(this).find('.moderator');
             if(modFlair.length) return;
@@ -49,7 +60,6 @@
                     }
                 }
             });
-
         });
     }
 
