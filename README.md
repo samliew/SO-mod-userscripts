@@ -24,7 +24,7 @@ Forks, bug reports, and PRs welcome!
 
 ## [Chat Room Info Annotations](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatRoomInfoAnnotations.user.js) ♦
 
-- Display users' annotation count in chat room general info tab (first 10 users only)
+- Display users' annotation count in chat room general info tab
 
 
 ## [Hide Viewed Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/HideViewedPosts.user.js) ♦
