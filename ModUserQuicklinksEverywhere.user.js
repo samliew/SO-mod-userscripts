@@ -2,23 +2,22 @@
 // @name         Mod User Quicklinks Everywhere
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages, Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
-
-// @include /^https:\/\/(.*\.)?stackoverflow\.com/.*$/
-// @include /^https:\/\/(.*\.)?serverfault\.com/.*$/
-// @include /^https:\/\/(.*\.)?superuser\.com/.*$/
-// @include /^https:\/\/(.*\.)?stackexchange\.com/.*$/
-// @include /^https:\/\/(.*\.)?askubuntu\.com/.*$/
-// @include /^https:\/\/(.*\.)?mathoverflow\.net/.*$/
-// @include /^https:\/\/discuss\.area51\.stackexchange\.com/.*$/
-// @include /^https:\/\/stackapps\.com/.*$/
-
-// @exclude *://chat.stackexchange.com/*
-// @exclude *://chat.stackoverflow.com/*
-// @exclude *://chat.meta.stackexchange.com/*
-// @exclude *://stackoverflow.com/c/*
-
 // @author       @samliew
 // @version      1.2.5
+//
+// @include      /^https:\/\/(.*\.)?stackoverflow\.com/.*$/
+// @include      /^https:\/\/(.*\.)?serverfault\.com/.*$/
+// @include      /^https:\/\/(.*\.)?superuser\.com/.*$/
+// @include      /^https:\/\/(.*\.)?stackexchange\.com/.*$/
+// @include      /^https:\/\/(.*\.)?askubuntu\.com/.*$/
+// @include      /^https:\/\/(.*\.)?mathoverflow\.net/.*$/
+// @include      /^https:\/\/discuss\.area51\.stackexchange\.com/.*$/
+// @include      /^https:\/\/stackapps\.com/.*$/
+//
+// @exclude      *://chat.stackexchange.com/*
+// @exclude      *://chat.stackoverflow.com/*
+// @exclude      *://chat.meta.stackexchange.com/*
+// @exclude      *://stackoverflow.com/c/*
 // ==/UserScript==
 
 (function() {
