@@ -1,11 +1,13 @@
 // ==UserScript==
 // @name         Hide viewed posts
 // @description  Avoid posts already seen and possibly handled by another moderator
-// @match        https://stackoverflow.com/admin/dashboard*
-// @match        https://meta.stackoverflow.com/admin/dashboard*
-// @match        https://*.stackexchange.com/admin/dashboard?flag*=comment*
+// @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
+//
+// @include      https://stackoverflow.com/admin/dashboard*
+// @include      https://meta.stackoverflow.com/admin/dashboard*
+// @include      https://*.stackexchange.com/admin/dashboard?flag*=comment*
 // ==/UserScript==
 
 (function() {
