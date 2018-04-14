@@ -3,11 +3,21 @@
 // @description  Avoid posts already seen and possibly handled by another moderator
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://stackoverflow.com/admin/dashboard*
+// @include      https://serverfault.com/admin/dashboard*
+// @include      https://superuser.com/admin/dashboard*
+// @include      https://askubuntu.com/admin/dashboard*
+// @include      https://mathoverflow.net/admin/dashboard*
+//
 // @include      https://meta.stackoverflow.com/admin/dashboard*
-// @include      https://*.stackexchange.com/admin/dashboard?flag*=comment*
+// @include      https://meta.serverfault.com/admin/dashboard*
+// @include      https://meta.superuser.com/admin/dashboard*
+// @include      https://meta.askubuntu.com/admin/dashboard*
+// @include      https://meta.mathoverflow.net/admin/dashboard*
+//
+// @include      /^https?://.*\.stackexchange\.com/admin/dashboard.*/
 // ==/UserScript==
 
 (function() {
