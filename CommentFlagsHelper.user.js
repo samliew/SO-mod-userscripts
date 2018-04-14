@@ -1,14 +1,37 @@
 // ==UserScript==
 // @name         Comment Flags Helper
 // @description  Highlights flagged user comments in expanded posts, Always expand comments if post is expanded, Highlight common chatty and rude keywords
-// @match        https://*stackoverflow.com/admin/dashboard?flag*=comment*
-// @match        https://stackoverflow.com/admin/users/*/post-comments*
-// @match        https://meta.stackoverflow.com/admin/dashboard?flag*=comment*
-// @match        https://meta.stackoverflow.com/admin/users/*/post-comments*
-// @match        https://*.stackexchange.com/admin/dashboard?flag*=comment*
-// @match        https://*.stackexchange.com/admin/users/*/post-comments*
+// @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
 // @version      1.0
+//
+// @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
+// @include      https://serverfault.com/admin/dashboard?flag*=comment*
+// @include      https://superuser.com/admin/dashboard?flag*=comment*
+// @include      https://askubuntu.com/admin/dashboard?flag*=comment*
+// @include      https://mathoverflow.net/admin/dashboard?flag*=comment*
+// @include      https://stackexchange.com/admin/dashboard?flag*=comment*
+//
+// @include      https://meta.stackoverflow.com/admin/dashboard?flag*=comment*
+// @include      https://meta.serverfault.com/admin/dashboard?flag*=comment*
+// @include      https://meta.superuser.com/admin/dashboard?flag*=comment*
+// @include      https://meta.askubuntu.com/admin/dashboard?flag*=comment*
+// @include      https://meta.mathoverflow.net/admin/dashboard?flag*=comment*
+// @include      https://meta.stackexchange.com/admin/dashboard?flag*=comment*
+//
+// @include      https://stackoverflow.com/admin/users/*/post-comments*
+// @include      https://serverfault.com/admin/users/*/post-comments*
+// @include      https://superuser.com/admin/users/*/post-comments*
+// @include      https://askubuntu.com/admin/users/*/post-comments*
+// @include      https://mathoverflow.net/admin/users/*/post-comments*
+// @include      https://stackexchange.com/admin/users/*/post-comments*
+//
+// @include      https://meta.stackoverflow.com/admin/users/*/post-comments*
+// @include      https://meta.serverfault.com/admin/users/*/post-comments*
+// @include      https://meta.superuser.com/admin/users/*/post-comments*
+// @include      https://meta.askubuntu.com/admin/users/*/post-comments*
+// @include      https://meta.mathoverflow.net/admin/users/*/post-comments*
+// @include      https://meta.stackexchange.com/admin/users/*/post-comments*
 // ==/UserScript==
 
 (function() {
