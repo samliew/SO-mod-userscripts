@@ -3,7 +3,7 @@
 // @description  Avoid posts already seen and possibly handled by another moderator
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      https://stackoverflow.com/admin/dashboard*
 // @include      https://serverfault.com/admin/dashboard*
@@ -17,7 +17,7 @@
 // @include      https://meta.askubuntu.com/admin/dashboard*
 // @include      https://meta.mathoverflow.net/admin/dashboard*
 //
-// @include      /^https?://.*\.stackexchange\.com/admin/dashboard.*/
+// @include      /^https?:\/\/.*\.stackexchange\.com/admin/dashboard.*/
 // ==/UserScript==
 
 (function() {
