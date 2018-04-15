@@ -37,3 +37,8 @@ Forks, bug reports, and PRs welcome!
 - On pagination dots "```...```" mouseover, adds all in-between page links
 
 
+## [Show Flags On Deleted Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/ShowFlagsOnDeletedPosts.user.js)
+
+- Hide normal flags and only show those that are on deleted posts
+
+
