@@ -32,13 +32,13 @@ Forks, bug reports, and PRs welcome!
 - Avoid posts already seen and possibly handled by another moderator
 
 
+## [Show Flags On Deleted Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/ShowFlagsOnDeletedPosts.user.js) ♦
+
+- Hide normal flags and only show those that are on deleted posts
+
+
 ## [Hover Expand Navigation Links](https://github.com/samliew/SO-mod-userscripts/blob/master/HoverExpandNavigationLinks.user.js)
 
 - On pagination dots "```...```" mouseover, adds all in-between page links
-
-
-## [Show Flags On Deleted Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/ShowFlagsOnDeletedPosts.user.js)
-
-- Hide normal flags and only show those that are on deleted posts
 
 
