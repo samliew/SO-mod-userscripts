@@ -27,6 +27,12 @@ Forks, bug reports, and PRs welcome!
 - Display users' annotation count in chat room general info tab
 
 
+## [Mod Popup Dialog Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/ModPopupDialogImprovements.user.js) ♦
+
+- Delete moved comments is checked by default
+- Prevent Mod actions in Flag Queue redirecting to post - instead opens in a new tab
+
+
 ## [Hide Viewed Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/HideViewedPosts.user.js) ♦
 
 - Avoid posts already seen and possibly handled by another moderator
