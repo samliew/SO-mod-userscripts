@@ -5,20 +5,21 @@
 // @author       @samliew
 // @version      1.0
 //
-// @match        https://*stackoverflow.com/admin/dashboard*
-// @match        https://meta.stackoverflow.com/admin/dashboard*
-// @match        https://*.stackexchange.com/admin/dashboard*
+// @match        https://*stackoverflow.com/*
+// @match        https://meta.stackoverflow.com/*
+// @match        https://*.stackexchange.com/*
 // ==/UserScript==
 
 (function() {
     'use strict';
 
     function listenToPageUpdates() {
-
         $(document).ajaxComplete(function() {
-
             var $popupForm = $('.popup._hidden-descriptions form');
             if($popupForm) {
+
+                // Move comments to chat is selected by default
+                $('#tab-actions input[value="move-comments-to-chat"]').prop('checked', true).triggerHandler('click');
 
                 // Delete moved comments is checked by default
                 $('#delete-moved-comments').prop('checked', true);
