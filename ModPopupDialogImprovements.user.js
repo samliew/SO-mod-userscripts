@@ -3,7 +3,7 @@
 // @description  Some simple improvements for posts' Mod popup dialog
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @match        https://*stackoverflow.com/*
 // @match        https://meta.stackoverflow.com/*
@@ -23,7 +23,9 @@
                 $('#tab-actions input[value="move-comments-to-chat"]').prop('checked', true).triggerHandler('click');
 
                 // On postlowquality queue, default to convert-to-comment instead
-                $('#tab-actions input[value="convert-to-comment"]').prop('checked', true).triggerHandler('click');
+                if(location.href.indexOf('postlowquality') >= 0) {
+                    $('#tab-actions input[value="convert-to-comment"]').prop('checked', true).triggerHandler('click');
+                }
 
                 // Delete moved comments is checked by default
                 $('#delete-moved-comments').prop('checked', true);
