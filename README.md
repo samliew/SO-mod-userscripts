@@ -12,6 +12,12 @@ Forks, bug reports, and PRs welcome!
 - Features display only on hover
 
 
+## [Mod Popup Dialog Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/ModPopupDialogImprovements.user.js) ♦
+
+- Delete moved comments is checked by default
+- Prevent Mod actions in Flag Queue redirecting to post - instead opens in a new tab
+
+
 ## [Comment Flags Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/CommentFlagsHelper.user.js) ♦
 
 - Highlight common chatty/rude keywords
@@ -22,15 +28,15 @@ Forks, bug reports, and PRs welcome!
 - Some style improvements
 
 
+## [Too Many Comments Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/TooManyCommentsFlagQueueHelper.user.js) ♦
+
+- Displays only the important info (comments) and actions (mod popup)
+- When used together with "Mod Popup Dialog Improvements", mod popup defaults to "Move comments to chat" and "Delete moved comments"
+
+
 ## [Chat Room Info Annotations](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatRoomInfoAnnotations.user.js) ♦
 
 - Display users' annotation count in chat room general info tab
-
-
-## [Mod Popup Dialog Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/ModPopupDialogImprovements.user.js) ♦
-
-- Delete moved comments is checked by default
-- Prevent Mod actions in Flag Queue redirecting to post - instead opens in a new tab
 
 
 ## [Hide Viewed Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/HideViewedPosts.user.js) ♦
