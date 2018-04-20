@@ -3,7 +3,7 @@
 // @description  Displays your sent mod messages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.0
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
