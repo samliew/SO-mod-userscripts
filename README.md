@@ -34,6 +34,12 @@ Forks, bug reports, and PRs welcome!
 - When used together with "Mod Popup Dialog Improvements", mod popup defaults to "Move comments to chat" and "Delete moved comments"
 
 
+## [Personal Mod Message History](https://github.com/samliew/SO-mod-userscripts/blob/master/PersonalModMessageHistory.user.js) ♦
+
+- Displays link to switch to your sent mod messages in the inbox dialog
+![example](https://i.stack.imgur.com/JFz3D.png)
+
+
 ## [Chat Room Info Annotations](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatRoomInfoAnnotations.user.js) ♦
 
 - Display users' annotation count in chat room general info tab
