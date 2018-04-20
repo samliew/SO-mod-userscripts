@@ -5,7 +5,7 @@
 // @author       @samliew
 // @version      1.1
 //
-// @match        */admin/dashboard?flagtype=posttoomanycommentsauto
+// @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
 
 (function() {
