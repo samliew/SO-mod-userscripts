@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Personal Mod Message History
-// @description  Displays your sent mod messages
+// @description  Displays link to switch to your sent mod messages in the inbox dialog
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
 // @version      1.0
