@@ -3,7 +3,7 @@
 // @description  Displays only the important info (comments) and actions (Mod popup)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto
 // ==/UserScript==
@@ -19,13 +19,6 @@
 
         // Display "No further action" for handled posts
         $('.flagged-post-row').not(unhandledPosts).find('.post-options').show().find('input').not('.dismiss-all').hide();
-    }
-
-    function listenToPageUpdates() {
-        $(document).ajaxComplete(function() {
-            // Always expand comments if post is expanded
-            $('.js-show-link.comments-link').trigger('click');
-        });
     }
 
     function appendStyles() {
@@ -50,6 +43,5 @@
     // On page load
     appendStyles();
     doPageLoad();
-    listenToPageUpdates();
 
 })();
