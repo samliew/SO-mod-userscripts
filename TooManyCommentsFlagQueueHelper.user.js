@@ -3,7 +3,7 @@
 // @description  Displays only the important info (comments) and actions (Mod popup)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
