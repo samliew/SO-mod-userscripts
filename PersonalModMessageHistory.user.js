@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Personal Mod Message History
-// @description  Displays link to switch to your sent mod messages in the inbox dialog
+// @description  Displays your sent mod messages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -12,14 +12,9 @@
 // @include      https://mathoverflow.net/*
 // @include      https://stackexchange.com/*
 //
-// @include      https://meta.stackoverflow.com/*
-// @include      https://meta.serverfault.com/*
-// @include      https://meta.superuser.com/*
-// @include      https://meta.askubuntu.com/*
-// @include      https://meta.mathoverflow.net/*
-// @include      https://meta.stackexchange.com/*
-//
 // @include      *.stackexchange.com/*
+//
+// @exclude      *.meta.stackexchange.com/*
 // ==/UserScript==
 
 (function() {
