@@ -5,6 +5,7 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 Forks, bug reports, and PRs welcome!
 
 
+
 ## General userscripts
 
 
@@ -37,7 +38,7 @@ Forks, bug reports, and PRs welcome!
 - Avoid posts already seen and possibly handled by another moderator
 
 
-## [Show Flags On Deleted Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/ShowFlagsOnDeletedPosts.user.js) ♦
+### [Show Flags On Deleted Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/ShowFlagsOnDeletedPosts.user.js) ♦
 
 - Hide normal flags and only show those that are on deleted posts
 
@@ -45,6 +46,7 @@ Forks, bug reports, and PRs welcome!
 ### [Hover Expand Navigation Links](https://github.com/samliew/SO-mod-userscripts/blob/master/HoverExpandNavigationLinks.user.js)
 
 - On pagination dots "```...```" mouseover, adds all in-between page links
+
 
 
 ## Queue-specific userscripts
