@@ -5,6 +5,9 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 Forks, bug reports, and PRs welcome!
 
 
+# General userscripts
+
+
 ## [Mod User Quicklinks Everywhere](https://github.com/samliew/SO-mod-userscripts/blob/master/ModUserQuicklinksEverywhere.user.js) ♦
 
 - Adds user moderation collapsable left-sidebar to user-specific pages: quick links & selection of user details from Mod Dashboard
@@ -16,22 +19,6 @@ Forks, bug reports, and PRs welcome!
 
 - Delete moved comments is checked by default
 - Prevent Mod actions in Flag Queue redirecting to post - instead opens in a new tab
-
-
-## [Comment Flags Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/CommentFlagsHelper.user.js) ♦
-
-- Highlight common chatty/rude keywords
-- Always expand comments if post is expanded
-- Highlights flagged user comments in expanded posts
-- Option to review from the bottom of the page
-- Rename "dismiss" link to "decline" with hover warning color
-- Some style improvements
-
-
-## [Too Many Comments Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/TooManyCommentsFlagQueueHelper.user.js) ♦
-
-- Displays only the important info (comments) and actions (mod popup)
-- When used together with "Mod Popup Dialog Improvements", mod popup defaults to "Move comments to chat" and "Delete moved comments"
 
 
 ## [Personal Mod Message History](https://github.com/samliew/SO-mod-userscripts/blob/master/PersonalModMessageHistory.user.js) ♦
@@ -59,4 +46,27 @@ Forks, bug reports, and PRs welcome!
 
 - On pagination dots "```...```" mouseover, adds all in-between page links
 
+
+# Queue-specific userscripts
+
+
+## [Comment Flags Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/CommentFlagsHelper.user.js) ♦
+
+- Highlight common chatty/rude keywords
+- Always expand comments if post is expanded
+- Highlights flagged user comments in expanded posts
+- Option to review from the bottom of the page
+- Rename "dismiss" link to "decline" with hover warning color
+- Some style improvements
+
+
+## [Not An Answer Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/NotAnAnswerFlagQueueHelper.user.js) ♦
+
+- Sorts NAA posts by poster rep
+
+
+## [Too Many Comments Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/TooManyCommentsFlagQueueHelper.user.js) ♦
+
+- Displays only the important info (comments) and actions (mod popup)
+- When used together with "Mod Popup Dialog Improvements", mod popup defaults to "Move comments to chat" and "Delete moved comments"
 
