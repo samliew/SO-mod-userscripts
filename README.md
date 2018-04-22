@@ -2,7 +2,7 @@
 
 _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 
-Forks, bug reports, and PRs welcome!
+[Bug reports](https://github.com/samliew/SO-mod-userscripts/issues), Forks, and PRs welcome!
 
 
 
