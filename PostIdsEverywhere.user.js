@@ -81,6 +81,7 @@ td, div {
 #answers .post-id,
 #user-tab-questions .post-id,
 #user-tab-answers .post-id,
+#user-tab-activity .post-id,
 *:hover > .post-id {
   display: inline-block;
   opacity: 1;
