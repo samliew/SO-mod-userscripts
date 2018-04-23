@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Hover Expand Navigation Links
-// @description  On pagination dots "..." mouseover, adds all in-between page links
+// @description  On pagination dots "..." mouseover, adds in-between page links (max 30)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -29,6 +29,8 @@
 
             var prevNum = +($(this).prev().text());
             var nextNum = +($(this).next().text());
+            if(nextNum - prevNum > 30) nextNum = prevNum + 30;
+
             for(let i = prevNum + 1; i < nextNum; i++) {
                 $(`<a href="?page=${i}" title="go to page ${i}"> <span class="page-numbers">${i}</span> </a>`).insertBefore(this);
             }
