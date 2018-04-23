@@ -66,12 +66,12 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 
 - Highlight common chatty/rude keywords
 - Some style improvements
+- Rename "dismiss" link to "decline" with hover warning color
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210443.png)
 - Always expand comments if post is expanded, and highlights flagged user comments in expanded posts
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210428.png)
 - Option to review from the bottom of the page
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210423.png)
-- Rename "dismiss" link to "decline" with hover warning color
 
 
 ### [Not An Answer Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/NotAnAnswerFlagQueueHelper.user.js) ♦
