@@ -3,7 +3,7 @@
 // @description  Highlights flagged user comments in expanded posts, Always expand comments if post is expanded, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://serverfault.com/admin/dashboard?flag*=comment*
@@ -150,8 +150,8 @@ tr.message-divider>td:last-child {
     position: relative;
     padding-right: 140px;
 }
-tr.comment>td {
-    height: 48px;
+tr.comment > td {
+    height: 4.8em;
 }
 .revision-comment {
     color: #663;
