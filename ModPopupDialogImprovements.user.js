@@ -3,11 +3,23 @@
 // @description  Some simple improvements for posts' Mod popup dialog
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.4
 //
-// @match        https://*stackoverflow.com/*
+// @match        https://stackoverflow.com/*
+// @match        https://serverfault.com/*
+// @match        https://superuser.com/*
+// @match        https://askubuntu.com/*
+// @match        https://mathoverflow.net/*
+// @match        https://stackexchange.com/*
+//
 // @match        https://meta.stackoverflow.com/*
-// @match        https://*.stackexchange.com/*
+// @match        https://meta.serverfault.com/*
+// @match        https://meta.superuser.com/*
+// @match        https://meta.askubuntu.com/*
+// @match        https://meta.mathoverflow.net/*
+// @match        https://meta.stackexchange.com/*
+//
+// @match        *.stackexchange.com/*
 // ==/UserScript==
 
 (function() {
@@ -37,7 +49,7 @@
 
                 // Submitting popup form hides the post as well
                 $popupForm.on('click', 'input:submit', function() {
-                    $(this).parents('tr.flagged-post-row').hide();
+                    setTimeout(() => $(this).parents('tr.flagged-post-row').hide(), 300);
                 });
             }
         });
