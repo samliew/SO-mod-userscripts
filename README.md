@@ -13,7 +13,7 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 
 - Adds user moderation collapsable left-sidebar to user-specific pages: quick links & selection of user details from Mod Dashboard
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-12_210450.png)
-- Adds user quick links under display name in posts: ```[mod|votes|xref]```
+- Adds user quick links under display name in posts (opens in new tabs)
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-12_210417.png)
 - Features display only on hover
 
