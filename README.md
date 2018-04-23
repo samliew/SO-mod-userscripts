@@ -43,6 +43,11 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 - Hide normal flags and only show those that are on deleted posts
 
 
+### [Post Ids Everywhere](https://github.com/samliew/SO-mod-userscripts/blob/master/PostIdsEverywhere.user.js)
+
+- Inserts post IDs everywhere where there's a post or post link (for copying/easier x-referencing/etc)
+
+
 ### [Hover Expand Navigation Links](https://github.com/samliew/SO-mod-userscripts/blob/master/HoverExpandNavigationLinks.user.js)
 
 - On pagination dots "```...```" mouseover, adds all in-between page links
