@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @match        https://stackoverflow.com/*
 // @match        https://serverfault.com/*
@@ -35,7 +35,7 @@
         $('[data-questionid], [data-answerid]').not('.close-question-link').each((i,el) => $('<span class="post-id">'+(el.dataset.answerid||el.dataset.questionid)+'<i> </i></span>').prependTo(el));
 
         // Remove duplicates if necessary
-        $('.post-id + .post-id').remove();
+        $('.post-id ~ .post-id').remove();
     }
 
     function doPageLoad() {
