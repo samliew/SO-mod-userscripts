@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.3
+// @version      1.2.4
 //
 // @match        https://stackoverflow.com/*
 // @match        https://serverfault.com/*
@@ -54,7 +54,10 @@
 [data-questionid],
 [data-answerid],
 [data-post-id],
-.count-cell + td {
+.count-cell + td,
+.user-tab-content td,
+.user-tab-content h3,
+.summary h3 {
   position: relative;
 }
 .flagged-post-row .answer-link {
@@ -75,7 +78,7 @@
   color: #222;
   background: rgba(255,255,255,0.8);
   border: none;
-  opacity: 0.05;
+  opacity: 0.15;
   z-index: 1;
 }
 .post-id + a {
