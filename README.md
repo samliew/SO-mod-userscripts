@@ -36,6 +36,16 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210431.png)
 
 
+### [User Review Ban Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/UserReviewBanHelper.user.js) ♦
+
+- Display users' prior review bans in review (links to review ban history), ban quicklink
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-24_140417.png)
+- Insert review ban button in user review ban history page
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-24_140443.png)
+- Load ban form for user if user ID passed via hash
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-24_140419.png)
+
+
 ### [Hide Viewed Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/HideViewedPosts.user.js) ♦
 
 - Avoid posts already seen and possibly handled by another moderator
