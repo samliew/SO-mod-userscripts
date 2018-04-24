@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages, Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.3.2
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -75,10 +75,6 @@
             .attr('js-mod-quicklinks', 'true')
             .find('a[href^="/users/"]:first').each(function() {
 
-                // Ignore mods
-                var modFlair = $(this).next('.mod-flair');
-                if(modFlair.length) return;
-
                 // Add Votes and IP-xref links after the user link
                 var uid = this.href.match(/\d+/);
                 $('<div class="mod-userlinks">[ <a href="/users/account-info/'+uid+'" target="_blank">mod</a> | <a href="/admin/show-user-votes/'+uid+'" target="_blank">votes</a> | <a href="/admin/xref-user-ips/'+uid+'" target="_blank">xref</a> ]</div>')
@@ -144,6 +140,7 @@
 .mod-userlinks {
     position: absolute !important;
     display: none;
+    width: 100%;
     font-size: 1em;
     transform: scale(0.9, 0.9);
     transform-origin: left center;
