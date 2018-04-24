@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.4
+// @version      1.2.5
 //
 // @match        https://stackoverflow.com/*
 // @match        https://serverfault.com/*
@@ -57,7 +57,8 @@
 .count-cell + td,
 .user-tab-content td,
 .user-tab-content h3,
-.summary h3 {
+.summary h3,
+.top-posts .post-container {
   position: relative;
 }
 .flagged-post-row .answer-link {
