@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         User Review Ban Helper
-// @description  Display users' prior review bans in review, insert ban quicklinks to ban user from reviews
+// @description  Display users' prior review bans in review, Insert ban quicklinks to ban user from reviews, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -49,8 +49,7 @@
         }
         else {
             $(document).ajaxComplete(function(event, xhr, settings) {
-                if(settings.url.indexOf('/users/history') >= 0) return;
-                getUsersInfo();
+                if(settings.url.indexOf('/review/next-task') >= 0) getUsersInfo();
             });
         }
     }
