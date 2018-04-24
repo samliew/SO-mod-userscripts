@@ -53,7 +53,8 @@
 [class*='link'],
 [data-questionid],
 [data-answerid],
-[data-post-id] {
+[data-post-id],
+.count-cell + td {
   position: relative;
 }
 .flagged-post-row .answer-link {
