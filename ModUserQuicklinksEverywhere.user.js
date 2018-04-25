@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages, Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.2
+// @version      1.4
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -43,18 +43,28 @@
 
                 // Modify quicklinks and user details, then append to page
                 var $quicklinks = $dataHtml.find('div.mod-links').attr('id', 'usersidebar');
-                $quicklinks.find('.mod-actions').last().remove();
+                var $modActions = $quicklinks.find('.mod-actions');
+                // Move contact links
+                $modActions.find('li').slice(-4, -2).appendTo($quicklinks.find('ul:first'));
+                // Remove other actions as they need additional work to get popup working
+                $modActions.last().remove();
+                // Collapse headers on click
                 var $infoHeader = $quicklinks.find('.title-section').click(function() {
                     $(this).nextAll('div,ul').first().slideToggle(150);
                 }).last().text(username).prependTo($quicklinks);
+                // Insert user details
                 var $info = $dataHtml.find('.mod-section .details').insertAfter($infoHeader);
                 $info.children('.row').each(function() {
                     $(this).children().first().unwrap();
                 });
+                // Transform user details to list format
                 $info.children('.col-2').removeClass('col-2').addClass('info-header');
                 $info.children('.col-4').removeClass('col-4').addClass('info-value');
+                // Append to page
                 $('body').append($quicklinks);
 
+                // Move activity link to second position
+                $('.mod-quick-links li').eq(5).prependTo('.mod-quick-links');
                 // Add history link to quicklinks, so you don't have to open the mod popup and switch tabs
                 $('.mod-quick-links').prepend(`<li><a href="/users/history/${uid}">history</a></li>`);
             });
@@ -89,14 +99,15 @@
 #usersidebar {
     position: fixed;
     z-index: 10001;
-    top: 50px;
+    top: 44px;
     right: 100%;
     width: 190px;
     max-height: calc(100vh - 50px);
     padding: 10px 5px 0;
-    border: 1px solid #ccc;
     background: white;
     opacity: 0.7;
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 14px -3px rgba(0,0,0,0.25);
 }
 #usersidebar:after {
     content: 'user';
@@ -131,7 +142,8 @@
 }
 #usersidebar .details > div:nth-child(-n + 2),
 #usersidebar .details > div:nth-child(n+7):nth-child(-n+8),
-#usersidebar .details > div:nth-child(n + 17) {
+#usersidebar .details > div:nth-child(n+13):nth-child(-n+14),
+#usersidebar .details > div:nth-child(n+19) {
     display: none;
 }
 .user-info .user-details {
@@ -149,6 +161,10 @@
 .post-user-info:hover .mod-userlinks,
 .user-info:hover .mod-userlinks {
     display: block;
+}
+.bounty-indicator-tab {
+    float: left;
+    margin-right: 4px !important;
 }
 </style>
 `;
