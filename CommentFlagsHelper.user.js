@@ -3,7 +3,7 @@
 // @description  Highlights flagged user comments in expanded posts, Always expand comments if post is expanded, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.2
 //
 // @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://serverfault.com/admin/dashboard?flag*=comment*
@@ -81,6 +81,13 @@
                 .prependTo('.flag-container');
         }
 
+        // Highlight rude or abusive flag comments
+        $('.revision-comment').filter((i, el) => el.innerText.indexOf('rude or abusive') >= 0).addClass('roa-flag');
+
+        // Highlight comments from last year or older
+        var thisYear = new Date().getFullYear();
+        $('.comment-link .relativetime').filter((i, el) => Number(el.title.substr(0,4)) < thisYear).addClass('old-comment');
+
         // On delete/dismiss comment action
         $('.delete-comment, .cancel-comment-flag').click(function() {
 
@@ -157,13 +164,19 @@ tr.comment > td {
     color: #663;
     font-style: italic;
 }
+.revision-comment.roa-flag {
+    color: red;
+}
+table.flagged-posts .relativetime.old-comment {
+    color: coral;
+}
 .flag-issue.comment {
     float: none !important;
     position: absolute;
     display: inline-block;
     top: 0;
     right: 0;
-    padding: 5px 0;
+    padding: 5px 0 20px;
     font-size: 0;
 }
 .delete-comment,
