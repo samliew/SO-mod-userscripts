@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages, Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -162,7 +162,7 @@
 .user-info:hover .mod-userlinks {
     display: block;
 }
-.bounty-indicator-tab {
+.mod-quick-links .bounty-indicator-tab {
     float: left;
     margin-right: 4px !important;
 }
