@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -37,15 +37,25 @@
 
         // Load ban form for user if passed via querystring
         if(location.pathname === '/admin/review/bans') {
-            $('#user-to-ban').val(location.hash.substr(1));
+            var params = location.hash.substr(1).split('|');
+            var uid = params[0];
+
+            // Insert UID
+            $('#user-to-ban').val(uid);
+
+            // Submit lookup
             setTimeout(() => $('#lookup').click(), 500);
+
+            // Insert ban message if review link found
+            if(typeof params[1] !== 'undefined') {
+                var banMsg = `Your review on https://${location.hostname}${params[1]} wasn't helpful. Please review the history of the post and consider how choosing a different action would help achieve that outcome more quickly.`;
+                setTimeout(() => $('textarea[name=explanation]').val(banMsg), 3000);
+            }
         }
         // Review queues
         else if(location.pathname.indexOf('/users/history') >= 0) {
-            var uid = location.pathname.match(/\d+/)[0];
-            var url = 'https://stackoverflow.com/users/history/' + uid + '?type=User+has+been+banned+from+review';
-            var btn = $(`<a class="button reviewban-button" href="/admin/review/bans#${uid}">Review Ban User</a>`);
-            btn.insertAfter('.subheader h1');
+            var uid2 = location.pathname.match(/\d+/)[0];
+            $(`<a class="button reviewban-button" href="/admin/review/bans#${uid2}">Review Ban User</a>`).insertAfter('.subheader h1');
         }
         else {
             $(document).ajaxComplete(function(event, xhr, settings) {
@@ -64,7 +74,7 @@
             var userlink = $(this);
             var uid = $(this).attr('href').match(/\d+/)[0];
             var url = '/users/history/' + uid + '?type=User+has+been+banned+from+review';
-            var banUrl = '/admin/review/bans#' + uid;
+            var banUrl = `/admin/review/bans#${uid}|${location.pathname}`;
 
             // Add ban link
             $(`<a class="reviewban-link" href="${banUrl}" title="Ban user from reviews" target="_blank">X</a>`)
