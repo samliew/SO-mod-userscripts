@@ -64,7 +64,7 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 
 ### [Hover Expand Navigation Links](https://github.com/samliew/SO-mod-userscripts/blob/master/HoverExpandNavigationLinks.user.js)
 
-- On pagination dots "```...```" mouseover, adds all in-between page links
+- On pagination dots "```...```" mouseover, adds additional 30 in-between links
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/nav-expand.gif)
 
 
