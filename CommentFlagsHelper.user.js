@@ -3,7 +3,7 @@
 // @description  Highlights flagged user comments in expanded posts, Always expand comments if post is expanded, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://serverfault.com/admin/dashboard?flag*=comment*
@@ -46,7 +46,7 @@
             'fuck', '\\barse', 'cunt', 'dick', '\\bcock', 'pussy', '\\bhell', 'stupid', 'idiot', '!!+', '\\?\\?+',
             'grow\\s?up', 'shame', 'wtf', 'garbage', 'trash', 'spam', 'damn', 'stop', 'horrible', 'inability', 'bother',
             'nonsense', 'never\\s?work', 'illogical', 'fraud', 'crap', 'reported', 'get\\s?lost', 'go\\s?away',
-            'useless', 'delete[\\w\\s]+(answer|question|comment)', 'move on', 'learn',
+            'useless', 'delete[\\w\\s]+(answer|question|comment)', 'move on', 'learn', 'gay', 'lesbian', 'sissy',
         ];
 
         // Special characters must be escaped with \\
@@ -54,7 +54,7 @@
             'thanks?', 'welcome', 'up-?voted?', 'updated', 'edited', 'added', '(in)?correct(ed)?', 'done', 'worked', 'works', 'glad',
             'appreciated?', 'my email', 'email me', 'contact', 'good', 'great', 'sorry', '\\+1', 'love', 'wow', 'pointless', 'no\\s?(body|one)',
             'homework', 'no\\s?idea', 'your\\s?mind', 'try\\s?it', 'typo', 'wrong', 'unclear', 'regret', 'we\\b', 'every\\s?(body|one)',
-            'exactly', 'check', 'lol', '\\bha(ha)+',
+            'exactly', 'check', 'lol', '\\bha(ha)+', 'women', 'girl',
         ];
 
         $('.comment-summary, tr.deleted-row > td > span').each(function() {
