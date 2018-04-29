@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages, Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.5
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -60,6 +60,12 @@
                 // Transform user details to list format
                 $info.children('.col-2').removeClass('col-2').addClass('info-header');
                 $info.children('.col-4').removeClass('col-4').addClass('info-value');
+                // Check if user is currently suspended, highlight username
+                var susMsg = $dataHtml.find('.system-alert').first().text();
+                if(susMsg.indexOf('suspended') >= 0) {
+                    var susDur = susMsg.split('ends')[1].replace(/(^\s|(\s|\.)+$)/g, '');
+                    $quicklinks.find('h3').first().css({ color: 'red' }).attr('title', `currently suspended (ends ${susDur})`);
+                }
                 // Append to page
                 $('body').append($quicklinks);
 
