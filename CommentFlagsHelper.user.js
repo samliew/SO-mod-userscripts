@@ -3,7 +3,7 @@
 // @description  Highlights flagged user comments in expanded posts, Always expand comments if post is expanded, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.2
+// @version      1.2.3
 //
 // @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://serverfault.com/admin/dashboard?flag*=comment*
@@ -39,23 +39,24 @@
 
     var reviewFromBottom = false;
 
+    // Special characters must be escaped with \\
+    const rudeKeywords = [
+        'fuck', '\\barse', 'cunt', 'dick', '\\bcock', 'pussy', '\\bhell', 'stupid', 'idiot', '!!+', '\\?\\?+',
+        'grow\\s?up', 'shame', 'wtf', 'garbage', 'trash', 'spam', 'damn', 'stop', 'horrible', 'inability', 'bother',
+        'nonsense', 'never\\s?work', 'illogical', 'fraud', 'crap', 'reported', 'get\\s?lost', 'go\\s?away',
+        'useless', 'delete[\\w\\s]+(answer|question|comment)', 'move on', 'learn', 'gay', 'lesbian', 'sissy',
+    ];
+
+    // Special characters must be escaped with \\
+    const chattyKeywords = [
+        'thanks?', 'welcome', 'up-?voted?', 'updated', 'edited', 'added', '(in)?correct(ed)?', 'done', 'worked', 'works', 'glad',
+        'appreciated?', 'my email', 'email me', 'contact', 'good', 'great', 'sorry', '\\+1', 'love', 'wow', 'pointless', 'no\\s?(body|one)',
+        'homework', 'no\\s?idea', 'your\\s?mind', 'try\\s?it', 'typo', 'wrong', 'unclear', 'regret', 'we\\b', 'every\\s?(body|one)',
+        'exactly', 'check', 'lol', '\\bha(ha)+', 'women', 'girl',
+    ];
+
+
     function doPageload() {
-
-        // Special characters must be escaped with \\
-        var rudeKeywords = [
-            'fuck', '\\barse', 'cunt', 'dick', '\\bcock', 'pussy', '\\bhell', 'stupid', 'idiot', '!!+', '\\?\\?+',
-            'grow\\s?up', 'shame', 'wtf', 'garbage', 'trash', 'spam', 'damn', 'stop', 'horrible', 'inability', 'bother',
-            'nonsense', 'never\\s?work', 'illogical', 'fraud', 'crap', 'reported', 'get\\s?lost', 'go\\s?away',
-            'useless', 'delete[\\w\\s]+(answer|question|comment)', 'move on', 'learn', 'gay', 'lesbian', 'sissy',
-        ];
-
-        // Special characters must be escaped with \\
-        var chattyKeywords = [
-            'thanks?', 'welcome', 'up-?voted?', 'updated', 'edited', 'added', '(in)?correct(ed)?', 'done', 'worked', 'works', 'glad',
-            'appreciated?', 'my email', 'email me', 'contact', 'good', 'great', 'sorry', '\\+1', 'love', 'wow', 'pointless', 'no\\s?(body|one)',
-            'homework', 'no\\s?idea', 'your\\s?mind', 'try\\s?it', 'typo', 'wrong', 'unclear', 'regret', 'we\\b', 'every\\s?(body|one)',
-            'exactly', 'check', 'lol', '\\bha(ha)+', 'women', 'girl',
-        ];
 
         $('.comment-summary, tr.deleted-row > td > span').each(function() {
 
@@ -85,13 +86,13 @@
         $('.revision-comment').filter((i, el) => el.innerText.indexOf('rude or abusive') >= 0).addClass('roa-flag');
 
         // Highlight comments from last year or older
-        var thisYear = new Date().getFullYear();
+        const thisYear = new Date().getFullYear();
         $('.comment-link .relativetime').filter((i, el) => Number(el.title.substr(0,4)) < thisYear).addClass('old-comment');
 
         // On delete/dismiss comment action
         $('.flagged-posts').on('click', '.delete-comment, .cancel-comment-flag', function() {
 
-            var $post = $(this).parents('.flagged-post-row');
+            let $post = $(this).parents('.flagged-post-row');
 
             // Sanity check
             if($post.length !== 1) return;
@@ -113,7 +114,7 @@
             $('.js-show-link.comments-link').trigger('click');
 
             // Highlight flagged user comments in expanded posts
-            var $user = $('.js-flagged-comments .comment-link + a');
+            let $user = $('.js-flagged-comments .comment-link + a');
             $user.each(function() {
                 $(this).parents('.messageDivider')
                     .find('.comment-user').filter((i,e) => e.href === this.href)
@@ -122,14 +123,15 @@
 
             // Continue reviewing from bottom of page if previously selected
             if(reviewFromBottom) {
-                window.scrollTo(0,999999);
+                let scrLeft = document.documentElement.scrollLeft || document.body.scrollLeft || window.pageXOffset;
+                window.scrollTo(scrLeft, 999999);
             }
         });
     }
 
     function appendStyles() {
 
-        var styles = `
+        const styles = `
 <style>
 #footer,
 .t-flag,
