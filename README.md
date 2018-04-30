@@ -85,7 +85,8 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 
 ### [Not An Answer Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/NotAnAnswerFlagQueueHelper.user.js) ♦
 
-- Sorts NAA flag queue by poster rep
+- Inserts several sort options for the NAA queue
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-30_150426.png)
 
 
 ### [Too Many Comments Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/TooManyCommentsFlagQueueHelper.user.js) ♦
