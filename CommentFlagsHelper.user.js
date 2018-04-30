@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Comment Flags Helper
-// @description  Highlights flagged user comments in expanded posts, Always expand comments if post is expanded, Highlight common chatty and rude keywords
+// @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.4
+// @version      1.3
 //
 // @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://serverfault.com/admin/dashboard?flag*=comment*
@@ -36,6 +36,19 @@
 
 (function() {
     'use strict';
+
+
+    // Solution from https://stackoverflow.com/a/24719409/584192
+    function jQueryXhrOverride() {
+        var xhr = jQuery.ajaxSettings.xhr();
+        var setRequestHeader = xhr.setRequestHeader;
+        xhr.setRequestHeader = function(name, value) {
+            if (name == 'X-Requested-With') return;
+            setRequestHeader.call(this, name, value);
+        };
+        return xhr;
+    }
+
 
     var reviewFromBottom = false;
 
@@ -110,17 +123,29 @@
     function listenToPageUpdates() {
 
         // On any page update
-        $(document).ajaxComplete(function() {
+        $(document).ajaxComplete(function(event, xhr, settings) {
 
-            // Always expand comments if post is expanded
-            $('.js-show-link.comments-link').trigger('click');
+            // Remove default comment expander
+            $('.js-show-link.comments-link').prev().addBack().remove();
 
-            // Highlight flagged user comments in expanded posts
-            let $user = $('.js-flagged-comments .comment-link + a');
-            $user.each(function() {
-                $(this).parents('.messageDivider')
-                    .find('.comment-user').filter((i,e) => e.href === this.href)
-                    .closest('.comment').children().css('background', '#ffc');
+            // Highlight flagged comments in expanded posts
+            let $flaggedComms = $('.js-flagged-comments .comment');
+            $flaggedComms.each(function() {
+                let cid = this.id.match(/\d+$/)[0];
+                $('#comment-'+cid).children().css('background', '#ffc');
+            });
+
+            // Always expand comments if post is expanded, if comments have not been expanded yet
+            $('.js-comments-container').not('.js-del-loaded').each(function() {
+
+                // So we only load deleted comments once
+                $(this).addClass('js-del-loaded').removeClass('dno');
+
+                // Get all including deleted comments
+                let postId = this.id.match(/\d+/)[0];
+                let commentsUrl = `/posts/${postId}/comments?includeDeleted=true&_=${Date.now()}`;
+                $('#comments-'+postId).children('ul.comments-list').load(commentsUrl);
+                console.log("Loading comments for " + postId);
             });
 
             // Continue reviewing from bottom of page if previously selected
@@ -139,8 +164,9 @@
 .t-flag,
 .t-flag ~ .module,
 .module p.more-info,
-#mod-history + div:not([class]) {
-    display: none;
+#mod-history + div:not([class]),
+.undelete-comment {
+    display: none !important;
 }
 .flag-container {
     position: relative;
