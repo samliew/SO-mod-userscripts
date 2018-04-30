@@ -36,8 +36,8 @@
 
             case 'self-answer':
                 sortFunction = function(a, b) {
-                    let aOwner = $(b).find('.mod-audit p:last').text();
-                    return aOwner === '(answering own question)' ? 1 : -1;
+                    let aOwner = $(a).find('.mod-audit p:last').text();
+                    return aOwner === '(answering own question)' ? -1 : 1;
                 };
                 break;
 
