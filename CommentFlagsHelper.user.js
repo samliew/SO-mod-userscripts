@@ -37,19 +37,6 @@
 (function() {
     'use strict';
 
-
-    // Solution from https://stackoverflow.com/a/24719409/584192
-    function jQueryXhrOverride() {
-        var xhr = jQuery.ajaxSettings.xhr();
-        var setRequestHeader = xhr.setRequestHeader;
-        xhr.setRequestHeader = function(name, value) {
-            if (name == 'X-Requested-With') return;
-            setRequestHeader.call(this, name, value);
-        };
-        return xhr;
-    }
-
-
     var reviewFromBottom = false;
 
     // Special characters must be escaped with \\
