@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA queue
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.0.1
 //
 // @match        */admin/dashboard?flagtype=answernotananswer*
 // ==/UserScript==
@@ -36,10 +36,8 @@
 
             case 'self-answer':
                 sortFunction = function(a, b) {
-                    let aOwner = $(a).find('.mod-audit p:last').text(),
-                        bOwner = $(b).find('.mod-audit p:last').text();
-
-                    return aOwner === '(answering own question)' ? -1 : 0;
+                    let aOwner = $(b).find('.mod-audit p:last').text();
+                    return aOwner === '(answering own question)' ? 1 : -1;
                 };
                 break;
 
