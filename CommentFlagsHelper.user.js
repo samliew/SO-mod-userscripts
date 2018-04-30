@@ -3,7 +3,7 @@
 // @description  Highlights flagged user comments in expanded posts, Always expand comments if post is expanded, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.3
+// @version      1.2.4
 //
 // @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://serverfault.com/admin/dashboard?flag*=comment*
@@ -90,7 +90,7 @@
         $('.comment-link .relativetime').filter((i, el) => Number(el.title.substr(0,4)) < thisYear).addClass('old-comment');
 
         // On delete/dismiss comment action
-        $('.flagged-posts').on('click', '.delete-comment, .cancel-comment-flag', function() {
+        $('.delete-comment, .cancel-comment-flag').on('click', function() {
 
             let $post = $(this).parents('.flagged-post-row');
 
@@ -98,10 +98,12 @@
             if($post.length !== 1) return;
 
             // Remove current comment from DOM
-            $(this).closest('tr').next().addBack().remove();
+            let $comm = $(this).parents('tr.message-divider').next('tr.comment').addBack();
+            $comm.remove();
 
             // Hide post immediately if no comments remaining
-            if($post.find('.js-flagged-comments tr').length === 0) $post.remove();
+            let $remainingComms = $post.find('.js-flagged-comments tr.comment');
+            if($remainingComms.length === 0) $post.remove();
         });
     }
 
