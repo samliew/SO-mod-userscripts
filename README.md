@@ -77,9 +77,11 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 - Some style improvements
 - Rename "dismiss" link to "decline" with hover warning color
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210443.png)
-- Always expand comments if post is expanded, and highlights flagged user comments in expanded posts
+- Always expand comments if post is expanded (**includes deleted posts**), and highlights flagged user comments in expanded posts
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210428.png)
-- Option to review from the bottom of the page
+- Quick **purge all comments link** (with confirmation prompt)
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-01_100511.png)
+- Option to review from the bottom of the page (so page won't jump around after handling each flag)
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210423.png)
 
 
