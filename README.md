@@ -6,6 +6,18 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 
 
 
+## Recommended
+
+These are highly recommended. Minor changes to the UI/defaults makes your mod life easier by a *huge* amount (saving clicks, or having to hunt for a particular link/mod feature, or displaying more info upfront):
+
+- [Mod User Quicklinks Everywhere](#mod-user-quicklinks-everywhere-)
+- [Mod Popup Dialog Improvements](#mod-popup-dialog-improvements-)
+- [User Review Ban Helper](#user-review-ban-helper-)
+- [Comment Flags Helper](#comment-flags-helper-)
+- [Not An Answer Flag Queue Helper](#not-an-answer-flag-queue-helper-)
+
+
+
 ## General userscripts
 
 
@@ -66,6 +78,7 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 
 - On pagination dots "```...```" mouseover, adds additional 30 in-between links
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/nav-expand.gif)
+
 
 
 ## Queue-specific userscripts
