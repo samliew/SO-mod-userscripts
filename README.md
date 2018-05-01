@@ -8,7 +8,7 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 
 ## Recommended
 
-These are highly recommended. Minor changes to the UI/defaults makes your mod life easier by a *huge* amount (saving clicks, or having to hunt for a particular link/mod feature, or displaying more info upfront):
+These are highly recommended. Minor changes to the UI/defaults makes your mod life easier by a *huge* amount (saving clicks, or having to hunt for a particular link/mod feature, or displaying more info upfront). Click these to jump to their descriptions:
 
 - [Mod User Quicklinks Everywhere](#mod-user-quicklinks-everywhere-)
 - [Mod Popup Dialog Improvements](#mod-popup-dialog-improvements-)
