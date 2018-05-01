@@ -117,10 +117,7 @@
                     var cid = this.dataset.commentId;
                     $.post({
                         url: 'https://stackoverflow.com/posts/comments/'+cid+'/vote/10',
-                        data: { 'fkey': fkey },
-                        success: function(data) {
-                            console.log(data);
-                        },
+                        data: { 'fkey': fkey }
                     });
                 });
 
