@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.4
 //
 // @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://serverfault.com/admin/dashboard?flag*=comment*
@@ -38,6 +38,7 @@
     'use strict';
 
     var reviewFromBottom = false;
+    var fkey = window.localStorage.getItem('se:fkey').split(',')[0];
 
     // Special characters must be escaped with \\
     const rudeKeywords = [
@@ -105,15 +106,34 @@
             let $remainingComms = $post.find('.js-flagged-comments tr.comment');
             if($remainingComms.length === 0) $post.remove();
         });
+
+        // On purge all comments link click
+        $('.flagged-post-row').on('click', '.js-del-all-comments', function() {
+
+            if(confirm('Delete ALL comments? (mark as helpful)')) {
+
+                // Delete each comment
+                $(this).parents('.post-layout').find('.comment-delete').parents('.comment').each(function() {
+                    var cid = this.dataset.commentId;
+                    $.post({
+                        url: 'https://stackoverflow.com/posts/comments/'+cid+'/vote/10',
+                        data: { 'fkey': fkey },
+                        success: function(data) {
+                            console.log(data);
+                        },
+                    });
+                });
+
+                // Hide post immediately so we can move on
+                $(this).parents('.flagged-post-row').hide();
+            }
+        });
     }
 
     function listenToPageUpdates() {
 
         // On any page update
         $(document).ajaxComplete(function(event, xhr, settings) {
-
-            // Remove default comment expander
-            $('.js-show-link.comments-link').prev().addBack().remove();
 
             // Highlight flagged comments in expanded posts
             let $flaggedComms = $('.js-flagged-comments .comment');
@@ -127,6 +147,12 @@
 
                 // So we only load deleted comments once
                 $(this).addClass('js-del-loaded').removeClass('dno');
+
+                // Remove default comment expander
+                $(this).next().find('.js-show-link.comments-link').remove();
+
+                // Insert delete all comments link
+                $(this).next().append(`<a class="js-del-all-comments">purge all comments</a>`);
 
                 // Get all including deleted comments
                 let postId = this.id.match(/\d+/)[0];
@@ -209,6 +235,14 @@ table.flagged-posts .relativetime.old-comment {
 .cancel-comment-flag:hover {
     color: white;
     background: red;
+}
+.comment-edit-hide,
+.comment-delete {
+    visibility: visible;
+}
+.js-del-all-comments {
+    color: red !important;
+    font-weight: bold;
 }
 </style>
 `;
