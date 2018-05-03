@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.5
 //
 // @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://serverfault.com/admin/dashboard?flag*=comment*
@@ -38,7 +38,7 @@
     'use strict';
 
     var reviewFromBottom = false;
-    var fkey = window.localStorage.getItem('se:fkey').split(',')[0];
+    var fkey = StackExchange.options.user.fkey;
 
     // Special characters must be escaped with \\
     const rudeKeywords = [
@@ -110,19 +110,22 @@
         // On purge all comments link click
         $('.flagged-post-row').on('click', '.js-del-all-comments', function() {
 
+            let pid = this.dataset.postId;
+            let $post = $(`#flagged-${pid}`);
+
             if(confirm('Delete ALL comments? (mark as helpful)')) {
 
-                // Delete each comment
-                $(this).parents('.post-layout').find('.comment-delete').parents('.comment').each(function() {
-                    var cid = this.dataset.commentId;
-                    $.post({
-                        url: 'https://stackoverflow.com/posts/comments/'+cid+'/vote/10',
-                        data: { 'fkey': fkey }
-                    });
+                // Delete comments
+                $.post({
+                    url: `https://stackoverflow.com/admin/posts/${this.dataset.postId}/delete-comments`,
+                    data: {
+                        'fkey': fkey,
+                        'mod-actions': 'delete-comments'
+                    }
                 });
 
                 // Hide post immediately so we can move on
-                $(this).parents('.flagged-post-row').hide();
+                $post.hide();
             }
         });
     }
@@ -142,6 +145,8 @@
             // Always expand comments if post is expanded, if comments have not been expanded yet
             $('.js-comments-container').not('.js-del-loaded').each(function() {
 
+                let postId = this.id.match(/\d+/)[0];
+
                 // So we only load deleted comments once
                 $(this).addClass('js-del-loaded').removeClass('dno');
 
@@ -149,10 +154,9 @@
                 $(this).next().find('.js-show-link.comments-link').remove();
 
                 // Insert delete all comments link
-                $(this).next().append(`<a class="js-del-all-comments">purge all comments</a>`);
+                $(this).next().append(`<a class="js-del-all-comments" data-post-id="${postId}">purge all comments</a>`);
 
                 // Get all including deleted comments
-                let postId = this.id.match(/\d+/)[0];
                 let commentsUrl = `/posts/${postId}/comments?includeDeleted=true&_=${Date.now()}`;
                 $('#comments-'+postId).children('ul.comments-list').load(commentsUrl);
                 console.log("Loading comments for " + postId);
