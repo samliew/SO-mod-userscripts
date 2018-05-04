@@ -106,10 +106,8 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 
 ### [Too Many Comments Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/TooManyCommentsFlagQueueHelper.user.js) ♦
 
-- Displays only the important info (comments) and actions (mod popup)
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210416.png)
-- When used together with "Mod Popup Dialog Improvements", mod popup defaults to "Move comments to chat" and "Delete moved comments"
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210434.png)
+- Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-04_120542.png)
 - After handling the flag, no further action is presented
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210431%20(2).png)
 
