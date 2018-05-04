@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Too Many Comments Flag Queue Helper
-// @description  Displays only the important info (comments) and actions (Mod popup)
+// @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.0.1
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
@@ -73,7 +73,7 @@
         $(document).ajaxComplete(function(event, xhr, settings) {
             // Simple throttle
             if(typeof ajaxTimeout !== undefined) clearTimeout(ajaxTimeout);
-            setTimeout(insertCommentLinks, 500);
+            ajaxTimeout = setTimeout(insertCommentLinks, 500);
         });
     }
 
