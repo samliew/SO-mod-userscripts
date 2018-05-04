@@ -106,9 +106,9 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 
 ### [Too Many Comments Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/TooManyCommentsFlagQueueHelper.user.js) ♦
 
-- Auto-expanded unhandled posts
+- Auto-expand unhandled posts
 - Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-04_120553.png)
-- After handling the flag (don't forget to mark as helpful)
+- Confirmation displayed after successful response from server (don't forget to mark as helpful)
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-04_120549.png)
 
