@@ -3,7 +3,7 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://stackoverflow.com/admin/dashboard?flagtype=answerduplicateanswerauto
 // @include      https://serverfault.com/admin/dashboard?flagtype=answerduplicateanswerauto
@@ -17,7 +17,7 @@
     'use strict';
 
     var fkey = StackExchange.options.user.fkey;
-    var duplicateComment = `Please [don't post identical answers to multiple questions](https://meta.stackexchange.com/q/104227/584192). Instead, tailor the answer to the question asked. If the questions are exact duplicates of each other, please vote/flag to close instead.`;
+    var duplicateComment = `Please [don't post identical answers to multiple questions](https://meta.stackexchange.com/q/104227/165483). Instead, tailor the answer to the question asked. If the questions are exact duplicates of each other, please vote/flag to close instead.`;
 
 
     function doPageload() {
