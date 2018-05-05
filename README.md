@@ -98,6 +98,13 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210423.png)
 
 
+### [Duplicate Answers Flags Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/DuplicateAnswersFlagsHelper.user.js) ♦
+
+- Add action button to delete AND insert duplicate comment at the same time, saving you from deleting and then having to open up a new tab to manually insert comment
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-05_120501.png)
+- Comment left on answer:<br>`Please [don't post identical answers to multiple questions](https://meta.stackexchange.com/q/104227/584192). Instead, tailor the answer to the question asked. If the questions are exact duplicates of each other, please vote/flag to close instead.`
+
+
 ### [Not An Answer Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/NotAnAnswerFlagQueueHelper.user.js) ♦
 
 - Inserts several sort options for the NAA queue
