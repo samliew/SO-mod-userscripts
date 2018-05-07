@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://serverfault.com/admin/dashboard?flag*=comment*
@@ -206,6 +206,7 @@ tr.message-divider>td:last-child {
 }
 tr.comment > td {
     height: 4.8em;
+    word-break: break-word;
 }
 .revision-comment {
     color: #663;
