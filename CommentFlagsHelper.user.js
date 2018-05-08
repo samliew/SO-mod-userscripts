@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://serverfault.com/admin/dashboard?flag*=comment*
@@ -46,7 +46,7 @@
         'fuck', '\\barse', 'cunt', 'dick', '\\bcock', 'pussy', '\\bhell', 'stupid', 'idiot', '!!+', '\\?\\?+',
         'grow\\s?up', 'shame', 'wtf', 'garbage', 'trash', 'spam', 'damn', 'stop', 'horrible', 'inability', 'bother',
         'nonsense', 'never\\s?work', 'illogical', 'fraud', 'crap', 'reported', 'get\\s?lost', 'go\\s?away',
-        'useless', 'delete[\\w\\s]+(answer|question|comment)', 'move on', 'learn', 'gay', 'lesbian', 'sissy',
+        'useless', 'deleted?', 'delete[\\w\\s]+(answer|question|comment)', 'move on', 'learn', 'gay', 'lesbian', 'sissy',
     ];
 
     // Special characters must be escaped with \\
@@ -63,10 +63,10 @@
         $('.comment-summary, tr.deleted-row > td > span').each(function() {
 
             // Highlight common chatty keywords
-            this.innerHTML = this.innerHTML.replace(new RegExp('(' + chattyKeywords.join('|') + ')', 'gi'), '<b style="color:coral">$1</b>');
+            this.innerHTML = this.innerHTML.replace(new RegExp('\\b(' + chattyKeywords.join('|') + ')', 'gi'), '<b style="color:coral">$1</b>');
 
             // Highlight common rude keywords
-            this.innerHTML = this.innerHTML.replace(new RegExp('(' + rudeKeywords.join('|') + ')', 'gi'), '<b style="color:red">$1</b>');
+            this.innerHTML = this.innerHTML.replace(new RegExp('\\b(' + rudeKeywords.join('|') + ')', 'gi'), '<b style="color:red">$1</b>');
         });
 
         // Change "dismiss" link to "decline"
