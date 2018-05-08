@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.2
+// @version      1.6
 //
 // @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://serverfault.com/admin/dashboard?flag*=comment*
@@ -37,8 +37,9 @@
 (function() {
     'use strict';
 
-    var reviewFromBottom = false;
-    var fkey = StackExchange.options.user.fkey;
+    let reviewFromBottom = false;
+    const fkey = StackExchange.options.user.fkey;
+    const newMins = 60 * 60000;
 
     // Special characters must be escaped with \\
     const rudeKeywords = [
@@ -71,14 +72,32 @@
         // Change "dismiss" link to "decline"
         $('.cancel-comment-flag').text('decline');
 
-        // Start from bottom link (only when more than 3 posts present on page
+        // If there are lots of comment flags
         if($('.flagged-post-row').length > 3) {
+
+            // Start from bottom link (only when more than 3 posts present on page)
             $('<button>Review from bottom</button>')
                 .click(function() {
                     reviewFromBottom = true;
                     $(this).remove();
                     $('.flagged-posts.moderator').css('margin-top', '600px');
                     window.scrollTo(0,999999);
+                })
+                .prependTo('.flag-container');
+
+            // Hide recent comments button
+            $('<button style="margin-right:10px;">Ignore new comments</button>')
+                .click(function() {
+                    $(this).remove();
+                    let now = Date.now();
+                    // Remove comments < newMins
+                    $('.comment-link').filter(function() {
+                        return now - new Date($(this).children('.relativetime').attr('title')).getTime() <= newMins;
+                    }).parent().parent().next().addBack().remove();
+                    // Remove posts without comment flags
+                    $('.comments').filter(function() {
+                        return $(this).children().children().length === 0;
+                    }).parents('.flagged-post-row').remove();
                 })
                 .prependTo('.flag-container');
         }
@@ -100,11 +119,13 @@
 
             // Remove current comment from DOM
             let $comm = $(this).parents('tr.message-divider').next('tr.comment').addBack();
-            $comm.hide().addClass('js-comment-deleted');
+            $comm.addClass('js-comment-deleted');
 
             // Hide post immediately if no comments remaining
-            let $remainingComms = $post.find('.js-flagged-comments tr.comment').not('.js-comment-deleted');
-            if($remainingComms.length === 0) $post.remove();
+            setTimeout(function($post) {
+                let $remainingComms = $post.find('.js-flagged-comments tr.comment').not('.js-comment-deleted');
+                if($remainingComms.length === 0) $post.hide();
+            }, 100, $post);
         });
 
         // On purge all comments link click
@@ -129,6 +150,7 @@
             }
         });
     }
+
 
     function listenToPageUpdates() {
 
@@ -169,6 +191,7 @@
             }
         });
     }
+
 
     function appendStyles() {
 
@@ -246,10 +269,14 @@ table.flagged-posts .relativetime.old-comment {
     color: red !important;
     font-weight: bold;
 }
+.js-comment-deleted {
+    display: none !important;
+}
 </style>
 `;
         $('body').append(styles);
     }
+
 
     // On page load
     appendStyles();
