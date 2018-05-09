@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.7.1
 //
 // @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://serverfault.com/admin/dashboard?flag*=comment*
@@ -200,9 +200,9 @@
 
     function insertCommentLinks() {
 
-        var posts = $('.flagged-post-row').not('.js-comment-links').addClass('js-comment-links').each(function() {
+        var posts = $('.js-comments-container').not('.js-comment-links').addClass('js-comment-links').each(function() {
 
-            const pid = this.dataset.postId;
+            const pid = this.id.match(/\d+$/)[0];
 
             // Insert additional comment actions
             let commentActionLinks = `<div class="mod-action-links" style="float:right; padding-right:10px"><a data-post-id="${pid}" class="purge-comments-link comments-link red-mod-link" title="delete all comments">purge all</a></div></div>`;
