@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
@@ -19,7 +19,8 @@
 
     function doPageload() {
 
-        $('.timestamp').text(function(i, str) {
+        $('.timestamp').each(function(i, elem) {
+            var str = $(this).text();
             // Split method used instead of substr, because it's in 12h format,
             //   alternatively regex could be used
             let h = Number(str.split(':')[0]);
@@ -31,7 +32,7 @@
             if(h < 0) h += 24;
             else if(h >= 24) h %= 24;
             if(h.toString().length != 2) h = '0' + h;
-            return `${h}:${m}`;
+            $(this).text(`${h}:${m}`).attr('data-orig-timestamp', str);
         });
 
         $('.msplab').text(function(i, str) {
