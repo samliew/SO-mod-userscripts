@@ -10,7 +10,6 @@
 // @match        https://superuser.com/*
 // @match        https://askubuntu.com/*
 // @match        https://mathoverflow.net/*
-// @match        https://stackexchange.com/*
 //
 // @match        https://meta.stackoverflow.com/*
 // @match        https://meta.serverfault.com/*
