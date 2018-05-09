@@ -126,3 +126,11 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 - Confirmation displayed after successful response from server (don't forget to mark as helpful)
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-04_120549.png)
 
+
+### [Possible Vandalism Deletions Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/PossibleVandalismDeletionsHelper.user.js) ♦
+
+- Display post score and number of undeleted answers
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-09_220559.png)
+
+- Recommend action based on post info
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-09_220518.png)
