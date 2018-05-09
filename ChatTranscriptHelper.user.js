@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
@@ -20,13 +20,11 @@
     function doPageload() {
 
         $('.timestamp').each(function(i, elem) {
-            var str = $(this).text();
-            // Split method used instead of substr, because it's in 12h format,
-            //   alternatively regex could be used
+            const str = $(this).text();
             let h = Number(str.split(':')[0]);
-            let m = str.split(':')[1].split(' ')[0];
-            let a = str.split(' ')[1];
-            if(a == 'PM') h += 12;
+            const m = str.split(':')[1].split(' ')[0];
+            const a = str.split(' ')[1];
+            if(a == 'PM' && h < 12) h += 12;
             else if(a == 'AM' && h == 12) h = 0;
             h += tzHours;
             if(h < 0) h += 24;
@@ -37,7 +35,7 @@
 
         $('.msplab').text(function(i, str) {
             let h = Number(str.split(':')[0]) + tzHours;
-            let m = str.split(':')[1];
+            const m = str.split(':')[1];
             if(h < 0) h += 24;
             else if(h >= 24) h %= 24;
             if(h.toString().length != 2) h = '0' + h;
@@ -45,8 +43,8 @@
         });
 
         $('.pager span.page-numbers').text(function(i, str) {
-            let t1 = str.split(' - ')[0];
-            let t2 = str.split(' - ')[1];
+            const t1 = str.split(' - ')[0];
+            const t2 = str.split(' - ')[1];
             let h1 = Number(t1.split(':')[0]) + tzHours;
             let h2 = Number(t2.split(':')[0]) + tzHours;
             if(h1 < 0) h1 += 24;
