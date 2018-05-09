@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.1
+// @version      1.7
 //
 // @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://serverfault.com/admin/dashboard?flag*=comment*
@@ -37,6 +37,7 @@
 (function() {
     'use strict';
 
+    let ajaxTimeout;
     let reviewFromBottom = false;
     const fkey = StackExchange.options.user.fkey;
     const newMins = 60 * 60000;
@@ -124,12 +125,12 @@
             // Hide post immediately if no comments remaining
             setTimeout(function($post) {
                 let $remainingComms = $post.find('.js-flagged-comments tr.comment').not('.js-comment-deleted');
-                if($remainingComms.length === 0) $post.hide();
-            }, 100, $post);
+                if($remainingComms.length === 0) $post.remove();
+            }, 50, $post);
         });
 
         // On purge all comments link click
-        $('.flagged-post-row').on('click', '.js-del-all-comments', function() {
+        $('.flagged-post-row').on('click', '.purge-comments-link', function() {
 
             let pid = this.dataset.postId;
             let $post = $(`#flagged-${pid}`);
@@ -138,10 +139,13 @@
 
                 // Delete comments
                 $.post({
-                    url: `https://stackoverflow.com/admin/posts/${this.dataset.postId}/delete-comments`,
+                    url: `https://stackoverflow.com/admin/posts/${pid}/delete-comments`,
                     data: {
                         'fkey': fkey,
                         'mod-actions': 'delete-comments'
+                    },
+                    success: function() {
+                        $post.remove();
                     }
                 });
 
@@ -173,10 +177,7 @@
                 $(this).addClass('js-del-loaded').removeClass('dno');
 
                 // Remove default comment expander
-                $(this).next().find('.js-show-link.comments-link').remove();
-
-                // Insert delete all comments link
-                $(this).next().append(`<a class="js-del-all-comments" data-post-id="${postId}">purge all comments</a>`);
+                $(this).next().find('.js-show-link.comments-link').prev().addBack().remove();
 
                 // Get all including deleted comments
                 let commentsUrl = `/posts/${postId}/comments?includeDeleted=true&_=${Date.now()}`;
@@ -189,6 +190,23 @@
                 let scrLeft = document.documentElement.scrollLeft || document.body.scrollLeft || window.pageXOffset;
                 window.scrollTo(scrLeft, 999999);
             }
+
+            // Simple throttle
+            if(typeof ajaxTimeout !== undefined) clearTimeout(ajaxTimeout);
+            ajaxTimeout = setTimeout(insertCommentLinks, 500);
+        });
+    }
+
+
+    function insertCommentLinks() {
+
+        var posts = $('.flagged-post-row').not('.js-comment-links').addClass('js-comment-links').each(function() {
+
+            const pid = this.dataset.postId;
+
+            // Insert additional comment actions
+            let commentActionLinks = `<div class="mod-action-links" style="float:right; padding-right:10px"><a data-post-id="${pid}" class="purge-comments-link comments-link red-mod-link" title="delete all comments">purge all</a></div></div>`;
+            $('#comments-link-'+pid).append(commentActionLinks);
         });
     }
 
@@ -271,6 +289,9 @@ table.flagged-posts .relativetime.old-comment {
 }
 .js-comment-deleted {
     display: none !important;
+}
+table.flagged-posts tr.flagged-post-row:first-child > td {
+    border-top: 1px solid transparent;
 }
 </style>
 `;
