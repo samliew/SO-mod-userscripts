@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.5
+// @version      1.3
 //
 // @match        https://stackoverflow.com/*
 // @match        https://serverfault.com/*
@@ -25,6 +25,7 @@
 (function() {
     'use strict';
 
+
     function insertPostIds() {
 
         // Lists
@@ -38,6 +39,7 @@
         $('.post-id ~ .post-id').remove();
     }
 
+
     function doPageLoad() {
         $(document).ajaxComplete(insertPostIds);
         insertPostIds();
@@ -46,9 +48,10 @@
         $(document).on('click', 'input.post-id', function() { this.select(); });
     }
 
+
     function appendStyles() {
 
-        var styles = `
+        const styles = `
 <style>
 [class*='link'],
 [data-questionid],
@@ -59,35 +62,35 @@
 .user-tab-content h3,
 .summary h3,
 .top-posts .post-container {
-  position: relative;
+    position: relative;
 }
 .flagged-post-row .answer-link {
-  float: none;
+    float: none;
 }
 
 .post-id {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 5rem;
-  margin: 0;
-  padding: 3px 0;
-  font-size: 1rem;
-  font-family: monospace;
-  font-weight: 600;
-  text-align: right;
-  color: #222;
-  background: rgba(255,255,255,0.8);
-  border: none;
-  opacity: 0.15;
-  z-index: 1;
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 5rem;
+    margin: 0;
+    padding: 3px 0;
+    font-size: 1rem;
+    font-family: monospace;
+    font-weight: 600;
+    text-align: right;
+    color: #222;
+    background: rgba(255,255,255,0.8);
+    border: none;
+    opacity: 0.15;
+    z-index: 1;
 }
 .post-id + a {
-  display: inline !important;
+    display: inline !important;
 }
 #question .post-id,
 #answers .post-id {
-  position: relative;
+    position: relative;
 }
 #question .post-id,
 #answers .post-id,
@@ -95,17 +98,22 @@
 #user-tab-answers .post-id,
 #user-tab-activity .post-id,
 *:hover > .post-id {
-  display: inline-block;
-  opacity: 1;
+    display: inline-block;
+    opacity: 1;
 }
 #sidebar .post-id,
 #question-header .post-id {
-  display: none;
+    display: none;
+}
+.post-list .revision-comment {
+    position: relative;
+    display: block;
 }
 </style>
 `;
         $('body').append(styles);
     }
+
 
     // On page load
     appendStyles();
