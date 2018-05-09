@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Possible Vandalism Deletions Helper
-// @description  Display post score and age, Display number of undeleted answers
+// @description  Display post score and number of undeleted answers, Recommend action based on post info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
 // @version      1.0
