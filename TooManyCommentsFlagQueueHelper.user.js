@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.1
+// @version      2.1
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
@@ -71,6 +71,24 @@
 
         // On any page update
         $(document).ajaxComplete(function(event, xhr, settings) {
+
+            // Always expand comments if post is expanded, if comments have not been expanded yet
+            $('.js-comments-container').not('.js-del-loaded').each(function() {
+
+                let postId = this.id.match(/\d+/)[0];
+
+                // So we only load deleted comments once
+                $(this).addClass('js-del-loaded').removeClass('dno');
+
+                // Remove default comment expander
+                $(this).next().find('.js-show-link.comments-link').prev().addBack().remove();
+
+                // Get all including deleted comments
+                let commentsUrl = `/posts/${postId}/comments?includeDeleted=true&_=${Date.now()}`;
+                $('#comments-'+postId).children('ul.comments-list').load(commentsUrl);
+                console.log("Loading comments for " + postId);
+            });
+
             // Simple throttle
             if(typeof ajaxTimeout !== undefined) clearTimeout(ajaxTimeout);
             ajaxTimeout = setTimeout(insertCommentLinks, 500);
@@ -80,9 +98,9 @@
 
     function insertCommentLinks() {
 
-        var posts = $('.flagged-post-row').not('.js-comment-links').addClass('js-comment-links').each(function() {
+        $('.js-comments-container').not('.js-comment-links').addClass('js-comment-links').each(function() {
 
-            const pid = this.dataset.postId;
+            const pid = this.id.match(/\d+$/)[0];
 
             // Insert additional comment actions
             let commentActionLinks = `<div class="mod-action-links" style="float:right; padding-right:10px"><a data-post-id="${pid}" class="move-comments-link comments-link red-mod-link" title="move all comments to chat &amp; purge">move to chat</a><span>&nbsp;|&nbsp;</span><a data-post-id="${pid}" class="purge-comments-link comments-link red-mod-link" title="delete all comments">purge all</a></div></div>`;
