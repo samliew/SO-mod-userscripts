@@ -80,6 +80,11 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/nav-expand.gif)
 
 
+### [Chat Transcript Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatTranscriptHelper.user.js)
+
+- Replaces timestamps in chat transcripts with your local time
+
+
 
 ## Queue-specific userscripts
 
