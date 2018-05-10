@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.1
+// @version      1.8
 //
 // @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://serverfault.com/admin/dashboard?flag*=comment*
@@ -110,6 +110,16 @@
         const thisYear = new Date().getFullYear();
         $('.comment-link .relativetime').filter((i, el) => Number(el.title.substr(0,4)) < thisYear).addClass('old-comment');
 
+        // Highlight OP comments (owner blue background)
+        $('.user-action-time').filter((i, el) => el.innerText.indexOf('asked') >= 0).each(function() {
+            const op = $(this).siblings('.user-details').children('a').first().text();
+            $(this).parents('.flagged-post-row').find('.comment-link').next('a').each(function() {
+                if(this.innerText === op) {
+                    $(this).addClass('comment-user owner');
+                }
+            });
+        });
+
         // On delete/dismiss comment action
         $('.delete-comment, .cancel-comment-flag').on('click', function() {
 
@@ -166,6 +176,16 @@
             $flaggedComms.each(function() {
                 let cid = this.id.match(/\d+$/)[0];
                 $('#comment-'+cid).children().css('background', '#ffc');
+            });
+
+            // Highlight OP comments (owner blue background)
+            $('.js-comments-container.js-del-loaded').each(function() {
+                const op = $(this).find('.owner').first().text();
+                $(this).parents('.flagged-post-row').find('.comment-link').next('a').each(function() {
+                    if(this.innerText === op) {
+                        $(this).addClass('comment-user owner');
+                    }
+                });
             });
 
             // Always expand comments if post is expanded, if comments have not been expanded yet
