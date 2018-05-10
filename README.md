@@ -67,6 +67,14 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 - Hide normal flags in flag queue and only show deleted posts
 
 
+### [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts/blob/master/DisplayInlineCommentFlagHistory.user.js) ♦
+
+- Grabs post timelines and display comment flag counts beside post comments
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-10_230533.png)
+- Displays flags on comment hover
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-10_230507.png)
+
+
 ### [Post Ids Everywhere](https://github.com/samliew/SO-mod-userscripts/blob/master/PostIdsEverywhere.user.js)
 
 - Inserts post IDs everywhere where there's a post or post link (for copying/easier x-referencing/etc)
