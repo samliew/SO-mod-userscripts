@@ -3,7 +3,7 @@
 // @description  Grabs post timeline and display comment flags beside post comments
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      0.1.1
 //
 // @include      https://*.stackoverflow.com/questions/*
 // @include      https://*.serverfault.com/questions/*
@@ -17,7 +17,7 @@
     'use strict';
 
     const fkey = StackExchange.options.user.fkey;
-    const baseUrl = `${location.protocol}://${location.hostname}/posts/`;
+    const baseUrl = `//${location.hostname}/posts/`;
 
 
     function doPageload() {
@@ -25,18 +25,9 @@
     }
 
 
-    function listenToPageUpdates() {
-
-        // On any page update
-        $(document).ajaxComplete(function(event, xhr, settings) {
-            getPostTimelines();
-        });
-    }
-
-
     function getPostTimelines() {
 
-        $('.question, .answer').not('.js-cmmtflags-loaded').each(function() {
+        $('.question, .answer').not('.js-cmmtflags-loaded').first().each(function() {
 
             // So we only load each post's timeline once
             $(this).addClass('js-cmmtflags-loaded');
@@ -45,7 +36,11 @@
             const isQ = $(this).hasClass('question');
             console.log(postId, isQ);
 
-            $.get(baseUrl + postId + '/timeline');
+            $.get(baseUrl + postId + '/timeline', function(data) {
+                const cmmtDiv = $('<div class="comment-timeline"></div>').appendTo('#comments-'+postId);
+                $('.event-rows', data).find('tr[data-eventtype="comment"]').appendTo(cmmtDiv);
+                console.log(cmmtDiv);
+            });
         });
     }
 
@@ -54,6 +49,9 @@
 
         const styles = `
 <style>
+.comment-timeline {
+    display: none;
+}
 </style>
 `;
         $('body').append(styles);
@@ -63,6 +61,5 @@
     // On page load
     appendStyles();
     doPageload();
-    listenToPageUpdates();
 
 })();
