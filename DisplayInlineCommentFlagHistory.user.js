@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -75,9 +75,15 @@
                 const cmmt = $(this);
                 const cmmtId = this.dataset.eventid;
                 const cmmtFlagIds = $(this).find('.toggle-comment-flags').attr('data-flag-ids').split(';');
+
+                const comment = $(`#comment-${cmmtId}`);
+                if(comment.hasClass('hasflags')) {
+                    return;
+                }
+                comment.addClass('hasflags');
+
                 const cmmtFlagsDiv = $('<div class="comment-flags"></div>').appendTo(`#comment-${cmmtId} .comment-text`);
                 const cmmtFlagcountDiv = $(`<div class="comment-flagcount supernovabg" title="comment flags">${cmmtFlagIds.length}</div>`).appendTo(`#comment-${cmmtId} .comment-actions`);
-                $(`#comment-${cmmtId}`).addClass('hasflags');
 
                 cmmt.find('tr[data-eventtype]').each(function() {
                     const fEvent = $(this);
