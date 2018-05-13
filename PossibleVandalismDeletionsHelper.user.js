@@ -26,7 +26,7 @@
 
     function doPageload() {
 
-        $('.flagged-post-row td:first').prepend('<div class="post-recommendation">Dismiss</div>');
+        $('.flagged-post-row > td').prepend('<div class="post-recommendation">Dismiss</div>');
 
         $('.post-list a.answer-hyperlink').each(function() {
 
