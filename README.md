@@ -8,13 +8,14 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 
 ## Recommended
 
-These are highly recommended. Minor changes to the UI/defaults makes your mod life easier by a *huge* amount (saving clicks, or having to hunt for a particular link/mod feature, or displaying more info upfront). Click these to jump to their descriptions:
+These are highly recommended. Minor changes to the UI/defaults makes your mod life easier by a *huge* amount (saving clicks, or having to hunt for a particular link/mod feature, or displaying more info upfront). Click these to jump to their descriptions below:
 
 - [Mod User Quicklinks Everywhere](#mod-user-quicklinks-everywhere-)
 - [Mod Popup Dialog Improvements](#mod-popup-dialog-improvements-)
 - [User Review Ban Helper](#user-review-ban-helper-)
 - [Comment Flags Helper](#comment-flags-helper-)
 - [Not An Answer Flag Queue Helper](#not-an-answer-flag-queue-helper-)
+- [Display Inline Comment Flag History](#display-inline-comment-flag-history-)
 
 
 
