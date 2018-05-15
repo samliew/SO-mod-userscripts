@@ -44,7 +44,7 @@
     let ajaxTimeout;
     let reviewFromBottom = false;
     const fkey = StackExchange.options.user.fkey;
-    const newMins = 60 * 60000;
+    const newMins = 24 * 60 * 60000;
 
     // Special characters must be escaped with \\
     const rudeKeywords = [
