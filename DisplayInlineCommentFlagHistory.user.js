@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -35,7 +35,7 @@
                 const eventRows = $('.event-rows', data);
                 const cmmtFlags = eventRows.find('tr[data-eventtype="flag"]').filter((i, el) => $(el).find('.event-type.flag').text() === 'comment flag');
 
-                var erows = eventRows.find('tr[data-eventtype="comment"]').filter((i, el) => $(el).find('.toggle-comment-flags').length == 1).each(function() {
+                eventRows.find('tr[data-eventtype="comment"]').filter((i, el) => $(el).find('.toggle-comment-flags').length == 1).each(function() {
                     const cmmt = $(this);
                     const cmmtId = this.dataset.eventid;
                     const cmmtFlagIds = $(this).find('.toggle-comment-flags').attr('data-flag-ids').split(';');
@@ -54,7 +54,6 @@
                         //console.log(postId, cmmtId, v, fType, fEvent);
                     });
                 }).appendTo(cmmtDiv);
-                console.log(erows);
                 //console.log(cmmtDiv);
 
                 $('.event-comment').filter((i, el) => el.innerText.replace(/(^\s+|\s+$)/g, '') === 'rude or abusive').addClass('rude-abusive');
