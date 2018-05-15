@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -15,6 +15,9 @@
 
 (function() {
     'use strict';
+
+    // Moderator check
+    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
 
     const baseUrl = `//${location.hostname}/posts/`;
 
@@ -78,9 +81,7 @@
                 const cmmtFlagIds = $(this).find('.toggle-comment-flags').attr('data-flag-ids').split(';');
 
                 const comment = $(`#comment-${cmmtId}`);
-                if(comment.hasClass('hasflags')) {
-                    return;
-                }
+                if(comment.hasClass('hasflags')) return;
                 comment.addClass('hasflags');
 
                 const cmmtFlagsDiv = $('<div class="comment-flags"></div>').appendTo(`#comment-${cmmtId} .comment-text`);
