@@ -70,7 +70,7 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 
 ### [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts/blob/master/DisplayInlineCommentFlagHistory.user.js) ♦
 
-- Grabs post timelines and display comment flag counts beside post comments
+- Grabs post timelines and display comment flag counts beside post comments. This also permalinks to comment in post timeline
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-10_230533.png)
 - Displays flags on comment hover
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-10_230507.png)
