@@ -3,7 +3,7 @@
 // @description  Display post score and number of undeleted answers, Recommend action based on post info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      https://stackoverflow.com/admin/dashboard?flagtype=postvandalismdeletionsauto
 // @include      https://serverfault.com/admin/dashboard?flagtype=postvandalismdeletionsauto
@@ -31,7 +31,17 @@
 
         $('.flagged-post-row > td').prepend('<div class="post-recommendation">Dismiss</div>');
 
-        $('.post-list a.answer-hyperlink').each(function() {
+        $('.flagged-post-row').each(function() {
+            const postlist = $('.post-list', this);
+
+            // Move top post link to list
+            postlist.prepend(`<li class="deleted-answer"><span class="revision-comment">${$(this).find('a.question-hyperlink, a.answer-hyperlink').first().parent().html()}</span></li>`);
+
+            // Sort questions to end of list
+            postlist.append( postlist.find('a.question-hyperlink').closest('.deleted-answer').find('.revision-comment').prepend(`<b title="question">Q </b>`).end() );
+        });
+
+        $('.post-list .deleted-answer a.answer-hyperlink').each(function() {
 
             const isQuestion = !$(this).hasClass('answer-hyperlink');
             const total = $(this).parents('.post-list').children().length;
