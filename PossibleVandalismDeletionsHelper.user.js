@@ -3,7 +3,7 @@
 // @description  Display post score and number of undeleted answers, Recommend action based on post info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://stackoverflow.com/admin/dashboard?flagtype=postvandalismdeletionsauto
 // @include      https://serverfault.com/admin/dashboard?flagtype=postvandalismdeletionsauto
@@ -22,6 +22,9 @@
 
 (function() {
     'use strict';
+
+    // Moderator check
+    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
 
 
     function doPageload() {
