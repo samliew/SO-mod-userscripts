@@ -117,7 +117,7 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-01_100511.png)
 - Option to review from the bottom of the page (so page won't jump around after handling each flag)
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210423.png)
-- Option to hide comments posted within the past hour
+- Option to hide comments posted within the past day
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-09_160527.png)
 
 
