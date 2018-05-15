@@ -95,6 +95,12 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 - Replaces timestamps in chat transcripts with your local time
 
 
+### [No Oneboxes in Chat Transcripts](https://github.com/samliew/SO-mod-userscripts/blob/master/NoOneboxesInChatTranscripts.user.js)
+
+- Collapses oneboxes from chat transcripts, click to display onebox
+- Works for bookmarked conversations too
+
+
 
 ## Queue-specific userscripts
 
