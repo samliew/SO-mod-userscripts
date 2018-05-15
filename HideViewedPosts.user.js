@@ -3,7 +3,7 @@
 // @description  Avoid posts already seen and possibly handled by another moderator
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.4
 //
 // @include      https://stackoverflow.com/admin/dashboard*
 // @include      https://serverfault.com/admin/dashboard*
@@ -22,6 +22,10 @@
 
 (function() {
     'use strict';
+
+    // Moderator check
+    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+
 
     // Avoid posts already seen and possibly handled by another moderator
     $('.mod-audit').filter((i,e) => e.innerText.indexOf('question viewed by:') >= 0).closest('.flagged-post-row').remove();
