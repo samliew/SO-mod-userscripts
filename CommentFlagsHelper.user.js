@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8
+// @version      1.10
 //
 // @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://serverfault.com/admin/dashboard?flag*=comment*
@@ -36,6 +36,10 @@
 
 (function() {
     'use strict';
+
+    // Moderator check
+    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+
 
     let ajaxTimeout;
     let reviewFromBottom = false;
