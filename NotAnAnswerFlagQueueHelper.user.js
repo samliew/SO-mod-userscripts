@@ -3,13 +3,17 @@
 // @description  Inserts several sort options for the NAA queue
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.1
+// @version      2.1
 //
 // @match        */admin/dashboard?flagtype=answernotananswer*
 // ==/UserScript==
 
 (function() {
     'use strict';
+
+    // Moderator check
+    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+
 
     var $postsContainer, $posts;
 
