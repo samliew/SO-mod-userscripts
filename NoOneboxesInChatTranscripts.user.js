@@ -3,11 +3,15 @@
 // @description  Collapses oneboxes from chat transcripts, click to display onebox
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
 // @include      https://chat.meta.stackexchange.com/transcript/*
+//
+// @include      https://chat.stackoverflow.com/rooms/*/conversation/*
+// @include      https://chat.stackexchange.com/rooms/*/conversation/*
+// @include      https://chat.meta.stackexchange.com/rooms/*/conversation/*
 // ==/UserScript==
 
 (function() {
