@@ -3,7 +3,7 @@
 // @description  Hide normal flags and only show those that are on deleted posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://stackoverflow.com/admin/dashboard*
 // @include      https://serverfault.com/admin/dashboard*
@@ -19,11 +19,10 @@
 (function() {
     'use strict';
 
-    function doPageload() {
-        $('.answer-link:not(.deleted-answer)').parents('.flagged-post-row').remove();
-    }
+    // Moderator check
+    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
 
-    // On page load
-    doPageload();
+
+    $('.answer-link:not(.deleted-answer)').parents('.flagged-post-row').remove();
 
 })();
