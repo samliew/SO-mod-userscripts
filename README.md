@@ -139,7 +139,8 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 
 ### [Possible Vandalism Deletions Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/PossibleVandalismDeletionsHelper.user.js) ♦
 
-- Display post score and number of undeleted answers
+- Sort answers first
+- Display post score, number of undeleted answers, post age
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-09_220559.png)
 
 - Recommend action based on post info
