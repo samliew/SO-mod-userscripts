@@ -3,13 +3,17 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
 
 (function() {
     'use strict';
+
+    // Moderator check
+    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+
 
     const fkey = StackExchange.options.user.fkey;
     let ajaxTimeout;
