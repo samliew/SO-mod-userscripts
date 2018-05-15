@@ -3,14 +3,14 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
-// @include      https://stackoverflow.com/admin/dashboard?flagtype=answerduplicateanswerauto
-// @include      https://serverfault.com/admin/dashboard?flagtype=answerduplicateanswerauto
-// @include      https://superuser.com/admin/dashboard?flagtype=answerduplicateanswerauto
-// @include      https://askubuntu.com/admin/dashboard?flagtype=answerduplicateanswerauto
-// @include      https://mathoverflow.net/admin/dashboard?flagtype=answerduplicateanswerauto
-// @include      https://*.stackexchange.com/admin/dashboard?flagtype=answerduplicateanswerauto
+// @include      https://*stackoverflow.com/admin/dashboard?flagtype=answerduplicateanswerauto*
+// @include      https://*serverfault.com/admin/dashboard?flagtype=answerduplicateanswerauto*
+// @include      https://*superuser.com/admin/dashboard?flagtype=answerduplicateanswerauto*
+// @include      https://*askubuntu.com/admin/dashboard?flagtype=answerduplicateanswerauto*
+// @include      https://*mathoverflow.net/admin/dashboard?flagtype=answerduplicateanswerauto*
+// @include      https://*.stackexchange.com/admin/dashboard?flagtype=answerduplicateanswerauto*
 // ==/UserScript==
 
 (function() {
