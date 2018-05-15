@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -35,12 +35,13 @@
                 const eventRows = $('.event-rows', data);
                 const cmmtFlags = eventRows.find('tr[data-eventtype="flag"]').filter((i, el) => $(el).find('.event-type.flag').text() === 'comment flag');
 
-                eventRows.find('tr[data-eventtype="comment"]').filter((i, el) => $(el).find('.toggle-comment-flags').length == 1).each(function() {
+                var erows = eventRows.find('tr[data-eventtype="comment"]').filter((i, el) => $(el).find('.toggle-comment-flags').length == 1).each(function() {
                     const cmmt = $(this);
                     const cmmtId = this.dataset.eventid;
                     const cmmtFlagIds = $(this).find('.toggle-comment-flags').attr('data-flag-ids').split(';');
                     const cmmtFlagsDiv = $('<div class="comment-flags"></div>').appendTo(`#comment-${cmmtId} .comment-text`);
-                    const cmmtFlagcountDiv = $(`<div class="comment-flagcount supernovabg" title="comment flags">${cmmtFlagIds.length}</div>`).appendTo(`#comment-${cmmtId} .comment-actions`);
+                    const cmmtFlagcountDiv = $(`<a class="comment-flagcount supernovabg" title="comment flags" href="${baseUrl}${postId}/timeline#comment_${cmmtId}" target="_blank">${cmmtFlagIds.length}</a>`)
+                                                 .appendTo(`#comment-${cmmtId} .comment-actions`);
                     $(`#comment-${cmmtId}`).addClass('hasflags');
 
                     $.each(cmmtFlagIds, function(i, v) {
@@ -48,11 +49,12 @@
                         const fType = fEvent.find('.event-verb').text().replace(/(^\s+|\s+$)/g, '');
                         const num = Number(cmmt.attr('data-flagtype-'+fType)) || 0;
                         cmmt.attr('data-flagtype-'+fType, num + 1);
-                        fEvent.clone(false,true).appendTo(cmmt);
-                        fEvent.clone(false,true).appendTo(cmmtFlagsDiv);
-                        //console.log(postId, cmmtId, v, fType);
+                        fEvent.clone(true,true).appendTo(cmmt);
+                        fEvent.clone(true,true).appendTo(cmmtFlagsDiv);
+                        //console.log(postId, cmmtId, v, fType, fEvent);
                     });
                 }).appendTo(cmmtDiv);
+                console.log(erows);
                 //console.log(cmmtDiv);
 
                 $('.event-comment').filter((i, el) => el.innerText.replace(/(^\s+|\s+$)/g, '') === 'rude or abusive').addClass('rude-abusive');
@@ -83,11 +85,12 @@
                 comment.addClass('hasflags');
 
                 const cmmtFlagsDiv = $('<div class="comment-flags"></div>').appendTo(`#comment-${cmmtId} .comment-text`);
-                const cmmtFlagcountDiv = $(`<div class="comment-flagcount supernovabg" title="comment flags">${cmmtFlagIds.length}</div>`).appendTo(`#comment-${cmmtId} .comment-actions`);
+                const cmmtFlagcountDiv = $(`<a class="comment-flagcount supernovabg" title="comment flags" href="${baseUrl}${postId}/timeline#comment_${cmmtId}" target="_blank">${cmmtFlagIds.length}</a>`)
+                                             .appendTo(`#comment-${cmmtId} .comment-actions`);
 
                 cmmt.find('tr[data-eventtype]').each(function() {
                     const fEvent = $(this);
-                    $(this).clone(false,true).appendTo(cmmtFlagsDiv);
+                    $(this).clone(true,true).appendTo(cmmtFlagsDiv);
                     //console.log(postId, cmmtId, cmmtId);
                 });
             });
@@ -172,7 +175,7 @@
     border-radius: 5px;
     text-align: center;
     font-size: 0.9em;
-    color: white;
+    color: white !important;
 }
 .rude-abusive {
     color: red;
