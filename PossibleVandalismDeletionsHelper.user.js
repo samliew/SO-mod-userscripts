@@ -3,7 +3,7 @@
 // @description  Display post score and number of undeleted answers, Recommend action based on post info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.4
 //
 // @include      https://stackoverflow.com/admin/dashboard?flagtype=postvandalismdeletionsauto
 // @include      https://serverfault.com/admin/dashboard?flagtype=postvandalismdeletionsauto
@@ -38,7 +38,9 @@
             postlist.prepend(`<li class="deleted-answer"><span class="revision-comment">${$(this).find('a.question-hyperlink, a.answer-hyperlink').first().parent().html()}</span></li>`);
 
             // Sort questions to end of list
-            postlist.append( postlist.find('a.question-hyperlink').closest('.deleted-answer').find('.revision-comment').prepend(`<b title="question">Q </b>`).end() );
+            postlist.append(`<li class="title-divider">Questions</li>`);
+            postlist.append( postlist.find('a.question-hyperlink').closest('.deleted-answer') );
+            postlist.prepend(`<li class="title-divider">Answers</li>`);
         });
 
         $('.post-list .deleted-answer a.answer-hyperlink').each(function() {
@@ -60,10 +62,13 @@
                     let answerCount = $('.answer', html).not('.deleted-answer').length;
                     let post = $(isQuestion ? '#question' : '#answer-' + pid, html);
                     let score = Number($('.vote-count-post', post).text());
-                    //console.log(html, post, score);
+                    let dateDiff = Date.now() - new Date($('.relativetime', post).first().attr('title'));
+                    let age = Math.floor(dateDiff / 3600000);
+                    //console.log(html, post, score, dateDiff, age);
 
                     link.before(`<span class="info-num post-score ${score > 0 ? 'red' : ''}" title="post score">${score}</span>`);
                     link.before(`<span class="info-num answer-count ${answerCount == 0 ? 'red' : ''}" title="non-deleted answers on question">${answerCount}</span>`);
+                    link.before(`<span class="info-num post-age" title="post age">${age}d</span>`);
 
                     if(score > 0) {
                         let num = (Number(flag.attr('data-positive-posts')) || 0) + 1;
@@ -95,6 +100,9 @@
 .post-list {
     margin-left: 0;
 }
+.post-list .title-divider {
+    margin-top: 5px;
+}
 .revision-comment {
     position: relative;
     display: block;
@@ -104,7 +112,7 @@
 }
 .info-num {
     display: inline-block;
-    min-width: 25px;
+    min-width: 18px;
     margin-right: 10px;
     font-weight: bold;
     font-size: 1.1em;
@@ -123,6 +131,10 @@
 }
 .tagged-ignored {
     opacity: 1;
+}
+.close-question-button,
+.undelete-post {
+    display: none !important;
 }
 </style>
 `;
