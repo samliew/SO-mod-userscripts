@@ -3,7 +3,7 @@
 // @description  Show Deleted Messages in Chat and Transcripts. Works with NoOneboxesInChat userscript
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -26,26 +26,42 @@
 
         const msgDiv = $(`#message-${mid}`).find('.content');
 
+        // Get message's history
         $.get(`/messages/${mid}/history`, function(data) {
-            const message = $(`#message-${mid}`, data).first().find('.content').html();
+
+            // Get message and deleted-by from history
+            const origMsg = $(`#message-${mid}`, data).first().find('.content').html();
             const deletedBy = $('b:contains("deleted")', data).closest('.monologue').find('.username').attr('target', '_blank').html();
-            msgDiv.append(message);
+
+            // Insert into message
+            msgDiv.append(origMsg);
             msgDiv.find('.deleted').first().html(`(deleted by ${deletedBy})`);
+
+            // Hide oneboxes if userscript is installed
+            if (typeof hideOneboxes === 'function') { hideOneboxes(); }
         });
     }
 
 
     function processNewDeletedMessages() {
 
+        // Use class 'js-history-loaded' to track which ones have been processed
         $('.deleted').not('.js-history-loaded').addClass('js-history-loaded')
-            .parents('.message').addClass('cmmt-deleted').each(function() {
-                const mid = this.id.replace('message-', '');
-                getDeletedMessagesHistory(mid);
-            });
+
+            // Add class 'cmmt-deleted' for styling purposes (background/text color)
+            .parents('.message').addClass('cmmt-deleted')
+
+            // Hand-off message ID to function
+            .each((i, el) => getDeletedMessagesHistory(el.id.replace('message-', '')));
     }
 
 
     function doPageload() {
+
+        // Once on page load
+        processNewDeletedMessages();
+
+        // Occasionally, look for new deleted messages and load them
         setInterval(processNewDeletedMessages, 5000);
     }
 
