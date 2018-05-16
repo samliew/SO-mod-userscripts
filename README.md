@@ -42,12 +42,6 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/mod-messages.png)
 
 
-### [Chat Room Info Annotations](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatRoomInfoAnnotations.user.js) ♦
-
-- Display users' annotation count in chat room general info tab
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210431.png)
-
-
 ### [User Review Ban Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/UserReviewBanHelper.user.js) ♦
 
 - Display users' prior review bans in review (links to review ban history), ban quicklink
@@ -88,6 +82,16 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 
 - On pagination dots "```...```" mouseover, adds additional 30 in-between links
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/nav-expand.gif)
+
+
+
+## Chat-specific userscripts
+
+
+### [Chat Room Info Annotations](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatRoomInfoAnnotations.user.js) ♦
+
+- Display users' annotation count in chat room general info tab
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210431.png)
 
 
 ### [Chat Transcript Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatTranscriptHelper.user.js)
