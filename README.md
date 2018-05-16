@@ -97,8 +97,21 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 
 ### [No Oneboxes in Chat Transcripts](https://github.com/samliew/SO-mod-userscripts/blob/master/NoOneboxesInChatTranscripts.user.js)
 
-- Collapses oneboxes from chat transcripts, click to display onebox
-- Works for bookmarked conversations too
+- Collapses oneboxes from chat transcripts, bookmarked conversations (**live chat untouched**)
+- Click to display onebox
+
+
+### [No Oneboxes in Chat](https://github.com/samliew/SO-mod-userscripts/blob/master/NoOneboxesInChat.user.js)
+
+- Collapses oneboxes from live chat, chat transcripts, bookmarked conversations
+- Click to display onebox
+- Has exposed function to work together with [Show Deleted Messages in Chat](#show-deleted-messages-in-chat) userscript
+
+
+### [Show Deleted Messages in Chat](https://github.com/samliew/SO-mod-userscripts/blob/master/ShowDeletedMessagesInChat.user.js)
+
+- Show deleted messages from live chat, chat transcripts, bookmarked conversations
+- Works with [No Oneboxes in Chat](#no-oneboxes-in-chat) userscript
 
 
 
