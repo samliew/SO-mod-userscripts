@@ -3,7 +3,7 @@
 // @description  Show Deleted Messages in Chat and Transcripts. Works with NoOneboxesInChat userscript
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -27,9 +27,9 @@
         const msgDiv = $(`#message-${mid}`).find('.content');
 
         $.get(`/messages/${mid}/history`, function(data) {
-            const message = $(`#message-${mid}`, data).first().find('.content');
+            const message = $(`#message-${mid}`, data).first().find('.content').html();
             const deletedBy = $('b:contains("deleted")', data).closest('.monologue').find('.username').attr('target', '_blank').html();
-            msgDiv.append(message.children());
+            msgDiv.append(message);
             msgDiv.find('.deleted').first().html(`(deleted by ${deletedBy})`);
         });
     }
