@@ -3,7 +3,7 @@
 // @description  Flair users who voted in the elections when you were elected, or if non-mod, for the latest election
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://stackoverflow.com/*
 // ==/UserScript==
@@ -28,13 +28,7 @@
 
 
     function getLastElectionNum() {
-        const keyroot = 'LastElectionNum';
-        const fullkey = `${keyroot}`;
-        let v = toInt(store.getItem(fullkey));
-
         return new Promise(function(resolve, reject) {
-            if(v != null) { resolve(v); return; }
-
             $.ajax(`https://stackoverflow.com/election/-1`)
                 .done(function(data) {
                     const elections = $('table.elections tr', data);
@@ -42,7 +36,8 @@
                     v = Number(eLatest);
                     store.setItem(fullkey, v);
                     resolve(v);
-                });
+                })
+                .fail(reject);
         });
     }
 
@@ -62,7 +57,8 @@
                     v = Number(eNum);
                     store.setItem(fullkey, v);
                     resolve(v);
-                });
+                })
+                .fail(reject);
         });
     }
 
@@ -80,7 +76,8 @@
                     v = $(`.single-badge-reason a[href$="${electionNum}"]`, data).length == 1;
                     store.setItem(fullkey, v);
                     resolve(v);
-                });
+                })
+                .fail(reject);
         });
     }
 
@@ -162,7 +159,6 @@ unsafeWindow.lsRemoveItemsWithPrefix =
 
 
 unsafeWindow.purgeElectionSupporterFlairs = function() {
-    lsRemoveItemsWithPrefix('LastElectionNum');
     lsRemoveItemsWithPrefix('UserElectionNum');
     lsRemoveItemsWithPrefix('UserParticipationForElection');
 };
