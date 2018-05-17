@@ -84,6 +84,14 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/nav-expand.gif)
 
 
+### [Election Supporter Flairs](https://github.com/samliew/SO-mod-userscripts/blob/master/ElectionSupporterFlairs.user.js)
+
+- Flair users who voted in the elections...
+  - mods:  when you were elected
+  - users: for the latest election
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-17_210559.png)
+
+
 
 ## Chat-specific userscripts
 
