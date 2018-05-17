@@ -3,7 +3,7 @@
 // @description  Flair users who voted in the elections when you were elected, or if non-mod, for the latest election
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://stackoverflow.com/*
 // ==/UserScript==
@@ -12,8 +12,14 @@
     'use strict';
 
     const store = window.localStorage;
-    const myUserId = StackExchange.options.user.userId;
+    const myUserId = StackExchange.options.user.userId || 0;
     let electionNum;
+
+
+    function toInt(v) {
+        const intVal = Number(v);
+        return v == null || isNaN(intVal) ? null : intVal;
+    }
 
 
     function toBool(v) {
@@ -24,15 +30,15 @@
     function getLastElectionNum() {
         const keyroot = 'LastElectionNum';
         const fullkey = `${keyroot}`;
-        let v = Number(store.getItem(fullkey));
+        let v = toInt(store.getItem(fullkey));
 
         return new Promise(function(resolve, reject) {
-            if(v != null && !isNaN(v)) { resolve(v); return; }
+            if(v != null) { resolve(v); return; }
 
             $.ajax(`https://stackoverflow.com/election/-1`)
                 .done(function(data) {
                     const elections = $('table.elections tr', data);
-                    const eLatest = elections.last().find('a').first().attr('href').match(/\d+$/)[0]
+                    const eLatest = elections.last().find('a').first().attr('href').match(/\d+$/)[0];
                     v = Number(eLatest);
                     store.setItem(fullkey, v);
                     resolve(v);
@@ -44,10 +50,10 @@
     function getUserElectionNum(uid) {
         const keyroot = 'UserElectionNum';
         const fullkey = `${keyroot}:${uid}`;
-        let v = Number(store.getItem(fullkey));
+        let v = toInt(store.getItem(fullkey));
 
         return new Promise(function(resolve, reject) {
-            if(v != null && !isNaN(v)) { resolve(v); return; }
+            if(v != null) { resolve(v); return; }
 
             $.ajax(`https://stackoverflow.com/users/history/${uid}?type=Promoted+to+moderator+for+winning+an+election`)
                 .done(function(data) {
@@ -97,7 +103,7 @@
 
 
     function doPageload() {
-        
+
         let promise;
         if(StackExchange.options.user.isModerator) {
             promise = getUserElectionNum(myUserId);
@@ -105,7 +111,7 @@
         else {
             promise = getLastElectionNum();
         }
-        
+
         promise.then(function(v) {
             electionNum = v;
             if(!isNaN(electionNum)) initUserElectionParticipation();
