@@ -3,9 +3,14 @@
 // @description  Flair users who voted in the elections when you were elected, or if non-mod, for the latest election
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      https://stackoverflow.com/*
+// @include      https://serverfault.com/*
+// @include      https://superuser.com/*
+// @include      https://askubuntu.com/*
+// @include      https://mathoverflow.net/*
+// @include      https://*.stackexchange.com/*
 // ==/UserScript==
 
 (function() {
@@ -29,7 +34,7 @@
 
     function getLastElectionNum() {
         return new Promise(function(resolve, reject) {
-            $.ajax(`https://stackoverflow.com/election/-1`)
+            $.ajax(`/election/-1`)
                 .done(function(data) {
                     const elections = $('table.elections tr', data);
                     const eLatest = elections.last().find('a').first().attr('href').match(/\d+$/)[0];
@@ -50,7 +55,7 @@
         return new Promise(function(resolve, reject) {
             if(v != null) { resolve(v); return; }
 
-            $.ajax(`https://stackoverflow.com/users/history/${uid}?type=Promoted+to+moderator+for+winning+an+election`)
+            $.ajax(`/users/history/${uid}?type=Promoted+to+moderator+for+winning+an+election`)
                 .done(function(data) {
                     const hist = $('#user-history tbody tr', data);
                     const eNum = hist.first().children().eq(2).text().match(/\d+/)[0];
@@ -71,7 +76,7 @@
         return new Promise(function(resolve, reject) {
             if(v != null) { resolve(v); return; }
 
-            $.get(`https://stackoverflow.com/help/badges/1974/constituent?userid=${uid}`)
+            $.get(`/help/badges/1974/constituent?userid=${uid}`)
                 .done(function(data) {
                     v = $(`.single-badge-reason a[href$="${electionNum}"]`, data).length == 1;
                     store.setItem(fullkey, v);
@@ -159,6 +164,7 @@ unsafeWindow.lsRemoveItemsWithPrefix =
 
 
 unsafeWindow.purgeElectionSupporterFlairs = function() {
+    lsRemoveItemsWithPrefix('LastElectionNum');
     lsRemoveItemsWithPrefix('UserElectionNum');
     lsRemoveItemsWithPrefix('UserParticipationForElection');
 };
