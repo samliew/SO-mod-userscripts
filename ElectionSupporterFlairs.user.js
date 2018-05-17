@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Election Supporter Flairs
-// @description  Flair users who voted in the elections when you were elected
+// @description  Flair users who voted in the elections when you were elected, or if non-mod, for the latest election
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
 // @version      1.0
@@ -11,17 +11,33 @@
 (function() {
     'use strict';
 
-    // Moderator check
-    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
-
-
     const store = window.localStorage;
     const myUserId = StackExchange.options.user.userId;
-    let myElectionNum;
+    let electionNum;
 
 
     function toBool(v) {
         return v == null ? null : v === true || v.toLowerCase() === 'true';
+    }
+
+
+    function getLastElectionNum() {
+        const keyroot = 'LastElectionNum';
+        const fullkey = `${keyroot}`;
+        let v = Number(store.getItem(fullkey));
+
+        return new Promise(function(resolve, reject) {
+            if(v != null && !isNaN(v)) { resolve(v); return; }
+
+            $.ajax(`https://stackoverflow.com/election/-1`)
+                .done(function(data) {
+                    const elections = $('table.elections tr', data);
+                    const eLatest = elections.last().find('a').first().attr('href').match(/\d+$/)[0]
+                    v = Number(eLatest);
+                    store.setItem(fullkey, v);
+                    resolve(v);
+                });
+        });
     }
 
 
@@ -36,8 +52,8 @@
             $.ajax(`https://stackoverflow.com/users/history/${uid}?type=Promoted+to+moderator+for+winning+an+election`)
                 .done(function(data) {
                     const hist = $('#user-history tbody tr', data);
-                    const comment = hist.first().children().eq(2).text().match(/\d+/)[0];
-                    v = comment;
+                    const eNum = hist.first().children().eq(2).text().match(/\d+/)[0];
+                    v = Number(eNum);
                     store.setItem(fullkey, v);
                     resolve(v);
                 });
@@ -63,7 +79,7 @@
     }
 
 
-    function doPageload() {
+    function initUserElectionParticipation() {
 
         // Get all unique users on page except own
         let userIds = $('a[href^="/users/"]').map((i, el) => $(el).attr('href').match(/\d+/)[0]).get();
@@ -71,11 +87,28 @@
             return self.indexOf(value) === index && value !== myUserId.toString();
         });
 
-        // Flair users who voted in the elections when you were elected
+        // Flair users who voted in the elections
         userIds.forEach(function(uid) {
-            getUserParticipationForElection(uid, myElectionNum).then(function(v) {
+            getUserParticipationForElection(uid, electionNum).then(function(v) {
                 if(v) $('.user-details, .comment-body, .question-status').find(`a[href^="/users/${uid}/"]`).addClass('election-supporter');
             });
+        });
+    }
+
+
+    function doPageload() {
+        
+        let promise;
+        if(StackExchange.options.user.isModerator) {
+            promise = getUserElectionNum(myUserId);
+        }
+        else {
+            promise = getLastElectionNum();
+        }
+        
+        promise.then(function(v) {
+            electionNum = v;
+            if(!isNaN(electionNum)) initUserElectionParticipation();
         });
     }
 
@@ -101,10 +134,7 @@
 
     // On page load
     appendStyles();
-    getUserElectionNum(myUserId).then(function(v) {
-        myElectionNum = v;
-        if(!isNaN(myElectionNum)) doPageload();
-    });
+    doPageload();
 
 })();
 
@@ -126,6 +156,7 @@ unsafeWindow.lsRemoveItemsWithPrefix =
 
 
 unsafeWindow.purgeElectionSupporterFlairs = function() {
+    lsRemoveItemsWithPrefix('LastElectionNum');
     lsRemoveItemsWithPrefix('UserElectionNum');
     lsRemoveItemsWithPrefix('UserParticipationForElection');
 };
