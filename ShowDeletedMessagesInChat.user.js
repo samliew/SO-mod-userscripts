@@ -23,8 +23,8 @@
 
 
     function getDeletedMessagesHistory(mid) {
-
-        const msgDiv = $(`#message-${mid}`).find('.content');
+        const msgDiv = $(`#message-${mid}`);
+        const contentDiv = msgDiv.find('.content');
 
         // Get message's history
         $.get(`/messages/${mid}/history`, function(data) {
@@ -34,8 +34,11 @@
             const deletedBy = $('b:contains("deleted")', data).closest('.monologue').find('.username').attr('target', '_blank').html();
 
             // Insert into message
-            msgDiv.append(origMsg);
-            msgDiv.find('.deleted').first().html(`(deleted by ${deletedBy})`);
+            contentDiv.append(origMsg);
+            contentDiv.find('.deleted').first().html(`(deleted by ${deletedBy})`);
+
+            // Add class 'cmmt-deleted' for styling purposes (background/text color)
+            msgDiv.addClass('cmmt-deleted');
 
             // Hide oneboxes if userscript is installed
             if (typeof hideOneboxes === 'function') { hideOneboxes(); }
@@ -48,8 +51,7 @@
         // Use class 'js-history-loaded' to track which ones have been processed
         $('.deleted').not('.js-history-loaded').addClass('js-history-loaded')
 
-            // Add class 'cmmt-deleted' for styling purposes (background/text color)
-            .parents('.message').addClass('cmmt-deleted')
+            .parents('.message')
 
             // Hand-off message ID to function
             .each((i, el) => getDeletedMessagesHistory(el.id.replace('message-', '')));
