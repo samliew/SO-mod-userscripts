@@ -3,7 +3,7 @@
 // @description  Flair users who voted in the elections when you were elected, or if non-mod, for the latest election
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.4
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -18,7 +18,7 @@
 
     const store = window.localStorage;
     const myUserId = StackExchange.options.user.userId || 0;
-    let electionNum;
+    let electionNum, constituentBadgeId;
 
 
     function toInt(v) {
@@ -29,6 +29,27 @@
 
     function toBool(v) {
         return v == null ? null : v === true || v.toLowerCase() === 'true';
+    }
+
+
+    function getConstituentBadgeId() {
+        const keyroot = 'ConstituentBadgeId';
+        const fullkey = `${keyroot}`;
+        let v = toInt(store.getItem(fullkey));
+
+        return new Promise(function(resolve, reject) {
+            if(v != null) { resolve(v); return; }
+
+            $.ajax(`/help/badges`)
+                .done(function(data) {
+                    const badges = $('.badge', data);
+                    const cBadge = badges.filter((i,el) => $(el).text().indexOf('Constituent') >= 0);
+                    v = Number(cBadge.attr('href').match(/\d+/)[0]);
+                    store.setItem(fullkey, v);
+                    resolve(v);
+                })
+                .fail(reject);
+        });
     }
 
 
@@ -75,7 +96,7 @@
         return new Promise(function(resolve, reject) {
             if(v != null) { resolve(v); return; }
 
-            $.get(`/help/badges/1974/constituent?userid=${uid}`)
+            $.get(`/help/badges/${constituentBadgeId}/constituent?userid=${uid}`)
                 .done(function(data) {
                     v = $(`.single-badge-reason a[href$="${electionNum}"]`, data).length == 1;
                     store.setItem(fullkey, v);
@@ -105,17 +126,15 @@
 
     function doPageload() {
 
-        let promise;
-        if(StackExchange.options.user.isModerator) {
-            promise = getUserElectionNum(myUserId);
-        }
-        else {
-            promise = getLastElectionNum();
-        }
+        getConstituentBadgeId().then(function(v) {
+            constituentBadgeId = v;
 
-        promise.then(function(v) {
-            electionNum = v;
-            if(!isNaN(electionNum)) initUserElectionParticipation();
+            let promise = StackExchange.options.user.isModerator ? getUserElectionNum(myUserId) : getLastElectionNum();
+            promise.then(function(v) {
+                electionNum = v;
+
+                if(!isNaN(electionNum)) initUserElectionParticipation();
+            });
         });
     }
 
