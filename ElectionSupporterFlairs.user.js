@@ -3,7 +3,7 @@
 // @description  Flair users who voted in the elections when you were elected, or if non-mod, for the latest election
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -38,8 +38,7 @@
                 .done(function(data) {
                     const elections = $('table.elections tr', data);
                     const eLatest = elections.last().find('a').first().attr('href').match(/\d+$/)[0];
-                    v = Number(eLatest);
-                    store.setItem(fullkey, v);
+                    let v = Number(eLatest);
                     resolve(v);
                 })
                 .fail(reject);
