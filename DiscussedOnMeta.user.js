@@ -3,7 +3,7 @@
 // @description  For questions, insert a link to search if it's discussed on Meta
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.3
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
@@ -67,8 +67,7 @@
                                 <div class="meta-mentions"></div>
                             </div>`);
                         results.find('a').attr('href', (i,v) => 'https://' + metaDomain + v).attr('target', '_blank');
-                        metaPosts.find('.meta-mentions').append(results);
-                        post.find('.postcell').append(metaPosts);
+                        metaPosts.insertBefore(post).find('.meta-mentions').append(results);
                     }
                 });
         });
@@ -81,11 +80,16 @@
 <style>
 .meta-mentioned {
     position: relative;
-    height: 36px;
-    margin: 10px 0 4px;
+    width: 100%;
+    height: 38px;
+    margin: 0 0 15px;
     padding: 10px 12px;
-    background: #f6f6f6;
+    background: #FFF8DC;
+    border: 1px solid #E0DCBF;
     z-index: 1;
+}
+.meta-mentioned:hover {
+    z-index: 100;
 }
 .meta-mentions-toggle {
     position: absolute;
@@ -132,9 +136,9 @@
     display: none;
     position: absolute;
     top: 100%;
-    width: 100%;
+    width: calc(100% + 2px);
     min-height: 40px;
-    margin-left: -12px;
+    margin-left: -13px;
     padding: 12px;
     background: #fff;
     border: 1px solid #ccc;
