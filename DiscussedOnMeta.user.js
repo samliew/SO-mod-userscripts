@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Discussed on Meta
-// @description  For questions, insert a link to search if it's discussed on Meta
+// @description  For questions, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.3.1
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
