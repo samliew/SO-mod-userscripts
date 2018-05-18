@@ -3,7 +3,7 @@
 // @description  For Q&As, insert a link to search if it's discussed on Meta
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
@@ -26,7 +26,7 @@
 
         $('.question, .answer').each(function() {
             const pid = $(this).data('answerid') || $(this).data('questionid');
-            $(this).find('.post-menu').append(`<a href="//${metaUrl}/search?q=url%3A${pid}" target="_blank">meta?</a>`);
+            $(this).find('.post-menu').append(`<a href="//${metaUrl}/search?tab=newest&q=url%3A${pid}" target="_blank">meta?</a>`);
         });
     }
 
