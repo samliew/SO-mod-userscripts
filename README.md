@@ -84,6 +84,11 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/nav-expand.gif)
 
 
+### [Discussed On Meta](https://github.com/samliew/SO-mod-userscripts/blob/master/DiscussedOnMeta.user.js)
+
+- For Q&As, insert a link to search if it's discussed on Meta
+
+
 ### [Election Supporter Flairs](https://github.com/samliew/SO-mod-userscripts/blob/master/ElectionSupporterFlairs.user.js)
 
 - Flair users who voted in the elections...
