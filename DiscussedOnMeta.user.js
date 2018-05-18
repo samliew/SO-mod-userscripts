@@ -3,7 +3,7 @@
 // @description  For questions, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.1
+// @version      2.3.2
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
@@ -17,6 +17,9 @@
 
 (function() {
     'use strict';
+
+    // Don't run on Meta sites
+    if(location.hostname.indexOf('meta.') >= 0) return;
 
     let metaDomain = 'meta.' + location.hostname;
     if(location.hostname.indexOf('stackexchange.com') >= 0) {
@@ -86,7 +89,11 @@
     padding: 10px 12px;
     background: #FFF8DC;
     border: 1px solid #E0DCBF;
+    box-sizing: border-box;
     z-index: 1;
+}
+.meta-mentioned * {
+    box-sizing: border-box;
 }
 .meta-mentioned:hover {
     z-index: 100;
@@ -136,6 +143,7 @@
     display: none;
     position: absolute;
     top: 100%;
+    max-width: calc(100% + 2px);
     width: calc(100% + 2px);
     min-height: 40px;
     margin-left: -13px;
@@ -146,6 +154,7 @@
     z-index: 1;
 }
 .meta-mentions .question-summary {
+    max-width: 100%;
     padding: 10px 0;
 }
 .meta-mentions .question-summary:last-child {
@@ -165,6 +174,9 @@
 .meta-mentions .question-summary .started {
     margin-right: 10px;
     text-align: right;
+}
+.meta-mentions .question-summary .summary {
+    max-width: 600px;
 }
 .meta-mentions .question-summary .post-tag {
     font-size: 11px;
