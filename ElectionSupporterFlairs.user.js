@@ -3,7 +3,7 @@
 // @description  Flair users who voted in the elections when you were elected, or if non-mod, for the latest election
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.6
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -11,6 +11,8 @@
 // @include      https://askubuntu.com/*
 // @include      https://mathoverflow.net/*
 // @include      https://*.stackexchange.com/*
+//
+// @exclude      */show-user-votes/*
 // ==/UserScript==
 
 (function() {
@@ -114,7 +116,10 @@
             // Get user participation for each user
             getUserParticipationForElection(uid, electionNum).then(function(v) {
                 // Flair user if voted in the elections
-                if(v) $('.user-details, .comment-body, .question-status').find(`a[href^="/users/${uid}/"]`).addClass('election-supporter');
+                if(v) {
+                    $('.user-details, .comment-body, .question-status').find(`a[href^="/users/${uid}/"]`).addClass('election-supporter');
+                    $('.user-page').find('.user-card-name .top-badge, h1 span').before(`<span class="election-supporter large" title="election supporter!"></span>`);
+                }
             })
         );
     }
@@ -172,6 +177,12 @@
     font-size: 12px;
     line-height: 1;
     color: #5A5;
+}
+.election-supporter.large:after {
+    top: -4px;
+    margin-left: 0;
+    margin-right: 10px;
+    font-size: 16px;
 }
 </style>
 `;
