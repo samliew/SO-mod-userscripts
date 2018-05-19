@@ -165,7 +165,7 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 
 ### [Not An Answer Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/NotAnAnswerFlagQueueHelper.user.js) ♦
 
-- Inserts several sort options for the NAA queue
+- Inserts several sort options for the **NAA / VLQ / Review LQ Disputed** queues
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-30_150426.png)
 
 
