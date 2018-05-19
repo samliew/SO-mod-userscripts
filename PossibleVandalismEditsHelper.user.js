@@ -3,7 +3,7 @@
 // @description  Display revision count and post age
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=postvandalismeditsauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=postvandalismeditsauto*
@@ -56,9 +56,13 @@
 <style>
 .post-header,
 .post-summary,
-.delete-post ,
-p[title="question originally asked"] {
-    display: none;
+.close-question-button,
+.undelete-post,
+.delete-post,
+p[title="question originally asked"],
+.user-action-time,
+.mod-audit-user-info + br {
+    display: none !important;
 }
 .post-list {
     margin-left: 0;
@@ -94,10 +98,6 @@ p[title="question originally asked"] {
 }
 .tagged-ignored {
     opacity: 1;
-}
-.close-question-button,
-.undelete-post {
-    display: none !important;
 }
 </style>
 `;
