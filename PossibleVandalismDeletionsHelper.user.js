@@ -3,21 +3,14 @@
 // @description  Display post score and number of undeleted answers, Recommend action based on post info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
-// @include      https://stackoverflow.com/admin/dashboard?flagtype=postvandalismdeletionsauto
-// @include      https://serverfault.com/admin/dashboard?flagtype=postvandalismdeletionsauto
-// @include      https://superuser.com/admin/dashboard?flagtype=postvandalismdeletionsauto
-// @include      https://askubuntu.com/admin/dashboard?flagtype=postvandalismdeletionsauto
-// @include      https://mathoverflow.net/admin/dashboard?flagtype=postvandalismdeletionsauto
-// @include      https://*.stackexchange.com/admin/dashboard?flagtype=postvandalismdeletionsauto
-//
-// @include      https://meta.stackoverflow.com/admin/dashboard?flagtype=postvandalismdeletionsauto
-// @include      https://meta.serverfault.com/admin/dashboard?flagtype=postvandalismdeletionsauto
-// @include      https://meta.superuser.com/admin/dashboard?flagtype=postvandalismdeletionsauto
-// @include      https://meta.askubuntu.com/admin/dashboard?flagtype=postvandalismdeletionsauto
-// @include      https://meta.mathoverflow.net/admin/dashboard?flagtype=postvandalismdeletionsauto
-// @include      https://meta.stackexchange.com/admin/dashboard?flagtype=postvandalismdeletionsauto
+// @include      https://*stackoverflow.com/admin/dashboard?flagtype=postvandalismdeletionsauto*
+// @include      https://*serverfault.com/admin/dashboard?flagtype=postvandalismdeletionsauto*
+// @include      https://*superuser.com/admin/dashboard?flagtype=postvandalismdeletionsauto*
+// @include      https://*askubuntu.com/admin/dashboard?flagtype=postvandalismdeletionsauto*
+// @include      https://*mathoverflow.net/admin/dashboard?flagtype=postvandalismdeletionsauto*
+// @include      https://*.stackexchange.com/admin/dashboard?flagtype=postvandalismdeletionsauto*
 // ==/UserScript==
 
 (function() {
