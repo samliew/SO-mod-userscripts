@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Discussed on Meta
-// @description  For questions, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
+// @description  For questions and answers, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.2
+// @version      2.4
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
@@ -51,9 +51,9 @@
 
     function doPageload() {
 
-        $('.question').each(function() {
+        $('.question, .answer').each(function() {
             const post = $(this);
-            const pid = $(this).data('questionid');
+            const pid = $(this).data('answerid') || $(this).data('questionid');
             const searchUrl = `https://${metaDomain}/search?tab=newest&q=url%3A${pid}`;
 
             ajaxPromise(searchUrl)
@@ -91,6 +91,9 @@
     border: 1px solid #E0DCBF;
     box-sizing: border-box;
     z-index: 1;
+}
+#answers .meta-mentioned {
+    margin: 15px 0 0;
 }
 .meta-mentioned * {
     box-sizing: border-box;
