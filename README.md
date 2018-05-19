@@ -186,3 +186,9 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 
 - Recommend action based on post info
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-09_220518.png)
+
+
+### [Possible Vandalism Edits Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/PossibleVandalismEditsHelper.user.js) ♦
+
+- Similar to the above, display revision count, post age
+- Does not recommend as edits still need to be reviewed manually
