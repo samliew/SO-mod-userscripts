@@ -3,7 +3,7 @@
 // @description  Flair users who voted in the elections when you were elected, or if non-mod, for the latest election
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.5
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -107,6 +107,19 @@
     }
 
 
+    function getUsersParticipationForElection(uids, electionNum) {
+
+        // For each group of userIds
+        uids.forEach(uid =>
+            // Get user participation for each user
+            getUserParticipationForElection(uid, electionNum).then(function(v) {
+                // Flair user if voted in the elections
+                if(v) $('.user-details, .comment-body, .question-status').find(`a[href^="/users/${uid}/"]`).addClass('election-supporter');
+            })
+        );
+    }
+
+
     function initUserElectionParticipation() {
 
         // Get all unique users on page except own
@@ -115,25 +128,33 @@
             return self.indexOf(value) === index && value !== myUserId.toString();
         });
 
-        // Flair users who voted in the elections
-        userIds.forEach(function(uid) {
-            getUserParticipationForElection(uid, electionNum).then(function(v) {
-                if(v) $('.user-details, .comment-body, .question-status').find(`a[href^="/users/${uid}/"]`).addClass('election-supporter');
-            });
-        });
+        // Stagger ajax calls using timeouts
+        for(var i = 0; i < Math.ceil(userIds.length / 10); i++) {
+            setTimeout(
+                uids => getUsersParticipationForElection(uids, electionNum),
+                3000 * i,
+                userIds.slice(i * 10, i * 10 + 10)
+            );
+        }
     }
 
 
     function doPageload() {
 
+        // We need the site's constituentBadgeId to proceed
         getConstituentBadgeId().then(function(v) {
             constituentBadgeId = v;
 
+            // Which election number to use depends whether user is mod
             let promise = StackExchange.options.user.isModerator ? getUserElectionNum(myUserId) : getLastElectionNum();
             promise.then(function(v) {
                 electionNum = v;
 
-                if(!isNaN(electionNum)) initUserElectionParticipation();
+                console.log('constituentBadgeId: ' + constituentBadgeId);
+                console.log('electionNum: ' + electionNum);
+
+                // Validate required ids before continuing
+                if(!isNaN(constituentBadgeId) && !isNaN(electionNum)) initUserElectionParticipation();
             });
         });
     }
@@ -167,7 +188,7 @@
 
 unsafeWindow.lsRemoveItemsWithPrefix =
     unsafeWindow.lsRemoveItemsWithPrefix ||
-    function(prefix, log = false) {
+    function(prefix) {
         const items = [];
         for(let i = localStorage.length - 1; i >= 0; i--) {
             const key = localStorage.key(i);
@@ -176,7 +197,7 @@ unsafeWindow.lsRemoveItemsWithPrefix =
                 localStorage.removeItem(key);
             }
         }
-        if(log) console.table(items);
+        console.log(items.length + ' items cleared');
         return items.length;
     };
 
