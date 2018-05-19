@@ -1,11 +1,13 @@
 // ==UserScript==
-// @name         Not An Answer Flag Queue Helper
-// @description  Inserts several sort options for the NAA queue
+// @name         NAA / VLQ Flag Queue Helper
+// @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
-// @match        */admin/dashboard?flagtype=answernotananswer*
+// @include      */admin/dashboard?flagtype=lowquality*
+// @include      */admin/dashboard?flagtype=answernotananswer*
+// @include      */admin/dashboard?flagtype=reviewlowqualitydisputedauto*
 // ==/UserScript==
 
 (function() {
@@ -110,7 +112,7 @@
                 <a data-filter="flag-count">Flag Count</a>
                 <a data-filter="post-length">Post Length</a>
             </div>`);
-        $('#chk-apply-filters').parent().append($filterOpts);
+        $filterOpts.insertBefore('.flagged-posts.moderator');
 
         // Sort options event
         $('#flag-queue-tabs').on('click', 'a[data-filter]', function() {
