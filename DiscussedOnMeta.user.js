@@ -3,7 +3,7 @@
 // @description  For questions and answers, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.5
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
@@ -54,7 +54,7 @@
         $('.question, .answer').each(function() {
             const post = $(this);
             const pid = $(this).data('answerid') || $(this).data('questionid');
-            const searchUrl = `https://${metaDomain}/search?tab=newest&q=url%3A${pid}`;
+            const searchUrl = `https://${metaDomain}/search?tab=newest&q=url%3A${location.hostname}%2F*%2F${pid}`;
 
             ajaxPromise(searchUrl)
                 .then(function(data) {
