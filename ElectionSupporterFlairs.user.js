@@ -3,7 +3,7 @@
 // @description  Flair users who voted in the elections when you were elected, or if non-mod, for the latest election
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -186,20 +186,19 @@
 })();
 
 
-unsafeWindow.lsRemoveItemsWithPrefix =
-    unsafeWindow.lsRemoveItemsWithPrefix ||
-    function(prefix) {
-        const items = [];
-        for(let i = localStorage.length - 1; i >= 0; i--) {
-            const key = localStorage.key(i);
-            if(key && key.indexOf(prefix) === 0) {
-                items[key] = localStorage.getItem(key);
-                localStorage.removeItem(key);
-            }
+unsafeWindow.lsRemoveItemsWithPrefix = function(prefix) {
+    const store = window.localStorage;
+    let count = 0;
+    for(let i = store.length - 1; i >= 0; i--) {
+        const key = store.key(i);
+        if(key && key.indexOf(prefix) === 0) {
+            store.removeItem(key);
+            count++;
         }
-        console.log(items.length + ' items cleared');
-        return items.length;
-    };
+    }
+    console.log(count + ' items cleared');
+    return count;
+};
 
 
 unsafeWindow.purgeElectionSupporterFlairs = function() {
