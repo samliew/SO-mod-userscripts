@@ -5,8 +5,10 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 [Bug reports](https://github.com/samliew/SO-mod-userscripts/issues), Forks, and PRs welcome!
 
 
+<br>
 
-## Recommended
+## Recommended for moderators
+
 
 These are highly recommended. Minor changes to the UI/defaults makes your mod life easier by a *huge* amount (saving clicks, or having to hunt for a particular link/mod feature, or displaying more info upfront). Click these to jump to their descriptions below:
 
@@ -18,6 +20,7 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 - [Display Inline Comment Flag History](#display-inline-comment-flag-history-)
 
 
+<br>
 
 ## General userscripts
 
@@ -102,6 +105,7 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-17_210559.png)
 
 
+<br>
 
 ## Chat-specific userscripts
 
@@ -141,6 +145,7 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 - Works with [No Oneboxes in Chat](#no-oneboxes-in-chat) userscript
 
 
+<br>
 
 ## Queue-specific userscripts
 
