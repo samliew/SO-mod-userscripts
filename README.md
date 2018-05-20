@@ -112,6 +112,11 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210431.png)
 
 
+### [Chat Transcripts By Default](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatTranscriptsByDefault.user.js)
+
+- Rewrites chat room links in comments to chat transcript, to avoid joining the room
+
+
 ### [Chat Transcript Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatTranscriptHelper.user.js)
 
 - Replaces timestamps in chat transcripts with your local time
