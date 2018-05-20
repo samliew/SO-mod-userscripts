@@ -135,7 +135,7 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 - Has exposed function to work together with [Show Deleted Messages in Chat](#show-deleted-messages-in-chat) userscript
 
 
-### [Show Deleted Messages in Chat](https://github.com/samliew/SO-mod-userscripts/blob/master/ShowDeletedMessagesInChat.user.js)
+### [Show Deleted Messages in Chat](https://github.com/samliew/SO-mod-userscripts/blob/master/ShowDeletedMessagesInChat.user.js) ♦
 
 - Show deleted messages from live chat, chat transcripts, bookmarked conversations
 - Works with [No Oneboxes in Chat](#no-oneboxes-in-chat) userscript
