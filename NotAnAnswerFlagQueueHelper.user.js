@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2.1
+// @version      2.2.2
 //
 // @include      */admin/dashboard?flagtype=postlowquality*
 // @include      */admin/dashboard?flagtype=answernotananswer*
@@ -59,8 +59,8 @@
 
             case 'delete-votes':
                 sortFunction = function(a, b) {
-                    let aDelv = Number($(a).find('.delete-post').val().replace(/[^\d]/g, '')),
-                        bDelv = Number($(b).find('.delete-post').val().replace(/[^\d]/g, ''));
+                    let aDelv = Number(($(a).find('.delete-post').val() || "0").replace(/[^\d]/g, '')),
+                        bDelv = Number(($(b).find('.delete-post').val() || "0").replace(/[^\d]/g, ''));
 
                     if(aDelv == bDelv) return 0;
                     return (aDelv < bDelv) ? 1 : -1;
