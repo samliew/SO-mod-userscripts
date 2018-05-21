@@ -3,7 +3,7 @@
 // @description  Some magic links are not parsed in Stack Overflow Chat. This script parses and submit expanded magic links via an edit to your latest message.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.2
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // ==/UserScript==
@@ -29,14 +29,14 @@
 
 
     function convertMagicLinksInMessage(msg) {
-        msg = msg.replace('[mcve]', `[Minimal, Complete, and Verifiable example](${mainDomain}/help/mcve)`);
-        msg = msg.replace('[help]', `[help center](${mainDomain}/help)`);
-        msg = msg.replace('[help/on-topic]', `[help center](${mainDomain}/help/on-topic)`);
-        msg = msg.replace('[help/dont-ask]', `[help center](${mainDomain}/help/dont-ask)`);
-        msg = msg.replace('[help/behavior]', `[help center](${mainDomain}/help/behavior)`);
-        msg = msg.replace('[meta-help]', `[help center](${mainDomain}/help/whats-meta)`);
-        msg = msg.replace('[tour]', `[tour](${mainDomain}/tour)`);
-        msg = msg.replace('[chat]', `[Stack Overflow Chat](https://${location.hostname})`);
+        msg = msg.replace(/\[mcve\](?!=\()/gi, `[Minimal, Complete, and Verifiable example](${mainDomain}/help/mcve)`);
+        msg = msg.replace(/\[help\](?!=\()/gi, `[help center](${mainDomain}/help)`);
+        msg = msg.replace(/\[help\/on-topic\](?!=\()/gi, `[help center](${mainDomain}/help/on-topic)`);
+        msg = msg.replace(/\[help\/dont-ask\](?!=\()/gi, `[help center](${mainDomain}/help/dont-ask)`);
+        msg = msg.replace(/\[help\/behavior\](?!=\()/gi, `[help center](${mainDomain}/help/behavior)`);
+        msg = msg.replace(/\[meta-help\](?!=\()/gi, `[help center](${mainDomain}/help/whats-meta)`);
+        msg = msg.replace(/\[tour\](?!=\()/gi, `[tour](${mainDomain}/tour)`);
+        msg = msg.replace(/\[chat\](?!=\()/gi, `[Stack Overflow Chat](https://${location.hostname})`);
         return msg;
     }
 
