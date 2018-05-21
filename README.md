@@ -139,6 +139,20 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 - Has exposed function to work together with [Show Deleted Messages in Chat](#show-deleted-messages-in-chat) userscript
 
 
+### [Chat More Magic Links](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatMoreMagicLinks.user.js)
+
+- Some magic links are not parsed in Stack Overflow Chat. This script parses and submit expanded magic links via an edit to your latest message.
+- List of additional magic links handled by this userscript:
+  - `[mcve]`
+  - `[help]`
+  - `[help/on-topic]`
+  - `[help/dont-ask]`
+  - `[help/behavior]`
+  - `[meta-help]`
+  - `[tour]`
+  - `[chat]`
+
+
 ### [Show Deleted Messages in Chat](https://github.com/samliew/SO-mod-userscripts/blob/master/ShowDeletedMessagesInChat.user.js) ♦
 
 - Show deleted messages from live chat, chat transcripts, bookmarked conversations
