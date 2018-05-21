@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -158,7 +158,8 @@
     box-shadow: 2px 2px 6px -2px rgba(0,0,0,0.2);
     z-index: 1;
 }
-.comment .comment-flags td {
+.comment .comment-flags td,
+.comment .comment-flags td.creation-date .simultaneous-symbol {
     display: none;
 }
 .comment .comment-flags td.creation-date,
