@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.0.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -80,7 +80,7 @@
                     .append(post.find('.post-options.keep'));
 
                 // Load latest R/A helpful comments
-                $.get(this.href, function(data) {
+                $.get('https://' + location.hostname + this.href, function(data) {
                     $('.deleted-info', data)
                         .filter((i, el) => el.innerText.indexOf('Rude Or Offensive') >= 0 && el.innerText.indexOf('Helpful') >= 0)
                         .prev('span')
