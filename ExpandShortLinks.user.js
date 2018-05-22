@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Expand Short Links
-// @description  Appends more characters to short link texts so they can be easily seen and clicked on
+// @description  Appends more characters to short link texts in posts and comments so they can be easily seen and clicked on
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @match        https://*stackoverflow.com/*
 // @match        https://*serverfault.com/*
