@@ -3,35 +3,21 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.12
+// @version      2.0
 //
-// @include      https://stackoverflow.com/admin/dashboard?flag*=comment*
-// @include      https://serverfault.com/admin/dashboard?flag*=comment*
-// @include      https://superuser.com/admin/dashboard?flag*=comment*
-// @include      https://askubuntu.com/admin/dashboard?flag*=comment*
-// @include      https://mathoverflow.net/admin/dashboard?flag*=comment*
-// @include      https://stackexchange.com/admin/dashboard?flag*=comment*
+// @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
+// @include      https://*serverfault.com/admin/dashboard?flag*=comment*
+// @include      https://*superuser.com/admin/dashboard?flag*=comment*
+// @include      https://*askubuntu.com/admin/dashboard?flag*=comment*
+// @include      https://*mathoverflow.net/admin/dashboard?flag*=comment*
+// @include      https://*.stackexchange.com/admin/dashboard?flag*=comment*
 //
-// @include      https://meta.stackoverflow.com/admin/dashboard?flag*=comment*
-// @include      https://meta.serverfault.com/admin/dashboard?flag*=comment*
-// @include      https://meta.superuser.com/admin/dashboard?flag*=comment*
-// @include      https://meta.askubuntu.com/admin/dashboard?flag*=comment*
-// @include      https://meta.mathoverflow.net/admin/dashboard?flag*=comment*
-// @include      https://meta.stackexchange.com/admin/dashboard?flag*=comment*
-//
-// @include      https://stackoverflow.com/admin/users/*/post-comments*
-// @include      https://serverfault.com/admin/users/*/post-comments*
-// @include      https://superuser.com/admin/users/*/post-comments*
-// @include      https://askubuntu.com/admin/users/*/post-comments*
-// @include      https://mathoverflow.net/admin/users/*/post-comments*
-// @include      https://stackexchange.com/admin/users/*/post-comments*
-//
-// @include      https://meta.stackoverflow.com/admin/users/*/post-comments*
-// @include      https://meta.serverfault.com/admin/users/*/post-comments*
-// @include      https://meta.superuser.com/admin/users/*/post-comments*
-// @include      https://meta.askubuntu.com/admin/users/*/post-comments*
-// @include      https://meta.mathoverflow.net/admin/users/*/post-comments*
-// @include      https://meta.stackexchange.com/admin/users/*/post-comments*
+// @include      https://*stackoverflow.com/admin/users/*/post-comments*
+// @include      https://*serverfault.com/admin/users/*/post-comments*
+// @include      https://*superuser.com/admin/users/*/post-comments*
+// @include      https://*askubuntu.com/admin/users/*/post-comments*
+// @include      https://*mathoverflow.net/admin/users/*/post-comments*
+// @include      https://*.stackexchange.com/admin/users/*/post-comments*
 // ==/UserScript==
 
 (function() {
@@ -44,35 +30,79 @@
     let ajaxTimeout;
     let reviewFromBottom = false;
     const fkey = StackExchange.options.user.fkey;
-    const newMins = 24 * 60 * 60000;
+    const newMins = 7 * 24 * 60 * 60000;
 
     // Special characters must be escaped with \\
     const rudeKeywords = [
-        'fuck', '\\barse', 'cunt', 'dick', '\\bcock', 'pussy', '\\bhell', 'stupid', 'idiot', '!!+', '\\?\\?+',
-        'grow\\s?up', 'shame', 'wtf', 'garbage', 'trash', 'spam', 'damn', 'stop', 'horrible', 'inability', 'bother',
-        'nonsense', 'never\\s?work', 'illogical', 'fraud', 'crap', 'reported', 'get\\s?lost', 'go\\s?away',
-        'useless', 'deleted?', 'delete[\\w\\s]+(answer|question|comment)', 'move on', 'learn', 'gay', 'lesbian', 'sissy',
+        'fuck\\w*', 'arse', 'cunts?', 'dick', 'cock', 'pussy', 'hell', 'stupid', 'idiot', '!!+', '\\?\\?+',
+        'grow up', 'shame', 'wtf', 'garbage', 'trash', 'spam', 'damn', 'stop', 'horrible', 'inability', 'bother',
+        'nonsense', 'never work', 'illogical', 'fraud', 'crap', '(bull|cow|horse)?\\s?shit', 'reported', 'get lost', 'go away',
+        'useless', 'deleted?', 'delete[\\w\\s]+(answer|question|comment)', 'move on', 'gay', 'lesbian', 'sissy',
+        'brain', 'sense', 'rtfm', 'blind', 'retard(ed)?', 'jerks?', 'bitch\\w*', 'learn', 'read[\\w\\s]+(tutorial|docs|manual)',
     ];
 
     // Special characters must be escaped with \\
     const chattyKeywords = [
         'thanks?', 'welcome', 'up-?voted?', 'updated', 'edited', 'added', '(in)?correct(ed)?', 'done', 'worked', 'works', 'glad',
         'appreciated?', 'my email', 'email me', 'contact', 'good', 'great', 'sorry', '\\+1', 'love', 'wow', 'pointless', 'no\\s?(body|one)',
-        'homework', 'no\\s?idea', 'your\\s?mind', 'try\\s?it', 'typo', 'wrong', 'unclear', 'regret', 'we\\b', 'every\\s?(body|one)',
-        'exactly', 'check', 'lol', '\\bha(ha)+', 'women', 'girl',
+        'homework', 'no idea', 'your mind', 'try it', 'typo', 'wrong', 'unclear', 'regret', 'every\\s?(body|one)',
+        'exactly', 'check', 'lol', 'ha(ha)+', 'women', 'girl', 'effort', 'understand', 'want', 'need', 'little',
+        'give up', 'documentation',
     ];
+
+
+    function replaceKeywords(jqElem) {
+        this.innerHTML = this.innerHTML.replace(new RegExp('\\b(' + rudeKeywords.join('|') + ')', 'gi'), '<b style="color:red">$1</b>');
+        this.innerHTML = this.innerHTML.replace(new RegExp('\\b(' + chattyKeywords.join('|') + ')', 'gi'), '<b style="color:coral">$1</b>');
+    }
 
 
     function doPageload() {
 
-        $('.comment-summary, tr.deleted-row > td > span').each(function() {
+        // For Too Many Rude/Abusive queue, load user's R/A flagged comments
+        if(location.href.indexOf('commenttoomanydeletedrudenotconstructiveauto') >= 0) {
 
-            // Highlight common chatty keywords
-            this.innerHTML = this.innerHTML.replace(new RegExp('\\b(' + chattyKeywords.join('|') + ')', 'gi'), '<b style="color:coral">$1</b>');
+            // Additional styles for this page
+            appendCTMDRNCAstyles();
 
-            // Highlight common rude keywords
-            this.innerHTML = this.innerHTML.replace(new RegExp('\\b(' + rudeKeywords.join('|') + ')', 'gi'), '<b style="color:red">$1</b>');
-        });
+            $('span.revision-comment a').each(function() {
+                const uid = Number(this.href.match(/\d+/)[0]);
+                const post = $(this).closest('.flagged-post-row');
+                const modMessageContent = $(this).closest('td');
+                const cmmtsContainer = $(this).parents('.mod-message').next('.comments');
+
+                // Add links to user and comment history
+                modMessageContent
+                    .append(`<div class="ra-userlinks">[ <a href="https://stackoverflow.com/users/${uid}" target="_blank">Profile</a> | <a href="https://stackoverflow.com/users/account-info/${uid}" target="_blank">Mod</a> | <a href="http://stackoverflow.com/admin/users/${uid}/post-comments?state=flagged" target="_blank">Comments</a> ]</div>`);
+
+                // Move action button
+                modMessageContent
+                    .append(post.find('.post-options.keep'));
+
+                // Load latest R/A helpful comments
+                $.get(this.href, function(data) {
+                    $('.deleted-info', data)
+                        .filter((i, el) => el.innerText.indexOf('Rude Or Offensive') >= 0 && el.innerText.indexOf('Helpful') >= 0)
+                        .prev('span')
+                        .each(function() {
+                            const metaRow = $(this).closest('.text-row').prev('.meta-row');
+                            $(this).attr({
+                                'data-pid' : metaRow.attr('data-postid'),
+                                'data-cid' : metaRow.attr('data-id'),
+                                'data-date': metaRow.find('.relativetime').text()
+                            });
+                        })
+                        .appendTo(cmmtsContainer)
+                        .each(replaceKeywords)
+                        .wrap('<tr class="comment roa-comment"><td>')
+                        .each(function() {
+                            $(`<a class="relativetime" href="/q/${this.dataset.pid}" target="_blank">${this.dataset.date}</a>`).insertAfter(this);
+                        });
+                });
+            });
+        }
+
+        $('.comment-summary, tr.deleted-row > td > span').each(replaceKeywords);
 
         // Change "dismiss" link to "decline"
         $('.cancel-comment-flag').text('decline');
@@ -127,13 +157,13 @@
         // On delete/dismiss comment action
         $('.delete-comment, .cancel-comment-flag').on('click', function() {
 
-            let $post = $(this).parents('.flagged-post-row');
+            const $post = $(this).parents('.flagged-post-row');
 
             // Sanity check
             if($post.length !== 1) return;
 
             // Remove current comment from DOM
-            let $comm = $(this).parents('tr.message-divider').next('tr.comment').addBack();
+            const $comm = $(this).parents('tr.message-divider').next('tr.comment').addBack();
             $comm.addClass('js-comment-deleted');
 
             // Hide post immediately if no comments remaining
@@ -146,8 +176,8 @@
         // On purge all comments link click
         $('.flagged-post-row').on('click', '.purge-comments-link', function() {
 
-            let pid = this.dataset.postId;
-            let $post = $(`#flagged-${pid}`);
+            const pid = this.dataset.postId;
+            const $post = $(`#flagged-${pid}`);
 
             if(confirm('Delete ALL comments? (mark as helpful)')) {
 
@@ -176,7 +206,7 @@
         $(document).ajaxComplete(function(event, xhr, settings) {
 
             // Highlight flagged comments in expanded posts
-            let $flaggedComms = $('.js-flagged-comments .comment');
+            const $flaggedComms = $('.js-flagged-comments .comment').not('.roa-comment');
             $flaggedComms.each(function() {
                 let cid = this.id.match(/\d+$/)[0];
                 $('#comment-'+cid).children().css('background', '#ffc');
@@ -195,7 +225,7 @@
             // Always expand comments if post is expanded, if comments have not been expanded yet
             $('.js-comments-container').not('.js-del-loaded').each(function() {
 
-                let postId = this.id.match(/\d+/)[0];
+                const postId = this.id.match(/\d+/)[0];
 
                 // So we only load deleted comments once
                 $(this).addClass('js-del-loaded').removeClass('dno');
@@ -204,14 +234,14 @@
                 $(this).next().find('.js-show-link.comments-link').prev().addBack().remove();
 
                 // Get all including deleted comments
-                let commentsUrl = `/posts/${postId}/comments?includeDeleted=true&_=${Date.now()}`;
+                const commentsUrl = `/posts/${postId}/comments?includeDeleted=true&_=${Date.now()}`;
                 $('#comments-'+postId).children('ul.comments-list').load(commentsUrl);
-                console.log("Loading comments for " + postId);
+                //console.log("Loading comments for " + postId);
             });
 
             // Continue reviewing from bottom of page if previously selected
             if(reviewFromBottom) {
-                let scrLeft = document.documentElement.scrollLeft || document.body.scrollLeft || window.pageXOffset;
+                const scrLeft = document.documentElement.scrollLeft || document.body.scrollLeft || window.pageXOffset;
                 window.scrollTo(scrLeft, 999999);
             }
 
@@ -224,14 +254,69 @@
 
     function insertCommentLinks() {
 
-        var posts = $('.js-comments-container').not('.js-comment-links').addClass('js-comment-links').each(function() {
+        $('.js-comments-container').not('.js-comment-links').addClass('js-comment-links').each(function() {
 
             const pid = this.id.match(/\d+$/)[0];
 
             // Insert additional comment actions
-            let commentActionLinks = `<div class="mod-action-links" style="float:right; padding-right:10px"><a data-post-id="${pid}" class="purge-comments-link comments-link red-mod-link" title="delete all comments">purge all</a></div></div>`;
+            const commentActionLinks = `<div class="mod-action-links" style="float:right; padding-right:10px"><a data-post-id="${pid}" class="purge-comments-link comments-link red-mod-link" title="delete all comments">purge all</a></div></div>`;
             $('#comments-link-'+pid).append(commentActionLinks);
         });
+    }
+
+
+    function appendCTMDRNCAstyles() {
+
+        const styles = `
+<style>
+.flagged-posts.moderator {
+    margin-top: 0;
+}
+.flagged-post-row > td {
+    padding-bottom: 50px !important;
+}
+.flagged-post-row > td > table:first-child {
+    display: none;
+}
+table.mod-message {
+    font-size: 1.1em;
+}
+table.mod-message .flagcell {
+    display: none;
+}
+table.comments {
+    width: 100%;
+}
+table.comments {
+    border: 1px solid #ddd;
+}
+table.comments > tr:last-child > td {
+    border-bottom: 1px solid #ddd;
+}
+table.comments > tr:nth-child(even) {
+    background: #f8f8f8;
+}
+table.comments tr.roa-comment > td {
+    height: auto;
+    padding: 4px 10px;
+    line-height: 1.4;
+}
+.roa-comment .relativetime {
+    float: right;
+}
+.ra-userlinks {
+    float: left;
+    margin: 18px 0 0;
+}
+.tagged-ignored {
+    opacity: 1 !important;
+}
+.revision-comment {
+    font-style: normal;
+}
+</style>
+`;
+        $('body').append(styles);
     }
 
 
