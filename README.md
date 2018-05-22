@@ -87,6 +87,12 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/nav-expand.gif)
 
 
+### [Expand Short Links](https://github.com/samliew/SO-mod-userscripts/blob/master/ExpandShortLinks.user.js)
+
+- Appends `:shortlink` to short link texts in posts and comments so they can be easily seen and clicked on
+- E.g.: Link `xx` visually becomes `xx:shortlink`
+
+
 ### [Discussed On Meta](https://github.com/samliew/SO-mod-userscripts/blob/master/DiscussedOnMeta.user.js)
 
 *This userscript has only been tested on Tampermonkey, and requires additional permissions for cross-site requests to Meta as it's on a different domain. Simply click on "Always allow" when prompted.*
