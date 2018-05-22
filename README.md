@@ -91,8 +91,8 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 
 *Can you see the link in the post below?*
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-22_220555.png)
-- Appends `:shortlink` to short link texts in posts and comments so they can be easily seen and clicked on
-- E.g.: Link `xx` visually becomes `xx:shortlink`
+- Appends `-shortlink` to short link texts in posts and comments so they can be easily seen and clicked on
+- E.g.: Link `.` visually becomes `.-shortlink`
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-22_220534.png)
 
 
