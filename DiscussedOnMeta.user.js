@@ -3,7 +3,7 @@
 // @description  For questions and answers, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6
+// @version      2.6.1
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
@@ -187,6 +187,24 @@
 }
 .meta-mentions .bounty-award-container {
     display: none;
+}
+.meta-mentions .status {
+    margin: 0;
+}
+.meta-mentions .vote-count-post,
+.meta-mentions .question-summary .stats strong {
+    font-size: 15px;
+    line-height: 0.8;
+}
+.meta-mentions .question-summary .started {
+    margin-top: 0;
+}
+.meta-mentions .statscontainer {
+    padding-top: 5px;
+}
+.meta-mentions .statscontainer .votes,
+.meta-mentions .statscontainer .status {
+    font-size: 10px;
 }
 </style>
 `;
