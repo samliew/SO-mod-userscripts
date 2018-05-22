@@ -80,7 +80,7 @@
                     .append(post.find('.post-options.keep'));
 
                 // Load latest R/A helpful comments
-                $.get('https://' + location.hostname + this.href, function(data) {
+                $.get('https://' + location.hostname + this.pathname + this.search, function(data) {
                     $('.deleted-info', data)
                         .filter((i, el) => el.innerText.indexOf('Rude Or Offensive') >= 0 && el.innerText.indexOf('Helpful') >= 0)
                         .prev('span')
