@@ -3,7 +3,7 @@
 // @description  Some magic links are not parsed in Stack Overflow Chat. This script parses and submit expanded magic links via an edit to your latest message.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.3
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // ==/UserScript==
@@ -16,11 +16,22 @@
     const _uid = CHAT.CURRENT_USER_ID;
 
 
+    function updateMessage(mid, message) {
+
+        // Fire and forget
+        $.post(`/messages/${mid}`, {
+            fkey: _fkey,
+            text: message
+        });
+        //console.log('updateMessage', mid, message);
+    }
+
+
     function getMessageRawString(mid) {
         return new Promise(function(resolve, reject) {
             $.get(`/messages/${mid}/history`)
                 .done(function(data) {
-                    const str = $('.monologue', data).eq(1).find('.message-source').html().trim();
+                    const str = $('.monologue b', data).filter((i,el) => el.innerText == 'said:').next('.message-source').text().trim();
                     resolve(str);
                 })
                 .fail(reject);
@@ -42,11 +53,17 @@
 
 
     function checkLastMessage() {
-        const lastMessage = $('.user-container.mine .message:not(.cmmt-deleted)').last();
+        const lastMessage = $('.user-container.mine .message').last();
 
         // If last message has already been handled, ignore
         if(lastMessage.hasClass('js-magiclinks')) return;
         lastMessage.addClass('js-magiclinks');
+
+        // If last message has already been deleted, ignore
+        if(lastMessage.hasClass('cmmt-deleted')) return;
+
+        // If last message has already been edited, ignore
+        if(lastMessage.find('.edits').length > 0) return;
 
         // Required
         const mid = Number(lastMessage.attr('id').match(/\d+$/)[0]);
@@ -64,22 +81,10 @@
     }
 
 
-    function updateMessage(mid, message) {
-
-        $.post(`/messages/${mid}`,
-        {
-            fkey: _fkey,
-            text: message
-        });
-
-        //console.log('updateMessage', mid, message);
-    }
-
-
     function doPageload() {
 
         // Occasionally, check last message and parse it
-        setInterval(checkLastMessage, 5000);
+        setInterval(checkLastMessage, 2000);
     }
 
 
