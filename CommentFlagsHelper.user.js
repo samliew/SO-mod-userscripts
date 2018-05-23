@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2.2
+// @version      2.3
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -164,6 +164,15 @@
                 }
             });
         });
+
+        // Convert urls in comments to clickable links that open in a new window
+        $('.comment-summary')
+            .html(function(i, v) {
+                return v.replace(/(https?:\/\/[^\s\)]+)\b/gi, '<a href="$1" target="_blank" class="comment-link">$1</a>');
+            })
+            .on('click', 'a.comment-link', function(ev) {
+                ev.stopPropagation();
+            });
 
         // On delete/dismiss comment action
         $('.delete-comment, .cancel-comment-flag').on('click', function() {
