@@ -3,7 +3,7 @@
 // @description  Appends more characters to short link texts in posts and comments so they can be easily seen and clicked on
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @match        https://*stackoverflow.com/*
 // @match        https://*serverfault.com/*
@@ -18,7 +18,7 @@
 
 
     function expandShortLinks() {
-        $('.post-text, .comment-copy').find('a').not('.shortlink').filter((i,el) => el.innerText.length <= 2).addClass('shortlink');
+        $('.post-text, .comment-copy').find('a').not('.shortlink').filter((i,el) => el.innerText.length <= 2 && el.children.length == 0).addClass('shortlink');
     }
 
 
@@ -31,7 +31,7 @@ a.shortlink {
     color: red !important;
 }
 a.shortlink:after {
-    content: '-shortlink';
+    content: '_link';
     color: green;
     font-style: italic;
     font-weight: normal;
