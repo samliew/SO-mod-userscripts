@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.3
+// @version      1.4
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -11,6 +11,13 @@
 // @include      https://*askubuntu.com/questions/*
 // @include      https://*mathoverflow.com/questions/*
 // @include      https://*.stackexchange.com/questions/*
+//
+// @include      https://*stackoverflow.com/posts/*/timeline*
+// @include      https://*serverfault.com/posts/*/timeline*
+// @include      https://*superuser.com/posts/*/timeline*
+// @include      https://*askubuntu.com/posts/*/timeline*
+// @include      https://*mathoverflow.com/posts/*/timeline*
+// @include      https://*.stackexchange.com/posts/*/timeline*
 // ==/UserScript==
 
 (function() {
@@ -180,6 +187,14 @@
 }
 .rude-abusive {
     color: red;
+}
+.post-timeline tr.dno[style^="display:block;"],
+.post-timeline tr.dno[style^="display: block;"] {
+    display: table-row !important;
+}
+.post-timeline tr.dno[style^="display"],
+.post-timeline tr.dno[style^="display"] {
+    border-left: 2px double #f4a83d;
 }
 </style>
 `;
