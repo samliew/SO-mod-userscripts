@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.2
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -81,6 +81,8 @@
 
                 // Load latest R/A helpful comments
                 $.get(this.href.replace('http:', 'https:'), function(data) {
+
+                    // Filter and Transform
                     $('.deleted-info', data)
                         .filter((i, el) => el.innerText.indexOf('Rude Or Offensive') >= 0 && el.innerText.indexOf('Helpful') >= 0)
                         .prev('span')
@@ -98,6 +100,9 @@
                         .each(function() {
                             $(`<a class="relativetime" href="/q/${this.dataset.pid}" target="_blank">${this.dataset.date}</a>`).insertAfter(this);
                         });
+
+                    // Remove old comments
+                    $('.comments .relativetime').filter((i, el) => el.innerText.indexOf("'") >= 0).closest('.roa-comment').remove();
                 });
             });
         }
