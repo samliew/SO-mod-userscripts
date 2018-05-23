@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -73,7 +73,13 @@
 
                 // Add links to user and comment history
                 modMessageContent
-                    .append(`<div class="ra-userlinks">[ <a href="https://stackoverflow.com/users/${uid}" target="_blank">Profile</a> | <a href="https://stackoverflow.com/users/account-info/${uid}" target="_blank">Mod</a> | <a href="http://stackoverflow.com/admin/users/${uid}/post-comments?state=flagged" target="_blank">Comments</a> ]</div>`);
+                    .append(`<div class="ra-userlinks">[ ` +
+                                `<a href="https://stackoverflow.com/users/${uid}" target="_blank">Profile</a> | ` +
+                                `<a href="https://stackoverflow.com/users/account-info/${uid}" target="_blank">Dashboard</a> | ` +
+                                `<a href="https://stackoverflow.com/users/message/create/${uid}" target="_blank">Message/Suspend</a> | ` +
+                                `<a href="https://stackoverflow.com/users/history/${uid}?type=User+suspended" target="_blank">Suspension History</a> | ` +
+                                `<a href="http://stackoverflow.com/admin/users/${uid}/post-comments?state=flagged" target="_blank">Comments</a>` +
+                            `]</div>`);
 
                 // Move action button
                 modMessageContent
@@ -310,7 +316,6 @@ table.comments tr.roa-comment > td {
     float: right;
 }
 .ra-userlinks {
-    float: left;
     margin: 18px 0 0;
 }
 .tagged-ignored {
