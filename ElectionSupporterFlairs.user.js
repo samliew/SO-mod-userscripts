@@ -3,7 +3,7 @@
 // @description  Flair users who voted in the elections when you were elected, or if non-mod, for the latest election
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.7
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -13,6 +13,10 @@
 // @include      https://*.stackexchange.com/*
 //
 // @exclude      */show-user-votes/*
+// @exclude      *?tab=questions*
+// @exclude      *?tab=favorites*
+// @exclude      *?tab=bounties*
+// @exclude      *?tab=responses*
 // ==/UserScript==
 
 (function() {
