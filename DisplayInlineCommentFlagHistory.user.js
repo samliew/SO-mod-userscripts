@@ -149,7 +149,7 @@
     top: 100%;
     right: -1px;
     width: calc(100% + 7px);
-    padding: 10px 10px;
+    padding: 0px 10px 10px;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
     background: #ffffe8;
@@ -173,9 +173,9 @@
 .comment-flagcount {
     min-width: 18px;
     padding: 2px 0;
-    border-radius: 5px;
+    border-radius: 3px;
     text-align: center;
-    font-size: 0.9em;
+    font-size: 0.85em;
     color: white !important;
 }
 .rude-abusive {
