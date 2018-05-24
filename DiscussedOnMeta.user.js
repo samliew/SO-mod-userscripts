@@ -3,7 +3,7 @@
 // @description  For questions and answers, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8
+// @version      2.8.1
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
@@ -12,14 +12,13 @@
 // @include      https://mathoverflow.net/questions/*
 // @include      https://*.stackexchange.com/questions/*
 //
+// @exclude      *meta.*
+//
 // @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
 (function() {
     'use strict';
-
-    // Don't run on Meta sites
-    if(location.hostname.indexOf('meta.') >= 0) return;
 
     let metaDomain = 'meta.' + location.hostname;
     if(location.hostname.indexOf('stackexchange.com') >= 0) {
