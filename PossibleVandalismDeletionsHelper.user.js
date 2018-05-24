@@ -3,7 +3,7 @@
 // @description  Display post score and number of undeleted answers, Recommend action based on post info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.4.2
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=postvandalismdeletionsauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=postvandalismdeletionsauto*
@@ -22,8 +22,8 @@
 
     function doPageload() {
 
+        // Transform UI
         $('.flagged-post-row > td').prepend('<div class="post-recommendation">Dismiss</div>');
-
         $('.flagged-post-row').each(function() {
             const postlist = $('.post-list', this);
 
@@ -36,6 +36,10 @@
             postlist.prepend(`<li class="title-divider">Answers</li>`);
         });
 
+        // Open post links in a new window
+        $('.post-list a').attr('target', '_blank');
+
+        // For answers, get post info
         $('.post-list .deleted-answer a.answer-hyperlink').each(function() {
 
             const isQuestion = !$(this).hasClass('answer-hyperlink');
@@ -59,10 +63,12 @@
                     let age = Math.floor(dateDiff / 3600000);
                     //console.log(html, post, score, dateDiff, age);
 
+                    // Insert info
                     link.before(`<span class="info-num post-score ${score > 0 ? 'red' : ''}" title="post score">${score}</span>`);
                     link.before(`<span class="info-num answer-count ${answerCount == 0 ? 'red' : ''}" title="non-deleted answers on question">${answerCount}</span>`);
                     link.before(`<span class="info-num post-age" title="post age">${age}d</span>`);
 
+                    // Calculate flag recommendation
                     if(score > 0) {
                         let num = (Number(flag.attr('data-positive-posts')) || 0) + 1;
                         flag.attr('data-positive-posts', num);
