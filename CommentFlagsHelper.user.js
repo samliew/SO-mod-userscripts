@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.4.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -36,10 +36,10 @@
     const rudeKeywords = [
         'fuck\\w*', 'arse', 'cunts?', 'dick', 'cock', 'pussy', 'hell', 'stupid', 'idiot', '!!+', '\\?\\?+',
         'grow up', 'shame', 'wtf', 'garbage', 'trash', 'spam', 'damn', 'stop', 'horrible', 'inability', 'bother',
-        'sense', 'no sense', 'nonsense', 'never work', 'illogical', 'fraud', 'crap', '(bull|cow|horse)?\\s?shit',
+        'nonsense', 'no sense', 'sense', 'never work', 'illogical', 'fraud', 'crap', '(bull|cow|horse)?\\s?shit',
         'reported', 'get lost', 'go away', 'useless', 'deleted?', 'delete[\\w\\s]+(answer|question|comment)',
         'move on', 'gay', 'lesbian', 'sissy', 'brain', 'rtfm', 'blind', 'retard(ed)?', 'jerks?', 'bitch\\w*', 'learn',
-        'read[\\w\\s]+(tutorial|docs|manual)', 'lack[\\w\\s]+research', 'idownvotedbecau.se',
+        'read[\\w\\s]+(tutorial|docs|manual)', 'lack[\\w\\s]+research', 'idownvotedbecau.se', 'bad',
     ];
 
     // Special characters must be escaped with \\
