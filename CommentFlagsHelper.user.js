@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.4
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -36,9 +36,10 @@
     const rudeKeywords = [
         'fuck\\w*', 'arse', 'cunts?', 'dick', 'cock', 'pussy', 'hell', 'stupid', 'idiot', '!!+', '\\?\\?+',
         'grow up', 'shame', 'wtf', 'garbage', 'trash', 'spam', 'damn', 'stop', 'horrible', 'inability', 'bother',
-        'nonsense', 'never work', 'illogical', 'fraud', 'crap', '(bull|cow|horse)?\\s?shit', 'reported', 'get lost', 'go away',
-        'useless', 'deleted?', 'delete[\\w\\s]+(answer|question|comment)', 'move on', 'gay', 'lesbian', 'sissy',
-        'brain', 'sense', 'rtfm', 'blind', 'retard(ed)?', 'jerks?', 'bitch\\w*', 'learn', 'read[\\w\\s]+(tutorial|docs|manual)',
+        'sense', 'no sense', 'nonsense', 'never work', 'illogical', 'fraud', 'crap', '(bull|cow|horse)?\\s?shit',
+        'reported', 'get lost', 'go away', 'useless', 'deleted?', 'delete[\\w\\s]+(answer|question|comment)',
+        'move on', 'gay', 'lesbian', 'sissy', 'brain', 'rtfm', 'blind', 'retard(ed)?', 'jerks?', 'bitch\\w*', 'learn',
+        'read[\\w\\s]+(tutorial|docs|manual)', 'lack[\\w\\s]+research', 'idownvotedbecau.se',
     ];
 
     // Special characters must be escaped with \\
@@ -47,7 +48,7 @@
         'appreciated?', 'my email', 'email me', 'contact', 'good', 'great', 'sorry', '\\+1', 'love', 'wow', 'pointless', 'no\\s?(body|one)',
         'homework', 'no idea', 'your mind', 'try it', 'typo', 'wrong', 'unclear', 'regret', 'every\\s?(body|one)',
         'exactly', 'check', 'lol', 'ha(ha)+', 'women', 'girl', 'effort', 'understand', 'want', 'need', 'little',
-        'give up', 'documentation',
+        'give up', 'documentation', 'google[.a-z]*/search', 'what[\\w\\s]+(try|tried)[\\w\\s]*\\?*', 'free', 'obvious',
     ];
 
 
@@ -279,7 +280,8 @@
             const pid = this.id.match(/\d+$/)[0];
 
             // Insert additional comment actions
-            const commentActionLinks = `<div class="mod-action-links" style="float:right; padding-right:10px"><a data-post-id="${pid}" class="purge-comments-link comments-link red-mod-link" title="delete all comments">purge all</a></div></div>`;
+            const commentActionLinks = `<div class="mod-action-links" style="float:right; padding-right:10px">` +
+                  `<a data-post-id="${pid}" class="purge-comments-link comments-link red-mod-link" title="delete all comments">purge all</a></div>`;
             $('#comments-link-'+pid).append(commentActionLinks);
         });
     }
