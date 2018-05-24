@@ -3,7 +3,7 @@
 // @description  For questions and answers, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7
+// @version      2.8
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
@@ -78,6 +78,31 @@
                         metaPosts.insertBefore(post).find('.meta-mentions').append(results);
                     }
                 });
+
+            // If we are on Stack Overflow, also check if post is asked on MSE
+            if(location.hostname === 'stackoverflow.com') {
+
+                const query = encodeURIComponent(`url://${location.hostname}/*/${pid}`);
+                const searchUrl = `https://meta.stackexchange.com/search?tab=newest&q=${query}`;
+
+                ajaxPromise(searchUrl)
+                    .then(function(data) {
+                        const count = Number($('.results-header h2', data).text().replace(/[^\d]+/, ''));
+                        if(count > 0) {
+                            const results = $('.search-results .search-result', data);
+                            const lastMentioned = results.first().find('.relativetime').text();
+                            const lastPermalink = results.first().find('a').first().attr('href');
+                            const metaPosts = $(`
+                                <div class="meta-mentioned mse-mentioned" target="_blank">
+                                    <a href="${searchUrl}" target="_blank">${count} posts</a> on Meta Stack Exchange, last seen <a href="https://${metaDomain}${lastPermalink}" target="_blank">${lastMentioned}</a>
+                                    <span class="meta-mentions-toggle"></span>
+                                    <div class="meta-mentions"></div>
+                                </div>`);
+                            results.find('a').attr('href', (i,v) => 'https://' + metaDomain + v).attr('target', '_blank');
+                            metaPosts.insertBefore(post).find('.meta-mentions').append(results);
+                        }
+                    });
+            }
         });
     }
 
