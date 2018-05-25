@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.1
+// @version      2.5
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -116,8 +116,8 @@
 
         $('.comment-summary, tr.deleted-row > td > span').each(replaceKeywords);
 
-        // Change "dismiss" link to "decline"
-        $('.cancel-comment-flag').text('decline');
+        // Change "dismiss" link to "decline", insert alternate action
+        $('.cancel-comment-flag').text('decline').append(`<span class="cancel-delete-comment-flag" title="dismiss flags AND delete comment">+delete</span>`);
 
         // If there are lots of comment flags
         if($('.flagged-post-row').length > 3) {
@@ -192,6 +192,29 @@
                 let $remainingComms = $post.find('.js-flagged-comments tr.comment').not('.js-comment-deleted');
                 if($remainingComms.length === 0) $post.remove();
             }, 50, $post);
+        });
+
+        // On dismiss + delete comment action
+        $('.cancel-delete-comment-flag').on('click', function(evt) {
+            evt.stopPropagation(); // we don't want to bubble the event, but trigger it manually
+
+            const $post = $(this).parents('.flagged-post-row');
+            const cid = $(this).closest('.flag-issue').attr('id').match(/\d+$/)[0];
+
+            // Sanity check
+            if($post.length !== 1) return;
+
+            // Dismiss flag
+            $(this).parent('.cancel-comment-flag').click();
+
+            // Delete comment after a short delay
+            setTimeout(function() {
+                $.post(`https://stackoverflow.com/posts/comments/${cid}/vote/10`, {
+                    fkey: fkey
+                });
+            }, 1000);
+
+            return false;
         });
 
         // On purge all comments link click
@@ -376,7 +399,7 @@ tr.message-divider>td:last-child {
     padding-right: 140px;
 }
 tr.comment > td {
-    height: 4.8em;
+    height: 6em;
     word-break: break-word;
 }
 .revision-comment {
@@ -395,8 +418,13 @@ table.flagged-posts .relativetime.old-comment {
     display: inline-block;
     top: 0;
     right: 0;
-    padding: 5px 0 20px;
+    width: 149px;
+    padding: 5px 0 15px;
     font-size: 0;
+    white-space: nowrap;
+}
+.edit-comment {
+    display: none;
 }
 .delete-comment,
 .cancel-comment-flag {
@@ -422,6 +450,24 @@ table.flagged-posts .relativetime.old-comment {
 }
 table.flagged-posts tr.flagged-post-row:first-child > td {
     border-top: 1px solid transparent;
+}
+.cancel-comment-flag {
+    position: relative;
+}
+.cancel-comment-flag .cancel-delete-comment-flag {
+    position: absolute;
+    top: 0;
+    left: 100%;
+    display: none;
+    width: auto;
+    height: 100%;
+    padding: 5px 8px;
+    color: white;
+    background: red;
+    border-left: 1px solid #eee;
+}
+.cancel-comment-flag:hover .cancel-delete-comment-flag {
+    display: block;
 }
 </style>
 `;
