@@ -179,6 +179,8 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 - Some style improvements
 - Rename "dismiss" link to "decline" with hover warning color
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210443.png)
+- Add "dismiss + delete" option on hover
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/decline-delete.gif)
 - Always expand comments if post is expanded (**includes deleted posts**), and highlights flagged user comments in expanded posts
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210428.png)
 - Quick **purge all comments link** (with confirmation prompt)
