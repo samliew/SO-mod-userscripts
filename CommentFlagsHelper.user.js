@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5
+// @version      2.6
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -70,7 +70,7 @@
                 const uid = Number(this.href.match(/\d+/)[0]);
                 const post = $(this).closest('.flagged-post-row');
                 const modMessageContent = $(this).closest('td');
-                const cmmtsContainer = $(this).parents('.mod-message').next('.comments');
+                const cmmtsContainer = $(`<table class="comments"></table>`).appendTo($(this).parents('.js-dashboard-row '));
 
                 // Add links to user and comment history
                 modMessageContent
