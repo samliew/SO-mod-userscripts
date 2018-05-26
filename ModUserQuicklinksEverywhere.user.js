@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages, Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -27,7 +27,7 @@
 
     function getCurrentUserId() {
         if(location.pathname.indexOf('/users/message/') === 0 || location.pathname.indexOf('/admin/cm-message/') === 0) {
-            return $('.msg-moderator:first a[href^="/users/"]').last().attr('href').match(/\d+/)[0];
+            return $('.msg-moderator:first a[href^="/users/"], #addressing .user-details a').last().attr('href').match(/\d+/)[0];
         }
         if(/(\/users?\/|-user-)/.test(location.href)) {
             return location.href.match(/\d+/);
