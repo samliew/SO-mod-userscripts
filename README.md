@@ -73,6 +73,13 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-10_230507.png)
 
 
+### [Mod Flagger Stats](https://github.com/samliew/SO-mod-userscripts/blob/master/ModFlaggerStats.user.js) ♦
+
+- On hover userlink in mod flag queue, get and display flagger stats badge<br>
+  Reputation, Total Flags, Declined Flags, % Declined
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-28_190541.png)
+
+
 ### [Post Ids Everywhere](https://github.com/samliew/SO-mod-userscripts/blob/master/PostIdsEverywhere.user.js)
 
 - Inserts post IDs everywhere where there's a post or post link (for copying/easier x-referencing/etc)
