@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -119,7 +119,7 @@
     font-size: 0;
     display: inline-block;
     width: 10px;
-    height: 9.5px;
+    height: 10px;
     margin-left: 3px;
     background: white;
     border-radius: 100%;
@@ -151,6 +151,17 @@
 .flag-badge.default {
     background: none;
     border: 1px solid #aaa;
+}
+.flag-badge.default:after {
+    content: '';
+    position: relative;
+    top: 4px;
+    left: 0px;
+    display: block;
+    width: 9px;
+    height: 0px;
+    border-top: 1px solid #aaa;
+    transform: rotateZ(-45deg);
 }
 </style>
 `;
