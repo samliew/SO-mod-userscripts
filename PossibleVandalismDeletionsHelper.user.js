@@ -3,7 +3,7 @@
 // @description  Display post score and number of undeleted answers, Recommend action based on post info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.2
+// @version      1.4.3
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=postvandalismdeletionsauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=postvandalismdeletionsauto*
@@ -132,6 +132,7 @@
     opacity: 1;
 }
 .close-question-button,
+.delete-post,
 .undelete-post {
     display: none !important;
 }
