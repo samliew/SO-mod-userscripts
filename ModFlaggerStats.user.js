@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Mod Flagger Stats
-// @description  On hover userlink in mod flag queue, get and display flagger stats
+// @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -21,41 +21,42 @@
 
 
     function calculateFlagTier(fTotal = 0, fPerc = 0) {
+        // Default
         let v = { tier: 0, name: 'default' };
 
-        // Best Tier
-        if(fPerc < 1 && fTotal >= 8000) {
-            return { tier: 4, name: 'best' };
+        // Elite Tier
+        if((fPerc < 1 && fTotal >= 10000) || (fPerc < 0.4 && fTotal >= 5000)) {
+            v = { tier: 4, name: 'elite' };
         }
 
         // Gold Tier
-        else if(fPerc < 2 && fTotal >= 3000) {
-            return { tier: 3, name: 'gold' };
+        else if((fPerc < 2 && fTotal >= 4000) || (fPerc < 1 && fTotal >= 2000)) {
+            v = { tier: 3, name: 'gold' };
         }
 
         // Silver Tier
-        else if(fPerc < 3 && fTotal >= 1000) {
-            return { tier: 2, name: 'silver' };
+        else if((fPerc < 3 && fTotal >= 2000) || (fPerc < 1.5 && fTotal >= 1000)) {
+            v = { tier: 2, name: 'silver' };
         }
 
         // Bronze Tier
-        else if(fPerc < 4 && fTotal >= 100) {
-            return { tier: 1, name: 'bronze' };
+        else if((fPerc < 4 && fTotal >= 500) || (fPerc < 2 && fTotal >= 1000)) {
+            v = { tier: 1, name: 'bronze' };
         }
 
         // Wtf Tier
-        else if(fPerc >= 50 && fTotal >= 10) {
-            return { tier: -3, name: 'wtf' };
+        else if(fPerc >= 30 && fTotal >= 10) {
+            v = { tier: -3, name: 'wtf' };
         }
 
         // Horrible Tier
-        else if(fPerc >= 30 && fTotal >= 10) {
-            return { tier: -2, name: 'horrible' };
+        else if(fPerc >= 20 && fTotal >= 10) {
+            v = { tier: -2, name: 'horrible' };
         }
 
         // Hmmm Tier
         else if(fPerc >= 10 && fTotal >= 10) {
-            return { tier: -1, name: 'hmmm' };
+            v = { tier: -1, name: 'hmmm' };
         }
 
         return v;
@@ -85,18 +86,26 @@
 
     function doPageload() {
 
+        // Load user stats on post hover
+        $('.flagged-post-row').on('mouseover', function() {
+            $('.mod-message a', this).each((i, el) => $(el).triggerHandler('loadflaggingstats'));
+        });
+
+        // Ignore mods
+        $('.mod-flair').prev().addClass('js-userflagstats-loaded');
+
         // Load user stats on hover
-        $('.mod-message').on('mouseover', 'a[href^="/users/"]', function() {
-            if($(this).hasClass('js-userflagstats-loaded')) return;
-            const currLink = $(this);
+        $('.mod-message a[href^="/users/"]').on('loadflaggingstats', function() {
+            if($(this).hasClass('js-userflagstats-loaded') || $(this).hasClass('js-userflagstats-loading')) return;
+            const currLink = $(this).addClass('js-userflagstats-loading');
             const uid = this.href.match(/-?\d+/)[0];
 
             getUserFlagStats(uid).then(function(v) {
                 const tier = calculateFlagTier(v[1], v[3]);
-                const badge = `<span class="flag-badge ${tier.name}" title="rep:${v[0]}, total:${v[1]}, decl:${v[2]}, perc:${v[3].toFixed(2)}%"></span>`;
+                const badge = `<a href="/users/flag-summary/${uid}" class="flag-badge ${tier.name}" title="rep: ${v[0]}   flags: ${v[1]} (${v[2]}) = ${v[3].toFixed(2)}%" target="_blank"></a>`;
 
                 // Apply to all instances of same user on page
-                $(`.mod-message a[href^="/users/${uid}/"]`).not('.js-userflagstats-loaded').addClass('js-userflagstats-loaded').after(badge);
+                $(`.mod-message a[href^="/users/${uid}/"]`).not('js-userflagstats-loaded').addClass('js-userflagstats-loaded').after(badge);
             });
         });
     }
@@ -110,12 +119,15 @@
     font-size: 0;
     display: inline-block;
     width: 10px;
-    height: 10px;
-    margin-left: 2px;
+    height: 9.5px;
+    margin-left: 3px;
     background: white;
     border-radius: 100%;
 }
-.flag-badge.best {
+.flag-badge + .flag-badge {
+    display: none;
+}
+.flag-badge.elite {
     background: #3cb371;
 }
 .flag-badge.gold {
@@ -134,7 +146,7 @@
     background: #ff7777;
 }
 .flag-badge.hmmm {
-    background: #ffcccc;
+    background: #ffbbbb;
 }
 .flag-badge.default {
     background: none;
