@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @match        https://stackoverflow.com/*
 // @match        https://serverfault.com/*
@@ -62,6 +62,10 @@
 .summary h3,
 .top-posts .post-container {
     position: relative;
+}
+.popup[data-questionid],
+.popup[data-answerid] {
+    position: absolute;
 }
 .flagged-post-row .answer-link {
     float: none;
