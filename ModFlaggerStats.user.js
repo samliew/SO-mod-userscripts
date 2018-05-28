@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.2.2
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -158,7 +158,7 @@
     top: 4px;
     left: 0px;
     display: block;
-    width: 9px;
+    width: 8px;
     height: 0px;
     border-top: 1px solid #aaa;
     transform: rotateZ(-45deg);
