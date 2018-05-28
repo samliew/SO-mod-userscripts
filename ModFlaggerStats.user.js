@@ -3,7 +3,7 @@
 // @description  On hover userlink in mod flag queue, get and display flagger stats
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -93,7 +93,7 @@
 
             getUserFlagStats(uid).then(function(v) {
                 const tier = calculateFlagTier(v[1], v[3]);
-                const badge = `<span class="flag-badge ${tier.name}" title="rep:${v[0]}, total:${v[1]}, declined:${v[2]}, perc:${v[3]}"></span>`;
+                const badge = `<span class="flag-badge ${tier.name}" title="rep:${v[0]}, total:${v[1]}, decl:${v[2]}, perc:${v[3].toFixed(2)}%"></span>`;
 
                 // Apply to all instances of same user on page
                 $(`.mod-message a[href^="/users/${uid}/"]`).not('.js-userflagstats-loaded').addClass('js-userflagstats-loaded').after(badge);
