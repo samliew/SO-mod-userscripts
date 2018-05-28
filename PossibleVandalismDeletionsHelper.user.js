@@ -3,7 +3,7 @@
 // @description  Display post score and number of undeleted answers, Recommend action based on post info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.3
+// @version      1.4.4
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=postvandalismdeletionsauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=postvandalismdeletionsauto*
@@ -101,6 +101,9 @@
 }
 .post-list .title-divider {
     margin-top: 5px;
+}
+.post-list .load-body {
+    display: none;
 }
 .revision-comment {
     position: relative;
