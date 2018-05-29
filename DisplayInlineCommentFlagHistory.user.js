@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.3
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -19,6 +19,26 @@
 // @include      https://*mathoverflow.com/posts/*/timeline*
 // @include      https://*.stackexchange.com/posts/*/timeline*
 // ==/UserScript==
+
+
+/* ===== Global utility functions ===== */
+unsafeWindow.lsRemoveItemsWithPrefix = function(prefix) {
+    const store = window.localStorage;
+    let count = 0;
+    for(let i = store.length - 1; i >= 0; i--) {
+        const key = store.key(i);
+        if(key && key.indexOf(prefix) === 0) {
+            store.removeItem(key);
+            count++;
+        }
+    }
+    console.log(count + ' items cleared');
+    return count;
+};
+unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
+    lsRemoveItemsWithPrefix('CommentFlags');
+};
+
 
 (function() {
     'use strict';
@@ -65,6 +85,23 @@
 
     function doPageload() {
 
+        // Clear comment flaggers cache on weekends
+        if(new Date().getDay() % 6 === 0) purgeDisplayInlineCommentFlagHistory();
+
+        // If timeline page
+        if(location.href.indexOf('/timeline') >= 0) {
+
+            // Fixes broken layout from comment flags expansion
+            appendTimelineStyles();
+
+            // If comment is found in URL, also expand flags on the comment
+            if(location.hash && location.hash.indexOf('#comment_') >= 0) {
+                const cmmtRow = $(`a[href="${location.hash}"]`).first().closest('tr');
+                cmmtRow.find('.toggle-comment-flags').click();
+            }
+        }
+
+        // Each post on page
         $('.question, .answer').not('.js-cmmtflags-loaded').each(function() {
 
             // So we only load each post's timeline once
@@ -74,7 +111,7 @@
             const isQ = $(this).hasClass('question');
             //console.log(postId, isQ);
 
-            // Each post on page
+            // Get post timeline
             $.get(`${postsUrl}/${postId}/timeline`, function(data) {
                 const cmmtDiv = $('<div class="all-comment-flags"></div>').appendTo('#comments-'+postId);
                 const eventRows = $('.event-rows', data);
@@ -177,6 +214,24 @@
     }
 
 
+    function appendTimelineStyles() {
+
+        const styles = `
+<style>
+.post-timeline tr.dno[style^="display:block;"],
+.post-timeline tr.dno[style^="display: block;"] {
+    display: table-row !important;
+}
+.post-timeline tr.dno[style^="display"],
+.post-timeline tr.dno[style^="display"] {
+    border-left: 2px double #f4a83d;
+}
+</style>
+`;
+        $('body').append(styles);
+    }
+
+
     function appendStyles() {
 
         const styles = `
@@ -249,14 +304,6 @@
 .rude-abusive > span:first-child {
     color: red;
 }
-.post-timeline tr.dno[style^="display:block;"],
-.post-timeline tr.dno[style^="display: block;"] {
-    display: table-row !important;
-}
-.post-timeline tr.dno[style^="display"],
-.post-timeline tr.dno[style^="display"] {
-    border-left: 2px double #f4a83d;
-}
 </style>
 `;
         $('body').append(styles);
@@ -269,23 +316,3 @@
     listenToPageUpdates();
 
 })();
-
-
-unsafeWindow.lsRemoveItemsWithPrefix = function(prefix) {
-    const store = window.localStorage;
-    let count = 0;
-    for(let i = store.length - 1; i >= 0; i--) {
-        const key = store.key(i);
-        if(key && key.indexOf(prefix) === 0) {
-            store.removeItem(key);
-            count++;
-        }
-    }
-    console.log(count + ' items cleared');
-    return count;
-};
-
-
-unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
-    lsRemoveItemsWithPrefix('CommentFlags');
-};
