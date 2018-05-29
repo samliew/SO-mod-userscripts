@@ -7,10 +7,10 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 
 <br>
 
-## Recommended for moderators
+## Recommended
 
 
-These are highly recommended. Minor changes to the UI/defaults makes your mod life easier by a *huge* amount (saving clicks, or having to hunt for a particular link/mod feature, or displaying more info upfront). Click these to jump to their descriptions below:
+These are highly recommended for moderators. Minor changes to the UI/defaults makes your mod life easier by a *huge* amount (saving clicks, or having to hunt for a particular link/mod feature, or displaying more info upfront). Click these to jump to their descriptions below:
 
 - [Mod User Quicklinks Everywhere](#mod-user-quicklinks-everywhere-)
 - [Mod Popup Dialog Improvements](#mod-popup-dialog-improvements-)
@@ -18,6 +18,7 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 - [Comment Flags Helper](#comment-flags-helper-)
 - [Not An Answer Flag Queue Helper](#not-an-answer-flag-queue-helper-)
 - [Display Inline Comment Flag History](#display-inline-comment-flag-history-)
+- [Possible Vandalism Deletions Helper](#possible-vandalism-deletions-helper-)
 
 
 <br>
@@ -102,8 +103,9 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 
 *Can you see the link in the post below?*
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-22_220555.png)
-- Appends `-shortlink` to short link texts in posts and comments so they can be easily seen and clicked on
-- E.g.: Link `.` visually becomes `.-shortlink`
+- Appends `_link` to short link texts in posts and comments so they can be easily seen and clicked on
+- Link is also bolded and color set to red
+- E.g.: Link `.` visually becomes `._link`
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-22_220534.png)
 
 
@@ -115,6 +117,7 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-18_210542.png)
 - On arrow mouseover, displays the Meta posts
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-18_210522.png)
+- Works for posts with IDs >= 10000 only to prevent false positives 
 
 
 ### [Election Supporter Flairs](https://github.com/samliew/SO-mod-userscripts/blob/master/ElectionSupporterFlairs.user.js)
