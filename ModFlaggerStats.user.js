@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.3.2
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -30,17 +30,17 @@
         }
 
         // Gold Tier
-        else if((fPerc < 1 && fTotal >= 4000) || (fPerc < 0.5 && fTotal >= 2000)) {
+        else if((fPerc < 1 && fTotal >= 2000) || (fPerc < 0.5 && fTotal >= 1000)) {
             v = { tier: 3, name: 'gold' };
         }
 
         // Silver Tier
-        else if((fPerc < 3 && fTotal >= 2000) || (fPerc < 1.5 && fTotal >= 1000)) {
+        else if((fPerc < 3 && fTotal >= 1000) || (fPerc < 1.5 && fTotal >= 500)) {
             v = { tier: 2, name: 'silver' };
         }
 
         // Bronze Tier
-        else if((fPerc < 5 && fTotal >= 800) || (fPerc < 2.5 && fTotal >= 400)) {
+        else if((fPerc < 5 && fTotal >= 500) || (fPerc < 2.5 && fTotal >= 200)) {
             v = { tier: 1, name: 'bronze' };
         }
 
