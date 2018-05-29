@@ -71,6 +71,9 @@ These are highly recommended. Minor changes to the UI/defaults makes your mod li
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-10_230533.png)
 - Displays flags on comment hover
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-10_230507.png)
+- Clear CommentFlags cache on weekends
+- On post timeline page, if comment is found in URL, also expand flags on the comment
+- Fixes display style on comment flags expansion (jQuery show/hide defaults to block, breaking table)
 
 
 ### [Mod Flagger Stats](https://github.com/samliew/SO-mod-userscripts/blob/master/ModFlaggerStats.user.js) ♦
