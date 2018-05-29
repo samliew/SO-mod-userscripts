@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.2
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -25,7 +25,7 @@
         let v = { tier: 0, name: 'default' };
 
         // Elite Tier
-        if((fPerc < 1 && fTotal >= 10000) || (fPerc < 0.4 && fTotal >= 5000)) {
+        if((fPerc < 0.2 && fTotal >= 10000) || (fPerc < 0.1 && fTotal >= 5000)) {
             v = { tier: 4, name: 'elite' };
         }
 
@@ -128,7 +128,9 @@
     display: none;
 }
 .flag-badge.elite {
-    background: #3cb371;
+    width: 12px;
+    height: 12px;
+    background: linear-gradient(to top right, #ffcc01 0%, #3cb371 40%, #3cb371 60%, #ffcc01 100%);
 }
 .flag-badge.gold {
     background: #ffcc01;
