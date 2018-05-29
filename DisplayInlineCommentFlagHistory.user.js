@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.2
+// @version      2.0.3
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -28,6 +28,7 @@
 
     const store = window.localStorage;
     const baseUrl = `https://${location.hostname}`;
+    const postsUrl = baseUrl + '/posts';
 
 
     function getCommentFlagRaisers(cid, uid) {
@@ -74,7 +75,7 @@
             //console.log(postId, isQ);
 
             // Each post on page
-            $.get(`${baseUrl}/posts/${postId}/timeline`, function(data) {
+            $.get(`${postsUrl}/${postId}/timeline`, function(data) {
                 const cmmtDiv = $('<div class="all-comment-flags"></div>').appendTo('#comments-'+postId);
                 const eventRows = $('.event-rows', data);
                 const cmmtFlags = eventRows.find('tr[data-eventtype="flag"]').filter((i, el) => $(el).find('.event-type.flag').text() === 'comment flag');
@@ -86,7 +87,7 @@
                     const cmmtUserId = $(this).find('a.comment-user').attr('href').match(/\d+/)[0] || -1;
                     const cmmtFlagIds = $(this).find('.toggle-comment-flags').attr('data-flag-ids').split(';');
                     const cmmtFlagsDiv = $('<div class="comment-flags"></div>').appendTo(`#comment-${cmmtId} .comment-text`);
-                    const cmmtFlagcountDiv = $(`<a class="comment-flagcount supernovabg" title="comment flags" href="${baseUrl}/${postId}/timeline#comment_${cmmtId}" target="_blank">${cmmtFlagIds.length}</a>`)
+                    const cmmtFlagcountDiv = $(`<a class="comment-flagcount supernovabg" title="comment flags" href="${postsUrl}/${postId}/timeline#comment_${cmmtId}" target="_blank">${cmmtFlagIds.length}</a>`)
                                                  .appendTo(`#comment-${cmmtId} .comment-actions`);
                     $(`#comment-${cmmtId}`).addClass('hasflags');
 
@@ -141,7 +142,7 @@
                 comment.addClass('hasflags');
 
                 const cmmtFlagsDiv = $('<div class="comment-flags"></div>').appendTo(`#comment-${cmmtId} .comment-text`);
-                const cmmtFlagcountDiv = $(`<a class="comment-flagcount supernovabg" title="comment flags" href="${baseUrl}/${postId}/timeline#comment_${cmmtId}" target="_blank">${cmmtFlagIds.length}</a>`)
+                const cmmtFlagcountDiv = $(`<a class="comment-flagcount supernovabg" title="comment flags" href="${postsUrl}/${postId}/timeline#comment_${cmmtId}" target="_blank">${cmmtFlagIds.length}</a>`)
                                              .appendTo(`#comment-${cmmtId} .comment-actions`);
 
                 // Each flag on comment
