@@ -1,9 +1,16 @@
 // ==UserScript==
 // @name         Mod Flagger Stats
-// @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history.
+// @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.2
+// @version      1.4
+//
+// @include      https://*stackoverflow.com/users/*
+// @include      https://*serverfault.com/users/*
+// @include      https://*superuser.com/users/*
+// @include      https://*askubuntu.com/users/*
+// @include      https://*mathoverflow.net/users/*
+// @include      https://*.stackexchange.com/users/*
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -15,9 +22,6 @@
 
 (function() {
     'use strict';
-
-    // Moderator check
-    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
 
 
     function calculateFlagTier(fTotal = 0, fPerc = 0) {
@@ -70,13 +74,13 @@
                     const rep = Number($('.user-details .reputation-score', data).text().replace(/k/, '000').replace(/[^\d]/g, ''));
                     const infotable = $('#flag-stat-info-table', data);
 
-                    let fTotal = 1, fTotalElem = infotable.find('tr').first();
+                    let fTotal = 0, fTotalElem = infotable.find('tr').first();
                     if(fTotalElem.length != 0) fTotal = Number(fTotalElem.text().replace(/[^\d]+/g, ''));
 
                     let fDeclined = 0, fDeclinedElem = infotable.find('a[href="?group=1&status=3"]');
                     if(fDeclinedElem.length != 0) fDeclined = Number(fDeclinedElem.parent().prev().text().replace(/[^\d]+/g, ''));
 
-                    const fPerc = fDeclined / fTotal * 100;
+                    const fPerc = fDeclined / (fTotal || 1) * 100;
                     resolve([rep, fTotal, fDeclined, fPerc]);
                 })
                 .fail(reject);
@@ -85,6 +89,31 @@
 
 
     function doPageload() {
+
+        let currUid = StackExchange.options.user.userId;
+
+        // If on user profile page
+        if(/\/users\/\d+\/.*/.test(location.pathname) && (location.search === '' || location.search === '?tab=profile')) {
+
+            // If on own user profile page
+            if(location.pathname.indexOf('/users/'+currUid) === 0) {
+                currUid = StackExchange.options.user.userId
+            }
+            // Else must be a mod
+            else if(StackExchange.options.user.isModerator) {
+                currUid = $('#tabs a').first().attr('href').match(/\d+/)[0];
+            }
+            else return;
+
+            getUserFlagStats(currUid).then(function(v) {
+                const tier = calculateFlagTier(v[1], v[3]);
+                const badge = `<a href="/users/flag-summary/${currUid}" class="flag-badge large ${tier.name}" title="${tier.name} flagger: ${v[1]} (${v[2]}) = ${v[3].toFixed(2)}%" target="_blank"></a>`;
+                $('.user-card-name').append(badge);
+            });
+        }
+
+        // Non-mods, exit
+        if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
 
         // Load user stats on post hover
         $('.flagged-post-row').on('mouseover', function() {
@@ -130,7 +159,7 @@
 .flag-badge.elite {
     width: 12px;
     height: 12px;
-    background: linear-gradient(to top right, #ffcc01 0%, #3cb371 40%, #3cb371 60%, #ffcc01 100%);
+    background: #3cb371;
 }
 .flag-badge.gold {
     background: #ffcc01;
@@ -154,6 +183,10 @@
     background: none;
     border: 1px solid #aaa;
 }
+.flag-badge.large {
+    width: 20px;
+    height: 20px;
+}
 .flag-badge.default:after {
     content: '';
     position: relative;
@@ -164,6 +197,11 @@
     height: 0px;
     border-top: 1px solid #aaa;
     transform: rotateZ(-45deg);
+}
+.flag-badge.large:after {
+    top: 8px;
+    left: -1px;
+    width: 20px;
 }
 </style>
 `;
