@@ -3,7 +3,7 @@
 // @description  Some magic links are not parsed in Stack Overflow Chat. This script parses and submit expanded magic links via an edit to your latest message.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // ==/UserScript==
@@ -48,6 +48,7 @@
         msg = msg.replace(/\[meta-help\](?!\()/gi, `[help center](${mainDomain}/help/whats-meta)`);
         msg = msg.replace(/\[tour\](?!\()/gi, `[tour](${mainDomain}/tour)`);
         msg = msg.replace(/\[chat\](?!\()/gi, `[Stack Overflow Chat](https://${location.hostname})`);
+        msg = msg.replace(/\[somu\](?!\()/gi, `[Stack Overflow Moderation Userscripts *by Samuel Liew*](https://github.com/samliew/SO-mod-userscripts/blob/master/README.md)`);
         return msg;
     }
 
