@@ -3,18 +3,16 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages, Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.8
 //
-// @include      https://stackoverflow.com/*
-// @include      https://serverfault.com/*
-// @include      https://superuser.com/*
-// @include      https://askubuntu.com/*
-// @include      https://mathoverflow.net/*
-// @include      https://stackexchange.com/*
+// @include      https://*stackoverflow.com/*
+// @include      https://*serverfault.com/*
+// @include      https://*superuser.com/*
+// @include      https://*askubuntu.com/*
+// @include      https://*mathoverflow.net/*
+// @include      https://*.stackexchange.com/*
 //
-// @exclude      https://chat.stackexchange.com/*
-// @exclude      https://chat.stackoverflow.com/*
-// @exclude      https://chat.meta.stackexchange.com/*
+// @exclude      *chat.*
 // @exclude      https://stackoverflow.com/c/*
 // ==/UserScript==
 
@@ -23,6 +21,8 @@
 
     // Moderator check
     if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+
+    const mainDomain = 'https://' + location.hostname.replace('meta.', '');
 
 
     function getCurrentUserId() {
@@ -66,6 +66,8 @@
                 $info.children('.col-4').removeClass('col-4').addClass('info-value');
                 // Add history link to quicklinks, so you don't have to open the mod popup and switch tabs
                 $('.mod-quick-links', $quicklinks).prepend(`<li><a href="/users/history/${uid}">history</a></li>`);
+                // If on meta, link to main?
+                $('.mod-quick-links a', $quicklinks).attr('href', (i, v) => mainDomain + v);
                 // Check if user is currently suspended, highlight username
                 var susMsg = $dataHtml.find('.system-alert').first().text();
                 if(susMsg.indexOf('suspended') >= 0) {
