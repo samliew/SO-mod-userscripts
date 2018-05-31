@@ -3,7 +3,7 @@
 // @description  Unique colour for each user in comments to make following users in long comment threads easier
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -21,24 +21,25 @@
 
     function getUserColor(uid, username) {
         if(typeof uid === 'string') uid = Number(uid) || 0;
-        const nonHexChars = username.replace(/[0-9A-F]+/gi, '');
-        const hexChars = username.replace(/[^0-9A-F]+/gi, '');
-        const one = (nonHexChars.charCodeAt(0) * 7 % 16).toString(16);
-        const two = (nonHexChars.charCodeAt(1) * 7 % 16).toString(16);
-        const colorCode = one + two + hexChars.slice(0, 2) + (uid % 4096).toString(16) + '00';
+        const nonHexChars = username.replace(/[0-9A-F]+/gi, '') + '00';
+        const hexChars = username.replace(/[^0-9A-F]+/gi, '') + '00';
+        const one = (nonHexChars.charCodeAt(0) * 7 % 14).toString(16);
+        const two = (nonHexChars.charCodeAt(1) * 7 % 14).toString(16);
+        const colorCode = one + hexChars.slice(0, 2) + two + (uid % 4096).toString(16) + '00';
         return colorCode.slice(0, 6);
     }
 
 
-    function setUserColor() {
+    function setUserColor(i, el) {
         // No href if deleted user, fallback to innerText
         const uid = (this.href || this.innerText).replace(/[^\d]+/g, '');
-        this.style.setProperty("--usercolor", '#' + getUserColor(uid, this.innerText));
+        const usercolor = getUserColor(uid, this.innerText);
+        el.style.setProperty("--usercolor", '#' + usercolor);
     }
 
 
     function updateUsers() {
-        $('.comment-user').not('.owner').each(setUserColor);
+        $('.comment-copy + .comment-user').not('.owner').each(setUserColor);
     }
 
 
