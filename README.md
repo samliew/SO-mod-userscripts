@@ -77,12 +77,13 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 - Fixes display style on comment flags expansion (jQuery show/hide defaults to block, breaking table)
 
 
-### [Mod Flagger Stats](https://github.com/samliew/SO-mod-userscripts/blob/master/ModFlaggerStats.user.js) ♦
+### [Mod Flagger Stats](https://github.com/samliew/SO-mod-userscripts/blob/master/ModFlaggerStats.user.js)
 
 - On post hover in mod flag queue, get and display flaggers stats (via tooltip on flag badge):<br>
   Reputation, Total Flags, Declined Flags, % Declined
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-28_190541.png)
 - Badge links to user's flag history (opens in a new window)
+- **Non-mods:** Can view own flag badge on main profile page
 
 
 ### [Post Ids Everywhere](https://github.com/samliew/SO-mod-userscripts/blob/master/PostIdsEverywhere.user.js)
