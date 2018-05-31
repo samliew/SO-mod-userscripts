@@ -117,7 +117,12 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-18_210542.png)
 - On arrow mouseover, displays the Meta posts
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-18_210522.png)
-- Works for posts with IDs >= 10000 only to prevent false positives 
+- Works for posts with IDs >= 10000 only to prevent false positives
+
+
+### [Comment User Colors](https://github.com/samliew/SO-mod-userscripts/blob/master/CommentUserColours.user.js)
+
+- Unique border colour for each user in comments to make following users in long comment threads easier
 
 
 ### [Election Supporter Flairs](https://github.com/samliew/SO-mod-userscripts/blob/master/ElectionSupporterFlairs.user.js)
