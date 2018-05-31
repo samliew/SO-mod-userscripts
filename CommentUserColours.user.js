@@ -3,7 +3,7 @@
 // @description  Unique colour for each user in comments to make following users in long comment threads easier
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.0.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -21,11 +21,11 @@
 
     function getUserColor(uid, username) {
         if(typeof uid === 'string') uid = Number(uid) || 0;
-        const nonHexChars = username.replace(/[0-9A-F]+/gi, '') + '00';
-        const hexChars = username.replace(/[^0-9A-F]+/gi, '') + '00';
-        const one = (nonHexChars.charCodeAt(0) * 7 % 14).toString(16);
-        const two = (nonHexChars.charCodeAt(1) * 7 % 14).toString(16);
-        const colorCode = one + hexChars.slice(0, 2) + two + (uid % 4096).toString(16) + '00';
+        const nonHexChars = username.replace(/[0-9A-F]+/gi, '') + '66';
+        const hexChars = username.replace(/[^0-9A-F]+/gi, '') + '66';
+        const one = (nonHexChars.charCodeAt(0) * 7 % 11 + 4).toString(16);
+        const two = (nonHexChars.charCodeAt(1) * 7 % 11 + 4).toString(16);
+        const colorCode = one + two + hexChars.slice(0, 2) + (uid % 4096).toString(16) + hexChars.charAt(1) + '66';
         return colorCode.slice(0, 6);
     }
 
