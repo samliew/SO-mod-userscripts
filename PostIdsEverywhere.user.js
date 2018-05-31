@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.3.2
 //
 // @match        https://stackoverflow.com/*
 // @match        https://serverfault.com/*
@@ -28,8 +28,8 @@
     function insertPostIds() {
 
         // Lists
-        $('a.answer-hyperlink').each((i,el) => $('<input class="post-id" value="'+el.href.match(/\d+$/)+'" readonly />').insertAfter(el));
-        $('a.question-hyperlink').each((i,el) => $('<input class="post-id" value="'+el.href.match(/\d+/)[0]+'" readonly />').insertAfter(el));
+        $('a.answer-hyperlink').each((i,el) => $('<input class="post-id" value="'+el.href.replace(/[^\d]+/g, '')+'" readonly />').insertAfter(el));
+        $('a.question-hyperlink').each((i,el) => $('<input class="post-id" value="'+el.href.replace(/[^\d]+/g, '')+'" readonly />').insertAfter(el));
 
         // Q&A
         $('[data-questionid], [data-answerid]').not('.close-question-link').each((i,el) => $('<input class="post-id" value="'+(el.dataset.answerid||el.dataset.questionid)+'" readonly />').prependTo(el));
@@ -60,7 +60,8 @@
 .user-tab-content td,
 .user-tab-content h3,
 .summary h3,
-.top-posts .post-container {
+.top-posts .post-container,
+.mod-section table.table td {
     position: relative;
 }
 .popup[data-questionid],
