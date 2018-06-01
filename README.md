@@ -19,6 +19,7 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 - [Not An Answer Flag Queue Helper](#not-an-answer-flag-queue-helper-)
 - [Display Inline Comment Flag History](#display-inline-comment-flag-history-)
 - [Possible Vandalism Deletions Helper](#possible-vandalism-deletions-helper-)
+- [Post Timeline Filters](#post-timeline-filters)
 
 
 <br>
@@ -74,6 +75,13 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-10_230507.png)
 - Clear CommentFlags cache on weekends
 - On post timeline page, if comment is found in URL, also expand flags on the comment
+- Fixes display style on comment flags expansion (jQuery show/hide defaults to block, breaking table)
+
+
+### [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/blob/master/PostTimelineFilters.user.js)
+
+- Inserts several filter options for post timelines, useful for old posts with humongous timelines
+- Hides daily summaries by default
 - Fixes display style on comment flags expansion (jQuery show/hide defaults to block, breaking table)
 
 
