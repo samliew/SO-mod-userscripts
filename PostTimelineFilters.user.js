@@ -35,13 +35,6 @@
                 };
                 break;
 
-            case 'only-closereopen':
-                filterFn = function(i, el) {
-                    const eType = $(el).find('span.event-type').text();
-                    return eType === 'close' || eType === 'reopen';
-                };
-                break;
-
             case 'only-comments':
                 filterFn = function(i, el) {
                     const eType = $(el).find('span.event-type').text();
@@ -56,17 +49,31 @@
                 };
                 break;
 
+            case 'only-history':
+                filterFn = function(i, el) {
+                    const eType = $(el).find('span.event-type').text();
+                    return eType === 'history' || el.dataset.eventtype === 'vote';
+                };
+                break;
+
+            case 'only-closereopen':
+                filterFn = function(i, el) {
+                    const eType = $(el).find('span.event-type').text();
+                    return eType === 'close' || eType === 'reopen';
+                };
+                break;
+
             case 'only-reviews':
                 filterFn = function(i, el) {
                     const eType = $(el).find('span.event-type').text();
-                    return eType === 'review';
+                    return eType === 'review' || el.dataset.eventtype === 'review';
                 };
                 break;
 
             case 'only-flags':
                 filterFn = function(i, el) {
                     const eType = $(el).find('span.event-type').text();
-                    return eType === 'flag';
+                    return eType === 'flag' || el.dataset.eventtype === 'flag';
                 };
                 break;
 
@@ -89,14 +96,16 @@
     function doPageLoad() {
 
         // Pre-trim event type once
-        $('span.event-type').text((i, v) => '' + v.trim());
+        $('span.event-type, td.event-verb span').text((i, v) => '' + v.trim());
         $('td.event-type').filter((i, el) => el.children.length === 0).text('');
 
         $eventsContainer = $('table.post-timeline');
         $events = $('.event-rows > tr').not('.separator'); // .filter((i, el) => el.dataset.eventtype !== 'flag' && $(el).find('span.event-type').text() !== 'flag')
 
-        const postType = $events.last().find('.event-verb').text().trim() === 'asked' ? 'question' : 'answer';
         const userType = StackExchange.options.user.isModerator ? 'mod' : 'normal';
+        const postType = $('td.event-verb span').filter((i, el) => el.innerText === 'asked' || el.innerText === 'answered').text() === 'asked' ? 'question' : 'answer';
+
+        console.log(userType, postType);
 
         // Insert sort options
         const $filterOpts = $(`<div id="post-timeline-tabs" class="tabs posttype-${postType} usertype-${userType}">
@@ -106,9 +115,10 @@
                 <a data-filter="only-comments">Comments</a>
                 <a data-filter="only-reviews">Reviews</a>
                 <a data-filter="only-answers" class="q-only">Answers</a>
-                <a data-filter="only-closereopen" class="q-only mod-only">♦ Close & Reopen</a>
+                <a data-filter="only-history" title="Edits, Delete, Undelete">History</a>
+                <a data-filter="only-closereopen" class="q-only">Close & Reopen</a>
                 <a data-filter="only-flags" class="mod-only">♦ Flags</a>
-                <a data-filter="only-mod" class="mod-only">♦ All Mod-only</a>
+                <a data-filter="only-mod" class="mod-only">♦ Mod-only</a>
             </div>`)
             .insertBefore($eventsContainer);
 
