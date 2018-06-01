@@ -100,7 +100,7 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 
 - Inserts post IDs everywhere where there's a post or post link (for copying/easier x-referencing/etc)
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/postids-everywhere.gif)
-- Useful for copying ID of answer, for coverting an answer to a comment of the target post
+- Useful for copying ID of answer, for converting an answer to a comment of the target post
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_190400.png)
 
 
