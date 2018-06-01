@@ -90,7 +90,7 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 
 - On post hover in mod flag queue, get and display flaggers stats (via tooltip on flag badge):<br>
   Reputation, Total Flags, Declined Flags, % Declined
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-28_190541.png)
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-01_110629.png)
 - Badge links to user's flag history (opens in a new window)
 - **Non-mods:** Can view own flag badge on main profile page
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-01_110628.png)
