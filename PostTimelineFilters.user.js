@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      */posts/*/timeline
 // ==/UserScript==
@@ -45,7 +45,7 @@
             case 'only-comments':
                 filterFn = function(i, el) {
                     const eType = $(el).find('span.event-type').text();
-                    return eType === 'comments';
+                    return eType === 'comment';
                 };
                 break;
 
