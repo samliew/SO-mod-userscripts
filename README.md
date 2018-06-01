@@ -83,6 +83,7 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 - Inserts several filter options for post timelines, useful for old posts with humongous timelines
 - Hides daily summaries by default
 - Fixes display style on comment flags expansion (jQuery show/hide defaults to block, breaking table)
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-01_110648.png)
 
 
 ### [Mod Flagger Stats](https://github.com/samliew/SO-mod-userscripts/blob/master/ModFlaggerStats.user.js)
