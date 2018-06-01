@@ -97,18 +97,19 @@
         $events = $('.event-rows > tr').not('.separator').filter((i, el) => el.dataset.eventtype !== 'flag' && $(el).find('span.event-type').text() !== 'flag');
 
         const postType = $events.last().find('.event-verb').text().trim() === 'asked' ? 'question' : 'answer';
+        const userType = StackExchange.options.user.isModerator ? 'mod' : 'normal';
 
         // Insert sort options
-        const $filterOpts = $(`<div id="post-timeline-tabs" class="tabs posttype-${postType}">
+        const $filterOpts = $(`<div id="post-timeline-tabs" class="tabs posttype-${postType} usertype-${userType}">
                 <a data-filter="all" class="youarehere">Show All</a>
                 <a data-filter="hide-votes" id="newdefault">Hide Votes</a>
                 <a data-filter="hide-votes-comments">Hide Votes & Comments</a>
                 <a data-filter="only-comments">Comments</a>
-                <a data-filter="only-answers" class="qonly">Answers</a>
-                <a data-filter="only-closereopen" class="qonly">♦ Close & Reopen</a>
-                <a data-filter="only-reviews">♦ Reviews</a>
-                <a data-filter="only-flags">♦ Flags</a>
-                <a data-filter="only-mod">♦ All Mod-only</a>
+                <a data-filter="only-answers" class="q-only">Answers</a>
+                <a data-filter="only-closereopen" class="q-only mod-only">♦ Close & Reopen</a>
+                <a data-filter="only-reviews" class="mod-only">♦ Reviews</a>
+                <a data-filter="only-flags" class="mod-only">♦ Flags</a>
+                <a data-filter="only-mod" class="mod-only">♦ All Mod-only</a>
             </div>`)
             .insertBefore($eventsContainer);
 
@@ -116,7 +117,7 @@
         $('#post-timeline-tabs').on('click', 'a[data-filter]', function() {
             if($(this).hasClass('youarehere')) return false;
 
-            // Reset expanded comment flags
+            // Hide expanded flags
             $('.expander-arrow-small-show').click();
 
             // Filter posts based on selected filter
@@ -167,8 +168,12 @@
     border-bottom: 2px solid transparent;
     transition: all .15s ease-in-out;
 }
+#post-timeline-tabs a.youarehere {
+    background: #f3f3f3;
+}
 
-.posttype-answer .qonly {
+.posttype-answer .q-only,
+.usertype-normal .mod-only {
     display: none;
 }
 
