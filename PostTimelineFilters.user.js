@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      */posts/*/timeline
 // ==/UserScript==
@@ -39,6 +39,13 @@
                 filterFn = function(i, el) {
                     const eType = $(el).find('span.event-type').text();
                     return eType === 'close' || eType === 'reopen';
+                };
+                break;
+
+            case 'only-comments':
+                filterFn = function(i, el) {
+                    const eType = $(el).find('span.event-type').text();
+                    return eType === 'comments';
                 };
                 break;
 
@@ -89,6 +96,7 @@
                 <a data-filter="all" class="youarehere">Show All</a>
                 <a data-filter="hide-votes" id="newdefault">Hide Votes</a>
                 <a data-filter="hide-votes-comments">Hide Votes & Comments</a>
+                <a data-filter="only-comments">Comments</a>
                 <a data-filter="only-answers">Answers</a>
                 <a data-filter="only-closereopen">♦ Close & Reopen</a>
                 <a data-filter="only-reviews">♦ Reviews</a>
