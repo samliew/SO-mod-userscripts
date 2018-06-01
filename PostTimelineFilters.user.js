@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.2
 //
 // @include      */posts/*/timeline
 // ==/UserScript==
@@ -30,8 +30,9 @@
 
             case 'hide-votes-comments':
                 filterFn = function(i, el) {
-                    const eType = $(el).find('span.event-type').text();
-                    return eType !== 'votes' && eType !== 'comment';
+                    let eType = $(el).find('span.event-type').text();
+                    if(!eType || eType === '') eType = el.dataset.eventtype;
+                    return eType !== 'votes' && eType !== 'comment' && eType !== 'comment flag' && eType !== 'flag';
                 };
                 break;
 
@@ -88,29 +89,35 @@
 
     function doPageLoad() {
 
+        // Pre-trim event type once
+        $('span.event-type').text((i, v) => '' + v.trim());
+        $('td.event-type').filter((i, el) => el.children.length === 0).text('');
+
         $eventsContainer = $('table.post-timeline');
-        $events = $('.event-rows > tr').not('.separator');
+        $events = $('.event-rows > tr').not('.separator').filter((i, el) => el.dataset.eventtype !== 'flag' && $(el).find('span.event-type').text() !== 'flag');
+
+        const postType = $events.last().find('.event-verb').text().trim() === 'asked' ? 'question' : 'answer';
 
         // Insert sort options
-        const $filterOpts = $(`<div id="post-timeline-tabs" class="tabs">
+        const $filterOpts = $(`<div id="post-timeline-tabs" class="tabs posttype-${postType}">
                 <a data-filter="all" class="youarehere">Show All</a>
                 <a data-filter="hide-votes" id="newdefault">Hide Votes</a>
                 <a data-filter="hide-votes-comments">Hide Votes & Comments</a>
                 <a data-filter="only-comments">Comments</a>
-                <a data-filter="only-answers">Answers</a>
-                <a data-filter="only-closereopen">♦ Close & Reopen</a>
+                <a data-filter="only-answers" class="qonly">Answers</a>
+                <a data-filter="only-closereopen" class="qonly">♦ Close & Reopen</a>
                 <a data-filter="only-reviews">♦ Reviews</a>
                 <a data-filter="only-flags">♦ Flags</a>
                 <a data-filter="only-mod">♦ All Mod-only</a>
             </div>`)
             .insertBefore($eventsContainer);
 
-        // Pre-trim event type once
-        $events.find('span.event-type').text((i, v) => v.trim());
-
         // Filter options event
         $('#post-timeline-tabs').on('click', 'a[data-filter]', function() {
             if($(this).hasClass('youarehere')) return false;
+
+            // Reset expanded comment flags
+            $('.expander-arrow-small-show').click();
 
             // Filter posts based on selected filter
             filterPosts(this.dataset.filter);
@@ -161,6 +168,10 @@
     transition: all .15s ease-in-out;
 }
 
+.posttype-answer .qonly {
+    display: none;
+}
+
 tr.separator {
     display: none !important;
 }
@@ -172,6 +183,10 @@ tr.separator + tr {
 .post-timeline tr.dno[style^="display:block;"],
 .post-timeline tr.dno[style^="display: block;"] {
     display: table-row !important;
+}
+.post-timeline tr.dno[data-eventtype="history"],
+.post-timeline tr.dno[data-eventtype="history"] {
+    display: none !important;
 }
 .post-timeline tr.dno[style^="display"],
 .post-timeline tr.dno[style^="display"] {
