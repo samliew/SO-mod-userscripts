@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -218,9 +218,14 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
 
         const styles = `
 <style>
+/* Fix for broken comment flags display */
 .post-timeline tr.dno[style^="display:block;"],
 .post-timeline tr.dno[style^="display: block;"] {
     display: table-row !important;
+}
+.post-timeline tr.dno[data-eventtype="history"],
+.post-timeline tr.dno[data-eventtype="history"] {
+    display: none !important;
 }
 .post-timeline tr.dno[style^="display"],
 .post-timeline tr.dno[style^="display"] {
