@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.4
 //
 // @include      */posts/*/timeline
 // ==/UserScript==
@@ -104,9 +104,9 @@
                 <a data-filter="hide-votes" id="newdefault">Hide Votes</a>
                 <a data-filter="hide-votes-comments">Hide Votes & Comments</a>
                 <a data-filter="only-comments">Comments</a>
+                <a data-filter="only-reviews">Reviews</a>
                 <a data-filter="only-answers" class="q-only">Answers</a>
                 <a data-filter="only-closereopen" class="q-only mod-only">♦ Close & Reopen</a>
-                <a data-filter="only-reviews" class="mod-only">♦ Reviews</a>
                 <a data-filter="only-flags" class="mod-only">♦ Flags</a>
                 <a data-filter="only-mod" class="mod-only">♦ All Mod-only</a>
             </div>`)
