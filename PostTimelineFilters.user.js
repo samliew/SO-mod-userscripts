@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      */posts/*/timeline
 // ==/UserScript==
@@ -30,9 +30,8 @@
 
             case 'hide-votes-comments':
                 filterFn = function(i, el) {
-                    let eType = $(el).find('span.event-type').text();
-                    if(!eType || eType === '') eType = el.dataset.eventtype;
-                    return eType !== 'votes' && eType !== 'comment' && eType !== 'comment flag' && eType !== 'flag';
+                    const eType = $(el).find('span.event-type').text();
+                    return eType !== 'votes' && eType !== 'comment' && el.dataset.eventtype !== 'comment';
                 };
                 break;
 
@@ -83,7 +82,7 @@
                 return;
         }
 
-        $events.hide().filter(filterFn).show();
+        $events.hide().filter(filterFn).not('.dno').show();
     }
 
 
@@ -94,7 +93,7 @@
         $('td.event-type').filter((i, el) => el.children.length === 0).text('');
 
         $eventsContainer = $('table.post-timeline');
-        $events = $('.event-rows > tr').not('.separator').filter((i, el) => el.dataset.eventtype !== 'flag' && $(el).find('span.event-type').text() !== 'flag');
+        $events = $('.event-rows > tr').not('.separator'); // .filter((i, el) => el.dataset.eventtype !== 'flag' && $(el).find('span.event-type').text() !== 'flag')
 
         const postType = $events.last().find('.event-verb').text().trim() === 'asked' ? 'question' : 'answer';
         const userType = StackExchange.options.user.isModerator ? 'mod' : 'normal';
