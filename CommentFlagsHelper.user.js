@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6
+// @version      2.6.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -314,6 +314,9 @@
 
         const styles = `
 <style>
+#mod-history {
+    display: none;
+}
 .flagged-posts.moderator {
     margin-top: 0;
 }
