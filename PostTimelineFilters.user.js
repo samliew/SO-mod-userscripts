@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @include      */posts/*/timeline
 // ==/UserScript==
@@ -95,9 +95,9 @@
 
     function doPageLoad() {
 
-        // Pre-trim event type once
-        $('span.event-type, td.event-verb span').text((i, v) => '' + v.trim());
-        $('td.event-type').filter((i, el) => el.children.length === 0).text('');
+        // Pre-trim certain elements once on page load to make filtering less complicated
+        $('span.event-type, td.event-verb span a').text((i, v) => '' + v.trim());
+        $('td.event-type, td.event-verb span').filter((i, el) => el.children.length === 0).text((i, v) => '' + v.trim());
 
         $eventsContainer = $('table.post-timeline');
         $events = $('.event-rows > tr').not('.separator'); // .filter((i, el) => el.dataset.eventtype !== 'flag' && $(el).find('span.event-type').text() !== 'flag')
