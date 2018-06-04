@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.5
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -115,28 +115,38 @@
         // Non-mods, exit
         if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
 
-        // Load user stats on post hover
-        $('.flagged-post-row').on('mouseover', function() {
-            $('.mod-message a', this).each((i, el) => $(el).triggerHandler('loadflaggingstats'));
-        });
-
         // Ignore mods
         $('.mod-flair').prev().addClass('js-userflagstats-loaded');
 
         // Load user stats on hover
         $('.mod-message a[href^="/users/"]').on('loadflaggingstats', function() {
             if($(this).hasClass('js-userflagstats-loaded') || $(this).hasClass('js-userflagstats-loading')) return;
-            const currLink = $(this).addClass('js-userflagstats-loading');
             const uid = this.href.match(/-?\d+/)[0];
+            const sameUserLinks = $(`.mod-message a[href^="/users/${uid}/"]`).addClass('js-userflagstats-loading');
+            const currLink = $(this).addClass('js-userflagstats-loading');
 
             getUserFlagStats(uid).then(function(v) {
                 const tier = calculateFlagTier(v[1], v[3]);
                 const badge = `<a href="/users/flag-summary/${uid}" class="flag-badge ${tier.name}" title="rep: ${v[0]}   flags: ${v[1]} (${v[2]}) = ${v[3].toFixed(2)}%" target="_blank"></a>`;
 
                 // Apply to all instances of same user on page
-                $(`.mod-message a[href^="/users/${uid}/"]`).not('js-userflagstats-loaded').addClass('js-userflagstats-loaded').after(badge);
+                sameUserLinks.not('js-userflagstats-loaded').addClass('js-userflagstats-loaded').after(badge);
             });
         });
+
+        // Load user stats on post hover, also load for first three posts on page load
+        $('.flagged-posts').on('mouseover', '.flagged-post-row', function() {
+            $('.mod-message a', this).trigger('loadflaggingstats');
+        });
+        $('.flagged-post-row').slice(0,3).trigger('mouseover');
+
+        // Load all flagger stats button
+        $('<button>Load flagger stats</button>')
+            .click(function() {
+                $(this).remove();
+                $('.flagged-post-row').trigger('mouseover');
+            })
+            .insertAfter('#mainbar-full h1');
     }
 
 
@@ -144,6 +154,10 @@
 
         const styles = `
 <style>
+#mainbar-full h1 ~ button {
+    float: left;
+    margin-left: 10px;
+}
 .flag-badge {
     font-size: 0;
     display: inline-block;
