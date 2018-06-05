@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      3.0
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
@@ -19,6 +19,91 @@
     let ajaxTimeout;
 
 
+    // Undelete individual comment
+    function undeleteComment(pid, cid) {
+        if(typeof pid === 'undefined' || pid == null) return;
+        if(typeof cid === 'undefined' || cid == null) return;
+        $.post({
+            url: `https://stackoverflow.com/admin/posts/${pid}/comments/${cid}/undelete`,
+            data: {
+                'fkey': fkey
+            }
+        });
+    }
+
+
+    // Undelete comments
+    function undeleteComments(pid, cids) {
+        if(typeof pid === 'undefined' || pid == null) return;
+        if(typeof cids === 'undefined' || cids.length === 0) return;
+        cids.forEach(v => undeleteComment(pid, v));
+    }
+
+
+    // Delete individual comment
+    function deleteComment(cid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof cid === 'undefined' || cid == null) { reject(); return; }
+
+            $.post({
+                url: `https://stackoverflow.com/posts/comments/${cid}/vote/10`,
+                data: {
+                    'fkey': fkey
+                }
+            })
+            .done(function(data) {
+                $('#comment-'+pid).remove();
+                resolve();
+            })
+            .fail(reject);
+        });
+    }
+
+
+    // Delete all comments on post
+    function deleteCommentsOnPost(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid == null) { reject(); return; }
+
+            $.post({
+                url: `https://stackoverflow.com/admin/posts/${pid}/delete-comments`,
+                data: {
+                    'fkey': fkey,
+                    'mod-actions': 'delete-comments'
+                }
+            })
+            .done(function(data) {
+                $('#comments-'+pid).remove();
+                $('#comments-link-'+pid).html('<b>Comments deleted.</b>');
+                resolve();
+            })
+            .fail(reject);
+        });
+    }
+
+
+    // Move all comments on post to chat
+    function moveCommentsOnPostToChat(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid == null) { reject(); return; }
+
+            $.post({
+                url: `https://stackoverflow.com/admin/posts/${pid}/move-comments-to-chat`,
+                data: {
+                    'fkey': fkey,
+                    'delete-moved-comments': 'true'
+                }
+            })
+            .done(function(data) {
+                $('#comments-'+pid).remove();
+                $('#comments-link-'+pid).html('<b>Comments moved to chat and purged.</b>');
+                resolve();
+            })
+            .fail(reject);
+        });
+    }
+
+
     function doPageLoad() {
 
         // Expand unhandled posts
@@ -27,45 +112,31 @@
 
         // On move comments to chat link click
         $('.flagged-post-row').on('click', '.move-comments-link', function() {
-
-            let pid = this.dataset.postId;
-
             if(confirm('Move all comments to chat & purge?')) {
+                const pid = this.dataset.postId;
+                const possibleDupeCommentIds = $(`#comments-${pid} .comment`)
+                    .filter((i, el) => $(el).find('.comment-copy').text().indexOf('Possible duplicate of ') === 0)
+                    .map((i, el) => el.dataset.commentId).get();
 
-                // Move comments to chat
-                $.post({
-                    url: `https://stackoverflow.com/admin/posts/${pid}/move-comments-to-chat`,
-                    data: {
-                        'fkey': fkey,
-                        'delete-moved-comments': 'true'
-                    },
-                    success: function() {
-                        $('#comments-'+pid).hide();
-                        $('#comments-link-'+pid).html('<b>Comments moved to chat and purged.</b>');
-                    }
-                });
+                moveCommentsOnPostToChat(pid)
+                    .then(function(v) {
+                        undeleteComments(pid, possibleDupeCommentIds);
+                    });
             }
         });
 
         // On purge all comments link click
         $('.flagged-post-row').on('click', '.purge-comments-link', function() {
-
-            let pid = this.dataset.postId;
-
             if(confirm('Delete ALL comments?')) {
+                const pid = this.dataset.postId;
+                const possibleDupeCommentIds = $(`#comments-${pid} .comment`)
+                    .filter((i, el) => $(el).find('.comment-copy').text().indexOf('Possible duplicate of ') === 0)
+                    .map((i, el) => el.dataset.commentId).get();
 
-                // Delete comments
-                $.post({
-                    url: `https://stackoverflow.com/admin/posts/${pid}/delete-comments`,
-                    data: {
-                        'fkey': fkey,
-                        'mod-actions': 'delete-comments'
-                    },
-                    success: function() {
-                        $('#comments-'+pid).hide();
-                        $('#comments-link-'+pid).html('<b>Comments deleted.</b>');
-                    }
-                });
+                deleteCommentsOnPost(pid)
+                    .then(function(v) {
+                        undeleteComments(pid, possibleDupeCommentIds);
+                    });
             }
         });
     }
@@ -79,7 +150,7 @@
             // Always expand comments if post is expanded, if comments have not been expanded yet
             $('.js-comments-container').not('.js-del-loaded').each(function() {
 
-                let postId = this.id.match(/\d+/)[0];
+                const postId = this.id.match(/\d+/)[0];
 
                 // So we only load deleted comments once
                 $(this).addClass('js-del-loaded').removeClass('dno');
@@ -107,7 +178,7 @@
             const pid = this.id.match(/\d+$/)[0];
 
             // Insert additional comment actions
-            let commentActionLinks = `<div class="mod-action-links" style="float:right; padding-right:10px"><a data-post-id="${pid}" class="move-comments-link comments-link red-mod-link" title="move all comments to chat &amp; purge">move to chat</a><span>&nbsp;|&nbsp;</span><a data-post-id="${pid}" class="purge-comments-link comments-link red-mod-link" title="delete all comments">purge all</a></div></div>`;
+            const commentActionLinks = `<div class="mod-action-links" style="float:right; padding-right:10px"><a data-post-id="${pid}" class="move-comments-link comments-link red-mod-link" title="move all comments to chat &amp; purge">move to chat</a><span>&nbsp;|&nbsp;</span><a data-post-id="${pid}" class="purge-comments-link comments-link red-mod-link" title="delete all comments">purge all</a></div></div>`;
             $('#comments-link-'+pid).append(commentActionLinks);
         });
     }
