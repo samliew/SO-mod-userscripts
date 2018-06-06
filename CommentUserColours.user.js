@@ -3,7 +3,7 @@
 // @description  Unique colour for each user in comments to make following users in long comment threads easier
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -21,25 +21,31 @@
 
     function getUserColor(uid, username) {
         if(typeof uid === 'string') uid = Number(uid) || 0;
-        const nonHexChars = username.replace(/[0-9A-F]+/gi, '') + '66';
-        const hexChars = username.replace(/[^0-9A-F]+/gi, '') + '66';
-        const one = (nonHexChars.charCodeAt(0) * 7 % 11 + 4).toString(16);
-        const two = (nonHexChars.charCodeAt(1) * 7 % 11 + 4).toString(16);
-        const colorCode = one + two + hexChars.slice(0, 2) + (uid % 4096).toString(16) + hexChars.charAt(1) + '66';
+        const colorCode = (uid * 99999999 % 16777216).toString(16) + '000000'; // 16777216 = 16^6
         return colorCode.slice(0, 6);
     }
 
 
     function setUserColor(i, el) {
-        // No href if deleted user, fallback to innerText
-        const uid = (this.href || this.innerText).replace(/[^\d]+/g, '');
-        const usercolor = getUserColor(uid, this.innerText);
-        el.style.setProperty("--usercolor", '#' + usercolor);
+        el.style.setProperty("--usercolor", '#' + getUserColor(this.dataset.uid, this.innerText));
+        el.classList.add("js-usercolor");
     }
 
 
     function updateUsers() {
-        $('.comment-copy + .comment-user').not('.owner').each(setUserColor);
+
+        // Pre-parse user ids
+        $('.comment-user').not('[data-uid]').each(function() {
+            // No href if deleted user, fallback to innerText
+            this.dataset.uid = (this.href || this.innerText).match(/\d+/, '')[0];
+        });
+
+        // If more than one comment per comment section, set user color
+        $('.comments').each(function(i, section) {
+            $('.comment-copy + .comment-user', section).not('.js-usercolor').filter(function() {
+                return $(`.comment-user[data-uid=${this.dataset.uid}]`, section).length > 1;
+            }).each(setUserColor);
+        });
     }
 
 
