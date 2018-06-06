@@ -3,7 +3,7 @@
 // @description  For questions and answers, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.1
+// @version      2.9
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
@@ -64,7 +64,7 @@
                 .then(function(data) {
                     const count = Number($('.results-header h2', data).text().replace(/[^\d]+/, ''));
                     if(count > 0) {
-                        const results = $('.search-results .search-result', data);
+                        const results = $('.search-results .search-result, .js-search-results .search-result', data);
                         const lastMentioned = results.first().find('.relativetime').text();
                         const lastPermalink = results.first().find('a').first().attr('href');
                         const metaPosts = $(`
