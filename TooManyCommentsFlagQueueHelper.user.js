@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.1
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
@@ -104,16 +104,42 @@
     }
 
 
+    // Mark all flags on post as helpful
+    function dismissAllHelpful(pid, comment = "") {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid == null) { reject(); return; }
+
+            $.post({
+                url: `https://stackoverflow.com/messages/delete-moderator-messages/${pid}/636639308741494300?valid=true`,
+                data: {
+                    'fkey': fkey,
+                    'comment': comment
+                }
+            })
+            .done(function(data) {
+                $('#flagged-'+pid).remove();
+                resolve();
+            })
+            .fail(reject);
+        });
+    }
+
+
     function doPageLoad() {
 
         // Expand unhandled posts
-        var unhandledPosts = $('.flagged-post-row').filter((i,el) => $('.mod-post-actions', el).text().indexOf('ModMovedCommentsToChat') === -1);
+        const unhandledPosts = $('.flagged-post-row').filter((i,el) => $('.mod-post-actions', el).text().indexOf('ModMovedCommentsToChat') === -1);
+        const handledPosts = $('.flagged-post-row').not(unhandledPosts).addClass('comments-handled');
         setTimeout((unhandledPosts) => $('.expand-body', unhandledPosts).click(), 300, unhandledPosts);
+
+        // Add "done" (no further action (helpful)) button
+        $('.delete-options').append(`<input class="immediate-dismiss-all" type="button" value="done (helpful)" title="dismiss all flags (helpful)" />`);
 
         // On move comments to chat link click
         $('.flagged-post-row').on('click', '.move-comments-link', function() {
             if(confirm('Move all comments to chat & purge?')) {
                 const pid = this.dataset.postId;
+                const flaggedPost = $('#flagged-'+pid);
                 const possibleDupeCommentIds = $(`#comments-${pid} .comment`)
                     .filter((i, el) => $(el).find('.comment-copy').text().indexOf('Possible duplicate of ') === 0)
                     .map((i, el) => el.dataset.commentId).get();
@@ -121,6 +147,7 @@
                 moveCommentsOnPostToChat(pid)
                     .then(function(v) {
                         undeleteComments(pid, possibleDupeCommentIds);
+                        flaggedPost.addClass('comments-handled');
                     });
             }
         });
@@ -129,6 +156,7 @@
         $('.flagged-post-row').on('click', '.purge-comments-link', function() {
             if(confirm('Delete ALL comments?')) {
                 const pid = this.dataset.postId;
+                const flaggedPost = $('#flagged-'+pid);
                 const possibleDupeCommentIds = $(`#comments-${pid} .comment`)
                     .filter((i, el) => $(el).find('.comment-copy').text().indexOf('Possible duplicate of ') === 0)
                     .map((i, el) => el.dataset.commentId).get();
@@ -136,8 +164,15 @@
                 deleteCommentsOnPost(pid)
                     .then(function(v) {
                         undeleteComments(pid, possibleDupeCommentIds);
+                        flaggedPost.addClass('comments-handled');
                     });
             }
+        });
+
+        // On "done" button click
+        $('.flagged-post-row').on('click', '.immediate-dismiss-all', function() {
+            const pid = $(this).closest('.flagged-post-row').get(0).dataset.postId;
+            dismissAllHelpful(pid);
         });
     }
 
@@ -146,6 +181,11 @@
 
         // On any page update
         $(document).ajaxComplete(function(event, xhr, settings) {
+
+            // Closed questions
+            $('.question-status').each(function() {
+                $(this).closest('.flagged-post-row').addClass('already-closed');
+            });
 
             // Always expand comments if post is expanded, if comments have not been expanded yet
             $('.js-comments-container').not('.js-del-loaded').each(function() {
@@ -197,6 +237,10 @@
 }
 .post-options.keep .delete-options > input[class="dismiss-all"] {
     display: inline-block;
+}
+.flagged-post-row.already-closed .immediate-dismiss-all,
+.flagged-post-row.comments-handled .immediate-dismiss-all {
+    display: inline-block !important;
 }
 .tagged-ignored {
     opacity: 1;
