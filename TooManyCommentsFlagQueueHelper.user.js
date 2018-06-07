@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.1
+// @version      3.1.2
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
@@ -110,7 +110,7 @@
             if(typeof pid === 'undefined' || pid == null) { reject(); return; }
 
             $.post({
-                url: `https://stackoverflow.com/messages/delete-moderator-messages/${pid}/${window.renderTimeTicks}?valid=true`,
+                url: `https://stackoverflow.com/messages/delete-moderator-messages/${pid}/${unsafeWindow.renderTimeTicks}?valid=true`,
                 data: {
                     'fkey': fkey,
                     'comment': comment
