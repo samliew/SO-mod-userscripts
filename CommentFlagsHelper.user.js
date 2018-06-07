@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.2
+// @version      2.6.3
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -48,7 +48,7 @@
         'appreciated?', 'my email', 'email me', 'contact', 'good', 'great', 'sorry', '\\+1', 'love', 'wow', 'pointless', 'no\\s?(body|one)',
         'homework', 'no idea', 'your mind', 'try it', 'typo', 'wrong', 'unclear', 'regret', 'every\\s?(body|one)',
         'exactly', 'check', 'lol', 'ha(ha)+', 'women', 'girl', 'effort', 'understand', 'want', 'need', 'little',
-        'give up', 'documentation', 'google[.a-z]*/search', 'what[\\w\\s]+(try|tried)[\\w\\s]*\\?*', 'free', 'obvious',
+        'give up', 'documentation', 'google\\s', 'what[\\w\\s]+(try|tried)[\\w\\s]*\\?*', 'free', 'obvious',
     ];
 
 
@@ -149,6 +149,15 @@
                 .prependTo('.flag-container');
         }
 
+        // Convert urls in comments to clickable links that open in a new window
+        $('.comment-summary')
+            .html(function(i, v) {
+                return v.replace(/(https?:\/\/[^\s\)]+)\b/gi, '<a href="$1" target="_blank" class="comment-link">$1</a>');
+            })
+            .on('click', 'a.comment-link', function(ev) {
+                ev.stopPropagation();
+            });
+
         // Highlight rude or abusive flag comments
         $('.revision-comment').filter((i, el) => el.innerText.indexOf('rude or abusive') >= 0).addClass('roa-flag');
 
@@ -165,15 +174,6 @@
                 }
             });
         });
-
-        // Convert urls in comments to clickable links that open in a new window
-        $('.comment-summary')
-            .html(function(i, v) {
-                return v.replace(/(https?:\/\/[^\s\)]+)\b/gi, '<a href="$1" target="_blank" class="comment-link">$1</a>');
-            })
-            .on('click', 'a.comment-link', function(ev) {
-                ev.stopPropagation();
-            });
 
         // On delete/dismiss comment action
         $('.delete-comment, .cancel-comment-flag').on('click', function() {
