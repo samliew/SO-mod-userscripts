@@ -3,7 +3,7 @@
 // @description  For questions and answers, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9
+// @version      2.9.1
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
@@ -62,7 +62,7 @@
 
             ajaxPromise(searchUrl)
                 .then(function(data) {
-                    const count = Number($('.results-header h2', data).text().replace(/[^\d]+/, ''));
+                    const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
                     if(count > 0) {
                         const results = $('.search-results .search-result, .js-search-results .search-result', data);
                         const lastMentioned = results.first().find('.relativetime').text();
@@ -86,9 +86,9 @@
 
                 ajaxPromise(searchUrl)
                     .then(function(data) {
-                        const count = Number($('.results-header h2', data).text().replace(/[^\d]+/, ''));
+                        const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
                         if(count > 0) {
-                            const results = $('.search-results .search-result', data);
+                            const results = $('.search-results .search-result, .js-search-results .search-result', data);
                             const lastMentioned = results.first().find('.relativetime').text();
                             const lastPermalink = results.first().find('a').first().attr('href');
                             const metaPosts = $(`
