@@ -3,9 +3,9 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.5.2
 //
-// @include      */posts/*/timeline
+// @include      */posts*/timeline*
 // ==/UserScript==
 
 (function() {
