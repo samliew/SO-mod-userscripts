@@ -253,6 +253,13 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-09_220518.png)
 
 
+### [Possible Vandalism Comment Deletions Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/PossibleVandalismCommentDeletionsHelper) ♦
+
+- Display deleted comments and user who deleted the comments
+- UI is similar to commenttoomanydeletedrudenotconstructiveauto queue + Comment Flags Helper
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-08_130627.png)
+
+
 ### [Possible Vandalism Edits Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/PossibleVandalismEditsHelper.user.js) ♦
 
 - Similar to the above, display revision count, post age
