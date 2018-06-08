@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2
+// @version      1.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -54,22 +54,116 @@
     }
 
 
-    // Undelete individual post
-    function undeletePost(pid) {
-        if(typeof pid === 'undefined' || pid === null) return;
-        $.post({
-            url: `https://stackoverflow.com/admin/posts/${pid}/comments/${cid}/undelete`,
-            data: {
-                'fkey': fkey
-            }
+    // Delete individual post
+    function deletePost(pid) {
+        ajaxRequests++;
+
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+
+            $.post({
+                url: `https://stackoverflow.com/posts/${pid}/vote/10`,
+                data: {
+                    'fkey': fkey
+                }
+            })
+            .fail(reject)
+            .always(() => ajaxRequests--);
         });
+    }
+    // Delete posts
+    function deletePosts(pids) {
+        if(typeof pids === 'undefined' || pids.length === 0) return;
+        pids.forEach(v => deletePost(v));
     }
 
 
+    // Undelete individual post
+    function undeletePost(pid) {
+        ajaxRequests++;
+
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+
+            $.post({
+                url: `https://stackoverflow.com/posts/${pid}/vote/11`,
+                data: {
+                    'fkey': fkey
+                }
+            })
+            .fail(reject)
+            .always(() => ajaxRequests--);
+        });
+    }
     // Undelete posts
     function undeletePosts(pids) {
         if(typeof pids === 'undefined' || pids.length === 0) return;
         pids.forEach(v => undeletePost(v));
+    }
+
+
+    function linkifyDeletedUser(i, elem) {
+        if($(elem).find('a').length !== 0) return;
+
+        // Replace generic username with link to profile page
+        const username = $(elem).text().trim();
+        const uid = username.replace(/[^\d]+/g, '');
+
+        if(username === '' || uid === '') return;
+
+        $(elem).html(`<a href="/users/${uid}" title="deleted user" class="deleted-user" data-uid="${uid}" target="_blank">${username}</a>`);
+    }
+
+
+    function findDeletedUsers() {
+        $('.user-details, span.comment-user').each(linkifyDeletedUser);
+    }
+
+
+    function initMultiPostsTable() {
+        const table = $('#posts');
+        if(table.length === 0) return;
+
+        // Add checkboxes
+        table.find('.tablesorter-headerRow').prepend(`<th title="Select all"><input type="checkbox" id="select-all" /></th>`);
+        table.find('tbody tr').each(function() {
+            const pid = $(this).find('a').attr('href').match(/\d+/g).reverse()[0];
+            $(this).prepend(`<td><input type="checkbox" class="selected-post" value="${pid}" /></td>`);
+            $(this).toggleClass('isdeleted', $(this).children().last().text() === 'Yes');
+        });
+
+        // Checkbox toggle
+        const boxes = $('.selected-post');
+        $('#select-all').change(function() {
+            boxes.prop('checked', this.checked);
+        });;
+
+        // Action buttons
+        $(`<input type="button" class="action-btn" value="Delete selected" />`)
+            .insertAfter(table)
+            .click(function() {
+                let selPostIds = $('.selected-post').filter(':checked').map((i, v) => v.value).get();
+                if(selPostIds.length === 0) {
+                    alert('No posts selected!');
+                    return false;
+                }
+                $(this).remove();
+                deletePosts(selPostIds);
+                reloadWhenDone();
+            });
+
+        $(`<input type="button" class="action-btn" value="Undelete selected" />`)
+            .insertAfter(table)
+            .click(function() {
+                let selPostIds = $('.selected-post').filter(':checked').map((i, v) => v.value).get();
+                if(selPostIds.length === 0) {
+                    alert('No posts selected!');
+                    return false;
+                }
+                $(this).remove();
+                undeletePosts(selPostIds);
+                reloadWhenDone();
+            });
     }
 
 
@@ -94,19 +188,13 @@
         }
 
         // If on a question page
-        if(location.pathname.indexOf('/questions/') === 0) {
+        else if(location.pathname.indexOf('/questions/') === 0) {
+            findDeletedUsers();
+        }
 
-            $('.user-details').each(function() {
-                if($(this).find('a').length !== 0) return;
-
-                // Replace generic username with link to profile page
-                const username = $(this).text().trim();
-                const uid = username.replace(/[^\d]+/g, '');
-
-                if(username === '' || uid === '') return;
-
-                $(this).html(`<a href="/users/${uid}" title="deleted user" class="deleted-user" data-uid="${uid}" target="_blank">${username}</a>`);
-            });
+        // Show posts by deleted user page
+        else if(location.pathname.indexOf('/admin/posts-by-deleted-user/') === 0) {
+            initMultiPostsTable();
         }
 
         $('.user-details').on('mouseover', '.deleted-user', function() {
@@ -122,6 +210,25 @@
     }
 
 
+    function listenToPageUpdates() {
+
+        // On any page update
+        $(document).ajaxComplete(function(event, xhr, settings) {
+            // More comments loaded
+            if(settings.url.indexOf('/comments') >= 0) findDeletedUsers();
+        });
+    }
+
+
+    function reloadWhenDone() {
+
+        // Triggers when all ajax requests have completed
+        $(document).ajaxStop(function() {
+            location.reload(true);
+        });
+    }
+
+
     function appendStyles() {
 
         const styles = `
@@ -131,10 +238,15 @@
     margin-bottom: 2px;
     padding: 3px 5px;
     background: indianred;
-    color: white;
+    color: white !important;
 }
 .deleted-user:hover {
-    color: #99F;
+    color: #ffffdd !important;
+}
+.comment-user .deleted-user {
+    color: indianred !important;
+    background: none;
+    padding: 0;
 }
 .orig-username:before {
     content: 'aka "';
@@ -142,13 +254,24 @@
 .orig-username:after {
     content: '"';
 }
+table#posts {
+    min-width: 50%;
+}
+table#posts td {
+    background: none !important;
+}
+.action-btn {
+    margin-right: 10px;
+}
 </style>
 `;
         $('body').append(styles);
     }
 
+
     // On page load
     appendStyles();
     doPageLoad();
+    listenToPageUpdates();
 
 })();
