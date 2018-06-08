@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.3.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -12,12 +12,12 @@
 // @include      https://*mathoverflow.com/questions/*
 // @include      https://*.stackexchange.com/questions/*
 //
-// @include      https://*stackoverflow.com/posts/*/timeline*
-// @include      https://*serverfault.com/posts/*/timeline*
-// @include      https://*superuser.com/posts/*/timeline*
-// @include      https://*askubuntu.com/posts/*/timeline*
-// @include      https://*mathoverflow.com/posts/*/timeline*
-// @include      https://*.stackexchange.com/posts/*/timeline*
+// @include      https://*stackoverflow.com/*posts*/timeline*
+// @include      https://*serverfault.com/*posts*/timeline*
+// @include      https://*superuser.com/*posts*/timeline*
+// @include      https://*askubuntu.com/*posts*/timeline*
+// @include      https://*mathoverflow.com/*posts*/timeline*
+// @include      https://*.stackexchange.com/*posts*/timeline*
 // ==/UserScript==
 
 
