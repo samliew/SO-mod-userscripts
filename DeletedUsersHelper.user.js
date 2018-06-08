@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -102,7 +102,10 @@
                 // Replace generic username with link to profile page
                 const username = $(this).text().trim();
                 const uid = username.replace(/[^\d]+/g, '');
-                $(this).html(`<a href="/users/${uid}" class="deleted-user" data-uid="${uid}">${username}</a>`);
+
+                if(username === '' || uid === '') return;
+
+                $(this).html(`<a href="/users/${uid}" title="deleted user" class="deleted-user" data-uid="${uid}" target="_blank">${username}</a>`);
             });
         }
 
