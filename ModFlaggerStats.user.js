@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.2
+// @version      1.5.3
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -91,6 +91,9 @@
     function doPageload() {
 
         let currUid = StackExchange.options.user.userId;
+
+        // If deleted user, do nothing
+        if(document.title.indexOf('User deleted') >= 0) return;
 
         // If on user profile page
         if(/\/users\/\d+\/.*/.test(location.pathname) && (location.search === '' || location.search === '?tab=profile')) {
