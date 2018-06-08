@@ -19,8 +19,8 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 - [Not An Answer Flag Queue Helper](#not-an-answer-flag-queue-helper-)
 - [Display Inline Comment Flag History](#display-inline-comment-flag-history-)
 - [Possible Vandalism Deletions Helper](#possible-vandalism-deletions-helper-)
+- [Deleted Users Helper](#deleted-users-helper-)
 - [Post Timeline Filters](#post-timeline-filters)
-- [Deleted Users Helper](#deleted-users-helper)
 
 
 <br>
