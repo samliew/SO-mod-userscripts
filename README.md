@@ -20,6 +20,7 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 - [Display Inline Comment Flag History](#display-inline-comment-flag-history-)
 - [Possible Vandalism Deletions Helper](#possible-vandalism-deletions-helper-)
 - [Post Timeline Filters](#post-timeline-filters)
+- [Deleted Users Helper](#deleted-users-helper)
 
 
 <br>
@@ -76,6 +77,15 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 - Clear CommentFlags cache on weekends
 - On post timeline page, if comment is found in URL, also expand flags on the comment
 - Fixes display style on comment flags expansion (jQuery show/hide defaults to block, breaking table)
+
+
+### [Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/DeletedUsersHelper.user.js) ♦
+
+- Redirects user 404 pages to main profile
+- Linkify deleted users, show display name on mouseover
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-09_000636.png)
+- You can now multi-select delete/undelete posts by deleted user
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-09_000637.png)
 
 
 ### [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/blob/master/PostTimelineFilters.user.js)
