@@ -147,7 +147,7 @@
                     alert('No posts selected!');
                     return false;
                 }
-                $(this).remove();
+                $('.action-btn').remove();
                 deletePosts(selPostIds);
                 reloadWhenDone();
             });
@@ -160,7 +160,7 @@
                     alert('No posts selected!');
                     return false;
                 }
-                $(this).remove();
+                $('.action-btn').remove();
                 undeletePosts(selPostIds);
                 reloadWhenDone();
             });
