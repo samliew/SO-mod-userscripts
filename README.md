@@ -253,7 +253,7 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-09_220518.png)
 
 
-### [Possible Vandalism Comment Deletions Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/PossibleVandalismCommentDeletionsHelper) ♦
+### [Possible Vandalism Comment Deletions Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/PossibleVandalismCommentDeletionsHelper.user.js) ♦
 
 - Display deleted comments and user who deleted the comments
 - UI is similar to commenttoomanydeletedrudenotconstructiveauto queue + Comment Flags Helper
