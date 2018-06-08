@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -129,7 +129,7 @@
         table.find('tbody tr').each(function() {
             const pid = $(this).find('a').attr('href').match(/\d+/g).reverse()[0];
             $(this).prepend(`<td><input type="checkbox" class="selected-post" value="${pid}" /></td>`);
-            $(this).toggleClass('isdeleted', $(this).children().last().text() === 'Yes');
+            $(this).toggleClass('deleted-answer', $(this).children().last().text() === 'Yes');
         });
 
         // Checkbox toggle
