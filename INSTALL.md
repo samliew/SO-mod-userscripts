@@ -17,8 +17,6 @@ Direct installation links (raw files)
 
 [Hide Viewed Posts](https://github.com/samliew/SO-mod-userscripts/raw/master/HideViewedPosts.user.js)
 
-[Show Flags On Deleted Posts](https://github.com/samliew/SO-mod-userscripts/raw/master/ShowFlagsOnDeletedPosts.user.js)
-
 [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts/raw/master/DisplayInlineCommentFlagHistory.user.js)
 
 [Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/DeletedUsersHelper.user.js)
