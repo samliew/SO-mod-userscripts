@@ -66,6 +66,7 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 ### [Show Flags On Deleted Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/ShowFlagsOnDeletedPosts.user.js) ♦
 
 - Hide normal flags in flag queue and only show deleted posts
+- **Not recommended** - probably will roll this into another userscript with more filters/options in future
 
 
 ### [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts/blob/master/DisplayInlineCommentFlagHistory.user.js) ♦
