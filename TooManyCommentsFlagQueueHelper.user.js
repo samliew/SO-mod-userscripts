@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.2
+// @version      3.1.3
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
@@ -141,7 +141,7 @@
                 const pid = this.dataset.postId;
                 const flaggedPost = $('#flagged-'+pid);
                 const possibleDupeCommentIds = $(`#comments-${pid} .comment`)
-                    .filter((i, el) => $(el).find('.comment-copy').text().indexOf('Possible duplicate of ') === 0)
+                    .filter((i, el) => $(el).find('.comment-copy').text().toLowerCase().indexOf('possible duplicate of ') === 0)
                     .map((i, el) => el.dataset.commentId).get();
 
                 moveCommentsOnPostToChat(pid)
@@ -158,7 +158,7 @@
                 const pid = this.dataset.postId;
                 const flaggedPost = $('#flagged-'+pid);
                 const possibleDupeCommentIds = $(`#comments-${pid} .comment`)
-                    .filter((i, el) => $(el).find('.comment-copy').text().indexOf('Possible duplicate of ') === 0)
+                    .filter((i, el) => $(el).find('.comment-copy').text().toLowerCase().indexOf('possible duplicate of ') === 0)
                     .map((i, el) => el.dataset.commentId).get();
 
                 deleteCommentsOnPost(pid)
