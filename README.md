@@ -89,6 +89,11 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-09_000637.png)
 
 
+### [Refresh Empty Mod Queue](https://github.com/samliew/SO-mod-userscripts/blob/master/RefreshEmptyModQueue.user.js) ♦
+
+- If current mod queue is empty, reload page occasionally
+
+
 ### [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/blob/master/PostTimelineFilters.user.js)
 
 - Inserts several filter options for post timelines, useful for old posts with humongous timelines
