@@ -21,6 +21,8 @@ Direct installation links (raw files)
 
 [Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/DeletedUsersHelper.user.js)
 
+[Refresh Empty Mod Queue](https://github.com/samliew/SO-mod-userscripts/raw/master/RefreshEmptyModQueue.user.js)
+
 [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/raw/master/PostTimelineFilters.user.js)
 
 [Mod Flagger Stats](https://github.com/samliew/SO-mod-userscripts/raw/master/ModFlaggerStats.user.js)
