@@ -92,6 +92,7 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 ### [Refresh Empty Mod Queue](https://github.com/samliew/SO-mod-userscripts/blob/master/RefreshEmptyModQueue.user.js) ♦
 
 - If current mod queue is empty, reload page occasionally
+- Also puts the flag count back in the navbar in case you miss it or need a link to the empty flag queue for some reason
 
 
 ### [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/blob/master/PostTimelineFilters.user.js)
