@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -16,7 +16,7 @@
 (function() {
     'use strict';
 
-    const timeoutSecs = 15;
+    const timeoutSecs = 30;
     const goToMain = () => location.href = '/admin/dashboard';
     const reloadPage = () => location.reload(true);
 
