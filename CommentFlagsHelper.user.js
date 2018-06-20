@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.3
+// @version      2.6.4
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -53,8 +53,8 @@
 
 
     function replaceKeywords(jqElem) {
-        this.innerHTML = this.innerHTML.replace(new RegExp('\\b(' + rudeKeywords.join('|') + ')', 'gi'), '<b style="color:red">$1</b>');
-        this.innerHTML = this.innerHTML.replace(new RegExp('\\b(' + chattyKeywords.join('|') + ')', 'gi'), '<b style="color:coral">$1</b>');
+        this.innerHTML = this.innerHTML.replace(new RegExp('\\b(' + rudeKeywords.join('|') + ')(?!-)', 'gi'), '<b style="color:red">$1</b>');
+        this.innerHTML = this.innerHTML.replace(new RegExp('\\b(' + chattyKeywords.join('|') + ')(?!-)', 'gi'), '<b style="color:coral">$1</b>');
     }
 
 
