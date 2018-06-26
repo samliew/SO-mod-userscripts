@@ -13,6 +13,7 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 These are highly recommended for moderators. Minor changes to the UI/defaults makes your mod life easier by a *huge* amount (saving clicks, or having to hunt for a particular link/mod feature, or displaying more info upfront). Click these to jump to their descriptions below:
 
 - [Mod User Quicklinks Everywhere](#mod-user-quicklinks-everywhere-)
+- [User Info Sidebar](#user-info-sidebar-)
 - [Mod Popup Dialog Improvements](#mod-popup-dialog-improvements-)
 - [User Review Ban Helper](#user-review-ban-helper-)
 - [Comment Flags Helper](#comment-flags-helper-)
@@ -30,10 +31,14 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 
 ### [Mod User Quicklinks Everywhere](https://github.com/samliew/SO-mod-userscripts/blob/master/ModUserQuicklinksEverywhere.user.js) ♦
 
-- Adds user moderation collapsable left-sidebar to user-specific pages: quick links & selection of user details from Mod Dashboard
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-12_210450.png)
 - Adds user quick links under display name in posts (opens in new tabs)
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/user-quicklinks.gif)
+
+
+### [User Info Sidebar](https://github.com/samliew/SO-mod-userscripts/blob/master/UserInfoSidebar.user.js) ♦
+
+- Adds user moderation collapsable left-sidebar to user-specific pages: quick links & selection of user details from Mod Dashboard
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-12_210450.png)
 
 
 ### [Mod Popup Dialog Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/ModPopupDialogImprovements.user.js) ♦
