@@ -9,6 +9,8 @@ Direct installation links (raw files)
 
 [Mod User Quicklinks Everywhere](https://github.com/samliew/SO-mod-userscripts/raw/master/ModUserQuicklinksEverywhere.user.js)
 
+[User Info Sidebar](https://github.com/samliew/SO-mod-userscripts/raw/master/UserInfoSidebar.user.js)
+
 [Mod Popup Dialog Improvements](https://github.com/samliew/SO-mod-userscripts/raw/master/ModPopupDialogImprovements.user.js)
 
 [Personal Mod Message History](https://github.com/samliew/SO-mod-userscripts/raw/master/PersonalModMessageHistory.user.js)
