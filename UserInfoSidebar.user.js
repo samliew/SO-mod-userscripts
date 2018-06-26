@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -149,6 +149,9 @@
 .usersidebar-compact #usersidebar {
     top: 0px;
     max-height: 100vh;
+}
+.usersidebar-compact #usersidebar:after {
+    top: 49px;
 }
 #usersidebar .title-section {
     cursor: pointer;
