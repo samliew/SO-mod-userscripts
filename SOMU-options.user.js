@@ -3,7 +3,7 @@
 // @description  Adds right sidebar to modify options of installed userscripts from the repo https://github.com/samliew/SO-mod-userscripts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -74,6 +74,8 @@ SOMU = unsafeWindow.SOMU || {
            </div></div>`).insertAfter(scriptHeader);
 
         optionElem.find('input').trigger('change');
+
+        this.sidebar.removeClass('no-items');
     },
 
 
@@ -130,6 +132,11 @@ SOMU = unsafeWindow.SOMU || {
     border: 1px solid #ccc;
     border-right: none;
     box-shadow: -3px 2px 10px -2px rgba(0,0,0,0.25);
+}
+#optionssidebar.no-items {
+    visibility: hidden;
+    pointer-events: none;
+    z-index: -1;
 }
 .optionssidebar-open #optionssidebar,
 #optionssidebar:hover {
@@ -210,12 +217,12 @@ SOMU = unsafeWindow.SOMU || {
         this.hasInit = true;
         this.appendStyles();
 
-        this.sidebar = $(`<div class="col-12 mod-links" id="optionssidebar"></div>`).appendTo('body');
+        this.sidebar = $(`<div class="col-12 mod-links no-items" id="optionssidebar"></div>`).appendTo('body');
 
         this.handleSidebarEvents();
 
         $(window).on('load resize', function() {
-            $('body').toggleClass('optionssidebar-open', $(document).width() >= 1800);
+            //$('body').toggleClass('optionssidebar-open', $(document).width() >= 1800);
             $('body').toggleClass('optionssidebar-compact', $(window).height() <= 680);
         });
     }
