@@ -3,7 +3,7 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=answerduplicateanswerauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=answerduplicateanswerauto*
@@ -13,6 +13,15 @@
 // @include      https://*.stackexchange.com/admin/dashboard?flagtype=answerduplicateanswerauto*
 // ==/UserScript==
 
+
+// Detect if SOMU is loaded
+const rafAsync = () => new Promise(resolve => { requestAnimationFrame(resolve); });
+async function waitForSOMU() {
+    while(typeof SOMU === 'undefined' || !SOMU.hasInit) { await rafAsync(); }
+    return SOMU;
+}
+
+
 (function() {
     'use strict';
 
@@ -20,19 +29,32 @@
     if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
 
 
-    var fkey = StackExchange.options.user.fkey;
-    var duplicateComment = `Please [don't post identical answers to multiple questions](https://meta.stackexchange.com/q/104227/165483). Instead, tailor the answer to the question asked. If the questions are exact duplicates of each other, please vote/flag to close instead.`;
+    const scriptName = GM_info.script.name;
+    const fkey = StackExchange.options.user.fkey;
+    let duplicateComment = `Please [don't post identical answers to multiple questions](https://meta.stackexchange.com/q/104227). Instead, tailor the answer to the question asked. If the questions are exact duplicates of each other, please vote/flag to close instead.`;
+
+
+    function loadOptions() {
+        waitForSOMU().then(function(SOMU) {
+
+            // Set option field in sidebar with current custom value; use default value if not set before
+            SOMU.addOption(scriptName, 'Duplicate Comment', duplicateComment);
+
+            // Get current custom value with default
+            duplicateComment = SOMU.getOptionValue(scriptName, 'Duplicate Comment', duplicateComment);
+        });
+    }
 
 
     function doPageload() {
 
         $('.flagged-post-row').each(function() {
             // Add delete and comment button
-            $('.delete-options', this).append(`<input type="button" class="js-delete-and-comment" data-post-id="${this.dataset.postId}" value="delete + comment" title="delete and add comment" />`);
+            $('.delete-options', this).append(`<input type="button" class="rec-button js-delete-and-comment" data-post-id="${this.dataset.postId}" value="delete + comment" title="delete and add comment" />`);
         })
         .on('click', '.js-delete-and-comment', function() {
-            let pid = this.dataset.postId;
-            let $post = $(`#flagged-${pid}`);
+            const pid = this.dataset.postId;
+            const $post = $(`#flagged-${pid}`);
 
             // Delete post
             $.post({
@@ -57,7 +79,23 @@
         });
     }
 
+
+    function appendStyles() {
+
+        const styles = `
+<style>
+.rec-button {
+    border-color: red !important;
+}
+</style>
+`;
+        $('body').append(styles);
+    }
+
+
     // On page load
+    appendStyles();
+    loadOptions();
     doPageload();
 
 })();
