@@ -3,7 +3,7 @@
 // @description  Adds right sidebar to modify options of installed userscripts from the repo https://github.com/samliew/SO-mod-userscripts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      1.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -22,17 +22,18 @@ const toBool = v => v == null ? null : v === true || v.toLowerCase() === 'true';
 const toSlug = str => (str || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
 
-unsafeWindow.SOMU = unsafeWindow.SOMU || {
+// Any way to avoid using a global variable?
+SOMU = unsafeWindow.SOMU || {
 
+    keyPrefix: 'SOMU:',
     hasInit: false,
-
     sidebar: null,
 
 
     getOptionValue: function(scriptName, optionName, dataType = 'string') {
         const scriptSlug = toSlug(scriptName);
         const optionSlug = toSlug(optionName);
-        const uniqueSlug = `smu-${scriptSlug}:${optionSlug}`;
+        const uniqueSlug = `${SOMU.keyPrefix}${scriptSlug}:${optionSlug}`;
         let v = store.getItem(uniqueSlug);
         if(dataType === 'int') v = toInt(v);
         if(dataType === 'bool') v = toBool(v);
@@ -48,7 +49,7 @@ unsafeWindow.SOMU = unsafeWindow.SOMU || {
     addOption: function(scriptName, optionName, defaultValue = "") {
         const scriptSlug = toSlug(scriptName);
         const optionSlug = toSlug(optionName);
-        const uniqueSlug = `smu-${scriptSlug}:${optionSlug}`;
+        const uniqueSlug = `${SOMU.keyPrefix}${scriptSlug}:${optionSlug}`;
         let scriptHeader = this.sidebar.find(`.smu-${scriptSlug}`);
 
         // If option has already been added, do nothing
@@ -66,11 +67,13 @@ unsafeWindow.SOMU = unsafeWindow.SOMU || {
         const currValue = SOMU.getOptionValue(scriptName, optionName) || defaultValue;
 
         // Insert option under header
-        $(`<div class="col-12 details smu-${uniqueSlug}">
+        const optionElem = $(`<div class="col-12 details smu-${uniqueSlug}">
              <div class="info-header">${optionName}:</div>
              <div class="info-value"><input name="${uniqueSlug}" value="${currValue}" data-currentvalue="${currValue}" data-defaultvalue="${defaultValue}" />
                  <span class="smu-delete" title="reset value to default value">Del</span><span class="smu-save" title="save changes">Save</span>
            </div></div>`).insertAfter(scriptHeader);
+
+        optionElem.find('input').trigger('change');
     },
 
 
@@ -81,13 +84,17 @@ unsafeWindow.SOMU = unsafeWindow.SOMU || {
                 $(this).toggleClass('js-notdefault', !$(this).hasClass('js-changed') && this.dataset.currentvalue != this.dataset.defaultvalue);
             })
             .on('click', '.smu-save', function() {
-                const el = $(this).prevAll('input').removeClass('js-changed').get(0);
-                el.dataset.initialvalue = el.value;
+                const $el = $(this).prevAll('input').removeClass('js-changed');
+                const el = $el.get(0);
+                el.dataset.currentvalue = el.value;
+                $el.trigger('change');
                 SOMU.saveOptionValue(el.name, el.value);
             })
             .on('click', '.smu-delete', function() {
-                const el = $(this).prevAll('input').get(0);
+                const $el = $(this).prevAll('input');
+                const el = $el.get(0);
                 el.value = el.dataset.currentvalue = el.dataset.defaultvalue;
+                $el.trigger('change');
                 SOMU.saveOptionValue(el.name, el.value);
             });
     },
@@ -219,11 +226,10 @@ unsafeWindow.SOMU = unsafeWindow.SOMU || {
 (function() {
     'use strict';
 
-    // Moderator check
-    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
-
     // On page load
     SOMU.init();
-    SOMU.addOption('Test Script', 'Testing Option', 'default value');
+
+    // For testing purposes
+    // SOMU.addOption('Test Script', 'Testing Option', 'default value');
 
 })();
