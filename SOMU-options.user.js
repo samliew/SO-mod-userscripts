@@ -3,7 +3,7 @@
 // @description  Adds right sidebar to modify options of installed userscripts from the repo https://github.com/samliew/SO-mod-userscripts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -28,6 +28,7 @@ SOMU = unsafeWindow.SOMU || {
     keyPrefix: 'SOMU:',
     hasInit: false,
     sidebar: null,
+    sidebarContent: null,
 
 
     getOptionValue: function(scriptName, optionName, defaultValue = null, dataType = 'string') {
@@ -46,11 +47,12 @@ SOMU = unsafeWindow.SOMU || {
     },
 
 
-    addOption: function(scriptName, optionName, defaultValue = "") {
+    // TODO: support other data types like boolean (toggle)
+    addOption: function(scriptName, optionName, defaultValue = '', dataType = 'string') {
         const scriptSlug = toSlug(scriptName);
         const optionSlug = toSlug(optionName);
         const uniqueSlug = `${SOMU.keyPrefix}${scriptSlug}:${optionSlug}`;
-        let scriptHeader = this.sidebar.find(`.smu-${scriptSlug}`);
+        let scriptHeader = this.sidebar.find(`.somu-${scriptSlug}`);
 
         // If option has already been added, do nothing
         if($('.' + uniqueSlug).length > 0) {
@@ -60,20 +62,20 @@ SOMU = unsafeWindow.SOMU || {
 
         // If scriptname header not found yet, insert header
         if(scriptHeader.length === 0) {
-            scriptHeader = $(`<h3 class="title-section smu-${scriptSlug}">${scriptName}</h3>`).prependTo(this.sidebar);
+            scriptHeader = $(`<h3 class="title-section somu-${scriptSlug}">${scriptName}</h3>`).prependTo(this.sidebarContent);
         }
 
         // Get option value from store
         const currValue = SOMU.getOptionValue(scriptName, optionName) || defaultValue;
 
         // Insert option under header
-        const optionElem = $(`<div class="col-12 details smu-${uniqueSlug}">
+        const optionElem = $(`<div class="col-12 details somu-${uniqueSlug}">
              <div class="info-header">${optionName}:</div>
-             <div class="info-value"><input name="${uniqueSlug}" value="${currValue}" data-currentvalue="${currValue}" data-defaultvalue="${defaultValue}" />
-                 <span class="smu-delete" title="reset value to default value">Del</span><span class="smu-save" title="save changes">Save</span>
+             <div class="info-value"><textarea class="input" name="${uniqueSlug}" data-currentvalue="${currValue}" data-defaultvalue="${defaultValue}">${currValue}</textarea>
+                 <span class="somu-delete" title="reset value to default value">Del</span><span class="somu-save" title="save changes">Save</span>
            </div></div>`).insertAfter(scriptHeader);
 
-        optionElem.find('input').trigger('change');
+        optionElem.find('.input').trigger('change');
 
         this.sidebar.removeClass('no-items');
     },
@@ -81,29 +83,32 @@ SOMU = unsafeWindow.SOMU || {
 
     handleSidebarEvents: function() {
         $(this.sidebar)
-            .on('change keyup', 'input', function() {
+            .on('change keyup', '.input', function() {
                 $(this).toggleClass('js-changed', this.dataset.currentvalue !== this.value.trim());
                 $(this).toggleClass('js-notdefault', !$(this).hasClass('js-changed') && this.dataset.currentvalue != this.dataset.defaultvalue);
             })
-            .on('focus', 'input', function() {
+            .on('focus', '.input', function() {
                 SOMU.sidebar.addClass('focused');
             })
-            .on('blur', 'input', function() {
+            .on('blur', '.input', function() {
                 SOMU.sidebar.removeClass('focused');
             })
-            .on('click', '.smu-save', function() {
-                const $el = $(this).prevAll('input').removeClass('js-changed');
+            .on('click', '.somu-save', function() {
+                const $el = $(this).prevAll('.input').removeClass('js-changed');
                 const el = $el.get(0);
                 el.dataset.currentvalue = el.value;
                 $el.trigger('change');
                 SOMU.saveOptionValue(el.name, el.value);
             })
-            .on('click', '.smu-delete', function() {
-                const $el = $(this).prevAll('input');
+            .on('click', '.somu-delete', function() {
+                const $el = $(this).prevAll('.input');
                 const el = $el.get(0);
                 el.value = el.dataset.currentvalue = el.dataset.defaultvalue;
                 $el.trigger('change');
                 SOMU.saveOptionValue(el.name, el.value);
+            })
+            .on('click', '.title-section', function() {
+                $(this).nextUntil('.title-section').toggle();
             });
     },
 
@@ -112,22 +117,21 @@ SOMU = unsafeWindow.SOMU || {
 
         const styles = `
 <style>
-#optionssidebar {
+#somusidebar {
     position: fixed;
     z-index: 8950;
     top: 44px;
     left: 100%;
-    width: 280px;
-    min-height: 300px;
-    max-height: calc(100vh - 50px);
+    width: calc(100% - 60px);
+    height: calc(100vh - 43px);
     padding: 10px 5px 40px;
     background: white;
     opacity: 0.7;
     border: 1px solid #ccc;
     box-shadow: -2px 2px 14px -3px rgba(0,0,0,0.25);
 }
-#optionssidebar:after {
-    content: 'opts';
+#somusidebar:after {
+    content: 'somu';
     position: absolute;
     right: 100%;
     top: 5px;
@@ -139,71 +143,75 @@ SOMU = unsafeWindow.SOMU || {
     border-right: none;
     box-shadow: -3px 2px 10px -2px rgba(0,0,0,0.25);
 }
-#optionssidebar.no-items {
+#somusidebar.no-items {
     visibility: hidden;
     pointer-events: none;
     z-index: -1;
 }
-.optionssidebar-open #optionssidebar,
-#optionssidebar.focused,
-#optionssidebar:hover {
+.somusidebar-open #somusidebar,
+#somusidebar.focused,
+#somusidebar:hover {
     right: -1px;
     left: initial;
     opacity: 1;
 }
-.optionssidebar-open #optionssidebar {
+.somusidebar-open #somusidebar {
     top: 50px;
     box-shadow: none;
 }
-.optionssidebar-open #optionssidebar:after {
+.somusidebar-open #somusidebar:after {
     display: none;
 }
-.optionssidebar-compact #optionssidebar {
+.somusidebar-compact #somusidebar {
     top: 0px;
-    max-height: 100vh;
+    height: 100vh;
 }
-.optionssidebar-compact #optionssidebar:after {
+.somusidebar-compact #somusidebar:after {
     top: 49px;
 }
-#optionssidebar .title-section {
+#somusidebar .title-section {
     cursor: pointer;
 }
-#optionssidebar .details {
+#somusidebar .details {
     margin-bottom: 15px;
 }
-#optionssidebar .info-value {
+#somusidebar .info-value {
     position: relative;
+    margin: 3px 0 10px;
 }
-#optionssidebar .info-value input {
+#somusidebar .info-value .input {
+    display: block;
     width: 100%;
     margin: 0;
-    padding-right: 38px;
+    padding: 5px 7px;
+    padding-right: 45px;
+    border: 1px solid #ccc;
 }
-#optionssidebar .info-value input ~ span {
+#somusidebar .info-value .input ~ span {
     position: absolute;
     display: none;
     top: 0;
     right: 0px;
     width: auto;
     height: 100%;
-    padding: 5px;
+    padding: 16px 5px;
     font-size: 0.85em;
     text-transform: uppercase;
     background: #666;
     color: white;
     cursor: pointer;
 }
-#optionssidebar .info-value .smu-save:hover {
+#somusidebar .info-value .somu-save:hover {
     background: green;
 }
-#optionssidebar .info-value .smu-delete:hover {
+#somusidebar .info-value .somu-delete:hover {
     background: red;
 }
-#optionssidebar .info-value input.js-notdefault:not(.js-changed) ~ .smu-delete,
-#optionssidebar .info-value input.js-changed ~ .smu-save {
+#somusidebar .info-value .input.js-notdefault:not(.js-changed) ~ .somu-delete,
+#somusidebar .info-value .input.js-changed ~ .somu-save {
     display: block;
 }
-#optionssidebar span.info {
+#somusidebar span.info {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -211,6 +219,16 @@ SOMU = unsafeWindow.SOMU || {
     font-size: 0.85em;
     font-style: italic;
     color: indianred;
+}
+#somusidebar-content {
+    clear: both;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    right: 0;
+    bottom: 24px;
+    padding-right: 10px;
+    overflow-y: auto;
 }
 </style>
 `;
@@ -233,13 +251,14 @@ SOMU = unsafeWindow.SOMU || {
         this.hasInit = true;
         this.appendStyles();
 
-        this.sidebar = $(`<div class="col-12 mod-links no-items" id="optionssidebar"><span class="info">Reload the page after you're done making changes for values to take effect.</span></div>`).appendTo('body');
+        this.sidebar = $(`<div class="col-12 mod-links no-items" id="somusidebar"><span class="info">Reload the page after you're done making changes for values to take effect.</span></div>`).appendTo('body');
+        this.sidebarContent = $(`<div id="somusidebar-content"></div>`).prependTo(this.sidebar);
 
         this.handleSidebarEvents();
 
         $(window).on('load resize', function() {
-            //$('body').toggleClass('optionssidebar-open', $(document).width() >= 1800);
-            $('body').toggleClass('optionssidebar-compact', $(window).height() <= 680);
+            //$('body').toggleClass('somusidebar-open', $(document).width() >= 1800);
+            $('body').toggleClass('somusidebar-compact', $(window).height() <= 680);
         });
     }
 
