@@ -3,7 +3,7 @@
 // @description  Adds right sidebar to modify options of installed userscripts from the repo https://github.com/samliew/SO-mod-userscripts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -30,14 +30,14 @@ SOMU = unsafeWindow.SOMU || {
     sidebar: null,
 
 
-    getOptionValue: function(scriptName, optionName, dataType = 'string') {
+    getOptionValue: function(scriptName, optionName, defaultValue = null, dataType = 'string') {
         const scriptSlug = toSlug(scriptName);
         const optionSlug = toSlug(optionName);
         const uniqueSlug = `${SOMU.keyPrefix}${scriptSlug}:${optionSlug}`;
         let v = store.getItem(uniqueSlug);
         if(dataType === 'int') v = toInt(v);
         if(dataType === 'bool') v = toBool(v);
-        return v;
+        return v || defaultValue;
     },
 
 
@@ -60,7 +60,7 @@ SOMU = unsafeWindow.SOMU || {
 
         // If scriptname header not found yet, insert header
         if(scriptHeader.length === 0) {
-            scriptHeader = $(`<h3 class="title-section smu-${scriptSlug}">${scriptName}</h3>`).appendTo(this.sidebar);
+            scriptHeader = $(`<h3 class="title-section smu-${scriptSlug}">${scriptName}</h3>`).prependTo(this.sidebar);
         }
 
         // Get option value from store
@@ -120,7 +120,7 @@ SOMU = unsafeWindow.SOMU || {
     width: 280px;
     min-height: 300px;
     max-height: calc(100vh - 50px);
-    padding: 10px 5px 0;
+    padding: 10px 5px 40px;
     background: white;
     opacity: 0.7;
     border: 1px solid #ccc;
@@ -203,6 +203,15 @@ SOMU = unsafeWindow.SOMU || {
 #optionssidebar .info-value input.js-changed ~ .smu-save {
     display: block;
 }
+#optionssidebar span.info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    padding: 5px;
+    font-size: 0.85em;
+    font-style: italic;
+    color: indianred;
+}
 </style>
 `;
         $('body').append(styles);
@@ -224,7 +233,7 @@ SOMU = unsafeWindow.SOMU || {
         this.hasInit = true;
         this.appendStyles();
 
-        this.sidebar = $(`<div class="col-12 mod-links no-items" id="optionssidebar"></div>`).appendTo('body');
+        this.sidebar = $(`<div class="col-12 mod-links no-items" id="optionssidebar"><span class="info">Reload the page after you're done making changes for values to take effect.</span></div>`).appendTo('body');
 
         this.handleSidebarEvents();
 
