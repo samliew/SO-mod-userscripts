@@ -3,7 +3,7 @@
 // @description  Adds right sidebar to modify options of installed userscripts from the repo https://github.com/samliew/SO-mod-userscripts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -85,6 +85,12 @@ SOMU = unsafeWindow.SOMU || {
                 $(this).toggleClass('js-changed', this.dataset.currentvalue !== this.value.trim());
                 $(this).toggleClass('js-notdefault', !$(this).hasClass('js-changed') && this.dataset.currentvalue != this.dataset.defaultvalue);
             })
+            .on('focus', 'input', function() {
+                SOMU.sidebar.addClass('focused');
+            })
+            .on('blur', 'input', function() {
+                SOMU.sidebar.removeClass('focused');
+            })
             .on('click', '.smu-save', function() {
                 const $el = $(this).prevAll('input').removeClass('js-changed');
                 const el = $el.get(0);
@@ -139,6 +145,7 @@ SOMU = unsafeWindow.SOMU || {
     z-index: -1;
 }
 .optionssidebar-open #optionssidebar,
+#optionssidebar.focused,
 #optionssidebar:hover {
     right: -1px;
     left: initial;
