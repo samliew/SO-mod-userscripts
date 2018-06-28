@@ -249,7 +249,8 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-05_120501.png)
 - Comment left on answer:<br>`Please [don't post identical answers to multiple questions](https://meta.stackexchange.com/q/104227). Instead, tailor the answer to the question asked. If the questions are exact duplicates of each other, please vote/flag to close instead.`
 
-[Options](#somu-options "SOMU Options userscript required"):
+**[Options](#somu-options "SOMU Options userscript required")**:
+
 - Duplicate Comment (text)
 
 
