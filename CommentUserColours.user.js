@@ -3,7 +3,7 @@
 // @description  Unique colour for each user in comments to make following users in long comment threads easier
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -75,6 +75,6 @@
     // On page load
     appendStyles();
     updateUsers();
-    $(document).ajaxComplete(updateUsers);
+    $(document).ajaxStop(updateUsers);
 
 })();
