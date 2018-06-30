@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -15,8 +15,19 @@
 // @exclude      *chat.*
 // ==/UserScript==
 
+
 (function() {
     'use strict';
+
+
+    // 404 on a specific user page that has no content
+    if(document.body.innerText === 'User not found.') {
+        const uid = Number(location.pathname.match(/\d+/)[0]);
+
+        // Redirect to user profile page
+        location = `/users/${uid}`;
+    }
+
 
     // Moderator check
     if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
