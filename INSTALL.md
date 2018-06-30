@@ -78,3 +78,10 @@ Direct installation links (raw files)
 [Possible Vandalism Comment Deletions Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismCommentDeletionsHelper.user.js)
 
 [Possible Vandalism Edits Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismEditsHelper.user.js)
+
+
+<br>
+
+## Miscellaneous
+
+[SOMU Options](https://github.com/samliew/SO-mod-userscripts/raw/master/SOMU-options.user.js)
