@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -26,7 +26,19 @@
 
         // Redirect to user profile page
         location = `/users/${uid}`;
+        return;
     }
+
+
+    $.fn.dynamicWidth = function() {
+        $.each(this, function(i, el) {
+            const $el = $(el);
+            if (!$.fn.dynamicWidth.fakeEl) $.fn.dynamicWidth.fakeEl = $('<span>').hide().appendTo(document.body);
+            $.fn.dynamicWidth.fakeEl.text(el.value || el.innerText || el.placeholder).css('font', $el.css('font'));
+            $el.css('width', $.fn.dynamicWidth.fakeEl.width());
+        });
+        return this;
+    };
 
 
     // Moderator check
@@ -135,6 +147,9 @@
         const table = $('#posts');
         if(table.length === 0) return;
 
+        // Increase width of #mainbar, as there is no right sidebar on this page
+        $('#mainbar').width('100%');
+
         // Add checkboxes
         table.find('.tablesorter-headerRow').prepend(`<th title="Select all"><input type="checkbox" id="select-all" /></th>`);
         table.find('tbody tr').each(function() {
@@ -175,6 +190,42 @@
                 undeletePosts(selPostIds);
                 reloadWhenDone();
             });
+
+        // Linkify userid in header to return to deleted user page
+        $('#content h1').first().html((i, v) => v.replace(/(\d+)/, '<a href="/users/$1" target="_blank">$1</a>'));
+    }
+
+
+    function formatDeletedUserPage() {
+        const pre = $('#mainbar-full pre');
+        const details = pre.text().split(/\r?\n/);
+
+        const deldate = details[0].split('on ')[1].replace(/(\d+)\/(\d+)\/(\d+) (\d+):(\d+):(\d+) PM/, '$3-0$1-0$2 0$4:0$5:0$6Z').replace(/\d(\d\d)/g, '$1');
+        const username = details[1].match(/: ([^\(]+)/)[1].trim();
+        const userid = details[1].match(/\((\d+)\)/)[1];
+        const networkid = details[1].match(/=(\d+)\)/)[1];
+        const modname = details[1].match(/deleted by ([^\(]+)/)[1].trim();
+        const modid = details[1].match(/\((\d+)\)/g)[1].replace(/[^\d]+/g, '');
+        const lastip = details[details.length - 2].split(': ')[1];
+        const reason = details.slice(2, details.length - 2).join('\n').replace('Reason: ', '')
+                           .replace(/(https?:\/\/[^\s\)]+)\b/gi, '<a href="$1" target="_blank">$1</a>');
+
+        const $html = $(`
+<div class="del-user-info">
+  <div>User <input value="${username}"> (#<input value="${userid}">, network#<input value="${networkid}">) was deleted on <input value="${deldate}"> by <a href="/users/${modid}" target="_blank">${modname} ♦</a></div>
+  <div class="del-reason">Reason:
+${reason}</div>
+  <div>Last seen from IP: <input value="${lastip}"></div>
+</div>`);
+
+        pre.after($html).remove();
+
+        $html.find('input')
+            .attr('readonly', 'readonly')
+            .dynamicWidth()
+            .on('click dblclick', function() {
+                this.select();
+            });
     }
 
 
@@ -195,7 +246,12 @@
 
         // If on user profile page and not 404
         if(location.pathname === userUrl) {
-            // TODO
+
+            // Is on deleted user's page
+            if($('#mainbar-full').next('a').attr('href').indexOf('/admin/posts-by-deleted-user/') >= 0) {
+
+                formatDeletedUserPage();
+            }
         }
 
         // If on a question page
@@ -269,10 +325,31 @@ table#posts {
     min-width: 50%;
 }
 table#posts td {
+    position: relative;
     background: none !important;
 }
 .action-btn {
     margin-right: 10px;
+}
+
+.del-user-info {
+    margin: 15px 0;
+    padding: 12px 14px;
+    background: #eff0f1;
+    font-family: monospace;
+}
+.del-user-info input {
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-bottom: 1px dashed darkred;
+    font-family: monospace;
+    background: transparent;
+    color: darkred;
+}
+.del-user-info .del-reason {
+    white-space: pre-line;
+    margin: 20px 0;
 }
 </style>
 `;
