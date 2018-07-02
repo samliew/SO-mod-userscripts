@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -245,7 +245,7 @@ ${reason}</div>
         }
 
         // If on user profile page and not 404
-        if(location.pathname === userUrl) {
+        if(location.pathname.indexOf(userUrl) >= 0) {
 
             // Is on deleted user's page
             if($('#mainbar-full').next('a').attr('href').indexOf('/admin/posts-by-deleted-user/') >= 0) {
