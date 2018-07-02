@@ -92,6 +92,8 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-09_000636.png)
 - You can now multi-select delete/undelete posts by deleted user
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-09_000637.png)
+- Improved deleted user page
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-02_210759.png)
 
 
 ### [Refresh Empty Mod Queue](https://github.com/samliew/SO-mod-userscripts/blob/master/RefreshEmptyModQueue.user.js) ♦
