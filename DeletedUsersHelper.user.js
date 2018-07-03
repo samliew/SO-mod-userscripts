@@ -239,8 +239,8 @@ ${reason}</div>
         // Format links section
         $('#mainbar-full').next('a').wrap(`<div id="del-user-links"></div>`);
         const userlinks = $('#del-user-links');
-        userlinks.append(`<a href="/admin/users-with-ip/${lastip}">Users with IP address "${lastip}"</a>`);
-        userlinks.append(`<a href="/admin/find-users?q=${username}">Search users with username "${username}"</a>`);
+        userlinks.append(`<a href="/admin/users-with-ip/${lastip}">Other users with IP address "${lastip}"</a>`);
+        userlinks.append(`<a href="/admin/find-users?q=${username}">Find users with "${username}"</a>`);
     }
 
 
@@ -337,7 +337,7 @@ ${reason}</div>
     content: '"';
 }
 table#posts {
-    min-width: 50%;
+    min-width: 80%;
 }
 table#posts td {
     position: relative;
