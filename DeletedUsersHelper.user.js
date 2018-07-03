@@ -368,6 +368,7 @@ table#posts td {
 }
 #del-user-links > a {
     display: block;
+    margin-bottom: 3px;
 }
 </style>
 `;
