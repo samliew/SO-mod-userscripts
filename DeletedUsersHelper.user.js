@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -30,14 +30,22 @@
     }
 
 
-    $.fn.dynamicWidth = function() {
-        $.each(this, function(i, el) {
-            const $el = $(el);
-            if (!$.fn.dynamicWidth.fakeEl) $.fn.dynamicWidth.fakeEl = $('<span>').hide().appendTo(document.body);
-            $.fn.dynamicWidth.fakeEl.text(el.value || el.innerText || el.placeholder).css('font', $el.css('font'));
-            $el.css('width', $.fn.dynamicWidth.fakeEl.width());
+    // See also https://github.com/samliew/dynamic-width
+    $.fn.dynamicWidth = function () {
+        var plugin = $.fn.dynamicWidth;
+        if (!plugin.fakeEl) plugin.fakeEl = $('<span>').hide().appendTo(document.body);
+
+        function sizeToContent (el) {
+            var $el = $(el);
+            var cs = getComputedStyle(el);
+            plugin.fakeEl.text(el.value || el.innerText || el.placeholder).css('font', $el.css('font'));
+            $el.css('width', plugin.fakeEl.width() + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight));
+        }
+
+        return this.each(function (i, el) {
+            sizeToContent(el);
+            $(el).on('change keypress keyup blur', evt => sizeToContent(evt.target));
         });
-        return this;
     };
 
 
@@ -197,18 +205,19 @@
 
 
     function formatDeletedUserPage() {
+
+        // Format info section
         const pre = $('#mainbar-full pre');
         const details = pre.text().split(/\r?\n/);
 
-        const deldate = details[0].split('on ')[1].replace(/(\d+)\/(\d+)\/(\d+) (\d+):(\d+):(\d+) PM/, '$3-0$1-0$2 0$4:0$5:0$6Z').replace(/\d(\d\d)/g, '$1');
+        const deldate = details[0].split('on ')[1].replace(/(\d+)\/(\d+)\/(\d+) (\d+):(\d+):(\d+) [AP]M/, '$3-0$1-0$2 0$4:0$5:0$6Z').replace(/(?<=[^\d])\d?(\d\d)/g, '$1');
         const username = details[1].match(/: ([^\(]+)/)[1].trim();
         const userid = details[1].match(/\((\d+)\)/)[1];
         const networkid = details[1].match(/=(\d+)\)/)[1];
         const modname = details[1].match(/deleted by ([^\(]+)/)[1].trim();
         const modid = details[1].match(/\((\d+)\)/g)[1].replace(/[^\d]+/g, '');
         const lastip = details[details.length - 2].split(': ')[1];
-        const reason = details.slice(2, details.length - 2).join('\n').replace('Reason: ', '')
-                           .replace(/(https?:\/\/[^\s\)]+)\b/gi, '<a href="$1" target="_blank">$1</a>');
+        const reason = details.slice(2, details.length - 2).join('\n').replace('Reason: ', '').replace(/(https?:\/\/[^\s\)]+)\b/gi, '<a href="$1" target="_blank">$1</a>');
 
         const $html = $(`
 <div class="del-user-info">
@@ -226,6 +235,12 @@ ${reason}</div>
             .on('click dblclick', function() {
                 this.select();
             });
+
+        // Format links section
+        $('#mainbar-full').next('a').wrap(`<div id="del-user-links"></div>`);
+        const userlinks = $('#del-user-links');
+        userlinks.append(`<a href="/admin/users-with-ip/${lastip}">Users with IP address "${lastip}"</a>`);
+        userlinks.append(`<a href="/admin/find-users?q=${username}">Search users with username "${username}"</a>`);
     }
 
 
@@ -350,6 +365,9 @@ table#posts td {
 .del-user-info .del-reason {
     white-space: pre-line;
     margin: 20px 0;
+}
+#del-user-links > a {
+    display: block;
 }
 </style>
 `;
