@@ -3,7 +3,7 @@
 // @description  Some simple improvements for posts' Mod popup dialog
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @match        https://stackoverflow.com/*
 // @match        https://serverfault.com/*
@@ -30,7 +30,7 @@
 
 
     function listenToPageUpdates() {
-        $(document).ajaxComplete(function() {
+        $(document).ajaxStop(function() {
 
             var $popupForm = $('.popup._hidden-descriptions form');
             if($popupForm) {
