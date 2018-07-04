@@ -168,6 +168,19 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-17_210559.png)
 
 
+### [Searchbar & Nav Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/SearchbarNavImprovements.user.js)
+
+- (Parent) Option to search child meta
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-04_110753.png)
+- (Meta) New search bar on meta sites, and option to search parent site
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-04_110715.png)
+- (Parent) Adds link to child meta in left sidebar
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-04_110741.png)
+- (Meta) Adds link to parent in left sidebar
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-04_110717.png)
+- Add advanced search helper when search box is focused (coming soon)
+
+
 <br>
 
 ## Chat-specific userscripts
