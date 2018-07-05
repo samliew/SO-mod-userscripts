@@ -158,6 +158,8 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 ### [Comment User Colors](https://github.com/samliew/SO-mod-userscripts/blob/master/CommentUserColours.user.js)
 
 - Unique border colour for each user in comments to make following users in long comment threads easier
+- Only appears if user has more than one comment on the page
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-05_100726.png)
 
 
 ### [Election Supporter Flairs](https://github.com/samliew/SO-mod-userscripts/blob/master/ElectionSupporterFlairs.user.js)
