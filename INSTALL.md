@@ -23,6 +23,8 @@ Direct installation links (raw files)
 
 [Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/DeletedUsersHelper.user.js)
 
+[User Social Media Profile Links](https://github.com/samliew/SO-mod-userscripts/raw/master/UserSocialMediaProfileLinks.user.js)
+
 [Refresh Empty Mod Queue](https://github.com/samliew/SO-mod-userscripts/raw/master/RefreshEmptyModQueue.user.js)
 
 [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/raw/master/PostTimelineFilters.user.js)
@@ -40,6 +42,8 @@ Direct installation links (raw files)
 [Comment User Colors](https://github.com/samliew/SO-mod-userscripts/raw/master/CommentUserColours.user.js)
 
 [Election Supporter Flairs](https://github.com/samliew/SO-mod-userscripts/raw/master/ElectionSupporterFlairs.user.js)
+
+[Searchbar & Nav Improvements](https://github.com/samliew/SO-mod-userscripts/raw/master/SearchbarNavImprovements.user.js)
 
 
 <br>
