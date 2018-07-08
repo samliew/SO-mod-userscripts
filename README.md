@@ -94,6 +94,8 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-09_000637.png)
 - Improved deleted user page
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-02_210759.png)
+- Additional helpful links below for IP & username cross-referencing
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-09_080758.png)
 
 
 ### [User Social Media Profile Links](https://github.com/samliew/SO-mod-userscripts/blob/master/UserSocialMediaProfileLinks.user.js) ♦
@@ -144,6 +146,7 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 
 *Can you see the link in the post below?*
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-22_220555.png)
+
 - Appends `_link` to short link texts in posts and comments so they can be easily seen and clicked on
 - Link is also bolded and color set to red
 - E.g.: Link `.` visually becomes `._link`
