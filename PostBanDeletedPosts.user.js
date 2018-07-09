@@ -3,7 +3,7 @@
 // @description  When user posts on Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      1.0
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -13,7 +13,13 @@
 (function() {
     'use strict';
 
-    let mainDomain = location.hostname.replace('meta.', '');
+
+    // Moderator check
+    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+
+
+    const mainDomain = location.hostname.replace('meta.', '');
+    const mainName = StackExchange.options.site.name.replace('Meta ', '');
 
 
     // Simple wrapper for GM_xmlhttpRequest that returns a Promise
@@ -38,9 +44,34 @@
     }
 
 
+    function toShortLink(str, domain = null) {
+
+        // Match ids in string, prefixed with either a / or #
+        const ids = str.match(/(?<=[/#])(\d+)/g);
+
+        // Get last occurance of numeric id in string
+        const pid = ids.pop();
+
+        // Q (single id) or A (multiple ids)
+        const qa = ids.length > 1 ? 'a' : 'q';
+
+        // Use domain if set, otherwise use domain from string, fallback to relative path
+        const baseDomain = domain ?
+                  domain.replace(/\/$/, '') + '/' :
+                  (str.match(/https?:\/\/([a-z]+\.)+[a-z]{2,3}\//) || ['/'])[0];
+
+        // Format of short link on the Stack Exchange network
+        return pid ? baseDomain + qa + '/' + pid : str;
+    }
+
+
     function doPageload() {
 
         const post = $('#question');
+
+        // Not a deleted user
+        if($('.post-signature.owner a', post).length === 0) return;
+
         const username = $('.post-signature.owner .user-details', post).children().first().text().trim();
         const uid = $('.post-signature.owner a', post).get(0).href.match(/\d+/)[0];
         const isClosedAsDupeOfSuper = $('.question-originals-of-duplicate a', post).filter((i, el) => el.href.indexOf('/questions/255583/') >= 0).length == 1;
@@ -58,15 +89,16 @@
                     const results = $('.search-results .search-result, .js-search-results .search-result', data);
                     const stats = $(`
                         <div class="meta-mentioned" target="_blank">
-                            ${username} has <a href="${qnsUrl}" target="_blank">${count} deleted answers</a> on ${mainDomain}
+                            ${username} has <a href="${ansUrl}" target="_blank">${count} deleted answers</a> on ${mainName}
                             <span class="meta-mentions-toggle"></span>
                             <div class="meta-mentions"></div>
                         </div>`);
-                    const comment = $(`
-                        <textarea class=""></textarea>
-                    `);
-                    results.find('a').attr('href', (i,v) => 'https://' + mainDomain + v).attr('target', '_blank');
+                    const hyperlinks = results.find('a').attr('href', (i,v) => 'https://' + mainDomain + v).attr('target', '_blank');
                     stats.insertAfter(post).find('.meta-mentions').append(results);
+
+                    const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
+                    const comment = $(`<textarea class="">You have [${count} deleted answers](${ansUrl}), ${hyperlinks2.join(', ')}</textarea>`);
+                    comment.appendTo(stats);
                 }
             });
 
@@ -77,12 +109,16 @@
                     const results = $('.search-results .search-result, .js-search-results .search-result', data);
                     const stats = $(`
                         <div class="meta-mentioned" target="_blank">
-                            ${username} has <a href="${qnsUrl}" target="_blank">${count} deleted questions</a> on ${mainDomain}
+                            ${username} has <a href="${qnsUrl}" target="_blank">${count} deleted questions</a> on ${mainName}
                             <span class="meta-mentions-toggle"></span>
                             <div class="meta-mentions"></div>
                         </div>`);
-                    results.find('a').attr('href', (i,v) => 'https://' + mainDomain + v).attr('target', '_blank');
+                    const hyperlinks = results.find('a').attr('href', (i,v) => 'https://' + mainDomain + v).attr('target', '_blank');
                     stats.insertAfter(post).find('.meta-mentions').append(results);
+
+                    const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
+                    const comment = $(`<textarea class="">You have [${count} deleted questions](${qnsUrl}), ${hyperlinks2.join(', ')}</textarea>`);
+                    comment.appendTo(stats);
                 }
             });
     }
@@ -98,7 +134,6 @@
 .meta-mentioned {
     position: relative;
     width: 100%;
-    height: 38px;
     margin: 0 0 15px;
     padding: 10px 12px;
     background: #FFF8DC;
@@ -117,7 +152,7 @@
 }
 .meta-mentions-toggle {
     position: absolute;
-    top: 4px;
+    bottom: 0;
     right: 4px;
     display: block;
     width: 28px;
@@ -219,6 +254,13 @@
 .meta-mentions .statscontainer .votes,
 .meta-mentions .statscontainer .status {
     font-size: 10px;
+}
+.meta-mentioned textarea {
+    position: relative;
+    display: block;
+    width: calc(100% - 28px);
+    height: 4.2em;
+    margin-top: 10px;
 }
 </style>
 `;
