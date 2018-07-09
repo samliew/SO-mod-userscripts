@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.2
+// @version      1.4
 //
 // @match        https://stackoverflow.com/*
 // @match        https://serverfault.com/*
@@ -25,17 +25,38 @@
     'use strict';
 
 
+    // See also https://github.com/samliew/dynamic-width
+    $.fn.dynamicWidth = function () {
+        var plugin = $.fn.dynamicWidth;
+        if (!plugin.fakeEl) plugin.fakeEl = $('<span>').hide().appendTo(document.body);
+
+        function sizeToContent (el) {
+            var $el = $(el);
+            var cs = getComputedStyle(el);
+            plugin.fakeEl.text(el.value || el.innerText || el.placeholder).css('font', $el.css('font'));
+            $el.css('width', plugin.fakeEl.width() + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight));
+        }
+
+        return this.each(function (i, el) {
+            sizeToContent(el);
+            $(el).on('change keypress keyup blur', evt => sizeToContent(evt.target));
+        });
+    };
+
+
     function insertPostIds() {
 
         // Lists
-        $('a.answer-hyperlink').each((i,el) => $('<input class="post-id" value="'+el.href.replace(/[^\d]+/g, '')+'" readonly />').insertAfter(el));
-        $('a.question-hyperlink').each((i,el) => $('<input class="post-id" value="'+el.href.replace(/[^\d]+/g, '')+'" readonly />').insertAfter(el));
+        $('a.answer-hyperlink').each((i,el) => $('<input class="post-id" value="'+el.href.match(/(?<=[/#])(\d+)/g).pop()+'" readonly />').insertAfter(el));
+        $('a.question-hyperlink').each((i,el) => $('<input class="post-id" value="'+el.href.match(/(?<=[/#])(\d+)/g).shift()+'" readonly />').insertAfter(el));
 
         // Q&A
         $('[data-questionid], [data-answerid]').not('.close-question-link').each((i,el) => $('<input class="post-id" value="'+(el.dataset.answerid||el.dataset.questionid)+'" readonly />').prependTo(el));
 
         // Remove duplicates if necessary
         $('.post-id ~ .post-id').remove();
+
+        $('.post-id').dynamicWidth();
     }
 
 
@@ -95,6 +116,9 @@
 #question .post-id,
 #answers .post-id {
     position: relative;
+}
+.question:not(#question) > .post-id {
+    top: -20px;
 }
 #question .post-id,
 #answers .post-id,
