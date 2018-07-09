@@ -3,7 +3,7 @@
 // @description  When user posts on Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.1
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -44,7 +44,7 @@
     }
 
 
-    function toShortLink(str, domain = null) {
+    function toShortLink(str, newdomain = null) {
 
         // Match ids in string, prefixed with either a / or #
         const ids = str.match(/(?<=[/#])(\d+)/g);
@@ -56,9 +56,9 @@
         const qa = ids.length > 1 ? 'a' : 'q';
 
         // Use domain if set, otherwise use domain from string, fallback to relative path
-        const baseDomain = domain ?
-                  domain.replace(/\/$/, '') + '/' :
-                  (str.match(/https?:\/\/([a-z]+\.)+[a-z]{2,3}\//) || ['/'])[0];
+        const baseDomain = newdomain ?
+                  newdomain.replace(/\/$/, '') + '/' :
+                  (str.match(/\/+([a-z]+\.)+[a-z]{2,3}\//) || ['/'])[0];
 
         // Format of short link on the Stack Exchange network
         return pid ? baseDomain + qa + '/' + pid : str;
@@ -79,8 +79,8 @@
         // Not a post ban question, do nothing (must be closed as dupe first)
         if(!isClosedAsDupeOfSuper) return;
 
-        const ansUrl = `https://${mainDomain}/search?tab=newest&q=user%3a${uid}%20is%3aanswer%20deleted%3a1`;
-        const qnsUrl = `https://${mainDomain}/search?tab=newest&q=user%3a${uid}%20is%3aquestion%20deleted%3a1`;
+        const ansUrl = `https://${mainDomain}/search?q=user%3a${uid}%20is%3aanswer%20deleted%3a1%20score%3a..0&tab=newest`;
+        const qnsUrl = `https://${mainDomain}/search?q=user%3a${uid}%20is%3aquestion%20deleted%3a1%20score%3a..0&tab=newest`;
 
         ajaxPromise(ansUrl)
             .then(function(data) {
@@ -97,7 +97,7 @@
                     stats.insertAfter(post).find('.meta-mentions').append(results);
 
                     const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
-                    const comment = $(`<textarea readonly="readonly">You have [${count} deleted answers](${ansUrl}): [ ${hyperlinks2.join(', ')} ]</textarea>`);
+                    const comment = $(`<textarea readonly="readonly">Deleted answers, score <= 0: [${hyperlinks2.join(' ')}]</textarea>`);
                     comment.appendTo(stats);
                 }
             });
@@ -117,7 +117,7 @@
                     stats.insertAfter(post).find('.meta-mentions').append(results);
 
                     const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
-                    const comment = $(`<textarea readonly="readonly">You have [${count} deleted questions](${qnsUrl}): [ ${hyperlinks2.join(', ')} ]</textarea>`);
+                    const comment = $(`<textarea readonly="readonly">Deleted questions, score <= 0: [${hyperlinks2.join(' ')}]</textarea>`);
                     comment.appendTo(stats);
                 }
             });
