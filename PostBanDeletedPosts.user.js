@@ -3,7 +3,7 @@
 // @description  When user posts on Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -97,7 +97,7 @@
                     stats.insertAfter(post).find('.meta-mentions').append(results);
 
                     const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
-                    const comment = $(`<textarea class="">You have [${count} deleted answers](${ansUrl}), ${hyperlinks2.join(', ')}</textarea>`);
+                    const comment = $(`<textarea readonly="readonly">You have [${count} deleted answers](${ansUrl}), ${hyperlinks2.join(', ')}</textarea>`);
                     comment.appendTo(stats);
                 }
             });
@@ -117,7 +117,7 @@
                     stats.insertAfter(post).find('.meta-mentions').append(results);
 
                     const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
-                    const comment = $(`<textarea class="">You have [${count} deleted questions](${qnsUrl}), ${hyperlinks2.join(', ')}</textarea>`);
+                    const comment = $(`<textarea readonly="readonly">You have [${count} deleted questions](${qnsUrl}), ${hyperlinks2.join(', ')}</textarea>`);
                     comment.appendTo(stats);
                 }
             });
