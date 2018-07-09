@@ -7,27 +7,27 @@ Direct installation links (raw files)
 
 ## General userscripts
 
-[Mod User Quicklinks Everywhere](https://github.com/samliew/SO-mod-userscripts/raw/master/ModUserQuicklinksEverywhere.user.js)
+[Mod User Quicklinks Everywhere](https://github.com/samliew/SO-mod-userscripts/raw/master/ModUserQuicklinksEverywhere.user.js) ♦
 
-[User Info Sidebar](https://github.com/samliew/SO-mod-userscripts/raw/master/UserInfoSidebar.user.js)
+[User Info Sidebar](https://github.com/samliew/SO-mod-userscripts/raw/master/UserInfoSidebar.user.js) ♦
 
-[Mod Popup Dialog Improvements](https://github.com/samliew/SO-mod-userscripts/raw/master/ModPopupDialogImprovements.user.js)
+[Mod Popup Dialog Improvements](https://github.com/samliew/SO-mod-userscripts/raw/master/ModPopupDialogImprovements.user.js) ♦
 
-[Personal Mod Message History](https://github.com/samliew/SO-mod-userscripts/raw/master/PersonalModMessageHistory.user.js)
+[Personal Mod Message History](https://github.com/samliew/SO-mod-userscripts/raw/master/PersonalModMessageHistory.user.js) ♦
 
-[User Review Ban Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/UserReviewBanHelper.user.js)
+[User Review Ban Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/UserReviewBanHelper.user.js) ♦
 
-[Hide Viewed Posts](https://github.com/samliew/SO-mod-userscripts/raw/master/HideViewedPosts.user.js)
+[Hide Viewed Posts](https://github.com/samliew/SO-mod-userscripts/raw/master/HideViewedPosts.user.js) ♦
 
-[Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts/raw/master/DisplayInlineCommentFlagHistory.user.js)
+[Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts/raw/master/DisplayInlineCommentFlagHistory.user.js) ♦
 
-[Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/DeletedUsersHelper.user.js)
+[Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/DeletedUsersHelper.user.js) ♦
 
-[Post Ban Deleted Posts](https://github.com/samliew/SO-mod-userscripts/raw/master/PostBanDeletedPosts.user.js)
+[Post Ban Deleted Posts](https://github.com/samliew/SO-mod-userscripts/raw/master/PostBanDeletedPosts.user.js) ♦
 
-[User Social Media Profile Links](https://github.com/samliew/SO-mod-userscripts/raw/master/UserSocialMediaProfileLinks.user.js)
+[User Social Media Profile Links](https://github.com/samliew/SO-mod-userscripts/raw/master/UserSocialMediaProfileLinks.user.js) ♦
 
-[Refresh Empty Mod Queue](https://github.com/samliew/SO-mod-userscripts/raw/master/RefreshEmptyModQueue.user.js)
+[Refresh Empty Mod Queue](https://github.com/samliew/SO-mod-userscripts/raw/master/RefreshEmptyModQueue.user.js) ♦
 
 [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/raw/master/PostTimelineFilters.user.js)
 
@@ -52,7 +52,7 @@ Direct installation links (raw files)
 
 ## Chat-specific userscripts
 
-[Chat Room Info Annotations](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatRoomInfoAnnotations.user.js)
+[Chat Room Info Annotations](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatRoomInfoAnnotations.user.js) ♦
 
 [Chat Transcripts By Default](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatTranscriptsByDefault.user.js)
 
@@ -64,26 +64,26 @@ Direct installation links (raw files)
 
 [Chat More Magic Links](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatMoreMagicLinks.user.js)
 
-[Show Deleted Messages in Chat](https://github.com/samliew/SO-mod-userscripts/raw/master/ShowDeletedMessagesInChat.user.js)
+[Show Deleted Messages in Chat](https://github.com/samliew/SO-mod-userscripts/raw/master/ShowDeletedMessagesInChat.user.js) ♦
 
 
 <br>
 
 ## Queue-specific userscripts
 
-[Comment Flags Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js)
+[Comment Flags Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js) ♦
 
-[Duplicate Answers Flags Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js)
+[Duplicate Answers Flags Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js) ♦
 
-[Not An Answer Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js)
+[Not An Answer Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js) ♦
 
-[Too Many Comments Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js)
+[Too Many Comments Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js) ♦
 
-[Possible Vandalism Deletions Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismDeletionsHelper.user.js)
+[Possible Vandalism Deletions Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismDeletionsHelper.user.js) ♦
 
-[Possible Vandalism Comment Deletions Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismCommentDeletionsHelper.user.js)
+[Possible Vandalism Comment Deletions Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismCommentDeletionsHelper.user.js) ♦
 
-[Possible Vandalism Edits Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismEditsHelper.user.js)
+[Possible Vandalism Edits Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismEditsHelper.user.js) ♦
 
 
 <br>
