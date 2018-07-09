@@ -98,6 +98,12 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-09_080758.png)
 
 
+### [Post Ban Deleted Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/PostBanDeletedPosts.user.js) ♦
+
+- When user posts on Meta Stack Overflow regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-09_100703.png)
+
+
 ### [User Social Media Profile Links](https://github.com/samliew/SO-mod-userscripts/blob/master/UserSocialMediaProfileLinks.user.js) ♦
 
 - When user PII is loaded, add links to social media profile
