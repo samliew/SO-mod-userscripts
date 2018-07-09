@@ -3,7 +3,7 @@
 // @description  Displays your sent mod messages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -24,22 +24,24 @@
     if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
 
 
-    // Solution from https://stackoverflow.com/a/24719409/584192
+    const displayName = $('.my-profile').first().children().attr('title');
+
+
+    // Solution from https://stackoverflow.com/a/24719409
     function jQueryXhrOverride() {
-        var xhr = jQuery.ajaxSettings.xhr();
-        var setRequestHeader = xhr.setRequestHeader;
+        const xhr = jQuery.ajaxSettings.xhr();
+        const setRequestHeader = xhr.setRequestHeader;
         xhr.setRequestHeader = function(name, value) {
-            if (name == 'X-Requested-With') return;
+            if(name == 'X-Requested-With') return;
             setRequestHeader.call(this, name, value);
         };
         return xhr;
     }
 
-    const displayName = $('.my-profile').first().children().attr('title');
 
     function getModMessages(pageNum) {
 
-        var $modMessagesList = $('.your-history ul');
+        const $modMessagesList = $('.your-history ul');
         if($modMessagesList.length === 0) return;
 
         $.ajax({
@@ -48,11 +50,11 @@
             success: function(data) {
 
                 // Parse messages
-                var $messages = $('<span></span>').html(data).find('table:first tr');
+                const $messages = $('<span></span>').html(data).find('table:first tr');
                 $messages.filter((i,el) => $(el).find('.annotime').get(0).childNodes[0].nodeValue.indexOf(displayName) > -1).each(function() {
-                    var text = $(this).find('.textcell a:first').text().replace(/^[\w',.:\s]+(https:\/\/[\w.\/-]+)\s+/, '');
-                    var user = $(this).find('.user-details a');
-                    var msg = $('.inbox-item:first').clone(true, true);
+                    const text = $(this).find('.textcell a:first').text().replace(/^[\w',.:\s]+(https:\/\/[\w.\/-]+)\s+/, '');
+                    const user = $(this).find('.user-details a');
+                    const msg = $('.inbox-item:first').clone(true, true);
 
                     // Map to cloned element
                     msg.find('.item-type').text('moderator message');
@@ -67,44 +69,56 @@
         });
     }
 
+
     function togglePersonalModHistory() {
 
         // Add mod history results if not added yet
         if($('.modInbox-dialog .your-history').length == 0) {
-            var $yourHistory = $('.modInbox-dialog').append('<div class="modal-content your-history"><ul></ul></div>');
+            const $yourHistory = $('.modInbox-dialog').append('<div class="modal-content your-history"><ul></ul></div>');
 
-            // Load 1 page with 10 messages at a time
-            for(var i = 0; i < 20; i++) {
-                setTimeout(getModMessages, 1500 * i, i+1);
+            // Stagger requests: Load 1 page with 10 messages at a time
+            for(let i = 0; i < 30; i++) {
+                setTimeout(getModMessages, 500 * i, i+1);
             }
         }
 
         // Toggle display
         $('.modInbox-dialog .modal-content').first().toggleClass('hidden');
 
-        // Toggle text
-        $('.modInbox-historylink').text((i, t) => t === 'your history' ? 'all messages' : 'your history');
+        // Toggle link text
+        $('#js-personalModInboxLink').text((i, t) => t === 'your messages' ? 'all messages' : 'your messages');
+
+        // Toggle mod inbox header text
+        $('.modInbox-dialog .header h3').first().text((i, t) => t === 'mod messages' ? 'mod messages (personal)' : 'mod messages');
     }
+
 
     function doPageload() {
 
     }
 
+
     function listenToPageUpdates() {
 
         // On any page update
-        $(document).ajaxComplete(function() {
+        $(document).ajaxComplete(function(event, xhr, settings) {
 
-            // Add link if mod inbox has loaded
-            if($('.modInbox-historylink').length == 0)
-                $('<span><a class="modInbox-historylink">your history</a> | </span>').prependTo('.modInbox-dialog .-right').on('click', null, togglePersonalModHistory);
+            // Loaded mod messages popup
+            if(settings.url.indexOf('/topbar/mod-inbox') >= 0) {
+
+                // Add link once if mod inbox has loaded
+                if($('#js-personalModInboxLink').length == 0) {
+                    $('.modInbox-dialog .-right').prepend('<span><a id="js-personalModInboxLink">your messages</a> | </span>')
+                    $('#js-personalModInboxLink').on('click', togglePersonalModHistory);
+                }
+            }
         });
     }
 
 
     function appendStyles() {
 
-        var styles = `
+        const styles = `
 <style>
 .modal-content + .modal-content {
     display: none;
@@ -116,6 +130,7 @@
 `;
         $('body').append(styles);
     }
+
 
     // On page load
     appendStyles();
