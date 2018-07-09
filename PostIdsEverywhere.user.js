@@ -98,6 +98,7 @@
     top: 0;
     right: 0;
     width: 5rem;
+    min-width: 36px;
     margin: 0;
     padding: 3px 0;
     font-size: 1rem;
