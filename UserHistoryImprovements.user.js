@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         Broken Annotation Links Fix
-// @description  Fixes broken links in user annotations
+// @name         User History Improvements 
+// @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.0
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
