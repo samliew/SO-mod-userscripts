@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -24,10 +24,9 @@
             const td = $(this).children('td, th').eq(3);
             if(td.children().length > 0) return; // already has links, ignore
             const str = td.text()
-            .replace(/&lt;a href=&quot;(\/users\/\d+\/[a-z-]+)&quot;&gt;.+&lt;\/a&gt;/, '<a href="$1" target="_blank">$1</a>')
-            .replace(/\s(\/users\/\d+\/[a-z-]+)\s/, ' <a href="$1" target="_blank">$1</a> ')
-            .replace(/\s(\/users\/\d+\/[a-z-]+)\s/, ' <a href="$1" target="_blank">$1</a> ')
-            .replace(/(https?:\/\/[^\s\)]+)\b/gi, '<a href="$1" target="_blank">$1</a>');
+              .replace(/(<a href="|">.+<\/a>)/g, '') // strip existing bad links
+              .replace(/\s(\/users\/\d+\/[a-z-]+)\s/, ' <a href="$1" target="_blank">$1</a> ') // relink users
+              .replace(/(https?:\/\/[^\s\)]+)\b/gi, '<a href="$1" target="_blank">$1</a>'); // all other urls
             td.html(str);
         });
     }
