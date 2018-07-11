@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.1
+// @version      2.4
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -83,6 +83,61 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
     }
 
 
+    const loadCommentsFlagsFromTimeline = function() {
+
+        // So we only load each post's timeline once
+        if($(this).hasClass('js-cmmtflags-loaded')) return;
+        $(this).addClass('js-cmmtflags-loaded');
+
+        const postId = this.dataset.questionid || this.dataset.answerid;
+        const isQ = $(this).hasClass('question');
+        //console.log(postId, isQ);
+
+        // Get post timeline
+        $.get(`${postsUrl}/${postId}/timeline`, function(data) {
+            const cmmtDiv = $('<div class="all-comment-flags"></div>').appendTo('#comments-'+postId);
+            const eventRows = $('.event-rows', data);
+            const cmmtFlags = eventRows.find('tr[data-eventtype="flag"]').filter((i, el) => $(el).find('.event-type.flag').text() === 'comment flag');
+
+            // Each comment with flags
+            eventRows.find('tr[data-eventtype="comment"]').filter((i, el) => $(el).find('.toggle-comment-flags').length == 1).each(function() {
+                const cmmt = $(this);
+                const cmmtId = this.dataset.eventid;
+                const cmmtUser = $(this).find('.comment-user').first().get(0);
+                const cmmtUserId = cmmtUser ? (cmmtUser.href || cmmtUser.innerText).match(/\d+/)[0] || -1 : -1;
+                const cmmtFlagIds = $(this).find('.toggle-comment-flags').attr('data-flag-ids').split(';');
+                const cmmtFlagsDiv = $('<div class="comment-flags"></div>').appendTo(`#comment-${cmmtId} .comment-text`);
+                const cmmtFlagcountDiv = $(`<a class="comment-flagcount supernovabg" title="comment flags" href="${postsUrl}/${postId}/timeline#comment_${cmmtId}" target="_blank">${cmmtFlagIds.length}</a>`)
+                .appendTo(`#comment-${cmmtId} .comment-actions`);
+                $(`#comment-${cmmtId}`).addClass('hasflags');
+
+                // Each flag on comment
+                $.each(cmmtFlagIds, function(i, v) {
+                    const fEvent = cmmtFlags.filter(`[data-eventid="${v}"]`).first();
+                    const fType = fEvent.find('.event-verb').text().replace(/(^\s+|\s+$)/g, '');
+                    const num = Number(cmmt.attr('data-flagtype-'+fType)) || 0;
+                    cmmt.attr('data-flagtype-'+fType, num + 1);
+                    fEvent.clone(true,true).appendTo(cmmt);
+                    fEvent.clone(true,true).appendTo(cmmtFlagsDiv);
+                    //console.log(postId, cmmtId, v, fType, fEvent);
+                });
+
+                // Get flag raisers
+                getCommentFlagRaisers(cmmtId, cmmtUserId).then(function(v) {
+                    if(v == null) return;
+                    $(`#comment-${cmmtId} .comment-flags > tr`).each(function(i) {
+                        if(v[i] == null || v[i].length != 3) return;
+                        $(this).find('.event-comment').append(`<span> - ${v[i][1]} - ${v[i][2]}</span>`);
+                    });
+                });
+            }).appendTo(cmmtDiv);
+            //console.log(cmmtDiv);
+
+            $('.event-comment').filter((i, el) => el.innerText.replace(/(^\s+|\s+$)/g, '') === 'rude or abusive').addClass('rude-abusive');
+        });
+    };
+
+
     function doPageload() {
 
         // Clear comment flaggers cache on weekends
@@ -102,58 +157,13 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
         }
 
         // Each post on page
-        $('.question, .answer').not('.js-cmmtflags-loaded').each(function() {
-
-            // So we only load each post's timeline once
-            $(this).addClass('js-cmmtflags-loaded');
-
-            const postId = this.dataset.questionid || this.dataset.answerid;
-            const isQ = $(this).hasClass('question');
-            //console.log(postId, isQ);
-
-            // Get post timeline
-            $.get(`${postsUrl}/${postId}/timeline`, function(data) {
-                const cmmtDiv = $('<div class="all-comment-flags"></div>').appendTo('#comments-'+postId);
-                const eventRows = $('.event-rows', data);
-                const cmmtFlags = eventRows.find('tr[data-eventtype="flag"]').filter((i, el) => $(el).find('.event-type.flag').text() === 'comment flag');
-
-                // Each comment with flags
-                eventRows.find('tr[data-eventtype="comment"]').filter((i, el) => $(el).find('.toggle-comment-flags').length == 1).each(function() {
-                    const cmmt = $(this);
-                    const cmmtId = this.dataset.eventid;
-                    const cmmtUser = $(this).find('.comment-user').first().get(0);
-                    const cmmtUserId = cmmtUser ? (cmmtUser.href || cmmtUser.innerText).match(/\d+/)[0] || -1 : -1;
-                    const cmmtFlagIds = $(this).find('.toggle-comment-flags').attr('data-flag-ids').split(';');
-                    const cmmtFlagsDiv = $('<div class="comment-flags"></div>').appendTo(`#comment-${cmmtId} .comment-text`);
-                    const cmmtFlagcountDiv = $(`<a class="comment-flagcount supernovabg" title="comment flags" href="${postsUrl}/${postId}/timeline#comment_${cmmtId}" target="_blank">${cmmtFlagIds.length}</a>`)
-                                                 .appendTo(`#comment-${cmmtId} .comment-actions`);
-                    $(`#comment-${cmmtId}`).addClass('hasflags');
-
-                    // Each flag on comment
-                    $.each(cmmtFlagIds, function(i, v) {
-                        const fEvent = cmmtFlags.filter(`[data-eventid="${v}"]`).first();
-                        const fType = fEvent.find('.event-verb').text().replace(/(^\s+|\s+$)/g, '');
-                        const num = Number(cmmt.attr('data-flagtype-'+fType)) || 0;
-                        cmmt.attr('data-flagtype-'+fType, num + 1);
-                        fEvent.clone(true,true).appendTo(cmmt);
-                        fEvent.clone(true,true).appendTo(cmmtFlagsDiv);
-                        //console.log(postId, cmmtId, v, fType, fEvent);
-                    });
-
-                    // Get flag raisers
-                    getCommentFlagRaisers(cmmtId, cmmtUserId).then(function(v) {
-                        if(v == null) return;
-                        $(`#comment-${cmmtId} .comment-flags > tr`).each(function(i) {
-                            if(v[i] == null || v[i].length != 3) return;
-                            $(this).find('.event-comment').append(`<span> - ${v[i][1]} - ${v[i][2]}</span>`);
-                        });
-                    });
-                }).appendTo(cmmtDiv);
-                //console.log(cmmtDiv);
-
-                $('.event-comment').filter((i, el) => el.innerText.replace(/(^\s+|\s+$)/g, '') === 'rude or abusive').addClass('rude-abusive');
-            });
-        });
+        const qas = $('.question, .answer');
+        if(qas.length > 15) {
+            qas.on('mouseover', loadCommentsFlagsFromTimeline)
+        }
+        else {
+            qas.each(loadCommentsFlagsFromTimeline);
+        }
     }
 
 
