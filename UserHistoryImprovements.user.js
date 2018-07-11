@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         User History Improvements 
+// @name         User History Improvements
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -23,20 +23,20 @@
         $('#annotations tr').each(function() {
             const td = $(this).children('td, th').eq(3);
 
-            // Special class for message/suspension rows
-            const aType = $(this).children().first().text().trim().toLowerCase();
-            if(/(suspension|message)/.test(aType)) {
-                $(this).addClass('user-message');
-            }
-
             // Pad dates to same length
             const date = $(this).children('td, th').eq(2).find('span');
             date.text((i,v) => v.replace(/\s(\d)\b/g, ' 0$1'));
 
-            // Fix broken links in message
-            if(td.children().length > 0) return; // already has links, ignore
-            const str = td.text()
-              .replace(/(<a href="|">.+<\/a>)/g, '') // strip existing bad links
+            // Special class for message/suspension rows
+            const aType = $(this).children().first().text().trim().toLowerCase();
+            if(/(suspension|message)/.test(aType)) {
+                $(this).addClass('user-message');
+                return;
+            }
+
+            // Fix broken links
+            const str = td.html()
+              .replace(/(<a href="|">.+<\/a>)/g, '') // strip existing links
               .replace(/\s(\/users\/\d+\/[a-z-]+)\s/, ' <a href="$1">$1</a> ') // relink users
               .replace(/(https?:\/\/[^\s\)]+)\b/gi, '<a href="$1">$1</a>'); // all other urls
             td.html(str);
