@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.2
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -28,6 +28,10 @@
             if(/(suspension|message)/.test(aType)) {
                 $(this).addClass('user-message');
             }
+
+            // Pad dates to same length
+            const date = $(this).children('td, th').eq(2).find('span');
+            date.text((i,v) => v.replace(/\s(\d)\b/g, ' 0$1'));
 
             // Fix broken links in message
             if(td.children().length > 0) return; // already has links, ignore
@@ -67,9 +71,13 @@
     max-width: 52px;
 }
 #annotations td:nth-child(3) {
-    max-width: 77px;
+    max-width: 92px;
+}
+#annotations td:nth-child(4) {
+    width: 100%;
 }
 #annotations td:nth-child(5) {
+    min-width: 140px;
     max-width: 140px;
 }
 #annotations th:nth-child(6),
