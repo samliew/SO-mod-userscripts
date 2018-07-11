@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -49,7 +49,7 @@
 <style>
 #annotations th {
     font-weight: bold;
-    border-bottom: 1px solid #aaa;
+    border-bottom: 1px solid #ddd;
 }
 #annotations th,
 #annotations td {
