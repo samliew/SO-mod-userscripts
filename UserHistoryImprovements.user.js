@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -37,7 +37,7 @@
             // Fix broken links
             const str = td.html()
               .replace(/(<a href="|">.+<\/a>)/g, '') // strip existing links
-              .replace(/\s(\/users\/\d+\/[a-z-]+)\s/, ' <a href="$1">$1</a> ') // relink users
+              .replace(/\s(\/users\/\d+\/[a-z-]+)\b/, ' <a href="$1">$1</a> ') // relink users
               .replace(/(https?:\/\/[^\s\)]+)\b/gi, '<a href="$1">$1</a>'); // all other urls
             td.html(str);
         });
