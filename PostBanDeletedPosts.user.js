@@ -3,7 +3,7 @@
 // @description  When user posts on Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.2
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -68,39 +68,20 @@
     function doPageload() {
 
         const post = $('#question');
+        const postOwner = $('.post-signature:last a', post);
 
-        // Not a deleted user
-        if($('.post-signature.owner a', post).length === 0) return;
+        // Is a deleted user, do nothing
+        if(postOwner.length === 0) return;
 
         const username = $('.post-signature.owner .user-details', post).children().first().text().trim();
-        const uid = $('.post-signature.owner a', post).get(0).href.match(/\d+/)[0];
+        const uid = postOwner.attr('href').match(/\d+/)[0];
         const isClosedAsDupeOfSuper = $('.question-originals-of-duplicate a', post).filter((i, el) => el.href.indexOf('/questions/255583/') >= 0).length == 1;
 
         // Not a post ban question, do nothing (must be closed as dupe first)
         if(!isClosedAsDupeOfSuper) return;
 
-        const ansUrl = `https://${mainDomain}/search?q=user%3a${uid}%20is%3aanswer%20deleted%3a1%20score%3a..0&tab=newest`;
         const qnsUrl = `https://${mainDomain}/search?q=user%3a${uid}%20is%3aquestion%20deleted%3a1%20score%3a..0&tab=newest`;
-
-        ajaxPromise(ansUrl)
-            .then(function(data) {
-                const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
-                if(count > 0) {
-                    const results = $('.search-results .search-result, .js-search-results .search-result', data);
-                    const stats = $(`
-                        <div class="meta-mentioned" target="_blank">
-                            ${username} has <a href="${ansUrl}" target="_blank">${count} deleted answers</a> on ${mainName}
-                            <span class="meta-mentions-toggle"></span>
-                            <div class="meta-mentions"></div>
-                        </div>`);
-                    const hyperlinks = results.find('a').attr('href', (i,v) => 'https://' + mainDomain + v).attr('target', '_blank');
-                    stats.insertAfter(post).find('.meta-mentions').append(results);
-
-                    const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
-                    const comment = $(`<textarea readonly="readonly">Deleted answers, score <= 0: (${hyperlinks2.join(' ')})</textarea>`);
-                    comment.appendTo(stats);
-                }
-            });
+        const ansUrl = `https://${mainDomain}/search?q=user%3a${uid}%20is%3aanswer%20deleted%3a1%20score%3a..0&tab=newest`;
 
         ajaxPromise(qnsUrl)
             .then(function(data) {
@@ -118,6 +99,26 @@
 
                     const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
                     const comment = $(`<textarea readonly="readonly">Deleted questions, score <= 0: (${hyperlinks2.join(' ')})</textarea>`);
+                    comment.appendTo(stats);
+                }
+            });
+
+        ajaxPromise(ansUrl)
+            .then(function(data) {
+                const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
+                if(count > 0) {
+                    const results = $('.search-results .search-result, .js-search-results .search-result', data);
+                    const stats = $(`
+                        <div class="meta-mentioned" target="_blank">
+                            ${username} has <a href="${ansUrl}" target="_blank">${count} deleted answers</a> on ${mainName}
+                            <span class="meta-mentions-toggle"></span>
+                            <div class="meta-mentions"></div>
+                        </div>`);
+                    const hyperlinks = results.find('a').attr('href', (i,v) => 'https://' + mainDomain + v).attr('target', '_blank');
+                    stats.insertAfter(post).find('.meta-mentions').append(results);
+
+                    const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
+                    const comment = $(`<textarea readonly="readonly">Deleted answers, score <= 0: (${hyperlinks2.join(' ')})</textarea>`);
                     comment.appendTo(stats);
                 }
             });
