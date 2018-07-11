@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.2
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
