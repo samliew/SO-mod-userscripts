@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -251,8 +251,9 @@ ${reason}</div>
         const uid = Number(location.pathname.match(/\d+/)[0]);
         const userUrl = `/users/${uid}`;
 
-        // 404 on user page
-        if(document.body.classList.contains('user-page') && document.title.indexOf('Page Not Found') === 0) {
+        // 404 on user page or mod page with an ID in the URL
+        if((document.body.classList.contains('user-page') || document.body.classList.contains('mod-page')) &&
+           !isNaN(uid) && document.title.indexOf('Page Not Found') === 0) {
 
             // Redirect to user profile page if not already on it
             if(location.pathname !== userUrl) location = userUrl;
