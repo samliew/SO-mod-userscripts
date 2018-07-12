@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.2
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -195,7 +195,6 @@
   <a>Status</a>
   <a>Types</a>
   <a>Dates</a>
-  <button class="helper-close">Close</button>
   <button type="reset">Reset</button>
 </div>
 <div id="search-helper-tabcontent">
@@ -383,11 +382,29 @@
 </div>`).insertAfter(searchbtn);
 
 
-        // Keep open
+        // State
         let keepOpen = () => searchhelper.addClass('open');
-        let clearOpen = () => { searchhelper.removeClass('open'); return false; };
+        let clearOpen = () => searchhelper.removeClass('open');
+        $(document).on('click', function(evt) {
+            // Any click on page except header
+            if($(evt.target).closest('.top-bar').length === 0) {
+                clearOpen();
+            }
+        }).on('keydown', function(evt) {
+            // On 'esc' keypress
+            // https://stackoverflow.com/a/3369743/584192
+            evt = evt || window.event;
+            var isEscape = false;
+            if ("key" in evt) {
+                isEscape = (evt.key == "Escape" || evt.key == "Esc");
+            } else {
+                isEscape = (evt.keyCode == 27);
+            }
+            if (isEscape) {
+                clearOpen();
+            }
+        });
         searchhelper
-            .on('click', '.helper-close', clearOpen)
             .on('mouseenter click mouseup', keepOpen)
             .on('focus change click mouseup', 'input, select', keepOpen);
 
@@ -417,6 +434,11 @@
             if(this.value.trim() != '' || this.type == 'radio' || this.type == 'checkbox') {
                 $(this.dataset.clears).val('').attr('checked', false);
             }
+        });
+
+        // Focus submit button when a radio/checkbox is clicked
+        searchhelper.on('click change', 'input:radio, input:checkbox', function() {
+            searchbtn.focus();
         });
 
         // Handle search form submit
@@ -544,8 +566,8 @@
     z-index: 1;
 
     padding: 10px;
-    background: hsla(240, 11%, 98%, 0.9);
-    box-shadow: 2px 2px 5px -3px hsla(0, 0%, 0%, 0.5);
+    background: hsla(240, 11%, 98%);
+    box-shadow: 2px 2px 7px -2px hsla(0, 0%, 0%, 0.5);
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
 
@@ -591,8 +613,7 @@
 }
 #search-helper-tabs > button {
     float: right;
-    margin-top: 5px;
-    margin-left: 10px;
+    margin: 5px 1px 5px 7px;
 }
 #search-helper-tabcontent {
     border: 1px solid #e4e6e8;
@@ -622,7 +643,8 @@
     line-height: 1.6;
 }
 #search-helper input[type="number"] {
-    width: auto;
+    width: 140px;
+    padding-right: 0;
 }
 #search-helper select {
     box-sizing: content-box;
