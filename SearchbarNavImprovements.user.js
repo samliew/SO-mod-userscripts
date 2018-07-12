@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -459,8 +459,9 @@
 
         soLogoToQuestions();
 
-        // If on meta site, use new search bar
-        if(isChildMeta) {
+        // If using old search bar
+        const searchform = $('#search');
+        if(!searchform.hasClass('search-channel-context')) {
 
             searchform
                 .find('.ps-relative').first().removeClass('ps-relative').addClass('grid')
@@ -473,7 +474,7 @@
                 .append('<input name="mixed" value="0" type="hidden" id="search-channel-mixed">')
                 .find('.js-search-field').addClass('search-channel-switcher-field');
         }
-        // If on main and using new search bar
+        // If using new search bar
         else {
             $('#search-channel-selector option[selected]').after(`<option data-url="${metaUrl}/search">Meta ${mainName}</option>`);
         }
