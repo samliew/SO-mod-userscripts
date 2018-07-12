@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.0.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -63,7 +63,7 @@
         const resultslist = $(`<ul class="aclookup_results"></ul>`)
             .on('click', 'li', function(evt) {
                 const input = $(this).closest('ul').prev('input').removeClass('js-aclookup-complete');
-                input.val((i,v) => ((append ? (' ' + v).replace(/\s\S+$/, '') : '') + evt.target.dataset.val).trim() + ' ');
+                input.val((i,v) => ((append ? (' ' + v).replace(/\s\S+$/, '') : '') + ' ' + evt.target.dataset.val).trim() + ' ');
             });
 
         $(this).after(resultslist)
@@ -99,7 +99,7 @@
         const resultslist = $(`<ul class="aclookup_results"></ul>`)
             .on('click', 'li', function(evt) {
                 const input = $(this).closest('ul').prev('input').removeClass('js-aclookup-complete');
-                input.val((i,v) => ((append ? (' ' + v).replace(/\s\S+$/, '') : '') + evt.target.dataset.val).trim() + ' ');
+                input.val((i,v) => ((append ? (' ' + v).replace(/\s\S+$/, '') : '') + ' ' + evt.target.dataset.val).trim() + ' ');
             });
 
         $(this).after(resultslist)
