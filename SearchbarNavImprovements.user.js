@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -33,7 +33,7 @@
     const searchform = $('#search');
     const searchfield = $('#search input[name="q"]');
     const searchbtn = $('#search .js-search-submit');
-    let searchhelper;
+    let searchhelper, orderby;
 
 
     // Has value
@@ -173,7 +173,8 @@
         searchfield.val((i, v) => (v + addQuery).replace(/\s+/g, ' ').replace(/([:])\s+/g, '$1'));
 
         // Live only - remove on submit
-        searchhelper.remove();
+        searchhelper.hide().find('#search-helper-tabcontent').remove();
+        if(searchhelper.find(':checked').val() === '') searchhelper.remove();
 
         // Dev only - block submit for testing
         //return false;
@@ -181,6 +182,14 @@
 
 
     function initAdvancedSearch() {
+
+        orderby = $(`<div class="order-by">
+  <span class="label">Order by: </span>
+  <input type="radio" name="tab" id="tab-relevance" value="" checked /><label for="tab-relevance">relevance</label>
+  <input type="radio" name="tab" id="tab-newest" value="newest" /><label for="tab-newest">newest</label>
+  <input type="radio" name="tab" id="tab-votes" value="votes" /><label for="tab-votes">votes</label>
+  <input type="radio" name="tab" id="tab-active" value="active" /><label for="tab-active">active</label>
+</div>`);
 
         searchhelper = $(`<div id="search-helper" class="search-helper">
 <div id="search-helper-tabs" class="tabs">
@@ -379,7 +388,7 @@
       </select>
   </div>
 </div>
-</div>`).insertAfter(searchbtn);
+</div>`).insertAfter(searchbtn).prepend(orderby);
 
 
         // State
@@ -586,6 +595,15 @@
     #search-helper.open {
         display: block;
     }
+}
+.order-by {
+    margin: 0 0 10px;
+    font-size: 14px;
+}
+.order-by span.label {
+    display: inline-block;
+    margin-right: 10px;
+    font-weight: bold;
 }
 .tabs:after, #tabs:after {
     content: '';
