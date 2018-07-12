@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2.1
+// @version      2.2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -25,9 +25,9 @@
     const siteslug = mainName.toLowerCase().replace(/[^a-z]+/g, '');
     const mainUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
     const metaUrl = StackExchange.options.site.childUrl || 'https://' + location.hostname;
-    const metaSearchSelector = $(`<div class="grid--cell f-select w20 wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
-  <option data-url="${metaUrl}/search" selected="selected">Meta</option>
-  <option data-url="${mainUrl}/search" data-mixed="0">${mainName}</option>
+    const searchSelector = $(`<div class="grid--cell f-select w20 wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
+  <option data-url="${mainUrl}/search" ${!isChildMeta ? 'selected="selected"' : ''} data-mixed="0">${mainName}</option>
+  <option data-url="${metaUrl}/search" ${ isChildMeta ? 'selected="selected"' : ''}>Meta</option>
 </select></div>`);
     const lsidebar = $('#left-sidebar');
     const searchform = $('#search');
@@ -465,7 +465,7 @@
 
             searchform
                 .find('.ps-relative').first().removeClass('ps-relative').addClass('grid')
-                .prepend(metaSearchSelector);
+                .prepend(searchSelector);
 
             searchform.addClass('search-channel-context')
                 .find('.js-search-field, .js-search-submit').wrapAll('<div class="grid--cell ps-relative fl1"></div>');
