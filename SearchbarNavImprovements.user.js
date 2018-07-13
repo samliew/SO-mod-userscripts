@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -271,9 +271,9 @@
     <label class="section-label"># Answers</label>
     <div class="fromto">
         <label for="answers-from">from:</label>
-        <input type="number" name="answers-from" id="answers-from" placeholder="any" data-range-to="answers-to" data-prefix="answers:" data-checks="#type-a" />
+        <input type="number" name="answers-from" id="answers-from" placeholder="any" data-range-to="answers-to" data-prefix="answers:" data-checks="#type-q" />
         <label for="answers-to">to:</label>
-        <input type="number" name="answers-to" id="answers-to" placeholder="any" data-checks="#type-a" />
+        <input type="number" name="answers-to" id="answers-to" placeholder="any" data-checks="#type-q" />
     </div>
   </div>
   <div id="tab-answers" class="fixed-width-radios">
@@ -529,12 +529,6 @@
         // If on main site and has child site
         else if(metaUrl !== mainUrl) {
             $('ol.nav-links ol.nav-links', lsidebar).first().append(`<li><a id="nav-meta" href="${metaUrl}/questions" class="nav-links--link">Meta</a></li>`);
-        }
-
-        // If on a question page
-        if(location.pathname.indexOf('/questions/') === 0) {
-            const qid = $('#question').attr('data-questionid');
-            if(qid) searchfield.val(`inquestion:${qid} `);
         }
 
         initAdvancedSearch();
