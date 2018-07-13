@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8
+// @version      2.8.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -48,13 +48,13 @@
 
 
     // Display name to ID lookup plugin
-    jQuery.fn.dnLookup = function(append = false, delay = 800) {
+    jQuery.fn.dnLookup = function(multiple = false, delay = 800) {
 
         let debounceDuration = delay;
         let acTimeout = null;
 
         function doDnLookup(el) {
-            const query = encodeURIComponent( append ? el.value.trim().replace(/^.+\s/, '') : el.value.trim() );
+            const query = encodeURIComponent( multiple ? el.value.trim().replace(/^.+\s/, '') : el.value.trim() );
             const resultElem = $(el).next('.aclookup_results').html('<li class="disabled" data-val>loading...</li>');
             $(el).addClass('js-aclookup-complete');
             $.get('http://api.stackexchange.com/2.2/users?filter=!)RwcIFN1JaCrhVpgyYeR_oO*&order=desc&sort=reputation&inname='+query+'&site='+siteslug, function(data) {
@@ -66,7 +66,7 @@
         const resultslist = $(`<ul class="aclookup_results"></ul>`)
             .on('click', 'li', function(evt) {
                 const input = $(this).closest('ul').prev('input').removeClass('js-aclookup-complete');
-                input.val((i,v) => ((append ? (' ' + v).replace(/\s\S+$/, '') : '') + ' ' + evt.target.dataset.val).trim() + ' ');
+                input.val((i,v) => ((multiple ? (' ' + v).replace(/\s\S+$/, '') : '') + ' ' + evt.target.dataset.val).trim() + ' ');
             });
 
         $(this).after(resultslist)
@@ -84,13 +84,13 @@
 
 
     // Tags lookup plugin
-    jQuery.fn.tagLookup = function(append = false, delay = 800) {
+    jQuery.fn.tagLookup = function(multiple = false, delay = 800) {
 
         let debounceDuration = delay;
         let acTimeout = null;
 
         function doTagLookup(el) {
-            const query = encodeURIComponent( append ? el.value.trim().replace(/^.+\s/, '') : el.value.trim() );
+            const query = encodeURIComponent( multiple ? el.value.trim().replace(/^.+\s/, '') : el.value.trim() );
             const resultElem = $(el).next('.aclookup_results').html('<li class="disabled" data-val>loading...</li>');
             $(el).addClass('js-aclookup-complete');
             $.get('https://api.stackexchange.com/2.2/tags?filter=!*MPoAL(KAgsdNw0T&order=desc&sort=popular&inname='+query+'&site='+siteslug, function(data) {
@@ -102,7 +102,7 @@
         const resultslist = $(`<ul class="aclookup_results"></ul>`)
             .on('click', 'li', function(evt) {
                 const input = $(this).closest('ul').prev('input').removeClass('js-aclookup-complete');
-                input.val((i,v) => ((append ? (' ' + v).replace(/\s\S+$/, '') : '') + ' ' + evt.target.dataset.val).trim() + ' ');
+                input.val((i,v) => ((multiple ? (' ' + v).replace(/\s\S+$/, '') : '') + ' ' + evt.target.dataset.val).trim() + ' ');
             });
 
         $(this).after(resultslist)
@@ -705,8 +705,6 @@
     position: relative;
     z-index: 1;
     padding-bottom: 13px;
-    border-color: #e4e6e8;
-    border-bottom-color: transparent;
 }
 #search-helper-tabs {
     float: none;
