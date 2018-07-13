@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.1
+// @version      2.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -165,8 +165,8 @@
             const suffix = el.dataset.suffix || '';
             const suffixFrom = el.dataset.suffixFrom ? document.getElementById(el.dataset.suffixFrom).value : '';
 
-            if(el.value === '' && linkedToValue === '') return;
-            if(Number(fromValue) > Number(linkedToValue)) return;
+            if(fromValue === '' && linkedToValue === '') return;
+            if(fromValue !== '' && linkedToValue !== '' && Number(fromValue) > Number(linkedToValue)) return;
 
             addQuery += ' ' + term + prefix +
                         (fromValue ? fromValue + suffixFrom : '') + (fromAdditionalValue ? addSep + fromAdditionalValue : '') + '..' +
@@ -240,9 +240,9 @@
     <label class="section-label">Post Score</label>
     <div class="fromto">
       <label for="score-from">from:</label>
-      <input type="number" name="score-from" id="score-from" placeholder="any" data-numeric data-range-to="score-to" data-prefix="score:" />
+      <input type="number" name="score-from" id="score-from" placeholder="any" data-range-to="score-to" data-prefix="score:" />
       <label for="score-to">to:</label>
-      <input type="number" name="score-to" id="score-to" placeholder="any" data-numeric />
+      <input type="number" name="score-to" id="score-to" placeholder="any" />
     </div>
   </div>
   <div>
@@ -276,16 +276,16 @@
     <label class="section-label"># Views</label>
     <div class="fromto">
         <label for="views-from">from:</label>
-        <input type="number" name="views-from" id="views-from" placeholder="any" data-numeric data-range-to="views-to" data-prefix="views:" data-checks="#type-q" />
+        <input type="number" name="views-from" id="views-from" placeholder="any" data-range-to="views-to" data-prefix="views:" data-checks="#type-q" />
         <label for="views-to">to:</label>
-        <input type="number" name="views-to" id="views-to" placeholder="any" data-numeric data-checks="#type-q" />
+        <input type="number" name="views-to" id="views-to" placeholder="any" data-checks="#type-q" />
     </div>
     <label class="section-label"># Answers</label>
     <div class="fromto">
         <label for="answers-from">from:</label>
-        <input type="number" name="answers-from" id="answers-from" placeholder="any" data-numeric data-range-to="answers-to" data-prefix="answers:" data-checks="#type-q" />
+        <input type="number" name="answers-from" id="answers-from" placeholder="any" data-range-to="answers-to" data-prefix="answers:" data-checks="#type-q" />
         <label for="answers-to">to:</label>
-        <input type="number" name="answers-to" id="answers-to" placeholder="any" data-numeric data-checks="#type-q" />
+        <input type="number" name="answers-to" id="answers-to" placeholder="any" data-checks="#type-q" />
     </div>
   </div>
   <div id="tab-answers" class="fixed-width-radios">
@@ -350,7 +350,7 @@
     </div>
     <label class="section-label">Age Range</label>
       <label for="agerange-from">from:</label>
-      <input type="number" name="agerange-from" id="agerange-from" placeholder="any" data-numeric data-termvalue="datetype" data-range-to="agerange-to" data-suffix-from="agerange-from-type"
+      <input type="number" name="agerange-from" id="agerange-from" placeholder="any" data-termvalue="datetype" data-range-to="agerange-to" data-suffix-from="agerange-from-type"
              data-clears="#yearrange-from, #monthrange-from, #yearrange-to, #monthrange-to" />
       <select name="agerange-from-type" id="agerange-from-type">
         <option value="d" selected>days</option>
@@ -358,7 +358,7 @@
         <option value="y">years</option>
       </select> ago
       <label for="agerange-to">to:</label>
-      <input type="number" name="agerange-to" id="agerange-to" placeholder="any" data-numeric data-suffix-from="agerange-to-type"
+      <input type="number" name="agerange-to" id="agerange-to" placeholder="any" data-suffix-from="agerange-to-type"
              data-clears="#yearrange-from, #monthrange-from, #yearrange-to, #monthrange-to" />
       <select name="agerange-to-type" id="agerange-to-type">
         <option value="d" selected>days</option>
@@ -472,10 +472,10 @@
         searchhelper
             .on('keydown', '[data-numeric]', function(evt) {
                 const isSpecialKey = evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey || evt.key.length > 1;
-                return /[\d-]/.test(evt.key) || isSpecialKey;
+                return /\d/.test(evt.key) || isSpecialKey;
             })
             .on('change blur', '[data-numeric]', function(evt) {
-                this.value = this.value.replace(/(^[^-]?|[^\d]+)/g, '');
+                this.value = this.value.replace(/[^\d]+/g, '');
             });
 
         // Handle display name lookup using API
