@@ -3,7 +3,7 @@
 // @description  For questions and answers, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.2
+// @version      2.10
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
@@ -21,6 +21,7 @@
     'use strict';
 
     let metaDomain = 'meta.' + location.hostname;
+    let mseDomain = 'meta.stackexchange.com';
     if(location.hostname.indexOf('stackexchange.com') >= 0) {
         metaDomain = location.hostname.split('.')[0] + '.meta.stackexchange.com';
     }
@@ -82,7 +83,7 @@
             if(location.hostname === 'stackoverflow.com') {
 
                 const query = encodeURIComponent(`url://${location.hostname}/*/${pid}`);
-                const searchUrl = `https://meta.stackexchange.com/search?tab=newest&q=${query}`;
+                const searchUrl = `https://${mseDomain}/search?tab=newest&q=${query}`;
 
                 ajaxPromise(searchUrl)
                     .then(function(data) {
@@ -93,11 +94,11 @@
                             const lastPermalink = results.first().find('a').first().attr('href');
                             const metaPosts = $(`
                                 <div class="meta-mentioned mse-mentioned" target="_blank">
-                                    <a href="${searchUrl}" target="_blank">${count} posts</a> on Meta Stack Exchange, last seen <a href="https://${metaDomain}${lastPermalink}" target="_blank">${lastMentioned}</a>
+                                    <a href="${searchUrl}" target="_blank">${count} posts</a> on Meta Stack Exchange, last seen <a href="https://${mseDomain}${lastPermalink}" target="_blank">${lastMentioned}</a>
                                     <span class="meta-mentions-toggle"></span>
                                     <div class="meta-mentions"></div>
                                 </div>`);
-                            results.find('a').attr('href', (i,v) => 'https://' + metaDomain + v).attr('target', '_blank');
+                            results.find('a').attr('href', (i,v) => 'https://' + mseDomain + v).attr('target', '_blank');
                             metaPosts.insertBefore(post).find('.meta-mentions').append(results);
                         }
                     });
