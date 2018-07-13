@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -116,15 +116,6 @@
     };
 
 
-    // If on Stack Overflow, make logo go to /questions
-    function soLogoToQuestions() {
-
-        if(location.hostname === 'stackoverflow.com') {
-            $('.-main .-logo').attr('href', '/questions');
-        }
-    }
-
-
     function handleAdvancedSearch(evt) {
         const filledFields = searchhelper.find('input[data-autofill]:text, input[data-autofill]:checked').hasValue();
         const rangedFields = searchhelper.find('input[data-range-to], select[data-range-to]');
@@ -199,9 +190,9 @@
   <a>Type</a>
   <a>Questions</a>
   <a>Answers</a>
+  <a>Status</a>
   <a>Author</a>
   <a>Favorites</a>
-  <a>Status</a>
   <a>Dates</a>
   <button type="reset">Reset</button>
 </div>
@@ -235,10 +226,12 @@
   </div>
   <div>
     <label class="section-label">Post Score</label>
-    <label for="score-from">from:</label>
-    <input type="number" name="score-from" id="score-from" placeholder="any" data-range-to="score-to" data-prefix="score:" />
-    <label for="score-to">to:</label>
-    <input type="number" name="score-to" id="score-to" placeholder="any" />
+    <div class="fromto">
+      <label for="score-from">from:</label>
+      <input type="number" name="score-from" id="score-from" placeholder="any" data-range-to="score-to" data-prefix="score:" />
+      <label for="score-to">to:</label>
+      <input type="number" name="score-to" id="score-to" placeholder="any" />
+    </div>
   </div>
   <div>
     <label class="section-label">Post Type</label>
@@ -246,8 +239,16 @@
     <input type="radio" name="posttype" id="type-q" value="is:q" data-autofill data-clears-tab="#tab-answers" /><label for="type-q">question</label>
     <input type="radio" name="posttype" id="type-a" value="is:a" data-autofill data-clears-tab="#tab-questions" /><label for="type-a">answer</label>
   </div>
-  <div id="tab-questions">
+  <div id="tab-questions" class="fixed-width-radios">
     <label class="section-label">Questions</label>
+    <label for="status">closed:</label>
+      <input type="radio" name="status-closed" id="status-closed-any" value="" checked /><label for="status-closed-any">closed:any</label>
+      <input type="radio" name="status-closed" id="status-closed-yes" value="closed:yes" data-autofill data-checks="#type-q" /><label for="status-closed-yes">closed:yes</label>
+      <input type="radio" name="status-closed" id="status-closed-no" value="closed:no" data-autofill data-checks="#type-q" /><label for="status-closed-no">closed:no</label>
+    <label for="status">duplicate:</label>
+      <input type="radio" name="status-duplicate" id="status-duplicate-any" value="" checked /><label for="status-duplicate-any">duplicate:any</label>
+      <input type="radio" name="status-duplicate" id="status-duplicate-yes" value="duplicate:yes" data-autofill data-checks="#type-q" /><label for="status-duplicate-yes">duplicate:yes</label>
+      <input type="radio" name="status-duplicate" id="status-duplicate-no" value="duplicate:no" data-autofill data-checks="#type-q" /><label for="status-duplicate-no">duplicate:no</label>
     <label for="status">has accepted answer:</label>
       <input type="radio" name="status-hasaccepted" id="status-hasaccepted-any" value="" checked /><label for="status-hasaccepted-any">hasaccepted:any</label>
       <input type="radio" name="status-hasaccepted" id="status-hasaccepted-yes" value="hasaccepted:yes" data-autofill data-checks="#type-q" /><label for="status-hasaccepted-yes">hasaccepted:yes</label>
@@ -256,61 +257,43 @@
       <input type="radio" name="status-isanswered" id="status-isanswered-any" value="" checked /><label for="status-isanswered-any">isanswered:any</label>
       <input type="radio" name="status-isanswered" id="status-isanswered-yes" value="isanswered:yes" data-autofill data-checks="#type-q" /><label for="status-isanswered-yes">isanswered:yes</label>
       <input type="radio" name="status-isanswered" id="status-isanswered-no" value="isanswered:no" data-autofill data-checks="#type-q" /><label for="status-isanswered-no">isanswered:no</label>
-    <label>number of views</label>
-    <label for="views-from">from:</label>
-    <input type="number" name="views-from" id="views-from" placeholder="any" data-range-to="views-to" data-prefix="views:" data-checks="#type-q" />
-    <label for="views-to">to:</label>
-    <input type="number" name="views-to" id="views-to" placeholder="any" data-checks="#type-q" />
+    <label for="status">migrated:</label>
+      <input type="radio" name="status-migrated" id="status-migrated-any" value="" checked /><label for="status-migrated-any">migrated:any</label>
+      <input type="radio" name="status-migrated" id="status-migrated-yes" value="migrated:yes" data-autofill /><label for="status-migrated-yes">migrated:yes</label>
+      <input type="radio" name="status-migrated" id="status-migrated-no" value="migrated:no" /><label for="status-migrated-no">migrated:no</label>
+    <label class="section-label"># Views</label>
+    <div class="fromto">
+        <label for="views-from">from:</label>
+        <input type="number" name="views-from" id="views-from" placeholder="any" data-range-to="views-to" data-prefix="views:" data-checks="#type-q" />
+        <label for="views-to">to:</label>
+        <input type="number" name="views-to" id="views-to" placeholder="any" data-checks="#type-q" />
+    </div>
+    <label class="section-label"># Answers</label>
+    <div class="fromto">
+        <label for="answers-from">from:</label>
+        <input type="number" name="answers-from" id="answers-from" placeholder="any" data-range-to="answers-to" data-prefix="answers:" data-checks="#type-a" />
+        <label for="answers-to">to:</label>
+        <input type="number" name="answers-to" id="answers-to" placeholder="any" data-checks="#type-a" />
+    </div>
   </div>
-  <div id="tab-answers">
+  <div id="tab-answers" class="fixed-width-radios">
     <label class="section-label">Answers</label>
     <label for="status">is accepted:</label>
       <input type="radio" name="status-isaccepted" id="status-isaccepted-any" value="" checked /><label for="status-isaccepted-any">isaccepted:any</label>
       <input type="radio" name="status-isaccepted" id="status-isaccepted-yes" value="isaccepted:yes" data-autofill data-checks="#type-a" /><label for="status-isaccepted-yes">isaccepted:yes</label>
       <input type="radio" name="status-isaccepted" id="status-isaccepted-no" value="isaccepted:no" data-autofill data-checks="#type-a" /><label for="status-isaccepted-no">isaccepted:no</label>
-    <label>(question) number of answers</label>
-    <label for="answers-from">from:</label>
-    <input type="number" name="answers-from" id="answers-from" placeholder="any" data-range-to="answers-to" data-prefix="answers:" data-checks="#type-a" />
-    <label for="answers-to">to:</label>
-    <input type="number" name="answers-to" id="answers-to" placeholder="any" data-checks="#type-a" />
+    <label class="section-label">In a Specific Question</label>
+    <input type="checkbox" name="question-current" id="question-current" data-checks="#type-a" /><label for="question-current">current question</label>
+    <label for="question-id">question id:</label>
+    <input type="number" name="question-id" id="question-id" data-checks="#type-a" data-clears="#question-current" data-autofill data-prefix="inquestion:" />
   </div>
-  <div>
-    <label class="section-label">Post Author</label>
-    <div>
-      <label for="user-self">my own posts:</label>
-      <input type="checkbox" name="user-self" id="user-self" value="user:me" data-clears="#user-id" data-autofill /><label for="user-self">self</label>
-    </div>
-    <label for="user-id">posts by user:</label>
-    <input name="user-id" id="user-id" class="js-dnlookup" data-clears="#user-self" data-autofill data-prefix="user:" />
-  </div>
-  <div>
-    <label class="section-label">Favorites</label>
-    <div>
-      <label for="fav-self">my own favorites:</label>
-      <input type="checkbox" name="fav-self" id="fav-self" value="infavorites:mine" data-clears="#fav-id" data-autofill /><label for="fav-self">self</label>
-    </div>
-    <label for="fav-id">favorited by:</label>
-    <input name="fav-id" id="fav-id" class="js-dnlookup" data-clears="#fav-self" data-autofill data-prefix="infavorites:" />
-  </div>
-  <div class="fixed-width">
+  <div class="fixed-width-radios">
     <label class="section-label">Post Status</label>
-    <p>See Questions tab for has "accepted answer", "is answered"<br>See Answers tab for has "is accepted"</p>
-    <label for="status">closed:</label>
-      <input type="radio" name="status-closed" id="status-closed-any" value="" checked /><label for="status-closed-any">closed:any</label>
-      <input type="radio" name="status-closed" id="status-closed-yes" value="closed:yes" data-autofill /><label for="status-closed-yes">closed:yes</label>
-      <input type="radio" name="status-closed" id="status-closed-no" value="closed:no" data-autofill /><label for="status-closed-no">closed:no</label>
-    <label for="status">duplicate:</label>
-      <input type="radio" name="status-duplicate" id="status-duplicate-any" value="" checked /><label for="status-duplicate-any">duplicate:any</label>
-      <input type="radio" name="status-duplicate" id="status-duplicate-yes" value="duplicate:yes" data-autofill /><label for="status-duplicate-yes">duplicate:yes</label>
-      <input type="radio" name="status-duplicate" id="status-duplicate-no" value="duplicate:no" data-autofill /><label for="status-duplicate-no">duplicate:no</label>
+    <p>See Questions/Answers tab for type-specific status (closed/duplicate/etc.)</p>
     <label for="status">deleted:</label>
       <input type="radio" name="status-deleted" id="status-deleted-any" value="deleted:any" data-autofill /><label for="status-deleted-any">deleted:any</label>
       <input type="radio" name="status-deleted" id="status-deleted-yes" value="deleted:yes" data-autofill /><label for="status-deleted-yes">deleted:yes</label>
       <input type="radio" name="status-deleted" id="status-deleted-no" value="" checked /><label for="status-deleted-no">deleted:no</label>
-    <label for="status">migrated:</label>
-      <input type="radio" name="status-migrated" id="status-migrated-any" value="" checked /><label for="status-migrated-any">migrated:any</label>
-      <input type="radio" name="status-migrated" id="status-migrated-yes" value="migrated:yes" data-autofill /><label for="status-migrated-yes">migrated:yes</label>
-      <input type="radio" name="status-migrated" id="status-migrated-no" value="migrated:no" /><label for="status-migrated-no">migrated:no</label>
     <label for="status">community wiki:</label>
       <input type="radio" name="status-wiki" id="status-wiki-any" value="" checked /><label for="status-wiki-any">wiki:any</label>
       <input type="radio" name="status-wiki" id="status-wiki-yes" value="wiki:yes" data-autofill /><label for="status-wiki-yes">wiki:yes</label>
@@ -329,13 +312,31 @@
       <input type="radio" name="status-hascode" id="status-hascode-no" value="hascode:no" data-autofill /><label for="status-hascode-no">hascode:no</label>
   </div>
   <div>
+    <label class="section-label">Post Author</label>
+    <div>
+      <label for="user-self">my own posts:</label>
+      <input type="checkbox" name="user-self" id="user-self" value="user:me" data-clears="#user-id" data-autofill /><label for="user-self">self</label>
+    </div>
+    <label for="user-id">posts by user:</label>
+    <input name="user-id" id="user-id" class="js-dnlookup" placeholder="username or id" data-clears="#user-self" data-autofill data-prefix="user:" />
+  </div>
+  <div>
+    <label class="section-label">Favorites</label>
+    <div>
+      <label for="fav-self">my own favorites:</label>
+      <input type="checkbox" name="fav-self" id="fav-self" value="infavorites:mine" data-clears="#fav-id" data-autofill /><label for="fav-self">self</label>
+    </div>
+    <label for="fav-id">favorited by:</label>
+    <input name="fav-id" id="fav-id" class="js-dnlookup" placeholder="username or id" data-clears="#fav-self" data-autofill data-prefix="infavorites:" />
+  </div>
+  <div>
     <label class="section-label">Post Date</label>
     <div>
       <label for="datetype">date type:</label>
       <input type="radio" name="datetype" id="datetype-created" value="created:" checked /><label for="datetype-created">created</label>
       <input type="radio" name="datetype" id="datetype-lastactive" value="lastactive:" /><label type="radio" for="datetype-lastactive">last active</label>
-    <div>
-    <label class="section-label">age range</label>
+    </div>
+    <label class="section-label">Age Range</label>
       <label for="agerange-from">from:</label>
       <input type="number" name="agerange-from" id="agerange-from" placeholder="any" data-termvalue="datetype" data-range-to="agerange-to" data-suffix-from="agerange-from-type"
              data-clears="#yearrange-from, #monthrange-from, #yearrange-to, #monthrange-to" />
@@ -352,46 +353,48 @@
         <option value="m">months</option>
         <option value="y">years</option>
       </select> ago
-    <label class="section-label">year range</label>
-      <label for="yearrange-from">from:</label>
-      <select name="yearrange-from" id="yearrange-from" class="js-yearpicker" data-termvalue="datetype" data-range-to="yearrange-to" data-additional="monthrange-from" data-additional-sep="-"
-              data-clears="#agerange-from, #agerange-to">
-        <option value="" selected>any</option>
-      </select>
-      <select name="monthrange-from" id="monthrange-from" data-clears="#agerange-from, #agerange-to">
-        <option value="" selected>any</option>
-        <option value="01">01</option>
-        <option value="02">02</option>
-        <option value="03">03</option>
-        <option value="04">04</option>
-        <option value="05">05</option>
-        <option value="06">06</option>
-        <option value="07">07</option>
-        <option value="08">08</option>
-        <option value="09">09</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12">12</option>
-      </select>
-      <label for="yearrange-to">to:</label>
-      <select name="yearrange-to" id="yearrange-to" class="js-yearpicker" data-additional="monthrange-to" data-clears="#agerange-from, #agerange-to">
-        <option value="" selected>any</option>
-      </select>
-      <select name="monthrange-to" id="monthrange-to" data-clears="#agerange-from, #agerange-to">
-        <option value="" selected>any</option>
-        <option value="01">01</option>
-        <option value="02">02</option>
-        <option value="03">03</option>
-        <option value="04">04</option>
-        <option value="05">05</option>
-        <option value="06">06</option>
-        <option value="07">07</option>
-        <option value="08">08</option>
-        <option value="09">09</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12">12</option>
-      </select>
+    <label class="section-label">Year Range</label>
+      <div class="fromto">
+        <label for="yearrange-from">from:</label>
+        <select name="yearrange-from" id="yearrange-from" class="js-yearpicker" data-termvalue="datetype" data-range-to="yearrange-to" data-additional="monthrange-from" data-additional-sep="-"
+                data-clears="#agerange-from, #agerange-to">
+          <option value="" selected>any</option>
+        </select>
+        <select name="monthrange-from" id="monthrange-from" data-clears="#agerange-from, #agerange-to">
+          <option value="" selected>any</option>
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="03">03</option>
+          <option value="04">04</option>
+          <option value="05">05</option>
+          <option value="06">06</option>
+          <option value="07">07</option>
+          <option value="08">08</option>
+          <option value="09">09</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+        </select>
+        <label for="yearrange-to">to:</label>
+        <select name="yearrange-to" id="yearrange-to" class="js-yearpicker" data-additional="monthrange-to" data-clears="#agerange-from, #agerange-to">
+          <option value="" selected>any</option>
+        </select>
+        <select name="monthrange-to" id="monthrange-to" data-clears="#agerange-from, #agerange-to">
+          <option value="" selected>any</option>
+          <option value="01">01</option>
+          <option value="02">02</option>
+          <option value="03">03</option>
+          <option value="04">04</option>
+          <option value="05">05</option>
+          <option value="06">06</option>
+          <option value="07">07</option>
+          <option value="08">08</option>
+          <option value="09">09</option>
+          <option value="10">10</option>
+          <option value="11">11</option>
+          <option value="12">12</option>
+        </select>
+      </div>
   </div>
 </div>
 </div>`).insertAfter(searchbtn).prepend(orderby);
@@ -441,6 +444,18 @@
             }
         });
 
+        // Current question
+        const currentQid = $('#question').attr('data-questionid') || null;
+        searchhelper.find('#question-current')
+            .on('click', function() {
+                $('#question-id').val(currentQid);
+            })
+            .each(function() {
+                if(!currentQid) {
+                    $(this).next('label').addBack().remove();
+                }
+            });
+
         // Handle display name lookup using API
         searchhelper.find('.js-dnlookup').dnLookup();
 
@@ -478,7 +493,10 @@
 
     function doPageLoad() {
 
-        soLogoToQuestions();
+        // If on Stack Overflow, make logo go to /questions
+        if(location.hostname === 'stackoverflow.com') {
+            $('.-main .-logo').attr('href', '/questions');
+        }
 
         // If using old search bar
         const searchform = $('#search');
@@ -680,9 +698,12 @@
     user-select: none;
 }
 #search-helper label.section-label {
-    margin-bottom: 10px;
+    margin: 28px 0 14px;
     font-weight: bold;
     font-size: 14px;
+}
+#search-helper label.section-label:first-child {
+    margin-top: 5px;
 }
 #search-helper input {
     width: 500px;
@@ -704,7 +725,7 @@
     border: 1px solid #c8ccd0;
     font-size: 14px;
 }
-#search-helper .fixed-width input[type] + label {
+#search-helper .fixed-width-radios input[type="radio"] + label {
     width: 140px;
 }
 #search-helper input[type="radio"] + label,
@@ -753,6 +774,14 @@
 #search-helper input[type="checkbox"] + label:before {
     content: '✓';
     border-radius: 4px;
+}
+#search-helper .fromto {
+    width: 340px;
+    margin-top: 10px;
+    columns: 2;
+}
+#search-helper .fromto > label {
+    margin-top: 0;
 }
 
 /* Display name autocomplete */
