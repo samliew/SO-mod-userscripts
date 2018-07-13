@@ -3,7 +3,7 @@
 // @description  Collapses oneboxes from chat rooms/transcripts/bookmarks, click to display onebox
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -45,7 +45,7 @@
                 }).insertBefore(this);
 
             // Also collapse user signature (use tiny-signature)
-            $(this).parents('.monologue').find('.tiny-signature').show().siblings().hide();
+            $(this).parents('.monologue').find('.tiny-signature').fadeIn(200).siblings().hide();
         });
 
         // Re-hide oneboxes if mid is set
