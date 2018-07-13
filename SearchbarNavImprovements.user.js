@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.1
+// @version      2.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -50,13 +50,14 @@
     // Display name to ID lookup plugin
     jQuery.fn.dnLookup = function(multiple = false, delay = 800) {
 
+        const field = $(this);
         let debounceDuration = delay;
         let acTimeout = null;
 
         function doDnLookup(el) {
             const query = encodeURIComponent( multiple ? el.value.trim().replace(/^.+\s/, '') : el.value.trim() );
-            const resultElem = $(el).next('.aclookup_results').html('<li class="disabled" data-val>loading...</li>');
-            $(el).addClass('js-aclookup-complete');
+            const resultElem = $(el).nextAll('.aclookup_results').html('<li class="disabled" data-val>loading...</li>');
+            const field = $(el).addClass('js-aclookup-complete');
             $.get('http://api.stackexchange.com/2.2/users?filter=!)RwcIFN1JaCrhVpgyYeR_oO*&order=desc&sort=reputation&inname='+query+'&site='+siteslug, function(data) {
                 const resultlist = data.items.map(v => `<li data-val="${v.user_id}"><img src="${v.profile_image.replace('=128','=16')}" /> ${v.display_name}</li>`).join('');
                 resultElem.html(resultlist);
@@ -65,11 +66,12 @@
 
         const resultslist = $(`<ul class="aclookup_results"></ul>`)
             .on('click', 'li', function(evt) {
-                const input = $(this).closest('ul').prev('input').removeClass('js-aclookup-complete');
-                input.val((i,v) => ((multiple ? (' ' + v).replace(/\s\S+$/, '') : '') + ' ' + evt.target.dataset.val).trim() + ' ');
+                const field = $(this).parent().prevAll('input').first();
+                field.removeClass('js-aclookup-complete');
+                field.val((i,v) => ((multiple ? (' ' + v).replace(/\s\S+$/, '') : '') + ' ' + evt.target.dataset.val).trim() + ' ');
             });
 
-        $(this).after(resultslist)
+        field.after(resultslist)
             .on('keydown blur', function(evt) {
                 if(acTimeout) clearTimeout(acTimeout);
                 $(this).removeClass('js-aclookup-complete').next('.aclookup_results').html();
@@ -86,13 +88,14 @@
     // Tags lookup plugin
     jQuery.fn.tagLookup = function(multiple = false, delay = 800) {
 
+        const field = $(this);
         let debounceDuration = delay;
         let acTimeout = null;
 
         function doTagLookup(el) {
             const query = encodeURIComponent( multiple ? el.value.trim().replace(/^.+\s/, '') : el.value.trim() );
-            const resultElem = $(el).next('.aclookup_results').html('<li class="disabled" data-val>loading...</li>');
-            $(el).addClass('js-aclookup-complete');
+            const resultElem = $(el).siblings('.aclookup_results').html('<li class="disabled" data-val>loading...</li>');
+            const field = $(el).addClass('js-aclookup-complete');
             $.get('https://api.stackexchange.com/2.2/tags?filter=!*MPoAL(KAgsdNw0T&order=desc&sort=popular&inname='+query+'&site='+siteslug, function(data) {
                 const resultlist = data.items.map(v => `<li data-val="${v.name}">${v.name}</li>`).join('');
                 resultElem.html(resultlist);
@@ -101,11 +104,12 @@
 
         const resultslist = $(`<ul class="aclookup_results"></ul>`)
             .on('click', 'li', function(evt) {
-                const input = $(this).closest('ul').prev('input').removeClass('js-aclookup-complete');
-                input.val((i,v) => ((multiple ? (' ' + v).replace(/\s\S+$/, '') : '') + ' ' + evt.target.dataset.val).trim() + ' ');
+                const field = $(this).parent().prevAll('input').first();
+                field.removeClass('js-aclookup-complete');
+                field.val((i,v) => ((multiple ? (' ' + v).replace(/\s\S+$/, '') : '') + ' ' + evt.target.dataset.val).trim() + ' ');
             });
 
-        $(this).after(resultslist)
+        field.after(resultslist)
             .on('keydown blur', function(evt) {
                 if(acTimeout) clearTimeout(acTimeout);
                 $(this).removeClass('js-aclookup-complete').next('.aclookup_results').html();
@@ -118,7 +122,7 @@
             });
 
         // Prevent tag brackets [] from being typed
-        $(this)
+        field
             .on('keydown blur', function(evt) {
                 return /[^\[\]]/.test(evt.key);
             })
@@ -173,7 +177,8 @@
                         (linkedToValue ? linkedToValue + linkedSuffixFrom : '') + (linkedToAdditionalValue ? addSep + linkedToAdditionalValue : '');
         });
 
-        searchfield.val((i, v) => (v + addQuery).replace(/\s+/g, ' ').replace(/([:])\s+/g, '$1'));
+        // Append search to existing field value
+        searchfield.val((i, v) => (v + addQuery).replace(/\s+/g, ' ').replace(/([:])\s+/g, '$1').trim());
 
         // Live only - remove on submit
         searchhelper.hide().find('#search-helper-tabcontent').remove();
@@ -195,7 +200,7 @@
 </div>`);
 
         searchhelper = $(`<div id="search-helper" class="search-helper">
-<button type="reset" class="btnreset">Reset</button>
+<button type="reset" class="btnreset btn-warning">Reset</button>
 <div id="search-helper-tabs" class="tabs">
   <a class="youarehere">Text</a>
   <a>Tags</a>
@@ -216,25 +221,25 @@
       <input type="radio" name="section" id="section-title" value="title:" /><label for="section-title">Title</label>
       <input type="radio" name="section" id="section-body" value="body:" /><label for="section-body">Body</label>
     <label for="all-words">all these words:</label>
-    <input name="all-words" id="all-words" data-autofill data-termvalue="section" data-join=" " data-prefix=' ' />
+    <input name="all-words" id="all-words" data-clearbtn data-autofill data-termvalue="section" data-join=" " data-prefix=' ' />
     <label for="exact-phrase">this exact word or phrase:</label>
-    <input name="exact-phrase" id="exact-phrase" data-autofill data-termvalue="section" data-prefix='"' data-suffix='"' />
+    <input name="exact-phrase" id="exact-phrase" data-clearbtn data-autofill data-termvalue="section" data-prefix='"' data-suffix='"' />
     <label for="any-words">any of these words:</label>
-    <input name="any-words" id="any-words" data-autofill data-termvalue="section" data-join=" OR " />
+    <input name="any-words" id="any-words" data-clearbtn data-autofill data-termvalue="section" data-join=" OR " />
     <label for="not-words">excluding these words:</label>
-    <input name="not-words" id="not-words" data-autofill data-termvalue="section" data-neg=" -" />
+    <input name="not-words" id="not-words" data-clearbtn data-autofill data-termvalue="section" data-neg=" -" />
     <label class="section-label">URL</label>
     <label for="url">mentions url/domain (accepts * wildcard):</label>
-    <input name="url" id="url" placeholder="example.com" data-autofill data-prefix="url:" />
+    <input name="url" id="url" placeholder="example.com" data-clearbtn data-autofill data-prefix='url:"' data-suffix='"' />
   </div>
   <div>
     <label class="section-label">Tags</label>
     <label for="tags">all of these tags:</label>
-    <input name="tags" id="tags" class="js-taglookup" data-autofill data-join="] [" data-prefix="[" data-suffix="]" />
+    <div><input name="tags" id="tags" class="js-taglookup" data-clearbtn data-autofill data-join="] [" data-prefix="[" data-suffix="]" /></div>
     <label for="any-tags">any of these tags:</label>
-    <input name="any-tags" id="any-tags" class="js-taglookup" data-autofill data-join="] OR [" data-prefix="[" data-suffix="]" />
+    <div><input name="any-tags" id="any-tags" class="js-taglookup" data-clearbtn data-autofill data-join="] OR [" data-prefix="[" data-suffix="]" /></div>
     <label for="not-tags">excluding these tags:</label>
-    <input name="not-tags" id="not-tags" class="js-taglookup" data-autofill data-join="] -[" data-prefix="-[" data-suffix="]" />
+    <div><input name="not-tags" id="not-tags" class="js-taglookup" data-clearbtn data-autofill data-join="] -[" data-prefix="-[" data-suffix="]" /></div>
   </div>
   <div>
     <label class="section-label">Post Score</label>
@@ -309,7 +314,7 @@
     <label class="section-label">In a Specific Question</label>
     <input type="checkbox" name="question-current" id="question-current" data-checks="#type-a" /><label for="question-current">current question</label>
     <label for="question-id">question id:</label>
-    <input name="question-id" id="question-id" class="input-small" maxlength="12" data-numeric data-checks="#type-a" data-clears="#question-current" data-autofill data-prefix="inquestion:" />
+    <input name="question-id" id="question-id" class="input-small" maxlength="12" data-clearbtn data-numeric data-checks="#type-a" data-clears="#question-current" data-autofill data-prefix="inquestion:" />
   </div>
   <div class="fixed-width-radios">
     <label class="section-label">Post Status</label>
@@ -352,7 +357,7 @@
       <input type="checkbox" name="user-self" id="user-self" value="user:me" data-clears="#user-id" data-autofill /><label for="user-self">self</label>
     </div>
     <label for="user-id">posts by user:</label>
-    <input name="user-id" id="user-id" class="js-dnlookup" placeholder="username or id" data-clears="#user-self" data-autofill data-prefix="user:" />
+    <input name="user-id" id="user-id" class="input-small js-dnlookup" placeholder="username or id" data-clearbtn data-clears="#user-self" data-autofill data-prefix="user:" />
   </div>
   <div>
     <label class="section-label">Favorites</label>
@@ -361,7 +366,7 @@
       <input type="checkbox" name="fav-self" id="fav-self" value="infavorites:mine" data-clears="#fav-id" data-autofill /><label for="fav-self">self</label>
     </div>
     <label for="fav-id">favorited by:</label>
-    <input name="fav-id" id="fav-id" class="js-dnlookup" placeholder="username or id" data-clears="#fav-self" data-autofill data-prefix="infavorites:" />
+    <input name="fav-id" id="fav-id" class="input-small js-dnlookup" placeholder="username or id" data-clearbtn data-clears="#fav-self" data-autofill data-prefix="infavorites:" />
   </div>
   <div>
     <label class="section-label">Post Date</label>
@@ -512,11 +517,11 @@
         });
 
         // Handle fields that resets another
-        searchhelper.on('change keyup click', '[data-clears]', function() {
-            if(this.value.trim() != '' || this.type == 'radio' || this.type == 'checkbox') {
+        searchhelper.on('change keyup click clear', '[data-clears]', function(evt) {
+            if(this.value.trim() != '' || this.type == 'radio' || this.type == 'checkbox' || evt.type == 'clear') {
                 $(this.dataset.clears).val('').prop('checked', false);
             }
-        });
+        })
 
         // Handle fields that resets fields in another tab
         searchhelper.on('change keyup click', '[data-clears-tab]', function() {
@@ -529,6 +534,14 @@
         searchhelper.on('click', 'input:radio, input:checkbox', function() {
             searchbtn.focus();
         });
+
+        // Insert clear buttons
+        searchhelper
+            .on('click', '.clearbtn', function() {
+                $(this).prev('input').val('').trigger('change').trigger('clear');
+                return false;
+            })
+            .find('[data-clearbtn]').after('<span class="clearbtn" title="clear"></span>');
 
         // Handle search form submit
         searchform.on('submit', handleAdvancedSearch);
@@ -652,7 +665,7 @@
     top: 100%;
     left: 12px;
     right: -470px;
-    max-width: 960px;
+    max-width: 749px;
     z-index: 1;
 
     padding: 10px;
@@ -765,7 +778,7 @@
 }
 #search-helper input.input-small,
 #search-helper input[type="number"] {
-    width: 140px;
+    width: 200px;
 }
 #search-helper input[type="number"] {
     padding-right: 0;
@@ -777,6 +790,27 @@
     padding: 4px 10px;
     border: 1px solid #c8ccd0;
     font-size: 14px;
+}
+#search-helper input[data-clearbtn] {
+    padding-right: 26px;
+}
+#search-helper input[data-clearbtn] + .clearbtn {
+    margin-left: -22px;
+}
+.clearbtn {
+    display: inline-block;
+    width: 22px;
+    height: 32px;
+    padding: 10px 0;
+    text-align: center;
+    color: #aaa;
+    cursor: pointer;
+}
+.clearbtn:after {
+    content: 'X';
+}
+.clearbtn:hover {
+    color: red;
 }
 #search-helper label.radio-group-label ~ input[type="radio"] + label {
     min-width: 60px;
@@ -838,7 +872,7 @@
 }
 
 /* Display name autocomplete */
-.js-aclookup-complete + .aclookup_results,
+.js-aclookup-complete ~ .aclookup_results,
 .aclookup_results:hover {
     display: block;
 }
