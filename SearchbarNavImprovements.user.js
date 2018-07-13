@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2.2
+// @version      2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -195,19 +195,19 @@
 <div id="search-helper-tabs" class="tabs">
   <a class="youarehere">Text</a>
   <a>Tags</a>
-  <a>User</a>
   <a>Score</a>
+  <a>Type</a>
+  <a>Questions</a>
   <a>Answers</a>
-  <a>Views</a>
-  <a>URL</a>
+  <a>Author</a>
   <a>Favorites</a>
   <a>Status</a>
-  <a>Types</a>
   <a>Dates</a>
   <button type="reset">Reset</button>
 </div>
 <div id="search-helper-tabcontent">
   <div class="active">
+    <label class="section-label">Text</label>
     <label for="section">search these sections:</label>
       <input type="radio" name="section" id="section-any" value="" checked /><label for="section-any">Any</label>
       <input type="radio" name="section" id="section-title" value="title:" /><label for="section-title">Title</label>
@@ -220,8 +220,12 @@
     <input name="any-words" id="any-words" data-autofill data-termvalue="section" data-join=" OR " />
     <label for="not-words">excluding these words:</label>
     <input name="not-words" id="not-words" data-autofill data-termvalue="section" data-neg=" -" />
+    <label class="section-label">URL</label>
+    <label for="url">mentions url/domain (accepts * wildcard):</label>
+    <input name="url" id="url" placeholder="example.com" data-autofill data-prefix="url:" />
   </div>
   <div>
+    <label class="section-label">Tags</label>
     <label for="tags">all of these tags:</label>
     <input name="tags" id="tags" class="js-taglookup" data-autofill data-join="] [" data-prefix="[" data-suffix="]" />
     <label for="any-tags">any of these tags:</label>
@@ -230,6 +234,48 @@
     <input name="not-tags" id="not-tags" class="js-taglookup" data-autofill data-join="] -[" data-prefix="-[" data-suffix="]" />
   </div>
   <div>
+    <label class="section-label">Post Score</label>
+    <label for="score-from">from:</label>
+    <input type="number" name="score-from" id="score-from" placeholder="any" data-range-to="score-to" data-prefix="score:" />
+    <label for="score-to">to:</label>
+    <input type="number" name="score-to" id="score-to" placeholder="any" />
+  </div>
+  <div>
+    <label class="section-label">Post Type</label>
+    <input type="radio" name="posttype" id="type-any" value="" checked /><label for="type-any">any</label>
+    <input type="radio" name="posttype" id="type-q" value="is:q" data-autofill data-clears-tab="#tab-answers" /><label for="type-q">question</label>
+    <input type="radio" name="posttype" id="type-a" value="is:a" data-autofill data-clears-tab="#tab-questions" /><label for="type-a">answer</label>
+  </div>
+  <div id="tab-questions">
+    <label class="section-label">Questions</label>
+    <label for="status">has accepted answer:</label>
+      <input type="radio" name="status-hasaccepted" id="status-hasaccepted-any" value="" checked /><label for="status-hasaccepted-any">hasaccepted:any</label>
+      <input type="radio" name="status-hasaccepted" id="status-hasaccepted-yes" value="hasaccepted:yes" data-autofill data-checks="#type-q" /><label for="status-hasaccepted-yes">hasaccepted:yes</label>
+      <input type="radio" name="status-hasaccepted" id="status-hasaccepted-no" value="hasaccepted:no" data-autofill data-checks="#type-q" /><label for="status-hasaccepted-no">hasaccepted:no</label>
+    <label for="status">is answered:</label>
+      <input type="radio" name="status-isanswered" id="status-isanswered-any" value="" checked /><label for="status-isanswered-any">isanswered:any</label>
+      <input type="radio" name="status-isanswered" id="status-isanswered-yes" value="isanswered:yes" data-autofill data-checks="#type-q" /><label for="status-isanswered-yes">isanswered:yes</label>
+      <input type="radio" name="status-isanswered" id="status-isanswered-no" value="isanswered:no" data-autofill data-checks="#type-q" /><label for="status-isanswered-no">isanswered:no</label>
+    <label>number of views</label>
+    <label for="views-from">from:</label>
+    <input type="number" name="views-from" id="views-from" placeholder="any" data-range-to="views-to" data-prefix="views:" data-checks="#type-q" />
+    <label for="views-to">to:</label>
+    <input type="number" name="views-to" id="views-to" placeholder="any" data-checks="#type-q" />
+  </div>
+  <div id="tab-answers">
+    <label class="section-label">Answers</label>
+    <label for="status">is accepted:</label>
+      <input type="radio" name="status-isaccepted" id="status-isaccepted-any" value="" checked /><label for="status-isaccepted-any">isaccepted:any</label>
+      <input type="radio" name="status-isaccepted" id="status-isaccepted-yes" value="isaccepted:yes" data-autofill data-checks="#type-a" /><label for="status-isaccepted-yes">isaccepted:yes</label>
+      <input type="radio" name="status-isaccepted" id="status-isaccepted-no" value="isaccepted:no" data-autofill data-checks="#type-a" /><label for="status-isaccepted-no">isaccepted:no</label>
+    <label>(question) number of answers</label>
+    <label for="answers-from">from:</label>
+    <input type="number" name="answers-from" id="answers-from" placeholder="any" data-range-to="answers-to" data-prefix="answers:" data-checks="#type-a" />
+    <label for="answers-to">to:</label>
+    <input type="number" name="answers-to" id="answers-to" placeholder="any" data-checks="#type-a" />
+  </div>
+  <div>
+    <label class="section-label">Post Author</label>
     <div>
       <label for="user-self">my own posts:</label>
       <input type="checkbox" name="user-self" id="user-self" value="user:me" data-clears="#user-id" data-autofill /><label for="user-self">self</label>
@@ -238,31 +284,7 @@
     <input name="user-id" id="user-id" class="js-dnlookup" data-clears="#user-self" data-autofill data-prefix="user:" />
   </div>
   <div>
-    <label>score range</label>
-    <label for="score-from">from:</label>
-    <input type="number" name="score-from" id="score-from" placeholder="any" data-range-to="score-to" data-prefix="score:" />
-    <label for="score-to">to:</label>
-    <input type="number" name="score-to" id="score-to" placeholder="any" />
-  </div>
-  <div>
-    <label>(question) number of answers</label>
-    <label for="answers-from">from:</label>
-    <input type="number" name="answers-from" id="answers-from" placeholder="any" data-range-to="answers-to" data-prefix="answers:" />
-    <label for="answers-to">to:</label>
-    <input type="number" name="answers-to" id="answers-to" placeholder="any" />
-  </div>
-  <div>
-    <label>(question) number of views</label>
-    <label for="views-from">from:</label>
-    <input type="number" name="views-from" id="views-from" placeholder="any" data-range-to="views-to" data-prefix="views:" />
-    <label for="views-to">to:</label>
-    <input type="number" name="views-to" id="views-to" placeholder="any" />
-  </div>
-  <div>
-    <label for="url">mentions url/domain (accepts * wildcard):</label>
-    <input name="url" id="url" placeholder="example.com" data-autofill data-prefix="url:" />
-  </div>
-  <div>
+    <label class="section-label">Favorites</label>
     <div>
       <label for="fav-self">my own favorites:</label>
       <input type="checkbox" name="fav-self" id="fav-self" value="infavorites:mine" data-clears="#fav-id" data-autofill /><label for="fav-self">self</label>
@@ -271,23 +293,8 @@
     <input name="fav-id" id="fav-id" class="js-dnlookup" data-clears="#fav-self" data-autofill data-prefix="infavorites:" />
   </div>
   <div class="fixed-width">
-    <label>post status</label>
-    <label for="status">accepted (answers):</label>
-      <input type="radio" name="status-isaccepted" id="status-isaccepted-any" value="" checked /><label for="status-isaccepted-any">isaccepted:any</label>
-      <input type="radio" name="status-isaccepted" id="status-isaccepted-yes" value="isaccepted:yes" data-autofill /><label for="status-isaccepted-yes">isaccepted:yes</label>
-      <input type="radio" name="status-isaccepted" id="status-isaccepted-no" value="isaccepted:no" data-autofill /><label for="status-isaccepted-no">isaccepted:no</label>
-    <label for="status">has accepted answer (questions):</label>
-      <input type="radio" name="status-hasaccepted" id="status-hasaccepted-any" value="" checked /><label for="status-hasaccepted-any">hasaccepted:any</label>
-      <input type="radio" name="status-hasaccepted" id="status-hasaccepted-yes" value="hasaccepted:yes" data-autofill /><label for="status-hasaccepted-yes">hasaccepted:yes</label>
-      <input type="radio" name="status-hasaccepted" id="status-hasaccepted-no" value="hasaccepted:no" data-autofill /><label for="status-hasaccepted-no">hasaccepted:no</label>
-    <label for="status">is answered (questions):</label>
-      <input type="radio" name="status-isanswered" id="status-isanswered-any" value="" checked /><label for="status-isanswered-any">isanswered:any</label>
-      <input type="radio" name="status-isanswered" id="status-isanswered-yes" value="isanswered:yes" data-autofill /><label for="status-isanswered-yes">isanswered:yes</label>
-      <input type="radio" name="status-isanswered" id="status-isanswered-no" value="isanswered:no" data-autofill /><label for="status-isanswered-no">isanswered:no</label>
-    <label for="status">has code block:</label>
-      <input type="radio" name="status-hascode" id="status-hascode-any" value="" checked /><label for="status-hascode-any">hascode:any</label>
-      <input type="radio" name="status-hascode" id="status-hascode-yes" value="hascode:yes" data-autofill /><label for="status-hascode-yes">hascode:yes</label>
-      <input type="radio" name="status-hascode" id="status-hascode-no" value="hascode:no" data-autofill /><label for="status-hascode-no">hascode:no</label>
+    <label class="section-label">Post Status</label>
+    <p>See Questions tab for has "accepted answer", "is answered"<br>See Answers tab for has "is accepted"</p>
     <label for="status">closed:</label>
       <input type="radio" name="status-closed" id="status-closed-any" value="" checked /><label for="status-closed-any">closed:any</label>
       <input type="radio" name="status-closed" id="status-closed-yes" value="closed:yes" data-autofill /><label for="status-closed-yes">closed:yes</label>
@@ -296,6 +303,10 @@
       <input type="radio" name="status-duplicate" id="status-duplicate-any" value="" checked /><label for="status-duplicate-any">duplicate:any</label>
       <input type="radio" name="status-duplicate" id="status-duplicate-yes" value="duplicate:yes" data-autofill /><label for="status-duplicate-yes">duplicate:yes</label>
       <input type="radio" name="status-duplicate" id="status-duplicate-no" value="duplicate:no" data-autofill /><label for="status-duplicate-no">duplicate:no</label>
+    <label for="status">deleted:</label>
+      <input type="radio" name="status-deleted" id="status-deleted-any" value="deleted:any" data-autofill /><label for="status-deleted-any">deleted:any</label>
+      <input type="radio" name="status-deleted" id="status-deleted-yes" value="deleted:yes" data-autofill /><label for="status-deleted-yes">deleted:yes</label>
+      <input type="radio" name="status-deleted" id="status-deleted-no" value="" checked /><label for="status-deleted-no">deleted:no</label>
     <label for="status">migrated:</label>
       <input type="radio" name="status-migrated" id="status-migrated-any" value="" checked /><label for="status-migrated-any">migrated:any</label>
       <input type="radio" name="status-migrated" id="status-migrated-yes" value="migrated:yes" data-autofill /><label for="status-migrated-yes">migrated:yes</label>
@@ -304,32 +315,27 @@
       <input type="radio" name="status-wiki" id="status-wiki-any" value="" checked /><label for="status-wiki-any">wiki:any</label>
       <input type="radio" name="status-wiki" id="status-wiki-yes" value="wiki:yes" data-autofill /><label for="status-wiki-yes">wiki:yes</label>
       <input type="radio" name="status-wiki" id="status-wiki-no" value="wiki:no" data-autofill /><label for="status-wiki-no">wiki:no</label>
-    <label for="status">deleted:</label>
-      <input type="radio" name="status-deleted" id="status-deleted-any" value="deleted:any" data-autofill /><label for="status-deleted-any">deleted:any</label>
-      <input type="radio" name="status-deleted" id="status-deleted-yes" value="deleted:yes" data-autofill /><label for="status-deleted-yes">deleted:yes</label>
-      <input type="radio" name="status-deleted" id="status-deleted-no" value="" checked /><label for="status-deleted-no">deleted:no</label>
     <label for="status">locked:</label>
       <input type="radio" name="status-locked" id="status-locked-any" value="" checked /><label for="status-locked-any">locked:any</label>
       <input type="radio" name="status-locked" id="status-locked-yes" value="locked:yes" data-autofill /><label for="status-locked-yes">locked:yes</label>
       <input type="radio" name="status-locked" id="status-locked-no" value="locked:no" data-autofill /><label for="status-locked-no">locked:no</label>
-    <label for="status">hasnotice:</label>
+    <label for="status">notice:</label>
       <input type="radio" name="status-hasnotice" id="status-hasnotice-any" value="" checked /><label for="status-hasnotice-any">hasnotice:any</label>
       <input type="radio" name="status-hasnotice" id="status-hasnotice-yes" value="hasnotice:yes" data-autofill /><label for="status-hasnotice-yes">hasnotice:yes</label>
       <input type="radio" name="status-hasnotice" id="status-hasnotice-no" value="hasnotice:no" data-autofill /><label for="status-hasnotice-no">hasnotice:no</label>
+    <label for="status">code block:</label>
+      <input type="radio" name="status-hascode" id="status-hascode-any" value="" checked /><label for="status-hascode-any">hascode:any</label>
+      <input type="radio" name="status-hascode" id="status-hascode-yes" value="hascode:yes" data-autofill /><label for="status-hascode-yes">hascode:yes</label>
+      <input type="radio" name="status-hascode" id="status-hascode-no" value="hascode:no" data-autofill /><label for="status-hascode-no">hascode:no</label>
   </div>
   <div>
-    <label for="posttype">post type:</label>
-    <input type="radio" name="posttype" id="type-any" value="" checked /><label for="type-any">any</label>
-    <input type="radio" name="posttype" id="type-q" value="is:q" data-autofill /><label for="type-q">question</label>
-    <input type="radio" name="posttype" id="type-a" value="is:a" data-autofill /><label for="type-a">answer</label>
-  </div>
-  <div>
+    <label class="section-label">Post Date</label>
     <div>
       <label for="datetype">date type:</label>
       <input type="radio" name="datetype" id="datetype-created" value="created:" checked /><label for="datetype-created">created</label>
       <input type="radio" name="datetype" id="datetype-lastactive" value="lastactive:" /><label type="radio" for="datetype-lastactive">last active</label>
     <div>
-    <label for="agerange">age range</label>
+    <label class="section-label">age range</label>
       <label for="agerange-from">from:</label>
       <input type="number" name="agerange-from" id="agerange-from" placeholder="any" data-termvalue="datetype" data-range-to="agerange-to" data-suffix-from="agerange-from-type"
              data-clears="#yearrange-from, #monthrange-from, #yearrange-to, #monthrange-to" />
@@ -346,7 +352,7 @@
         <option value="m">months</option>
         <option value="y">years</option>
       </select> ago
-    <label for="yearrange">year range</label>
+    <label class="section-label">year range</label>
       <label for="yearrange-from">from:</label>
       <select name="yearrange-from" id="yearrange-from" class="js-yearpicker" data-termvalue="datetype" data-range-to="yearrange-to" data-additional="monthrange-from" data-additional-sep="-"
               data-clears="#agerange-from, #agerange-to">
@@ -391,7 +397,7 @@
 </div>`).insertAfter(searchbtn).prepend(orderby);
 
 
-        // State
+        // Opened/closed state
         let keepOpen = () => searchhelper.addClass('open');
         let clearOpen = () => searchhelper.removeClass('open');
         $(document).on('click', function(evt) {
@@ -417,6 +423,9 @@
             .on('mouseenter click mouseup', keepOpen)
             .on('focus change click mouseup', 'input, select', keepOpen);
 
+        // Save default checked state on radio buttons for reset purposes
+        $('input:radio:checked').attr('data-default', '');
+
         // Tabs
         $('#search-helper-tabs', searchhelper).on('click', 'a', function(e) {
             $(this).addClass('youarehere').siblings().removeClass('youarehere');
@@ -438,15 +447,27 @@
         // Handle tag name lookup using API
         searchhelper.find('.js-taglookup').tagLookup(true);
 
+        // Handle fields that checks another radio/checkbox
+        searchhelper.on('change keyup click', '[data-checks]', function() {
+            $(this.dataset.checks).prop('checked', true).trigger('change');
+        });
+
         // Handle fields that resets another
         searchhelper.on('change keyup click', '[data-clears]', function() {
             if(this.value.trim() != '' || this.type == 'radio' || this.type == 'checkbox') {
-                $(this.dataset.clears).val('').attr('checked', false);
+                $(this.dataset.clears).val('').prop('checked', false);
             }
         });
 
+        // Handle fields that resets fields in another tab
+        searchhelper.on('change keyup click', '[data-clears-tab]', function() {
+            $(this.dataset.clearsTab)
+                .find('input').val('').prop('checked', false)
+                .filter('[data-default]').prop('checked', true);
+        });
+
         // Focus submit button when a radio/checkbox is clicked
-        searchhelper.on('click change', 'input:radio, input:checkbox', function() {
+        searchhelper.on('click', 'input:radio, input:checkbox', function() {
             searchbtn.focus();
         });
 
@@ -571,8 +592,8 @@
     position: absolute;
     top: 100%;
     left: 12px;
-    right: calc(-50vw + 150px);
-    max-width: 1000px;
+    right: -470px;
+    max-width: 960px;
     z-index: 1;
 
     padding: 10px;
@@ -588,6 +609,11 @@
 }
 .searchbar .ps-relative {
     position: inherit !important;
+}
+@media screen and (max-width: 980px) {
+    .search-helper {
+        right: -330px;
+    }
 }
 /* Only works on large-enough screens */
 @media screen and (min-width: 791px) {
@@ -652,6 +678,11 @@
     display: block;
     margin-top: 10px;
     user-select: none;
+}
+#search-helper label.section-label {
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 14px;
 }
 #search-helper input {
     width: 500px;
