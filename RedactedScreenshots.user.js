@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info. Disable when not needed.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -20,12 +20,30 @@
     'use strict';
 
 
+    function cleanPage() {
+
+        // Remove/Reset other SOMU items
+        $('body').removeClass('usersidebar-open');
+        $('.old-comment, .comment-summary b').css({
+            'color': 'inherit',
+            'font-weight': 'normal'
+        });
+        $('.post-id').remove();
+
+        // Remove other userscript items
+        $('#roombaTableDiv').remove();
+
+        // Remove unnecessary stuff from page
+        $('.my-profile, .user-gravatar32, .user-info .-flair').remove();
+
+        // Remove admin stuff from page
+        $('.js-post-issues, .js-mod-inbox-button, .flag-count-item').remove();
+    }
+
+
     function anonymizeUsers() {
 
         let usernum = 0;
-
-        // Remove unnecessary stuff from page
-        $('.my-profile, .user-gravatar32, .user-info .-flair, .js-post-issues').remove();
 
         // Anonymize userlinks in these sections only...
         const $sections = $('#mod-content, #content, .admin-user-comments, h1');
@@ -54,12 +72,14 @@
     }
 
 
-    function listenToPageUpdates() {
-        $(window).on('load resize', function() {
-            $('body').removeClass('usersidebar-open');
-        });
+    function doPageload() {
 
-        $(document).ajaxStop(function() {
+        $(`<button class="js-redact-page">Redact</button>`).appendTo('body').click(function() {
+
+            // Hide button for X seconds
+            $(this).hide().delay(10000).fadeIn(1);
+
+            cleanPage();
             anonymizeUsers();
         });
     }
@@ -69,16 +89,15 @@
 
         const styles = `
 <style>
-.user-info .user-gravatar32+.user-details {
-    margin-left: 0;
+.js-redact-page {
+    position: fixed;
+    bottom: 3px;
+    left: 3px;
+    z-index: 1001;
+    opacity: 0.5;
 }
-input.post-id {
-    display: none !important;
-}
-table.flagged-posts .relativetime.old-comment,
-.comment-summary b {
-    color: inherit !important;
-    font-weight: normal;
+.js-redact-page:hover {
+    opacity: 1;
 }
 </style>
 `;
@@ -88,7 +107,6 @@ table.flagged-posts .relativetime.old-comment,
 
     // On page load
     appendStyles();
-    anonymizeUsers();
-    listenToPageUpdates();
+    doPageload();
 
 })();
