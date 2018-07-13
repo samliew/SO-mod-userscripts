@@ -45,7 +45,7 @@
 
 
     // Display name to ID lookup plugin
-    jQuery.fn.dnLookup = function(append = false, delay = 1000) {
+    jQuery.fn.dnLookup = function(append = false, delay = 800) {
 
         let debounceDuration = delay;
         let acTimeout = null;
@@ -81,7 +81,7 @@
 
 
     // Tags lookup plugin
-    jQuery.fn.tagLookup = function(append = false, delay = 1000) {
+    jQuery.fn.tagLookup = function(append = false, delay = 800) {
 
         let debounceDuration = delay;
         let acTimeout = null;
@@ -122,7 +122,7 @@
         let addQuery = '';
 
         filledFields.each(function(i, el) {
-            let currValue = el.value.trim();
+            let currValue = $(el).val().trim();
             if(currValue === '') return;
 
             const term = searchhelper.find(`[name="${el.dataset.termvalue}"]:checked`).val() || '';
@@ -285,7 +285,7 @@
     <label class="section-label">In a Specific Question</label>
     <input type="checkbox" name="question-current" id="question-current" data-checks="#type-a" /><label for="question-current">current question</label>
     <label for="question-id">question id:</label>
-    <input type="number" name="question-id" id="question-id" data-checks="#type-a" data-clears="#question-current" data-autofill data-prefix="inquestion:" />
+    <input name="question-id" id="question-id" class="input-small" maxlength="12" data-numeric data-checks="#type-a" data-clears="#question-current" data-autofill data-prefix="inquestion:" />
   </div>
   <div class="fixed-width-radios">
     <label class="section-label">Post Status</label>
@@ -454,6 +454,15 @@
                 if(!currentQid) {
                     $(this).next('label').addBack().remove();
                 }
+            });
+
+        // Restrict typed value to numerical value
+        searchhelper
+            .on('keydown', '[data-numeric]', function(evt) {
+                const hasModifier = evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey;
+                return /\d/.test(evt.key) || hasModifier || evt.key == 'Backspace';
+            }).on('change blur', '[data-numeric]', function(evt) {
+                return evt.target.value = evt.target.value.replace(/[^\d]+/g, '');
             });
 
         // Handle display name lookup using API
@@ -707,8 +716,11 @@
     font-size: 14px;
     line-height: 1.6;
 }
+#search-helper input.input-small,
 #search-helper input[type="number"] {
     width: 140px;
+}
+#search-helper input[type="number"] {
     padding-right: 0;
 }
 #search-helper select {
@@ -770,7 +782,7 @@
     border-radius: 4px;
 }
 #search-helper .fromto {
-    width: 340px;
+    width: 320px;
     margin-top: 10px;
     columns: 2;
 }
