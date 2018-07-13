@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info. Disable when not needed.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      1.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -22,13 +22,16 @@
 
     function anonymizeUsers() {
 
+        // Anonymize userlinks in these sections only...
+        const $sections = $('#mod-content, #content, .admin-user-comments, h1');
+
         let usernum = 0;
         // All unique user links that has not been processed yet
-        $('a[href*="/users/"]').not('[usernum]').each(function() {
-            const uid = this.href.replace(/[^\d]+/g, '');
+        $('a[href*="/users/"]', $sections).not('[usernum]').each(function() {
+            const uid = this.href.match(/-?\d+/)[0];
             usernum++;
 
-            $(`a[href^="/users/${uid}/"]`).each(function() {
+            $(`a[href^="/users/${uid}/"]`, $sections).each(function() {
                 this.dataset.uid = uid;
                 this.dataset.usernum = usernum;
                 this.innerText = "anon-" + usernum;
@@ -54,7 +57,8 @@
 <style>
 .my-profile,
 .user-gravatar32,
-.user-info .-flair {
+.user-info .-flair,
+.js-post-issues {
     display: none !important;
 }
 .user-info .user-gravatar32+.user-details {
