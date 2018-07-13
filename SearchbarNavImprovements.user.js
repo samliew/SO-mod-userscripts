@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7
+// @version      2.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -253,26 +253,36 @@
   </div>
   <div id="tab-questions" class="fixed-width-radios">
     <label class="section-label">Questions</label>
-    <label for="status">closed:</label>
-      <input type="radio" name="status-closed" id="status-closed-any" value="" checked /><label for="status-closed-any">closed:any</label>
-      <input type="radio" name="status-closed" id="status-closed-yes" value="closed:yes" data-autofill data-checks="#type-q" /><label for="status-closed-yes">closed:yes</label>
-      <input type="radio" name="status-closed" id="status-closed-no" value="closed:no" data-autofill data-checks="#type-q" /><label for="status-closed-no">closed:no</label>
-    <label for="status">duplicate:</label>
-      <input type="radio" name="status-duplicate" id="status-duplicate-any" value="" checked /><label for="status-duplicate-any">duplicate:any</label>
-      <input type="radio" name="status-duplicate" id="status-duplicate-yes" value="duplicate:yes" data-autofill data-checks="#type-q" /><label for="status-duplicate-yes">duplicate:yes</label>
-      <input type="radio" name="status-duplicate" id="status-duplicate-no" value="duplicate:no" data-autofill data-checks="#type-q" /><label for="status-duplicate-no">duplicate:no</label>
-    <label for="status">has accepted answer:</label>
-      <input type="radio" name="status-hasaccepted" id="status-hasaccepted-any" value="" checked /><label for="status-hasaccepted-any">hasaccepted:any</label>
-      <input type="radio" name="status-hasaccepted" id="status-hasaccepted-yes" value="hasaccepted:yes" data-autofill data-checks="#type-q" /><label for="status-hasaccepted-yes">hasaccepted:yes</label>
-      <input type="radio" name="status-hasaccepted" id="status-hasaccepted-no" value="hasaccepted:no" data-autofill data-checks="#type-q" /><label for="status-hasaccepted-no">hasaccepted:no</label>
-    <label for="status">is answered:</label>
-      <input type="radio" name="status-isanswered" id="status-isanswered-any" value="" checked /><label for="status-isanswered-any">isanswered:any</label>
-      <input type="radio" name="status-isanswered" id="status-isanswered-yes" value="isanswered:yes" data-autofill data-checks="#type-q" /><label for="status-isanswered-yes">isanswered:yes</label>
-      <input type="radio" name="status-isanswered" id="status-isanswered-no" value="isanswered:no" data-autofill data-checks="#type-q" /><label for="status-isanswered-no">isanswered:no</label>
-    <label for="status">migrated:</label>
-      <input type="radio" name="status-migrated" id="status-migrated-any" value="" checked /><label for="status-migrated-any">migrated:any</label>
-      <input type="radio" name="status-migrated" id="status-migrated-yes" value="migrated:yes" data-autofill /><label for="status-migrated-yes">migrated:yes</label>
-      <input type="radio" name="status-migrated" id="status-migrated-no" value="migrated:no" /><label for="status-migrated-no">migrated:no</label>
+    <div>
+      <label class="radio-group-label">closed:</label>
+      <input type="radio" name="status-closed" id="status-closed-any" value="" checked /><label for="status-closed-any">any</label>
+      <input type="radio" name="status-closed" id="status-closed-yes" value="closed:yes" data-autofill data-checks="#type-q" /><label for="status-closed-yes">yes</label>
+      <input type="radio" name="status-closed" id="status-closed-no" value="closed:no" data-autofill data-checks="#type-q" /><label for="status-closed-no">no</label>
+    </div>
+    <div>
+    <label class="radio-group-label">duplicate:</label>
+      <input type="radio" name="status-duplicate" id="status-duplicate-any" value="" checked /><label for="status-duplicate-any">any</label>
+      <input type="radio" name="status-duplicate" id="status-duplicate-yes" value="duplicate:yes" data-autofill data-checks="#type-q" /><label for="status-duplicate-yes">yes</label>
+      <input type="radio" name="status-duplicate" id="status-duplicate-no" value="duplicate:no" data-autofill data-checks="#type-q" /><label for="status-duplicate-no">no</label>
+    </div>
+    <div>
+    <label class="radio-group-label">accepted:</label>
+      <input type="radio" name="status-hasaccepted" id="status-hasaccepted-any" value="" checked /><label for="status-hasaccepted-any">any</label>
+      <input type="radio" name="status-hasaccepted" id="status-hasaccepted-yes" value="hasaccepted:yes" data-autofill data-checks="#type-q" /><label for="status-hasaccepted-yes">yes</label>
+      <input type="radio" name="status-hasaccepted" id="status-hasaccepted-no" value="hasaccepted:no" data-autofill data-checks="#type-q" /><label for="status-hasaccepted-no">no</label>
+    </div>
+    <div>
+    <label class="radio-group-label">answered:</label>
+      <input type="radio" name="status-isanswered" id="status-isanswered-any" value="" checked /><label for="status-isanswered-any">any</label>
+      <input type="radio" name="status-isanswered" id="status-isanswered-yes" value="isanswered:yes" data-autofill data-checks="#type-q" /><label for="status-isanswered-yes">yes</label>
+      <input type="radio" name="status-isanswered" id="status-isanswered-no" value="isanswered:no" data-autofill data-checks="#type-q" /><label for="status-isanswered-no">no</label>
+    </div>
+    <div>
+    <label class="radio-group-label">migrated:</label>
+      <input type="radio" name="status-migrated" id="status-migrated-any" value="" checked /><label for="status-migrated-any">any</label>
+      <input type="radio" name="status-migrated" id="status-migrated-yes" value="migrated:yes" data-autofill /><label for="status-migrated-yes">yes</label>
+      <input type="radio" name="status-migrated" id="status-migrated-no" value="migrated:no" /><label for="status-migrated-no">no</label>
+    </div>
     <label class="section-label"># Views</label>
     <div class="fromto">
         <label for="views-from">from:</label>
@@ -290,10 +300,12 @@
   </div>
   <div id="tab-answers" class="fixed-width-radios">
     <label class="section-label">Answers</label>
-    <label for="status">is accepted:</label>
-      <input type="radio" name="status-isaccepted" id="status-isaccepted-any" value="" checked /><label for="status-isaccepted-any">isaccepted:any</label>
-      <input type="radio" name="status-isaccepted" id="status-isaccepted-yes" value="isaccepted:yes" data-autofill data-checks="#type-a" /><label for="status-isaccepted-yes">isaccepted:yes</label>
-      <input type="radio" name="status-isaccepted" id="status-isaccepted-no" value="isaccepted:no" data-autofill data-checks="#type-a" /><label for="status-isaccepted-no">isaccepted:no</label>
+    <div>
+      <label class="radio-group-label">is accepted:</label>
+      <input type="radio" name="status-isaccepted" id="status-isaccepted-any" value="" checked /><label for="status-isaccepted-any">any</label>
+      <input type="radio" name="status-isaccepted" id="status-isaccepted-yes" value="isaccepted:yes" data-autofill data-checks="#type-a" /><label for="status-isaccepted-yes">yes</label>
+      <input type="radio" name="status-isaccepted" id="status-isaccepted-no" value="isaccepted:no" data-autofill data-checks="#type-a" /><label for="status-isaccepted-no">no</label>
+    </div>
     <label class="section-label">In a Specific Question</label>
     <input type="checkbox" name="question-current" id="question-current" data-checks="#type-a" /><label for="question-current">current question</label>
     <label for="question-id">question id:</label>
@@ -302,26 +314,36 @@
   <div class="fixed-width-radios">
     <label class="section-label">Post Status</label>
     <p>See Questions/Answers tab for type-specific status (closed/duplicate/etc.)</p>
-    <label for="status">deleted:</label>
-      <input type="radio" name="status-deleted" id="status-deleted-any" value="deleted:any" data-autofill /><label for="status-deleted-any">deleted:any</label>
-      <input type="radio" name="status-deleted" id="status-deleted-yes" value="deleted:yes" data-autofill /><label for="status-deleted-yes">deleted:yes</label>
-      <input type="radio" name="status-deleted" id="status-deleted-no" value="" checked /><label for="status-deleted-no">deleted:no</label>
-    <label for="status">community wiki:</label>
-      <input type="radio" name="status-wiki" id="status-wiki-any" value="" checked /><label for="status-wiki-any">wiki:any</label>
-      <input type="radio" name="status-wiki" id="status-wiki-yes" value="wiki:yes" data-autofill /><label for="status-wiki-yes">wiki:yes</label>
-      <input type="radio" name="status-wiki" id="status-wiki-no" value="wiki:no" data-autofill /><label for="status-wiki-no">wiki:no</label>
-    <label for="status">locked:</label>
-      <input type="radio" name="status-locked" id="status-locked-any" value="" checked /><label for="status-locked-any">locked:any</label>
-      <input type="radio" name="status-locked" id="status-locked-yes" value="locked:yes" data-autofill /><label for="status-locked-yes">locked:yes</label>
-      <input type="radio" name="status-locked" id="status-locked-no" value="locked:no" data-autofill /><label for="status-locked-no">locked:no</label>
-    <label for="status">notice:</label>
-      <input type="radio" name="status-hasnotice" id="status-hasnotice-any" value="" checked /><label for="status-hasnotice-any">hasnotice:any</label>
-      <input type="radio" name="status-hasnotice" id="status-hasnotice-yes" value="hasnotice:yes" data-autofill /><label for="status-hasnotice-yes">hasnotice:yes</label>
-      <input type="radio" name="status-hasnotice" id="status-hasnotice-no" value="hasnotice:no" data-autofill /><label for="status-hasnotice-no">hasnotice:no</label>
-    <label for="status">code block:</label>
-      <input type="radio" name="status-hascode" id="status-hascode-any" value="" checked /><label for="status-hascode-any">hascode:any</label>
-      <input type="radio" name="status-hascode" id="status-hascode-yes" value="hascode:yes" data-autofill /><label for="status-hascode-yes">hascode:yes</label>
-      <input type="radio" name="status-hascode" id="status-hascode-no" value="hascode:no" data-autofill /><label for="status-hascode-no">hascode:no</label>
+    <div>
+    <label class="radio-group-label">deleted:</label>
+      <input type="radio" name="status-deleted" id="status-deleted-any" value="deleted:any" data-autofill /><label for="status-deleted-any">any</label>
+      <input type="radio" name="status-deleted" id="status-deleted-yes" value="deleted:yes" data-autofill /><label for="status-deleted-yes">yes</label>
+      <input type="radio" name="status-deleted" id="status-deleted-no" value="" checked /><label for="status-deleted-no">no</label>
+    </div>
+    <div>
+    <label class="radio-group-label">wiki:</label>
+      <input type="radio" name="status-wiki" id="status-wiki-any" value="" checked /><label for="status-wiki-any">any</label>
+      <input type="radio" name="status-wiki" id="status-wiki-yes" value="wiki:yes" data-autofill /><label for="status-wiki-yes">yes</label>
+      <input type="radio" name="status-wiki" id="status-wiki-no" value="wiki:no" data-autofill /><label for="status-wiki-no">no</label>
+    </div>
+    <div>
+    <label class="radio-group-label">locked:</label>
+      <input type="radio" name="status-locked" id="status-locked-any" value="" checked /><label for="status-locked-any">any</label>
+      <input type="radio" name="status-locked" id="status-locked-yes" value="locked:yes" data-autofill /><label for="status-locked-yes">yes</label>
+      <input type="radio" name="status-locked" id="status-locked-no" value="locked:no" data-autofill /><label for="status-locked-no">no</label>
+    </div>
+    <div>
+    <label class="radio-group-label">notice:</label>
+      <input type="radio" name="status-hasnotice" id="status-hasnotice-any" value="" checked /><label for="status-hasnotice-any">any</label>
+      <input type="radio" name="status-hasnotice" id="status-hasnotice-yes" value="hasnotice:yes" data-autofill /><label for="status-hasnotice-yes">yes</label>
+      <input type="radio" name="status-hasnotice" id="status-hasnotice-no" value="hasnotice:no" data-autofill /><label for="status-hasnotice-no">no</label>
+    </div>
+    <div>
+    <label class="radio-group-label">code block:</label>
+      <input type="radio" name="status-hascode" id="status-hascode-any" value="" checked /><label for="status-hascode-any">any</label>
+      <input type="radio" name="status-hascode" id="status-hascode-yes" value="hascode:yes" data-autofill /><label for="status-hascode-yes">yes</label>
+      <input type="radio" name="status-hascode" id="status-hascode-no" value="hascode:no" data-autofill /><label for="status-hascode-no">no</label>
+    </div>
   </div>
   <div>
     <label class="section-label">Post Author</label>
@@ -724,6 +746,14 @@
     font-weight: bold;
     font-size: 14px;
 }
+#search-helper label.radio-group-label {
+    display: inline-block;
+    min-width: 80px;
+    margin-top: 15px;
+    margin-right: 15px;
+    font-weight: bold;
+    font-size: 12px;
+}
 #search-helper label.section-label:first-child {
     margin-top: 5px;
 }
@@ -750,14 +780,14 @@
     border: 1px solid #c8ccd0;
     font-size: 14px;
 }
-#search-helper .fixed-width-radios input[type="radio"] + label {
-    width: 140px;
+#search-helper label.radio-group-label ~ input[type="radio"] + label {
+    min-width: 60px;
 }
 #search-helper input[type="radio"] + label,
 #search-helper input[type="checkbox"] + label {
     display: inline-block;
     width: auto;
-    min-width: 100px;
+    min-width: 90px;
     margin: 6px 10px 5px 0;
     font-size: 14px;
     line-height: 1.6;
