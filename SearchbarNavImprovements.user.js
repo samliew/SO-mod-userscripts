@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.1
+// @version      2.10
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -170,7 +170,13 @@
             const suffixFrom = el.dataset.suffixFrom ? document.getElementById(el.dataset.suffixFrom).value : '';
 
             if(fromValue === '' && linkedToValue === '') return;
-            if(fromValue !== '' && linkedToValue !== '' && Number(fromValue) > Number(linkedToValue)) return;
+
+            // Do not validate if NOT age range (because you can use different unit values)
+            if(el.id !== 'agerange-from') {
+
+                // First value must be more than or equal to second value
+                if(fromValue !== '' && linkedToValue !== '' && Number(fromValue) >= Number(linkedToValue)) return;
+            }
 
             addQuery += ' ' + term + prefix +
                         (fromValue ? fromValue + suffixFrom : '') + (fromAdditionalValue ? addSep + fromAdditionalValue : '') + '..' +
