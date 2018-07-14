@@ -35,6 +35,8 @@ Direct installation links (raw files)
 
 [Post Ids Everywhere](https://github.com/samliew/SO-mod-userscripts/raw/master/PostIdsEverywhere.user.js)
 
+[Redacted Screenshots](https://github.com/samliew/SO-mod-userscripts/raw/master/RedactedScreenshots.user.js)
+
 [Hover Expand Navigation Links](https://github.com/samliew/SO-mod-userscripts/raw/master/HoverExpandNavigationLinks.user.js)
 
 [Expand Short Links](https://github.com/samliew/SO-mod-userscripts/raw/master/ExpandShortLinks.user.js)
