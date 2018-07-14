@@ -142,6 +142,11 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_190400.png)
 
 
+### [Redacted Screenshots](https://github.com/samliew/SO-mod-userscripts/blob/master/RedactedScreenshots.user.js)
+
+- Masks and hides user-identifing info. Disable when not needed.
+
+
 ### [Hover Expand Navigation Links](https://github.com/samliew/SO-mod-userscripts/blob/master/HoverExpandNavigationLinks.user.js)
 
 - On pagination dots "```...```" mouseover, adds additional 30 in-between links
