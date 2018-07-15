@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10
+// @version      2.11
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -196,6 +196,8 @@
 
 
     function initAdvancedSearch() {
+
+        appendAdvancedSearchStyles();
 
         orderby = $(`<div class="order-by">
   <span class="label">Order by: </span>
@@ -597,74 +599,22 @@
             $('ol.nav-links ol.nav-links', lsidebar).first().append(`<li><a id="nav-meta" href="${metaUrl}/questions" class="nav-links--link">Meta</a></li>`);
         }
 
+        // Expand dropdown-container tab items
+        $('.dropdown-container').each(function() {
+            const itemClasses = $(this).siblings('a').get(0).className.replace(/(youarehere|is-selected)/g, '');
+            const items = $(this).find('li a').removeClass('disabled').addClass(itemClasses);
+            items.filter('.selected').addClass('is-selected');
+            $(this).before(items).remove();
+        });
+
         initAdvancedSearch();
     }
 
 
-    function appendStyles() {
+    function appendAdvancedSearchStyles() {
 
         const styles = `
 <style>
-/* Left sidebar */
-.nav-links .nav-links--link.-link__with-icon {
-    display: flex;
-    padding: 8px 6px 8px 0;
-}
-
-/* Search */
-.top-bar .searchbar .grid {
-    display: flex;
-}
-.f-select {
-    position: relative;
-}
-.wmn1 {
-    min-width: 8.1025641rem !important;
-}
-.w20 {
-    width: 20% !important;
-}
-.f-select>select {
-    margin: 0;
-    padding-top: 6px;
-    padding-bottom: 6px;
-}
-.f-select > select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    flex: 1 auto;
-    padding: 8px 16px;
-    padding-right: 32px;
-    font-size: 13px;
-    font-family: Arial,"Helvetica Neue",Helvetica,sans-serif;
-    line-height: 1.46153846;
-    color: #3b4045;
-    background-color: #FFF;
-    border: 1px solid #c8ccd0;
-    border-radius: 2px;
-    transition: color 600ms cubic-bezier(.165, .84, .44, 1),border-color 600ms cubic-bezier(.165, .84, .44, 1),box-shadow 600ms cubic-bezier(.165, .84, .44, 1),background-color 600ms cubic-bezier(.165, .84, .44, 1);
-}
-.search-channel-switcher {
-    height: 36px;
-    border-radius: 3px !important;
-    border-top-right-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-    border-right: none !important;
-    background-color: #eff0f1 !important;
-}
-.search-channel-switcher-field {
-    border-top-left-radius: 0 !important;
-    border-bottom-left-radius: 0 !important;
-}
-.top-bar .searchbar .btn-topbar-primary {
-    transition: none;
-    opacity: 1;
-    transform: translateY(-50%) translateX(1px);
-    z-index: 1;
-}
-
-/* Advanced Search */
 .search-helper {
     display: none;
     position: absolute;
@@ -914,6 +864,80 @@
     width: 16px;
     height: 16px;
     background: white;
+}
+</style>
+`;
+        $('body').append(styles);
+    }
+
+
+    function appendStyles() {
+
+        const styles = `
+<style>
+/* Left sidebar */
+.nav-links .nav-links--link.-link__with-icon {
+    display: flex;
+    padding: 8px 6px 8px 0;
+}
+
+/* Search */
+.top-bar .searchbar .grid {
+    display: flex;
+}
+.f-select {
+    position: relative;
+}
+.wmn1 {
+    min-width: 8.1025641rem !important;
+}
+.w20 {
+    width: 20% !important;
+}
+.f-select>select {
+    margin: 0;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+.f-select > select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    flex: 1 auto;
+    padding: 8px 16px;
+    padding-right: 32px;
+    font-size: 13px;
+    font-family: Arial,"Helvetica Neue",Helvetica,sans-serif;
+    line-height: 1.46153846;
+    color: #3b4045;
+    background-color: #FFF;
+    border: 1px solid #c8ccd0;
+    border-radius: 2px;
+    transition: color 600ms cubic-bezier(.165, .84, .44, 1),border-color 600ms cubic-bezier(.165, .84, .44, 1),box-shadow 600ms cubic-bezier(.165, .84, .44, 1),background-color 600ms cubic-bezier(.165, .84, .44, 1);
+}
+.search-channel-switcher {
+    height: 36px;
+    border-radius: 3px !important;
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    border-right: none !important;
+    background-color: #eff0f1 !important;
+}
+.search-channel-switcher-field {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+}
+.top-bar .searchbar .btn-topbar-primary {
+    transition: none;
+    opacity: 1;
+    transform: translateY(-50%) translateX(1px);
+    z-index: 1;
+}
+
+/* Other */
+.s-btn-group .s-btn:last-of-type {
+    border-top-right-radius: 3px !important;
+    border-bottom-right-radius: 3px !important;
 }
 </style>
 `;
