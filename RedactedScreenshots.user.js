@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info. Disable when not needed.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -68,7 +68,7 @@
         });
 
         // Remove @ replies from beginning of comments
-        $('.comment-copy').html((i,v) => v.replace(/^@[a-zA-Z0-9]+\s/, ''));
+        $('.comment-copy').html((i,v) => v.replace(/^@[\wŒŠŽÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝÞßðÿ]+[,:]?\s/i, ''));
     }
 
 
