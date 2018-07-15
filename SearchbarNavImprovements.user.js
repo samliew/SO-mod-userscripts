@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11
+// @version      2.11.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -238,7 +238,7 @@
     <input name="not-words" id="not-words" data-clearbtn data-autofill data-termvalue="section" data-neg=" -" />
     <label class="section-label">URL</label>
     <label for="url">mentions url/domain (accepts * wildcard):</label>
-    <input name="url" id="url" placeholder="example.com" data-clearbtn data-autofill data-prefix='url:"' data-suffix='"' />
+    <input name="url" id="url" placeholder="example.com" data-clearbtn data-autofill data-validate-url data-prefix='url:"' data-suffix='"' />
   </div>
   <div>
     <label class="section-label">Tags</label>
@@ -322,7 +322,7 @@
     <label class="section-label">In a Specific Question</label>
     <input type="checkbox" name="question-current" id="question-current" data-checks="#type-a" /><label for="question-current">current question</label>
     <label for="question-id">question id:</label>
-    <input name="question-id" id="question-id" class="input-small" maxlength="12" data-clearbtn data-numeric data-checks="#type-a" data-clears="#question-current" data-autofill data-prefix="inquestion:" />
+    <input name="question-id" id="question-id" class="input-small" maxlength="12" data-clearbtn data-validate-numeric data-checks="#type-a" data-clears="#question-current" data-autofill data-prefix="inquestion:" />
   </div>
   <div class="fixed-width-radios">
     <label class="section-label">Post Status</label>
@@ -505,12 +505,18 @@
 
         // Restrict typed value to numerical value
         searchhelper
-            .on('keydown', '[data-numeric]', function(evt) {
+            .on('keydown', '[data-validate-numeric]', function(evt) {
                 const isSpecialKey = evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey || evt.key.length > 1;
                 return /\d/.test(evt.key) || isSpecialKey;
             })
-            .on('change blur', '[data-numeric]', function(evt) {
+            .on('change blur', '[data-validate-numeric]', function(evt) {
                 this.value = this.value.replace(/[^\d]+/g, '');
+            });
+
+        // Restrict typed value to URL
+        searchhelper
+            .on('change blur', '[data-validate-url]', function(evt) {
+                this.value = this.value.replace(/^https?:\/\//, '').replace(/\/$/, '');
             });
 
         // Handle display name lookup using API
