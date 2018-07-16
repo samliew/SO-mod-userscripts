@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.12.1
+// @version      2.12.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -27,7 +27,8 @@
     const mainName = StackExchange.options.site.name.replace(/\bmeta\b/i, '').trim();
     const mainUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
     const metaUrl = StackExchange.options.site.childUrl || 'https://' + location.hostname;
-    const siteslug = isMSE ? 'meta' : mainName.toLowerCase().replace(/[^a-z]+/g, '');
+    const siteslug = location.hostname.split('.')[0];
+    const currentSiteSlug = location.hostname.replace('.stackexchange', '').replace(/\.\w+$/, ''); // for SEDE
     const searchSelector = $(`<div class="grid--cell f-select w20 wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
   <option data-url="${mainUrl}/search" ${!isChildMeta ? 'selected="selected"' : ''} data-mixed="0">${mainName}</option>
   <option data-url="${metaUrl}/search" ${ isChildMeta ? 'selected="selected"' : ''}>Meta</option>
@@ -450,7 +451,7 @@
       <input type="checkbox" name="dupe-current" id="dupe-current" data-currentfor="#dupe-id" /><label for="dupe-current">current question</label>
       <label for="dupe-id">question id:</label>
       <input name="dupe-id" id="dupe-id" class="input-small" maxlength="12" data-clearbtn data-validate-numeric data-clears="#dupe-current" />
-      <a class="button extbutton" data-url="http://data.stackexchange.com/stackoverflow/query/874526/?QuestionId=[dupe-id]">SEDE</a>
+      <a class="button extbutton" data-url="http://data.stackexchange.com/${currentSiteSlug}/query/874526/?QuestionId=[dupe-id]">SEDE</a>
     </div>
   </div>
 </div>
