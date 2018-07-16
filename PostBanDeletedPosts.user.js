@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Post Ban Deleted Posts
-// @description  When user posts on Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
+// @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -73,12 +73,13 @@
         // Is a deleted user, do nothing
         if(postOwner.length === 0) return;
 
-        const username = $('.post-signature.owner .user-details', post).children().first().text().trim();
+        const username = $('.user-details', post).last().children().first().text().trim();
         const uid = postOwner.attr('href').match(/\d+/)[0];
-        const isClosedAsDupeOfSuper = $('.question-originals-of-duplicate a', post).filter((i, el) => el.href.indexOf('/questions/255583/') >= 0).length == 1;
+        const hasDupeLink = $('.question-originals-of-duplicate a, .comments-list a', post).filter((i, el) => /\/q(uestions)?\/255583\//.test(el.href)).length > 0;
+        const hasTags = $('a.post-tag', post).filter((i, el) => /post-ban/.test(el.innerText)).length > 0;
 
-        // Not a post ban question, do nothing (must be closed as dupe first)
-        if(!isClosedAsDupeOfSuper) return;
+        // Not a post ban question
+        if(!hasDupeLink && !hasTags) return;
 
         const qnsUrl = `https://${mainDomain}/search?q=user%3a${uid}%20is%3aquestion%20deleted%3a1%20score%3a..0&tab=newest`;
         const ansUrl = `https://${mainDomain}/search?q=user%3a${uid}%20is%3aanswer%20deleted%3a1%20score%3a..0&tab=newest`;
