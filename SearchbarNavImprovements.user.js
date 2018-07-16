@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.12
+// @version      2.12.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -662,7 +662,7 @@
     z-index: 1;
 
     padding: 10px;
-    background: hsla(240, 11%, 98%);
+    background: #f9f9fa;
     box-shadow: 2px 2px 7px -2px hsla(0, 0%, 0%, 0.5);
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
