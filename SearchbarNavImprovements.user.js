@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.1
+// @version      2.12
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -220,6 +220,7 @@
   <a>Author</a>
   <a>Favorites</a>
   <a>Dates</a>
+  <a>Other</a>
 </div>
 <div id="search-helper-tabcontent">
   <div class="active">
@@ -320,7 +321,7 @@
       <input type="radio" name="status-isaccepted" id="status-isaccepted-no" value="isaccepted:no" data-autofill data-checks="#type-a" /><label for="status-isaccepted-no">no</label>
     </div>
     <label class="section-label">In a Specific Question</label>
-    <input type="checkbox" name="question-current" id="question-current" data-checks="#type-a" /><label for="question-current">current question</label>
+    <input type="checkbox" name="question-current" id="question-current" data-currentfor="#question-id" data-checks="#type-a" /><label for="question-current">current question</label>
     <label for="question-id">question id:</label>
     <input name="question-id" id="question-id" class="input-small" maxlength="12" data-clearbtn data-validate-numeric data-checks="#type-a" data-clears="#question-current" data-autofill data-prefix="inquestion:" />
   </div>
@@ -443,6 +444,15 @@
         </select>
       </div>
   </div>
+  <div id="tab-other">
+    <div class="ext">
+      <label class="section-label">Questions closed as duplicate of</label>
+      <input type="checkbox" name="dupe-current" id="dupe-current" data-currentfor="#dupe-id" /><label for="dupe-current">current question</label>
+      <label for="dupe-id">question id:</label>
+      <input name="dupe-id" id="dupe-id" class="input-small" maxlength="12" data-clearbtn data-validate-numeric data-clears="#dupe-current" />
+      <a class="button extbutton" data-url="http://data.stackexchange.com/stackoverflow/query/874526/?QuestionId=[dupe-id]">SEDE</a>
+    </div>
+  </div>
 </div>
 </div>`).insertAfter(searchbtn).prepend(orderby);
 
@@ -493,9 +503,8 @@
 
         // Current question
         const currentQid = $('#question').attr('data-questionid') || null;
-        searchhelper.find('#question-current')
-            .on('click', function() {
-                $('#question-id').val(currentQid);
+        searchhelper.on('click', '[data-currentfor]', function(evt) {
+                $(evt.target.dataset.currentfor).val(currentQid).triggerHandler('change');
             })
             .each(function() {
                 if(!currentQid) {
@@ -556,6 +565,28 @@
                 return false;
             })
             .find('[data-clearbtn]').after('<span class="clearbtn" title="clear"></span>');
+
+        // External button links
+        searchhelper.find('.extbutton[data-url]')
+            .each(function(i, el) {
+                const linkedEls = '#' + this.dataset.url.match(/(?<=\[)[a-z_-]+(?=\])/i).join(', #');
+                $(linkedEls).on('change', function(evt) {
+                    $(el).trigger('updatelink');
+                });
+                el.target = '_blank';
+            })
+            .on('updatelink', function() {
+                let output = this.dataset.url;
+                const el = this;
+                const linkedEls = output.match(/(?<=\[)[a-z_-]+(?=\])/i);
+
+                linkedEls.forEach(function(tag) {
+                    const repl = document.getElementById(tag).value;
+                    output = output.replace('[' + tag + ']', repl);
+                });
+
+                this.href = output;
+            });
 
         // Handle search form submit
         searchform.on('submit', handleAdvancedSearch);
@@ -832,8 +863,15 @@
 #search-helper .fromto > label {
     margin-top: 0;
 }
+#search-helper .ext a.button {
+    display: inline-block;
+    position: relative;
+    top: -1px;
+    height: 32px;
+    margin-left: 5px;
+}
 
-/* Display name autocomplete */
+/* Autocomplete */
 .js-aclookup-complete ~ .aclookup_results,
 .aclookup_results:hover {
     display: block;
