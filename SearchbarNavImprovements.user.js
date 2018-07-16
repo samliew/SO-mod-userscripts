@@ -3,7 +3,7 @@
 // @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.12.2
+// @version      2.12.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -504,10 +504,11 @@
 
         // Current question
         const currentQid = $('#question').attr('data-questionid') || null;
-        searchhelper.on('click', '[data-currentfor]', function(evt) {
+        searchhelper
+            .on('click', '[data-currentfor]', function(evt) {
                 $(evt.target.dataset.currentfor).val(currentQid).triggerHandler('change');
             })
-            .each(function() {
+            .find('[data-currentfor]').each(function() {
                 if(!currentQid) {
                     $(this).next('label').addBack().remove();
                 }
@@ -577,16 +578,19 @@
                 el.target = '_blank';
             })
             .on('updatelink', function() {
+                let valid = true;
                 let output = this.dataset.url;
                 const el = this;
                 const linkedEls = output.match(/(?<=\[)[a-z_-]+(?=\])/i);
 
                 linkedEls.forEach(function(tag) {
                     const repl = document.getElementById(tag).value;
+                    if(typeof repl === 'undefined' || repl == '') valid = false;
                     output = output.replace('[' + tag + ']', repl);
                 });
 
                 this.href = output;
+                if(!valid) $(this).removeAttr('href');
             });
 
         // Handle search form submit
