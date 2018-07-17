@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Searchbar & Nav Improvements
-// @description  Site search selector on meta sites. Add advanced search helper when search box is focused. Adds link to meta in left sidebar, and link to main from meta.
+// @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.12.3
+// @version      3.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -20,6 +20,12 @@
     'use strict';
 
 
+    const svgicons = {
+        delete : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M336 64l-33.6-44.8C293.3 7.1 279.1 0 264 0h-80c-15.1 0-29.3 7.1-38.4 19.2L112 64H24C10.7 64 0 74.7 0 88v2c0 3.3 2.7 6 6 6h26v368c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V96h26c3.3 0 6-2.7 6-6v-2c0-13.3-10.7-24-24-24h-88zM184 32h80c5 0 9.8 2.4 12.8 6.4L296 64H152l19.2-25.6c3-4 7.8-6.4 12.8-6.4zm200 432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V96h320v368zm-176-44V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm-80 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm160 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12z"/></svg>',
+        bookmark : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M0 512V48C0 21.49 21.49 0 48 0h288c26.51 0 48 21.49 48 48v464L192 400 0 512z"/></svg>',
+    };
+
+
     const mseDomain = 'meta.stackexchange.com';
     const isMSE = location.hostname === mseDomain;
 
@@ -29,6 +35,8 @@
     const metaUrl = StackExchange.options.site.childUrl || 'https://' + location.hostname;
     const siteslug = location.hostname.split('.')[0];
     const currentSiteSlug = location.hostname.replace('.stackexchange', '').replace(/\.\w+$/, ''); // for SEDE
+
+    const store = window.localStorage;
     const searchSelector = $(`<div class="grid--cell f-select w20 wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
   <option data-url="${mainUrl}/search" ${!isChildMeta ? 'selected="selected"' : ''} data-mixed="0">${mainName}</option>
   <option data-url="${metaUrl}/search" ${ isChildMeta ? 'selected="selected"' : ''}>Meta</option>
@@ -46,6 +54,15 @@
             return $(this).val() !== '';
         });
     };
+
+
+    function loadSvgIcons() {
+        $('[data-svg]').each(function() {
+            if($(this).children('svg').length > 0) return; // once
+            const ico = svgicons[this.dataset.svg];
+            if(ico) $(this).append(ico);
+        });
+    }
 
 
     // Display name to ID lookup plugin
@@ -133,6 +150,41 @@
     };
 
 
+    // Saved Search helper functions
+    const ssKeyRoot = 'SavedSearch';
+    function addSavedSearch(value) {
+        let items = getSavedSearches();
+        items.unshift(value); // add to beginning
+        store.setItem(ssKeyRoot, JSON.stringify(items));
+    }
+    function hasSavedSearch(value) {
+        if(value == null || value == '') return false;
+        const items = getSavedSearches();
+        const result = jQuery.grep(items, function(v) {
+            return v == value;
+        });
+        return result.length > 0;
+    }
+    function removeSavedSearch(value) {
+        const items = getSavedSearches();
+        const result = jQuery.grep(items, function(v) {
+            return v != value;
+        });
+        store.setItem(ssKeyRoot, JSON.stringify(result));
+    }
+    function getSavedSearches() {
+        return JSON.parse(store.getItem(ssKeyRoot)) || [];
+    }
+    function humanizeSearchQuery(string) {
+        string = decodeURIComponent(string)
+            .replace(/&mixed=[10]$/, '')
+            .replace(/[?&][a-z]+=/g, ' ')
+            .replace(/\+/g, ' ')
+            .trim();
+        return string;
+    }
+
+
     function handleAdvancedSearch(evt) {
         const filledFields = searchhelper.find('input[data-autofill]:text, input[data-autofill]:checked').hasValue();
         const rangedFields = searchhelper.find('input[data-range-to], select[data-range-to]');
@@ -187,12 +239,11 @@
         // Append search to existing field value
         searchfield.val((i, v) => (v + addQuery).replace(/\s+/g, ' ').replace(/([:])\s+/g, '$1').trim());
 
-        // Live only - remove on submit
-        searchhelper.hide().find('#search-helper-tabcontent').remove();
-        if(searchhelper.find(':checked').val() === '') searchhelper.remove();
+        // Move order-by fields before search field so that the resulting query will match SE's format
+        orderby.hide().insertBefore(searchfield);
 
-        // Dev only - block submit for testing
-        //return false;
+        // Remove search helper on submit so it doesn't pollute the query string
+        searchhelper.remove();
     }
 
 
@@ -200,7 +251,7 @@
 
         appendAdvancedSearchStyles();
 
-        orderby = $(`<div class="order-by">
+        orderby = $(`<div id="order-by">
   <span class="label">Order by: </span>
   <input type="radio" name="tab" id="tab-relevance" value="" checked /><label for="tab-relevance">relevance</label>
   <input type="radio" name="tab" id="tab-newest" value="newest" /><label for="tab-newest">newest</label>
@@ -210,6 +261,8 @@
 
         searchhelper = $(`<div id="search-helper" class="search-helper">
 <button type="reset" class="btnreset btn-warning">Reset</button>
+<a id="btn-saved-search" data-svg="bookmark" title="Saved Search"></a>
+<div id="saved-search"></div>
 <div id="search-helper-tabs" class="tabs">
   <a class="youarehere">Text</a>
   <a>Tags</a>
@@ -262,9 +315,9 @@
   </div>
   <div>
     <label class="section-label">Post Type</label>
-    <input type="radio" name="posttype" id="type-any" value="" checked /><label for="type-any">any</label>
-    <input type="radio" name="posttype" id="type-q" value="is:q" data-autofill data-clears-tab="#tab-answers" /><label for="type-q">question</label>
-    <input type="radio" name="posttype" id="type-a" value="is:a" data-autofill data-clears-tab="#tab-questions" /><label for="type-a">answer</label>
+    <div><input type="radio" name="posttype" id="type-any" value="" checked /><label for="type-any">any</label></div>
+    <div><input type="radio" name="posttype" id="type-q" value="is:q" data-autofill data-clears-tab="#tab-answers" /><label for="type-q">question</label></div>
+    <div><input type="radio" name="posttype" id="type-a" value="is:a" data-autofill data-clears-tab="#tab-questions" /><label for="type-a">answer</label></div>
   </div>
   <div id="tab-questions" class="fixed-width-radios">
     <label class="section-label">Questions</label>
@@ -455,7 +508,9 @@
     </div>
   </div>
 </div>
-</div>`).insertAfter(searchbtn).prepend(orderby);
+</div>`).insertAfter(searchbtn);
+
+        orderby.insertBefore('#search-helper-tabs');
 
 
         // Opened/closed state
@@ -598,6 +653,63 @@
     }
 
 
+    function initSavedSearch() {
+
+        const ss = $('#saved-search');
+
+        $('#btn-saved-search').click(function() {
+           $(this).toggleClass('active');
+        });
+
+        // Load Saved Searches
+        function reloadSavedSearchList() {
+            ss.empty();
+            const ssitems = getSavedSearches();
+            $.each(ssitems, function(i, v) {
+                const readable = humanizeSearchQuery(v);
+                const sstemplate = $(`<div class="item">
+                  <a href="/search${v}">${readable}</a>
+                  <div class="actions">
+                    <a class="delete" data-svg="delete" data-value="${v}" title="Delete (no confirmation)"></a>
+                  </div>
+                </div>`).prependTo(ss);
+            });
+            loadSvgIcons();
+        }
+        reloadSavedSearchList(); // Once on init
+
+        // Handle delete button
+        ss.on('click', 'a.delete', function(evt) {
+            removeSavedSearch(evt.target.dataset.value);
+            $(this).parents('.item').remove();
+            return false;
+        });
+
+        // On Search Result page
+        if(location.pathname === '/search') {
+
+            //const searchQuery = decodeURIComponent(location.search);
+            const btnBookmark = $(`<a id="btn-bookmark-search" data-svg="bookmark" title="Bookmark Search"></a>`)
+                .click(function() {
+                    $(this).toggleClass('active');
+                    if($(this).hasClass('active')) {
+                        addSavedSearch(location.search);
+                        reloadSavedSearchList();
+                    }
+                    else {
+                        removeSavedSearch(location.search);
+                    }
+                });
+
+            // Check if current query is already bookmarked
+            btnBookmark.toggleClass('active', hasSavedSearch(location.search));
+
+            // Replace advanced search link with bookmark link
+            $('.advanced-tips-toggle').after(btnBookmark).remove();
+        }
+    }
+
+
     function doPageLoad() {
 
         // If on Stack Overflow, make logo go to /questions
@@ -650,6 +762,10 @@
         });
 
         initAdvancedSearch();
+
+        initSavedSearch();
+
+        loadSvgIcons();
     }
 
 
@@ -693,11 +809,12 @@
         display: block;
     }
 }
-#search-helper .order-by {
+#search-helper #order-by {
     margin: 0 0 10px;
     font-size: 14px;
+    user-select: none;
 }
-#search-helper .order-by span.label {
+#search-helper #order-by span.label {
     display: inline-block;
     margin-right: 10px;
     font-weight: bold;
@@ -720,7 +837,6 @@
 #search-helper-tabs {
     float: none;
     margin: 0 0 -1px;
-    user-select: none;
 }
 #search-helper-tabs:after {
     content: '';
@@ -748,7 +864,6 @@
 #search-helper label {
     display: block;
     margin-top: 10px;
-    user-select: none;
 }
 #search-helper label.section-label {
     margin: 28px 0 14px;
@@ -817,7 +932,7 @@
 #search-helper input[type="checkbox"] + label {
     display: inline-block;
     width: auto;
-    min-width: 90px;
+    min-width: 82px;
     margin: 6px 10px 5px 0;
     font-size: 14px;
     line-height: 1.6;
@@ -914,6 +1029,88 @@
     height: 16px;
     background: white;
 }
+
+/* Saved Search */
+#search-helper [data-svg],
+#btn-bookmark-search {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    padding: 5px;
+    font-size: 0px;
+    background: #fff center/14px no-repeat;
+    border-radius: 3px;
+    border: 1px solid #aaa;
+    outline: none;
+}
+#search-helper a[data-svg]:hover,
+#btn-bookmark-search:hover {
+    border-color: #666;
+    background: #f3f3f3;
+}
+#search-helper [data-svg] svg,
+#btn-bookmark-search svg {
+    max-width: 16px;
+    max-height: 16px;
+    pointer-events: none;
+}
+#btn-saved-search[data-svg] {
+    position: absolute;
+    top: 14px;
+    right: 78px;
+    width: 30px;
+    height: 30px;
+    padding: 6px;
+}
+#btn-saved-search.active {
+    background: #ddd !important;
+    box-shadow: inset 1px 1px 0 0 rgba(0,0,0,0.2) !important;
+    border-right: none;
+    border-bottom: none;
+}
+#btn-bookmark-search.active {
+    padding: 6px;
+    border: none;
+    background: rgba(174,192,209,0.25);
+    fill: gold;
+    box-shadow: none !important;
+}
+#btn-saved-search.active ~ #saved-search {
+    display: block
+}
+#btn-saved-search.active ~ div {
+    display: none
+}
+#saved-search {
+    display: none;
+    padding-top: 40px;
+}
+#saved-search:before {
+    content: 'Saved Searches';
+    position: absolute;
+    top: 20px;
+    left: 25px;
+    font-size: 14px;
+    font-weight: bold;
+}
+#saved-search .item {
+    position: relative;
+    min-height: 50px;
+    line-height: 1.2;
+    padding-right: 50px;
+    border-bottom: 1px solid #ddd;
+    background: white;
+    font-size: 14px;
+}
+#saved-search .item > a {
+    display: block;
+    padding: 17px 15px;
+}
+#saved-search .actions {
+    position: absolute;
+    right: 10px;
+    top: 11px;
+}
 </style>
 `;
         $('body').append(styles);
@@ -931,6 +1128,12 @@
 }
 
 /* Search */
+label, .label,
+button, .button,
+#tabs, .tabs,
+.unselectable {
+    user-select: none;
+}
 .top-bar .searchbar .grid {
     display: flex;
 }
