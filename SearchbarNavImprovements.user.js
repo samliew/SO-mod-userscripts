@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.2
+// @version      3.1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -14,7 +14,7 @@
 //
 // @exclude      *chat.*
 //
-// @require      https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
+// @require      https://cdn.rawgit.com/samliew/SO-mod-userscripts/master/vendor/jquery-ui-custom.min.js
 // ==/UserScript==
 
 
