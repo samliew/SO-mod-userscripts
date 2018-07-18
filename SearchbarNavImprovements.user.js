@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.1
+// @version      3.1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1136,7 +1136,7 @@
     content: 'Saved Searches';
     position: absolute;
     top: 20px;
-    left: 25px;
+    left: 20px;
     font-size: 14px;
     font-weight: bold;
 }
@@ -1164,7 +1164,7 @@
     right: 10px;
     top: 11px;
 }
-.handle {
+#saved-search .handle {
     position: absolute;
     left: 12px;
     top: 18px;
@@ -1172,8 +1172,8 @@
     height: 14px;
     cursor: ns-resize;
 }
-.handle:before,
-.handle:after {
+#saved-search .handle:before,
+#saved-search .handle:after {
     content: '';
     position: absolute;
     top: 4px;
@@ -1181,7 +1181,7 @@
     height: 2px;
     background: #666;
 }
-.handle:after {
+#saved-search .handle:after {
     top: initial;
     bottom: 4px;
 }
