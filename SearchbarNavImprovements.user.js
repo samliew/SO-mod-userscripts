@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2
+// @version      3.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -69,10 +69,10 @@
         store.setItem(itKeyRoot, JSON.stringify(iTags));
     }
     function getWatchedTags() {
-        return JSON.parse(store.getItem(wtKeyRoot)) || [];
+        return (JSON.parse(store.getItem(wtKeyRoot)) || []).join('  ');
     }
     function getIgnoredTags() {
-        return JSON.parse(store.getItem(itKeyRoot)) || [];
+        return (JSON.parse(store.getItem(itKeyRoot)) || []).join('  ');
     }
 
 
@@ -423,14 +423,14 @@
     <label for="any-tags">any of these tags:</label>
     <div><input name="any-tags" id="any-tags" class="js-taglookup" data-clearbtn data-autofill data-join="] OR [" data-prefix="[" data-suffix="]" />
       <div class="checkbox-right">
-        <input type="checkbox" name="user-watched-tags" id="user-watched-tags" data-autofills-for="#any-tags" value="${getWatchedTags().join('  ')}" />
+        <input type="checkbox" name="user-watched-tags" id="user-watched-tags" data-autofills-for="#any-tags" value="${getWatchedTags()}" />
         <label for="user-watched-tags" title="any watched tag">watched tags</label>
       </div>
     </div>
     <label for="not-tags">excluding these tags:</label>
     <div><input name="not-tags" id="not-tags" class="js-taglookup" data-clearbtn data-autofill data-join="] -[" data-prefix="-[" data-suffix="]" />
       <div class="checkbox-right">
-        <input type="checkbox" name="user-ignored-tags" id="user-ignored-tags" data-autofills-for="#not-tags" value="${getIgnoredTags().join('  ')}" />
+        <input type="checkbox" name="user-ignored-tags" id="user-ignored-tags" data-autofills-for="#not-tags" value="${getIgnoredTags()}" />
         <label for="user-ignored-tags" title="exclude all ignored tags">ignored tags</label>
       </div>
     </div>
@@ -844,6 +844,19 @@
         initAdvancedSearch();
         initSavedSearch();
         loadSvgIcons();
+    }
+
+
+    function listenToPageUpdates() {
+
+        // On any page update
+        $(document).ajaxComplete(function(event, xhr, settings) {
+            if(settings.url.indexOf('/users/save-preference') >= 0) {
+                tryUpdateWatchedIgnoredTags();
+                $('#user-watched-tags').val(getWatchedTags());
+                $('#user-ignored-tags').val(getIgnoredTags());
+            }
+        });
     }
 
 
@@ -1309,5 +1322,6 @@ button, .button,
     // On page load
     appendStyles();
     doPageLoad();
+    listenToPageUpdates();
 
 })();
