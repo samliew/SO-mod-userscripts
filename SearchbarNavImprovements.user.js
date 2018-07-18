@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0.2
+// @version      3.0.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -660,7 +660,19 @@
     function initSavedSearch() {
 
         const ss = $('#saved-search');
+        const btnBookmark = $(`<a id="btn-bookmark-search" data-svg="bookmark" title="Bookmark Search"></a>`)
+            .click(function() {
+                $(this).toggleClass('active');
+                if($(this).hasClass('active')) {
+                    addSavedSearch(location.search);
+                }
+                else {
+                    removeSavedSearch(location.search);
+                }
+                reloadSavedSearchList();
+            });
 
+        // Button toggle in Search helper
         $('#btn-saved-search').click(function() {
            $(this).toggleClass('active');
         });
@@ -686,24 +698,15 @@
         ss.on('click', 'a.delete', function(evt) {
             removeSavedSearch(evt.target.dataset.value);
             $(this).parents('.item').remove();
+
+            // Update current search page's bookmark
+            btnBookmark.toggleClass('active', hasSavedSearch(location.search));
+
             return false;
         });
 
         // On Search Result page and has search query
         if(location.pathname === '/search' && location.search.length > 2) {
-
-            //const searchQuery = decodeURIComponent(location.search);
-            const btnBookmark = $(`<a id="btn-bookmark-search" data-svg="bookmark" title="Bookmark Search"></a>`)
-                .click(function() {
-                    $(this).toggleClass('active');
-                    if($(this).hasClass('active')) {
-                        addSavedSearch(location.search);
-                        reloadSavedSearchList();
-                    }
-                    else {
-                        removeSavedSearch(location.search);
-                    }
-                });
 
             // Check if current query is already bookmarked
             btnBookmark.toggleClass('active', hasSavedSearch(location.search));
