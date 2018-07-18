@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0.3
+// @version      3.0.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -152,23 +152,32 @@
 
     // Saved Search helper functions
     const ssKeyRoot = 'SavedSearch';
+    // Sanitize: strip mixed, strip page, convert to lowercase
+    function sanitizeQuery(value) {
+        return value.toLowerCase().replace(/[?&]mixed=[10]/, '').replace(/[?&]page=\d+/, '').replace(/^[&]/, '?');
+    }
     function addSavedSearch(value) {
         if(value == null || value == '') return false;
-        value = value.replace(/&mixed=[10]/, '');
+        value = sanitizeQuery(value);
+
         let items = getSavedSearches();
         items.unshift(value); // add to beginning
         store.setItem(ssKeyRoot, JSON.stringify(items));
     }
     function hasSavedSearch(value) {
         if(value == null || value == '') return false;
+        value = sanitizeQuery(value);
+
         const items = getSavedSearches();
         const result = jQuery.grep(items, function(v) {
-            return v + '&mixed=0' == value;
+            return v == value;
         });
         return result.length > 0;
     }
     function removeSavedSearch(value) {
         if(value == null || value == '') return false;
+        value = sanitizeQuery(value);
+
         const items = getSavedSearches();
         const result = jQuery.grep(items, function(v) {
             return v != value;
@@ -180,8 +189,8 @@
     }
     function humanizeSearchQuery(value) {
         if(value == null || value == '') return false;
-        value = decodeURIComponent(value)
-            .replace(/&mixed=[10]$/, '')
+        value = decodeURIComponent(value);
+        value = sanitizeQuery(value)
             .replace(/[?&][a-z]+=/g, ' ')
             .replace(/\+/g, ' ')
             .trim();
