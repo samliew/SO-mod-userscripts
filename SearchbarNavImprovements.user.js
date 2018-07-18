@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -153,6 +153,8 @@
     // Saved Search helper functions
     const ssKeyRoot = 'SavedSearch';
     function addSavedSearch(value) {
+        if(value == null || value == '') return false;
+        value = value.replace(/&mixed=[10]/, '');
         let items = getSavedSearches();
         items.unshift(value); // add to beginning
         store.setItem(ssKeyRoot, JSON.stringify(items));
@@ -161,11 +163,12 @@
         if(value == null || value == '') return false;
         const items = getSavedSearches();
         const result = jQuery.grep(items, function(v) {
-            return v == value;
+            return v + '&mixed=0' == value;
         });
         return result.length > 0;
     }
     function removeSavedSearch(value) {
+        if(value == null || value == '') return false;
         const items = getSavedSearches();
         const result = jQuery.grep(items, function(v) {
             return v != value;
@@ -175,13 +178,14 @@
     function getSavedSearches() {
         return JSON.parse(store.getItem(ssKeyRoot)) || [];
     }
-    function humanizeSearchQuery(string) {
-        string = decodeURIComponent(string)
+    function humanizeSearchQuery(value) {
+        if(value == null || value == '') return false;
+        value = decodeURIComponent(value)
             .replace(/&mixed=[10]$/, '')
             .replace(/[?&][a-z]+=/g, ' ')
             .replace(/\+/g, ' ')
             .trim();
-        return string;
+        return value;
     }
 
 
@@ -668,7 +672,7 @@
             $.each(ssitems, function(i, v) {
                 const readable = humanizeSearchQuery(v);
                 const sstemplate = $(`<div class="item">
-                  <a href="/search${v}">${readable}</a>
+                  <a href="/search${v}&mixed=0">${readable}</a>
                   <div class="actions">
                     <a class="delete" data-svg="delete" data-value="${v}" title="Delete (no confirmation)"></a>
                   </div>
@@ -685,8 +689,8 @@
             return false;
         });
 
-        // On Search Result page
-        if(location.pathname === '/search') {
+        // On Search Result page and has search query
+        if(location.pathname === '/search' && location.search.length > 2) {
 
             //const searchQuery = decodeURIComponent(location.search);
             const btnBookmark = $(`<a id="btn-bookmark-search" data-svg="bookmark" title="Bookmark Search"></a>`)
