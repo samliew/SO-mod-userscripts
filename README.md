@@ -9,19 +9,21 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 
 ## Recommended
 
-
 These are highly recommended for moderators. Minor changes to the UI/defaults makes your mod life easier by a *huge* amount (saving clicks, or having to hunt for a particular link/mod feature, or displaying more info upfront). Click these to jump to their descriptions below:
 
-- [Mod User Quicklinks Everywhere](#mod-user-quicklinks-everywhere-)
-- [User Info Sidebar](#user-info-sidebar-)
-- [Mod Popup Dialog Improvements](#mod-popup-dialog-improvements-)
-- [User Review Ban Helper](#user-review-ban-helper-)
-- [Comment Flags Helper](#comment-flags-helper-)
-- [Not An Answer Flag Queue Helper](#not-an-answer-flag-queue-helper-)
-- [Display Inline Comment Flag History](#display-inline-comment-flag-history-)
-- [Possible Vandalism Deletions Helper](#possible-vandalism-deletions-helper-)
-- [Deleted Users Helper](#deleted-users-helper-)
-- [Post Timeline Filters](#post-timeline-filters)
+- [Mod User Quicklinks Everywhere](https://github.com/samliew/SO-mod-userscripts#mod-user-quicklinks-everywhere-)
+- [User Info Sidebar](https://github.com/samliew/SO-mod-userscripts#user-info-sidebar-)
+- [User Review Ban Helper](https://github.com/samliew/SO-mod-userscripts#user-review-ban-helper-)
+- [Comment Flags Helper](https://github.com/samliew/SO-mod-userscripts#comment-flags-helper-)
+- [Not An Answer Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts#not-an-answer-flag-queue-helper-)
+- [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts#display-inline-comment-flag-history-)
+- [Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts#deleted-users-helper-)
+
+
+These are highly recommended for everyone because they are too awesome:
+
+- [Searchbar & Nav Improvements](https://github.com/samliew/SO-mod-userscripts#searchbar--nav-improvements)
+- [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts#post-timeline-filters)
 
 
 <br>
@@ -200,7 +202,22 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-04_110741.png)
 - (Meta) Adds link to parent in left sidebar
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-04_110717.png)
-- Add advanced search helper when search box is focused (coming soon)
+
+**Advanced Search Helper when search box is focused**
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/advanced-search.gif)
+- Tag autocomplete
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/as-tag-ac.gif)
+- Username autocomplete
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/as-username-ac.gif)
+- Useful add-ons!
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_120756.png)
+
+**Saved Searches**
+- Toggle from search results page
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_120700.png)
+- View list via toggle button in Advanced Search Helper
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_120752.png)
+
 
 
 <br>
