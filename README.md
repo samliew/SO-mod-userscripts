@@ -205,6 +205,8 @@ These are highly recommended for everyone because they are too awesome:
 
 **Advanced Search Helper when search box is focused**
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/advanced-search.gif)
+- Fill-in your watched/ignored tags!
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_220756.png)
 - Tag autocomplete
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/as-tag-ac.gif)
 - Username autocomplete
