@@ -29,6 +29,9 @@ ul.comments-list .comment:hover .comment-voting,
 ul.comments-list .comment:hover .comment-flagging {
     visibility: visible;
 }
+.popup-flag-comment {
+    visibility: visible !important;
+}
 </style>
 `;
         $('body').append(styles);
