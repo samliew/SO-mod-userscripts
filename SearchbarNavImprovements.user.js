@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0.4
+// @version      3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -13,6 +13,8 @@
 // @include      https://*.stackexchange.com/*
 //
 // @exclude      *chat.*
+//
+// @require      https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // ==/UserScript==
 
 
@@ -156,13 +158,22 @@
     function sanitizeQuery(value) {
         return value.toLowerCase().replace(/[?&]mixed=[10]/, '').replace(/[?&]page=\d+/, '').replace(/^[&]/, '?');
     }
-    function addSavedSearch(value) {
+    function addSavedSearch(value, append = false) {
         if(value == null || value == '') return false;
         value = sanitizeQuery(value);
 
         let items = getSavedSearches();
-        items.unshift(value); // add to beginning
+        if(append) {
+            items.push(value); // add to end
+        }
+        else {
+            items.unshift(value); // add to beginning
+        }
         store.setItem(ssKeyRoot, JSON.stringify(items));
+    }
+    function addSavedSearches(arrayValues) {
+        if(typeof arrayValues !== 'object' || arrayValues.length == 0) return false;
+        arrayValues.forEach(o => addSavedSearch(o, true));
     }
     function hasSavedSearch(value) {
         if(value == null || value == '') return false;
@@ -184,6 +195,9 @@
         });
         store.setItem(ssKeyRoot, JSON.stringify(result));
     }
+    function removeAllSavedSearches() {
+        store.setItem(ssKeyRoot, JSON.stringify([]));
+    }
     function getSavedSearches() {
         return JSON.parse(store.getItem(ssKeyRoot)) || [];
     }
@@ -195,6 +209,83 @@
             .replace(/\+/g, ' ')
             .trim();
         return value;
+    }
+
+
+    function initSavedSearch() {
+
+        const ss = $('#saved-search');
+        const btnBookmark = $(`<a id="btn-bookmark-search" data-svg="bookmark" title="Bookmark Search"></a>`)
+            .click(function() {
+                $(this).toggleClass('active');
+                if($(this).hasClass('active')) {
+                    addSavedSearch(location.search);
+                }
+                else {
+                    removeSavedSearch(location.search);
+                }
+                reloadSavedSearchList();
+            });
+
+        // Button toggle in Search helper
+        $('#btn-saved-search').click(function() {
+           $(this).toggleClass('active');
+        });
+
+        // Load Saved Searches
+        function reloadSavedSearchList() {
+            ss.empty();
+            const ssitems = getSavedSearches();
+            $.each(ssitems, function(i, v) {
+                const readable = humanizeSearchQuery(v);
+                const sstemplate = $(`<div class="item" data-value="${v}">
+                  <a href="/search${v}&mixed=0">${readable}</a>
+                  <div class="actions">
+                    <a class="delete" data-svg="delete" title="Delete (no confirmation)"></a>
+                  </div>
+                </div>`).appendTo(ss);
+            });
+            loadSvgIcons();
+        }
+        reloadSavedSearchList(); // Once on init
+
+        // Sortable bookmarks
+        ss.sortable({
+            placeholder: 'sort-placeholder',
+            tolerance: 'intersect',
+            axis: 'y',
+            opacity: 0.8,
+            cursor: 'n-resize',
+            cancel: '.actions',
+        });
+        ss.disableSelection();
+        ss.on('sortupdate', function(evt, ui) {
+            const items = ss.children('.item').map((i,el) => el.dataset.value).get();
+            removeAllSavedSearches();
+            addSavedSearches(items);
+        });
+
+        // Handle delete button
+        ss.on('click', 'a.delete', function(evt) {
+            const item = $(this).parents('.item');
+            removeSavedSearch(item.get(0).dataset.value);
+
+            // Update current search page's bookmark
+            btnBookmark.toggleClass('active', hasSavedSearch(location.search));
+
+            item.remove();
+            return false;
+        });
+
+        // On Search Result page and has search query
+        if(location.pathname === '/search' && location.search.length > 2) {
+
+            // Check if current query is already bookmarked
+            btnBookmark.toggleClass('active', hasSavedSearch(location.search));
+
+            // Replace advanced search link with bookmark link
+            $('.advanced-tips-toggle').after(btnBookmark).remove();
+        }
     }
 
 
@@ -666,66 +757,6 @@
     }
 
 
-    function initSavedSearch() {
-
-        const ss = $('#saved-search');
-        const btnBookmark = $(`<a id="btn-bookmark-search" data-svg="bookmark" title="Bookmark Search"></a>`)
-            .click(function() {
-                $(this).toggleClass('active');
-                if($(this).hasClass('active')) {
-                    addSavedSearch(location.search);
-                }
-                else {
-                    removeSavedSearch(location.search);
-                }
-                reloadSavedSearchList();
-            });
-
-        // Button toggle in Search helper
-        $('#btn-saved-search').click(function() {
-           $(this).toggleClass('active');
-        });
-
-        // Load Saved Searches
-        function reloadSavedSearchList() {
-            ss.empty();
-            const ssitems = getSavedSearches();
-            $.each(ssitems, function(i, v) {
-                const readable = humanizeSearchQuery(v);
-                const sstemplate = $(`<div class="item">
-                  <a href="/search${v}&mixed=0">${readable}</a>
-                  <div class="actions">
-                    <a class="delete" data-svg="delete" data-value="${v}" title="Delete (no confirmation)"></a>
-                  </div>
-                </div>`).prependTo(ss);
-            });
-            loadSvgIcons();
-        }
-        reloadSavedSearchList(); // Once on init
-
-        // Handle delete button
-        ss.on('click', 'a.delete', function(evt) {
-            removeSavedSearch(evt.target.dataset.value);
-            $(this).parents('.item').remove();
-
-            // Update current search page's bookmark
-            btnBookmark.toggleClass('active', hasSavedSearch(location.search));
-
-            return false;
-        });
-
-        // On Search Result page and has search query
-        if(location.pathname === '/search' && location.search.length > 2) {
-
-            // Check if current query is already bookmarked
-            btnBookmark.toggleClass('active', hasSavedSearch(location.search));
-
-            // Replace advanced search link with bookmark link
-            $('.advanced-tips-toggle').after(btnBookmark).remove();
-        }
-    }
-
-
     function doPageLoad() {
 
         // If on Stack Overflow, make logo go to /questions
@@ -1109,7 +1140,8 @@
     font-size: 14px;
     font-weight: bold;
 }
-#saved-search .item {
+#saved-search .item,
+#saved-search .sort-placeholder {
     position: relative;
     min-height: 50px;
     line-height: 1.2;
@@ -1117,6 +1149,10 @@
     border-bottom: 1px solid #ddd;
     background: white;
     font-size: 14px;
+}
+#saved-search .sort-placeholder {
+    background: #ddd;
+    border: 1px dashed #ccc;
 }
 #saved-search .item > a {
     display: block;
