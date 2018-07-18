@@ -258,7 +258,6 @@
             cursor: 'n-resize',
             cancel: '.actions',
         });
-        ss.disableSelection();
         ss.on('sortupdate', function(evt, ui) {
             const items = ss.children('.item').map((i,el) => el.dataset.value).get();
             removeAllSavedSearches();
