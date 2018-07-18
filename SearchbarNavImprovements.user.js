@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1
+// @version      3.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -239,6 +239,7 @@
             $.each(ssitems, function(i, v) {
                 const readable = humanizeSearchQuery(v);
                 const sstemplate = $(`<div class="item" data-value="${v}">
+                  <span class="handle"></span>
                   <a href="/search${v}&mixed=0">${readable}</a>
                   <div class="actions">
                     <a class="delete" data-svg="delete" title="Delete (no confirmation)"></a>
@@ -253,7 +254,6 @@
         ss.sortable({
             placeholder: 'sort-placeholder',
             tolerance: 'intersect',
-            axis: 'y',
             opacity: 0.8,
             cursor: 'n-resize',
             cancel: '.actions',
@@ -1145,6 +1145,7 @@
     position: relative;
     min-height: 50px;
     line-height: 1.2;
+    padding-left: 30px;
     padding-right: 50px;
     border-bottom: 1px solid #ddd;
     background: white;
@@ -1162,6 +1163,27 @@
     position: absolute;
     right: 10px;
     top: 11px;
+}
+.handle {
+    position: absolute;
+    left: 12px;
+    top: 18px;
+    width: 15px;
+    height: 14px;
+    cursor: ns-resize;
+}
+.handle:before,
+.handle:after {
+    content: '';
+    position: absolute;
+    top: 4px;
+    width: 100%;
+    height: 2px;
+    background: #666;
+}
+.handle:after {
+    top: initial;
+    bottom: 4px;
 }
 </style>
 `;
