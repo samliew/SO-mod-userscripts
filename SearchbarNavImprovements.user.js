@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.4
+// @version      3.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -56,6 +56,24 @@
             return $(this).val() !== '';
         });
     };
+
+
+    // Fetch and store watched/ignored tags
+    const wtKeyRoot = 'TagsWatched';
+    const itKeyRoot = 'TagsIgnored';
+    function tryUpdateWatchedIgnoredTags() {
+        if($('.js-tag-preferences-container').length === 0) return;
+        const wTags = $('.js-watched-tag-list .post-tag').map((i,el) => el.text).get() || [];
+        const iTags = $('.js-ignored-tag-list .post-tag').map((i,el) => el.text).get() || [];
+        store.setItem(wtKeyRoot, JSON.stringify(wTags));
+        store.setItem(itKeyRoot, JSON.stringify(iTags));
+    }
+    function getWatchedTags() {
+        return JSON.parse(store.getItem(wtKeyRoot)) || [];
+    }
+    function getIgnoredTags() {
+        return JSON.parse(store.getItem(itKeyRoot)) || [];
+    }
 
 
     function loadSvgIcons() {
@@ -403,9 +421,19 @@
     <label for="tags">all of these tags:</label>
     <div><input name="tags" id="tags" class="js-taglookup" data-clearbtn data-autofill data-join="] [" data-prefix="[" data-suffix="]" /></div>
     <label for="any-tags">any of these tags:</label>
-    <div><input name="any-tags" id="any-tags" class="js-taglookup" data-clearbtn data-autofill data-join="] OR [" data-prefix="[" data-suffix="]" /></div>
+    <div><input name="any-tags" id="any-tags" class="js-taglookup" data-clearbtn data-autofill data-join="] OR [" data-prefix="[" data-suffix="]" />
+      <div class="checkbox-right">
+        <input type="checkbox" name="user-watched-tags" id="user-watched-tags" data-autofills-for="#any-tags" value="${getWatchedTags().join('  ')}" />
+        <label for="user-watched-tags" title="any watched tag">watched tags</label>
+      </div>
+    </div>
     <label for="not-tags">excluding these tags:</label>
-    <div><input name="not-tags" id="not-tags" class="js-taglookup" data-clearbtn data-autofill data-join="] -[" data-prefix="-[" data-suffix="]" /></div>
+    <div><input name="not-tags" id="not-tags" class="js-taglookup" data-clearbtn data-autofill data-join="] -[" data-prefix="-[" data-suffix="]" />
+      <div class="checkbox-right">
+        <input type="checkbox" name="user-ignored-tags" id="user-ignored-tags" data-autofills-for="#not-tags" value="${getIgnoredTags().join('  ')}" />
+        <label for="user-ignored-tags" title="exclude all ignored tags">ignored tags</label>
+      </div>
+    </div>
   </div>
   <div>
     <label class="section-label">Post Score</label>
@@ -694,6 +722,11 @@
         // Handle tag name lookup using API
         searchhelper.find('.js-taglookup').tagLookup(true);
 
+        // Handle radio/checkbox fields that populates another field
+        searchhelper.on('click', '[data-autofills-for]', function() {
+            if(this.checked) $(this.dataset.autofillsFor).val(this.value).trigger('change');
+        });
+
         // Handle fields that checks another radio/checkbox
         searchhelper.on('change keyup click', '[data-checks]', function() {
             $(this.dataset.checks).prop('checked', true).trigger('change');
@@ -807,10 +840,9 @@
             $(this).before(items).remove();
         });
 
+        tryUpdateWatchedIgnoredTags();
         initAdvancedSearch();
-
         initSavedSearch();
-
         loadSvgIcons();
     }
 
@@ -970,6 +1002,10 @@
 }
 .clearbtn:hover {
     color: red;
+}
+#search-helper .checkbox-right {
+    display: inline-block;
+    margin-left: 10px;
 }
 #search-helper label.radio-group-label ~ input[type="radio"] + label {
     min-width: 60px;
