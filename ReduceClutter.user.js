@@ -3,7 +3,7 @@
 // @description  Reveals comment action icons on comment hover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -26,7 +26,8 @@ ul.comments-list .comment-flagging {
     visibility: hidden;
 }
 ul.comments-list .comment:hover .comment-voting,
-ul.comments-list .comment:hover .comment-flagging {
+ul.comments-list .comment:hover .comment-flagging,
+ul.comments-list .comment-up-on {
     visibility: visible;
 }
 .popup-flag-comment {
