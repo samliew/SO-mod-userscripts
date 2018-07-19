@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2.1
+// @version      3.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -30,6 +30,8 @@
 
     const mseDomain = 'meta.stackexchange.com';
     const isMSE = location.hostname === mseDomain;
+    const isSO = location.hostname === 'stackoverflow.com';
+    const channel = StackExchange.options.site.routePrefix || '';
 
     const isChildMeta = typeof StackExchange.options.site.isChildMeta !== 'undefined';
     const mainName = StackExchange.options.site.name.replace(/\bmeta\b/i, '').trim();
@@ -258,7 +260,7 @@
                 const readable = humanizeSearchQuery(v);
                 const sstemplate = $(`<div class="item" data-value="${v}">
                   <span class="handle"></span>
-                  <a href="/search${v}&mixed=0">${readable}</a>
+                  <a href="${channel}/search${v}${isSO ? '&mixed=0' : ''}">${readable}</a>
                   <div class="actions">
                     <a class="delete" data-svg="delete" title="Delete (no confirmation)"></a>
                   </div>
