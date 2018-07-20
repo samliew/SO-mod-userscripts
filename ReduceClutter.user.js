@@ -3,7 +3,7 @@
 // @description  Reveals comment action icons on comment hover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -21,6 +21,11 @@
 
         const styles = `
 <style>
+
+/*
+   Fix comment upvote and flag always showing
+   https://meta.stackexchange.com/q/312794
+*/
 ul.comments-list .comment-voting,
 ul.comments-list .comment-flagging {
     visibility: hidden;
@@ -33,6 +38,11 @@ ul.comments-list .comment-up-on {
 .popup-flag-comment {
     visibility: visible !important;
 }
+
+/*
+   Fix missing edited comment icon
+   https://meta.stackexchange.com/q/312829
+*/
 .edited-yes {
     display: inline-block;
     position: relative;
@@ -40,6 +50,16 @@ ul.comments-list .comment-up-on {
     width: 12px;
     height: 12px;
 }
+
+/*
+   Make comment edited icon same color as timestamp
+   https://meta.stackoverflow.com/q/371313
+*/
+.s-link,
+.iconPencilSm {
+    color: #9199a1 !important;
+}
+
 </style>
 `;
         $('body').append(styles);
