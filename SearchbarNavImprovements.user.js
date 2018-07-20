@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3.1
+// @version      3.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -13,8 +13,6 @@
 // @include      https://*.stackexchange.com/*
 //
 // @exclude      *chat.*
-//
-// @require      https://cdn.rawgit.com/samliew/SO-mod-userscripts/master/vendor/jquery-ui-custom.min.js
 // ==/UserScript==
 
 
@@ -271,17 +269,15 @@
         reloadSavedSearchList(); // Once on init
 
         // Sortable bookmarks
-        ss.sortable({
-            placeholder: 'sort-placeholder',
-            tolerance: 'intersect',
-            opacity: 0.8,
-            cursor: 'n-resize',
-            cancel: '.actions',
-        });
-        ss.on('sortupdate', function(evt, ui) {
-            const items = ss.children('.item').map((i,el) => el.dataset.value).get();
-            removeAllSavedSearches();
-            addSavedSearches(items);
+        $.getScript('https://cdn.rawgit.com/RubaXa/Sortable/master/Sortable.js', function() {
+            Sortable.create(ss.get(0), {
+                ghostClass: 'sortable-ghost',
+                onUpdate: function(evt) {
+                    const items = ss.children('.item').map((i,el) => el.dataset.value).get();
+                    removeAllSavedSearches();
+                    addSavedSearches(items);
+                },
+            });
         });
 
         // Handle delete button
@@ -1192,7 +1188,7 @@
     font-weight: bold;
 }
 #saved-search .item,
-#saved-search .sort-placeholder {
+#saved-search .sortable-ghost {
     position: relative;
     min-height: 50px;
     line-height: 1.2;
@@ -1202,9 +1198,12 @@
     background: white;
     font-size: 14px;
 }
-#saved-search .sort-placeholder {
-    background: #ddd;
-    border: 1px dashed #ccc;
+#saved-search .sortable-ghost {
+    background: #eee;
+    border: 1px dashed #aaa;
+}
+#saved-search .sortable-drag {
+    cursor: ns-resize;
 }
 #saved-search .item > a {
     display: block;
