@@ -10,6 +10,7 @@
 // @include      https://*superuser.com/*
 // @include      https://*askubuntu.com/*
 // @include      https://*mathoverflow.net/*
+// @include      https://*stackapps.com/*
 // @include      https://*.stackexchange.com/*
 // ==/UserScript==
 
