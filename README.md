@@ -18,6 +18,7 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 - [Not An Answer Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts#not-an-answer-flag-queue-helper-)
 - [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts#display-inline-comment-flag-history-)
 - [Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts#deleted-users-helper-)
+- [User History Improvements](https://github.com/samliew/SO-mod-userscripts#user-history-improvements-)
 
 
 These are highly recommended for everyone because they are too awesome:
@@ -98,6 +99,12 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-02_210759.png)
 - Additional helpful links below for IP & username cross-referencing
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-09_080758.png)
+
+
+### [User History Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/UserHistoryImprovements.user.js) ♦
+
+- Fixes broken links in user annotations, and minor layout improvements
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-24_160759.png)
 
 
 ### [Post Ban Deleted Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/PostBanDeletedPosts.user.js) ♦
