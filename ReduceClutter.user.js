@@ -3,7 +3,7 @@
 // @description  Reveals comment action icons on comment hover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
