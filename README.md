@@ -210,22 +210,22 @@ These are highly recommended for everyone because they are too awesome:
 - (Meta) Adds link to parent in left sidebar
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-04_110717.png)
 
-**Advanced Search Helper when search box is focused**
+- **Advanced Search Helper when search box is focused**
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/advanced-search.gif)
-- Fill-in your watched/ignored tags!
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_220756.png)
-- Tag autocomplete
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/as-tag-ac.gif)
-- Username autocomplete
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/as-username-ac.gif)
-- Useful add-ons!
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_120756.png)
+  - Fill-in your watched/ignored tags!
+  <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_220756.png)
+  - Tag autocomplete
+  <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/as-tag-ac.gif)
+  - Username autocomplete
+  <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/as-username-ac.gif)
+  - Useful add-ons!
+  <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_120756.png)
 
-**Saved Searches**
-- Toggle from search results page
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_120700.png)
-- View list via toggle button in Advanced Search Helper
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_120752.png)
+- **Saved Searches**
+  - Toggle from search results page
+  <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_120700.png)
+  - View list via toggle button in Advanced Search Helper
+  <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_120752.png)
 
 
 
