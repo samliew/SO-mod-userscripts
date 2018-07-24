@@ -23,6 +23,8 @@ Direct installation links (raw files)
 
 [Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/DeletedUsersHelper.user.js) ♦
 
+[User History Improvements](https://github.com/samliew/SO-mod-userscripts/raw/master/UserHistoryImprovements.user.js) ♦
+
 [Post Ban Deleted Posts](https://github.com/samliew/SO-mod-userscripts/raw/master/PostBanDeletedPosts.user.js) ♦
 
 [User Social Media Profile Links](https://github.com/samliew/SO-mod-userscripts/raw/master/UserSocialMediaProfileLinks.user.js) ♦
