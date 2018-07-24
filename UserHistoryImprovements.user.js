@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -72,7 +72,7 @@
     max-width: 52px;
 }
 #annotations td:nth-child(3) {
-    max-width: 92px;
+    max-width: 95px;
 }
 #annotations td:nth-child(4) {
     width: 100%;
