@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.5
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -130,6 +130,11 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
                         $(this).find('.event-comment').append(`<span> - ${v[i][1]} - ${v[i][2]}</span>`);
                     });
                 });
+
+                // Trim timeline username link text that is causing an autocomplete bug on deleted posts
+                //  - https://meta.stackoverflow.com/q/371539
+                $(this).find('.comment-user').text((i,v) => v.trim());
+
             }).appendTo(cmmtDiv);
             //console.log(cmmtDiv);
 
