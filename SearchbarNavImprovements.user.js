@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4
+// @version      3.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -174,7 +174,12 @@
     const ssKeyRoot = 'SavedSearch';
     // Sanitize: strip mixed, strip page, convert to lowercase
     function sanitizeQuery(value) {
-        return value.toLowerCase().replace(/[?&]mixed=[10]/, '').replace(/[?&]page=\d+/, '').replace(/^[&]/, '?');
+        return value.toLowerCase()
+                 .replace(/[?&]mixed=[10]/, '')
+                 .replace(/[?&]page=\d+/, '')
+                 .replace(/^[&]/, '?')
+                 .replace(/%20/g, '+')
+                 .replace('tab=&', 'tab=relevance&');
     }
     function addSavedSearch(value, append = false) {
         if(value == null || value == '') return false;
@@ -299,7 +304,7 @@
             btnBookmark.toggleClass('active', hasSavedSearch(location.search));
 
             // Replace advanced search link with bookmark link
-            $('.advanced-tips-toggle').after(btnBookmark).remove();
+            $('.advanced-tips-toggle, .js-advanced-tips-toggle').after(btnBookmark).remove();
         }
     }
 
