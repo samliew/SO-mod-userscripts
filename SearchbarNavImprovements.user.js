@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.5
+// @version      3.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -56,6 +56,16 @@
             return $(this).val() !== '';
         });
     };
+
+
+    // Fetch and store last sort option
+    const sortKeyRoot = 'SearchLastSort';
+    function setLastSort(val) {
+        store.setItem(sortKeyRoot, val);
+    }
+    function getLastSort() {
+        return store.getItem(sortKeyRoot);
+    }
 
 
     // Fetch and store watched/ignored tags
@@ -366,6 +376,9 @@
         // Move order-by fields before search field so that the resulting query will match SE's format
         orderby.hide().insertBefore(searchfield);
 
+        // Save last search sort
+        setLastSort(orderby.find(':checked').val() || 'relevance');
+
         // Remove search helper on submit so it doesn't pollute the query string
         searchhelper.remove();
     }
@@ -645,6 +658,10 @@
 </div>`).insertAfter(searchbtn);
 
         orderby.insertBefore('#search-helper-tabs');
+
+        // Get last search sort
+        let lastSort = getLastSort();
+        if(lastSort) orderby.find('#tab-' + lastSort).click();
 
 
         // Opened/closed state
