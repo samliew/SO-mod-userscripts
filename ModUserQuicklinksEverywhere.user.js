@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -23,6 +23,10 @@
     if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
 
 
+    const isChildMeta = StackExchange.options.site.isChildMeta;
+    const parentUrl = isChildMeta ? StackExchange.options.site.parentUrl : '';
+
+
     function addUserLinks() {
         $('.post-user-info, .user-details')
             .not('[js-mod-quicklinks]')
@@ -31,7 +35,11 @@
 
                 // Add Votes and IP-xref links after the user link
                 const uid = this.href.match(/\d+/);
-                $(`<div class="mod-userlinks">[ <a href="/users/account-info/${uid}" target="_blank">mod</a> | <a href="/admin/show-user-votes/${uid}" target="_blank">votes</a> | <a href="/admin/xref-user-ips/${uid}" target="_blank">xref</a> ]</div>`)
+                $(`<div class="mod-userlinks">[
+  <a href="${parentUrl}/users/account-info/${uid}" target="_blank">mod</a>
+| <a href="${parentUrl}/admin/show-user-votes/${uid}" target="_blank">votes</a>
+| <a href="${parentUrl}/admin/xref-user-ips/${uid}" target="_blank">xref</a>
+]</div>`)
                     .insertAfter(this);
             });
     }
