@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.7
+// @version      3.7.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -428,7 +428,7 @@
     <input name="any-words" id="any-words" data-clearbtn data-autofill data-termvalue="section" data-join=" OR " />
     <label for="not-words">excluding these words:</label>
     <input name="not-words" id="not-words" data-clearbtn data-autofill data-termvalue="section" data-neg=" -" />
-    <label for="code-words">in a code block:</label>
+    <label for="code-words">in a code block: <em>(exact phrase, case-sensitive)</em></label>
     <input name="code-words" id="code-words" data-clearbtn data-autofill data-prefix='code:"' data-suffix='"' />
     <label class="section-label">URL</label>
     <label for="url">mentions url/domain (accepts * wildcard):</label>
