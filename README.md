@@ -212,6 +212,7 @@ These are highly recommended for everyone because they are too awesome:
 
 - **Advanced Search Helper when search box is focused**
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/advanced-search.gif)
+
   - Fill-in your watched/ignored tags!
   <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_220756.png)
   - Tag autocomplete
@@ -222,10 +223,16 @@ These are highly recommended for everyone because they are too awesome:
   <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_120756.png)
 
 - **Saved Searches**
+
   - Toggle from search results page
   <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_120700.png)
   - View list via toggle button in Advanced Search Helper
   <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-18_120752.png)
+
+- **Auto Refresh**
+
+  - Toggle from search results page
+  <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-02_130815.png)
 
 
 
