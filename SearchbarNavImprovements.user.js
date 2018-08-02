@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.7.1
+// @version      3.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -23,6 +23,7 @@
     const svgicons = {
         delete : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M336 64l-33.6-44.8C293.3 7.1 279.1 0 264 0h-80c-15.1 0-29.3 7.1-38.4 19.2L112 64H24C10.7 64 0 74.7 0 88v2c0 3.3 2.7 6 6 6h26v368c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V96h26c3.3 0 6-2.7 6-6v-2c0-13.3-10.7-24-24-24h-88zM184 32h80c5 0 9.8 2.4 12.8 6.4L296 64H152l19.2-25.6c3-4 7.8-6.4 12.8-6.4zm200 432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V96h320v368zm-176-44V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm-80 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm160 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12z"/></svg>',
         bookmark : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M0 512V48C0 21.49 21.49 0 48 0h288c26.51 0 48 21.49 48 48v464L192 400 0 512z"/></svg>',
+        refresh : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M481.162 164.326c19.478 25.678 30.997 57.709 30.836 92.388C511.61 340.638 442.361 408 358.436 408H176v64c-.001 10.683-12.949 16.021-20.485 8.485l-88-87.995c-4.686-4.686-4.687-12.284 0-16.971l88-88.005c7.58-7.58 20.485-2.14 20.485 8.485v64h182.668C415.933 360 464.06 313.154 464 255.889c-.023-22.372-7.149-43.111-19.237-60.082-3.431-4.817-2.962-11.387 1.223-15.564 8.269-8.255 13.592-13.545 17.137-17.104 5.131-5.152 13.645-4.605 18.039 1.187zM48 256.111C47.94 198.846 96.067 152 153.332 152H336v64c0 10.625 12.905 16.066 20.485 8.485l88-88.005c4.687-4.686 4.686-12.285 0-16.971l-88-87.995C348.949 23.979 336.001 29.317 336 40v64H153.564C69.639 104 .389 171.362.002 255.286c-.16 34.679 11.358 66.71 30.836 92.388 4.394 5.792 12.908 6.339 18.039 1.188 3.545-3.559 8.867-8.849 17.137-17.105 4.185-4.178 4.653-10.748 1.223-15.564-12.088-16.971-19.213-37.71-19.237-60.082z"/></svg>',
     };
 
 
@@ -47,7 +48,9 @@
     const searchform = $('#search');
     const searchfield = $('#search input[name="q"]');
     const searchbtn = $('#search .js-search-submit');
-    let searchhelper, orderby;
+
+    const autoRefreshDefaultSecs = 15;
+    let searchhelper, orderby, autoRefreshTimeout;
 
 
     // Has value
@@ -59,7 +62,7 @@
 
 
     // Fetch and store last sort option
-    const sortKeyRoot = 'SearchLastSort';
+    const sortKeyRoot = 'SavedSearch-SearchLastSort';
     function setLastSort(val) {
         store.setItem(sortKeyRoot, val);
     }
@@ -69,8 +72,8 @@
 
 
     // Fetch and store watched/ignored tags
-    const wtKeyRoot = 'TagsWatched';
-    const itKeyRoot = 'TagsIgnored';
+    const wtKeyRoot = 'SavedSearch-TagsWatched';
+    const itKeyRoot = 'SavedSearch-TagsIgnored';
     function tryUpdateWatchedIgnoredTags() {
         if($('.js-tag-preferences-container').length === 0) return;
         const wTags = $('.js-watched-tag-list .post-tag').map((i,el) => el.text).get() || [];
@@ -187,6 +190,7 @@
         return value.toLowerCase()
                  .replace(/[?&]mixed=[10]/, '')
                  .replace(/[?&]page=\d+/, '')
+                 .replace(/[?&]refresh=\d+/, '')
                  .replace(/^[&]/, '?')
                  .replace(/%20/g, '+')
                  .replace('tab=&', 'tab=relevance&');
@@ -242,6 +246,90 @@
             .replace(/\+/g, ' ')
             .trim();
         return value;
+    }
+
+
+    // Search auto-refresh helper functions
+    const afKeyRoot = 'SavedSearch-AutoRefresh';
+    function addAutoRefresh(value, duration = autoRefreshDefaultSecs) {
+        if(value == null || value == '') return false;
+        value = sanitizeQuery(value);
+
+        let items = getAutoRefreshes();
+        items.push([value, duration]);
+        store.setItem(afKeyRoot, JSON.stringify(items));
+    }
+    function getAutoRefreshDuration(value) {
+        if(value == null || value == '') return false;
+        value = sanitizeQuery(value);
+
+        const items = getAutoRefreshes();
+        const result = jQuery.grep(items, function(v) {
+            return v[0] == value;
+        });
+
+        if(result.length > 0 && result[0] && result[0][1]) {
+            return Number(result[0][1]);
+        }
+        return false;
+    }
+    function removeAutoRefresh(value) {
+        if(value == null || value == '') return false;
+        value = sanitizeQuery(value);
+
+        const items = getAutoRefreshes();
+        const result = jQuery.grep(items, function(v) {
+            return v[0] != value;
+        });
+        store.setItem(afKeyRoot, JSON.stringify(result));
+    }
+    function removeAllAutoRefreshes() {
+        store.setItem(afKeyRoot, JSON.stringify([]));
+    }
+    function getAutoRefreshes() {
+        return JSON.parse(store.getItem(afKeyRoot)) || [];
+    }
+    function startAutoRefresh(duration = autoRefreshDefaultSecs) {
+        autoRefreshTimeout = setTimeout("location.reload()", duration * 1000);
+        console.log(`Auto Refresh started (${duration} seconds)`);
+    }
+    function stopAutoRefresh() {
+        if(autoRefreshTimeout) clearTimeout(autoRefreshTimeout);
+        console.log(`Auto Refresh stopped`);
+    }
+
+
+    function initAutoRefresh() {
+
+        // On Search Result page and has search query
+        if(location.pathname === '/search' && location.search.length > 2) {
+
+            // Has auto refresh?
+            const currRefreshDurationSecs = getAutoRefreshDuration(location.search);
+            let refreshDurationSecs = currRefreshDurationSecs || autoRefreshDefaultSecs;
+
+            const btnAutoRefresh = $(`<a id="btn-auto-refresh" data-svg="refresh" title="Auto Refresh (${refreshDurationSecs} seconds)"></a>`)
+                .click(function() {
+                    $(this).toggleClass('active');
+                    if($(this).hasClass('active')) {
+                        addAutoRefresh(location.search);
+                        startAutoRefresh(refreshDurationSecs);
+                    }
+                    else {
+                        removeAutoRefresh(location.search);
+                        stopAutoRefresh();
+                    }
+                });
+
+            // If set, start auto refresh on page load
+            if(currRefreshDurationSecs !== false) {
+                btnAutoRefresh.addClass('active');
+                startAutoRefresh(currRefreshDurationSecs);
+            }
+
+            // Insert refresh button
+            btnAutoRefresh.insertBefore('#btn-bookmark-search');
+        }
     }
 
 
@@ -865,6 +953,7 @@
         tryUpdateWatchedIgnoredTags();
         initAdvancedSearch();
         initSavedSearch();
+        initAutoRefresh();
         loadSvgIcons();
     }
 
@@ -1147,9 +1236,10 @@
     background: white;
 }
 
-/* Saved Search */
+/* Saved Search & Auto Refresh UI */
 #search-helper [data-svg],
-#btn-bookmark-search {
+#btn-bookmark-search,
+#btn-auto-refresh {
     display: inline-block;
     width: 28px;
     height: 28px;
@@ -1161,13 +1251,19 @@
     outline: none;
     box-sizing: border-box;
 }
+#btn-bookmark-search,
+#btn-auto-refresh {
+    margin-left: 10px;
+}
 #search-helper a[data-svg]:hover,
-#btn-bookmark-search:hover {
+#btn-bookmark-search:hover,
+#btn-auto-refresh:hover {
     border-color: #666;
     background: #f3f3f3;
 }
 #search-helper [data-svg] svg,
-#btn-bookmark-search svg {
+#btn-bookmark-search svg,
+#btn-auto-refresh svg {
     max-width: 16px;
     max-height: 16px;
     pointer-events: none;
@@ -1186,7 +1282,8 @@
     border-right: none;
     border-bottom: none;
 }
-#btn-bookmark-search.active {
+#btn-bookmark-search.active,
+#btn-auto-refresh.active {
     padding: 6px;
     border: none;
     background: rgba(174,192,209,0.25);
