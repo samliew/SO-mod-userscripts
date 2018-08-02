@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.4
+// @version      3.2
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
@@ -180,13 +180,20 @@
             const pid = $(this).closest('.flagged-post-row').get(0).dataset.postId;
             dismissAllHelpful(pid);
         });
+
+        // Start from bottom link
+        $('<button>Review from bottom</button>')
+            .click(function() {
+                window.scrollTo(0,999999);
+            })
+            .prependTo('.flag-container');
     }
 
 
     function listenToPageUpdates() {
 
         // On any page update
-        $(document).ajaxComplete(function(event, xhr, settings) {
+        $(document).ajaxStop(function(event, xhr, settings) {
 
             // Closed questions
             $('.question-status').each(function() {
@@ -206,8 +213,24 @@
 
                 // Get all including deleted comments
                 let commentsUrl = `/posts/${postId}/comments?includeDeleted=true&_=${Date.now()}`;
-                $('#comments-'+postId).children('ul.comments-list').load(commentsUrl);
-                console.log("Loading comments for " + postId);
+                $('#comments-'+postId).children('ul.comments-list').load(commentsUrl, function() {
+
+                    // Display post stats near action buttons, so we don't have to scroll back up
+                    const el = $(this);
+                    const post = $(this).parents('.flagged-post-row');
+                    const postOpts = post.find('.post-options');
+
+                    const closeReason = post.find('.post-header .answer-hyperlink, .post-header .question-hyperlink').first().text().match(/\[[a-z -]+\]$/i);
+                    const closeReasonText = closeReason && closeReason.length == 1 ? `<div>Closed: ${closeReason.replace(/[\[\]]/g, '')}</div>` : '';
+                    const cmmts = el.find('.comment-body');
+                    const cmmtUsers = el.find('.comment-body').find('.comment-user:first').map((i, el) => el.href).get().filter((v, i, self) => self.indexOf(v) === i); // unique users
+                    const infoDiv = $(`
+<div>
+  <h3><b>Post info:</b></h3>
+  ${closeReasonText}
+  <div>${cmmts.length} comments, ${cmmtUsers.length} commentators</div>
+</div>`).insertBefore(postOpts);
+                });
             });
 
             // Simple throttle
