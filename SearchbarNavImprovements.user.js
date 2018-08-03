@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.9.3
+// @version      3.9.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -294,11 +294,11 @@
     }
     function startAutoRefresh(duration = autoRefreshDefaultSecs) {
         autoRefreshTimeout = setTimeout("location.reload()", duration * 1000);
-        console.log(`Auto Refresh started (${duration} seconds)`);
+        //console.log(`Auto Refresh started (${duration} seconds)`);
     }
     function stopAutoRefresh() {
         if(autoRefreshTimeout) clearTimeout(autoRefreshTimeout);
-        console.log(`Auto Refresh stopped`);
+        //console.log(`Auto Refresh stopped`);
     }
 
 
@@ -817,7 +817,7 @@
 
 
         // Opened/closed state
-        let keepOpen = () => searchhelper.addClass('open');
+        let keepOpen = () => { searchhelper.addClass('open'); stopAutoRefresh(); }
         let clearOpen = () => searchhelper.removeClass('open');
         $(document).on('click', function(evt) {
             // Any click on page except header
