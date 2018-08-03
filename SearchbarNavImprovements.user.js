@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.9.2
+// @version      3.9.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -39,6 +39,7 @@
     const siteslug = location.hostname.split('.')[0];
     const currentSiteSlug = location.hostname.replace('.stackexchange', '').replace(/\.\w+$/, ''); // for SEDE
     const hasSearchResults = (location.pathname === '/search' && location.search.length > 2) || location.pathname.indexOf('/questions/tagged/') == 0;
+    const mixed = isSO ? '&mixed=0' : '';
 
     const store = window.localStorage;
     const searchSelector = $(`<div class="grid--cell f-select w20 wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
@@ -338,7 +339,7 @@
         if(!hasSearchResults) return;
 
         let query = sanitizeQuery(location.search);
-        const querysuffix = '&mixed=0';
+        const querysuffix = mixed;
         const lastSort = getLastSort();
         const isOnTagPage = query == '';
 
@@ -422,7 +423,7 @@
                 const readable = humanizeSearchQuery(v);
                 const sstemplate = $(`<div class="item" data-value="${v}">
                   <span class="handle"></span>
-                  <a href="${channel}/search${v}${isSO ? '&mixed=0' : ''}">${readable}</a>
+                  <a href="${channel}/search${v}${mixed}">${readable}</a>
                   <div class="actions">
                     <a class="delete" data-svg="delete" title="Delete (no confirmation)"></a>
                   </div>
