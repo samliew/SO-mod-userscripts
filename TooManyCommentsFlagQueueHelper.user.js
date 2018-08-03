@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3
+// @version      3.4
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
@@ -179,8 +179,12 @@
 
         // On "done" button click
         $('.flagged-post-row').on('click', '.immediate-dismiss-all', function() {
-            const pid = $(this).closest('.flagged-post-row').get(0).dataset.postId;
+            const $post = $(this).closest('.flagged-post-row');
+            const pid = $post.get(0).dataset.postId;
             dismissAllHelpful(pid);
+
+            // Hide post immediately so we can move on
+            $post.hide();
         });
 
         // Start from bottom link
