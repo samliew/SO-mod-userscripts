@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.9.6
+// @version      3.10
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -803,7 +803,7 @@
       <input type="checkbox" name="dupe-current" id="dupe-current" data-currentfor="#dupe-id" /><label for="dupe-current">current question</label>
       <label for="dupe-id">question id:</label>
       <input name="dupe-id" id="dupe-id" class="input-small" maxlength="12" data-clearbtn data-validate-numeric data-clears="#dupe-current" />
-      <a class="button extbutton" data-url="http://data.stackexchange.com/${currentSiteSlug}/query/874526/?QuestionId=[dupe-id]">SEDE</a>
+      <a class="button extbutton" data-exturl="http://data.stackexchange.com/${currentSiteSlug}/query/874526/?QuestionId={dupe-id}">SEDE</a>
     </div>
   </div>
 </div>
@@ -932,9 +932,9 @@
             .find('[data-clearbtn]').after('<span class="clearbtn" title="clear"></span>');
 
         // External button links
-        searchhelper.find('.extbutton[data-url]')
+        searchhelper.find('.extbutton[data-exturl]')
             .each(function(i, el) {
-                const linkedEls = '#' + this.dataset.url.match(/(?<=\[)[a-z_-]+(?=\])/i).join(', #');
+                const linkedEls = '#' + this.dataset.exturl.match(/{[a-z_-]+}/i).join(', #').replace(/[{}]/g, ''); console.log(linkedEls);
                 $(linkedEls).on('change', function(evt) {
                     $(el).trigger('updatelink');
                 });
@@ -942,14 +942,15 @@
             })
             .on('updatelink', function() {
                 let valid = true;
-                let output = this.dataset.url;
+                let output = this.dataset.exturl;
                 const el = this;
-                const linkedEls = output.match(/(?<=\[)[a-z_-]+(?=\])/i);
+                const linkedEls = output.match(/{[a-z_-]+}/i);
 
                 linkedEls.forEach(function(tag) {
+                    tag = tag.replace(/[{}]/g, '');
                     const repl = document.getElementById(tag).value;
                     if(typeof repl === 'undefined' || repl == '') valid = false;
-                    output = output.replace('[' + tag + ']', repl);
+                    output = output.replace('{' + tag + '}', repl);
                 });
 
                 this.href = output;
