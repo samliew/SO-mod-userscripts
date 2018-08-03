@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.9
+// @version      3.9.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -364,7 +364,7 @@
   <a class="grid--cell s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
      href="${removeParam(query, 'deleted')}+deleted%3a1${querysuffix}" data-onwhen="deleted%3ayes"
      data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany${querysuffix}">deleted</a>
-  <a class="grid--cell s-btn s-btn__muted s-btn__outlined py8 ws-nowrap
+  <a class="grid--cell s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
      href="${removeParam(query, 'deleted')}+deleted%3a0${querysuffix}" data-onwhen="deleted%3ano" data-onwhenmissing="deleted%3a"
      data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany${querysuffix}">not deleted</a>
 </div>
@@ -1490,6 +1490,11 @@ button, .button,
     opacity: 1;
     transform: translateY(-50%) translateX(1px);
     z-index: 1;
+}
+
+/* Hide duplicate search form on search results page */
+#bigsearch {
+    display: none !important;
 }
 
 /* Quick filters */
