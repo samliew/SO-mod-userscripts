@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.8.2
+// @version      3.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -38,6 +38,7 @@
     const metaUrl = StackExchange.options.site.childUrl || 'https://' + location.hostname;
     const siteslug = location.hostname.split('.')[0];
     const currentSiteSlug = location.hostname.replace('.stackexchange', '').replace(/\.\w+$/, ''); // for SEDE
+    const hasSearchResults = (location.pathname === '/search' && location.search.length > 2) || location.pathname.indexOf('/questions/tagged/') == 0;
 
     const store = window.localStorage;
     const searchSelector = $(`<div class="grid--cell f-select w20 wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
@@ -301,35 +302,94 @@
 
     function initAutoRefresh() {
 
-        // On Search Result page and has search query
-        if(location.pathname === '/search' && location.search.length > 2) {
+        if(!hasSearchResults) return;
 
-            // Has auto refresh?
-            const currRefreshDurationSecs = getAutoRefreshDuration(location.search);
-            let refreshDurationSecs = currRefreshDurationSecs || autoRefreshDefaultSecs;
+        // Has auto refresh?
+        const currRefreshDurationSecs = getAutoRefreshDuration(location.search);
+        let refreshDurationSecs = currRefreshDurationSecs || autoRefreshDefaultSecs;
 
-            const btnAutoRefresh = $(`<a id="btn-auto-refresh" data-svg="refresh" title="Auto Refresh (${refreshDurationSecs} seconds)"></a>`)
-                .click(function() {
-                    $(this).toggleClass('active');
-                    if($(this).hasClass('active')) {
-                        addAutoRefresh(location.search);
-                        startAutoRefresh(refreshDurationSecs);
-                    }
-                    else {
-                        removeAutoRefresh(location.search);
-                        stopAutoRefresh();
-                    }
-                });
-
-            // If set, start auto refresh on page load
-            if(currRefreshDurationSecs !== false) {
-                btnAutoRefresh.addClass('active');
-                startAutoRefresh(currRefreshDurationSecs);
+        const btnAutoRefresh = $(`<a id="btn-auto-refresh" data-svg="refresh" title="Auto Refresh (${refreshDurationSecs} seconds)"></a>`)
+        .click(function() {
+            $(this).toggleClass('active');
+            if($(this).hasClass('active')) {
+                addAutoRefresh(location.search);
+                startAutoRefresh(refreshDurationSecs);
             }
+            else {
+                removeAutoRefresh(location.search);
+                stopAutoRefresh();
+            }
+        });
 
-            // Insert refresh button
-            btnAutoRefresh.insertBefore('#btn-bookmark-search');
+        // If set, start auto refresh on page load
+        if(currRefreshDurationSecs !== false) {
+            btnAutoRefresh.addClass('active');
+            startAutoRefresh(currRefreshDurationSecs);
         }
+
+        // Insert refresh button
+        btnAutoRefresh.insertBefore('#btn-bookmark-search');
+    }
+
+
+    function initQuickfilters() {
+
+        if(!hasSearchResults) return;
+
+        let query = sanitizeQuery(location.search);
+        const querysuffix = '&mixed=0';
+        const lastSort = getLastSort();
+        const isOnTagPage = query == '';
+
+        // On tagged page
+        if(isOnTagPage) {
+            const tag = location.pathname.split('/').pop();
+            query = `/search?tab=${lastSort}&q=%5B${tag}%5D`;
+        }
+
+        query = sanitizeQuery(query.toLowerCase());
+        console.log(query);
+
+        let resTabs = $('.tabs-filter').parents('.grid');
+        let quickfilter = $(`<div id="res-quickfilter">Quick filters:
+<div class="grid tabs-filter tt-capitalize">
+  <a class="grid--cell s-btn s-btn__muted s-btn__outlined py8 ws-nowrap ${isOnTagPage ? 'is-selected' : ''}"
+     href="${removeParam(query, 'is')}+is%3aq${querysuffix}" data-onwhen="is%3aq"
+     data-toggleoff="${removeParam(query, 'is')}${querysuffix}">questions</a>
+  <a class="grid--cell s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
+     href="${removeParam(query, 'is')}+is%3aa${querysuffix}" data-onwhen="is%3aa"
+     data-toggleoff="${removeParam(query, 'is')}${querysuffix}">answers</a>
+</div>
+<div class="grid tabs-filter tt-capitalize">
+  <a class="grid--cell s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
+     href="${removeParam(query, 'deleted')}+deleted%3a1${querysuffix}" data-onwhen="deleted%3ayes"
+     data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany${querysuffix}">deleted</a>
+  <a class="grid--cell s-btn s-btn__muted s-btn__outlined py8 ws-nowrap
+     href="${removeParam(query, 'deleted')}+deleted%3a0${querysuffix}" data-onwhen="deleted%3ano" data-onwhenmissing="deleted%3a"
+     data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany${querysuffix}">not deleted</a>
+</div>
+</div>`).insertBefore(resTabs);
+
+        quickfilter.find('a[data-onwhen]').each(function() {
+            let se = this.dataset.onwhen;
+            if(se.match(/(yes|no)$/) != null) {
+                se = se.replace(/yes$/, '(yes|1)').replace(/no$/, '(no|0)');
+            }
+            const matches = query.toLowerCase().match(se);
+            if(matches != null || (this.dataset.onwhenmissing && query.toLowerCase().match(this.dataset.onwhenmissing) == null) ) {
+                $(this).addClass('is-selected');
+            }
+        });
+
+        quickfilter.find('.is-selected').each(function() {
+            this.href = this.dataset.toggleoff;
+        });
+
+        function removeParam(query, param) {
+            const re = new RegExp('\\+?' + param + '%3a[a-z0-9]+');
+            return query.toLowerCase().replace(re, '');
+        }
+
     }
 
 
@@ -954,6 +1014,7 @@
         initAdvancedSearch();
         initSavedSearch();
         initAutoRefresh();
+        initQuickfilters();
         loadSvgIcons();
     }
 
@@ -1429,6 +1490,18 @@ button, .button,
     opacity: 1;
     transform: translateY(-50%) translateX(1px);
     z-index: 1;
+}
+
+/* Quick filters */
+#res-quickfilter {
+    margin-top: -6px;
+    margin-bottom: 16px;
+}
+#res-quickfilter .grid {
+    display: inline-flex;
+}
+#res-quickfilter .is-selected {
+    box-shadow: inset 1px 1px 2px 0px rgba(0,0,0,0.3);
 }
 
 /* Other */
