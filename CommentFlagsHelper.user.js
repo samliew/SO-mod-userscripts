@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.5
+// @version      2.6.6
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -41,6 +41,7 @@
         'move on', 'gay', 'lesbian', 'sissy', 'brain', 'rtfm', 'blind', 'retard(ed)?', 'jerks?', 'bitch\\w*', 'learn',
         'read[\\w\\s]+(tutorial|docs|manual)', 'lack[\\w\\s]+research', 'idownvotedbecau.se', 'bad',
     ];
+    const rudeRegex = new RegExp('\\s(' + rudeKeywords.join('|') + ')(?![/-])', 'gi');
 
     // Special characters must be escaped with \\
     const chattyKeywords = [
@@ -50,11 +51,12 @@
         'exactly', 'check', 'lol', 'ha(ha)+', 'women', 'girl', 'effort', 'understand', 'want', 'need', 'little',
         'give up', 'documentation', 'google\\s', 'what[\\w\\s]+(try|tried)[\\w\\s]*\\?*', 'free', 'obvious',
     ];
+    const chattyRegex = new RegExp('\\s(' + rudeKeywords.join('|') + ')(?![/-])', 'gi');
 
 
     function replaceKeywords(jqElem) {
-        this.innerHTML = this.innerHTML.replace(new RegExp('\\s(?<!/)(' + rudeKeywords.join('|') + ')(?![/-])', 'gi'), ' <b style="color:red">$1</b>');
-        this.innerHTML = this.innerHTML.replace(new RegExp('\\s(?<!/)(' + chattyKeywords.join('|') + ')(?![/-])', 'gi'), ' <b style="color:coral">$1</b>');
+        this.innerHTML = this.innerHTML.replace(rudeRegex, ' <b style="color:red">$1</b>');
+        this.innerHTML = this.innerHTML.replace(chattyRegex, ' <b style="color:coral">$1</b>');
     }
 
 
