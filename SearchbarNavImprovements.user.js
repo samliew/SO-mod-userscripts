@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.9.5
+// @version      3.9.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1511,11 +1511,7 @@ button, .button,
     box-shadow: inset 1px 1px 2px 0px rgba(0,0,0,0.3);
 }
 
-/* Other */
-.s-btn-group .s-btn:last-of-type {
-    border-top-right-radius: 3px !important;
-    border-bottom-right-radius: 3px !important;
-}
+/* Sticky post votes/sidebar */
 .post-layout--left.votecell {
     grid-row-start: 1;
     grid-row-end: 3;
@@ -1523,6 +1519,15 @@ button, .button,
 .votecell .vote {
     position: sticky;
     top: 10px;
+}
+.downvoted-answer .vote>* {
+    transform: translateZ(0);
+}
+
+/* Other */
+.s-btn-group .s-btn:last-of-type {
+    border-top-right-radius: 3px !important;
+    border-bottom-right-radius: 3px !important;
 }
 </style>
 `;
