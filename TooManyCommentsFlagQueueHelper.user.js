@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2
+// @version      3.3
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
@@ -17,6 +17,8 @@
 
     const fkey = StackExchange.options.user.fkey;
     let ajaxTimeout;
+
+    const pluralize = n => n && Number(n) !== 1 ? 's' : '';
 
 
     // Undelete individual comment
@@ -220,13 +222,19 @@
                     const post = $(this).parents('.flagged-post-row');
                     const postOpts = post.find('.post-options');
 
-                    const closeReason = post.find('.post-header .answer-hyperlink, .post-header .question-hyperlink').first().text().match(/\[[a-z -]+\]$/i);
-                    const closeReasonText = closeReason && closeReason.length == 1 ? `<div>Closed: ${closeReason.replace(/[\[\]]/g, '')}</div>` : '';
+                    const postCreated = post.find('.post-detail .relativetime').get(0).outerHTML;
+                    const numAnswers = post.find('.answer-link span').last().text();
+                    const numAnswersText = numAnswers ? `<div>post type: question (${numAnswers} answer${pluralize(numAnswers)})</div>` : '<div>post type: answer</div>';
+                    const closeReasonElem = post.find('.question-status');
+                    const closeReason = closeReasonElem.length ? closeReasonElem.get(0).children[0].childNodes[2].nodeValue.replace(/\s*(as|by)\s*/g, '') : '';
+                    const closeReasonText = closeReasonElem.length && closeReason.length ? `<div>closed: ${closeReason}</div>` : '';
                     const cmmts = el.find('.comment-body');
                     const cmmtUsers = el.find('.comment-body').find('.comment-user:first').map((i, el) => el.href).get().filter((v, i, self) => self.indexOf(v) === i); // unique users
                     const infoDiv = $(`
 <div>
   <h3><b>Post info:</b></h3>
+  <div>created: ${postCreated}</div>
+  ${numAnswersText}
   ${closeReasonText}
   <div>${cmmts.length} comments, ${cmmtUsers.length} commentators</div>
 </div>`).insertBefore(postOpts);
