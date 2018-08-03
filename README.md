@@ -333,6 +333,8 @@ These are highly recommended for everyone because they are too awesome:
 ### [Too Many Comments Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/TooManyCommentsFlagQueueHelper.user.js) ♦
 
 - Auto-expand unhandled posts
+- Display post info at the bottom
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-04_080850.png)
 - Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-04_120553.png)
 - Confirmation displayed after successful response from server (don't forget to mark as helpful)
