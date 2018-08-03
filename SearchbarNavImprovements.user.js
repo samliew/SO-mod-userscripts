@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.9.4
+// @version      3.9.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -292,13 +292,16 @@
     function getAutoRefreshes() {
         return JSON.parse(store.getItem(afKeyRoot)) || [];
     }
+    function stopAutoRefresh() {
+        if(autoRefreshTimeout) {
+            clearTimeout(autoRefreshTimeout);
+            //console.log(`Auto Refresh stopped`);
+        }
+    }
     function startAutoRefresh(duration = autoRefreshDefaultSecs) {
+        stopAutoRefresh();
         autoRefreshTimeout = setTimeout("location.reload()", duration * 1000);
         //console.log(`Auto Refresh started (${duration} seconds)`);
-    }
-    function stopAutoRefresh() {
-        if(autoRefreshTimeout) clearTimeout(autoRefreshTimeout);
-        //console.log(`Auto Refresh stopped`);
     }
 
 
@@ -343,14 +346,11 @@
         const lastSort = getLastSort();
         const isOnTagPage = query == '';
 
-        // On tagged page
         if(isOnTagPage) {
             const tag = location.pathname.split('/').pop();
             query = `/search?tab=${lastSort}&q=%5B${tag}%5D`;
         }
-
         query = sanitizeQuery(query.toLowerCase());
-        console.log(query);
 
         let resTabs = $('.tabs-filter').parents('.grid');
         let quickfilter = $(`<div id="res-quickfilter">Quick filters:
