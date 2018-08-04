@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.6
+// @version      2.7
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -116,6 +116,10 @@
             });
         }
 
+        // Insert 'skip' button to temporarily hide current post
+        $('.flagged-post-row').append(`<a class="skip-post" title="skip (hide) this post" href="#">skip post</a>`);
+
+        // Highlight chatty/rude keywords in comments
         $('.comment-summary, tr.deleted-row > td > span').each(replaceKeywords);
 
         // Change "dismiss" link to "decline", insert alternate action
@@ -242,6 +246,15 @@
                 // Hide post immediately so we can move on
                 $post.hide();
             }
+        });
+
+        // On skip post link click
+        $('.flagged-post-row').on('click', '.skip-post', function() {
+
+            // Hide post immediately so we can move on
+            $(this).parent().hide();
+
+            return false;
         });
     }
 
@@ -433,11 +446,17 @@ table.flagged-posts .relativetime.old-comment {
     display: none;
 }
 .delete-comment,
-.cancel-comment-flag {
+.cancel-comment-flag,
+.skip-post {
     margin-left: 20px;
     padding: 5px 8px;
     font-size: 1rem;
     background: #eee;
+}
+.skip-post {
+    position: absolute !important;
+    left: 100%;
+    white-space: nowrap;
 }
 .cancel-comment-flag:hover {
     color: white;
