@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.4
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -75,7 +75,7 @@
 
         const username = $('.user-details', post).last().children().first().text().trim();
         const uid = postOwner.attr('href').match(/\d+/)[0];
-        const hasDupeLink = $('.question-originals-of-duplicate a, .comments-list a', post).filter((i, el) => /\/q(uestions)?\/255583\//.test(el.href)).length > 0;
+        const hasDupeLink = $('.question-originals-of-duplicate a, .comments-list a', post).filter((i, el) => /(https:\/\/meta\.stackoverflow\.com)?\/q(uestions)?\/255583\/?.*/.test(el.href)).length > 0;
         const hasTags = $('a.post-tag', post).filter((i, el) => /post-ban/.test(el.innerText)).length > 0;
 
         // Not a post ban question
