@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.0
+// @version      4.0.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -970,13 +970,13 @@
             const post = $(this).parents('.post-layout').parent();
             const pid = post[0].dataset.answerid || post[0].dataset.questionid;
             const isQuestion = post.hasClass('question');
-            const postuser = $(this).parents('.post-layout').find('.user-info a').last();
+            const postuser = $(this).parents('.post-layout').find('.user-info:last .user-details a').first();
             const postismod = postuser.next().hasClass('mod-flair');
-            const postdate = $(this).parents('.post-layout').find('.user-info .relativetime').last();
+            const postdate = $(this).parents('.post-layout').find('.user-info .user-action-time').last();
             console.log(pid, postuser);
 
             const stickyheader = $(`<div class="post-stickyheader">
-${isQuestion ? 'Question' : 'Answer'} by ${postuser[0].outerHTML}${postismod ? modflair : ''} on ${postdate[0].outerHTML}
+${isQuestion ? 'Question' : 'Answer'} by ${postuser[0].outerHTML}${postismod ? modflair : ''} ${postdate.html()}
 <div class="sticky-tools">
   <a href="/posts/${pid}/revisions">revs</a> | <a href="/posts/${pid}/timeline">timeline</a>
 </div></div>`);
@@ -986,7 +986,8 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuser[0].outerHTML}${postismod ? m
         $('.post-stickyheader a').attr('target', '_blank');
         $('.post-stickyheader').click(function() {
             $('html, body').animate({ scrollTop: $(this).parent().offset().top + 1 }, 400);
-            return false;
+        }).on('click', 'a', function(evt) {
+            evt.stopPropagation();
         });
     }
 
