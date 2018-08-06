@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.10
+// @version      4.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -962,6 +962,35 @@
     }
 
 
+    function initStickyPostHeaders() {
+
+        const modflair = '<span class="mod-flair" title="moderator">♦</span>';
+
+        const postComments = $('.comments').each(function() {
+            const post = $(this).parents('.post-layout').parent();
+            const pid = post[0].dataset.answerid || post[0].dataset.questionid;
+            const isQuestion = post.hasClass('question');
+            const postuser = $(this).parents('.post-layout').find('.user-info a').last();
+            const postismod = postuser.next().hasClass('mod-flair');
+            const postdate = $(this).parents('.post-layout').find('.user-info .relativetime').last();
+            console.log(pid, postuser);
+
+            const stickyheader = $(`<div class="post-stickyheader">
+${isQuestion ? 'Question' : 'Answer'} by ${postuser[0].outerHTML}${postismod ? modflair : ''} on ${postdate[0].outerHTML}
+<div class="sticky-tools">
+  <a href="/posts/${pid}/revisions">revs</a> | <a href="/posts/${pid}/timeline">timeline</a>
+</div></div>`);
+            post.prepend(stickyheader);
+        });
+
+        $('.post-stickyheader a').attr('target', '_blank');
+        $('.post-stickyheader').click(function() {
+            $('html, body').animate({ scrollTop: $(this).parent().offset().top + 1 }, 400);
+            return false;
+        });
+    }
+
+
     function doPageLoad() {
 
         // If on Stack Overflow, make logo go to /questions
@@ -1018,6 +1047,7 @@
         initSavedSearch();
         initAutoRefresh();
         initQuickfilters();
+        initStickyPostHeaders();
         loadSvgIcons();
     }
 
@@ -1523,6 +1553,41 @@ button, .button,
 }
 .downvoted-answer .vote>* {
     transform: translateZ(0);
+}
+
+/* Sticky post header */
+.question-page #answers .answer {
+    border-bottom: none;
+}
+.answer {
+    padding-top: 0;
+    padding-bottom: 40px;
+}
+.pager-answers {
+    padding-top: 10px;
+    padding-bottom: 20px;
+}
+.post-stickyheader {
+    position: sticky;
+    top: 0;
+    display: block;
+    margin-bottom: 10px;
+    padding: 12px 16px;
+    z-index: 1;
+
+    background: #eee;
+    border-bottom: 1px solid #ccc;
+    cursor: pointer;
+}
+.post-stickyheader ~ .post-layout .votecell .vote {
+    top: 51px;
+}
+.post-stickyheader .relativetime {
+    color: darkred;
+    border-bottom: 1px dashed darkred;
+}
+.post-stickyheader .sticky-tools {
+    float: right;
 }
 
 /* Other */
