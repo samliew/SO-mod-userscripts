@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7
+// @version      2.7.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -117,7 +117,7 @@
         }
 
         // Insert 'skip' button to temporarily hide current post
-        $('.flagged-post-row').append(`<a class="skip-post" title="skip (hide) this post" href="#">skip post</a>`);
+        $('.flagged-post-row > td').append(`<a class="skip-post" title="skip (hide) this post" href="#">skip post</a>`);
 
         // Highlight chatty/rude keywords in comments
         $('.comment-summary, tr.deleted-row > td > span').each(replaceKeywords);
@@ -252,7 +252,7 @@
         $('.flagged-post-row').on('click', '.skip-post', function() {
 
             // Hide post immediately so we can move on
-            $(this).parent().hide();
+            $(this).parents('.flagged-post-row').hide();
 
             return false;
         });
@@ -395,6 +395,7 @@ table.comments tr.roa-comment > td {
 .undelete-comment {
     display: none !important;
 }
+td.js-dashboard-row,
 .flag-container {
     position: relative;
 }
@@ -416,6 +417,9 @@ table.comments tr.roa-comment > td {
 tr.message-divider>td:last-child {
     position: relative;
     padding-right: 140px;
+}
+table.comments {
+    width: 100%;
 }
 tr.comment > td {
     height: 6em;
@@ -455,8 +459,15 @@ table.flagged-posts .relativetime.old-comment {
 }
 .skip-post {
     position: absolute !important;
-    left: 100%;
+    bottom: 10px;
+    right: 0;
     white-space: nowrap;
+    opacity: 0.3;
+}
+.skip-post:hover {
+    background: #07C;
+    color: white;
+    opacity: 1;
 }
 .cancel-comment-flag:hover {
     color: white;
