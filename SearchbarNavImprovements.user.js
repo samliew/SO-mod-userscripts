@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.2
+// @version      4.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1083,9 +1083,6 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 <div class="module sidebar-linked" id="qtoc">
   <h4 id="h-linked">Answers</h4>
   <div class="linked">${answerlist}</div>
-  <div class="small-pagination">
-    pagination
-  </div>
 </div>`);
 
             // Accepted answer first
