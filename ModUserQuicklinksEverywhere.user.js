@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -69,6 +69,9 @@
 .post-user-info:hover .mod-userlinks,
 .user-info:hover .mod-userlinks {
     display: block;
+}
+.deleted-answer .mod-userlinks {
+    background-color: #f4eaea;
 }
 </style>
 `;
