@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.0.1
+// @version      4.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -970,13 +970,19 @@
             const post = $(this).parents('.post-layout').parent();
             const pid = post[0].dataset.answerid || post[0].dataset.questionid;
             const isQuestion = post.hasClass('question');
-            const postuser = $(this).parents('.post-layout').find('.user-info:last .user-details a').first();
-            const postismod = postuser.next().hasClass('mod-flair');
+
+            const postuser = $(this).parents('.post-layout').find('.user-info:last .user-details').first();
+            let postuserHtml = '<span class="deleted-user">' + postuser.text() + '</span>'; // default to deleted user
+            if(postuser.find('a').length != 0) {
+                postuserHtml = postuser.find('a')[0].outerHTML;
+            }
+
+            const postismod = postuser.length != 0 ? postuser.next().hasClass('mod-flair') : false;
             const postdate = $(this).parents('.post-layout').find('.user-info .user-action-time').last();
             console.log(pid, postuser);
 
             const stickyheader = $(`<div class="post-stickyheader">
-${isQuestion ? 'Question' : 'Answer'} by ${postuser[0].outerHTML}${postismod ? modflair : ''} ${postdate.html()}
+${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair : ''} ${postdate.html()}
 <div class="sticky-tools">
   <a href="/posts/${pid}/revisions">revs</a> | <a href="/posts/${pid}/timeline">timeline</a>
 </div></div>`);
@@ -1574,7 +1580,7 @@ button, .button,
     display: block;
     margin-bottom: 10px;
     padding: 12px 16px;
-    z-index: 1;
+    z-index: 5;
 
     background: #eee;
     border-bottom: 1px solid #ccc;
@@ -1589,6 +1595,9 @@ button, .button,
 }
 .post-stickyheader .sticky-tools {
     float: right;
+}
+.post-stickyheader .deleted-user {
+    margin: -3px 0;
 }
 
 /* Other */
