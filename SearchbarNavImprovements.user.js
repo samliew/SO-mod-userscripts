@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.1
+// @version      4.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -50,6 +50,7 @@
     const searchform = $('#search');
     const searchfield = $('#search input[name="q"]');
     const searchbtn = $('#search .js-search-submit');
+    const modflair = '<span class="mod-flair" title="moderator">♦</span>';
 
     const autoRefreshDefaultSecs = 15;
     let searchhelper, orderby, autoRefreshTimeout;
@@ -61,6 +62,34 @@
             return $(this).val() !== '';
         });
     };
+
+
+    // (Promise) Get post timeline
+    function getPostTimeline(pid) {
+        return new Promise(function(resolve, reject) {
+            if(pid == null) { reject(); return; }
+
+            $.ajax(`https://${location.hostname}/posts/${pid}/timeline`)
+                .done(function(data) {
+                    const events = $('.event-rows', data);
+                    resolve(events);
+                })
+                .fail(reject);
+        });
+    }
+    // (Promise) Get post answers from timeline
+    function getPostAnswers(pid) {
+        return new Promise(function(resolve, reject) {
+            if(pid == null) { reject(); return; }
+
+            getPostTimeline(pid).then(function(v) {
+                const answers = $(v).children().filter(function() {
+                    return $(this).find('.answer-type').length !== 0;
+                });
+                resolve(answers);
+            });
+        });
+    }
 
 
     // Fetch and store last sort option
@@ -964,8 +993,6 @@
 
     function initStickyPostHeaders() {
 
-        const modflair = '<span class="mod-flair" title="moderator">♦</span>';
-
         const postComments = $('.comments').each(function() {
             const post = $(this).parents('.post-layout').parent();
             const pid = post[0].dataset.answerid || post[0].dataset.questionid;
@@ -979,7 +1006,6 @@
 
             const postismod = postuser.length != 0 ? postuser.next().hasClass('mod-flair') : false;
             const postdate = $(this).parents('.post-layout').find('.user-info .user-action-time').last();
-            console.log(pid, postuser);
 
             const stickyheader = $(`<div class="post-stickyheader">
 ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair : ''} ${postdate.html()}
@@ -994,6 +1020,90 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
             $('html, body').animate({ scrollTop: $(this).parent().offset().top + 1 }, 400);
         }).on('click', 'a', function(evt) {
             evt.stopPropagation();
+        });
+    }
+
+
+    function initTableOfContentsSidebar() {
+
+        const postsOnPage = $('.answer');
+        const qid = $('#question').attr('data-questionid');
+        const sortby = $('#answers-header #tabs .youarehere').text().trim();
+
+        // only if > x answers
+        if(postsOnPage.length <= 5) return;
+
+        getPostAnswers(qid).then(function(v) {
+
+            if(sortby == 'votes') {
+                v = v.get().sort(function(a, b) {
+                    const ax = Number($(a).find('.event-comment span:not(.badge-earned-check)').last().text().match(/[-0-9]+$/)[0]);
+                    const bx = Number($(b).find('.event-comment span:not(.badge-earned-check)').last().text().match(/[-0-9]+$/)[0]);
+                    return bx - ax; // desc
+                });
+            }
+            else if(sortby == 'oldest') {
+                v = v.get().reverse();
+            }
+            else if(sortby == 'active') {
+                v = v.get().sort(function(a, b) {
+                    const aid = $(a).find('.event-comment a.timeline').attr('href').match(/[0-9]+/)[0];
+                    const bid = $(b).find('.event-comment a.timeline').attr('href').match(/[0-9]+/)[0];
+                    const apost = $('#answer-'+aid).get(0);
+                    const bpost = $('#answer-'+bid).get(0);
+
+                    if(apost == null || bpost == null) return 0;
+                    return apost.offsetTop - bpost.offsetTop;
+                });
+            }
+            const answers = $(v);
+
+            let answerlist = '';
+            answers.each(function() {
+                const isDel = $(this).hasClass('deleted-event');
+                const postuser = $(this).find('.created-by a, .created-by').first();
+                const isPostuserDeleted = $(this).find('.created-by a').length === 0;
+                const postusername = postuser.text().replace('♦', ' ♦');
+                const pid = $(this).find('.event-comment a.timeline').attr('href').match(/[0-9]+/)[0];
+                const votes = $(this).find('.event-comment span:not(.badge-earned-check)').last().text().match(/[-0-9]+$/)[0];
+                const datetime = $(this).find('.relativetime')[0].outerHTML;
+                const isAccepted = $(this).find('.badge-earned-check').length == 1;
+
+                answerlist += `
+<div class="spacer ${isDel ? 'deleted-answer':''}" data-answerid="${pid}" data-votes="${votes}" data-datetime="${votes}">
+  <a href="/a/${pid}" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes large ${isAccepted ? 'answered-accepted':''}">${votes}</div>
+  </a>
+  <a href="/a/${pid}" class="post-hyperlink">${isPostuserDeleted ? '<span class="deleted-user">':''}${postusername}</a>
+  ${datetime}
+</div>`;
+            });
+
+            const qtoc = $(`
+<div class="module sidebar-linked" id="qtoc">
+  <h4 id="h-linked">Answers</h4>
+  <div class="linked">${answerlist}</div>
+  <div class="small-pagination">
+    pagination
+  </div>
+</div>`);
+
+            // Accepted answer first
+            qtoc.find('.answered-accepted').parents('.spacer').prependTo(qtoc.find('.linked'));
+
+            // If answer is on current page, clicking on them scrolls to the answer
+            qtoc.on('click', 'a', function() {
+                const pid = this.parentNode.dataset.answerid;
+                const answer = $('#answer-'+pid);
+                if(answer.length == 1) {
+                    $('html, body').animate({ scrollTop: answer.offset().top }, 600);
+                    return false;
+                }
+            });
+
+            // Remove chat and hot network questions as they take up a lot of sidebar real-estate
+            $('#chat-feature').before(qtoc).hide();
+            $('#hot-network-questions').hide();
         });
     }
 
@@ -1050,11 +1160,14 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
         });
 
         tryUpdateWatchedIgnoredTags();
+
         initAdvancedSearch();
         initSavedSearch();
         initAutoRefresh();
         initQuickfilters();
         initStickyPostHeaders();
+        initTableOfContentsSidebar();
+
         loadSvgIcons();
     }
 
@@ -1473,6 +1586,14 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
     padding: 8px 6px 8px 0;
 }
 
+/* Right sidebar */
+#qinfo {
+    margin-bottom: 6px;
+}
+#qinfo p.label-key {
+    margin-bottom: 6px;
+}
+
 /* Search */
 label, .label,
 button, .button,
@@ -1551,8 +1672,7 @@ button, .button,
 
 /* Sticky post votes/sidebar */
 .post-layout--left.votecell {
-    grid-row-start: 1;
-    grid-row-end: 3;
+    grid-row: 1 / 10;
 }
 .votecell .vote {
     position: sticky;
@@ -1567,8 +1687,9 @@ button, .button,
     border-bottom: none;
 }
 .answer {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
     padding-top: 0;
-    padding-bottom: 40px;
 }
 .pager-answers {
     padding-top: 10px;
@@ -1597,6 +1718,51 @@ button, .button,
     float: right;
 }
 .post-stickyheader .deleted-user {
+    margin: -3px 0;
+}
+
+/* Table of Contents Sidebar */
+#qtoc .relativetime {
+    padding-top: 2px;
+    white-space: nowrap;
+}
+#sidebar .linked a:first-of-type {
+    padding-right: 10px;
+}
+#qtoc .answer-votes {
+    padding: 3px 0;
+    white-space: nowrap;
+    width: 38px;
+    text-align: center;
+    box-sizing: border-box;
+    height: auto;
+    float: none;
+    border-radius: 2px;
+    font-size: 90%;
+    background-color: #eff0f1;
+    color: #3b4045;
+    transform: translateY(-1px);
+}
+#qtoc .answer-votes.answered-accepted {
+    color: #FFF;
+    background-color: #5fba7d;
+}
+#qtoc .answer-votes.large {
+    padding: 3px 0;
+    min-width: 16px;
+}
+#qtoc .post-hyperlink {
+    display: inline-block;
+    padding-top: 2px;
+    width: calc(100% - 48px);
+    margin-bottom: 0;
+    color: #0C0D0E;
+    line-height: 1.3;
+}
+#qtoc .post-hyperlink:hover {
+    color: #9c1724;
+}
+#qtoc .deleted-user {
     margin: -3px 0;
 }
 
