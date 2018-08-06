@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @match        https://stackoverflow.com/*
 // @match        https://serverfault.com/*
@@ -51,7 +51,7 @@
         $('a.question-hyperlink').each((i,el) => $('<input class="post-id" value="'+el.href.match(/(?<=[/#])(\d+)/g).shift()+'" readonly />').insertAfter(el));
 
         // Q&A
-        $('[data-questionid], [data-answerid]').not('.close-question-link').each((i,el) => $('<input class="post-id" value="'+(el.dataset.answerid||el.dataset.questionid)+'" readonly />').prependTo(el));
+        $('[data-questionid], [data-answerid]').not('.close-question-link').each((i,el) => $('<input class="post-id" value="'+(el.dataset.answerid||el.dataset.questionid)+'" readonly />').insertBefore($(el).find('.post-layout')));
 
         // Remove duplicates if necessary
         $('.post-id ~ .post-id').remove();
