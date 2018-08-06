@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -30,6 +30,11 @@
         if(/(\/users?\/|-user-)/.test(location.href)) {
             return location.href.match(/\d+/);
         }
+
+        const questionUser = $('#question .user-info:last a').first();
+        if(questionUser.length !== 0) {
+            return questionUser.attr('href').match(/\d+/)[0];
+        }
         return null;
     }
 
@@ -37,7 +42,7 @@
     function doPageload() {
         const uid = getCurrentUserId();
         if(uid) {
-            console.log(`Current User: ${uid}`);
+            //console.log(`Current User: ${uid}`);
 
             // Get user's mod dashboard page
             $.get('/users/account-info/' + uid, function(data) {
