@@ -240,13 +240,14 @@ These are highly recommended for everyone because they are too awesome:
 
 ### [Post Headers & Question TOC](https://github.com/samliew/SO-mod-userscripts/blob/master/PostHeadersQuestionToc.user.js)
 
-- Post headers to help with long posts / comment threads
+- Sticky post headers to help when scrolling long posts / comment threads
   - User, revision history, post timeline links
   - Clicking on empty middle area scrolls to start of post (replaces URL hash)
   
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-07_150823.png)
 
 - Question Table of Contents of Answers in sidebar below Featured Posts module
+  - Only shown when there are five or more answers
   - Answer score, accepted, user display name, indicates mods and deleted users, datetime
   - Sorted by current answer sort order (active/oldest/votes)
   - Clicking on answer links scrolls to start of post (replaces URL hash)
