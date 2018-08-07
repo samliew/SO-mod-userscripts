@@ -5,6 +5,7 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 [Bug reports](https://github.com/samliew/SO-mod-userscripts/issues), Forks, and PRs welcome!
 
 
+
 <br>
 
 ## Recommended
@@ -26,6 +27,7 @@ These are highly recommended for everyone because they are too awesome:
 - [Searchbar & Nav Improvements](https://github.com/samliew/SO-mod-userscripts#searchbar--nav-improvements)
 - [Post Headers & Question TOC](https://github.com/samliew/SO-mod-userscripts#post-headers--question-toc)
 - [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts#post-timeline-filters)
+
 
 
 <br>
@@ -241,6 +243,7 @@ These are highly recommended for everyone because they are too awesome:
 - Post headers to help with long posts / comment threads
   - User, revision history, post timeline links
   - Clicking on empty middle area scrolls to start of post (replaces URL hash)
+  
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-07_150823.png)
 
 - Question Table of Contents of Answers in sidebar below Featured Posts module
@@ -248,6 +251,7 @@ These are highly recommended for everyone because they are too awesome:
   - Sorted by current answer sort order (active/oldest/votes)
   - Clicking on answer links scrolls to start of post (replaces URL hash)
   - Toggle deleted answers in ToC
+  
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-07_150848.png)
 
 
@@ -304,6 +308,7 @@ These are highly recommended for everyone because they are too awesome:
 
 - Show deleted messages from live chat, chat transcripts, bookmarked conversations
 - Works with [No Oneboxes in Chat](#no-oneboxes-in-chat) userscript
+
 
 
 <br>
@@ -378,6 +383,7 @@ These are highly recommended for everyone because they are too awesome:
 
 - Similar to the above, display revision count, post age
 - Does not recommend as edits still need to be reviewed manually
+
 
 
 <br>
