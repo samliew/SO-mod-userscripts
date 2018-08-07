@@ -244,7 +244,8 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-07_150823.png)
 
 - Question Table of Contents of Answers in sidebar below Featured Posts module
-  - Post score, user display name, date info
+  - Answer score, accepted, user display name, indicates mods and deleted users, datetime
+  - Sorted by current answer sort order (active/oldest/votes)
   - Clicking on answer links scrolls to start of post (replaces URL hash)
   - Toggle deleted answers in ToC
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-07_150848.png)
