@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.2.3
+// @version      4.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -993,22 +993,22 @@
 
     function initStickyPostHeaders() {
 
-        const postComments = $('.comments').each(function() {
-            const post = $(this).parents('.post-layout').parent();
-            const pid = post[0].dataset.answerid || post[0].dataset.questionid;
+        const postsOnPage = $('#question, .answer').each(function() {
+            const post = $(this);
             const isQuestion = post.hasClass('question');
+            const pid = isQuestion ? this.dataset.questionid : this.dataset.answerid;
 
-            const postuser = $(this).parents('.post-layout').find('.user-info:last .user-details').first();
+            const postuser = $(this).find('.user-info:last .user-details').first();
             let postuserHtml = '<span class="deleted-user">' + postuser.text() + '</span>'; // default to deleted user
             if(postuser.find('a').length != 0) {
                 postuserHtml = postuser.find('a')[0].outerHTML;
             }
 
             const postismod = postuser.length != 0 ? postuser.next().hasClass('mod-flair') : false;
-            const postdate = $(this).parents('.post-layout').find('.user-info .user-action-time').last();
+            const postdate = $(this).find('.user-info .user-action-time').last().html() || '';
 
             const stickyheader = $(`<div class="post-stickyheader">
-${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair : ''} ${postdate.html()}
+${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair : ''} ${postdate}
 <div class="sticky-tools">
   <a href="/posts/${pid}/revisions">revs</a> | <a href="/posts/${pid}/timeline">timeline</a>
 </div></div>`);
@@ -1017,7 +1017,10 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 
         $('.post-stickyheader a').attr('target', '_blank');
         $('.post-stickyheader').click(function() {
+            const isQuestion = $(this.parentNode).hasClass('question');
+            const pid = isQuestion ? this.parentNode.dataset.questionid : this.parentNode.dataset.answerid;
             $('html, body').animate({ scrollTop: $(this).parent().offset().top + 1 }, 400);
+            history.replaceState(null, document.title, `https://${location.hostname}${location.pathname.replace(/\/?\d*#?\d*$/, '')}${isQuestion ? '' : '/'+pid+'#'+pid}`);
         }).on('click', 'a', function(evt) {
             evt.stopPropagation();
         });
@@ -1099,8 +1102,8 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
             });
 
             // Remove chat and hot network questions as they take up a lot of sidebar real-estate
-            $('#chat-feature').before(qtoc).hide();
-            $('#hot-network-questions').hide();
+            $('#h-linked').parent().before(qtoc);
+            $('#chat-feature, #hot-network-questions').hide();
         });
     }
 
