@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.2.2
+// @version      4.2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -52,7 +52,7 @@
     const searchbtn = $('#search .js-search-submit');
     const modflair = '<span class="mod-flair" title="moderator">♦</span>';
 
-    const autoRefreshDefaultSecs = 15;
+    const autoRefreshDefaultSecs = 30;
     let searchhelper, orderby, autoRefreshTimeout;
 
 
