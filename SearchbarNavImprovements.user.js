@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.3
+// @version      4.3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1101,8 +1101,10 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
                 }
             });
 
+            // Insert after featured module
+            $('.community-bulletin').after(qtoc);
+
             // Remove chat and hot network questions as they take up a lot of sidebar real-estate
-            $('#h-linked').parent().before(qtoc);
             $('#chat-feature, #hot-network-questions').hide();
         });
     }
