@@ -24,6 +24,7 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 These are highly recommended for everyone because they are too awesome:
 
 - [Searchbar & Nav Improvements](https://github.com/samliew/SO-mod-userscripts#searchbar--nav-improvements)
+- [Post Headers & Question TOC](https://github.com/samliew/SO-mod-userscripts#post-headers--question-toc)
 - [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts#post-timeline-filters)
 
 
@@ -246,7 +247,7 @@ These are highly recommended for everyone because they are too awesome:
   - Post score, user display name, date info
   - Clicking on answer links scrolls to start of post (replaces URL hash)
   - Toggle deleted answers in ToC
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-05_100726.png)
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-07_150848.png)
 
 
 
