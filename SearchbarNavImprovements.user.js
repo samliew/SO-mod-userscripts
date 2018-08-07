@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.3.2
+// @version      4.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -129,9 +129,15 @@
     }
 
 
+    // Returns true if element found
     function gotoPost(pid, isQuestion = false) {
-        history.replaceState(null, document.title, `https://${location.hostname}${location.pathname.replace(/\/?\d*#?\d*$/, '')}${isQuestion ? '' : '/'+pid+'#'+pid}`);
-        $('html, body').animate({ scrollTop: $(isQuestion ? '#question' : '#answer-'+pid).offset().top + 1 }, 600);
+        const elem = $(isQuestion ? '#question' : '#answer-'+pid);
+        if(elem.length === 1) {
+            history.replaceState(null, document.title, `https://${location.hostname}${location.pathname.replace(/\/?\d*#?\d*$/, '')}${isQuestion ? '' : '/'+pid+'#'+pid}`);
+            $('html, body').animate({ scrollTop: $(isQuestion ? '#question' : '#answer-'+pid).offset().top + 1 }, 600);
+            return true;
+        }
+        return false;
     }
 
 
@@ -1089,7 +1095,7 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 
             const qtoc = $(`
 <div class="module sidebar-linked" id="qtoc">
-  <h4 id="h-linked">Answers</h4>
+  <h4 id="qtoc-header">${v.length} Answers <span><input id="qtoc-toggle-del" type="checkbox" checked="checked" /><label for="qtoc-toggle-del">deleted?</label></span></h4>
   <div class="linked">${answerlist}</div>
 </div>`);
 
@@ -1099,11 +1105,7 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
             // If answer is on current page, clicking on them scrolls to the answer
             qtoc.on('click', 'a', function() {
                 const pid = this.parentNode.dataset.answerid;
-                const answer = $('#answer-'+pid);
-                if(answer.length == 1) {
-                    gotoPost(pid);
-                    return false;
-                }
+                return !gotoPost(pid);
             });
 
             // Insert after featured module
@@ -1111,6 +1113,10 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 
             // Remove chat and hot network questions as they take up a lot of sidebar real-estate
             $('#chat-feature, #hot-network-questions').hide();
+
+            $('#qtoc-toggle-del').click(function() {
+                $('#qtoc-header').next().find('.deleted-answer').toggle();
+            });
         });
     }
 
@@ -1729,6 +1735,11 @@ button, .button,
 }
 
 /* Table of Contents Sidebar */
+#qtoc-header > span {
+    float: right;
+    display: inline-block;
+    font-size: 13px;
+}
 #qtoc .relativetime {
     padding-top: 2px;
     white-space: nowrap;
