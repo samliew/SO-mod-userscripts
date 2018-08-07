@@ -235,6 +235,20 @@ These are highly recommended for everyone because they are too awesome:
   <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-02_130815.png)
 
 
+### [Post Headers & Question TOC](https://github.com/samliew/SO-mod-userscripts/blob/master/PostHeadersQuestionToc.user.js)
+
+- Post headers to help with long posts / comment threads
+  - User, revision history, post timeline links
+  - Clicking on empty middle area scrolls to start of post (replaces URL hash)
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-07_150823.png)
+
+- Question Table of Contents of Answers in sidebar below Featured Posts module
+  - Post score, user display name, date info
+  - Clicking on answer links scrolls to start of post (replaces URL hash)
+  - Toggle deleted answers in ToC
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-05_100726.png)
+
+
 
 <br>
 
