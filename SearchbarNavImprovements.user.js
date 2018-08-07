@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.3.1
+// @version      4.3.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -126,6 +126,12 @@
             const ico = svgicons[this.dataset.svg];
             if(ico) $(this).append(ico);
         });
+    }
+
+
+    function gotoPost(pid, isQuestion = false) {
+        history.replaceState(null, document.title, `https://${location.hostname}${location.pathname.replace(/\/?\d*#?\d*$/, '')}${isQuestion ? '' : '/'+pid+'#'+pid}`);
+        $('html, body').animate({ scrollTop: $(isQuestion ? '#question' : '#answer-'+pid).offset().top + 1 }, 600);
     }
 
 
@@ -1019,8 +1025,7 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
         $('.post-stickyheader').click(function() {
             const isQuestion = $(this.parentNode).hasClass('question');
             const pid = isQuestion ? this.parentNode.dataset.questionid : this.parentNode.dataset.answerid;
-            $('html, body').animate({ scrollTop: $(this).parent().offset().top + 1 }, 400);
-            history.replaceState(null, document.title, `https://${location.hostname}${location.pathname.replace(/\/?\d*#?\d*$/, '')}${isQuestion ? '' : '/'+pid+'#'+pid}`);
+            gotoPost(pid, isQuestion);
         }).on('click', 'a', function(evt) {
             evt.stopPropagation();
         });
@@ -1096,7 +1101,7 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
                 const pid = this.parentNode.dataset.answerid;
                 const answer = $('#answer-'+pid);
                 if(answer.length == 1) {
-                    $('html, body').animate({ scrollTop: answer.offset().top }, 600);
+                    gotoPost(pid);
                     return false;
                 }
             });
