@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -52,9 +52,10 @@
 
     // Returns true if element found
     function gotoPost(pid, isQuestion = false) {
+        const postBaseUrl = $('#question-header h1 a').attr('href');
         const elem = $(isQuestion ? '#question' : '#answer-'+pid);
         if(elem.length === 1) {
-            history.replaceState(null, document.title, `https://${location.hostname}${location.pathname.replace(/\/?\d*#?\d*$/, '')}${isQuestion ? '' : '/'+pid+'#'+pid}`);
+            history.replaceState(null, document.title, `${postBaseUrl}${isQuestion ? '' : '/'+pid+'#'+pid}`);
             $('html, body').animate({ scrollTop: $(isQuestion ? '#question' : '#answer-'+pid).offset().top + 1 }, 600);
             return true;
         }
