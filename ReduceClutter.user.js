@@ -3,7 +3,7 @@
 // @description  Reveals comment action icons on comment hover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -38,18 +38,6 @@ ul.comments-list .comment-up-on {
 }
 .popup-flag-comment {
     visibility: visible !important;
-}
-
-/*
-   Fix missing edited comment icon
-   https://meta.stackexchange.com/q/312829
-*/
-.edited-yes {
-    display: inline-block;
-    position: relative;
-    top: 2px;
-    width: 12px;
-    height: 12px;
 }
 
 /*
