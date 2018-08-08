@@ -3,7 +3,7 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -60,6 +60,7 @@
                     cls = 'ctype-meh';
                     break;
             }
+            el.innerText = el.innerText.trim();
             el.classList.add(cls);
 
             if(cls == 'ctype-custom') {
