@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7.1
+// @version      2.8
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -163,9 +163,6 @@
             .on('click', 'a.comment-link', function(ev) {
                 ev.stopPropagation();
             });
-
-        // Highlight rude or abusive flag comments
-        $('.revision-comment').filter((i, el) => el.innerText.indexOf('rude or abusive') >= 0).addClass('roa-flag');
 
         // Highlight comments from last year or older
         const thisYear = new Date().getFullYear();
@@ -374,9 +371,6 @@ table.comments tr.roa-comment > td {
 .tagged-ignored {
     opacity: 1 !important;
 }
-.revision-comment {
-    font-style: normal;
-}
 </style>
 `;
         $('body').append(styles);
@@ -424,13 +418,6 @@ table.comments {
 tr.comment > td {
     height: 6em;
     word-break: break-word;
-}
-.revision-comment {
-    color: #663;
-    font-style: italic;
-}
-.revision-comment.roa-flag {
-    color: red;
 }
 table.flagged-posts .relativetime.old-comment {
     color: coral;
