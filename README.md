@@ -256,6 +256,21 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-07_150848.png)
 
 
+### [Comment Flag Type Colours](https://github.com/samliew/SO-mod-userscripts/blob/master/CommentFlagTypeColours.user.js)
+
+- Works on user's comment flag history group page
+  
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-08_110813.png)
+
+- Works on user's mod comment history pages
+  
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-08_120852.png)
+
+- Works on mod comment flag queues
+  
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-08_120838.png)
+
+
 
 <br>
 
