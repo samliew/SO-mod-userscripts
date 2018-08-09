@@ -51,6 +51,10 @@ Direct installation links (raw files)
 
 [Searchbar & Nav Improvements](https://github.com/samliew/SO-mod-userscripts/raw/master/SearchbarNavImprovements.user.js)
 
+[Comment Flag Type Colours](https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagTypeColours.user.js)
+
+[Lightbox Images](https://github.com/samliew/SO-mod-userscripts/raw/master/LightboxImages.user.js) ♦
+
 
 <br>
 
