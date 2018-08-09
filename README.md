@@ -71,7 +71,7 @@ These are highly recommended for everyone because they are too awesome:
 
 ### [Hide Viewed Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/HideViewedPosts.user.js) ♦
 
-- Avoid posts already seen and possibly handled by another moderator
+- Avoid posts in mod queue when already seen *and possibly handled by* another moderator
 
 
 ### [Show Flags On Deleted Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/ShowFlagsOnDeletedPosts.user.js) ♦
@@ -269,6 +269,11 @@ These are highly recommended for everyone because they are too awesome:
 - Works on mod comment flag queues
   
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-08_120838.png)
+
+
+### [Lightbox Images](https://github.com/samliew/SO-mod-userscripts/blob/master/LightboxImages.user.js) ♦
+
+- Opens image links in a lightbox instead of new window/tab in main & chat
 
 
 
