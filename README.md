@@ -271,7 +271,7 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-08_120838.png)
 
 
-### [Lightbox Images](https://github.com/samliew/SO-mod-userscripts/blob/master/LightboxImages.user.js) ♦
+### [Lightbox Images](https://github.com/samliew/SO-mod-userscripts/blob/master/LightboxImages.user.js)
 
 - Opens image links in a lightbox instead of new window/tab in main & chat
 
