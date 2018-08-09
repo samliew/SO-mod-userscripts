@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -18,27 +18,22 @@
     'use strict';
 
 
-    jQuery.cachedScript = function(url, options) {
-
-        // Allow user to set any option except for dataType, cache, and url
-        options = $.extend(options || {}, {
+    $.getCachedScript = function(url, callback) {
+        return $.ajax({
+            url: url,
             dataType: "script",
-            cache: true,
-            url: url
-        });
-
-        // Use $.ajax() since it is more flexible than $.getScript
-        // Return the jqXHR object so we can chain callbacks
-        return jQuery.ajax(options);
+            cache: true
+        }).done(callback);
     };
 
 
     function doPageload() {
 
         $(`<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.css">`).appendTo(document.body);
-        $.cachedScript('https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.js', function() {
+
+        $.getCachedScript('https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.js', function() {
             $().fancybox({
-                selector : '.ob-image a, a[href$=jpg], a[href$=png], a[href$=gif]'
+                selector : ".ob-image a, a[href$=jpg], a[href$=png], a[href$=gif]"
             });
         });
     }
