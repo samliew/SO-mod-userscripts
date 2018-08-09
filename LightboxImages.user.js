@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -21,7 +21,7 @@
     $.getCachedScript = function(url, callback) {
         return $.ajax({
             url: url,
-            dataType: "script",
+            dataType: 'script',
             cache: true
         }).done(callback);
     };
@@ -29,11 +29,11 @@
 
     function doPageload() {
 
+        /* Load fancybox 3 - https://fancyapps.com/fancybox/3/docs/#options */
         $(`<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.css">`).appendTo(document.body);
-
         $.getCachedScript('https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.js', function() {
             $().fancybox({
-                selector : ".ob-image a, a[href$=jpg], a[href$=png], a[href$=gif]"
+                selector : '.ob-image a, a[href$=jpg], a[href$=png], a[href$=gif]'
             });
         });
     }
