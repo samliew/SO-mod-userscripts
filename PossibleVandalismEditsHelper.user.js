@@ -3,7 +3,7 @@
 // @description  Display revision count and post age
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=postvandalismeditsauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=postvandalismeditsauto*
@@ -35,7 +35,7 @@
                     const eventrows = $('.event-rows tr', data);
                     const dateCreated = new Date(eventrows.filter('[data-eventtype="history"]').last().find('.relativetime').attr('title'));
                     const dateDiff = Date.now() - dateCreated;
-                    const age = Math.floor(dateDiff / 3600000);
+                    const age = Math.floor(dateDiff / 86400000); // 86400000 = 1 day
                     const revisions = eventrows.filter(function() {
                         return $(this).find('.event-verb').text().indexOf('edited') >= 0;
                     });
