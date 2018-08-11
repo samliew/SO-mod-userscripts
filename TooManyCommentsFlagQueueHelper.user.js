@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4
+// @version      3.4.1
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
@@ -230,7 +230,7 @@
                     const numAnswers = post.find('.answer-link span').last().text();
                     const numAnswersText = numAnswers ? `<div>post type: question (${numAnswers} answer${pluralize(numAnswers)})</div>` : '<div>post type: answer</div>';
                     const closeReasonElem = post.find('.question-status');
-                    const closeReason = closeReasonElem.length ? closeReasonElem.get(0).children[0].childNodes[2].nodeValue.replace(/\s*(as|by)\s*/g, '') : '';
+                    const closeReason = closeReasonElem.length ? closeReasonElem.get(0).children[0].childNodes[2].nodeValue.replace(/\s*\b(as|by)\b\s*/g, '') : '';
                     const closeReasonText = closeReasonElem.length && closeReason.length ? `<div>closed: ${closeReason}</div>` : '';
                     const cmmts = el.find('.comment-body');
                     const cmmtUsers = el.find('.comment-body').find('.comment-user:first').map((i, el) => el.href).get().filter((v, i, self) => self.indexOf(v) === i); // unique users
