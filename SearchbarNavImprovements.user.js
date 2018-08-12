@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.5
+// @version      4.5.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1505,7 +1505,7 @@ button, .button,
 /* Quick filters */
 #res-quickfilter {
     margin-top: -6px;
-    margin-bottom: 16px;
+    margin-bottom: 23px;
 }
 #res-quickfilter .grid {
     display: inline-flex;
