@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.5.2
+// @version      4.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -798,12 +798,18 @@
       </div>
   </div>
   <div id="tab-other">
+    <label class="section-label">Questions closed as duplicate of</label>
     <div class="ext">
-      <label class="section-label">Questions closed as duplicate of</label>
       <input type="checkbox" name="dupe-current" id="dupe-current" data-currentfor="#dupe-id" /><label for="dupe-current">current question</label>
       <label for="dupe-id">question id:</label>
       <input name="dupe-id" id="dupe-id" class="input-small" maxlength="12" data-clearbtn data-validate-numeric data-clears="#dupe-current" />
       <a class="button extbutton" data-exturl="http://data.stackexchange.com/${currentSiteSlug}/query/874526/?QuestionId={dupe-id}">SEDE</a>
+    </div>
+    <label class="section-label">Archive for</label>
+    <div class="ext">
+      <label for="archive-org">URL:</label>
+      <input name="archive-org" id="archive-org" data-clearbtn />
+      <a class="button extbutton" data-exturl="https://web.archive.org/web/*/{archive-org}">Search archive.org</a>
     </div>
   </div>
 </div>
