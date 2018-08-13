@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.6
+// @version      4.6.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -808,7 +808,7 @@
     <label class="section-label">Archive for</label>
     <div class="ext">
       <label for="archive-org">URL:</label>
-      <input name="archive-org" id="archive-org" data-clearbtn />
+      <input name="archive-org" id="archive-org" data-clearbtn data-validate-url />
       <a class="button extbutton" data-exturl="https://web.archive.org/web/*/{archive-org}">Search archive.org</a>
     </div>
   </div>
@@ -962,6 +962,14 @@
                 this.href = output;
                 if(!valid) $(this).removeAttr('href');
             });
+
+        // Intercept enter key on external inputs
+        $('.ext').on('keypress', 'input', function(evt) {
+            if(evt.key === 'Enter') {
+                $(this).closest('.ext').find('.extbutton').first().trigger('updatelink').get(0).click();
+                return false;
+            }
+        });
 
         // Handle search form submit
         searchform.on('submit', handleAdvancedSearch);
