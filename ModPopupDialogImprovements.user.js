@@ -3,7 +3,7 @@
 // @description  Some simple improvements for posts' Mod popup dialog
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @match        https://stackoverflow.com/*
 // @match        https://serverfault.com/*
@@ -66,7 +66,7 @@
             if(settings.url.indexOf('/admin/dismiss-flag') === 0) {
 
                 // Default decline option to second option "a moderator reviewed your flag, but found no evidence to support it"
-                $('#dis_2').prop('checked', true);
+                $('#dis_2').click();
             }
 
         });
