@@ -3,7 +3,7 @@
 // @description  Some simple improvements for posts' Mod popup dialog
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.6
 //
 // @match        https://stackoverflow.com/*
 // @match        https://serverfault.com/*
@@ -30,10 +30,14 @@
 
 
     function listenToPageUpdates() {
-        $(document).ajaxStop(function() {
 
-            var $popupForm = $('.popup._hidden-descriptions form');
-            if($popupForm) {
+        $(document).ajaxComplete(function(evt, jqXHR, settings) {
+
+            // When post mod menu link is clicked
+            if(settings.url.indexOf('/admin/posts/') === 0 && settings.url.indexOf('/moderator-menu') > 0) {
+
+                const $popupForm = $('.popup._hidden-descriptions form');
+                if($popupForm.length === 0) return;
 
                 // Move comments to chat is selected by default
                 $('#tab-actions input[value="move-comments-to-chat"]').prop('checked', true).triggerHandler('click');
@@ -56,8 +60,18 @@
                     setTimeout(() => $(this).parents('tr.flagged-post-row').hide(), 300);
                 });
             }
+
+
+            // When post decline link is clicked in mod queue
+            if(settings.url.indexOf('/admin/dismiss-flag') === 0) {
+
+                // Default decline option to second option "a moderator reviewed your flag, but found no evidence to support it"
+                $('#dis_2').prop('checked', true);
+            }
+
         });
     }
+
 
     // On page load
     listenToPageUpdates();
