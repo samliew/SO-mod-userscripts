@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.6.1
+// @version      4.6.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -808,7 +808,7 @@
     <label class="section-label">Archive for</label>
     <div class="ext">
       <label for="archive-org">URL:</label>
-      <input name="archive-org" id="archive-org" data-clearbtn data-validate-url />
+      <input name="archive-org" id="archive-org" data-clearbtn />
       <a class="button extbutton" data-exturl="https://web.archive.org/web/*/{archive-org}">Search archive.org</a>
     </div>
   </div>
@@ -941,7 +941,7 @@
         searchhelper.find('.extbutton[data-exturl]')
             .each(function(i, el) {
                 const linkedEls = '#' + this.dataset.exturl.match(/{[a-z_-]+}/i).join(', #').replace(/[{}]/g, '');
-                $(linkedEls).on('change', function(evt) {
+                $(linkedEls).on('change keyup', function(evt) {
                     $(el).trigger('updatelink');
                 });
                 el.target = '_blank';
@@ -966,7 +966,7 @@
         // Intercept enter key on external inputs
         $('.ext').on('keypress', 'input', function(evt) {
             if(evt.key === 'Enter') {
-                $(this).closest('.ext').find('.extbutton').first().trigger('updatelink').get(0).click();
+                $(this).closest('.ext').find('.extbutton').first().get(0).click();
                 return false;
             }
         });
