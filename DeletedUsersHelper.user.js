@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.2
+// @version      1.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -259,6 +259,13 @@ ${reason}</div>
             if(location.pathname !== userUrl) location = userUrl;
 
             return;
+        }
+
+        // If on user mod dashboard and is deleted user
+        if(location.pathname.indexOf('/users/account-info/') === 0 && $('#mainbar-full').next('a[href^=/admin/posts-by-deleted-user/]').length === 1) {
+
+            // Redirect to profile page
+            location.href = location.pathname.replace('/account-info/', '/')
         }
 
         // If on user profile page and not 404
