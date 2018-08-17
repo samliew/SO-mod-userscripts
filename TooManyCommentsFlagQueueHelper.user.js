@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4.1
+// @version      3.4.2
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
@@ -226,7 +226,7 @@
                     const post = $(this).parents('.flagged-post-row');
                     const postOpts = post.find('.post-options');
 
-                    const postCreated = post.find('.post-detail .relativetime').get(0).outerHTML;
+                    const postCreated = post.find('.post-detail .relativetime').last().get(0).outerHTML;
                     const numAnswers = post.find('.answer-link span').last().text();
                     const numAnswersText = numAnswers ? `<div>post type: question (${numAnswers} answer${pluralize(numAnswers)})</div>` : '<div>post type: answer</div>';
                     const closeReasonElem = post.find('.question-status');
