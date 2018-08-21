@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.6.2
+// @version      4.6.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1026,6 +1026,9 @@
             items.filter('.selected').addClass('is-selected');
             $(this).before(items).remove();
         });
+
+        // Post timeline buttons to open in new tab
+        $('.js-post-issues a[title="Timeline"]').attr('target', '_blank');
 
         tryUpdateWatchedIgnoredTags();
 
