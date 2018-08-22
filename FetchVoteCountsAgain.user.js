@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Fetch Vote Counts Again
-// @description  Fetch vote counts for posts and enables you to click to fetch them again, even if you do not have sufficient rep
+// @description  Fetch vote counts for posts and enables you to click to fetch them again, even if you do not have sufficient rep. Also enables fetch vote counts on posts in mod flag queue.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -25,7 +25,7 @@
 
         $('.vote-count-post').attr('title', 'View upvote and downvote totals');
 
-        $('.vote').on('click', '.vote-count-post', function() {
+        $('#content').on('click', '.vote-count-post', function() {
             const votesElem = $(this);
             let pid = $(this).parents('.answer').first().attr('data-answerid');
             if(pid == null) pid = $('#question').attr('data-questionid');
@@ -40,15 +40,16 @@
             }
 
             // User has vote count priv and already fetched vote counts once
-            else if(votesElem.children().length > 1 && StackExchange.options.user.rep >= 1000) {
+            //   or on mod page (mods can't fetch vote counts)
+            else if((votesElem.children().length > 1 && StackExchange.options.user.rep >= 1000) || $('body').hasClass('mod-page')) {
                 $.get(`https://${location.hostname}/posts/${pid}/vote-counts`)
                     .done(function(data) {
                         votesElem.attr('title', `${+data.up} up / ${+data.down} down`)
                             .html(`<div style="color:green">${data.up}</div><div class="vote-count-separator"></div><div style="color:maroon">${data.down}</div>`);
                     });
-            }
 
-            return false;
+                return false;
+            }
         });
     }
 
