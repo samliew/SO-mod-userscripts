@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -113,7 +113,12 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
                 v = v.get().sort(function(a, b) {
                     const ax = Number($(a).find('.event-comment span:not(.badge-earned-check)').last().text().match(/[-0-9]+$/)[0]);
                     const bx = Number($(b).find('.event-comment span:not(.badge-earned-check)').last().text().match(/[-0-9]+$/)[0]);
-                    return bx - ax; // desc
+
+                    // If sorted by votes, deleted answers are placed at the bottom
+                    const adel = $(a).hasClass('deleted-event');
+                    const bdel = $(b).hasClass('deleted-event');
+
+                    return (adel && bdel) || (!adel && !bdel) ? bx - ax : (adel ? 1 : -1); // desc
                 });
             }
             else if(sortby == 'oldest') {
