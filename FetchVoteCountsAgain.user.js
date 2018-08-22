@@ -3,7 +3,7 @@
 // @description  Fetch vote counts for posts and enables you to click to fetch them again, even if you do not have sufficient rep
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -23,26 +23,51 @@
 
     function doPageLoad() {
 
+        $('.vote-count-post').attr('title', 'View upvote and downvote totals');
+
         $('.vote').on('click', '.vote-count-post', function() {
             const votesElem = $(this);
             let pid = $(this).parents('.answer').first().attr('data-answerid');
             if(pid == null) pid = $('#question').attr('data-questionid');
 
-            // If user has vote counts priv, ignore if empty
-            if(votesElem.children().length <= 1 && StackExchange.options.user.rep > 1000) {
-               console.log('ignoring first click');
-               return;
+            // If user does not have vote counts priv, use API to fetch vote counts
+            if(StackExchange.options.user.rep < 1000) {
+                $.get(`https://api.stackexchange.com/2.2/posts/${pid}?filter=!w-*Ytm8Gt4I)pS_ZBu&site=${location.hostname}`)
+                    .done(function(data) {
+                        votesElem.attr('title', `${+data.items[0].up_vote_count} up / ${+data.items[0].down_vote_count} down`)
+                            .html(`<div style="color:green">${data.items[0].up_vote_count}</div><div class="vote-count-separator"></div><div style="color:maroon">${data.items[0].down_vote_count}</div>`);
+                    });
             }
 
-            $.get(`https://${location.hostname}/posts/${pid}/vote-counts`)
-                .done(function(data) {
-                    votesElem.css('cursor', 'pointer').attr('title', `${+data.up} up / ${+data.down} down`).html(`<div style="color:green">${data.up}</div><div class="vote-count-separator"></div><div style="color:maroon">${data.down}</div>`);
-                });
+            // User has vote count priv and already fetched vote counts once
+            else if(votesElem.children().length > 1 && StackExchange.options.user.rep >= 1000) {
+                $.get(`https://${location.hostname}/posts/${pid}/vote-counts`)
+                    .done(function(data) {
+                        votesElem.attr('title', `${+data.up} up / ${+data.down} down`)
+                            .html(`<div style="color:green">${data.up}</div><div class="vote-count-separator"></div><div style="color:maroon">${data.down}</div>`);
+                    });
+            }
+
+            return false;
         });
     }
 
 
+    function appendStyles() {
+
+        const styles = `
+<style>
+.vote-count-post {
+    cursor: pointer !important;
+}
+</style>
+`;
+        $('body').append(styles);
+    }
+
+
     // On page load
+    appendStyles();
     doPageLoad();
 
 })();
