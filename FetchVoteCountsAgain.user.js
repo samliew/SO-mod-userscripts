@@ -3,7 +3,7 @@
 // @description  Fetch vote counts for posts and enables you to click to fetch them again, even if you do not have sufficient rep. Also enables fetch vote counts on posts in mod flag queue.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -35,7 +35,7 @@
                 $.get(`https://api.stackexchange.com/2.2/posts/${pid}?filter=!w-*Ytm8Gt4I)pS_ZBu&site=${location.hostname}`)
                     .done(function(data) {
                         votesElem.attr('title', `${+data.items[0].up_vote_count} up / ${+data.items[0].down_vote_count} down`)
-                            .html(`<div style="color:green">${data.items[0].up_vote_count}</div><div class="vote-count-separator"></div><div style="color:maroon">${data.items[0].down_vote_count}</div>`);
+                            .html(`<div style="color:green">${data.items[0].up_vote_count}</div><div class="vote-count-separator"></div><div style="color:maroon">${-data.items[0].down_vote_count}</div>`);
                     });
             }
 
