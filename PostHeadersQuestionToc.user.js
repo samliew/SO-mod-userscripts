@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -250,6 +250,13 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 }
 .post-stickyheader .deleted-user {
     margin: -3px 0;
+}
+/* If topbar is fixed */
+.top-bar._fixed ~ .container .post-stickyheader {
+    top: 50px;
+}
+.top-bar._fixed ~ .container .post-stickyheader ~ .post-layout .votecell .vote {
+    top: 101px;
 }
 
 /* Table of Contents Sidebar */
