@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -20,6 +20,7 @@
 
 
     const modflair = '<span class="mod-flair" title="moderator">♦</span>';
+    const hasFixedHeader = $('.top-bar').hasClass('_fixed');
 
 
     // (Promise) Get post timeline
@@ -95,6 +96,16 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
         }).on('click', 'a', function(evt) {
             evt.stopPropagation();
         });
+
+        function hashChange(evt) {
+            if(location.hash.indexOf('#comment') == 0) {
+                const cid = location.hash.match(/\d+/)[0];
+                const cmmt = $('#comment-'+cid);
+                window.scrollTo({ top: cmmt.offset().top - (hasFixedHeader ? 40 : 50), behavior: 'instant' });
+            }
+        }
+        window.addEventListener("hashchange", hashChange, false);
+        window.addEventListener("load", hashChange, false);
     }
 
 
