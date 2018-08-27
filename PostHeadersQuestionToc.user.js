@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -98,10 +98,17 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
         });
 
         function hashChange(evt) {
+            let elem;
             if(location.hash.indexOf('#comment') == 0) {
                 const cid = location.hash.match(/\d+/)[0];
-                const cmmt = $('#comment-'+cid);
-                window.scrollTo({ top: cmmt.offset().top - (hasFixedHeader ? 40 : 50), behavior: 'instant' });
+                const elem = $('#comment-'+cid);
+            }
+            else {
+                const pid = location.hash.match(/\d+/)[0];
+                const elem = $('#answer'-location.hash);
+            }
+            if(elem.length) {
+                window.scrollTo({ top: elem.offset().top - (hasFixedHeader ? 40 : 50), behavior: 'instant' });
             }
         }
         window.addEventListener("hashchange", hashChange, false);
