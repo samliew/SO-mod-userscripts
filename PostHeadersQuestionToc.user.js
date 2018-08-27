@@ -108,7 +108,7 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
                 elem = $('#answer'-id);
             }
 
-            if(id && elem) {
+            if(id && elem && elem.length) {
                 window.scrollTo({ top: elem.offset().top - (hasFixedHeader ? 40 : 50), behavior: 'instant' });
             }
         }
