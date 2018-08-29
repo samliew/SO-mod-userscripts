@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info. Disable when not needed.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -90,7 +90,7 @@
         const styles = `
 <style>
 .js-redact-page {
-    position: fixed;
+    position: fixed !important;
     bottom: 3px;
     left: 3px;
     z-index: 1001;
