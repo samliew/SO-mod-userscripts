@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.3
+// @version      1.5.4
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -22,6 +22,9 @@
 
 (function() {
     'use strict';
+
+
+    const isModPage = () => document.body.classList.contains('mod-page');
 
 
     function calculateFlagTier(fTotal = 0, fPerc = 0) {
@@ -144,12 +147,14 @@
         $('.flagged-post-row').slice(0,3).trigger('mouseover');
 
         // Load all flagger stats button
-        $('<button>Load flagger stats</button>')
-            .click(function() {
-                $(this).remove();
-                $('.flagged-post-row').trigger('mouseover');
-            })
-            .insertAfter('#mainbar-full .subheader:not(.user-full-tab-header) h1');
+        if(isModPage()) {
+            $('<button>Load flagger stats</button>')
+                .click(function() {
+                    $(this).remove();
+                    $('.flagged-post-row').trigger('mouseover');
+                })
+                .insertAfter('#mainbar-full .subheader:not(.user-full-tab-header) h1');
+        }
     }
 
 
