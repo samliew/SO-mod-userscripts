@@ -3,7 +3,7 @@
 // @description  Converts mod pages to mobile-friendly UI
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -42,6 +42,7 @@
 
         const styles = `
 <style>
+/* General */
 html, body {
     min-width: 0;
 }
@@ -51,9 +52,6 @@ body > * {
 .container *, [style*='width']:not(input) {
     width: auto !important;
     word-break: break-word;
-}
-td {
-    min-width: 60px !important;
 }
 .float-right, .fr {
     float: none !important;
@@ -104,14 +102,19 @@ input.post-id[readonly] {
 .subheader {
     margin: 10px 0 10px;
 }
+
+/* Specific */
+table.mod-summary td {
+    min-width: 60px !important;
+}
 #a-apply-filters {
     font-size: 11px;
 }
 a.expander-arrow-small-hide {
-    width: 13px !important;
-    zoom: 200%;
     float: left;
+    width: 13px !important;
     margin-bottom: 5px;
+    transform: scale3d(2,2,1);
 }
 .user-info .user-gravatar32,
 .user-info + br {
