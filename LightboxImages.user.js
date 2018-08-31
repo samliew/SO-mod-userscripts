@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -18,7 +18,7 @@
     'use strict';
 
 
-    const lbSelector = '.ob-image a, a[href$=jpg], a[href$=png], a[href$=gif]';
+    const lbSelector = '.ob-image a, a[href$=.jpg], a[href$=.png], a[href$=.gif]';
 
 
     $.getCachedScript = function(url, callback) {
@@ -31,6 +31,9 @@
 
 
     function doPageload() {
+
+        // Imgur album link to direct image
+        $('a[href^="https://imgur.com/"]').attr('href', (i,v) => v.match(/\.(jpg|png|gif)$/) != null ? v : v + '.jpg');
 
         /* Load fancybox 3 - https://fancyapps.com/fancybox/3/docs/#options */
         $(`<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.css">`).appendTo(document.body);
