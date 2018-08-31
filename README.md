@@ -156,7 +156,8 @@ These are highly recommended for everyone because they are too awesome:
 
 ### [Redacted Screenshots](https://github.com/samliew/SO-mod-userscripts/blob/master/RedactedScreenshots.user.js)
 
-- Masks and hides user-identifing info. Disable when not needed.
+- Masks and hides user-identifing info on page
+- Redact button can be found fixed on the bottom-left of the screen
 
 
 ### [Hover Expand Navigation Links](https://github.com/samliew/SO-mod-userscripts/blob/master/HoverExpandNavigationLinks.user.js)
@@ -416,3 +417,16 @@ These are highly recommended for everyone because they are too awesome:
 - Required for userscripts that allows further customization
 - See options under each userscript above for info on what is available
 - Options sidebar will appear on pages that the respective userscripts are running on
+
+
+
+<br>
+
+## In-Beta
+
+### [Mobile Moderator Pages](https://github.com/samliew/SO-mod-userscripts/blob/master/MobileModeratorPages.user.js)
+
+- Before/After *(screenshot redacted using RedactedScreenshots, and also running CommentFlagsHelper and CommentFlagTypeColours)*
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-31_110831-befaft.png)
+- Use new responsive menu
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/mod-responsive-nav.gif)
