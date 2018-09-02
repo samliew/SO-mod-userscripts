@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat. Lightbox images that are displayed smaller than it's original size.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -33,9 +33,9 @@
     function doPageload() {
 
         // Imgur album link to direct image
-        $('a[href^="https://imgur.com/"]').attr('href', (i,v) => v.match(/\.(jpg|png|gif)$/) != null ? v : v + '.jpg');
+        $('a[href^="https://imgur.com/"], a[href^="https://i.stack.imgur.com/"]').attr('href', (i,v) => v.match(/\.(jpg|png|gif)/) != null ? v : v + '.jpg');
 
-        // If unlinked images' width is greater than displayed width, also lightbox the image
+        // If unlinked images' width is greater than displayed width of at least 100px, also lightbox the image
         $('img').filter(function() {
             return typeof this.parentNode.href === 'undefined';
         }).wrap(function() {
@@ -44,7 +44,7 @@
         $(window).on('load resize', function() {
             $('.unlinked-image').each(function() {
                 const img = this.children[0];
-                if(img.width < img.naturalWidth) {
+                if(img.width >= 100 && img.width < img.naturalWidth) {
                     this.href = this.dataset.src;
                     this.classList.add('image-lightbox');
                 }
