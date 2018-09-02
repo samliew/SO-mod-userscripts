@@ -3,7 +3,7 @@
 // @description  Converts mod pages to mobile-friendly UI
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2
+// @version      0.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -104,6 +104,38 @@ input.post-id[readonly] {
 }
 
 /* Specific */
+table.flagged-posts .mod-post-header {
+    display: block;
+    clear: both;
+}
+table.flagged-posts .mod-post-header + td {
+    float: right;
+    clear: both;
+}
+.votecell.post-layout--left {
+    padding-right: 0 !important;
+}
+td.js-dashboard-row {
+    padding-left: 0;
+    padding-right: 0;
+}
+.mod-audit > br,
+.question-status .cbt,
+.mod-userlinks,
+.module.collapse.start-open,
+.module.collapse.start-open + .module {
+    display: none;
+}
+.mod-audit {
+    margin: 5px 0;
+    padding: 0 !important;
+}
+.mod-audit * {
+    font-size: 12px !important;
+}
+table.flagged-posts .delete-options {
+    text-align: right;
+}
 table.mod-summary td {
     min-width: 60px !important;
 }
