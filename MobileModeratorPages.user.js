@@ -3,7 +3,7 @@
 // @description  Converts mod pages to mobile-friendly UI
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.2
+// @version      0.2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -32,6 +32,7 @@
 
         // Transform page
         $('html').addClass('html__responsive');
+        $('head meta[name=viewport]').remove(); // remove existing viewport tag
         $('head').append(`<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />`);
         $('#left-sidebar > div').appendTo('.leftnav-dialog');
         $('table.mod-summary').parent('div').attr('style', 'overflow-x:scroll!important;');
