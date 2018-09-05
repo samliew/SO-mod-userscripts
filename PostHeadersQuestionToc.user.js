@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.2
+// @version      1.3.3
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -103,7 +103,7 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
                 id = location.hash.match(/\d+/)[0];
                 elem = $('#comment-'+id);
             }
-            else {
+            else if(location.hash.length > 1) {
                 id = location.hash.match(/\d+/)[0];
                 elem = $('#answer'-id);
             }
