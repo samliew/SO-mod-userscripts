@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.4
+// @version      1.3.5
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -305,13 +305,7 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
     float: none;
     border-radius: 2px;
     font-size: 90%;
-    background-color: #eff0f1;
-    color: #3b4045;
     transform: translateY(-1px);
-}
-#qtoc .answer-votes.answered-accepted {
-    color: #FFF;
-    background-color: #5fba7d;
 }
 #qtoc .answer-votes.large {
     min-width: 16px;
