@@ -156,7 +156,9 @@ These are highly recommended for everyone because they are too awesome:
 
 ### [Redacted Screenshots](https://github.com/samliew/SO-mod-userscripts/blob/master/RedactedScreenshots.user.js)
 
-- Masks and hides user-identifing info on page
+- Anonymizes user links in posts and comments
+- Masks and hides user-identifing info on page (IPs and email addresses)
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-07_110958.png)
 - Redact button can be found fixed on the bottom-left of the screen
 
 
