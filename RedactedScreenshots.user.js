@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info. Disable when not needed.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.2
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -18,6 +18,21 @@
 
 (function() {
     'use strict';
+
+
+    const ipRegex = /(?<=\s|")(\d{1,3})(\.\d{1,3}){3}(?=\s|")/g;
+    const emailRegex = /(?<=\s|")([^@\s]{1,3})([^@\s]+)@(.+)\.([a-z]+)(?=\s|")/gi;
+
+
+    function redactPii(i, elem) {
+        if(!(ipRegex.test(elem.innerHTML) || emailRegex.test(elem.innerHTML)) || $(this).find('*').length > 10) return;
+
+        elem.innerHTML = elem.innerHTML
+            .replace(ipRegex, '$1.███.███$2')
+            .replace(emailRegex, '$1██████@██████.$4');
+
+        elems.push(this);
+    }
 
 
     function cleanPage() {
@@ -38,6 +53,10 @@
 
         // Remove admin stuff from page
         $('.js-post-issues, .js-mod-inbox-button, .flag-count-item').remove();
+
+        // Redact IP and email addresses
+        $('input, a').each(redactPii);
+        $('div > div, div > p, div > span').each(redactPii);
     }
 
 
