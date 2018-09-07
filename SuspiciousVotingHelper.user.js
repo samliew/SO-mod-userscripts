@@ -3,7 +3,7 @@
 // @description
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      0.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -20,7 +20,7 @@
     'use strict';
 
 
-    const newlines = '&nbsp;\n\n';
+    const newlines = '\n\n';
 
 
     function mapVotePatternItemsToObject() {
@@ -30,6 +30,7 @@
             uid: link.attr('href').match(/\/(\d+)\//)[0],
             userlink: link.attr('href'),
             username: link.text(),
+            type: $(this).children('td').eq(1).text(),
             votes: Number(votes[0]),
             votesTotal: Number(votes[1]),
             votesPct: Math.round(Number(votes[0]) / Number(votes[1]) * 100)
@@ -59,14 +60,13 @@
                 const tables = $('.cast-votes:first .voters', data);
                 votesFrom = tables.first().find('tbody tr').map(mapVotePatternItemsToObject).get();
                 votesTo = tables.last().find('tbody tr').map(mapVotePatternItemsToObject).get();
-            }),
-
+            })
 
         ).then(function() {
 
             //console.log(flags);
-            console.table(votesFrom);
-            console.table(votesTo);
+            //console.table(votesFrom);
+            //console.table(votesTo);
 
             // Build evidence
             let evidence = `Please invalidate the votes shared between these users:` + newlines;
@@ -74,7 +74,7 @@
             // Check for users in both vote tables
             votesFrom.forEach(function(v,i) {
                 for(let i=0; i<votesTo.length; i++) {
-                    if(v.uid === votesTo[i].uid) {
+                    if(v.uid === votesTo[i].uid && v.type !== 'acc' && votesTo[i].type !== 'acc') {
                         evidence += `- Although this user has both received ${v.votes} votes from, and given ${votesTo[i].votes} votes to [${v.username}](${v.userlink}), it doesn't seem that this account is a sockpuppet due to different PII and are most likely studying/working together.` + newlines;
 
                         // Invalidate used entries
@@ -86,14 +86,14 @@
 
             // Get users with high vote ratio
             votesFrom.forEach(function(v,i) {
-                if(v.votesPct > 80) {
+                if(v.votesPct > 80 && v.type !== 'acc') {
                     evidence += `- This user has received a large number of targeted votes (${v.votes}/${v.votesTotal} ${v.votesPct}%) from [${v.username}](${v.userlink}).` + newlines;
                 }
             });
 
             // Get users with high vote ratio
             votesTo.forEach(function(v,i) {
-                if(v.votesPct > 80) {
+                if(v.votesPct > 80 && v.type !== 'acc') {
                     evidence += `- This user has given a large number of targeted votes (${v.votes}/${v.votesTotal} ${v.votesPct}%) to [${v.username}](${v.userlink}).` + newlines;
                 }
             });
@@ -112,7 +112,8 @@
                     .replace(/(https[^\s]+)/, '$1?tab=reputation') // change userlink to rep tab
                     .replace(/\n\n{todo}/, addstr) // replace todo with evidence
             );
-        });
+
+        }); // End then
     }
 
 
