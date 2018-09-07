@@ -3,7 +3,7 @@
 // @description  Fetch vote counts for posts and enables you to click to fetch them again, even if you do not have sufficient rep. Also enables fetch vote counts on posts in mod flag queue.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -28,7 +28,7 @@
         $('#content').on('click', '.vote-count-post', function() {
             const votesElem = $(this);
             let pid = $(this).parents('.answer').first().attr('data-answerid');
-            if(pid == null) pid = $('#question').attr('data-questionid');
+            if(pid == null) pid = $(this).parents('.question').attr('data-questionid');
 
             // If user does not have vote counts priv, use API to fetch vote counts
             if(StackExchange.options.user.rep < 1000) {
