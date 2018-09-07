@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info. Disable when not needed.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -20,8 +20,8 @@
     'use strict';
 
 
-    const ipRegex = /(?<=\s|")(\d{1,3})(\.\d{1,3}){3}(?=\s|")/g;
-    const emailRegex = /(?<=\s|")([^@\s]{1,3})([^@\s]+)@(.+)\.([a-z]+)(?=\s|")/gi;
+    const ipRegex = /(?<=(?:\b|\s|"))(\d{1,3})(\.\d{1,3}){3}(?=(?:\b|\s|"))/g;
+    const emailRegex = /(?<=(?:\b|\s|"))([^@\s]{1,3})([^@\s]+)@(.+)\.([a-z]+)(?=(?:\b|\s|"))/gi;
 
 
     function redactPii(i, elem) {
@@ -30,8 +30,6 @@
         elem.innerHTML = elem.innerHTML
             .replace(ipRegex, '$1.███.███$2')
             .replace(emailRegex, '$1██████@██████.$4');
-
-        elems.push(this);
     }
 
 
@@ -56,6 +54,7 @@
 
         // Redact IP and email addresses
         $('input, a').each(redactPii);
+        $('.post-text li, .post-text p').each(redactPii);
         $('div > div, div > p, div > span').each(redactPii);
     }
 
