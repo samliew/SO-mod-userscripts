@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -286,8 +286,8 @@
             }
         }
 
-        // If on a question page
-        else if(location.pathname.indexOf('/questions/') === 0) {
+        // If on a question or post revisions page
+        else if(location.pathname.indexOf('/questions/') === 0 || location.pathname.contains('/revisions')) {
             findDeletedUsers();
         }
 
