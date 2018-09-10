@@ -3,7 +3,7 @@
 // @description  Dropdown list of migration targets displaying site icon/logo/header images and links to the selected site's on-topic page and mod list. Displays additional information for custom flagger for selected network site.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -114,23 +114,32 @@
         const closeSubmitBtn = $('#close-question-form .popup-submit');
         const siteTargetField = $('#destinationSiteIdAC').attr('type', 'hidden');
         const migflaggerStats = $(`<div id="migflagger-stats"></div>`).hide().prependTo(container);
+        let flaggerUid;
 
-        // Detect flagger and suggested site
-        const flag = $('.active-flag').filter((i,el) => /(migrate|moved?)/i.test(el.innerText) || $(el).find('a').length != 0)[0];
-        const site = flag.innerText.match(/\b(code.?review|cr|[a-z]+(?=\.[.a-z]+))/i)[0] || '';
-        const shortsite = site.split('.')[0];
+        // Detect flagger and suggested site(s)
+        const flags = $('.active-flag').filter((i,el) => /(migrate|moved?)/i.test(el.innerText) || $(el).find('a').length != 0);
+        const suggestedSites = flags.map(function(i,el) {
+            const site = el.innerText.match(/\b(code.?review|[a-z]+(?=\.[.a-z]+))/i)[0] || '';
+            return {
+                elem: $(el),
+                site: site,
+                slug: site.split('.')[0]
+            }
+        });
 
         // Preload flagger's network accounts
-        const flaggerUid = $(flag).next('a').getUid();
-        if(flaggerUid) {
-            getFlaggerAccounts(flaggerUid);
+        if(flags.length > 0 && suggestedSites.length > 0) {
+            flaggerUid = suggestedSites[0].elem.next('a').getUid();
+            if(flaggerUid) {
+                getFlaggerAccounts(flaggerUid);
+            }
         }
 
         const siteDesc = $(`<div id="site-desc"><div>none selected</div></div>`);
         const siteDropdown = $(`<select id="network-site-selector"><option value="">-- select site --</option></select>`).insertAfter(siteTargetField).after(siteDesc)
             .on('change', function(evt) {
                 const sOpt = evt.target.options[evt.target.selectedIndex];
-                const sValue = sOpt.value;
+                const sValue = $(this).val();
                 const sUrl = sOpt.dataset.url;
                 const sSlug = sOpt.dataset.slug;
                 const valid = sValue !== '';
@@ -149,7 +158,7 @@
                 if(flaggerUid) {
                     getFlaggerAccounts(flaggerUid).then(function(a) {
                         let sAccount = a.find(function(v) {
-                            return v.site_url === sUrl || v.site_url.indexOf(sSlug) >= 0;
+                            return v.site_url === sUrl || v.site_url.indexOf(sSlug) >= 0 || v.site_url.indexOf(sValue.replace(/\s/g, '').toLowerCase()) >= 0;
                         });
                         if(typeof sAccount === 'undefined') {
                             migflaggerStats.html(`Flagger not found on selected site.`);
