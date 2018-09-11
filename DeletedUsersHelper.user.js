@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.2
+// @version      1.7.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -415,7 +415,7 @@ table#posts td {
     color: darkred;
 }
 .del-user-info .del-reason {
-    white-space: pre-line;
+    white-space: pre;
     margin: 20px 0;
 }
 #del-user-links > a {
