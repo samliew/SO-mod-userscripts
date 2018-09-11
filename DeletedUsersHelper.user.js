@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.1
+// @version      1.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -244,6 +244,21 @@
     }
 
 
+    function showDetailsFieldWhenPiiClicked() {
+
+        const piidiv = $('#allPII');
+        const piisection = piidiv.closest('.mod-section');
+
+        const networkAccounts = '\n\nNetwork Account: ' + $('.details a').first().attr('href');
+        const regdate = '\n' + $('.details .row').first().text().trim().replace(/\s+/g, ' ').replace('Joined network:', 'Joined network: ').replace('Joined site:', '\nJoined site:    ').split(/\s*\n\s*/).map(function(v) {
+            return v.contains("'") ? v : v + " '" + new Date().getFullYear().toString().slice(2);
+        }).join('\n');
+        const str = piidiv.children('div').slice(0,2).text().trim().replace(/\s+/g, ' ').replace('Email:', 'Email:     ').replace(' Real Name:', '\nReal Name: ').replace(' IP Address:', '\nIP Address:');
+        const ta = $(`<textarea id="pii-info" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>`).val(str + networkAccounts + regdate);
+        ta.insertBefore(piidiv).on('focus dblclick', evt => evt.target.select());
+    }
+
+
     function doPageLoad() {
 
         if(/\d+/.test(location.pathname) === false) return;
@@ -265,15 +280,19 @@
 
             // Redirect to user profile page
             if(location.pathname !== userUrl) location = userUrl;
-
             return;
         }
 
-        // If on user mod dashboard and is deleted user
-        if(location.pathname.indexOf('/users/account-info/') === 0 && $('#mainbar-full').next('a[href^=/admin/posts-by-deleted-user/]').length === 1) {
+        // If on user mod dashboard
+        if(location.pathname.startsWith('/users/account-info/')) {
 
-            // Redirect to profile page
-            location.href = location.pathname.replace('/account-info/', '/')
+            // Is deleted user
+            if($('#mainbar-full').next('a[href^=/admin/posts-by-deleted-user/]').length === 1) {
+
+                // Redirect to profile page
+                location.href = location.pathname.replace('/account-info/', '/');
+                return;
+            }
         }
 
         // If on user profile page and not 404
@@ -313,8 +332,12 @@
 
         // On any page update
         $(document).ajaxComplete(function(event, xhr, settings) {
+
             // More comments loaded
             if(settings.url.indexOf('/comments') >= 0) findDeletedUsers();
+
+            // Pii loaded on mod dashboard page
+            if(settings.url.indexOf('/admin/all-pii') >= 0 && location.pathname.startsWith('/users/account-info/')) showDetailsFieldWhenPiiClicked();
         });
     }
 
@@ -386,6 +409,12 @@ table#posts td {
 #del-user-links > a {
     display: block;
     margin-bottom: 3px;
+}
+#pii-info {
+    width: 100%;
+    height: calc(8.4em + 20px);
+    line-height: 1.2em;
+    font-family: monospace;
 }
 </style>
 `;
