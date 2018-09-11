@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.1
+// @version      1.7.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -308,6 +308,13 @@
 
                 formatDeletedUserPage();
             }
+        }
+
+        // If on deleted user success page, insert link back to profile
+        if(location.pathname.startsWith('/admin/users/') && location.pathname.endsWith('/destroy')) {
+
+            const uid = location.pathname.replace(/[^\d]+/g, '');
+            $('pre').first().after(`<a href="/users/${uid}">https://${location.hostname}/users/${uid}</a>`);
         }
 
         // If on a question or post revisions page
