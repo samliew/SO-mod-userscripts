@@ -279,6 +279,14 @@ These are highly recommended for everyone because they are too awesome:
 - Opens image links in a lightbox instead of new window/tab in main & chat
 
 
+### [Migration Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/MigrationHelper.user.js)
+
+- Dropdown list of migration targets displaying site icon/logo/header images and links to the selected site's on-topic page and mod list. Displays additional information for custom flagger for selected network site.
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-12_130911.png)
+- Dropdown transformed with Chosen, allowing for text search of site names
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-12_130922.png)
+
+
 
 <br>
 
