@@ -3,7 +3,7 @@
 // @description  Dropdown list of migration targets displaying site icon/logo/header images and links to the selected site's on-topic page and mod list. Displays additional information for custom flagger for selected network site.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -26,7 +26,7 @@
 
     const store = window.localStorage;
     const cdn = 'https://cdn.sstatic.net/Sites/';
-    let networksites, flaggeraccounts;
+    let networkSites, networkSitenames, flaggeraccounts;
 
 
     jQuery.fn.getUid = function() {
@@ -107,33 +107,38 @@
 
 
     function updateMigrationPane() {
-        if($('#close-question-form').length == 0 || typeof networksites === 'undefined') return;
+        if($('#close-question-form').length == 0 || typeof networkSites === 'undefined') return;
 
         const anywhere = $('#migrate-anywhere');
         const container = anywhere.closest('li');
         const closeSubmitBtn = $('#close-question-form .popup-submit');
         const siteTargetField = $('#destinationSiteIdAC').attr('type', 'hidden');
         const migflaggerStats = $(`<div id="migflagger-stats"></div>`).hide().prependTo(container);
-        let flaggerUid;
+        let flaggerUid, flaggerName;
 
         // Detect flagger and suggested site(s)
-        const flags = $('.active-flag').filter((i,el) => /(migrate|moved?)/i.test(el.innerText) || $(el).find('a').length != 0);
+        const flags = $('.active-flag').filter((i,el) => /\b(migrated?|moved?|site)\b/i.test(el.innerText) || $(el).find('a').length != 0);
         const suggestedSites = flags.map(function(i,el) {
-            const site = el.innerText.match(/\b(code.?review|[a-z]+(?=\.[.a-z]+))/i)[0] || '';
-            return {
+            const flagtext = el.innerText.toLowerCase();
+            const site = networkSites.filter(site => flagtext.contains(site.name.toLowerCase()) || flagtext.contains(site.api_site_parameter.toLowerCase()));
+            return site ? {
                 elem: $(el),
-                site: site,
-                slug: site.split('.')[0]
-            }
-        });
+                site: site.name,
+                slug: site.api_site_parameter
+            } : null;
+        }).get();
 
         // Preload flagger's network accounts
         if(flags.length > 0 && suggestedSites.length > 0) {
-            flaggerUid = suggestedSites[0].elem.next('a').getUid();
+            const flaggerLink = suggestedSites[0].elem.siblings('a').first();
+            flaggerUid = flaggerLink.getUid();
+            flaggerName = flaggerLink.text();
             if(flaggerUid) {
                 getFlaggerAccounts(flaggerUid);
             }
         }
+
+        console.log(flags, flaggerUid, suggestedSites);
 
         const siteDesc = $(`<div id="site-desc"><div>none selected</div></div>`);
         const siteDropdown = $(`<select id="network-site-selector"><option value="">-- select site --</option></select>`).insertAfter(siteTargetField).after(siteDesc)
@@ -144,7 +149,12 @@
                 const sSlug = sOpt.dataset.slug;
                 const valid = sValue !== '';
 
-                if(valid) anywhere.click();
+                if(valid) {
+                    anywhere.click();
+                }
+                else {
+                    migflaggerStats.hide();
+                }
                 anywhere.attr('checked', valid).closest('li').toggleClass('action-selected', valid);
                 closeSubmitBtn.toggleClass('disabled-button', !valid);
                 const currsite = siteDesc.children().removeClass('active').eq(this.selectedIndex).addClass('active');
@@ -161,10 +171,10 @@
                             return v.site_url === sUrl || v.site_url.indexOf(sSlug) >= 0 || v.site_url.indexOf(sValue.replace(/\s/g, '').toLowerCase()) >= 0;
                         });
                         if(typeof sAccount === 'undefined') {
-                            migflaggerStats.html(`Flagger not found on selected site.`);
+                            migflaggerStats.html(`Flagger ${flaggerName} not found on selected site.`).show();
                         }
                         else {
-                            migflaggerStats.html(`Flagger <a href="${sAccount.site_url}/users/${sAccount.user_id}" target="_blank">${sAccount.user_id}</a> has <span>${sAccount.reputation.toLocaleString()}</span> rep on selected site.</span>`).show();
+                            migflaggerStats.html(`Flagger <a href="${sAccount.site_url}/users/${sAccount.user_id}" target="_blank">${flaggerName}</a> has <span>${sAccount.reputation.toLocaleString()}</span> rep on selected site.</span>`).show();
                         }
                     });
                 }
@@ -172,7 +182,7 @@
 
         let siteDescHtml = '';
         let siteDropdownHtml = '';
-        networksites.forEach(site => {
+        networkSites.forEach(site => {
             siteDescHtml += `<div>
 <div class="site-logos">
   <img class="site-icon" data-src="${site.icon_url}" />
@@ -202,7 +212,10 @@ Q&A for ${site.audience}<br><a href="${site.site_url}/help/on-topic" target="_bl
 
     function doPageLoad() {
         // Cache list in localstorage
-        getMainNetworkSites().then(v => networksites = v);
+        getMainNetworkSites().then(v => {
+            networkSites = v;
+            networkSitenames = v.map(site => site.name);
+        });
     }
 
 
