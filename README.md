@@ -128,6 +128,14 @@ These are highly recommended for everyone because they are too awesome:
 - Also puts the flag count back in the navbar in case you miss it or need a link to the empty flag queue for some reason
 
 
+### [Migration Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/MigrationHelper.user.js) ♦
+
+- Dropdown list of migration targets displaying site icon/logo/header images and links to the selected site's on-topic page and mod list. Displays additional information for custom flagger for selected network site.
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-12_130911.png)
+- Dropdown transformed with Chosen, allowing for text search of site names
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-12_130922.png)
+
+
 ### [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/blob/master/PostTimelineFilters.user.js)
 
 - Inserts several filter options for post timelines, useful for old posts with humongous timelines
@@ -277,14 +285,6 @@ These are highly recommended for everyone because they are too awesome:
 ### [Lightbox Images](https://github.com/samliew/SO-mod-userscripts/blob/master/LightboxImages.user.js)
 
 - Opens image links in a lightbox instead of new window/tab in main & chat
-
-
-### [Migration Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/MigrationHelper.user.js)
-
-- Dropdown list of migration targets displaying site icon/logo/header images and links to the selected site's on-topic page and mod list. Displays additional information for custom flagger for selected network site.
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-12_130911.png)
-- Dropdown transformed with Chosen, allowing for text search of site names
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-12_130922.png)
 
 
 
