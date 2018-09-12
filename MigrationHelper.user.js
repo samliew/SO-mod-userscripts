@@ -3,7 +3,7 @@
 // @description  Dropdown list of migration targets displaying site icon/logo/header images and links to the selected site's on-topic page and mod list. Displays additional information for custom flagger for selected network site.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -27,6 +27,15 @@
     const store = window.localStorage;
     const cdn = 'https://cdn.sstatic.net/Sites/';
     let networkSites, networkSitenames, flaggeraccounts;
+
+
+    jQuery.getCachedScript = function(url, callback) {
+        return $.ajax({
+            url: url,
+            dataType: 'script',
+            cache: true
+        }).done(callback);
+    };
 
 
     jQuery.fn.getUid = function() {
@@ -118,19 +127,20 @@
 
         // Detect flagger and suggested site(s)
         const flags = $('.active-flag').filter((i,el) => /\b(migrated?|moved?|site)\b/i.test(el.innerText) || $(el).find('a').length != 0);
-        const suggestedSites = flags.map(function(i,el) {
+        const suggestedSite = flags.map(function(i,el) {
             const flagtext = el.innerText.toLowerCase();
-            const site = networkSites.filter(site => flagtext.contains(site.name.toLowerCase()) || flagtext.contains(site.api_site_parameter.toLowerCase()));
-            return site ? {
+            const site = networkSites.filter(v => flagtext.contains(v.name.toLowerCase().replace('&amp;', '&')) || flagtext.contains(v.site_url.replace('https://', '')) );
+            return site.length > 0 ? {
                 elem: $(el),
-                site: site.name,
-                slug: site.api_site_parameter
+                name: site[0].name,
+                slug: site[0].api_site_parameter,
+                site_url: site[0].site_url
             } : null;
-        }).get();
+        }).get(0);
 
         // Preload flagger's network accounts
-        if(flags.length > 0 && suggestedSites.length > 0) {
-            const flaggerLink = suggestedSites[0].elem.siblings('a').first();
+        if(flags.length > 0 && suggestedSite) {
+            const flaggerLink = suggestedSite.elem.siblings('a').first();
             flaggerUid = flaggerLink.getUid();
             flaggerName = flaggerLink.text();
             if(flaggerUid) {
@@ -138,14 +148,12 @@
             }
         }
 
-        console.log(flags, flaggerUid, suggestedSites);
-
         const siteDesc = $(`<div id="site-desc"><div>none selected</div></div>`);
-        const siteDropdown = $(`<select id="network-site-selector"><option value="">-- select site --</option></select>`).insertAfter(siteTargetField).after(siteDesc)
+        const siteDropdown = $(`<select id="network-site-selector" class="js-chosen-select" data-placeholder="-- select site --"><option value="">-- select site --</option></select>`).insertAfter(siteTargetField).after(siteDesc)
             .on('change', function(evt) {
                 const sOpt = evt.target.options[evt.target.selectedIndex];
                 const sValue = $(this).val();
-                const sUrl = sOpt.dataset.url;
+                const sUrl = sOpt.dataset.url.replace('https://', '');
                 const sSlug = sOpt.dataset.slug;
                 const valid = sValue !== '';
 
@@ -155,7 +163,7 @@
                 else {
                     migflaggerStats.hide();
                 }
-                anywhere.attr('checked', valid).closest('li').toggleClass('action-selected', valid);
+                anywhere.val(sUrl).attr('checked', valid).closest('li').toggleClass('action-selected', valid);
                 closeSubmitBtn.toggleClass('disabled-button', !valid);
                 const currsite = siteDesc.children().removeClass('active').eq(this.selectedIndex).addClass('active');
                 siteTargetField.val(sValue);
@@ -183,6 +191,10 @@
         let siteDescHtml = '';
         let siteDropdownHtml = '';
         networkSites.forEach(site => {
+
+            // Exclude current site
+            if(site.site_url === 'https://' + location.hostname) return;
+
             siteDescHtml += `<div>
 <div class="site-logos">
   <img class="site-icon" data-src="${site.icon_url}" />
@@ -191,11 +203,25 @@
   </div>
 </div>
 Q&A for ${site.audience}<br><a href="${site.site_url}/help/on-topic" target="_blank">on-topic?</a> | <a href="${site.site_url}/users?tab=moderators" target="_blank">moderators</a></div>`;
+
             siteDropdownHtml += `<option value="${site.name}" data-slug="${site.api_site_parameter}" data-url="${site.site_url}">${site.name}</option>`;
         });
 
         siteDesc.append(siteDescHtml);
         siteDropdown.append(siteDropdownHtml);
+
+        // Preselect suggested site
+        console.log(suggestedSite);
+        if(suggestedSite) {
+            siteDropdown.val(suggestedSite.name.replace('&amp;', '&')).triggerHandler('change');
+        }
+
+        $.getCachedScript('https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js', function() {
+            $('.js-chosen-select').chosen({
+                allow_single_deselect: true,
+                no_results_text: "Oops, nothing found!",
+            });
+        });
     }
 
 
@@ -211,6 +237,7 @@ Q&A for ${site.audience}<br><a href="${site.site_url}/help/on-topic" target="_bl
 
 
     function doPageLoad() {
+
         // Cache list in localstorage
         getMainNetworkSites().then(v => {
             networkSites = v;
@@ -222,6 +249,7 @@ Q&A for ${site.audience}<br><a href="${site.site_url}/help/on-topic" target="_bl
     function appendStyles() {
 
         const styles = `
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css" />
 <style>
 #network-site-selector {
     padding: 8px 10px 7px;
@@ -276,6 +304,19 @@ Q&A for ${site.audience}<br><a href="${site.site_url}/help/on-topic" target="_bl
 }
 #migflagger-stats span {
     font-weight: bold;
+}
+#popup-close-question #close-question-form {
+    overflow: initial;
+}
+.chosen-container {
+    min-width: 300px;
+}
+.chosen-container-single .chosen-single {
+    height: auto;
+    padding: 3px 10px;
+}
+.chosen-container-single .chosen-single div b {
+    background-position: top 5px left 0px;
 }
 </style>
 `;
