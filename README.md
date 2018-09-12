@@ -98,10 +98,11 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-09_000636.png)
 - You can now multi-select delete/undelete posts by deleted user
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-09_000637.png)
-- Improved deleted user page
+- Improved deleted user page, linkify URLs
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-02_210759.png)
 - Additional helpful links below for IP & username cross-referencing
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-09_080758.png)
+- When PII is loaded on user mod page, format the info in a textarea for easier copying into delete/destroy reason
 
 
 ### [User History Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/UserHistoryImprovements.user.js) ♦
@@ -282,9 +283,21 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-08_120838.png)
 
 
+### [Reduce Clutter](https://github.com/samliew/SO-mod-userscripts/blob/master/ReduceClutter.user.js)
+
+- Reveals comment action icons on comment hover
+- Reduces contrast of edited comment icon
+
+
 ### [Lightbox Images](https://github.com/samliew/SO-mod-userscripts/blob/master/LightboxImages.user.js)
 
 - Opens image links in a lightbox instead of new window/tab in main & chat
+
+
+### [Fetch Vote Counts Again](https://github.com/samliew/SO-mod-userscripts/blob/master/FetchVoteCountsAgain.user.js)
+
+- Fetch vote counts for posts and enables you to click to fetch them again, even if you do not have sufficient rep
+- Also enables fetch vote counts on posts in mod flag queue
 
 
 
@@ -440,3 +453,11 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-31_110831-befaft.png)
 - Use new responsive menu
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/mod-responsive-nav.gif)
+
+
+### [Chat Emojis](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatEmojis.user.js)
+
+- Allows users to insert emojis into chat
+- If chat message contains just a single emoji, increase size slightly
+
+
