@@ -31,6 +31,8 @@ Direct installation links (raw files)
 
 [Refresh Empty Mod Queue](https://github.com/samliew/SO-mod-userscripts/raw/master/RefreshEmptyModQueue.user.js) ♦
 
+[Migration Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/MigrationHelper.user.js) ♦
+
 [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/raw/master/PostTimelineFilters.user.js)
 
 [Mod Flagger Stats](https://github.com/samliew/SO-mod-userscripts/raw/master/ModFlaggerStats.user.js)
@@ -51,9 +53,15 @@ Direct installation links (raw files)
 
 [Searchbar & Nav Improvements](https://github.com/samliew/SO-mod-userscripts/raw/master/SearchbarNavImprovements.user.js)
 
+[Post Headers & Question TOC](https://github.com/samliew/SO-mod-userscripts/raw/master/PostHeadersQuestionToc.user.js)
+
 [Comment Flag Type Colours](https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagTypeColours.user.js)
 
+[Reduce Clutter](https://github.com/samliew/SO-mod-userscripts/raw/master/ReduceClutter.user.js)
+
 [Lightbox Images](https://github.com/samliew/SO-mod-userscripts/raw/master/LightboxImages.user.js)
+
+[Fetch Vote Counts Again](https://github.com/samliew/SO-mod-userscripts/raw/master/FetchVoteCountsAgain.user.js)
 
 
 <br>
@@ -99,3 +107,12 @@ Direct installation links (raw files)
 ## Miscellaneous
 
 [SOMU Options](https://github.com/samliew/SO-mod-userscripts/raw/master/SOMU-options.user.js)
+
+
+<br>
+
+## Beta/Development
+
+[Mobile Moderator Pages](https://github.com/samliew/SO-mod-userscripts/raw/master/MobileModeratorPages.user.js)
+
+[Chat Emojis](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatEmojis.user.js)
