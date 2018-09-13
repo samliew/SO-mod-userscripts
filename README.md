@@ -285,8 +285,11 @@ These are highly recommended for everyone because they are too awesome:
 
 ### [Reduce Clutter](https://github.com/samliew/SO-mod-userscripts/blob/master/ReduceClutter.user.js)
 
-- Reveals comment action icons on comment hover
+- Show comment vote/flag icons on comment hover
 - Reduces contrast of edited comment icon
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-13_120924.png)
+- Show "Edit" (tags) link only on tag list hover
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/tag-edit-link-hover.gif)
 
 
 ### [Lightbox Images](https://github.com/samliew/SO-mod-userscripts/blob/master/LightboxImages.user.js)
