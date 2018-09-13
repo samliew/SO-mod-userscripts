@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.3
+// @version      1.7.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -317,15 +317,12 @@
             $('pre').first().after(`<a href="/users/${uid}">https://${location.hostname}/users/${uid}</a>`);
         }
 
-        // If on a question or post revisions page
-        else if(location.pathname.indexOf('/questions/') === 0 || location.pathname.contains('/revisions')) {
-            findDeletedUsers();
-        }
-
         // Show posts by deleted user page
         else if(location.pathname.indexOf('/admin/posts-by-deleted-user/') === 0) {
             initMultiPostsTable();
         }
+
+        findDeletedUsers();
 
         $('.user-details').on('mouseover', '.deleted-user', function() {
             const userlink = $(this);
