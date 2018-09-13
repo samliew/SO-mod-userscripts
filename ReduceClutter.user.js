@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Reduce Clutter
-// @description  Reveals comment action icons on comment hover
+// @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
