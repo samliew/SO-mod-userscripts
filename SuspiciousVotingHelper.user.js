@@ -3,7 +3,7 @@
 // @description
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.1
+// @version      0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -87,14 +87,40 @@
             // Get users with high vote ratio
             votesFrom.forEach(function(v,i) {
                 if(v.votesPct > 80 && v.type !== 'acc') {
-                    evidence += `- This user has received a large number of targeted votes (${v.votes}/${v.votesTotal} ${v.votesPct}%) from [${v.username}](${v.userlink}).` + newlines;
+                    evidence += `- This user has received a large percentage of targeted votes (${v.votes}/${v.votesTotal} ${v.votesPct}%) from [${v.username}](${v.userlink}).` + newlines;
+
+                    // Invalidate used entries
+                    v.votesPct = 0;
+                    votesTo[i].votesPct = 0;
+                }
+            });
+            votesTo.forEach(function(v,i) {
+                if(v.votesPct > 80 && v.type !== 'acc') {
+                    evidence += `- This user has given a large percentage of targeted votes (${v.votes}/${v.votesTotal} ${v.votesPct}%) to [${v.username}](${v.userlink}).` + newlines;
+
+                    // Invalidate used entries
+                    v.votesPct = 0;
+                    votesTo[i].votesPct = 0;
                 }
             });
 
-            // Get users with high vote ratio
+            // Get users with >= 5 targeted votes
+            votesFrom.forEach(function(v,i) {
+                if(v.votes > 5 && v.votes !== 'acc') {
+                    evidence += `- This user has received a large number of targeted votes (${v.votes}/${v.votesTotal} ${v.votesPct}%) from [${v.username}](${v.userlink}).` + newlines;
+
+                    // Invalidate used entries
+                    v.votesPct = 0;
+                    votesTo[i].votesPct = 0;
+                }
+            });
             votesTo.forEach(function(v,i) {
-                if(v.votesPct > 80 && v.type !== 'acc') {
+                if(v.votes > 5 && v.type !== 'acc') {
                     evidence += `- This user has given a large number of targeted votes (${v.votes}/${v.votesTotal} ${v.votesPct}%) to [${v.username}](${v.userlink}).` + newlines;
+
+                    // Invalidate used entries
+                    v.votesPct = 0;
+                    votesTo[i].votesPct = 0;
                 }
             });
 
