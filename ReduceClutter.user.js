@@ -3,7 +3,7 @@
 // @description  Reveals comment action icons on comment hover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -47,6 +47,17 @@ ul.comments-list .comment-up-on {
 .s-link,
 .iconPencilSm {
     color: #9199a1 !important;
+}
+
+/*
+   Revert change to permanent "edit tags" link
+   https://meta.stackoverflow.com/q/374024
+*/
+.post-taglist #edit-tags {
+    display: none;
+}
+.post-taglist:hover #edit-tags {
+    display: inline;
 }
 
 </style>
