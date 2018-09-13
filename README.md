@@ -460,7 +460,8 @@ These are highly recommended for everyone because they are too awesome:
 
 ### [Chat Emojis](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatEmojis.user.js)
 
-- Allows users to insert emojis into chat
-- If chat message contains just a single emoji, increase size slightly
+- Allows users to insert unicode emojis into chat
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-13_160947.png)
+- If chat messages contains just a single emoji, increase size slightly
 
 
