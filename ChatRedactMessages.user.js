@@ -3,7 +3,7 @@
 // @description  Add "Redact + Purge + Delete" button to message history page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -43,19 +43,19 @@
                 // Disable button to prevent double-clicking
                 $(evt.target).attr('disabled', true);
 
+                // Delete if not already deleted
+                if(!isDeleted) {
+                    $.post(`https://${location.hostname}/messages/${mid}/delete`, {
+                        fkey: cachedfkey
+                    });
+                }
+
                 // Edit to replace message with redactText
                 $.post(`https://${location.hostname}/messages/${mid}`, {
                     text: '*' + redactText + '*',
                     fkey: cachedfkey
                 })
                 .then(function() {
-
-                    // Delete if not already deleted
-                    if(!isDeleted) {
-                        $.post(`https://${location.hostname}/messages/${mid}/delete`, {
-                            fkey: cachedfkey
-                        });
-                    }
 
                     // Purge history
                     $.post(`https://${location.hostname}/messages/${mid}/purge-history`, {
@@ -79,6 +79,18 @@
                 // Cache fkey for use in message history page
                 store.setItem('fkey', window.fkey().fkey);
             }
+
+            // Add history link to popup if not already displayed
+            $('#chat, #transcript').on('click', '.action-link', function() {
+                const popup = $(this).siblings('.popup');
+                const permalink = popup.find('a[href^="/transcript/message/"]');
+                const hasHistoryLink = popup.find('a[href$=history]').length !== 0;
+                const mid = $(this).parents('.message').attr('id').replace(/[^\d]+/g, '');
+
+                if(!hasHistoryLink) {
+                    permalink.after(` - <a href="/messages/${mid}/history">history</a>`);
+                }
+            });
         }
     }
 
