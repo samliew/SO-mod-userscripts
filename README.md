@@ -358,6 +358,14 @@ These are highly recommended for everyone because they are too awesome:
 - Works with [No Oneboxes in Chat](#no-oneboxes-in-chat) userscript
 
 
+### [Chat Redact Messages](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatRedactMessages.user.js) ♦
+
+- Add "Redact + Purge + Delete" button to message history page
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-14_120911.png)
+- Add history link to message actions popup if not found
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-14_120923.png)
+
+
 
 <br>
 
