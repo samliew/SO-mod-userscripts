@@ -3,7 +3,7 @@
 // @description  Add "Redact + Purge + Delete" button to message history page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -29,7 +29,7 @@
             const header = $('#content h2').first();
             const currMessage = $('.message:first .content').text().trim();
             const isDeleted = header.text().includes('deletion');
-            const isRedacted = currMessage === redactText;
+            const isRedacted = currMessage === redactText || currMessage.includes('redact');
 
             // If already redacted, do nothing
             if(isRedacted) return;
