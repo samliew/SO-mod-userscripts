@@ -3,7 +3,7 @@
 // @description  Add "Redact + Purge + Delete" button to message history page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -80,14 +80,14 @@
                 store.setItem('fkey', window.fkey().fkey);
             }
 
-            // Add history link to popup if not already displayed
+            // When message actions link is clicked
             $('#chat, #transcript').on('click', '.action-link', function() {
                 const popup = $(this).siblings('.popup');
-                const permalink = popup.find('a[href^="/transcript/message/"]');
-                const hasHistoryLink = popup.find('a[href$=history]').length !== 0;
-                const mid = $(this).parents('.message').attr('id').replace(/[^\d]+/g, '');
 
-                if(!hasHistoryLink) {
+                // If no history link in popup, insert history link after permalink
+                if(popup.find('a[href$=history]').length === 0) {
+                    const permalink = popup.find('a[href^="/transcript/message/"]');
+                    const mid = $(this).parents('.message').attr('id').replace(/[^\d]+/g, '');
                     permalink.after(` - <a href="/messages/${mid}/history">history</a>`);
                 }
             });
