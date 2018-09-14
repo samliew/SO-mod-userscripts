@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Chat Redact Deleted Messages
+// @name         Chat Redact Messages
 // @description  Add "Redact + Purge + Delete" button to message history page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
