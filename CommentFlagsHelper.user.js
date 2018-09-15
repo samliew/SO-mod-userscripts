@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9
+// @version      2.9.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -51,7 +51,7 @@
         'exactly', 'check', 'lol', 'ha(ha)+', 'women', 'girl', 'effort', 'understand', 'want', 'need', 'little',
         'give up', 'documentation', 'google\\s', 'what[\\w\\s]+(try|tried)[\\w\\s]*\\?*', 'free', 'obvious',
     ];
-    const chattyRegex = new RegExp('\\s(' + rudeKeywords.join('|') + ')(?![/-])', 'gi');
+    const chattyRegex = new RegExp('\\s(' + chattyKeywords.join('|') + ')(?![/-])', 'gi');
 
 
     function replaceKeywords(jqElem) {
