@@ -3,7 +3,7 @@
 // @description
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.1
+// @version      0.2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -78,7 +78,9 @@
                         evidence += `- Although this user has both received ${v.votes} votes from, and given ${votesTo[i].votes} votes to [${v.username}](${v.userlink}), it doesn't seem that this account is a sockpuppet due to different PII and are most likely studying/working together.` + newlines;
 
                         // Invalidate used entries
+                        v.votes = 0;
                         v.votesPct = 0;
+                        votesTo[i].votes = 0;
                         votesTo[i].votesPct = 0;
                     }
                 }
@@ -110,8 +112,8 @@
                     evidence += `- This user has received a large number of targeted votes (${v.votes}/${v.votesTotal} ${v.votesPct}%) from [${v.username}](${v.userlink}).` + newlines;
 
                     // Invalidate used entries
-                    v.votesPct = 0;
-                    votesTo[i].votesPct = 0;
+                    v.votes = 0;
+                    votesTo[i].votes = 0;
                 }
             });
             votesTo.forEach(function(v,i) {
@@ -119,8 +121,8 @@
                     evidence += `- This user has given a large number of targeted votes (${v.votes}/${v.votesTotal} ${v.votesPct}%) to [${v.username}](${v.userlink}).` + newlines;
 
                     // Invalidate used entries
-                    v.votesPct = 0;
-                    votesTo[i].votesPct = 0;
+                    v.votes = 0;
+                    votesTo[i].votes = 0;
                 }
             });
 
