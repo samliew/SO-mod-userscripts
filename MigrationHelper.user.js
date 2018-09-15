@@ -3,7 +3,7 @@
 // @description  Dropdown list of migration targets displaying site icon/logo/header images and links to the selected site's on-topic page and mod list. Displays additional information for custom flagger for selected network site.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -71,19 +71,6 @@
     }
 
 
-    function getNetworkAccountsForUser(networkUid) {
-        return new Promise(function(resolve, reject) {
-            if(typeof networkUid === 'undefined' || networkUid == null) { reject(); return; }
-
-            $.get(`https://api.stackexchange.com/2.2/users/${networkUid}/associated?filter=!*LB1tJQ3xNMaIJ-W`)
-                .done(function(data) {
-                    resolve(data.items);
-                })
-                .fail(reject);
-        });
-    }
-
-
     function getNetworkUidForUser(uid) {
         return new Promise(function(resolve, reject) {
             if(typeof uid === 'undefined' || uid == null) { reject(); return; }
@@ -98,6 +85,45 @@
     }
 
 
+    function getNetworkAccountsViaApi(networkUid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof networkUid === 'undefined' || networkUid == null) { reject(); return; }
+
+            // via API
+            $.get(`https://api.stackexchange.com/2.2/users/${networkUid}/associated?filter=!*LB1tJQ3xNMaIJ-W`)
+                .done(function(data) {
+                    resolve(data.items);
+                })
+                .fail(reject);
+        });
+    }
+
+
+    function getNetworkAccountsForLocalUser(uid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof uid === 'undefined' || uid == null) { reject(); return; }
+
+            // via mod dashboard
+            $.get(`https://stackoverflow.com/users/account-info/${uid}`)
+                .done(function(data) {
+                    const v = $('.communities .list .row', data).map(function(i, el) {
+                        const repText = $(el).find('.rep').text().trim();
+                        const url = $(el).find('.site-hyperlink').attr('href');
+                        const rep = Number(repText.replace(/\.(\d+)k/, '$100'));
+                        return {
+                            reputation: rep,
+                            user_id: Number(url.match(/\/(\d+)\/$/)[0].replace(/\//g, '')),
+                            site_url: url.match(/^https?:\/\/[^/]+/)[0],
+                            site_name: $(el).find('.community-name').text(),
+                        };
+                    }).get();
+                    resolve(v);
+                })
+                .fail(reject);
+        });
+    }
+
+
     function getFlaggerAccounts(uid) {
         return new Promise(function(resolve, reject) {
             if(flaggeraccounts) {
@@ -105,11 +131,9 @@
                 return;
             }
 
-            getNetworkUidForUser(uid).then(function(nid) {
-                getNetworkAccountsForUser(nid).then(function(v) {
-                    flaggeraccounts = v;
-                    resolve(flaggeraccounts);
-                });
+            getNetworkAccountsForLocalUser(uid).then(function(v) {
+                flaggeraccounts = v;
+                resolve(flaggeraccounts);
             });
         });
     }
