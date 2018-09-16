@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2.2
+// @version      2.3
 //
 // @include      */admin/dashboard?flagtype=postlowquality*
 // @include      */admin/dashboard?flagtype=answernotananswer*
@@ -18,6 +18,17 @@
 
 
     var $postsContainer, $posts;
+
+
+    function togglePosts(filter) {
+        console.log("Toggle by: " + filter);
+
+        const filterFunction = function() {
+            return $(this).find('.mod-audit-user-info .user-action-time').text().includes(filter == 'q' ? 'asked' : 'answered');
+        };
+
+        $posts.hide().filter(filterFunction).show();
+    }
 
 
     function sortPosts(filter) {
@@ -111,6 +122,8 @@
                 <a data-filter="delete-votes">Delete Votes</a>
                 <a data-filter="flag-count">Flag Count</a>
                 <a data-filter="post-length">Post Length</a>
+                <a data-toggle="q" title="Questions">Q</a>
+                <a data-toggle="a" title="Answers">A</a>
             </div>`);
         $filterOpts.insertBefore('.flagged-posts.moderator');
 
@@ -119,7 +132,17 @@
             sortPosts(this.dataset.filter);
 
             // Update active tab highlight class
-            $(this).addClass('youarehere').siblings().removeClass('youarehere');
+            $(this).addClass('youarehere').siblings('[data-filter]').removeClass('youarehere');
+
+            return false;
+        });
+
+        // Toggle options event
+        $('#flag-queue-tabs').on('click', 'a[data-toggle]', function() {
+            togglePosts(this.dataset.toggle);
+
+            // Update active tab highlight class
+            $(this).toggleClass('youarehere').siblings('[data-toggle]').removeClass('youarehere');
 
             return false;
         });
