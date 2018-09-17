@@ -3,7 +3,7 @@
 // @description
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.2
+// @version      0.2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -18,6 +18,9 @@
 
 (function() {
     'use strict';
+
+    // Moderator check
+    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
 
 
     const newlines = '\n\n';
@@ -164,18 +167,7 @@
     }
 
 
-    function appendStyles() {
-
-        const styles = `
-<style>
-</style>
-`;
-        $('body').append(styles);
-    }
-
-
     // On page load
-    appendStyles();
     doPageload();
     listenToPageUpdates();
 
