@@ -41,8 +41,8 @@
     function updateModTemplates() {
 
         const uid = location.pathname.match(/\d+$/)[0];
-        const userlink = $('.userlink a').filter((i,el) => el.href.contains(`/${uid}/`)).first();
-        const template = $('.popup input[name=mod-template]').filter((i,el) => $(el).next().text().contains('suspicious voting'));
+        const userlink = $('.userlink a').filter((i,el) => el.href.includes(`/${uid}/`)).first();
+        const template = $('.popup input[name=mod-template]').filter((i,el) => $(el).next().text().includes('suspicious voting'));
 
         let addstr = `This user has a [suspicious history](https://${location.hostname}/admin/show-user-votes/${uid}) of cross-voting and/or targeted votes.` + newlines;
 
@@ -156,7 +156,7 @@
         $(document).ajaxComplete(function(event, xhr, settings) {
 
             // If mod popup loaded
-            if(settings.url.contains('/admin/contact-cm/template-popup/')) {
+            if(settings.url.includes('/admin/contact-cm/template-popup/')) {
                 setTimeout(updateModTemplates, 200);
             }
         });
