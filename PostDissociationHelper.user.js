@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Post Dissociation Helper
-// @description
+// @description  Helps mods to quickly compose a post dissociation request from posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
