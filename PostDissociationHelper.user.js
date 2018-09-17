@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Post Dissociation Helper
-// @description  Helps mods to quickly compose a post dissociation request from posts
+// @description
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -43,7 +43,9 @@
             template.val()
             .replace(/:\n/, ':<br>') // remove newline after :
             .replace(/{todo}/, addstr) // replace todo with additional information
-        );
+        ).click();
+
+        $('.popup-submit').click();
     }
 
 
