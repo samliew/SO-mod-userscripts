@@ -3,7 +3,7 @@
 // @description  Helps mods to quickly compose a post dissociation request from posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -74,6 +74,26 @@
         // If on contact CM page and action = dissocciate, click template link
         if(location.pathname.includes('/admin/cm-message/create/') && getQueryString('action') == 'dissociate') {
             $('#show-templates').click();
+            return;
+        }
+
+        // If on mod flag queues, remove close question and convert to comment buttons when flag message contains "di(sa)?ssociate", and add "dissociate" button
+        if(location.pathname.includes('/admin/dashboard')) {
+            const dissocFlags = $('.revision-comment.active-flag').filter((i,v) => v.innerText.match(/di(sa)?ssociate/));
+            const dissocPosts = dissocFlags.closest('.flagged-post-row');
+            dissocPosts.each(function() {
+                const post = $(this);
+                const userlink = post.find('.mod-audit-user-info a').attr('href');
+
+                // User not found, prob already deleted
+                if(userlink == null) return;
+
+                const uid = Number(userlink.match(/\/(\d+)\//)[0].replace(/\//g, ''));
+                const pid = post.attr('data-post-id') || post.attr('data-questionid') || post.attr('data-answerid');
+                $('.delete-options', this).prepend(`<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" class="btn" target="_blank">dissociate</a>`);
+
+                $('.close-question-button, .convert-to-comment', this).hide();
+            });
             return;
         }
 
