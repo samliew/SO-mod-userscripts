@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -37,7 +37,9 @@
 
         // Reset UI (indication of votes/fav)
         $('.vote-up-on').removeClass('vote-up-on');
+        $('.vote-down-on').removeClass('vote-down-on');
         $('.star-on').removeClass('star-on');
+        $('.favoritecount-selected').removeClass('favoritecount-selected');
 
         // Remove/Reset other SOMU items
         $('body').removeClass('usersidebar-open');
@@ -45,7 +47,7 @@
             'color': 'inherit',
             'font-weight': 'normal'
         });
-        $('#usersidebar, .post-id').remove();
+        $('#usersidebar, #qtoc, .meta-mentioned, .post-stickyheader, .dissociate-post-link, .post-id').remove();
 
         // Remove other userscript items
         $('#roombaTableDiv').remove();
