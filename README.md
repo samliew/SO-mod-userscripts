@@ -143,7 +143,7 @@ These are highly recommended for everyone because they are too awesome:
 - Highlight same users across IPxref table (hover/click to pin highlight)
 
 
-### [Post Dissociation Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/MigrationHelper.user.js) ♦
+### [Post Dissociation Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/PostDissociationHelper.user.js) ♦
 
 - Helps mods to quickly compose a post dissociation request from posts
 
