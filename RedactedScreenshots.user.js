@@ -60,9 +60,9 @@
 
 
     function anonymizeUsers(fullWipe) {
-        let usernum = 1;
 
         const dataSet = [];
+        let usernum = 1;
 
         // Anonymize userlinks in these sections only...
         const $sections = $('#mod-content, #content, .admin-user-comments, h1');
@@ -89,13 +89,26 @@
 
     function doPageload() {
 
-        $(`<button class="js-redact-page">Redact</button>`).appendTo('body').click(function() {
+        const redactButton = $(`<button class="js-redact-page">Redact</button>`);
+        const redactFullButton = $(`<button class="js-redact-full-page">Redact Full</button>`);
+        redactButton.appendTo('body').click(function() {
 
             // Hide button for X seconds
-            $(this).hide().delay(10000).fadeIn(1);
+            redactButton.hide().delay(10000).fadeIn(1);
+            redactFullButton.hide().delay(10000).fadeIn(1);
 
             cleanPage();
-            anonymizeUsers();
+            anonymizeUsers(false);
+        });
+
+        redactFullButton.appendTo('body').click(function() {
+
+            // Hide button for X seconds
+            redactButton.hide().delay(10000).fadeIn(1);
+            redactFullButton.hide().delay(10000).fadeIn(1);
+
+            cleanPage();
+            anonymizeUsers(true);
         });
     }
 
@@ -111,7 +124,14 @@
     z-index: 1001;
     opacity: 0.5;
 }
-.js-redact-page:hover {
+.js-redact-full-page {
+    position: fixed !important;
+    bottom: 3px;
+    left: 75px;
+    z-index: 1001;
+    opacity: 0.5;
+}
+.js-redact-page:hover, .js-redact-full-page:hover {
     opacity: 1;
 }
 </style>
