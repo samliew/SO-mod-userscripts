@@ -137,6 +137,17 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-12_130922.png)
 
 
+### [Suspicious Voting Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/SuspiciousVotingHelper.user.js) ♦
+
+- Assists in building suspicious votes CM messages
+- Highlight same users across IPxref table (hover/click to pin highlight)
+
+
+### [Post Dissociation Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/MigrationHelper.user.js) ♦
+
+- Helps mods to quickly compose a post dissociation request from posts
+
+
 ### [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/blob/master/PostTimelineFilters.user.js)
 
 - Inserts several filter options for post timelines, useful for old posts with humongous timelines
