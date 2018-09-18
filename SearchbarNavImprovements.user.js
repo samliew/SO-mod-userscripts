@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.6.3
+// @version      4.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -51,7 +51,7 @@
     const searchfield = $('#search input[name="q"]');
     const searchbtn = $('#search .js-search-submit');
 
-    const autoRefreshDefaultSecs = 30;
+    const autoRefreshDefaultSecs = 60;
     let searchhelper, orderby, autoRefreshTimeout;
 
 
@@ -804,6 +804,12 @@
       <label for="dupe-id">question id:</label>
       <input name="dupe-id" id="dupe-id" class="input-small" maxlength="12" data-clearbtn data-validate-numeric data-clears="#dupe-current" />
       <a class="button extbutton" data-exturl="http://data.stackexchange.com/${currentSiteSlug}/query/874526/?QuestionId={dupe-id}">SEDE</a>
+    </div>
+    <label class="section-label">Search comments</label>
+    <div class="ext">
+      <label for="comment-query">Query:</label>
+      <input name="comment-query" id="comment-query" data-clearbtn />
+      <a class="button extbutton" data-exturl="http://data.stackexchange.com/${currentSiteSlug}/query/898774/?Query={comment-query}">SEDE</a>
     </div>
     <label class="section-label">Archive for</label>
     <div class="ext">
