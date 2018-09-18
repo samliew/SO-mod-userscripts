@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info. Disable when not needed.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.3.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -70,15 +70,16 @@
         $('a[href*="/users/"]', $sections).each(function(i, el) {
 
             // Does not match valid user URL
-            if(/.*\/users\/-?\d+\/.*/.test(this.href) == false) return;
+            const match = this.href.match(/.*\/users\/-?(\d+)(\/.*)?/);
+            if(!match) return;
 
             // data-anonid already set
             if(typeof this.dataset.anonid !== 'undefined') return;
 
-            const uid = this.href.match(/\/(-?\d+)\//)[1];
+            const uid = match[1];
             usernum++;
 
-            $(`a[href*="/users/${uid}/"]`, $sections).each(function() {
+            $(`a[href*="/users/${uid}"]`, $sections).each(function() {
                 this.dataset.uid = uid;
                 this.dataset.anonid = usernum;
                 this.innerText = "anon-" + usernum;
