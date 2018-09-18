@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info. Disable when not needed.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.3.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -20,16 +20,16 @@
     'use strict';
 
 
-    const ipRegex = /(?<=(?:\b|\s|"))(\d{1,3})(\.\d{1,3}){3}(?=(?:\b|\s|"))/g;
-    const emailRegex = /(?<=(?:\b|\s|"))([^@\s]{1,3})([^@\s]+)@(.+)\.([a-z]+)(?=(?:\b|\s|"))/gi;
+    const ipRegex = /\s(?<=(?:\b|\s|"))(\d{1,3})(\.\d{1,3}){3}(?=(?:\b|\s|"))\s/g;
+    const emailRegex = /\s(?<=(?:\b|\s|"))([^@\s]{1,3})([^@\s]+)@(.+)\.([a-z]+)(?=(?:\b|\s|"))\s/gi;
 
 
     function redactPii(i, elem) {
         if(!(ipRegex.test(elem.innerHTML) || emailRegex.test(elem.innerHTML)) || $(this).find('*').length > 10) return;
 
         elem.innerHTML = elem.innerHTML
-            .replace(ipRegex, '$1.███.███$2')
-            .replace(emailRegex, '$1██████@██████.$4');
+            .replace(ipRegex, ' $1.███.███$2 ')
+            .replace(emailRegex, ' $1██████@██████.$4 ');
     }
 
 
