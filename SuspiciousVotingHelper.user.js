@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -96,7 +96,6 @@
 
                     // Invalidate used entries
                     v.votesPct = 0;
-                    votesTo[i].votesPct = 0;
                 }
             });
             votesTo.forEach(function(v,i) {
@@ -105,7 +104,6 @@
 
                     // Invalidate used entries
                     v.votesPct = 0;
-                    votesTo[i].votesPct = 0;
                 }
             });
 
@@ -116,7 +114,6 @@
 
                     // Invalidate used entries
                     v.votes = 0;
-                    votesTo[i].votes = 0;
                 }
             });
             votesTo.forEach(function(v,i) {
@@ -125,7 +122,6 @@
 
                     // Invalidate used entries
                     v.votes = 0;
-                    votesTo[i].votes = 0;
                 }
             });
 
