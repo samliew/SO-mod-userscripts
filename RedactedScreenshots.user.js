@@ -59,7 +59,7 @@
     }
 
 
-    function anonymizeUsers() {
+    function anonymizeUsers(fullWipe) {
 
         let usernum = 0;
 
@@ -70,18 +70,19 @@
         $('a[href*="/users/"]', $sections).each(function(i, el) {
 
             // Does not match valid user URL
-            if(/.*\/users\/-?\d+\/.*/.test(this.href) == false) return;
+            const match = this.href.match(/.*\/users\/-?(\d+)(\/.*)?/);
+            if(!match) return;
 
             // data-anonid already set
             if(typeof this.dataset.anonid !== 'undefined') return;
 
-            const uid = this.href.match(/\/(-?\d+)\//)[1];
+            const uid = match[1];
             usernum++;
 
-            $(`a[href*="/users/${uid}/"]`, $sections).each(function() {
+            $(`a[href*="/users/${uid}"]`, $sections).each(function() {
                 this.dataset.uid = uid;
                 this.dataset.anonid = usernum;
-                this.innerText = "anon-" + usernum;
+                this.innerText = fullWipe ? "anon" : "anon-" + usernum;
             });
         });
 
@@ -92,13 +93,26 @@
 
     function doPageload() {
 
-        $(`<button class="js-redact-page">Redact</button>`).appendTo('body').click(function() {
+        const redactButton = $(`<button class="js-redact-page">Redact</button>`);
+        const redactFullButton = $(`<button class="js-redact-full-page">Redact Full</button>`);
+        redactButton.appendTo('body').click(function() {
 
             // Hide button for X seconds
-            $(this).hide().delay(10000).fadeIn(1);
+            redactButton.hide().delay(10000).fadeIn(1);
+            redactFullButton.hide().delay(10000).fadeIn(1);
 
             cleanPage();
-            anonymizeUsers();
+            anonymizeUsers(false);
+        });
+
+        redactFullButton.appendTo('body').click(function() {
+
+            // Hide button for X seconds
+            redactButton.hide().delay(10000).fadeIn(1);
+            redactFullButton.hide().delay(10000).fadeIn(1);
+
+            cleanPage();
+            anonymizeUsers(true);
         });
     }
 
@@ -114,7 +128,14 @@
     z-index: 1001;
     opacity: 0.5;
 }
-.js-redact-page:hover {
+.js-redact-full-page {
+    position: fixed !important;
+    bottom: 3px;
+    left: 75px;
+    z-index: 1001;
+    opacity: 0.5;
+}
+.js-redact-page:hover, .js-redact-full-page:hover {
     opacity: 1;
 }
 </style>
