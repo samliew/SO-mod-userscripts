@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Redacted Screenshots
-// @description  Masks and hides user-identifing info. Disable when not needed.
+// @description  Masks and hides user-identifing info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.2
+// @version      1.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -20,20 +20,24 @@
     'use strict';
 
 
-    const ipRegex = /\s(?<=(?:\b|\s|"))(\d{1,3})(\.\d{1,3}){3}(?=(?:\b|\s|"))\s/g;
-    const emailRegex = /\s(?<=(?:\b|\s|"))([^@\s]{1,3})([^@\s]+)@(.+)\.([a-z]+)(?=(?:\b|\s|"))\s/gi;
+    const ipRegex = /(?<=(?:\b|"|'))(\d{1,3})(\.\d{1,3}){3}(?=(?:\b|"|'))/g;
+    const emailRegex = /(?<=(?:\b|"|'))([^@\s]{1,3})([^@\s]+)@(.+)\.([a-z]+)(?=(?:\b|"|'))/gi;
 
 
     function redactPii(i, elem) {
         if(!(ipRegex.test(elem.innerHTML) || emailRegex.test(elem.innerHTML)) || $(this).find('*').length > 10) return;
 
         elem.innerHTML = elem.innerHTML
-            .replace(ipRegex, ' $1.███.███$2 ')
-            .replace(emailRegex, ' $1██████@██████.$4 ');
+            .replace(ipRegex, '$1.███.███$2 ')
+            .replace(emailRegex, '$1██████@██████.$4');
     }
 
 
     function cleanPage() {
+
+        // Reset UI (indication of votes/fav)
+        $('.vote-up-on').removeClass('vote-up-on');
+        $('.star-on').removeClass('star-on');
 
         // Remove/Reset other SOMU items
         $('body').removeClass('usersidebar-open');
@@ -41,7 +45,7 @@
             'color': 'inherit',
             'font-weight': 'normal'
         });
-        $('.post-id').remove();
+        $('#usersidebar, .post-id').remove();
 
         // Remove other userscript items
         $('#roombaTableDiv').remove();
@@ -52,14 +56,15 @@
         // Remove admin stuff from page
         $('.js-post-issues, .js-mod-inbox-button, .flag-count-item').remove();
 
-        // Redact IP and email addresses
-        $('input, a').each(redactPii);
-        $('.post-text li, .post-text p').each(redactPii);
-        $('div > div, div > p, div > span').each(redactPii);
+        // Redact IP and email addresses in content div
+        const content = $('#content');
+        $('input, a', content).each(redactPii);
+        $('.post-text li, .post-text p', content).each(redactPii);
+        $('div > div, div > p, div > span', content).each(redactPii);
     }
 
 
-    function anonymizeUsers(fullWipe) {
+    function anonymizeUsers(fullwipe = false) {
 
         const dataSet = [];
         let usernum = 1;
@@ -67,48 +72,52 @@
         // Anonymize userlinks in these sections only...
         const $sections = $('#mod-content, #content, .admin-user-comments, h1');
 
-        // All unique user links that has not been processed yet
-        $('a[href*="/users/"]', $sections).each(function(i, el) {
+        // Get user links
+        const userlinks = $('a[href*="/users/"]', $sections).each(function(i, el) {
 
-            // Does not match valid user URL
             const match = this.href.match(/.*\/users\/-?(\d+)(\/.*)?/);
+
+            // Does not match valid user URL, ignore this link
             if(!match) return;
 
+            // Map user id to unique value
             const uid = match[1];
-
             if (!dataSet[uid]) {
                 dataSet[uid] = usernum++;
             }
-            this.innerText = fullWipe ? "anon" : "anon-" + dataSet[uid];
+
+            // Set user link text
+            // If not full redact, also keep mod diamond in comments
+            const modFlair = this.innerText.includes('♦') ? ' ♦' : '';
+            this.innerText = fullwipe ? "anon" : "anon-" + dataSet[uid] + modFlair;
         });
 
         // Remove @ replies from beginning of comments
         $('.comment-copy').html((i,v) => v.replace(/^@[\wŒŠŽÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝÞßðÿ]+[,:]?\s/i, ''));
+
+        // If fullwipe, also add class to body to further remove unneeded elements on page
+        $('body').addClass(fullwipe ? 'js-redactfull' : 'js-redactsemi');
     }
 
 
     function doPageload() {
 
-        const redactButton = $(`<button class="js-redact-page">Redact</button>`);
-        const redactFullButton = $(`<button class="js-redact-full-page">Redact Full</button>`);
-        redactButton.appendTo('body').click(function() {
+        const redactButtons = $(`<div class="redact-buttons"><button>Redact</button><button data-fullwipe="true">Redact Full</button></div>`).appendTo('body');
 
-            // Hide button for X seconds
-            redactButton.hide().delay(10000).fadeIn(1);
-            redactFullButton.hide().delay(10000).fadeIn(1);
+        redactButtons.on('click', 'button', function(evt) {
+
+            const isFullWipe = !!evt.target.dataset.fullwipe;
 
             cleanPage();
-            anonymizeUsers(false);
-        });
+            anonymizeUsers(isFullWipe);
 
-        redactFullButton.appendTo('body').click(function() {
+            // Hide buttons for 10 seconds to allow for screenshot taking
+            redactButtons.hide().delay(10000).fadeIn(1);
 
-            // Hide button for X seconds
-            redactButton.hide().delay(10000).fadeIn(1);
-            redactFullButton.hide().delay(10000).fadeIn(1);
-
-            cleanPage();
-            anonymizeUsers(true);
+            // If full wipe, also remove other button
+            if(isFullWipe) {
+                $(this).siblings().remove();
+            }
         });
     }
 
@@ -117,22 +126,37 @@
 
         const styles = `
 <style>
-.js-redact-page {
+.redact-buttons {
     position: fixed !important;
     bottom: 3px;
     left: 3px;
     z-index: 1001;
+}
+.redact-buttons:hover button ~ button {
+    display: inline-block;
+}
+.redact-buttons button {
     opacity: 0.5;
 }
-.js-redact-full-page {
-    position: fixed !important;
-    bottom: 3px;
-    left: 75px;
-    z-index: 1001;
-    opacity: 0.5;
-}
-.js-redact-page:hover, .js-redact-full-page:hover {
+.redact-buttons button:hover {
     opacity: 1;
+}
+.redact-buttons button ~ button {
+    display: none;
+    margin-left: 3px;
+}
+
+body.js-redactfull .mod-flair,
+body.js-redactfull .js-usercolor:after {
+    display: none !important;
+}
+body.js-redactfull .user-details a,
+body.js-redactfull a.comment-user {
+    color: #999;
+}
+
+.user-info {
+    min-height: 67px;
 }
 </style>
 `;
