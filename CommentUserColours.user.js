@@ -3,7 +3,7 @@
 // @description  Unique colour for each user in comments to make following users in long comment threads easier
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -53,11 +53,11 @@
 
         var styles = `
 <style>
-.comment-user {
+.js-usercolor {
     position: relative;
     --usercolor: transparent;
 }
-.comment-user:after {
+.js-usercolor:after {
     content: '';
     position: absolute;
     bottom: -1px;
