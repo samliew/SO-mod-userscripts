@@ -59,9 +59,10 @@
     }
 
 
-    function anonymizeUsers() {
+    function anonymizeUsers(fullWipe) {
+        let usernum = 1;
 
-        let usernum = 0;
+        const dataSet = [];
 
         // Anonymize userlinks in these sections only...
         const $sections = $('#mod-content, #content, .admin-user-comments, h1');
@@ -70,19 +71,15 @@
         $('a[href*="/users/"]', $sections).each(function(i, el) {
 
             // Does not match valid user URL
-            if(/.*\/users\/-?\d+\/.*/.test(this.href) == false) return;
+            const match = this.href.match(/.*\/users\/-?(\d+)(\/.*)?/);
+            if(!match) return;
 
-            // data-anonid already set
-            if(typeof this.dataset.anonid !== 'undefined') return;
+            const uid = match[1];
 
-            const uid = this.href.match(/\/(-?\d+)\//)[1];
-            usernum++;
-
-            $(`a[href*="/users/${uid}/"]`, $sections).each(function() {
-                this.dataset.uid = uid;
-                this.dataset.anonid = usernum;
-                this.innerText = "anon-" + usernum;
-            });
+            if (!dataSet[uid]) {
+                dataSet[uid] = usernum++;
+            }
+            this.innerText = fullWipe ? "anon" : "anon-" + dataSet[uid];
         });
 
         // Remove @ replies from beginning of comments
