@@ -33,6 +33,10 @@ Direct installation links (raw files)
 
 [Migration Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/MigrationHelper.user.js) ♦
 
+[Suspicious Voting Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/SuspiciousVotingHelper.user.js) ♦
+
+[Post Dissociation Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/PostDissociationHelper.user.js) ♦
+
 [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/raw/master/PostTimelineFilters.user.js)
 
 [Mod Flagger Stats](https://github.com/samliew/SO-mod-userscripts/raw/master/ModFlaggerStats.user.js)
