@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Suspicious Voting Helper
-// @description
+// @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.3
+// @version      1.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -150,6 +150,31 @@
 
     function doPageload() {
 
+        // If on xref-user-ips
+        if(location.pathname.includes('/admin/xref-user-ips/')) {
+
+            // Populate each user row with their uid
+            const userrows = $('#xref-ids td tbody tr').each(function() {
+                $(this).attr('data-uid', $(this).find('a').first().attr('href').match(/\d+$/)[0]);
+            })
+
+            // Highlight same user across IPs
+            .hover(function() {
+                const uid = this.dataset.uid;
+                userrows.removeClass('active').filter(`[data-uid=${uid}]`).addClass('active');
+            }, function() {
+                userrows.removeClass('active');
+            })
+
+            // Pin highlight on clicked user
+            .click(function() {
+                const uid = this.dataset.uid;
+                const isFocus = $(this).hasClass('focus');
+                userrows.removeClass('focus');
+                if(!isFocus) userrows.filter(`[data-uid=${uid}]`).addClass('focus');
+            });
+
+        }
     }
 
 
@@ -167,7 +192,27 @@
     }
 
 
+    function appendStyles() {
+
+        const styles = `
+<style>
+tr[data-uid] {
+    cursor: cell;
+}
+tr[data-uid].active {
+    background: #ffc;
+}
+tr[data-uid].focus {
+    background: #cfc;
+}
+</style>
+`;
+        $('body').append(styles);
+    }
+
+
     // On page load
+    appendStyles();
     doPageload();
     listenToPageUpdates();
 
