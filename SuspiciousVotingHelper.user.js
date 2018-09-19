@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.4
+// @version      1.0.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -173,7 +173,7 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
 
     function doPageload() {
 
-        // If on xref-user-ips
+        // If on xref-user-ips page
         if(location.pathname.includes('/admin/xref-user-ips/')) {
 
             // Populate each user row with their uid
@@ -196,21 +196,17 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
                 userrows.removeClass('focus');
                 if(!isFocus) userrows.filter(`[data-uid=${uid}]`).addClass('focus');
             });
-
         }
 
-        // Append links to unique user ids in preformatted elements
-        $('.msg-body pre').each(function() {
-            const ids = this.innerText.match(/\b(\d{4,})\b/g)
-                .filter((value, index, self) => self.indexOf(value) === index); // unique values
-            let html = '<p>';
+        // CM message page
+        if(location.pathname.includes('/admin/cm-message/')) {
 
-            ids.forEach(function(v) {
-                html += `<a href="https://${location.hostname}/users/${v}" target="_blank">https://${location.hostname}/users/${v}</a><br>`;
+            // Linkify user ids in preformatted elements
+            const uidRegex = /\b(\d{4,})\b/g;
+            $('.msg-body pre code').each(function() {
+                this.innerHTML = this.innerHTML.replace(uidRegex, `<a href="https://${location.hostname}/users/$1" target="_blank">$1</a>`);
             });
-
-            $(this).after(html);
-        });
+        }
     }
 
 
