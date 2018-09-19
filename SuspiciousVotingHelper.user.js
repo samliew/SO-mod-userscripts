@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -24,19 +24,28 @@
 
 
     const newlines = '\n\n';
+    const strToRep = str => Number(str.replace(/\.(\d)k/, '$100').replace(/k/, '000').replace(/[^\d]+/g, ''));
 
 
     function mapVotePatternItemsToObject() {
         const link = $('.user-details a', this);
-        const votes = $(this).children('td').eq(2).text().split(' / ');
+        const uRep = $('.reputation-score', this);
+        const vArr = $(this).children('td').eq(2).text().split(' / ');
+        const vNum = Number(vArr[0]);
+        const vTotal = Number(vArr[1]);
+        const vtype = $(this).children('td').eq(1).text().trim();
+        const vtypeText = vtype === 'dn' ? 'down' : (vtype === 'up' ? 'up' : 'acc');
+        const vPct = Math.round(vNum / vTotal * 100);
         return {
             uid: link.attr('href').match(/\/(\d+)\//)[0],
             userlink: link.attr('href'),
             username: link.text(),
-            type: $(this).children('td').eq(1).text(),
-            votes: Number(votes[0]),
-            votesTotal: Number(votes[1]),
-            votesPct: Math.round(Number(votes[0]) / Number(votes[1]) * 100)
+            userrep: strToRep(uRep.text()),
+            type: vtypeText,
+            votes: vNum,
+            votesTotal: vTotal,
+            votesPct: vPct,
+            size: (vNum >= 10 || vPct >= 25) ? 'large' : '',
         }
     }
 
@@ -48,6 +57,7 @@
         const template = $('.popup input[name=mod-template]').filter((i,el) => $(el).next().text().includes('suspicious voting'));
 
         let addstr = `This user has a [suspicious history](https://${location.hostname}/admin/show-user-votes/${uid}) of cross-voting and/or targeted votes.` + newlines;
+        let appstr = `*(there may also be other minor instances of targeted votes that are unknown to us, as we can only view targeted votes of greater than or equal to 5)*`;
 
         // If template is selected
         let flags, votesFrom, votesTo;
@@ -55,7 +65,13 @@
 
             // Load latest flagged posts and get mod flags that suggest suspicious voting
             $.get(`https://${location.hostname}/users/flagged-posts/${uid}`).then(function(data) {
-                flags = $('#mainbar .revision-comment', data).filter((i,el) => /\b((up|down)vot(es?|ing)|sock|revenge|serial|suspicious)/.test(el.innerText));
+                flags = $('#mainbar .mod-flag', data).filter(function(i,el) {
+                    return
+                        /\b((up|down)vot(es?|ing)|sock|revenge|serial|suspicious)/.test(el.innerText) &&
+                        $(el).find('.flag-outcome').length == 0;
+                }).each(function(i,el) {
+                    $(this).find('.mod-flag-indicator').remove();
+                });
             }),
 
             // Load votes
@@ -78,7 +94,8 @@
             votesFrom.forEach(function(v,i) {
                 for(let i=0; i<votesTo.length; i++) {
                     if(v.uid === votesTo[i].uid && v.type !== 'acc' && votesTo[i].type !== 'acc') {
-                        evidence += `- Although this user has both received ${v.votes} votes from, and given ${votesTo[i].votes} votes to [${v.username}](${v.userlink}), it doesn't seem that this account is a sockpuppet due to different PII and are most likely studying/working together.` + newlines;
+                        evidence += `- Although this user has both received ${v.votes} ${v.type}votes from, and given ${votesTo[i].votes} ${v.type}votes to [${v.username}](${v.userlink}),
+it doesn't seem that this account is a sockpuppet due to different PII and are most likely studying/working together.` + newlines;
 
                         // Invalidate used entries
                         v.votes = 0;
@@ -91,16 +108,16 @@
 
             // Get users with high vote ratio
             votesFrom.forEach(function(v,i) {
-                if(v.votesPct >= 80 && v.type !== 'acc') {
-                    evidence += `- This user has received a large percentage of targeted votes (${v.votes}/${v.votesTotal} ${v.votesPct}%) from [${v.username}](${v.userlink}).` + newlines;
+                if(v.votesPct >= 50 && v.type !== 'acc' && v.userrep < 100000) {
+                    evidence += `- This user has received a ${v.size} percentage of targeted ${v.type}votes (${v.votes}/${v.votesTotal} **${v.votesPct}%**) from [${v.username}](${v.userlink}).` + newlines;
 
                     // Invalidate used entries
                     v.votesPct = 0;
                 }
             });
             votesTo.forEach(function(v,i) {
-                if(v.votesPct >= 80 && v.type !== 'acc') {
-                    evidence += `- This user has given a large percentage of targeted votes (${v.votes}/${v.votesTotal} ${v.votesPct}%) to [${v.username}](${v.userlink}).` + newlines;
+                if(v.votesPct >= 50 && v.type !== 'acc' && v.userrep < 100000) {
+                    evidence += `- This user has given a ${v.size} percentage of targeted ${v.type}votes (${v.votes}/${v.votesTotal} **${v.votesPct}%**) to [${v.username}](${v.userlink}).` + newlines;
 
                     // Invalidate used entries
                     v.votesPct = 0;
@@ -109,16 +126,16 @@
 
             // Get users with >= 5 targeted votes
             votesFrom.forEach(function(v,i) {
-                if(v.votes >= 5 && v.votes !== 'acc') {
-                    evidence += `- This user has received a large number of targeted votes (${v.votes}/${v.votesTotal} ${v.votesPct}%) from [${v.username}](${v.userlink}).` + newlines;
+                if(v.votes >= 5 && v.type !== 'acc' && v.userrep < 100000) {
+                    evidence += `- This user has received a ${v.size} number of targeted ${v.type}votes (**${v.votes}**/${v.votesTotal} *${v.votesPct}%*) from [${v.username}](${v.userlink}).` + newlines;
 
                     // Invalidate used entries
                     v.votes = 0;
                 }
             });
             votesTo.forEach(function(v,i) {
-                if(v.votes >= 5 && v.type !== 'acc') {
-                    evidence += `- This user has given a large number of targeted votes (${v.votes}/${v.votesTotal} ${v.votesPct}%) to [${v.username}](${v.userlink}).` + newlines;
+                if(v.votes >= 5 && v.type !== 'acc' && v.userrep < 100000) {
+                    evidence += `- This user has given a ${v.size} number of targeted ${v.type}votes (**${v.votes}**/${v.votesTotal} *${v.votesPct}%*) to [${v.username}](${v.userlink}).` + newlines;
 
                     // Invalidate used entries
                     v.votes = 0;
@@ -128,7 +145,9 @@
             // Display flags from users
             if(flags.length > 0) {
                 evidence += 'Reported via custom flag:\n';
-                flags.each((i,el) => evidence += '> ' + el.innerText + newlines);
+                flags.each(function(i,el) {
+                    evidence += '> ' + el.innerText.trim() + newlines;
+                });
             }
 
             // Insert to template
@@ -137,7 +156,7 @@
                 template.val()
                     .replace(/:\n/, ':<br>') // remove newline after :
                     .replace(/(https[^\s]+)/, '$1?tab=reputation') // change userlink to rep tab
-                    .replace(/\n\n{todo}/, addstr) // replace todo with evidence
+                    .replace(/\n\n{todo}/, addstr + appstr) // replace todo with evidence
             );
 
         }); // End then
