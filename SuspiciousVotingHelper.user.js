@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.5
+// @version      1.0.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -46,6 +46,7 @@
             votesTotal: vTotal,
             votesPct: vPct,
             size: (vNum >= 10 || vPct >= 25) ? 'large' : '',
+            used: false,
         }
     }
 
@@ -98,53 +99,43 @@
 
             // Check for users in both vote tables
             votesFrom.forEach(function(v,i) {
-                for(let i=0; i<votesTo.length; i++) {
+                for(let i = 0; i < votesTo.length; i++) {
                     if(v.uid === votesTo[i].uid && v.type !== 'acc' && votesTo[i].type !== 'acc') {
                         evidence += `- Although this user has both received ${v.votes} ${v.type}votes from, and given ${votesTo[i].votes} ${v.type}votes to [${v.username}](${v.userlink}),
 it doesn't seem that this account is a sockpuppet due to different PII and are most likely studying/working together.` + newlines;
 
                         // Invalidate used entries
-                        v.votes = 0;
-                        v.votesPct = 0;
-                        votesTo[i].votes = 0;
-                        votesTo[i].votesPct = 0;
+                        v.used = true;
+                        votesTo[i].used = true;
                     }
                 }
             });
 
             // Get users with high vote ratio
-            votesFrom.forEach(function(v,i) {
+            votesFrom.filter(v => !v.used).forEach(function(v,i) {
                 if(v.votesPct >= 50 && v.type !== 'acc' && v.userrep < 100000) {
                     evidence += `- This user has received a ${v.size} percentage of targeted ${v.type}votes (${v.votes}/${v.votesTotal} **${v.votesPct}%**) from [${v.username}](${v.userlink}).` + newlines;
-
-                    // Invalidate used entries
-                    v.votesPct = 0;
+                    v.used = true;
                 }
             });
-            votesTo.forEach(function(v,i) {
+            votesTo.filter(v => !v.used).forEach(function(v,i) {
                 if(v.votesPct >= 50 && v.type !== 'acc' && v.userrep < 100000) {
                     evidence += `- This user has given a ${v.size} percentage of targeted ${v.type}votes (${v.votes}/${v.votesTotal} **${v.votesPct}%**) to [${v.username}](${v.userlink}).` + newlines;
-
-                    // Invalidate used entries
-                    v.votesPct = 0;
+                    v.used = true;
                 }
             });
 
             // Get users with >= 5 targeted votes
-            votesFrom.forEach(function(v,i) {
+            votesFrom.filter(v => !v.used).forEach(function(v,i) {
                 if(v.votes >= 5 && v.type !== 'acc' && v.userrep < 100000) {
                     evidence += `- This user has received a ${v.size} number of targeted ${v.type}votes (**${v.votes}**/${v.votesTotal} *${v.votesPct}%*) from [${v.username}](${v.userlink}).` + newlines;
-
-                    // Invalidate used entries
-                    v.votes = 0;
+                    v.used = true;
                 }
             });
-            votesTo.forEach(function(v,i) {
+            votesTo.filter(v => !v.used).forEach(function(v,i) {
                 if(v.votes >= 5 && v.type !== 'acc' && v.userrep < 100000) {
                     evidence += `- This user has given a ${v.size} number of targeted ${v.type}votes (**${v.votes}**/${v.votesTotal} *${v.votesPct}%*) to [${v.username}](${v.userlink}).` + newlines;
-
-                    // Invalidate used entries
-                    v.votes = 0;
+                    v.used = true;
                 }
             });
 
