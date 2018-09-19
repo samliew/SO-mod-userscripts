@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.4.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -157,7 +157,7 @@ body.js-redactfull a.comment-user {
     color: #999;
 }
 
-.user-info {
+.post-signature .user-info {
     min-height: 67px;
 }
 </style>
