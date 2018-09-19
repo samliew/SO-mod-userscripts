@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.0.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -57,7 +57,7 @@
         const template = $('.popup input[name=mod-template]').filter((i,el) => $(el).next().text().includes('suspicious voting'));
 
         let addstr = `This user has a [suspicious history](https://${location.hostname}/admin/show-user-votes/${uid}) of cross-voting and/or targeted votes.` + newlines;
-        let appstr = `*(there may also be other minor instances of targeted votes that are unknown to us, as we can only view targeted votes of greater than or equal to 5)*`;
+        let appstr = `*(there may also be other minor instances of targeted votes that are unknown to us, as we can only view votes between users if they are above a certain threshold)*`;
 
         // If template is selected
         let flags, votesFrom, votesTo;
@@ -65,13 +65,19 @@
 
             // Load latest flagged posts and get mod flags that suggest suspicious voting
             $.get(`https://${location.hostname}/users/flagged-posts/${uid}`).then(function(data) {
-                flags = $('#mainbar .mod-flag', data).filter(function(i,el) {
-                    return
-                        /\b((up|down)vot(es?|ing)|sock|revenge|serial|suspicious)/.test(el.innerText) &&
-                        $(el).find('.flag-outcome').length == 0;
-                }).each(function(i,el) {
-                    $(this).find('.mod-flag-indicator').remove();
-                });
+                flags = $('#mainbar .mod-flag', data);
+
+                // Format flags
+                flags = flags.filter(function(i,el) {
+                    return $(el).find('.flag-outcome').length == 0 &&
+                        /\b((up|down)vot(es?|ing)|sock|revenge|serial|suspicious)/.test($(el).find('.revision-comment').text());
+                })
+                .each(function(i,el) {
+                    $(el).find('a').each(function() { this.innerText = this.href; });
+                    $(el).find('.relativetime').each(function() { this.innerText = '*' + this.title + '*'; });
+                    $(el).find('.mod-flag-indicator').remove();
+                })
+                .get().map(v => v.innerText.replace(/\s*(\n|\r)\s*/g,' ').trim());
             }),
 
             // Load votes
@@ -144,10 +150,12 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
 
             // Display flags from users
             if(flags.length > 0) {
-                evidence += 'Reported via custom flag:\n';
-                flags.each(function(i,el) {
-                    evidence += '> ' + el.innerText.trim() + newlines;
+                let flagtext = `Reported via [custom flag](https://${location.hostname}/users/flagged-posts/${uid}):\n`;
+                flags.forEach(function(v) {
+                    flagtext += newlines + '> ' + v;
                 });
+
+                appstr = flagtext + newlines + appstr;
             }
 
             // Insert to template
