@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.2
+// @version      1.4.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -36,17 +36,13 @@
     function cleanPage() {
 
         // Reset UI (indication of votes/fav)
-        $('.vote-up-on').removeClass('vote-up-on');
-        $('.vote-down-on').removeClass('vote-down-on');
+        $('.vote-up-on, .vote-down-on').removeClass('vote-up-on vote-down-on');
         $('.star-on').removeClass('star-on');
         $('.favoritecount-selected').removeClass('favoritecount-selected');
 
         // Remove/Reset other SOMU items
         $('body').removeClass('usersidebar-open');
-        $('.old-comment, .comment-summary b').css({
-            'color': 'inherit',
-            'font-weight': 'normal'
-        });
+        $('.old-comment, .cmmt-rude, .cmmt-chatty').removeClass('old-comment cmmt-rude cmmt-chatty');
         $('#usersidebar, #qtoc, .meta-mentioned, .post-stickyheader, .dissociate-post-link, .post-id').remove();
 
         // Remove other userscript items
