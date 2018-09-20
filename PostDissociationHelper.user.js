@@ -3,7 +3,7 @@
 // @description  Helps mods to quickly compose a post dissociation request from posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -70,6 +70,9 @@
 
 
     function doPageload() {
+
+        // Only on main sites
+        if(typeof StackExchange.options.site.parentUrl !== 'undefined') return;
 
         // If on contact CM page and action = dissocciate, click template link
         if(location.pathname.includes('/admin/cm-message/create/') && getQueryString('action') == 'dissociate') {
