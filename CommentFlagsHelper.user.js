@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.2
+// @version      2.9.3
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -55,8 +55,8 @@
 
 
     function replaceKeywords(jqElem) {
-        this.innerHTML = this.innerHTML.replace(rudeRegex, ' <b style="color:red">$1</b>');
-        this.innerHTML = this.innerHTML.replace(chattyRegex, ' <b style="color:coral">$1</b>');
+        this.innerHTML = this.innerHTML.replace(rudeRegex, ' <span class="cmmt-rude">$1</span>');
+        this.innerHTML = this.innerHTML.replace(chattyRegex, ' <span class="cmmt-chatty">$1</span>');
     }
 
 
@@ -494,6 +494,14 @@ table.flagged-posts tr.flagged-post-row:first-child > td {
 }
 .cancel-comment-flag:hover .cancel-delete-comment-flag {
     display: block;
+}
+.cmmt-rude {
+    font-weight: bold;
+    color: red;
+}
+.cmmt-chatty {
+    font-weight: bold;
+    color: coral;
 }
 </style>
 `;
