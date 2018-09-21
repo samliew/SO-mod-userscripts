@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.1
+// @version      2.4
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -25,6 +25,7 @@
         console.log("Toggle by: " + filter);
 
         const filterFunction = function() {
+            if(filter === 'deleted') return $(this).find('.deleted-answer').length > 0;
             return $(this).find('.mod-audit-user-info .user-action-time').text().includes(filter == 'q' ? 'asked' : 'answered');
         };
 
@@ -125,6 +126,7 @@
                 <a data-filter="post-length">Post Length</a>
                 <a data-toggle="q" title="Questions">Q</a>
                 <a data-toggle="a" title="Answers">A</a>
+                <a data-toggle="deleted" title="Deleted">D</a>
             </div>`);
         $filterOpts.insertBefore('.flagged-posts.moderator');
 
