@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.5
+// @version      1.7.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -93,7 +93,7 @@
             if(typeof pid === 'undefined' || pid === null) { reject(); return; }
 
             $.post({
-                url: `https://stackoverflow.com/posts/${pid}/vote/10`,
+                url: `https://${location.hostname}/posts/${pid}/vote/10`,
                 data: {
                     'fkey': fkey
                 }
@@ -117,7 +117,7 @@
             if(typeof pid === 'undefined' || pid === null) { reject(); return; }
 
             $.post({
-                url: `https://stackoverflow.com/posts/${pid}/vote/11`,
+                url: `https://${location.hostname}/posts/${pid}/vote/11`,
                 data: {
                     'fkey': fkey
                 }
