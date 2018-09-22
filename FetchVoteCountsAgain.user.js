@@ -3,7 +3,7 @@
 // @description  Fetch vote counts for posts and enables you to click to fetch them again, even if you do not have sufficient rep. Also enables fetch vote counts on posts in mod flag queue.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.2
+// @version      1.2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -58,7 +58,7 @@
 
         const styles = `
 <style>
-.vote-count-post {
+.votecell .vote-count-post {
     cursor: pointer !important;
 }
 </style>
