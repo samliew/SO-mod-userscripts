@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.6
+// @version      1.0.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -187,6 +187,10 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
                 userrows.removeClass('focus');
                 if(!isFocus) userrows.filter(`[data-uid=${uid}]`).addClass('focus');
             });
+
+            // Select current user on page load
+            const currUid = location.pathname.split('/').pop() || '';
+            $(`a[href$="/users/${currUid}"]`).first().closest('tr').triggerHandler('click');
         }
 
         // CM message page
