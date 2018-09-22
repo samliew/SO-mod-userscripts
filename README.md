@@ -469,6 +469,11 @@ These are highly recommended for everyone because they are too awesome:
 
 ## In-Beta
 
+### [Bulk Actions](https://github.com/samliew/SO-mod-userscripts/blob/master/BulkActions.user.js) ♦
+
+- Functionality to multi-select and perform bulk actions on search results
+
+
 ### [Mobile Moderator Pages](https://github.com/samliew/SO-mod-userscripts/blob/master/MobileModeratorPages.user.js)
 
 - Before/After *(screenshot redacted using RedactedScreenshots, and also running CommentFlagsHelper and CommentFlagTypeColours)*
