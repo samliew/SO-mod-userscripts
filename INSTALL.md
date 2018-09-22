@@ -117,7 +117,7 @@ Direct installation links (raw files)
 
 ## Beta/Development
 
-[Bulk Actions](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatEmojis.user.js) ♦
+[Bulk Actions](https://github.com/samliew/SO-mod-userscripts/raw/master/BulkActions.user.js) ♦
 
 [Mobile Moderator Pages](https://github.com/samliew/SO-mod-userscripts/raw/master/MobileModeratorPages.user.js)
 
