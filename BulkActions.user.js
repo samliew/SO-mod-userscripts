@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Bulk Actions
-// @description  Functionality to perform mod bulk actions on search results
+// @description  Functionality to multi-select and perform bulk actions on search results
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      0.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
