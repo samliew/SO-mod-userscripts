@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4.5
+// @version      3.4.6
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
@@ -142,7 +142,7 @@
             if(confirm('Move all comments to chat & purge?')) {
                 const pid = this.dataset.postId;
                 const flaggedPost = $('#flagged-'+pid);
-                const possibleDupeCommentIds = $(`#comments-${pid} .comment`)
+                const possibleDupeCommentIds = $(`#comments-${pid} .comment`).not('.deleted-comment')
                     .filter(function(i, el) {
                         const cmmtText = $(el).find('.comment-copy').text().toLowerCase();
                         return cmmtText.indexOf('possible duplicate of ') === 0;
@@ -162,7 +162,7 @@
             if(confirm('Delete ALL comments?')) {
                 const pid = this.dataset.postId;
                 const flaggedPost = $('#flagged-'+pid);
-                const possibleDupeCommentIds = $(`#comments-${pid} .comment`)
+                const possibleDupeCommentIds = $(`#comments-${pid} .comment`).not('.deleted-comment')
                     .filter(function(i, el) {
                         const cmmtText = $(el).find('.comment-copy').text().toLowerCase();
                         return cmmtText.indexOf('possible duplicate of ') === 0 || cmmtText.indexOf('let us continue this discussion ') === 0;
