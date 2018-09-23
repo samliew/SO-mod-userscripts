@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5
+// @version      2.5.1
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -83,7 +83,6 @@
         // Button event
         $('.flagged-post-row').on('click', '.js-helpful-purge', function() {
             const pid = Number($(this).parents('.flagged-post-row').attr('data-post-id')) || -1;
-            console.log(pid);
             dismissAllHelpful(pid, function() {
                 purgeComments(pid);
                 $('#flagged-'+pid).remove();
