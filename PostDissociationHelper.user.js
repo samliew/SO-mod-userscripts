@@ -3,7 +3,7 @@
 // @description  Helps mods to quickly compose a post dissociation request from posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -56,12 +56,13 @@
 
             if($(this).children('.dissociate-post-link').length === 0) {
                 const post = $(this).parents('.question, .answer');
-                const userlink = post.find('.user-info').last().find('a').attr('href');
+                const userlink = post.find('.user-info').last().find('a').not('.deleted-user').attr('href') || '';
+                const matches = userlink.match(/\/(\d+)\//);
 
                 // User not found, prob already deleted
-                if(userlink == null) return;
+                if(userlink == null || matches == null) return;
 
-                const uid = Number(userlink.match(/\/(\d+)\//)[0].replace(/\//g, ''));
+                const uid = Number(matches[0].replace(/\//g, ''));
                 const pid = post.attr('data-questionid') || post.attr('data-answerid');
                 $(this).append(`<span class="lsep">|</span><a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" title="contact CM to dissociate post" class="dissociate-post-link" target="_blank">dissociate</a>`);
             }
