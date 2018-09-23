@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.6
+// @version      1.7.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -134,6 +134,8 @@
 
 
     function linkifyDeletedUser(i, elem) {
+
+        // ignore non-deleted users or already processed
         if($(elem).find('a').length !== 0) return;
 
         // Replace generic username with link to profile page
@@ -305,7 +307,6 @@
 
             // Is on deleted user's page
             if($('#mainbar-full').next('a').length > 0 && $('#mainbar-full').next('a').attr('href').indexOf('/admin/posts-by-deleted-user/') >= 0) {
-
                 formatDeletedUserPage();
             }
         }
@@ -324,7 +325,7 @@
 
         findDeletedUsers();
 
-        $('.user-details').on('mouseover', '.deleted-user', function() {
+        $('#content, .user-details').on('mouseover', '.deleted-user', function() {
             const userlink = $(this);
             if(userlink.hasClass('deleted-username-loaded')) return;
             userlink.addClass('deleted-username-loaded');
@@ -333,6 +334,8 @@
                 .then(function(v) {
                     userlink.after(`<div class="orig-username" title="display name before deletion">${v}</div>`);
                 });
+
+            return false;
         });
     }
 
@@ -342,8 +345,8 @@
         // On any page update
         $(document).ajaxComplete(function(event, xhr, settings) {
 
-            // More comments loaded
-            if(settings.url.indexOf('/comments') >= 0) findDeletedUsers();
+            // More comments loaded or post expanded in mod queue
+            if(settings.url.includes('/comments') || settings.url.includes('/ajax-load')) findDeletedUsers();
 
             // Pii loaded on mod dashboard page
             if(settings.url.indexOf('/admin/all-pii') >= 0 && location.pathname.startsWith('/users/account-info/')) showDetailsFieldWhenPiiClicked();
