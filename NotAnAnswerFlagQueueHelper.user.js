@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.1
+// @version      2.6
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -227,6 +227,23 @@
     }
 
 
+    function listenToPageUpdates() {
+
+        // On any page update
+        $(document).ajaxComplete(function(event, xhr, settings) {
+
+            // Flags dismissed or marked helpful, OR post deleted, OR answer converted to comment
+            if(settings.url.includes('/messages/delete-moderator-messages/') || settings.url.includes('/vote/10') || settings.url.includes('/convert-to-comment')) {
+
+                // Remove post from mod queue
+                const pid = settings.url.match(/\/(\d+)\//)[0].replace(/\//g, '');
+                console.log('Flags cleared: ' + pid);
+                $('#flagged-'+pid).remove();
+            }
+        });
+    }
+
+
     function appendStyles() {
 
         const styles = `
@@ -277,5 +294,6 @@ input.js-helpful-purge {
     // On page load
     appendStyles();
     doPageLoad();
+    listenToPageUpdates();
 
 })();
