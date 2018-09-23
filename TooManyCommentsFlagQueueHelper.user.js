@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4.4
+// @version      3.4.5
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
@@ -26,7 +26,7 @@
         if(typeof pid === 'undefined' || pid == null) return;
         if(typeof cid === 'undefined' || cid == null) return;
         $.post({
-            url: `https://stackoverflow.com/admin/posts/${pid}/comments/${cid}/undelete`,
+            url: `https://${location.hostname}/admin/posts/${pid}/comments/${cid}/undelete`,
             data: {
                 'fkey': fkey
             }
@@ -48,7 +48,7 @@
             if(typeof cid === 'undefined' || cid == null) { reject(); return; }
 
             $.post({
-                url: `https://stackoverflow.com/posts/comments/${cid}/vote/10`,
+                url: `https://${location.hostname}/posts/comments/${cid}/vote/10`,
                 data: {
                     'fkey': fkey
                 }
@@ -68,7 +68,7 @@
             if(typeof pid === 'undefined' || pid == null) { reject(); return; }
 
             $.post({
-                url: `https://stackoverflow.com/admin/posts/${pid}/delete-comments`,
+                url: `https://${location.hostname}/admin/posts/${pid}/delete-comments`,
                 data: {
                     'fkey': fkey,
                     'mod-actions': 'delete-comments'
@@ -90,7 +90,7 @@
             if(typeof pid === 'undefined' || pid == null) { reject(); return; }
 
             $.post({
-                url: `https://stackoverflow.com/admin/posts/${pid}/move-comments-to-chat`,
+                url: `https://${location.hostname}/admin/posts/${pid}/move-comments-to-chat`,
                 data: {
                     'fkey': fkey,
                     'delete-moved-comments': 'true'
@@ -112,7 +112,7 @@
             if(typeof pid === 'undefined' || pid == null) { reject(); return; }
 
             $.post({
-                url: `https://stackoverflow.com/messages/delete-moderator-messages/${pid}/${unsafeWindow.renderTimeTicks}?valid=true`,
+                url: `https://${location.hostname}/messages/delete-moderator-messages/${pid}/${unsafeWindow.renderTimeTicks}?valid=true`,
                 data: {
                     'fkey': fkey,
                     'comment': comment
