@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.5
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -18,7 +18,78 @@
     if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
 
 
+    const fkey = StackExchange.options.user.fkey;
     var $postsContainer, $posts;
+
+
+    function purgeComments(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid == null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/posts/${pid}/delete-comments`,
+                data: {
+                    'mod-actions': 'delete-comments',
+                    'target-post-id': '',
+                    duration: 1,
+                    fkey: fkey
+                }
+            })
+            .done(function(data) {
+                resolve();
+            })
+            .fail(reject);
+        });
+    }
+
+
+    // Mark all flags on post as helpful
+    function dismissAllHelpful(pid, comment = "") {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid == null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/messages/delete-moderator-messages/${pid}/${unsafeWindow.renderTimeTicks}?valid=true`,
+                data: {
+                    'fkey': fkey,
+                    'comment': comment
+                }
+            })
+            .done(function(data) {
+                resolve();
+            })
+            .fail(reject);
+        });
+    }
+
+
+    function initPurgeHelpful() {
+
+        // On any page update
+        $(document).ajaxComplete(function(event, xhr, settings) {
+
+            // Post expanded
+            if(settings.url.includes('/ajax-load?review=true') >= 0) {
+
+                // Expand comments?
+                $('.js-show-link.comments-link').click();
+
+                // Insert "purge comments and mark helpful" button
+                $('.post-detail').not('.js-has-helpful-purge').addClass('js-has-helpful-purge')
+                    .append(`<div class="extra-actions"><input type="button" class="js-helpful-purge" value="purge comments and clear flags" /></div>`);
+            }
+        });
+
+        // Button event
+        $('.flagged-post-row').on('click', '.js-helpful-purge', function() {
+            const pid = Number($(this).parents('.flagged-post-row').attr('data-post-id')) || -1;
+            console.log(pid);
+            dismissAllHelpful(pid, function() {
+                purgeComments(pid);
+                $('#flagged-'+pid).remove();
+            });
+        });
+    }
 
 
     function togglePosts(filter) {
@@ -149,6 +220,11 @@
 
             return false;
         });
+
+        // If LQDisputed queue
+        if(location.search.includes('flagtype=reviewlowqualitydisputedauto')) {
+            initPurgeHelpful();
+        }
     }
 
 
@@ -185,6 +261,13 @@
     text-decoration: none;
     border-bottom: 2px solid transparent;
     transition: all .15s ease-in-out;
+}
+.extra-actions {
+    padding-right: 10px;
+    text-align: right;
+}
+input.js-helpful-purge {
+    border-color: red !important;
 }
 </style>
 `;
