@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6
+// @version      2.6.1
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -284,6 +284,9 @@
 }
 input.js-helpful-purge {
     border-color: red !important;
+}
+.star-off, .star-on {
+    display: none;
 }
 </style>
 `;
