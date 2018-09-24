@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.8
+// @version      4.8.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -753,7 +753,7 @@
       </select>
     <label class="section-label">Age Range, or</label>
       <label for="agerange-from">from:</label>
-      <input type="number" name="agerange-from" id="agerange-from" placeholder="any" data-termvalue="datetype" data-range-to="agerange-to" data-suffix-from="agerange-from-type"
+      <input type="number" name="agerange-from" id="agerange-from" min="1" placeholder="any" data-termvalue="datetype" data-range-to="agerange-to" data-suffix-from="agerange-from-type"
              data-clears="#yearrange-from, #monthrange-from, #yearrange-to, #monthrange-to, #age-quickselect" />
       <select name="agerange-from-type" id="agerange-from-type">
         <option value="d" selected>days</option>
@@ -761,7 +761,7 @@
         <option value="y">years</option>
       </select> ago
       <label for="agerange-to">to:</label>
-      <input type="number" name="agerange-to" id="agerange-to" placeholder="any" data-suffix-from="agerange-to-type"
+      <input type="number" name="agerange-to" id="agerange-to" min="1" placeholder="any" data-suffix-from="agerange-to-type"
              data-clears="#yearrange-from, #monthrange-from, #yearrange-to, #monthrange-to, #age-quickselect" />
       <select name="agerange-to-type" id="agerange-to-type">
         <option value="d" selected>days</option>
