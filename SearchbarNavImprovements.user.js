@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.7
+// @version      4.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -470,7 +470,7 @@
 
 
     function handleAdvancedSearch(evt) {
-        const filledFields = searchhelper.find('input[data-autofill]:text, input[data-autofill]:checked').hasValue();
+        const filledFields = searchhelper.find('input[data-autofill]:text, input[data-autofill]:checked, select[data-autofill]').hasValue();
         const rangedFields = searchhelper.find('input[data-range-to], select[data-range-to]');
         let addQuery = '';
 
@@ -537,6 +537,8 @@
     function initAdvancedSearch() {
 
         appendAdvancedSearchStyles();
+
+        const today = new Date();
 
         orderby = $(`<div id="order-by">
   <span class="label">Order by: </span>
@@ -737,10 +739,22 @@
       <input type="radio" name="datetype" id="datetype-created" value="created:" checked /><label for="datetype-created">created</label>
       <input type="radio" name="datetype" id="datetype-lastactive" value="lastactive:" /><label type="radio" for="datetype-lastactive">last active</label>
     </div>
-    <label class="section-label">Age Range</label>
+    <label class="section-label">Age, or</label>
+      <label for="age-quickselect">quick select:</label>
+      <select name="age-quickselect" id="age-quickselect" data-autofill data-termvalue="datetype"
+              data-clears="#yearrange-from, #monthrange-from, #yearrange-to, #monthrange-to, #agerange-from, #agerange-to">
+        <option></option>
+        <option value="${today.getUTCFullYear()}-${today.getUTCMonth()+1}-${today.getUTCDate()}">today</option>
+        <option value="1d">yesterday</option>
+        <option value="1m..">this month</option>
+        <option value="1m">last month</option>
+        <option value="3m..">this quarter</option>
+        <option value="${today.getUTCFullYear()}">this year</option>
+      </select>
+    <label class="section-label">Age Range, or</label>
       <label for="agerange-from">from:</label>
       <input type="number" name="agerange-from" id="agerange-from" placeholder="any" data-termvalue="datetype" data-range-to="agerange-to" data-suffix-from="agerange-from-type"
-             data-clears="#yearrange-from, #monthrange-from, #yearrange-to, #monthrange-to" />
+             data-clears="#yearrange-from, #monthrange-from, #yearrange-to, #monthrange-to, #age-quickselect" />
       <select name="agerange-from-type" id="agerange-from-type">
         <option value="d" selected>days</option>
         <option value="m">months</option>
@@ -748,7 +762,7 @@
       </select> ago
       <label for="agerange-to">to:</label>
       <input type="number" name="agerange-to" id="agerange-to" placeholder="any" data-suffix-from="agerange-to-type"
-             data-clears="#yearrange-from, #monthrange-from, #yearrange-to, #monthrange-to" />
+             data-clears="#yearrange-from, #monthrange-from, #yearrange-to, #monthrange-to, #age-quickselect" />
       <select name="agerange-to-type" id="agerange-to-type">
         <option value="d" selected>days</option>
         <option value="m">months</option>
@@ -758,10 +772,10 @@
       <div class="fromto">
         <label for="yearrange-from">from:</label>
         <select name="yearrange-from" id="yearrange-from" class="js-yearpicker" data-termvalue="datetype" data-range-to="yearrange-to" data-additional="monthrange-from" data-additional-sep="-"
-                data-clears="#agerange-from, #agerange-to">
+                data-clears="#agerange-from, #agerange-to, #age-quickselect">
           <option value="" selected>any</option>
         </select>
-        <select name="monthrange-from" id="monthrange-from" data-clears="#agerange-from, #agerange-to">
+        <select name="monthrange-from" id="monthrange-from" data-clears="#agerange-from, #agerange-to, #age-quickselect">
           <option value="" selected>any</option>
           <option value="01">01</option>
           <option value="02">02</option>
@@ -777,10 +791,11 @@
           <option value="12">12</option>
         </select>
         <label for="yearrange-to">to:</label>
-        <select name="yearrange-to" id="yearrange-to" class="js-yearpicker" data-additional="monthrange-to" data-clears="#agerange-from, #agerange-to">
+        <select name="yearrange-to" id="yearrange-to" class="js-yearpicker" data-additional="monthrange-to"
+                data-clears="#agerange-from, #agerange-to, #age-quickselect">
           <option value="" selected>any</option>
         </select>
-        <select name="monthrange-to" id="monthrange-to" data-clears="#agerange-from, #agerange-to">
+        <select name="monthrange-to" id="monthrange-to" data-clears="#agerange-from, #agerange-to, #age-quickselect">
           <option value="" selected>any</option>
           <option value="01">01</option>
           <option value="02">02</option>
