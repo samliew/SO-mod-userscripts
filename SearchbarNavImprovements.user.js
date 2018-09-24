@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.8.1
+// @version      4.8.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -739,19 +739,21 @@
       <input type="radio" name="datetype" id="datetype-created" value="created:" checked /><label for="datetype-created">created</label>
       <input type="radio" name="datetype" id="datetype-lastactive" value="lastactive:" /><label type="radio" for="datetype-lastactive">last active</label>
     </div>
-    <label class="section-label">Age, or</label>
+    <label class="section-label">Age</label>
       <label for="age-quickselect">quick select:</label>
       <select name="age-quickselect" id="age-quickselect" data-autofill data-termvalue="datetype"
               data-clears="#yearrange-from, #monthrange-from, #yearrange-to, #monthrange-to, #agerange-from, #agerange-to">
         <option></option>
         <option value="${today.getUTCFullYear()}-${today.getUTCMonth()+1}-${today.getUTCDate()}">today</option>
         <option value="1d">yesterday</option>
+        <option value="7d..">past 7 days</option>
+        <option value="14d..">past 14 days</option>
         <option value="1m..">this month</option>
         <option value="1m">last month</option>
         <option value="3m..">this quarter</option>
         <option value="${today.getUTCFullYear()}">this year</option>
       </select>
-    <label class="section-label">Age Range, or</label>
+    <label class="section-label">Age Range</label>
       <label for="agerange-from">from:</label>
       <input type="number" name="agerange-from" id="agerange-from" min="1" placeholder="any" data-termvalue="datetype" data-range-to="agerange-to" data-suffix-from="agerange-from-type"
              data-clears="#yearrange-from, #monthrange-from, #yearrange-to, #monthrange-to, #age-quickselect" />
