@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.5
+// @version      1.3.6
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -259,7 +259,17 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 }
 .post-stickyheader ~ .post-layout .votecell .vote {
     top: 51px;
+    z-index: 2;
 }
+.question:hover .post-stickyheader,
+.answer:hover .post-stickyheader {
+    z-index: 7;
+}
+.question:hover .votecell .vote,
+.answer:hover .votecell .vote {
+    z-index: 6;
+}
+
 .post-stickyheader .relativetime {
     color: darkred;
     border-bottom: 1px dashed darkred;
