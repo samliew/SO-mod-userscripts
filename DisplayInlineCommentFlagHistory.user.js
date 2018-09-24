@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5
+// @version      2.6
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -151,9 +151,6 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
         // If timeline page
         if(location.href.indexOf('/timeline') >= 0) {
 
-            // Fixes broken layout from comment flags expansion
-            appendTimelineStyles();
-
             // If comment is found in URL, also expand flags on the comment
             if(location.hash && location.hash.indexOf('#comment_') >= 0) {
                 const cmmtRow = $(`a[href="${location.hash}"]`).first().closest('tr');
@@ -228,29 +225,6 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
         $(document).ajaxComplete(function(event, xhr, settings) {
             if(settings.url.indexOf('/comments') >= 0) updateCommentsFromTimelines();
         });
-    }
-
-
-    function appendTimelineStyles() {
-
-        const styles = `
-<style>
-/* Fix for broken comment flags display */
-.post-timeline tr.dno[style^="display:block;"],
-.post-timeline tr.dno[style^="display: block;"] {
-    display: table-row !important;
-}
-.post-timeline tr.dno[data-eventtype="history"],
-.post-timeline tr.dno[data-eventtype="history"] {
-    display: none !important;
-}
-.post-timeline tr.dno[style^="display"],
-.post-timeline tr.dno[style^="display"] {
-    border-left: 2px double #f4a83d;
-}
-</style>
-`;
-        $('body').append(styles);
     }
 
 
