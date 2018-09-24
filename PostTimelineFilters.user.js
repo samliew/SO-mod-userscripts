@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.2
+// @version      1.6
 //
 // @include      */posts*/timeline*
 // ==/UserScript==
@@ -191,20 +191,6 @@ tr.separator {
 }
 tr.separator + tr {
     border-top: 1px solid #e4e6e8;
-}
-
-/* Fix for broken comment flags display */
-.post-timeline tr.dno[style^="display:block;"],
-.post-timeline tr.dno[style^="display: block;"] {
-    display: table-row !important;
-}
-.post-timeline tr.dno[data-eventtype="history"],
-.post-timeline tr.dno[data-eventtype="history"] {
-    display: none !important;
-}
-.post-timeline tr.dno[style^="display"],
-.post-timeline tr.dno[style^="display"] {
-    border-left: 2px double #f4a83d;
 }
 </style>
 `;
