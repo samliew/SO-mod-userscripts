@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6
+// @version      2.6.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -153,8 +153,12 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
 
             // If comment is found in URL, also expand flags on the comment
             if(location.hash && location.hash.indexOf('#comment_') >= 0) {
-                const cmmtRow = $(`a[href="${location.hash}"]`).first().closest('tr');
-                cmmtRow.find('.toggle-comment-flags').click();
+
+                // Timeout to allow other userscripts to complete first
+                setTimeout(function() {
+                    const cmmtRow = $(`a[href="${location.hash}"]`).first().closest('tr');
+                    cmmtRow.find('.toggle-comment-flags').click();
+                }, 500);
             }
         }
 
