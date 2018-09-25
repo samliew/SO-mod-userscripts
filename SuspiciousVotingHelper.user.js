@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.7
+// @version      1.0.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -51,6 +51,26 @@
     }
 
 
+    function mapInvVotePatternItemsToObject() {
+        const link = $('.user-details a', this);
+        const uRep = $('.reputation-score', this);
+        const vNum = Number($(this).children('td').eq(1).text());
+        console.log($(this));
+        return {
+            uid: link.attr('href').match(/\/(\d+)\//)[0],
+            userlink: link.attr('href'),
+            username: link.text(),
+            userrep: strToRep(uRep.text()),
+            type: 'invalidated ',
+            votes: vNum,
+            votesTotal: vNum,
+            votesPct: '',
+            size: vNum >= 5 ? 'large' : '',
+            used: false,
+        }
+    }
+
+
     function updateModTemplates() {
 
         const uid = location.pathname.match(/\d+$/)[0];
@@ -61,7 +81,7 @@
         let appstr = `*(there may also be other minor instances of targeted votes that are unknown to us, as we can only view votes between users if they are above a certain threshold)*`;
 
         // If template is selected
-        let flags, votesFrom, votesTo;
+        let flags, votesFrom, votesTo, votesFromInv, votesToInv;
         $.when(
 
             // Load latest flagged posts and get mod flags that suggest suspicious voting
@@ -83,9 +103,13 @@
 
             // Load votes
             $.get(`https://${location.hostname}/admin/show-user-votes/${uid}`).then(function(data) {
-                const tables = $('.cast-votes:first .voters', data);
-                votesFrom = tables.first().find('tbody tr').map(mapVotePatternItemsToObject).get();
-                votesTo = tables.last().find('tbody tr').map(mapVotePatternItemsToObject).get();
+                const tables = $('.cast-votes:first > td', data);
+                votesFrom = tables.first().find('.voters tbody tr').map(mapVotePatternItemsToObject).get();
+                votesTo = tables.last().find('.voters tbody tr').map(mapVotePatternItemsToObject).get();
+
+                const tablesInv = $('.cast-votes:last > td', data);
+                votesFromInv = tablesInv.first().find('.voters tbody tr').map(mapInvVotePatternItemsToObject).get();
+                votesToInv = tablesInv.last().find('.voters tbody tr').map(mapInvVotePatternItemsToObject).get();
             })
 
         ).then(function() {
@@ -93,20 +117,37 @@
             //console.log(flags);
             //console.table(votesFrom);
             //console.table(votesTo);
+            //console.table(votesFromInv);
+            //console.table(votesToInv);
 
             // Build evidence
             let evidence = `Please invalidate the votes shared between these users:` + newlines;
 
-            // Check for users in both vote tables
+            // Check for users in the four vote tables
             votesFrom.forEach(function(v,i) {
+
                 for(let i = 0; i < votesTo.length; i++) {
                     if(v.uid === votesTo[i].uid && v.type !== 'acc' && votesTo[i].type !== 'acc') {
-                        evidence += `- Although this user has both received ${v.votes} ${v.type}votes from, and given ${votesTo[i].votes} ${v.type}votes to [${v.username}](${v.userlink}),
+                        evidence += `- Although this user has both received ${v.votes} ${v.type}votes from, and given ${votesTo[i].votes} ${votesTo[i].type}votes to [${v.username}](${v.userlink}),
 it doesn't seem that this account is a sockpuppet due to different PII and are most likely studying/working together.` + newlines;
 
                         // Invalidate used entries
                         v.used = true;
                         votesTo[i].used = true;
+                        return;
+                    }
+                }
+
+                // Also check for already invalidated votes
+                for(let i = 0; i < votesToInv.length; i++) {
+                    if(v.uid === votesToInv[i].uid && v.type !== 'acc') {
+                        evidence += `- Although this user has both received ${v.votes} ${v.type}votes from, and previously given ${votesToInv[i].votes} *invalidated* votes to [${v.username}](${v.userlink}),
+it doesn't seem that this account is a sockpuppet due to different PII and are most likely studying/working together.` + newlines;
+
+                        // Invalidate used entries
+                        v.used = true;
+                        votesToInv[i].used = true;
+                        return;
                     }
                 }
             });
@@ -114,7 +155,22 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
             // Get users with high vote ratio
             votesFrom.filter(v => !v.used).forEach(function(v,i) {
                 if(v.votesPct >= 50 && v.type !== 'acc' && v.userrep < 100000) {
-                    evidence += `- This user has received a ${v.size} percentage of targeted ${v.type}votes (${v.votes}/${v.votesTotal} **${v.votesPct}%**) from [${v.username}](${v.userlink}).` + newlines;
+
+                    let temp = `- This user has received a ${v.size} percentage of targeted ${v.type}votes (${v.votes}/${v.votesTotal} **${v.votesPct}%**) from [${v.username}](${v.userlink})`;
+
+                    // Targeted and targeted invalidated
+                    for(let i = 0; i < votesFromInv.length; i++) {
+                        if(v.uid === votesFromInv[i].uid) {
+                            evidence += temp + ` *(some votes are already invalidated)*.` + newlines;
+
+                            // Invalidate used entries
+                            v.used = true;
+                            return;
+                        }
+                    }
+
+                    // No targeted (default)
+                    evidence += temp + '.' + newlines;
                     v.used = true;
                 }
             });
@@ -128,7 +184,22 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
             // Get users with >= 5 targeted votes
             votesFrom.filter(v => !v.used).forEach(function(v,i) {
                 if(v.votes >= 5 && v.type !== 'acc' && v.userrep < 100000) {
-                    evidence += `- This user has received a ${v.size} number of targeted ${v.type}votes (**${v.votes}**/${v.votesTotal} *${v.votesPct}%*) from [${v.username}](${v.userlink}).` + newlines;
+
+                    let temp = `- This user has received a ${v.size} number of targeted ${v.type}votes (**${v.votes}**/${v.votesTotal} *${v.votesPct}%*) from [${v.username}](${v.userlink})`;
+
+                    // Targeted and targeted invalidated
+                    for(let i = 0; i < votesFromInv.length; i++) {
+                        if(v.uid === votesFromInv[i].uid) {
+                            evidence += temp + ` *(some votes are already invalidated)*.` + newlines;
+
+                            // Invalidate used entries
+                            v.used = true;
+                            return;
+                        }
+                    }
+
+                    // No targeted (default)
+                    evidence += temp + '.' + newlines;
                     v.used = true;
                 }
             });
