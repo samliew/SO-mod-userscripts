@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.3
+// @version      1.6.4
 //
 // @include      */posts*/timeline*
 // ==/UserScript==
@@ -80,7 +80,7 @@
             case 'only-mod':
                 filterFn = function(i, el) {
                     const eType = $(el).find('span.event-type').text();
-                    return eType === 'flag' || $(el).hasClass('deleted-event') || $(el).hasClass('deleted-event-details');
+                    return eType !== 'comment flag' && (eType === 'flag' || $(el).hasClass('deleted-event') || $(el).hasClass('deleted-event-details'));
                 };
                 break;
 
@@ -93,6 +93,15 @@
         }
 
         $events.addClass('dno').filter(filterFn).removeClass('dno');
+
+        // Once filtered, match related rows
+        // e.g.: Hide that comment flags were cleared if the comment flag is currently hidden
+        $('.deleted-event.dno').filter((i, el) => el.dataset.eventtype == 'flag').each(function(i, el) {
+            const eid = el.dataset.eventid;
+            const related = $events.filter('.deleted-event-details').filter((i, el) => el.dataset.eventid === eid);
+            console.log(related, eid);
+            related.addClass('dno');
+        });
     }
 
 
