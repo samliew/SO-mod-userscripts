@@ -3,7 +3,7 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -26,6 +26,8 @@
 // @include      https://*mathoverflow.net/admin/users/*/post-comments*
 // @include      https://*.stackexchange.com/admin/users/*/post-comments*
 //
+// @include      */posts*/timeline*
+//
 // @exclude      */admin/dashboard?flagtype=commenttoomanydeletedrudenotconstructiveauto*
 // ==/UserScript==
 
@@ -35,16 +37,52 @@
 
     function doPageload() {
 
-        // path /post-comments
+        // Path /post-comments
         if(location.pathname.indexOf('/post-comments') > 0) {
 
             // wrap comment type text with .revision-comment span
             $('.deleted-info').html((i, html) => html.replace(/span>\s*([a-z]+(\s[a-z]+)*)\s/i, `><span class="revision-comment">$1</span> `));
         }
 
+        // On Post Timelines, highlight differently
+        if(/^\/posts\/\d+\/timeline.*/.test(location.pathname)) {
+
+            $('.event-verb span').each(function(i, el) {
+                let cls = '';
+                el.innerText = el.innerText.trim();
+                switch(el.innerText.toLowerCase()) {
+                    case 'rude or offensive':
+                    case 'harassment, bigotry, or abuse':
+                        cls = 'ctype-bad';
+                        break;
+                    case 'commentunwelcoming':
+                    case 'unwelcoming':
+                        cls = 'ctype-poor';
+                        break;
+                    case 'commentnolongerneeded':
+                    case 'nolongerneeded':
+                        cls = 'ctype-meh';
+                        break;
+                    case 'commentother':
+                    case 'other':
+                        cls = 'ctype-custom';
+                        break;
+                }
+                if(cls !== '') el.classList.add(cls);
+
+                if(cls == 'ctype-custom') {
+                    $(el).closest('.event-verb').siblings('.event-comment').find('span').addClass('ctype-custom');
+                }
+            });
+
+            return false;
+        }
+
+        // all other included pages
         $('.revision-comment').each(function(i, el) {
             let cls = 'ctype-custom';
-            switch(el.innerText.toLowerCase().trim()) {
+            el.innerText = el.innerText.trim();
+            switch(el.innerText.toLowerCase()) {
                 case 'rude or offensive':
                 case 'harassment, bigotry, or abuse':
                     cls = 'ctype-bad';
@@ -62,7 +100,6 @@
                     cls = 'ctype-meh';
                     break;
             }
-            el.innerText = el.innerText.trim();
             el.classList.add(cls);
 
             if(cls == 'ctype-custom') {
