@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.7
+// @version      1.7.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -325,7 +325,7 @@
 
         findDeletedUsers();
 
-        $('#content, .user-details').on('mouseover', '.deleted-user', function() {
+        $('.post-layout, .comments').on('mouseover', '.deleted-user', function() {
             const userlink = $(this);
             if(userlink.hasClass('deleted-username-loaded')) return;
             userlink.addClass('deleted-username-loaded');
