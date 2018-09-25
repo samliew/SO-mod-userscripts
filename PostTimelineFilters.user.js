@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.2
+// @version      1.6.3
 //
 // @include      */posts*/timeline*
 // ==/UserScript==
@@ -102,6 +102,9 @@
         $('span.event-type, td.event-verb span a').text((i, v) => '' + v.trim());
         $('td.event-type, td.event-verb span').filter((i, el) => el.children.length === 0).text((i, v) => '' + v.trim());
 
+        // Rename "CommentNoLongerNeeded" event-verb to take up less space
+        $('.event-verb span').filter((i, el) => el.innerText.indexOf('Comment') === 0).text((i, v) => v.replace(/^Comment/, ''));
+
         $eventsContainer = $('table.post-timeline');
         $events = $('.event-rows > tr').not('.separator'); // .filter((i, el) => el.dataset.eventtype !== 'flag' && $(el).find('span.event-type').text() !== 'flag')
 
@@ -194,6 +197,14 @@ tr.separator {
 }
 tr.separator + tr {
     border-top: 1px solid #e4e6e8;
+}
+
+/* Increase cell min-widths to avoid jumping when comment flags are expanded */
+.post-timeline .event-type {
+    min-width: 90px !important;
+}
+.post-timeline .event-verb {
+    min-width: 115px;
 }
 </style>
 `;
