@@ -3,7 +3,7 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -47,7 +47,7 @@
         // On Post Timelines, highlight differently
         if(/^\/posts\/\d+\/timeline.*/.test(location.pathname)) {
 
-            $('.event-verb span').each(function(i, el) {
+            $('.event-verb span').filter((i, el) => el.children.length == 0).each(function(i, el) {
                 let cls = '';
                 el.innerText = el.innerText.trim();
                 switch(el.innerText.toLowerCase()) {
