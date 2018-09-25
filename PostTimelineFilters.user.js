@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.1
+// @version      1.6.2
 //
 // @include      */posts*/timeline*
 // ==/UserScript==
@@ -85,8 +85,11 @@
                 break;
 
             default:
-                $events.removeClass('dno');
-                return;
+                filterFn = function(i, el) {
+                    const eType = $(el).find('span.event-type').text();
+                    return eType !== 'comment flag';
+                };
+                break;
         }
 
         $events.addClass('dno').filter(filterFn).removeClass('dno');
