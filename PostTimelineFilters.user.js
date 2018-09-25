@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @include      */posts*/timeline*
 // ==/UserScript==
@@ -24,14 +24,14 @@
             case 'hide-votes':
                 filterFn = function(i, el) {
                     const eType = $(el).find('span.event-type').text();
-                    return eType !== 'votes';
+                    return eType !== 'votes' && eType !== 'comment flag';
                 };
                 break;
 
             case 'hide-votes-comments':
                 filterFn = function(i, el) {
                     const eType = $(el).find('span.event-type').text();
-                    return eType !== 'votes' && eType !== 'comment' && el.dataset.eventtype !== 'comment';
+                    return eType !== 'votes' && eType !== 'comment' && eType !== 'comment flag' && el.dataset.eventtype !== 'comment';
                 };
                 break;
 
@@ -73,7 +73,7 @@
             case 'only-flags':
                 filterFn = function(i, el) {
                     const eType = $(el).find('span.event-type').text();
-                    return eType === 'flag' || el.dataset.eventtype === 'flag';
+                    return eType !== 'comment flag' && (eType === 'flag' || el.dataset.eventtype === 'flag');
                 };
                 break;
 
@@ -85,11 +85,11 @@
                 break;
 
             default:
-                $events.show();
+                $events.removeClass('dno');
                 return;
         }
 
-        $events.hide().filter(filterFn).not('.dno').show();
+        $events.addClass('dno').filter(filterFn).removeClass('dno');
     }
 
 
