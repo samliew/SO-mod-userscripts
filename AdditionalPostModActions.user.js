@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      0.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -127,40 +127,69 @@
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
             $(this).append(`
 <div class="js-post-issues grid fd-column ai-stretch gs4 mt16">
-  <a class="grid--item s-btn s-btn__muted" href="/posts/${pid}/timeline" data-shortcut="T" title="Timeline" target="_blank"><svg aria-hidden="true" class="svg-icon mln1 mr0 iconHistory" width="19" height="18" viewBox="0 0 19 18"><path d="M3 9a8 8 0 1 1 3.73 6.77L8.2 14.3A6 6 0 1 0 5 9l3.01-.01-4 4-4-4h3zm7-4h1.01L11 9.36l3.22 2.1-.6.93L10 10V5z"></path></svg></a>
+  <a class="grid--item s-btn s-btn__muted" href="/posts/${pid}/timeline" data-shortcut="T" title="Timeline" target="_blank">
+    <svg aria-hidden="true" class="svg-icon mln1 mr0 iconHistory" width="19" height="18" viewBox="0 0 19 18">
+      <path d="M3 9a8 8 0 1 1 3.73 6.77L8.2 14.3A6 6 0 1 0 5 9l3.01-.01-4 4-4-4h3zm7-4h1.01L11 9.36l3.22 2.1-.6.93L10 10V5z"></path>
+  </svg></a>
 </div>
 `);
         });
 
         // Append link to post sidebar if it doesn't exist yet
-        $('.js-post-issues').not('.js-post-mod-menu').addClass('js-post-mod-menu')
-            .append(`
+        $('.js-post-issues').not('.js-post-mod-menu').addClass('js-post-mod-menu').each(function() {
+            const post = $(this).closest('.question, .answer');
+            const pid = post.attr('data-questionid') || post.attr('data-answerid');
+
+            // Create menu based on post type and state
+            let menuitems = `<a data-action="move-comments">move comments to chat</a><a data-action="purge-comments">purge comments</a>`;
+            menuitems += `<a data-action="toggle-protect">toggle protect</a>`;
+            menuitems += `<a data-action="mod-delete">mod-delete post</a>`;
+            menuitems += `<a data-action="lock-dispute">lock - dispute (1d)</a>`;
+            menuitems += `<a data-action="lock-offtopic">lock - offtopic (1d)</a>`;
+            menuitems += `<a data-action="unlock">unlock</a>`;
+            menuitems += `<a data-action="dissociate">request dissociation</a>`;
+            menuitems += `<div class="separator"></div>`;
+            menuitems += `<a data-action="destroy-user">destroy spammer</a>`;
+
+            $(this).append(`
 <div class="grid--item s-btn s-btn__muted post-mod-menu-link" data-shortcut="O" title="Other mod actions">
-  <svg aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 512" class="svg-icon mln1 mr0"><path fill="currentColor" d="M64 208c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48zM16 104c0 26.5 21.5 48 48 48s48-21.5 48-48-21.5-48-48-48-48 21.5-48 48zm0 304c0 26.5 21.5 48 48 48s48-21.5 48-48-21.5-48-48-48-48 21.5-48 48z" class=""></path></svg>
-  <div class="post-mod-menu" title="">
-    <a data-action="move-comments">move comments to chat</a>
-    <a data-action="purge-comments">purge comments</a>
-    <a data-action="toggle-protect">toggle protect</a>
-    <a data-action="mod-delete">mod-delete post</a>
-    <a data-action="lock-dispute">lock - dispute (1d)</a>
-    <a data-action="lock-offtopic">lock - offtopic (1d)</a>
-    <a data-action="unlock">unlock</a>
-    <a data-action="dissociate">request dissociation</a>
-    <div class="separator"></div>
-    <a data-action="destroy-user">destroy spammer</a>
-  </div>
+  <svg aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 512" class="svg-icon mln1 mr0"><path fill="currentColor"
+       d="M64 208c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48zM16 104c0 26.5 21.5 48 48 48s48-21.5 48-48-21.5-48-48-48-48 21.5-48 48zm0 304c0 26.5 21.5 48 48 48s48-21.5 48-48-21.5-48-48-48-48 21.5-48 48z"></path>
+  </svg>
+  <div class="post-mod-menu" title="" data-pid="${pid}">${menuitems}</div>
 </a>`);
+        });
     }
 
 
     function initPostModMenuLinks() {
 
         // Handle mod actions menu link click
-        $('#content').on('click', '.post-mod-menu-link', function() {
-            const post = $(this).closest('.question, .answer');
-            const pid = post.attr('data-questionid') || post.attr('data-answerid');
+        $('#content').on('click', '.post-mod-menu a', function() {
+            const pid = Number(this.dataset.pid);
+            const action = this.dataset.action;
+            if(isNaN(pid)) return false;
 
-            console.log(post, pid);
+            switch(action) {
+                case 'move-comments':
+                    break;
+                case 'purge-comments':
+                    break;
+                case 'toggle-protect':
+                    break;
+                case 'mod-delete':
+                    break;
+                case 'lock-dispute':
+                    break;
+                case 'lock-offtopic':
+                    break;
+                case 'unlock':
+                    break;
+                case 'dissociate':
+                    break;
+                case 'destroy-user':
+                    break;
+            }
 
             return false;
         });
