@@ -3,7 +3,7 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.1.2
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -51,8 +51,8 @@
                 let cls = '';
                 el.innerText = el.innerText.trim();
                 switch(el.innerText.toLowerCase()) {
-                    case 'rude or offensive':
-                    case 'harassment, bigotry, or abuse':
+                    case 'commentrudeoroffensive':
+                    case 'rudeoroffensive':
                         cls = 'ctype-bad';
                         break;
                     case 'commentunwelcoming':
