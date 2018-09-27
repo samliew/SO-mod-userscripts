@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.8
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -264,6 +264,112 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
             $(`a[href$="/users/${currUid}"]`).first().closest('tr').triggerHandler('click');
         }
 
+        // If on user votes page
+        if(location.pathname.includes('/show-user-votes/')) {
+
+            // Sort invalidated votes table by date of invalidation instead, but still allow sorting by other columns
+            const activeVotesTables = $('.cast-votes:first table');
+            const invalidatedVotesTables = $('.cast-votes:last table');
+
+            activeVotesTables.on('click', 'th', function() {
+                let sortFunction;
+                switch($(this).index()) {
+
+                    case 0: // user
+                        sortFunction = function(a, b) {
+                            let aTxt = $(a).find('.user-details a').text(),
+                                bTxt = $(b).find('.user-details a').text();
+
+                            if(aTxt == bTxt) return 0;
+                            return (aTxt > bTxt) ? 1 : -1;
+                        };
+                        break;
+
+                    case 1: // type
+                        sortFunction = function(a, b) {
+                            let aTxt = $(a).find('.vote-type span').text(),
+                                bTxt = $(b).find('.vote-type span').text();
+
+                            if(aTxt == bTxt) return 0;
+                            return (aTxt > bTxt) ? 1 : -1;
+                        };
+                        break;
+
+                    case 2: // rep
+                        sortFunction = function(a, b) {
+                            let aTxt = Number($(a).find('.vote-type').next().text().split(' / ')[0]),
+                                bTxt = Number($(b).find('.vote-type').next().text().split(' / ')[0]);
+
+                            if(aTxt == bTxt) return 0;
+                            return (aTxt < bTxt) ? 1 : -1;
+                        };
+                        break;
+
+                    case 3: // perc
+                        sortFunction = function(a, b) {
+                            let aTxt = Number($(a).find('.number span').text().replace('%', '')),
+                                bTxt = Number($(b).find('.number span').text().replace('%', ''));
+
+                            if(aTxt == bTxt) return 0;
+                            return (aTxt < bTxt) ? 1 : -1;
+                        };
+                        break;
+
+                    default:
+                        return; // do nothing
+                }
+                // Sort posts in-memory then reattach to container
+                const tbody = $(this).closest('table').find('tbody');
+                tbody.children().sort(sortFunction).detach().appendTo(tbody);
+
+                return false;
+            });
+
+            invalidatedVotesTables.on('click', 'th', function() {
+                let sortFunction;
+                switch($(this).index()) {
+
+                    case 0: // user
+                        sortFunction = function(a, b) {
+                            let aTxt = $(a).find('.user-details a').text(),
+                                bTxt = $(b).find('.user-details a').text();
+
+                            if(aTxt == bTxt) return 0;
+                            return (aTxt > bTxt) ? 1 : -1;
+                        };
+                        break;
+
+                    case 1: // num
+                        sortFunction = function(a, b) {
+                            let aTxt = Number($(a).find('.number').text()),
+                                bTxt = Number($(b).find('.number').text());
+
+                            if(aTxt == bTxt) return 0;
+                            return (aTxt < bTxt) ? 1 : -1;
+                        };
+                        break;
+
+                    case 2: // date
+                        sortFunction = function(a, b) {
+                            let aTxt = $(a).find('.relativetime').attr('title'),
+                                bTxt = $(b).find('.relativetime').attr('title');
+
+                            if(aTxt == bTxt) return 0;
+                            return (aTxt < bTxt) ? 1 : -1;
+                        };
+                        break;
+
+                    default:
+                        return; // do nothing
+                }
+                // Sort posts in-memory then reattach to container
+                const tbody = $(this).closest('table').find('tbody');
+                tbody.children().sort(sortFunction).detach().appendTo(tbody);
+
+                return false;
+            });
+        }
+
         // CM message page
         if(location.pathname.includes('/admin/cm-message/')) {
 
@@ -302,6 +408,9 @@ tr[data-uid].active {
 }
 tr[data-uid].focus {
     background: #cfc;
+}
+.sorter th {
+    cursor: pointer;
 }
 </style>
 `;
