@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.4
+// @version      1.6
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -91,6 +91,23 @@
     }
 
 
+    function loadFlaggingFn() {
+
+        if($(this).hasClass('js-userflagstats-loaded') || $(this).hasClass('js-userflagstats-loading')) return;
+        const uid = this.dataset.uid;
+        const sameUserLinks = $(`.mod-message a[href^="/users/${uid}/"]`).addClass('js-userflagstats-loading');
+        const currLink = $(this).addClass('js-userflagstats-loading');
+
+        getUserFlagStats(uid).then(function(v) {
+            const tier = calculateFlagTier(v[1], v[3]);
+            const badge = `<a href="/users/flag-summary/${uid}" class="flag-badge ${tier.name}" title="rep: ${v[0]}   flags: ${v[1]} (${v[2]}) = ${v[3].toFixed(2)}%" target="_blank"></a>`;
+
+            // Apply to all instances of same user on page
+            sameUserLinks.not('js-userflagstats-loaded').addClass('js-userflagstats-loaded').after(badge);
+        });
+    }
+
+
     function doPageload() {
 
         let currUid = StackExchange.options.user.userId;
@@ -125,19 +142,11 @@
         $('.mod-flair').prev().addClass('js-userflagstats-loaded');
 
         // Load user stats on hover
-        $('.mod-message a[href^="/users/"]').on('loadflaggingstats', function() {
-            if($(this).hasClass('js-userflagstats-loaded') || $(this).hasClass('js-userflagstats-loading')) return;
-            const uid = this.href.match(/-?\d+/)[0];
-            const sameUserLinks = $(`.mod-message a[href^="/users/${uid}/"]`).addClass('js-userflagstats-loading');
-            const currLink = $(this).addClass('js-userflagstats-loading');
+        const userlinks = $('.mod-message a[href^="/users/"]').on('loadflaggingstats', loadFlaggingFn);
 
-            getUserFlagStats(uid).then(function(v) {
-                const tier = calculateFlagTier(v[1], v[3]);
-                const badge = `<a href="/users/flag-summary/${uid}" class="flag-badge ${tier.name}" title="rep: ${v[0]}   flags: ${v[1]} (${v[2]}) = ${v[3].toFixed(2)}%" target="_blank"></a>`;
-
-                // Apply to all instances of same user on page
-                sameUserLinks.not('js-userflagstats-loaded').addClass('js-userflagstats-loaded').after(badge);
-            });
+        // Preprocess userlinks to get the uids
+        userlinks.each(function() {
+            this.dataset.uid = this.href.match(/-?\d+/)[0];
         });
 
         // Load user stats on post hover, also load for first three posts on page load
@@ -148,12 +157,21 @@
 
         // Load all flagger stats button
         if(isModPage()) {
-            $('<button>Load flagger stats</button>')
+            $('<button id="load-flagger-stats">Load flagger stats</button>')
+                .insertAfter('#mainbar-full .subheader:not(.user-full-tab-header) h1')
                 .click(function() {
                     $(this).remove();
-                    $('.flagged-post-row').trigger('mouseover');
-                })
-                .insertAfter('#mainbar-full .subheader:not(.user-full-tab-header) h1');
+
+                    // unique loads
+                    let uids = [];
+                    userlinks.filter(function() {
+                        if(!uids.includes(this.dataset.uid)) {
+                            uids.push(this.dataset.uid);
+                            return true;
+                        }
+                        return false;
+                    }).each(loadFlaggingFn);
+                });
         }
     }
 
