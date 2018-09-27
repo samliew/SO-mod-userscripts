@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.1
+// @version      2.7
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -51,8 +51,8 @@
             $.post({
                 url: `https://${location.hostname}/messages/delete-moderator-messages/${pid}/${unsafeWindow.renderTimeTicks}?valid=true`,
                 data: {
-                    'fkey': fkey,
-                    'comment': comment
+                    fkey: fkey,
+                    comment: comment
                 }
             })
             .done(function(data) {
@@ -105,6 +105,10 @@
 
     function sortPosts(filter) {
         console.log("Sort by: " + filter);
+
+        if(filter === 'flagger-rank') {
+            $('#load-flagger-stats').click();
+        }
 
         // Get sort function based on selected filter
         let sortFunction;
@@ -170,6 +174,19 @@
                 };
                 break;
 
+            case 'flagger-rank':
+                sortFunction = function(a, b) {
+                    let aBadges = $(a).find('.flag-badge'),
+                        bBadges = $(b).find('.flag-badge');
+
+                    let aScore = aBadges.filter('.elite').length * 10 + aBadges.filter('.gold').length * 8 + aBadges.filter('.silver').length * 6 + aBadges.filter('.bronze').length * 3 + aBadges.filter('.default').length * 2 + aBadges.filter('.hmmm, .horrible, .wtf').length * 0.5,
+                        bScore = bBadges.filter('.elite').length * 10 + bBadges.filter('.gold').length * 8 + bBadges.filter('.silver').length * 6 + bBadges.filter('.bronze').length * 3 + bBadges.filter('.default').length * 2 + bBadges.filter('.hmmm, .horrible, .wtf').length * 0.5;
+
+                    if(aScore == bScore) return 0;
+                    return (aScore < bScore) ? 1 : -1;
+                };
+                break;
+
             default:
                 location.reload(true);
                 return;
@@ -188,15 +205,16 @@
         // Insert sort options
         const $filterOpts = $(`<div id="flag-queue-tabs" class="tabs">
                 <a data-filter="default" class="youarehere">Default</a>
-                <a data-filter="self-answer">Self Answer</a>
-                <a data-filter="poster-rep">Poster Rep</a>
-                <a data-filter="date-posted">Date Posted</a>
-                <a data-filter="delete-votes">Delete Votes</a>
-                <a data-filter="flag-count">Flag Count</a>
-                <a data-filter="post-length">Post Length</a>
-                <a data-toggle="q" title="Questions">Q</a>
-                <a data-toggle="a" title="Answers">A</a>
-                <a data-toggle="deleted" title="Deleted">D</a>
+                <a data-filter="self-answer" title="Self Answer">Self</a>
+                <a data-filter="poster-rep" title="Poster Rep">Rep</a>
+                <a data-filter="date-posted" title="Date Posted">Date</a>
+                <a data-filter="post-length" title="Post Length">Length</a>
+                <a data-filter="delete-votes" title="Delete Votes">Del. Votes</a>
+                <a data-filter="flag-count" title="Flag Count">Flags</a>
+                <a data-filter="flagger-rank" title="Flagger Rank (click to sort again after stats loaded)" class="dno">Flagger Rank</a>
+                <a data-toggle="q" title="Show Questions only">Q</a>
+                <a data-toggle="a" title="Show Answers only">A</a>
+                <a data-toggle="deleted" title="Show Deleted only">D</a>
             </div>`);
         $filterOpts.insertBefore('.flagged-posts.moderator');
 
@@ -240,6 +258,12 @@
                 console.log('Flags cleared: ' + pid);
                 $('#flagged-'+pid).remove();
             }
+
+            // Flagger stats loaded, allow sorting by
+            if(settings.url.includes('/users/flag-summary/')) {
+                $('#flag-queue-tabs a[data-filter="flagger-rank"]').removeClass('dno');
+            }
+
         });
     }
 
