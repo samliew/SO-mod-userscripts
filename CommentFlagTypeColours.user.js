@@ -3,7 +3,7 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.2
+// @version      1.1.3
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -28,6 +28,7 @@
 //
 // @include      */posts*/timeline*
 //
+// @exclude      */admin/dashboard?flagtype=commentvandalismdeletionsauto*
 // @exclude      */admin/dashboard?flagtype=commenttoomanydeletedrudenotconstructiveauto*
 // ==/UserScript==
 
