@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10
+// @version      2.10.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -478,6 +478,7 @@ table.flagged-posts .relativetime.old-comment {
 .cancel-comment-flag:hover {
     color: white;
     background: red;
+    z-index: 1;
 }
 .comment-edit-hide,
 .comment-delete {
