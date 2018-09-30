@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.0.3
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -52,7 +52,7 @@ a:hover svg,
 button:hover img,
 button:hover svg {
     filter: none;
-    background-color: inherit !important;
+    background-color: inherit;
 }
 iframe,
 img,
@@ -83,7 +83,9 @@ input[type="submit"]:hover,
 /* Specific elements opacity & hover */
 .wmd-button-row,
 #left-sidebar,
-#sidebar > * {
+#sidebar > *,
+.deleted-answer,
+.downvoted-answer {
     opacity: 0.6;
     transition: opacity 0.4s ease;
 }
@@ -92,11 +94,19 @@ input[type="submit"]:hover,
     opacity: 0.4;
     transition: opacity 0.4s ease;
 }
+ul.comments-list .comment-voting,
+ul.comments-list .comment-flagging {
+    opacity: 0.1;
+}
 .wmd-button-row:hover,
 #left-sidebar:hover,
 #sidebar > *:hover,
+.deleted-answer:hover,
+.downvoted-answer:hover,
 .question-summary:hover .started,
-#footer:hover > div {
+#footer:hover > div,
+ul.comments-list .comment:hover .comment-voting,
+ul.comments-list .comment:hover .comment-flagging {
     opacity: 1;
 }
 
@@ -110,7 +120,7 @@ input[type="submit"]:hover,
 }
 #tabs a:before,
 .tabs a:before {
-    background: transparent !important;
+    background: transparent;
 }
 .top-bar .-logo,
 .top-bar .-logo span {
@@ -135,11 +145,19 @@ input[type="submit"]:hover,
 .top-bar .indicator-badge._important {
     background-color: #C91D2E;
 }
+ul.comments-list .comment > * {
+    border-color: #333;
+}
 pre {
     background-color: #444;
 }
 pre * {
     background-color: inherit;
+}
+.comment .relativetime,
+.comment .relativetime-clean,
+.comment .comment-score {
+    opacity: 0.5;
 }
 .message {
     border: 1px solid ${bordercolor};
@@ -183,7 +201,14 @@ a.youarehere {
     background-color: #9199a1;
 }
 .tagged-interesting {
-    box-shadow: inset 0 0 20px #fffbec !important;
+    box-shadow: inset 0 0 20px 0px #fffbec;
+}
+.deleted-answer {
+    box-shadow: inset 0 0 0 9999px #220000;
+}
+.tagged-interesting *,
+.deleted-answer * {
+    background-color: transparent;
 }
 .vote-up-off,
 .vote-down-off,
@@ -202,11 +227,11 @@ a.youarehere {
 }
 .new-post-activity,
 .new-answer-activity {
-    background-color: #888 !important;
+    background-color: #888;
 }
 .new-post-activity a,
 .new-answer-activity a {
-    background-color: transparent !important;
+    background-color: transparent;
 }
 
 
@@ -222,7 +247,7 @@ a.youarehere {
 .ctype-poor,
 .ctype-meh {
     display: inline;
-    padding: 2px 5px 3px !important;
+    padding: 2px 5px 3px;
     line-height: 1;
     font-size: 10px;
     font-style: normal;
