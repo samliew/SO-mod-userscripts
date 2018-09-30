@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.3
+// @version      1.0.4
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -16,7 +16,8 @@
 
 
     const textcolor = '#ddd';
-    const bgcolor = '#333';
+    const bgcolor = '#222';
+    const btncolor = '#333';
     const bordercolor = '#555';
 
 
@@ -29,8 +30,10 @@
 *:after,
 #search-channel-selector,
 .bg-black-025,
-.fc-medium {
-    background-color: #222;
+.fc-light,
+.fc-medium,
+.fc-dark {
+    background-color: ${bgcolor};
     color: ${textcolor};
     border-color: ${bordercolor};
     box-shadow: none;
@@ -63,7 +66,7 @@ img,
 button:hover,
 input[type="submit"]:hover,
 .s-btn:hover, .btn:hover {
-    background-color: ${bgcolor};
+    background-color: ${btncolor};
     color: white;
 }
 
@@ -85,14 +88,15 @@ input[type="submit"]:hover,
 #left-sidebar,
 #sidebar > *,
 .deleted-answer,
-.downvoted-answer {
+.downvoted-answer,
+.top-bar .-logo {
     opacity: 0.6;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.2s ease;
 }
 .question-summary .started,
 #footer > div {
     opacity: 0.4;
-    transition: opacity 0.4s ease;
+    transition: opacity 0.2s ease;
 }
 ul.comments-list .comment-voting,
 ul.comments-list .comment-flagging {
@@ -103,6 +107,7 @@ ul.comments-list .comment-flagging {
 #sidebar > *:hover,
 .deleted-answer:hover,
 .downvoted-answer:hover,
+.top-bar .-logo:hover,
 .question-summary:hover .started,
 #footer:hover > div,
 ul.comments-list .comment:hover .comment-voting,
@@ -175,7 +180,7 @@ pre * {
     color: #aaa;
 }
 .tags .post-tag {
-    background-color: ${bgcolor};
+    background-color: ${btncolor};
     color: #aaa;
 }
 .s-progress {
@@ -236,6 +241,9 @@ a.youarehere {
 .answer-votes.answered-accepted {
     color: white;
     background-color: #5fba7d;
+}
+.bg-black-050 {
+    background-color: ${bgcolor};
 }
 
 
