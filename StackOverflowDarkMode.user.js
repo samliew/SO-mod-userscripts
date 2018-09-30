@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.5
+// @version      1.0.6
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -153,12 +153,6 @@ ul.comments-list .comment:hover .comment-flagging {
 ul.comments-list .comment > * {
     border-color: #333;
 }
-pre {
-    background-color: #444;
-}
-pre * {
-    background-color: inherit;
-}
 .comment .relativetime,
 .comment .relativetime-clean,
 .comment .comment-score {
@@ -255,6 +249,24 @@ span.diff-add {
 }
 .inserted > div {
     background-color: #204a2e;
+}
+
+
+/* Code colours */
+pre {
+    background-color: #444;
+}
+pre * {
+    background-color: inherit;
+}
+.str, .lit, .tag {
+    color: #d68585;
+}
+.kwd, .dec {
+    color: #7e7ef1;
+}
+.typ {
+    color: #6dbcd5;
 }
 
 
