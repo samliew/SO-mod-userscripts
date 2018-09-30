@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -13,6 +13,12 @@
 
 (function() {
     'use strict';
+
+
+    const textcolor = '#ddd';
+    const bgcolor = '#333';
+    const bordercolor = '#555';
+
 
     GM_addStyle(`
 
@@ -25,8 +31,8 @@
 .bg-black-025,
 .fc-medium {
     background-color: #222;
-    color: #ddd;
-    border-color: #555;
+    color: ${textcolor};
+    border-color: ${bordercolor};
     box-shadow: none;
     outline: none
 }
@@ -48,11 +54,16 @@ button:hover svg {
     filter: none;
     background-color: inherit !important;
 }
-iframe, img, .-img, ._glyph {
+iframe,
+img,
+.-img,
+._glyph {
     filter: brightness(0.8) saturate(90%);
 }
-button:hover, input[type="submit"]:hover, .s-btn:hover, .btn:hover {
-    background-color: #333;
+button:hover,
+input[type="submit"]:hover,
+.s-btn:hover, .btn:hover {
+    background-color: ${bgcolor};
     color: white;
 }
 
@@ -70,25 +81,33 @@ button:hover, input[type="submit"]:hover, .s-btn:hover, .btn:hover {
 
 
 /* Specific elements opacity & hover */
-#wmd-button-row,
+.wmd-button-row,
 #left-sidebar,
 #sidebar > * {
     opacity: 0.6;
     transition: opacity 0.4s ease;
 }
-.question-summary .started {
+.question-summary .started,
+#footer > div {
     opacity: 0.4;
     transition: opacity 0.4s ease;
 }
-#wmd-button-row:hover,
+.wmd-button-row:hover,
 #left-sidebar:hover,
 #sidebar > *:hover,
-.question-summary:hover .started {
+.question-summary:hover .started,
+#footer:hover > div {
     opacity: 1;
 }
 
 
 /* Specific elements */
+#content {
+    border-right: none;
+}
+#footer {
+    border-top: 1px solid ${bordercolor};
+}
 .top-bar .-logo,
 .top-bar .-logo span {
     background-color: white;
@@ -118,10 +137,13 @@ pre {
 pre * {
     background-color: inherit;
 }
-#wmd-button-row {
+.message {
+    border: 1px solid ${bordercolor};
+}
+.wmd-button-row {
     background-color: white;
 }
-#wmd-button-row * {
+.wmd-button-row * {
     background-color: inherit;
 }
 .js-post-issues .s-btn {
@@ -131,7 +153,7 @@ pre * {
     color: #aaa;
 }
 .tags .post-tag {
-    background-color: #333;
+    background-color: ${bgcolor};
     color: #aaa;
 }
 .s-progress {
@@ -141,7 +163,7 @@ pre * {
     background-color: #42d773;
 }
 a.youarehere {
-    background: #555;
+    background-color: ${bordercolor};
 }
 .bounty-indicator-tab {
     color: white;
@@ -158,6 +180,21 @@ a.youarehere {
 }
 .tagged-interesting {
     box-shadow: inset 0 0 20px #fffbec !important;
+}
+.vote-up-off,
+.vote-down-off,
+.star-off {
+    opacity: 0.2;
+}
+.vote-up-on,
+.vote-down-on {
+    background-blend-mode: exclusion;
+    filter: brightness(1000%);
+    background-color: #030303;
+    opacity: 1;
+}
+.star-on {
+    opacity: 1;
 }
 
 
