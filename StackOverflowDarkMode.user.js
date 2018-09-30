@@ -233,6 +233,10 @@ a.youarehere {
 .new-answer-activity a {
     background-color: transparent;
 }
+.answer-votes.answered-accepted {
+    color: white;
+    background-color: #5fba7d;
+}
 
 
 /* Dark mode for SOMU userscripts */
