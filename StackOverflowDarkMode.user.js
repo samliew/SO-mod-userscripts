@@ -29,7 +29,8 @@
 *:before,
 *:after,
 #search-channel-selector,
-.bg-black-025,
+body .bg-black-025,
+body .bg-black-050,
 .fc-light,
 .fc-medium,
 .fc-dark {
@@ -235,9 +236,6 @@ a.youarehere {
 .answer-votes.answered-accepted {
     color: white;
     background-color: #5fba7d;
-}
-.bg-black-050 {
-    background-color: ${bgcolor};
 }
 span.diff-delete {
     background-color: #e5bdb2;
