@@ -3,7 +3,7 @@
 // @description  Unique colour for each user in comments to make following users in long comment threads easier
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.2
+// @version      1.1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -63,7 +63,7 @@
     bottom: -1px;
     left: 0;
     right: 0;
-    border-bottom: 3px solid var(--usercolor);
+    border-bottom: 3px solid var(--usercolor) !important;
     pointer-events: none;
 }
 </style>
