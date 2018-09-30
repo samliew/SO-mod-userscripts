@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.4
+// @version      2.10
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -31,6 +31,7 @@
     let reviewFromBottom = false;
     const fkey = StackExchange.options.user.fkey;
     const newMins = 7 * 24 * 60 * 60000;
+    const superusers = [ 584192 ];
 
     // Special characters must be escaped with \\
     const rudeKeywords = [
@@ -128,18 +129,10 @@
         // If there are lots of comment flags
         if($('.flagged-post-row').length > 3) {
 
-            // Start from bottom link (only when more than 3 posts present on page)
-            $('<button>Review from bottom</button>')
-                .click(function() {
-                    reviewFromBottom = true;
-                    $(this).remove();
-                    $('.flagged-posts.moderator').css('margin-top', '600px');
-                    window.scrollTo(0,999999);
-                })
-                .prependTo('.flag-container');
+            const actionBtns = $('<div id="actionBtns"></div>');
 
             // Hide recent comments button
-            $('<button style="margin-right:10px;">Ignore new comments</button>')
+            $('<button>Ignore new comments</button>')
                 .click(function() {
                     $(this).remove();
                     let now = Date.now();
@@ -152,7 +145,30 @@
                         return $(this).children().children().length === 0;
                     }).parents('.flagged-post-row').remove();
                 })
-                .prependTo('.flag-container');
+                .appendTo(actionBtns);
+
+            // Start from bottom link (only when more than 3 posts present on page)
+            $('<button>Review from bottom</button>')
+                .click(function() {
+                    reviewFromBottom = true;
+                    $(this).remove();
+                    $('.flagged-posts.moderator').css('margin-top', '600px');
+                    window.scrollTo(0,999999);
+                })
+                .appendTo(actionBtns);
+
+            // Delete all comments left on page
+            if(superusers.includes(StackExchange.options.user.userId)) {
+                $('<button>Delete ALL</button>')
+                    .click(function() {
+                        $(this).remove();
+                        const visibleComments = $('.delete-comment:visible');
+                        visibleComments.click();
+                    })
+                    .appendTo(actionBtns);
+            }
+
+            actionBtns.prependTo('.flag-container');
         }
 
         // Convert urls in comments to clickable links that open in a new window
@@ -502,6 +518,9 @@ table.flagged-posts tr.flagged-post-row:first-child > td {
 .cmmt-chatty {
     font-weight: bold;
     color: coral;
+}
+#actionBtns button {
+    margin-right: 10px;
 }
 </style>
 `;
