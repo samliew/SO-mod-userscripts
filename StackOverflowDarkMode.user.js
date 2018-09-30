@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.4
+// @version      1.0.5
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -244,6 +244,17 @@ a.youarehere {
 }
 .bg-black-050 {
     background-color: ${bgcolor};
+}
+span.diff-delete {
+    background-color: #e5bdb2;
+    color: #a82400;
+}
+span.diff-add {
+    background-color: #d1e1ad;
+    color: #405a04;
+}
+.inserted > div {
+    background-color: #204a2e;
 }
 
 
