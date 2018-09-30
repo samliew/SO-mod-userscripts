@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.0.2
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -108,6 +108,10 @@ input[type="submit"]:hover,
 #footer {
     border-top: 1px solid ${bordercolor};
 }
+#tabs a:before,
+.tabs a:before {
+    background: transparent !important;
+}
 .top-bar .-logo,
 .top-bar .-logo span {
     background-color: white;
@@ -196,11 +200,54 @@ a.youarehere {
 .star-on {
     opacity: 1;
 }
+.new-post-activity,
+.new-answer-activity {
+    background-color: #888 !important;
+}
+.new-post-activity a,
+.new-answer-activity a {
+    background-color: transparent !important;
+}
 
 
 /* Dark mode for SOMU userscripts */
 .js-usercolor:after {
     opacity: 0.7;
+}
+.post-stickyheader {
+    background: #111;
+}
+.ctype-custom,
+.ctype-bad,
+.ctype-poor,
+.ctype-meh {
+    display: inline;
+    padding: 2px 5px 3px !important;
+    line-height: 1;
+    font-size: 10px;
+    font-style: normal;
+    border-radius: 2px;
+    color: white;
+}
+.ctype-custom {
+    background-color: #ffc;
+}
+.ctype-bad {
+    background-color: #ff2600;
+}
+.ctype-poor {
+    background-color: #ff9300;
+}
+.ctype-meh {
+    background-color: #999;
+}
+.delete-comment,
+.cancel-comment-flag,
+.skip-post {
+    background: #444;
+}
+.cancel-comment-flag .cancel-delete-comment-flag {
+    background-color: red;
 }
 
 
