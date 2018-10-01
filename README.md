@@ -314,6 +314,12 @@ These are highly recommended for everyone because they are too awesome:
 - Also enables fetch vote counts on posts in mod flag queue
 
 
+### [Fetch Question Stats](https://github.com/samliew/SO-mod-userscripts/blob/master/FetchQuestionStats.user.js)
+
+- Display number of comments on each post in question lists
+- For mod queues, additional info (recent revision history) is also retrieved
+
+
 
 <br>
 
@@ -474,12 +480,27 @@ These are highly recommended for everyone because they are too awesome:
 - Functionality to multi-select and perform bulk actions on search results
 
 
+### [Bulk Actions](https://github.com/samliew/SO-mod-userscripts/blob/master/BulkActions.user.js) ♦
+
+- Functionality to multi-select and perform bulk actions on search results
+
+
 ### [Mobile Moderator Pages](https://github.com/samliew/SO-mod-userscripts/blob/master/MobileModeratorPages.user.js)
 
 - Before/After *(screenshot redacted using RedactedScreenshots, and also running CommentFlagsHelper and CommentFlagTypeColours)*
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-31_110831-befaft.png)
 - Use new responsive menu
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/mod-responsive-nav.gif)
+
+
+### [Stack Overflow Dark Mode](https://github.com/samliew/SO-mod-userscripts/blob/master/StackOverflowDarkMode.user.js) ♦
+
+- Dark theme for Stack Overflow.
+- Some elements have reduced opacity until focused/mouseover (sidebar modules/images/timestamps). Some important colours are retained.
+- Code highlighting in darker colours
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-30_150956.png)
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-30_150953.png)
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-30_150909.png)
 
 
 ### [Chat Emojis](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatEmojis.user.js)
