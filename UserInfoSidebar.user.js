@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -46,11 +46,10 @@
 
             // Get user's mod dashboard page
             $.get('/users/account-info/' + uid, function(data) {
-                const $dataHtml = $(data);
-                const username = $(data).find('h1').first().get(0).childNodes[0].nodeValue;
+                const username = $('h1', data).first().get(0).childNodes[0].nodeValue.trim();
 
                 // Modify quicklinks and user details, then append to page
-                const $quicklinks = $dataHtml.find('div.mod-links').attr('id', 'usersidebar');
+                const $quicklinks = $('div.mod-links', data).attr('id', 'usersidebar');
                 const $modActions = $quicklinks.find('.mod-actions');
 
                 // Move contact links
@@ -60,12 +59,12 @@
                 $modActions.last().remove();
 
                 // Collapse headers on click
-                const $infoHeader = $quicklinks.find('.title-section').click(function() {
-                    $(this).nextAll('div,ul').first().slideToggle(150);
+                const $infoHeader = $quicklinks.find('h3').click(function() {
+                    $(this).nextAll('div, ul').first().slideToggle(150);
                 }).last().text(username).prependTo($quicklinks);
 
                 // Insert user details
-                const $info = $dataHtml.find('.mod-section .details').insertAfter($infoHeader);
+                const $info = $('.mod-section .details', data).insertAfter($infoHeader);
                 $info.children('.row').each(function() {
                     $(this).children().first().unwrap();
                 });
@@ -87,7 +86,7 @@
                 }
 
                 // Check if user is currently suspended, highlight username
-                const susMsg = $dataHtml.find('.system-alert').first().text();
+                const susMsg = $('.system-alert', data).first().text();
                 if(susMsg.indexOf('suspended') >= 0) {
                     const susDur = susMsg.split('ends')[1].replace(/(^\s|(\s|\.)+$)/g, '');
                     $quicklinks.find('h3').first().css({ color: 'red' }).attr('title', `currently suspended (ends ${susDur})`);
@@ -158,7 +157,8 @@
 .usersidebar-compact #usersidebar:after {
     top: 49px;
 }
-#usersidebar .title-section {
+#usersidebar h3 {
+    margin-bottom: 15px !important;
     cursor: pointer;
 }
 #usersidebar .details {
