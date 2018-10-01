@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.1
+// @version      3.0
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -27,11 +27,17 @@
     if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
 
 
-    let ajaxTimeout;
-    let reviewFromBottom = false;
+    jQuery.fn.lcTrimText = function() {
+        return this.first().text().trim().toLowerCase();
+    };
+
+
     const fkey = StackExchange.options.user.fkey;
     const newMins = 7 * 24 * 60 * 60000;
     const superusers = [ 584192 ];
+    let reviewFromBottom = false;
+    let $eventsTable, $eventsContainer, $events;
+    let ajaxTimeout;
 
     // Special characters must be escaped with \\
     const rudeKeywords = [
@@ -58,6 +64,95 @@
     function replaceKeywords(jqElem) {
         this.innerHTML = this.innerHTML.replace(rudeRegex, ' <span class="cmmt-rude">$1</span>');
         this.innerHTML = this.innerHTML.replace(chattyRegex, ' <span class="cmmt-chatty">$1</span>');
+    }
+
+
+    function filterPosts(filter) {
+        console.log(`Filter by: ${filter}`);
+
+        // Get sort function based on selected filter
+        let filterFn;
+        switch(filter) {
+
+            case 'rude':
+                filterFn = function(i, el) {
+                    return $(el).next('.text-row').find('.revision-comment, .deleted-info').lcTrimText().contains('rude');
+                };
+                break;
+
+            case 'unwelcoming':
+                filterFn = function(i, el) {
+                    return $(el).next('.text-row').find('.revision-comment, .deleted-info').lcTrimText().contains('unwelcoming');
+                };
+                break;
+
+            case 'nln':
+                filterFn = function(i, el) {
+                    return $(el).next('.text-row').find('.revision-comment, .deleted-info').lcTrimText().contains('no longer needed');
+                };
+                break;
+
+            case 'normal':
+                filterFn = function(i, el) {
+                    return $(el).next('.text-row').find('.revision-comment, .deleted-info').length === 0;
+                };
+                break;
+
+            case 'deleted':
+                filterFn = function(i, el) {
+                    return $(el).hasClass('deleted-row');
+                };
+                break;
+
+            case 'notdeleted':
+                filterFn = function(i, el) {
+                    return !$(el).hasClass('deleted-row');
+                };
+                break;
+
+            default:
+                filterFn = function(i, el) {
+                    return true;
+                };
+                break;
+        }
+
+        $events.addClass('dno').filter(filterFn).removeClass('dno');
+    }
+
+
+    function initCommentFilters() {
+
+        appendUserCommentsFilterstyles();
+
+        $eventsTable = $('table.admin-user-comments');
+        $eventsContainer = $eventsTable.find('tbody');
+        $events = $eventsContainer.find('.meta-row');
+
+        // Insert sort options
+        const $filterOpts = $(`<div id="user-comments-tabs" class="tabs">
+                <a data-filter="all" class="youarehere">Show All</a>
+                <a data-filter="rude">Rude or Offensive</a>
+                <a data-filter="unwelcoming">Unwelcoming</a>
+                <a data-filter="nln">No Longer Needed</a>
+                <a data-filter="normal">Unflagged</a>
+                <a data-filter="deleted">Deleted</a>
+                <a data-filter="notdeleted">Active</a>
+            </div>`)
+            .insertBefore($eventsTable);
+
+        // Filter options event
+        $('#user-comments-tabs').on('click', 'a[data-filter]', function() {
+            if($(this).hasClass('youarehere')) return false;
+
+            // Filter posts based on selected filter
+            filterPosts(this.dataset.filter);
+
+            // Update active tab highlight class
+            $(this).addClass('youarehere').siblings().removeClass('youarehere');
+
+            return false;
+        });
     }
 
 
@@ -269,6 +364,12 @@
 
             return false;
         });
+
+        // On user comments history page
+        if(location.pathname.includes('/admin/users/') && location.pathname.includes('/post-comments')) {
+
+            initCommentFilters();
+        }
     }
 
 
@@ -335,6 +436,25 @@
                   `<a data-post-id="${pid}" class="purge-comments-link comments-link red-mod-link" title="delete all comments">purge all</a></div>`;
             $('#comments-link-'+pid).append(commentActionLinks);
         });
+    }
+
+
+    function appendUserCommentsFilterstyles() {
+
+        const styles = `
+<style>
+table.admin-user-comments {
+    width: 100%;
+}
+#user-comments-tabs {
+    width: 100%;
+}
+.meta-row.dno + .text-row {
+    display: none;
+}
+</style>
+`;
+        $('body').append(styles);
     }
 
 
