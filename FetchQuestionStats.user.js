@@ -3,7 +3,7 @@
 // @description  Display number of comments on each post in question lists. For mod queues, additional info (recent revision history) is also retrieved.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -58,7 +58,7 @@
     function doPageLoad() {
 
         // Append statscontainer to posts in mod queues
-        $('.flagged-posts .flagged-post-row .post-summary-body').append(`<div class="statscontainer"></div>`);
+        $('.flagged-posts .flagged-post-row .post-summary').append(`<div class="statscontainer"></div>`);
 
         const modonly = location.pathname.includes('/admin/dashboard');
         const questions = $('#questions .question-summary, .flagged-posts .flagged-post-row');
@@ -120,7 +120,7 @@
     padding: 0;
     line-height: 1.3;
     text-align: left;
-    color: #848d95;
+    color: #333;
 }
 .flagged-post-row .statscontainer > div:last-child {
     margin-bottom: 0;
