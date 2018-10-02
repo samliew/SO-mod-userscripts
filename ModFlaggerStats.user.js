@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.7
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -199,29 +199,29 @@
 .flag-badge.elite {
     width: 12px;
     height: 12px;
-    background: #3cb371;
+    background: #3cb371 !important;
 }
 .flag-badge.gold {
-    background: #ffcc01;
+    background: #ffcc01 !important;
 }
 .flag-badge.silver {
-    background: #b4b8bc;
+    background: #b4b8bc !important;
 }
 .flag-badge.bronze {
-    background: #d1a684;
+    background: #d1a684 !important;
 }
 .flag-badge.wtf {
-    background: #ff0000;
+    background: #ff0000 !important;
 }
 .flag-badge.horrible {
-    background: #ff7777;
+    background: #ff7777 !important;
 }
 .flag-badge.hmmm {
-    background: #ffbbbb;
+    background: #ffbbbb !important;
 }
 .flag-badge.default {
     background: none;
-    border: 1px solid #aaa;
+    border: 1px solid #aaa !important;
 }
 .flag-badge.large {
     width: 20px;
@@ -235,7 +235,7 @@
     display: block;
     width: 8px;
     height: 0px;
-    border-top: 1px solid #aaa;
+    border-top: 1px solid #aaa !important;
     transform: rotateZ(-45deg);
 }
 .flag-badge.large:after {
