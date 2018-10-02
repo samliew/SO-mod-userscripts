@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.6
+// @version      1.0.7
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -15,7 +15,7 @@
     'use strict';
 
 
-    const textcolor = '#ddd';
+    const textcolor = '#ccc';
     const bgcolor = '#222';
     const btncolor = '#333';
     const bordercolor = '#555';
@@ -65,6 +65,7 @@ img,
     filter: brightness(0.8) saturate(90%);
 }
 button:hover,
+input[type="button"]:hover,
 input[type="submit"]:hover,
 .s-btn:hover, .btn:hover {
     background-color: ${btncolor};
@@ -118,6 +119,18 @@ ul.comments-list .comment:hover .comment-flagging {
 
 
 /* Specific elements */
+#sidebar a,
+#content #sidebar .community-bulletin .bulletin-item-content a,
+a.fc-medium,
+a.fc-dark {
+    color: inherit;
+}
+#sidebar a:hover,
+#content #sidebar .community-bulletin .bulletin-item-content a:hover,
+a.fc-medium:hover,
+a.fc-dark:hover {
+    color: white;
+}
 #content {
     border-right: none;
 }
@@ -174,9 +187,19 @@ ul.comments-list .comment > * {
 .question-summary .excerpt {
     color: #aaa;
 }
-.tags .post-tag {
+.post-tag,
+.tags .post-tag,
+.post-taglist .post-tag {
     background-color: ${btncolor};
     color: #aaa;
+}
+body > div[style*="absolute"],
+.tag-popup {
+    background-color: transparent;
+}
+.tag-popup .-container,
+.tag-popup .-container > * {
+    background-color: black;
 }
 .s-progress {
     background-color: #d6d9dc;
@@ -245,8 +268,17 @@ span.diff-add {
     background-color: #d1e1ad;
     color: #405a04;
 }
+img.diff-delete {
+    border-color: red;
+}
+img.diff-add {
+    border-color: #d1e1ad;
+}
 .inserted > div {
     background-color: #204a2e;
+}
+.profile-cards--graph {
+    background-image: none;
 }
 
 
