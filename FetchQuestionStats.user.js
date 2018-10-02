@@ -3,7 +3,7 @@
 // @description  Display number of comments on each post in question lists. For mod queues, additional info (recent revision history) is also retrieved.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.4
+// @version      1.0.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -87,7 +87,7 @@
                     const revs = revisions.filter(v => v.post_id === pid);
                     const revsSinceFlag = revs.filter(v => v.creation_date > flagDates[0]);
                     const statsContainer = $(this).find('.statscontainer');
-                    const flagCount = $(this).find('.bounty-indicator-tab').first().hide().text();
+                    const flagCount = $(this).find('.bounty-indicator-tab').hide().map((i, el) => Number(el.innerText)).get().reduce((a, c) => a + c);
 
                     if(revsSinceFlag.length > 0) {
                         statsContainer.append(`<div class="views warning"><a href="https://${location.hostname}/posts/${pid}/revisions" target="_blank" title="view revisions">modified ${revsSinceFlag.length} times since flagged</a></div>`);
