@@ -484,11 +484,6 @@ These are highly recommended for everyone because they are too awesome:
 - Functionality to multi-select and perform bulk actions on search results
 
 
-### [Bulk Actions](https://github.com/samliew/SO-mod-userscripts/blob/master/BulkActions.user.js) ♦
-
-- Functionality to multi-select and perform bulk actions on search results
-
-
 ### [Mobile Moderator Pages](https://github.com/samliew/SO-mod-userscripts/blob/master/MobileModeratorPages.user.js)
 
 - Before/After *(screenshot redacted using RedactedScreenshots, and also running CommentFlagsHelper and CommentFlagTypeColours)*
@@ -497,7 +492,7 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/mod-responsive-nav.gif)
 
 
-### [Stack Overflow Dark Mode](https://github.com/samliew/SO-mod-userscripts/blob/master/StackOverflowDarkMode.user.js) ♦
+### [Stack Overflow Dark Mode](https://github.com/samliew/SO-mod-userscripts/blob/master/StackOverflowDarkMode.user.js)
 
 - Dark theme for Stack Overflow.
 - Some elements have reduced opacity until focused/mouseover (sidebar modules/images/timestamps). Some important colours are retained.
