@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -254,16 +254,17 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
             })
 
             // Pin highlight on clicked user
-            .click(function() {
+            .click(function(evt, curruser) {
                 const uid = this.dataset.uid;
                 const isFocus = $(this).hasClass('focus');
                 userrows.removeClass('focus');
+                if(curruser) userrows.filter(`[data-uid=${uid}]`).addClass('curruser');
                 if(!isFocus) userrows.filter(`[data-uid=${uid}]`).addClass('focus');
             });
 
             // Select current user on page load
             const currUid = location.pathname.split('/').pop() || '';
-            $(`a[href$="/users/${currUid}"]`).first().closest('tr').triggerHandler('click');
+            $(`a[href$="/users/${currUid}"]`).first().closest('tr').triggerHandler('click', true);
         }
 
         // If on user votes page
@@ -410,6 +411,9 @@ tr[data-uid].active {
 }
 tr[data-uid].focus {
     background: #cfc;
+}
+tr[data-uid].curruser {
+    background: lawngreen;
 }
 .sorter th {
     cursor: pointer;
