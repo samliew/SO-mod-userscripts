@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1.2
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -47,6 +47,7 @@
 
     function listenToPageUpdates() {
         $(document).ajaxStop(addUserLinks);
+        $(document).on('moduserquicklinks', addUserLinks);
     }
 
 
