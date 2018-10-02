@@ -102,7 +102,8 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-02_210759.png)
 - Additional helpful links below for IP & username cross-referencing
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-09_080758.png)
-- When PII is loaded on user mod page, format the info in a textarea for easier copying into delete/destroy reason
+- When PII is loaded on user mod page, format the info in a textarea for easier copying into delete/destroy reason so it will look like this
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-10-03_081002-copy.png)
 
 
 ### [User History Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/UserHistoryImprovements.user.js) ♦
