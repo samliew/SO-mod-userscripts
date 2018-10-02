@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7
+// @version      2.7.1
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -110,6 +110,15 @@
             $('#load-flagger-stats').click();
         }
 
+        const getFlaggerWeights = function(el) {
+            return el.filter('.elite').length * 12 +
+                el.filter('.gold').length * 8 +
+                el.filter('.silver').length * 6 +
+                el.filter('.bronze').length * 3 +
+                el.filter('.default').length * 2 +
+                el.filter('.hmmm, .horrible, .wtf').length * 0.5;
+        };
+
         // Get sort function based on selected filter
         let sortFunction;
 
@@ -179,8 +188,8 @@
                     let aBadges = $(a).find('.flag-badge'),
                         bBadges = $(b).find('.flag-badge');
 
-                    let aScore = aBadges.filter('.elite').length * 10 + aBadges.filter('.gold').length * 8 + aBadges.filter('.silver').length * 6 + aBadges.filter('.bronze').length * 3 + aBadges.filter('.default').length * 2 + aBadges.filter('.hmmm, .horrible, .wtf').length * 0.5,
-                        bScore = bBadges.filter('.elite').length * 10 + bBadges.filter('.gold').length * 8 + bBadges.filter('.silver').length * 6 + bBadges.filter('.bronze').length * 3 + bBadges.filter('.default').length * 2 + bBadges.filter('.hmmm, .horrible, .wtf').length * 0.5;
+                    let aScore = getFlaggerWeights(aBadges),
+                        bScore = getFlaggerWeights(bBadges);
 
                     if(aScore == bScore) return 0;
                     return (aScore < bScore) ? 1 : -1;
