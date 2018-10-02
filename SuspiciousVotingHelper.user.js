@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -81,7 +81,7 @@
         let appstr = `*(there may also be other minor instances of targeted votes that are unknown to us, as we can only view votes between users if they are above a certain threshold)*`;
 
         // If template is selected
-        let flags, votesFrom, votesTo, votesFromInv, votesToInv;
+        let flags, votesFrom, votesTo, votesFromInv = [], votesToInv = [];
         $.when(
 
             // Load latest flagged posts and get mod flags that suggest suspicious voting
@@ -107,9 +107,11 @@
                 votesFrom = tables.first().find('.voters tbody tr').map(mapVotePatternItemsToObject).get();
                 votesTo = tables.last().find('.voters tbody tr').map(mapVotePatternItemsToObject).get();
 
-                const tablesInv = $('.cast-votes:last > td', data);
-                votesFromInv = tablesInv.first().find('.voters tbody tr').map(mapInvVotePatternItemsToObject).get();
-                votesToInv = tablesInv.last().find('.voters tbody tr').map(mapInvVotePatternItemsToObject).get();
+                if($('.cast-votes', data).length > 1) {
+                    const tablesInv = $('.cast-votes:last > td', data);
+                    votesFromInv = tablesInv.first().find('.voters tbody tr').map(mapInvVotePatternItemsToObject).get();
+                    votesToInv = tablesInv.last().find('.voters tbody tr').map(mapInvVotePatternItemsToObject).get();
+                }
             })
 
         ).then(function() {
