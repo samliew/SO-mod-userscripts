@@ -3,7 +3,7 @@
 // @description  Display number of comments on each post in question lists. For mod queues, additional info (recent revision history) is also retrieved.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.3
+// @version      1.0.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -71,7 +71,7 @@
                 const pid = Number(this.id.replace(/\D+/g, ''));
                 const cmmts = comments.filter(v => v.post_id === pid);
                 $(this).find('.statscontainer').append(modonly ?
-                     `<div class="views" title="${cmmts.length} recent comments"><a href="https://${location.hostname}/a/${pid}">${cmmts.length} comments<a/></div>` :
+                     `<div class="views" title="${cmmts.length} recent comments"><a href="https://${location.hostname}/a/${pid}">${cmmts.length} recent comments<a/></div>` :
                      `<div class="views" title="${cmmts.length} recent comments">${cmmts.length} cmmts</div>`);
             });
         })
@@ -87,7 +87,7 @@
                     const revs = revisions.filter(v => v.post_id === pid);
                     const revsSinceFlag = revs.filter(v => v.creation_date > flagDates[0]);
                     const statsContainer = $(this).find('.statscontainer');
-                    const flagCount = $(this).find('.bounty-indicator-tab').hide().text();
+                    const flagCount = $(this).find('.bounty-indicator-tab').first().hide().text();
 
                     if(revsSinceFlag.length > 0) {
                         statsContainer.append(`<div class="views warning"><a href="https://${location.hostname}/posts/${pid}/revisions" target="_blank" title="view revisions">modified ${revsSinceFlag.length} times since flagged</a></div>`);
