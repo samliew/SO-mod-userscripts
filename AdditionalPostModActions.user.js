@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.2
+// @version      0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -24,7 +24,105 @@
 
 
     const newlines = '\n\n';
+    const fkey = StackExchange.options.user.fkey;
     const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
+
+
+    function reloadWhenDone() {
+
+        // Triggers when all ajax requests have completed
+        $(document).ajaxStop(function() {
+            location.reload(true);
+        });
+    }
+
+
+    // Delete individual post
+    function deletePost(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/posts/${pid}/vote/10`,
+                data: {
+                    'fkey': fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+    // Undelete individual post
+    function undeletePost(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/posts/${pid}/vote/11`,
+                data: {
+                    'fkey': fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+
+
+    // Delete all comments on post
+    function deleteCommentsOnPost(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid == null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/posts/${pid}/delete-comments`,
+                data: {
+                    'fkey': fkey,
+                    'mod-actions': 'delete-comments'
+                }
+            })
+            .done(function(data) {
+                $('#comments-'+pid).remove();
+                $('#comments-link-'+pid).html('<b>Comments deleted.</b>');
+                resolve();
+            })
+            .fail(reject);
+        });
+    }
+
+
+    // Move all comments on post to chat
+    function moveCommentsOnPostToChat(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid == null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/posts/${pid}/move-comments-to-chat`,
+                data: {
+                    'fkey': fkey,
+                    'delete-moved-comments': 'true'
+                }
+            })
+            .done(function(data) {
+                $('#comments-'+pid).remove();
+                $('#comments-link-'+pid).html('<b>Comments moved to chat and purged.</b>');
+                resolve();
+            })
+            .fail(reject);
+        });
+    }
+
+
+    // Undelete and re-delete post (prevent user from undeleting)
+    function modUndelDelete(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid == null) { reject(); return; }
+
+            undeletePost(pid).then(function() {
+                deletePost(pid).then(resolve, reject);
+            }, reject);
+        });
+    }
 
 
     function updateModTemplates() {
@@ -46,27 +144,6 @@
         ).click();
 
         $('.popup-submit').click();
-    }
-
-
-    function appendDissociateLinkToPostActions() {
-
-        // Append link if it doesn't exist yet
-        $('.post-menu').each(function() {
-
-            if($(this).children('.dissociate-post-link').length === 0) {
-                const post = $(this).parents('.question, .answer');
-                const userlink = post.find('.user-info').last().find('a').not('.deleted-user').attr('href') || '';
-                const matches = userlink.match(/\/(\d+)\//);
-
-                // User not found, prob already deleted
-                if(userlink == null || matches == null) return;
-
-                const uid = Number(matches[0].replace(/\//g, ''));
-                const pid = post.attr('data-questionid') || post.attr('data-answerid');
-                $(this).append(`<span class="lsep">|</span><a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" title="contact CM to dissociate post" class="dissociate-post-link" target="_blank">dissociate</a>`);
-            }
-        });
     }
 
 
@@ -104,16 +181,11 @@
         // On any page update
         $(document).ajaxComplete(function(event, xhr, settings) {
 
-            appendDissociateLinkToPostActions();
-
             // If CM templates loaded on contact CM page, and action = dissocciate, update templates
             if(settings.url.includes('/admin/contact-cm/template-popup/') && location.pathname.includes('/admin/cm-message/create/') && getQueryParam('action') == 'dissociate') {
                 setTimeout(updateModTemplates, 200);
             }
         });
-
-        // Once on page load
-        appendDissociateLinkToPostActions();
     }
 
 
@@ -139,15 +211,22 @@
         $('.js-post-issues').not('.js-post-mod-menu').addClass('js-post-mod-menu').each(function() {
             const post = $(this).closest('.question, .answer');
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
+            const userlink = post.find('.post-layout .user-info:last .user-details a').first().attr('href');
+            const isModDeleted = post.find('.deleted-answer-info').text().includes('♦');
 
             // Create menu based on post type and state
             let menuitems = `<a data-action="move-comments">move comments to chat</a><a data-action="purge-comments">purge comments</a>`;
             menuitems += `<a data-action="toggle-protect">toggle protect</a>`;
-            menuitems += `<a data-action="mod-delete">mod-delete post</a>`;
+            menuitems += `<a data-action="mod-delete" class="${isModDeleted ? 'disabled' : ''}">mod-delete post</a>`;
             menuitems += `<a data-action="lock-dispute">lock - dispute (1d)</a>`;
             menuitems += `<a data-action="lock-offtopic">lock - offtopic (1d)</a>`;
             menuitems += `<a data-action="unlock">unlock</a>`;
-            menuitems += `<a data-action="dissociate">request dissociation</a>`;
+
+            if(userlink && /.*\/\d+\/.*/.test(userlink)) {
+                const uid = Number(userlink.match(/\/(\d+)\//)[0].replace(/\//g, ''));
+                menuitems += `<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" target="_blank">request dissociation</a>`;
+            }
+
             menuitems += `<div class="separator"></div>`;
             menuitems += `<a data-action="destroy-user">destroy spammer</a>`;
 
@@ -166,18 +245,41 @@
 
         // Handle mod actions menu link click
         $('#content').on('click', '.post-mod-menu a', function() {
-            const pid = Number(this.dataset.pid);
-            const action = this.dataset.action;
+
+            if($(this).hasClass('disabled')) return false;
+
+            const pid = Number(this.parentNode.dataset.pid);
             if(isNaN(pid)) return false;
+
+            const $post = $(this).closest('.answer, .question');
+            const action = this.dataset.action;
+            console.log(action);
+
+            function removePostFromModQueue() {
+                if(location.pathname.includes('/admin/dashboard') && location.href.includes('comment')) {
+                    $post.parents('.flagged-post-row').remove();
+                }
+            }
 
             switch(action) {
                 case 'move-comments':
+                    moveCommentsOnPostToChat(pid).then(function(v) {
+                        $post.find('.comments-list').html('');
+                        $post.find('.comments-link').prev().addBack().remove();
+                        removePostFromModQueue();
+                    });
                     break;
                 case 'purge-comments':
+                    deleteCommentsOnPost(pid).then(function(v) {
+                        $post.find('.comments-list').html('');
+                        $post.find('.comments-link').prev().addBack().remove();
+                        removePostFromModQueue();
+                    });
                     break;
                 case 'toggle-protect':
                     break;
                 case 'mod-delete':
+                    modUndelDelete(pid).then(reloadWhenDone);
                     break;
                 case 'lock-dispute':
                     break;
@@ -185,10 +287,10 @@
                     break;
                 case 'unlock':
                     break;
-                case 'dissociate':
-                    break;
                 case 'destroy-user':
                     break;
+                default:
+                    return true;
             }
 
             return false;
@@ -208,7 +310,6 @@
         $(document).ajaxComplete(function(event, xhr, settings) {
 
             appendPostModMenuLink();
-            appendDissociateLinkToPostActions();
 
             // If CM templates loaded on contact CM page, and action = dissocciate, update templates
             if(settings.url.includes('/admin/contact-cm/template-popup/') && location.pathname.includes('/admin/cm-message/create/') && getQueryParam('action') == 'dissociate') {
@@ -280,6 +381,11 @@
 }
 .post-mod-menu a:hover {
     background-color: #eee;
+}
+.post-mod-menu a.disabled {
+    background-color: #f3f3f3 !important;
+    color: #999 !important;
+    cursor: not-allowed;
 }
 .post-mod-menu .separator {
     display: block;
