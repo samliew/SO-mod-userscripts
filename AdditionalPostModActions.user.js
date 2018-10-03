@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2
+// @version      0.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -215,20 +215,29 @@
             const isModDeleted = post.find('.deleted-answer-info').text().includes('♦');
 
             // Create menu based on post type and state
-            let menuitems = `<a data-action="move-comments">move comments to chat</a><a data-action="purge-comments">purge comments</a>`;
-            menuitems += `<a data-action="toggle-protect">toggle protect</a>`;
-            menuitems += `<a data-action="mod-delete" class="${isModDeleted ? 'disabled' : ''}">mod-delete post</a>`;
-            menuitems += `<a data-action="lock-dispute">lock - dispute (1d)</a>`;
-            menuitems += `<a data-action="lock-offtopic">lock - offtopic (1d)</a>`;
-            menuitems += `<a data-action="unlock">unlock</a>`;
+            let menuitems = '';
+
+            menuitems += `<a data-action="convert-comment" title="only the post, under the question">convert post to comment</a>`; // A-only
+            menuitems += `<a data-action="convert-edit">convert post to edit</a>`; // A-only
+            menuitems += `<a data-action="toggle-protect">toggle protect</a>`; // Q-only
+            menuitems += `<a data-action="move-comments">move comments to chat</a>`; // when there are comments only
+            menuitems += `<a data-action="purge-comments">purge comments</a>`; // when there are comments only
+
+            menuitems += `<div class="separator"></div>`;
+
+            menuitems += `<a data-action="mod-delete" class="${isModDeleted ? 'disabled' : ''}">mod-delete post</a>`; // Not currently deleted by mod only
+            menuitems += `<a data-action="lock-dispute">lock - dispute (1d)</a>`; // unlocked-only
+            menuitems += `<a data-action="lock-offtopic">lock - offtopic (1d)</a>`; // unlocked-only
+            menuitems += `<a data-action="unlock">unlock</a>`; // L-only
 
             if(userlink && /.*\/\d+\/.*/.test(userlink)) {
                 const uid = Number(userlink.match(/\/(\d+)\//)[0].replace(/\//g, ''));
-                menuitems += `<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" target="_blank">request dissociation</a>`;
+                menuitems += `<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" target="_blank">request dissociation</a>`; // non-deleted user only
             }
 
             menuitems += `<div class="separator"></div>`;
-            menuitems += `<a data-action="destroy-user">destroy spammer</a>`;
+
+            menuitems += `<a data-action="destroy-user">destroy spammer</a>`; // low rep user only
 
             $(this).append(`
 <div class="grid--item s-btn s-btn__muted post-mod-menu-link" data-shortcut="O" title="Other mod actions">
