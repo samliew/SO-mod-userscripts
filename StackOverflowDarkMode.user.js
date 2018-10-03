@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.7
+// @version      1.0.8
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -147,7 +147,7 @@ a.fc-dark:hover {
     filter: none;
 }
 .f-select:before, .f-select:after {
-    border-color: #3b4045 transparent;
+    border-color: #bbb transparent;
 }
 .s-btn__muted.s-btn__outlined.s-btn__dropdown:after {
     border-color: currentColor transparent;
@@ -279,6 +279,10 @@ img.diff-add {
 }
 .profile-cards--graph {
     background-image: none;
+}
+a.comment-user.owner {
+    background-color: #E1ECF4;
+    color: #555;
 }
 
 
