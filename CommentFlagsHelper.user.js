@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.0.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -173,11 +173,11 @@
                 // Add links to user and comment history
                 modMessageContent
                     .append(`<div class="ra-userlinks">[ ` +
-                                `<a href="https://stackoverflow.com/users/${uid}" target="_blank">Profile</a> | ` +
-                                `<a href="https://stackoverflow.com/users/account-info/${uid}" target="_blank">Dashboard</a> | ` +
-                                `<a href="https://stackoverflow.com/users/history/${uid}?type=User+suspended" target="_blank">Susp. History</a> | ` +
-                                `<a href="https://stackoverflow.com/users/message/create/${uid}" target="_blank">Message/Suspend</a> | ` +
-                                `<a href="http://stackoverflow.com/admin/users/${uid}/post-comments?state=flagged" target="_blank">Comments</a>` +
+                                `<a href="https://${location.hostname}/users/${uid}" target="_blank">Profile</a> | ` +
+                                `<a href="https://${location.hostname}/users/account-info/${uid}" target="_blank">Dashboard</a> | ` +
+                                `<a href="https://${location.hostname}/users/history/${uid}?type=User+suspended" target="_blank">Susp. History</a> | ` +
+                                `<a href="https://${location.hostname}/users/message/create/${uid}" target="_blank">Message/Suspend</a> | ` +
+                                `<a href="http://${location.hostname}/admin/users/${uid}/post-comments?state=flagged" target="_blank">Comments</a>` +
                             ` ]</div>`);
 
                 // Move action button
@@ -323,7 +323,7 @@
 
             // Delete comment after a short delay
             setTimeout(function() {
-                $.post(`https://stackoverflow.com/posts/comments/${cid}/vote/10`, {
+                $.post(`https://${location.hostname}/posts/comments/${cid}/vote/10`, {
                     fkey: fkey
                 });
             }, 1000);
@@ -341,7 +341,7 @@
 
                 // Delete comments
                 $.post({
-                    url: `https://stackoverflow.com/admin/posts/${pid}/delete-comments`,
+                    url: `https://${location.hostname}/admin/posts/${pid}/delete-comments`,
                     data: {
                         'fkey': fkey,
                         'mod-actions': 'delete-comments'
