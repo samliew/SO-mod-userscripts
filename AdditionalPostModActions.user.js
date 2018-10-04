@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.4.1
+// @version      0.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -28,6 +28,13 @@
     const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
 
 
+    function goToPost(pid) {
+        if(typeof pid === 'undefined' || pid === null) { return; }
+
+        // If in mod queues, do not reload
+        if(location.pathname.includes('/admin/dashboard')) return false;
+        location.href = `https://${location.hostname}/q/${pid}`;
+    }
     function reloadPage() {
         // If in mod queues, do not reload
         if(location.pathname.includes('/admin/dashboard')) return false;
@@ -36,7 +43,13 @@
     function reloadWhenDone() {
 
         // Triggers when all ajax requests have completed
-        $(document).ajaxStop(reloadPage);
+        $(document).ajaxStop(function() {
+
+            // Stop subsequent calls
+            $(this).off("ajaxStop");
+
+            reloadPage();
+        });
     }
 
 
@@ -112,11 +125,31 @@
     function convertToComment(pid, targetId) {
         return new Promise(function(resolve, reject) {
             if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+            if(typeof targetId === 'undefined' || targetId === null) { reject(); return; }
 
             $.post({
                 url: `https://${location.hostname}/admin/posts/${pid}/convert-to-comment`,
                 data: {
                     'mod-actions': 'convert-to-comment',
+                    'duration': 1,
+                    'target-post-id': targetId,
+                    'fkey': fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+    // Convert to edit
+    function convertToEdit(pid, targetId) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+            if(typeof targetId === 'undefined' || targetId === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/posts/${pid}/convert-to-edit`,
+                data: {
+                    'mod-actions': 'convert-to-edit',
                     'duration': 1,
                     'target-post-id': targetId,
                     'fkey': fkey
@@ -347,6 +380,7 @@
                         post.find('.comments-list').html('');
                         post.find('.comments-link').prev().addBack().remove();
                         removePostFromModQueue();
+                        reloadPage();
                     });
                     break;
                 case 'purge-comments':
@@ -354,15 +388,22 @@
                         post.find('.comments-list').html('');
                         post.find('.comments-link').prev().addBack().remove();
                         removePostFromModQueue();
+                        reloadPage();
                     });
                     break;
                 case 'convert-comment':
                     undeletePost(pid).then(function() {
-                        convertToComment(pid, qid).then(reloadPage);
+                        convertToComment(pid, qid).then(function() {
+                            goToPost(qid);
+                        });
                     });
                     break;
                 case 'convert-edit':
-                    // needs undeletion first if deleted
+                    undeletePost(pid).then(function() {
+                        convertToEdit(pid, qid).then(function() {
+                            goToPost(qid);
+                        });
+                    });
                     break;
                 case 'toggle-protect': {
                         if(post.find('.question-status b').text().includes('protect')) unprotectPost(pid).then(reloadPage);
