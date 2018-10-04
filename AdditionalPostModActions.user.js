@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.4
+// @version      0.4.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -278,8 +278,8 @@
             // Create menu based on post type and state
             let menuitems = '';
 
-            menuitems += `<a data-action="move-comments">move comments to chat</a>`; // when there are comments only
-            menuitems += `<a data-action="purge-comments">purge comments</a>`; // when there are comments only
+            menuitems += `<a data-action="move-comments">move comments to chat</a>`; // when there are comments only?
+            menuitems += `<a data-action="purge-comments">purge comments</a>`; // when there are comments only?
 
             if(!isQuestion) { // A-only
                 menuitems += `<a data-action="convert-comment" title="only the post, under the question">convert post to comment</a>`;
@@ -337,22 +337,22 @@
 
             function removePostFromModQueue() {
                 if(location.pathname.includes('/admin/dashboard') && location.href.includes('comment')) {
-                    $post.parents('.flagged-post-row').remove();
+                    post.parents('.flagged-post-row').remove();
                 }
             }
 
             switch(action) {
                 case 'move-comments':
                     moveCommentsOnPostToChat(pid).then(function(v) {
-                        $post.find('.comments-list').html('');
-                        $post.find('.comments-link').prev().addBack().remove();
+                        post.find('.comments-list').html('');
+                        post.find('.comments-link').prev().addBack().remove();
                         removePostFromModQueue();
                     });
                     break;
                 case 'purge-comments':
                     deleteCommentsOnPost(pid).then(function(v) {
-                        $post.find('.comments-list').html('');
-                        $post.find('.comments-link').prev().addBack().remove();
+                        post.find('.comments-list').html('');
+                        post.find('.comments-link').prev().addBack().remove();
                         removePostFromModQueue();
                     });
                     break;
@@ -365,7 +365,7 @@
                     // needs undeletion first if deleted
                     break;
                 case 'toggle-protect': {
-                        if($post.find('.question-status b').text().includes('protect')) unprotectPost(pid).then(reloadPage);
+                        if(post.find('.question-status b').text().includes('protect')) unprotectPost(pid).then(reloadPage);
                         else protectPost(pid).then(reloadPage);
                     }
                     break;
