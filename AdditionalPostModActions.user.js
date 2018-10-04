@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.1
+// @version      0.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -28,12 +28,11 @@
     const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
 
 
+    const reloadPage = () => location.reload(true);
     function reloadWhenDone() {
 
         // Triggers when all ajax requests have completed
-        $(document).ajaxStop(function() {
-            location.reload(true);
-        });
+        $(document).ajaxStop(reloadPage);
     }
 
 
@@ -60,6 +59,42 @@
             $.post({
                 url: `https://${location.hostname}/posts/${pid}/vote/11`,
                 data: {
+                    'fkey': fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+
+
+    // Protect individual post
+    function protectPost(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/posts/${pid}/protect`,
+                data: {
+                    'mod-actions': 'protect',
+                    'duration': 1,
+                    'fkey': fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+    // Unprotect individual post
+    function unprotectPost(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/posts/${pid}/unprotect`,
+                data: {
+                    'mod-actions': 'unprotect',
+                    'duration': 1,
                     'fkey': fkey
                 }
             })
@@ -210,6 +245,7 @@
         // Append link to post sidebar if it doesn't exist yet
         $('.js-post-issues').not('.js-post-mod-menu').addClass('js-post-mod-menu').each(function() {
             const post = $(this).closest('.question, .answer');
+            const isQuestion = post.hasClass('question');
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
             const userlink = post.find('.post-layout .user-info:last .user-details a').first().attr('href');
             const isModDeleted = post.find('.deleted-answer-info').text().includes('♦');
@@ -217,11 +253,16 @@
             // Create menu based on post type and state
             let menuitems = '';
 
-            menuitems += `<a data-action="convert-comment" title="only the post, under the question">convert post to comment</a>`; // A-only
-            menuitems += `<a data-action="convert-edit">convert post to edit</a>`; // A-only
-            menuitems += `<a data-action="toggle-protect">toggle protect</a>`; // Q-only
             menuitems += `<a data-action="move-comments">move comments to chat</a>`; // when there are comments only
             menuitems += `<a data-action="purge-comments">purge comments</a>`; // when there are comments only
+
+            if(!isQuestion) { // A-only
+                menuitems += `<a data-action="convert-comment" title="only the post, under the question">convert post to comment</a>`;
+                menuitems += `<a data-action="convert-edit">convert post to edit</a>`;
+            }
+            else { // Q-only
+                menuitems += `<a data-action="toggle-protect">toggle protect</a>`;
+            }
 
             menuitems += `<div class="separator"></div>`;
 
@@ -261,6 +302,7 @@
             if(isNaN(pid)) return false;
 
             const $post = $(this).closest('.answer, .question');
+            const isQuestion = $post.hasClass('question');
             const action = this.dataset.action;
             console.log(action);
 
@@ -285,10 +327,13 @@
                         removePostFromModQueue();
                     });
                     break;
-                case 'toggle-protect':
+                case 'toggle-protect': {
+                        if($post.find('.question-status b').text().includes('protect')) unprotectPost(pid).then(reloadPage);
+                        else protectPost(pid).then(reloadPage);
+                    }
                     break;
                 case 'mod-delete':
-                    modUndelDelete(pid).then(reloadWhenDone);
+                    modUndelDelete(pid).then(reloadPage);
                     break;
                 case 'lock-dispute':
                     break;
