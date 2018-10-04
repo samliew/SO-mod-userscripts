@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3
+// @version      0.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -28,7 +28,11 @@
     const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
 
 
-    const reloadPage = () => location.reload(true);
+    function reloadPage() {
+        // If in mod queues, do not reload
+        if(location.pathname.includes('/admin/dashboard')) return false;
+        location.reload(true);
+    }
     function reloadWhenDone() {
 
         // Triggers when all ajax requests have completed
@@ -95,6 +99,26 @@
                 data: {
                     'mod-actions': 'unprotect',
                     'duration': 1,
+                    'fkey': fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+
+
+    // Convert to comment
+    function convertToComment(pid, targetId) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/posts/${pid}/convert-to-comment`,
+                data: {
+                    'mod-actions': 'convert-to-comment',
+                    'duration': 1,
+                    'target-post-id': targetId,
                     'fkey': fkey
                 }
             })
@@ -246,6 +270,7 @@
         $('.js-post-issues').not('.js-post-mod-menu').addClass('js-post-mod-menu').each(function() {
             const post = $(this).closest('.question, .answer');
             const isQuestion = post.hasClass('question');
+            const isDeleted = post.hasClass('deleted-answer');
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
             const userlink = post.find('.post-layout .user-info:last .user-details a').first().attr('href');
             const isModDeleted = post.find('.deleted-answer-info').text().includes('♦');
@@ -299,10 +324,14 @@
             if($(this).hasClass('disabled')) return false;
 
             const pid = Number(this.parentNode.dataset.pid);
-            if(isNaN(pid)) return false;
+            const qid = Number($('#question').attr('data-questionid') ||
+                               $(this).parents('.mod-post-header').find('.answer-hyperlink').attr('href').match(/\/(\d+)\//)[0].replace(/\//g, ''));
+            //console.log(pid, qid);
+            if(isNaN(pid) || isNaN(qid)) return false;
 
-            const $post = $(this).closest('.answer, .question');
-            const isQuestion = $post.hasClass('question');
+            const post = $(this).closest('.answer, .question');
+            const isQuestion = post.hasClass('question');
+            const isDeleted = post.hasClass('deleted-answer');
             const action = this.dataset.action;
             console.log(action);
 
@@ -326,6 +355,14 @@
                         $post.find('.comments-link').prev().addBack().remove();
                         removePostFromModQueue();
                     });
+                    break;
+                case 'convert-comment':
+                    undeletePost(pid).then(function() {
+                        convertToComment(pid, qid).then(reloadPage);
+                    });
+                    break;
+                case 'convert-edit':
+                    // needs undeletion first if deleted
                     break;
                 case 'toggle-protect': {
                         if($post.find('.question-status b').text().includes('protect')) unprotectPost(pid).then(reloadPage);
