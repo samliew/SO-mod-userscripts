@@ -117,8 +117,8 @@ Direct installation links (raw files)
 
 ## Beta/Development
 
-[Bulk Actions](https://github.com/samliew/SO-mod-userscripts/raw/master/BulkActions.user.js) ♦
-
 [Mobile Moderator Pages](https://github.com/samliew/SO-mod-userscripts/raw/master/MobileModeratorPages.user.js)
+
+[Stack Overflow Dark Mode](https://github.com/samliew/SO-mod-userscripts/raw/master/StackOverflowDarkMode.user.js)
 
 [Chat Emojis](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatEmojis.user.js)
