@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.5.1
+// @version      0.5.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -331,12 +331,8 @@
 
             if(userlink && /.*\/\d+\/.*/.test(userlink)) {
                 const uid = Number(userlink.match(/\/(\d+)\//)[0].replace(/\//g, ''));
-                menuitems += `<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" target="_blank">request dissociation</a>`; // non-deleted user only
+                menuitems += `<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" target="_blank" title="opens in a new window">request dissociation</a>`; // non-deleted user only
             }
-
-            menuitems += `<div class="separator"></div>`;
-
-            menuitems += `<a data-action="destroy-user">destroy spammer</a>`; // low rep user only
 
             $(this).append(`
 <div class="grid--item s-btn s-btn__muted post-mod-menu-link" data-shortcut="O" title="Other mod actions">
@@ -420,8 +416,6 @@
                 case 'lock-offtopic':
                     break;
                 case 'unlock':
-                    break;
-                case 'destroy-user':
                     break;
                 default:
                     return true;
