@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -38,7 +38,7 @@
                 $(`<div class="mod-userlinks">[
   <a href="${parentUrl}/users/account-info/${uid}" target="_blank">mod</a>
 | <a href="${parentUrl}/admin/show-user-votes/${uid}" target="_blank">votes</a>
-| <a href="${parentUrl}/admin/xref-user-ips/${uid}?daysback=0&threshold=3" target="_blank">xref</a>
+| <a href="${parentUrl}/admin/xref-user-ips/${uid}?daysback=30&threshold=2" target="_blank">xref</a>
 ]</div>`)
                     .insertAfter(this);
             });
