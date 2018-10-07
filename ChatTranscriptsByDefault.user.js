@@ -3,7 +3,7 @@
 // @description  Rewrites chat room links in comments to chat transcript, to avoid joining the room
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -28,7 +28,7 @@
 
         // For each link in comments, where url matches chat + rooms
         $('.comment-copy a')
-            .filter((i, el) => el.href.indexOf('chat.') >= 0 && el.href.indexOf('/rooms/') >= 0)
+            .filter((i, el) => el.href.includes('chat.') >= 0 && el.href.includes('/rooms/') && !el.href.includes('/info'))
             .attr('href', (i, v) => v.replace('/rooms/', '/transcript/'))
             .attr({
                 target: '_blank',
