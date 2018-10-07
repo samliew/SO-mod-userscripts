@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.5.2
+// @version      0.5.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -354,7 +354,7 @@
 
             const pid = Number(this.parentNode.dataset.pid);
             const qid = Number($('#question').attr('data-questionid') ||
-                               $(this).parents('.mod-post-header').find('.answer-hyperlink').attr('href').match(/\/(\d+)\//)[0].replace(/\//g, ''));
+                               $(this).parents('.mod-post-header').find('.answer-hyperlink, .question-hyperlink').attr('href').match(/\/(\d+)\//)[0].replace(/\//g, ''));
             //console.log(pid, qid);
             if(isNaN(pid) || isNaN(qid)) return false;
 
