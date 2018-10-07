@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -75,6 +75,9 @@
 
                 // Add history link to quicklinks, so you don't have to open the mod popup and switch tabs
                 $('.mod-quick-links', $quicklinks).prepend(`<li><a href="/users/history/${uid}">history</a></li>`);
+
+                // Add history link to quicklinks, so you don't have to open the mod popup and switch tabs
+                $quicklinks.find('a[href*="xref-user-ips"]').attr('href', (i, v) => v += '?daysback=30&threshold=2');
 
                 // If on meta,
                 if(StackExchange.options.site.isMetaSite) {
