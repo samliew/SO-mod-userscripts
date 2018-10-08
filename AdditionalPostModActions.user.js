@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.5.3
+// @version      0.5.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -304,14 +304,14 @@
             const post = $(this).closest('.question, .answer');
             const isQuestion = post.hasClass('question');
             const isDeleted = post.hasClass('deleted-answer');
+            const isModDeleted = post.find('.deleted-answer-info').text().includes('♦');
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
             const userlink = post.find('.post-layout .user-info:last .user-details a').first().attr('href');
-            const isModDeleted = post.find('.deleted-answer-info').text().includes('♦');
 
             // Create menu based on post type and state
             let menuitems = '';
 
-            menuitems += `<a data-action="move-comments">move comments to chat</a>`; // when there are comments only?
+            menuitems += `<a data-action="move-comments" class="${isDeleted ? 'disabled' : ''}">move comments to chat</a>`; // when there are comments only?
             menuitems += `<a data-action="purge-comments">purge comments</a>`; // when there are comments only?
 
             if(!isQuestion) { // A-only
