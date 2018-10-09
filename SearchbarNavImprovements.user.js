@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.8.2
+// @version      4.8.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -33,7 +33,7 @@
     const channel = StackExchange.options.site.routePrefix || '';
 
     const isChildMeta = typeof StackExchange.options.site.isChildMeta !== 'undefined';
-    const mainName = StackExchange.options.site.name.replace(/\bmeta\b/i, '').trim();
+    const mainName = StackExchange.options.site.name.replace(/\bmeta\b/i, '').replace(/\bStack Exchange\b/, '').trim();
     const mainUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
     const metaUrl = StackExchange.options.site.childUrl || 'https://' + location.hostname;
     const siteslug = location.hostname.split('.')[0];
