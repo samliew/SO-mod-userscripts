@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -81,8 +81,8 @@
         // Not a post ban question
         if(!hasDupeLink && !hasTags) return;
 
-        const qnsUrl = `https://${mainDomain}/search?q=user%3a${uid}%20is%3aquestion%20deleted%3a1%20score%3a..-1&tab=newest`;
-        const ansUrl = `https://${mainDomain}/search?q=user%3a${uid}%20is%3aanswer%20deleted%3a1%20score%3a..-1&tab=newest`;
+        const qnsUrl = `https://${mainDomain}/search?q=user%3a${uid}%20is%3aquestion%20deleted%3a1%20score%3a..0&tab=newest`;
+        const ansUrl = `https://${mainDomain}/search?q=user%3a${uid}%20is%3aanswer%20deleted%3a1%20score%3a..0&tab=newest`;
 
         ajaxPromise(qnsUrl)
             .then(function(data) {
@@ -99,7 +99,7 @@
                     stats.insertAfter(post).find('.meta-mentions').append(results);
 
                     const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
-                    const comment = $(`<textarea readonly="readonly">Deleted questions, score < 0: (${hyperlinks2.join(' ')})</textarea>`);
+                    const comment = $(`<textarea readonly="readonly">Deleted questions, score <= 0: (${hyperlinks2.join(' ')})</textarea>`);
                     comment.appendTo(stats);
                 }
             });
@@ -119,7 +119,7 @@
                     stats.insertAfter(post).find('.meta-mentions').append(results);
 
                     const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
-                    const comment = $(`<textarea readonly="readonly">Deleted answers, score < 0: (${hyperlinks2.join(' ')})</textarea>`);
+                    const comment = $(`<textarea readonly="readonly">Deleted answers, score <= 0: (${hyperlinks2.join(' ')})</textarea>`);
                     comment.appendTo(stats);
                 }
             });
