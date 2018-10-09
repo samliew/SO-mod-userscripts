@@ -38,10 +38,20 @@
             // If onebox type is a tweet, permalink is the last link in onebox
             if($(this).hasClass('ob-tweet')) url = $(this).find('a').last().attr('href');
 
+            const loadOneboxText = 'click to load onebox';
+            const hideOneboxText = 'click to hide onebox';
+            let isVisible = false;
             // Click placeholder to show onebox
-            $(`<span class="has-onebox" title="click to load onebox">${url}</span>`)
+            $(`<span class="has-onebox" title="${loadOneboxText}">${url}</span>`)
                 .click(function() {
-                    $(this).addClass('js-show-onebox');
+                    isVisible = !isVisible;
+                    if (isVisible) {
+                        $(this).addClass('js-show-onebox');
+                        $(this).attr('title', hideOneboxText);
+                    } else {
+                        $(this).removeClass('js-show-onebox');
+                        $(this).attr('title', loadOneboxText);
+                    }
                 }).insertBefore(this);
 
             // Also collapse user signature (use tiny-signature)
@@ -80,7 +90,7 @@
     cursor: zoom-in;
 }
 .js-show-onebox {
-    display: none;
+    cursor: zoom-out;
 }
 .js-show-onebox + .js-onebox-hidden {
     display: block !important;
