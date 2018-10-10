@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -345,14 +345,15 @@
             const isDeleted = post.hasClass('deleted-answer');
             const isModDeleted = post.find('.deleted-answer-info').text().includes('♦');
             const isLocked = post.find('.question-status').text().includes('locked by');
+            const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
             const userlink = post.find('.post-layout .user-info:last .user-details a').first().attr('href');
 
             // Create menu based on post type and state
             let menuitems = '';
 
-            menuitems += `<a data-action="move-comments" class="${isDeleted ? 'disabled' : ''}">move comments to chat</a>`; // when there are comments only?
-            menuitems += `<a data-action="purge-comments">purge comments</a>`; // when there are comments only?
+            menuitems += `<a data-action="move-comments" class="${isDeleted || !hasComments ? 'disabled' : ''}">move comments to chat</a>`; // when there are comments only?
+            menuitems += `<a data-action="purge-comments" class="${!hasComments ? 'disabled' : ''}">purge comments</a>`; // when there are comments only?
 
             if(!isQuestion) { // A-only
                 menuitems += `<a data-action="convert-comment" title="only the post, under the question">convert post to comment</a>`;
