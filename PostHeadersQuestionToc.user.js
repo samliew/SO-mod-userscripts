@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.6
+// @version      1.4
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -19,8 +19,21 @@
     'use strict';
 
 
+    const store = window.localStorage;
     const modflair = '<span class="mod-flair" title="moderator">♦</span>';
     const hasFixedHeader = $('.top-bar').hasClass('_fixed');
+
+
+    // Fetch and store last sort option
+    const delKeyRoot = 'PostToC-ShowDeleted';
+    function saveShowDeleted(val) {
+        if(typeof val === 'undefined' || val == null) return;
+        store.setItem(delKeyRoot, val);
+    }
+    function getShowDeleted() {
+        let val = store.getItem(delKeyRoot);
+        return val !== 'false';
+    }
 
 
     // (Promise) Get post timeline
@@ -157,6 +170,7 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
             const answers = $(v);
 
             let answerlist = '';
+            let deletedCount = 0;
             answers.each(function() {
                 const isDel = $(this).hasClass('deleted-event');
                 const postuser = $(this).find('.created-by a, .created-by').first();
@@ -175,11 +189,12 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
   <a href="/a/${pid}" class="post-hyperlink">${isPostuserDeleted ? '<span class="deleted-user">':''}${postusername}</a>
   ${datetime}
 </div>`;
+                if(isDel) deletedCount++;
             });
 
             const qtoc = $(`
 <div class="module sidebar-linked" id="qtoc">
-  <h4 id="qtoc-header">${v.length} Answers <span><input id="qtoc-toggle-del" type="checkbox" checked="checked" /><label for="qtoc-toggle-del">deleted?</label></span></h4>
+  <h4 id="qtoc-header">${v.length} Answers <span><input id="qtoc-toggle-del" type="checkbox" checked="checked" /><label for="qtoc-toggle-del" title="toggle deleted">${deletedCount} deleted</label></span></h4>
   <div class="linked">${answerlist}</div>
 </div>`);
 
@@ -198,9 +213,22 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
             // Remove chat and hot network questions as they take up a lot of sidebar real-estate
             $('#chat-feature, #hot-network-questions').hide();
 
-            $('#qtoc-toggle-del').click(function() {
-                $('#qtoc-header').next().find('.deleted-answer').toggle();
+            const deletedAnswersListitems = $('#qtoc-header').next().find('.deleted-answer');
+            const deletedAnswers = $('#answers .deleted-answer');
+
+            // Toggle checkbox event for deleted answers
+            const showDelBtn = $('#qtoc-toggle-del').click(function() {
+                const isChecked = $(this).is(':checked');
+                saveShowDeleted(isChecked);
+                deletedAnswersListitems.toggle(isChecked);
+                deletedAnswers.toggle(isChecked);
             });
+
+            // If user previously selected do not show deleted posts, hide them
+            if(!getShowDeleted()) showDelBtn.trigger('click');
+
+            // Put count of deleted answers next to total
+            $('#answers-header h2').append(`<span class="deleted-count">(${deletedCount} deleted)</span>`);
         });
     }
 
