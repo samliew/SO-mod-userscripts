@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.4.2
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -132,12 +132,12 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 
     function initTableOfContentsSidebar() {
 
-        const postsOnPage = $('.answer');
+        const postsOnPage = $('#answers > .answer');
         const qid = $('#question').attr('data-questionid');
         const sortby = $('#answers-header #tabs .youarehere').text().trim();
 
         // only if > x answers
-        if(postsOnPage.length <= 5) return;
+        //if(postsOnPage.length <= 5) return;
 
         getPostAnswers(qid).then(function(v) {
 
@@ -194,7 +194,7 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 
             const qtoc = $(`
 <div class="module sidebar-linked" id="qtoc">
-  <h4 id="qtoc-header">${v.length} Answers <span><input id="qtoc-toggle-del" type="checkbox" checked="checked" /><label for="qtoc-toggle-del" title="toggle deleted">${deletedCount} deleted</label></span></h4>
+  <h4 id="qtoc-header">${v.length} Answer${v.length > 1 ? 's' : ''} <span><input id="qtoc-toggle-del" type="checkbox" checked="checked" /><label for="qtoc-toggle-del" title="toggle deleted">${deletedCount} deleted</label></span></h4>
   <div class="linked">${answerlist}</div>
 </div>`);
 
@@ -214,7 +214,7 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
             $('#chat-feature, #hot-network-questions').hide();
 
             const deletedAnswersListitems = $('#qtoc-header').next().find('.deleted-answer');
-            const deletedAnswers = $('#answers .deleted-answer');
+            const deletedAnswers = postsOnPage.filter('.deleted-answer');
 
             // Toggle checkbox event for deleted answers
             const showDelBtn = $('#qtoc-toggle-del').click(function() {
