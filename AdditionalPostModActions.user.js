@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.5.4
+// @version      1.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -76,6 +76,45 @@
             $.post({
                 url: `https://${location.hostname}/posts/${pid}/vote/11`,
                 data: {
+                    'fkey': fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+
+
+    // Locks individual post
+    // Type: 20 - content dispute
+    //       21 - offtopic comments
+    function lockPost(pid, type, hours = 24) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+            if(typeof type === 'undefined' || type === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/posts/${pid}/lock`,
+                data: {
+                    'mod-actions': 'lock',
+                    'noticetype': type,
+                    'duration': hours,
+                    'fkey': fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+    // Unlock individual post
+    function unlockPost(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/posts/${pid}/unlock`,
+                data: {
+                    'mod-actions': 'unlock',
                     'fkey': fkey
                 }
             })
@@ -326,7 +365,7 @@
 
             menuitems += `<a data-action="mod-delete" class="${isModDeleted ? 'disabled' : ''}">mod-delete post</a>`; // Not currently deleted by mod only
             menuitems += `<a data-action="lock-dispute">lock - dispute (1d)</a>`; // unlocked-only
-            menuitems += `<a data-action="lock-offtopic">lock - offtopic (1d)</a>`; // unlocked-only
+            menuitems += `<a data-action="lock-comments">lock - comments (1d)</a>`; // unlocked-only
             menuitems += `<a data-action="unlock">unlock</a>`; // L-only
 
             if(userlink && /.*\/\d+\/.*/.test(userlink)) {
@@ -412,10 +451,13 @@
                     modUndelDelete(pid).then(reloadPage);
                     break;
                 case 'lock-dispute':
+                    lockPost(pid, 20).then(reloadPage);
                     break;
-                case 'lock-offtopic':
+                case 'lock-comments':
+                    lockPost(pid, 21).then(reloadPage);
                     break;
                 case 'unlock':
+                    unlockPost(pid).then(reloadPage);
                     break;
                 default:
                     return true;
