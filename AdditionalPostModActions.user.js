@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -344,6 +344,7 @@
             const isQuestion = post.hasClass('question');
             const isDeleted = post.hasClass('deleted-answer');
             const isModDeleted = post.find('.deleted-answer-info').text().includes('♦');
+            const isLocked = post.find('.question-status').text().includes('locked by');
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
             const userlink = post.find('.post-layout .user-info:last .user-details a').first().attr('href');
 
@@ -364,9 +365,9 @@
             menuitems += `<div class="separator"></div>`;
 
             menuitems += `<a data-action="mod-delete" class="${isModDeleted ? 'disabled' : ''}">mod-delete post</a>`; // Not currently deleted by mod only
-            menuitems += `<a data-action="lock-dispute">lock - dispute (1d)</a>`; // unlocked-only
-            menuitems += `<a data-action="lock-comments">lock - comments (1d)</a>`; // unlocked-only
-            menuitems += `<a data-action="unlock">unlock</a>`; // L-only
+            menuitems += `<a data-action="lock-dispute" class="${isLocked ? 'dno' : ''}">lock - dispute (1d)</a>`; // unlocked-only
+            menuitems += `<a data-action="lock-comments" class="${isLocked ? 'dno' : ''}">lock - comments (1d)</a>`; // unlocked-only
+            menuitems += `<a data-action="unlock" class="${!isLocked ? 'dno' : ''}">unlock</a>`; // L-only
 
             if(userlink && /.*\/\d+\/.*/.test(userlink)) {
                 const uid = Number(userlink.match(/\/(\d+)\//)[0].replace(/\//g, ''));
@@ -548,6 +549,9 @@
     padding-right: 48px;
     cursor: pointer;
     color: #202124;
+}
+.post-mod-menu a.dno {
+    display: none;
 }
 .post-mod-menu a:hover {
     background-color: #eee;
