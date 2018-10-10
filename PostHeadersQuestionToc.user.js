@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -24,7 +24,7 @@
     const hasFixedHeader = $('.top-bar').hasClass('_fixed');
 
 
-    // Fetch and store last sort option
+    // Fetch and store option
     const delKeyRoot = 'PostToC-ShowDeleted';
     function saveShowDeleted(val) {
         if(typeof val === 'undefined' || val == null) return;
