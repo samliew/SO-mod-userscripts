@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.0.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -438,7 +438,7 @@
                     undeletePost(pid).then(function() {
                         convertToComment(pid, qid).then(function() {
                             removePostFromModQueue();
-                            goToPost(qid);
+                            reloadPage();
                         });
                     });
                     break;
