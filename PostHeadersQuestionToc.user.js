@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.2
+// @version      1.4.3
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -136,8 +136,8 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
         const qid = $('#question').attr('data-questionid');
         const sortby = $('#answers-header #tabs .youarehere').text().trim();
 
-        // only if > x answers
-        //if(postsOnPage.length <= 5) return;
+        // If no answers, do nothing
+        if(postsOnPage.length == 0) return;
 
         getPostAnswers(qid).then(function(v) {
 
