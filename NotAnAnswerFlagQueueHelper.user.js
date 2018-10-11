@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7.1
+// @version      2.8
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -196,6 +196,20 @@
                 };
                 break;
 
+            case 'post-undeleted':
+                sortFunction = function(a, b) {
+                    let aUndel = $(a).find('.flag-row:not(.js-cleared) .revision-comment').text().includes('Post was undeleted by the author');
+                    return aUndel ? -1 : 0;
+                };
+                break;
+
+            case 'post-good-delete':
+                sortFunction = function(a, b) {
+                    let aDelv = $(a).find('.flag-row:not(.js-cleared) .revision-comment').text().includes('Post has a good score but received delete votes');
+                    return aDelv ? -1 : 0;
+                };
+                break;
+
             default:
                 location.reload(true);
                 return;
@@ -211,21 +225,37 @@
         $postsContainer = $('.flagged-post-row').first().parent();
         $posts = $('.flagged-post-row');
 
-        // Insert sort options
-        const $filterOpts = $(`<div id="flag-queue-tabs" class="tabs">
-                <a data-filter="default" class="youarehere">Default</a>
-                <a data-filter="self-answer" title="Self Answer">Self</a>
-                <a data-filter="poster-rep" title="Poster Rep">Rep</a>
-                <a data-filter="date-posted" title="Date Posted">Date</a>
-                <a data-filter="post-length" title="Post Length">Length</a>
-                <a data-filter="delete-votes" title="Delete Votes">Del. Votes</a>
-                <a data-filter="flag-count" title="Flag Count">Flags</a>
-                <a data-filter="flagger-rank" title="Flagger Rank (click to sort again after stats loaded)" class="dno">Flagger Rank</a>
-                <a data-toggle="q" title="Show Questions only">Q</a>
-                <a data-toggle="a" title="Show Answers only">A</a>
-                <a data-toggle="deleted" title="Show Deleted only">D</a>
-            </div>`);
-        $filterOpts.insertBefore('.flagged-posts.moderator');
+        let $filterOpts = $(`<div id="flag-queue-tabs" class="tabs"></div>`).insertBefore('.flagged-posts.moderator');
+
+        // If LQDisputed queue
+        if(location.search.includes('flagtype=reviewlowqualitydisputedauto')) {
+
+            initPurgeHelpful();
+
+            // Insert sort options
+            $filterOpts.append(`
+<a data-filter="default" class="youarehere">Default</a>
+<a data-filter="post-undeleted" title="Post was undeleted by the author">Undeleted by author</a>
+<a data-filter="post-good-delete" title="Post has a good score but received delete votes">Del. Votes</a>
+`);
+        }
+        else {
+
+            // Insert sort options
+            $filterOpts.append(`
+<a data-filter="default" class="youarehere">Default</a>
+<a data-filter="self-answer" title="Self Answer">Self</a>
+<a data-filter="poster-rep" title="Poster Rep">Rep</a>
+<a data-filter="date-posted" title="Date Posted">Date</a>
+<a data-filter="post-length" title="Post Length">Length</a>
+<a data-filter="delete-votes" title="Delete Votes">Del. Votes</a>
+<a data-filter="flag-count" title="Flag Count">Flags</a>
+<a data-filter="flagger-rank" title="Flagger Rank (click to sort again after stats loaded)" class="dno">Flagger Rank</a>
+<a data-toggle="q" title="Show Questions only">Q</a>
+<a data-toggle="a" title="Show Answers only">A</a>
+<a data-toggle="deleted" title="Show Deleted only">D</a>
+`);
+        }
 
         // Sort options event
         $('#flag-queue-tabs').on('click', 'a[data-filter]', function() {
@@ -246,11 +276,6 @@
 
             return false;
         });
-
-        // If LQDisputed queue
-        if(location.search.includes('flagtype=reviewlowqualitydisputedauto')) {
-            initPurgeHelpful();
-        }
     }
 
 
