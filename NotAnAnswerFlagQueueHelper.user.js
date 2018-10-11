@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8
+// @version      2.8.1
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -216,7 +216,9 @@
         }
 
         // Sort posts in-memory then reattach to container
-        $posts.sort(sortFunction).detach().appendTo($postsContainer);
+        $posts.filter(function() {
+            return $(this).find('.mod-message').is(':visible');
+        }).sort(sortFunction).detach().appendTo($postsContainer);
     }
 
 
