@@ -31,9 +31,15 @@
     function goToPost(pid) {
         if(typeof pid === 'undefined' || pid === null) { return; }
 
-        // If in mod queues, do not reload
-        if(location.pathname.includes('/admin/dashboard')) return false;
-        location.href = `https://${location.hostname}/q/${pid}`;
+        // If in mod queues, open in new tab/window
+        if(location.pathname.includes('/admin/dashboard')) {
+            const link = $(`<a href="https://${location.hostname}/q/${pid}" target="_blank" style="display:none !important;">&nbsp;</a>`).appendTo('body');
+            link[0].click();
+            link.remove();
+        }
+        else {
+            location.href = `https://${location.hostname}/q/${pid}`;
+        }
     }
     function reloadPage() {
         // If in mod queues, do not reload
@@ -406,7 +412,7 @@
             console.log(action);
 
             function removePostFromModQueue() {
-                if(location.pathname.includes('/admin/dashboard') && location.href.includes('comment')) {
+                if(location.pathname.includes('/admin/dashboard')) {
                     post.parents('.flagged-post-row').remove();
                 }
             }
