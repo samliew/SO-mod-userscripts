@@ -1,6 +1,6 @@
 // ==UserScript==
-// @name         Recently Rejected Suggested Edits
-// @description  New page to review recently rejected suggested edits
+// @name         Rejected Suggested Edits
+// @description  New page to review rejected suggested edits
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
 // @version      1.0
