@@ -3,7 +3,7 @@
 // @description  New page to review rejected suggested edits
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/review/suggested-edits*
 // @include      https://*serverfault.com/review/suggested-edits*
@@ -25,6 +25,8 @@
 
 
     const sitename = StackExchange.options.site.name.replace('Stack Exchange').trim();
+    const fkey = StackExchange.options.user.fkey;
+
     const resultsDiv = $(`<div id="reviews"></div>`);
     const pagerDiv = $(`<div class="pager fl"></div>`);
     let backoff = new Date();
@@ -32,6 +34,25 @@
 
     const getQueryParam = key => new URLSearchParams(location.search).get(key);
     const toDateFormat = d => d.toISOString().replace('T', ' ').replace('.000', '');
+
+
+    function getRedirectUrl(url, method = "GET") {
+        return new Promise(function(resolve, reject) {
+
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function(e) {
+                if (xhr.status == 200 && xhr.readyState == 4) {
+                    if (url != xhr.responseURL) {
+                        resolve(xhr.responseURL);
+                    } else {
+                        reject();
+                    }
+                }
+            }
+            xhr.open(method, url, true);
+            xhr.send();
+        });
+    }
 
 
     function buildPagination(max, page = 1, baseUrl = "", range = 5) {
@@ -107,8 +128,9 @@
                 const proposingUser = !v.proposing_user ? '<span class="userlink">anonymous</span>' :
                   `<a class="userlink" href="${v.proposing_user.link}" title="rep: ${v.proposing_user.reputation}, type: ${v.proposing_user.user_type}">${v.proposing_user.display_name}</a>`;
 
-                html += `<div class="review">
-  ${proposingUser}
+                html += `<div class="review review-bar-container">
+  <a href="/suggested-edits/${v.suggested_edit_id}" class="toggle" title="toggle review summary"></a>
+  <span class="userspan">${proposingUser}</span>
   <a href="/suggested-edits/${v.suggested_edit_id}">suggested edit</a>
   on <a href="/${posttype}/${v.post_id}" class="answer-hyperlink">${posttype}${v.post_id}</a>
   was rejected <span title="-" class="relativetime">${toDateFormat(rejectionDate)}</span>
@@ -155,13 +177,33 @@
 
         // Toggle time format
         $(`<a class="toggle-date-format">toggle format</a>`).insertBefore(resultsDiv).click(function() {
-            $('#reviews .relativetime').each(function(i, el) {
+            $('#reviews .review > .relativetime').each(function(i, el) {
                 // Switch title and text
                 const tmp = el.innerText;
                 el.innerText = el.title;
                 el.title = tmp;
             });
             StackExchange.realtime.updateRelativeDates();
+        });
+
+        // Toggle open review
+        resultsDiv.on('click', '.toggle', function() {
+            const rev = $(this).parent().toggleClass('open');
+            const url = $(this).attr('href');
+
+            if(rev.children('.review-info').length == 0) {
+                const infoDiv = $(`<div class="review-info review-bar"></div>`).appendTo(rev);
+                StackExchange.helpers.addSpinner(infoDiv[0]);
+
+                getRedirectUrl(`https://${location.hostname}` + url).then(function(v) {
+                    const rid = v.match(/\d+$/)[0];
+                    $.post(`https://${location.hostname}/review/next-task/` + rid, { 'taskTypeId': 1, 'fkey' : fkey }, function(data) {
+                        StackExchange.helpers.removeSpinner();
+                        infoDiv.append(`<div class="review-instructions infobox">${data.instructions}</div>`).append(`<div class="review-more-instructions">${data.moreInstructions}</div>`);
+                    });
+                });
+            }
+            return false;
         });
     }
 
@@ -195,22 +237,64 @@
 .review:nth-child(even) {
     background: #f6f6f6;
 }
-.userlink {
+.review .toggle {
+    content: '';
     display: inline-block;
-    min-width: 250px;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 6px 0 6px 9px;
+    border-color: transparent transparent transparent #999;
+    transform-origin: center;
+}
+.review .review-info {
+    display: none;
+}
+.review.open .toggle {
+    transform: rotateZ(90deg);
+}
+.review.open .review-info {
+    display: block;
+}
+.review .userspan {
+    display: inline-block;
+    min-width: 200px;
     text-align: right;
 }
-.answer-hyperlink {
+.review .userlink {
+    display: inline-block;
+}
+span.userlink {
+    font-style: italic;
+}
+.review .answer-hyperlink {
     display: inline-block;
     min-width: 71px;
     margin-bottom: 0;
 }
-.relativetime {
+.review > .relativetime {
     display: inline-block;
     min-width: 83px;
 }
-.relativetime:not([title$='Z']):before {
+.review .relativetime:not([title$='Z']):before {
     content: 'at ';
+}
+.review.review-bar-container {
+    margin-top: 0;
+}
+.review-bar-container .review-bar {
+    line-height: 1;
+    font-size: 1rem;
+}
+.review-instructions {
+    margin-left: 14px;
+    margin-top: 10px;
+}
+.review-bar-container .review-bar .review-more-instructions {
+    padding: 16px 14px 0px;
+}
+.pager, .toggle {
+    user-select: none;
 }
 </style>
 `;
