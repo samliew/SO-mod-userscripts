@@ -20,6 +20,7 @@ These are highly recommended for moderators. Minor changes to the UI/defaults ma
 - [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts#display-inline-comment-flag-history-)
 - [Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts#deleted-users-helper-)
 - [User History Improvements](https://github.com/samliew/SO-mod-userscripts#user-history-improvements-)
+- [Additional Post Mod Actions](https://github.com/samliew/SO-mod-userscripts#additional-post-mod-actions-)
 
 
 These are highly recommended for everyone because they are too awesome:
@@ -144,9 +145,13 @@ These are highly recommended for everyone because they are too awesome:
 - Highlight same users across IPxref table (hover/click to pin highlight)
 
 
-### [Post Dissociation Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/PostDissociationHelper.user.js) ♦
+### [Additional Post Mod Actions](https://github.com/samliew/SO-mod-userscripts/blob/master/AdditionalPostModActions.user.js) ♦
 
-- Helps mods to quickly compose a post dissociation request from posts
+- Adds a menu of quick mod-actions instead of having to wait for mod menu to load and having to select items in the mod menu
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/additional-post-mod-options.gif)
+- The items in the menu are disabled/hidden depending on context, and also slightly different options based on whether it's a Q or A
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-10-12_101048-combined.png)
+- Post dissociation link quickly composes a post dissociation request for post user with link of post inserted into dissociation message template
 
 
 ### [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/blob/master/PostTimelineFilters.user.js)
