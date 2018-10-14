@@ -3,7 +3,7 @@
 // @description  New page to review rejected suggested edits
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://*stackoverflow.com/review/suggested-edits*
 // @include      https://*serverfault.com/review/suggested-edits*
@@ -129,12 +129,11 @@
                   `<a class="userlink" href="${v.proposing_user.link}" title="rep: ${v.proposing_user.reputation}, type: ${v.proposing_user.user_type}">${v.proposing_user.display_name}</a>`;
 
                 html += `<div class="review review-bar-container">
-  <a href="/suggested-edits/${v.suggested_edit_id}" class="toggle" title="toggle review summary"></a>
-  <span class="userspan">${proposingUser}</span>
-  <a href="/suggested-edits/${v.suggested_edit_id}">suggested edit</a>
-  on <a href="/${posttype}/${v.post_id}" class="answer-hyperlink">${posttype}${v.post_id}</a>
-  was rejected <span title="-" class="relativetime">${toDateFormat(rejectionDate)}</span>
-</div>`;
+<a href="/suggested-edits/${v.suggested_edit_id}" class="toggle" title="toggle review summary"></a>
+<span class="userspan">${proposingUser}</span>
+<a href="/suggested-edits/${v.suggested_edit_id}">suggested edit</a>
+on <a href="/${posttype}/${v.post_id}" class="answer-hyperlink">${posttype}${v.post_id}</a>
+was rejected <span title="-" class="relativetime">${toDateFormat(rejectionDate)}</span></div>`;
             });
 
             resultsDiv.append(html);
@@ -212,9 +211,14 @@
                         StackExchange.helpers.removeSpinner();
                         infoDiv.append(`<div class="review-instructions infobox">${data.instructions}</div>`).append(`<div class="review-more-instructions">${data.moreInstructions}</div>`);
 
-                        const spamRejects = data.instructions.match(/defaces/g);
-                        if(spamRejects.length > 0) {
-                            infoDiv.before(`for <b>spam/vandalism</b> x${spamRejects.length}`);
+                        const spamRejects = data.instructions.match(/This edit defaces/g);
+                        if(spamRejects && spamRejects.length > 0) {
+                            infoDiv.before(`, for <b>spam/vandalism</b> x${spamRejects.length}`);
+                        }
+
+                        const drasticRejects = data.instructions.match(/This edit deviates from the original intent/g);
+                        if(drasticRejects && drasticRejects.length > 0) {
+                            infoDiv.before(`, for <b>drastic changes</b> x${drasticRejects.length}`);
                         }
                     });
                 });
@@ -274,7 +278,7 @@
 }
 .review .userspan {
     display: inline-block;
-    min-width: 200px;
+    min-width: 230px;
     text-align: right;
 }
 .review .userlink {
