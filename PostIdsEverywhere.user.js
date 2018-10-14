@@ -3,22 +3,19 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.4.2
 //
-// @match        https://stackoverflow.com/*
-// @match        https://serverfault.com/*
-// @match        https://superuser.com/*
-// @match        https://askubuntu.com/*
-// @match        https://mathoverflow.net/*
-//
-// @match        https://meta.stackoverflow.com/*
-// @match        https://meta.serverfault.com/*
-// @match        https://meta.superuser.com/*
-// @match        https://meta.askubuntu.com/*
-// @match        https://meta.mathoverflow.net/*
-// @match        https://meta.stackexchange.com/*
-//
+// @match        https://*stackoverflow.com/*
+// @match        https://*serverfault.com/*
+// @match        https://*superuser.com/*
+// @match        https://*askubuntu.com/*
+// @match        https://*mathoverflow.net/*
+// @match        https://stackapps.com/*
 // @match        *.stackexchange.com/*
+//
+// @exclude      */review*
+// @exclude      */tools*
+// @exclude      https://stackoverflow.com/c/*
 // ==/UserScript==
 
 (function() {
