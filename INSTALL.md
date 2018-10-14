@@ -17,8 +17,6 @@ Direct installation links (raw files)
 
 [User Review Ban Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/UserReviewBanHelper.user.js) ♦
 
-[Hide Viewed Posts](https://github.com/samliew/SO-mod-userscripts/raw/master/HideViewedPosts.user.js) ♦
-
 [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts/raw/master/DisplayInlineCommentFlagHistory.user.js) ♦
 
 [Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/DeletedUsersHelper.user.js) ♦
@@ -35,7 +33,7 @@ Direct installation links (raw files)
 
 [Suspicious Voting Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/SuspiciousVotingHelper.user.js) ♦
 
-[Post Dissociation Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/PostDissociationHelper.user.js) ♦
+[Additional Post Mod Actions](https://github.com/samliew/SO-mod-userscripts/raw/master/AdditionalPostModActions.user.js) ♦
 
 [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/raw/master/PostTimelineFilters.user.js)
 
@@ -67,6 +65,10 @@ Direct installation links (raw files)
 
 [Fetch Vote Counts Again](https://github.com/samliew/SO-mod-userscripts/raw/master/FetchVoteCountsAgain.user.js)
 
+[Fetch Question Stats](https://github.com/samliew/SO-mod-userscripts/raw/master/FetchQuestionStats.user.js)
+
+[Rejected Suggested Edits](https://github.com/samliew/SO-mod-userscripts/raw/master/RejectedSuggestedEdits.user.js)
+
 
 <br>
 
@@ -85,6 +87,8 @@ Direct installation links (raw files)
 [Chat More Magic Links](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatMoreMagicLinks.user.js)
 
 [Show Deleted Messages in Chat](https://github.com/samliew/SO-mod-userscripts/raw/master/ShowDeletedMessagesInChat.user.js) ♦
+
+[Chat Redact Messages](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatRedactMessages.user.js) ♦
 
 
 <br>
