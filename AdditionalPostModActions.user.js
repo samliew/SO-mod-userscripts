@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.3
+// @version      1.0.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -347,10 +347,11 @@
         // Append link to post sidebar if it doesn't exist yet
         $('.js-post-issues').not('.js-post-mod-menu').addClass('js-post-mod-menu').each(function() {
             const post = $(this).closest('.question, .answer');
+            const questionStatus = post.find('.question-status').text();
             const isQuestion = post.hasClass('question');
             const isDeleted = post.hasClass('deleted-answer');
-            const isModDeleted = post.find('.deleted-answer-info').text().includes('♦');
-            const isLocked = post.find('.question-status').text().includes('locked by');
+            const isModDeleted = post.find('.deleted-answer-info').text().includes('♦') || (questionStatus.includes('deleted') && questionStatus.includes('♦'));
+            const isLocked = questionStatus.includes('locked by');
             const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
             const userlink = post.find('.post-layout .user-info:last .user-details a').first().attr('href');
@@ -366,7 +367,7 @@
                 menuitems += `<a data-action="convert-edit">convert post to edit</a>`;
             }
             else { // Q-only
-                menuitems += `<a data-action="toggle-protect">toggle protect</a>`;
+                menuitems += `<a data-action="toggle-protect" class="${isDeleted || !hasComments ? 'disabled' : ''}">toggle protect</a>`;
             }
 
             menuitems += `<div class="separator"></div>`;
