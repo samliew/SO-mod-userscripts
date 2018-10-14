@@ -3,7 +3,7 @@
 // @description  New page to review rejected suggested edits
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/review/suggested-edits*
 // @include      https://*serverfault.com/review/suggested-edits*
@@ -27,6 +27,13 @@
     const sitename = StackExchange.options.site.name.replace('Stack Exchange').trim();
     const fkey = StackExchange.options.user.fkey;
 
+    const now = new Date();
+    let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    let yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    let oneyear = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const pad = str => ('0' + str).slice(-2);
+
     const resultsDiv = $(`<div id="reviews"></div>`);
     const pagerDiv = $(`<div class="pager fl"></div>`);
     let backoff = new Date();
@@ -34,6 +41,12 @@
 
     const getQueryParam = key => new URLSearchParams(location.search).get(key);
     const toDateFormat = d => d.toISOString().replace('T', ' ').replace('.000', '');
+    const toRelativeDate = d => {
+        return d > today ? pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds()) :
+               d > yesterday ? 'yesterday ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) :
+               d > oneyear ? months[d.getMonth()] + ' ' + d.getDate() :
+               toDateFormat(d);
+    };
 
 
     function getRedirectUrl(url, method = "GET") {
@@ -133,7 +146,7 @@
 <span class="userspan">${proposingUser}</span>
 <a href="/suggested-edits/${v.suggested_edit_id}">suggested edit</a>
 on <a href="/${posttype}/${v.post_id}" class="answer-hyperlink">${posttype}${v.post_id}</a>
-was rejected <span title="-" class="relativetime">${toDateFormat(rejectionDate)}</span></div>`;
+was rejected <span title="${toDateFormat(rejectionDate)}" class="relativetime">${toRelativeDate(rejectionDate)}</span></div>`;
             });
 
             resultsDiv.append(html);
@@ -294,7 +307,6 @@ span.userlink {
 }
 .review > .relativetime {
     display: inline-block;
-    min-width: 83px;
 }
 .review .relativetime:not([title$='Z']):before {
     content: 'at ';
