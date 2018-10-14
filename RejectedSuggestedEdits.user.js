@@ -3,7 +3,7 @@
 // @description  New page to review rejected suggested edits
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/review/suggested-edits*
 // @include      https://*serverfault.com/review/suggested-edits*
@@ -141,6 +141,9 @@
             StackExchange.realtime.updateRelativeDates();
 
             buildPagination(Math.ceil(data.total / data.page_size), data.page);
+
+            // Load anonymous details
+            $('span.userlink').parent().siblings('.toggle').trigger('preload');
         });
     }
 
@@ -187,12 +190,20 @@
         });
 
         // Toggle open review
-        resultsDiv.on('click', '.toggle', function() {
-            const rev = $(this).parent().toggleClass('open');
+        resultsDiv.on('click preload', '.toggle', function(evt) {
+            const preload = evt.type == 'preload';
+            const rev = $(this).parent();
             const url = $(this).attr('href');
+
+            if(!preload) {
+                rev.toggleClass('open');
+            }
 
             if(rev.children('.review-info').length == 0) {
                 const infoDiv = $(`<div class="review-info review-bar"></div>`).appendTo(rev);
+                if(preload) {
+                    infoDiv.hide();
+                }
                 StackExchange.helpers.addSpinner(infoDiv[0]);
 
                 getRedirectUrl(`https://${location.hostname}` + url).then(function(v) {
@@ -200,6 +211,11 @@
                     $.post(`https://${location.hostname}/review/next-task/` + rid, { 'taskTypeId': 1, 'fkey' : fkey }, function(data) {
                         StackExchange.helpers.removeSpinner();
                         infoDiv.append(`<div class="review-instructions infobox">${data.instructions}</div>`).append(`<div class="review-more-instructions">${data.moreInstructions}</div>`);
+
+                        const spamRejects = data.instructions.match(/defaces/g);
+                        if(spamRejects.length > 0) {
+                            infoDiv.before(`for <b>spam/vandalism</b> x${spamRejects.length}`);
+                        }
                     });
                 });
             }
@@ -254,7 +270,7 @@
     transform: rotateZ(90deg);
 }
 .review.open .review-info {
-    display: block;
+    display: block !important;
 }
 .review .userspan {
     display: inline-block;
