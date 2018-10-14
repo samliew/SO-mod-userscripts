@@ -3,7 +3,7 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=answerduplicateanswerauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=answerduplicateanswerauto*
@@ -48,7 +48,11 @@ async function waitForSOMU() {
 
     function doPageload() {
 
+        // Remove convert to comment buttons
+        $('.convert-to-comment').remove();
+
         $('.flagged-post-row').each(function() {
+
             // Add delete and comment button
             $('.delete-options', this).append(`<input type="button" class="rec-button js-delete-and-comment" data-post-id="${this.dataset.postId}" value="delete + comment" title="delete and add comment" />`);
         })
