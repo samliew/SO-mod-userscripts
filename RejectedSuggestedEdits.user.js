@@ -3,7 +3,7 @@
 // @description  New page to review rejected suggested edits
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://*stackoverflow.com/review/suggested-edits*
 // @include      https://*serverfault.com/review/suggested-edits*
@@ -170,7 +170,7 @@ was rejected <span title="${toDateFormat(rejectionDate)}" class="relativetime">$
     <div id="tabs">
         <a href="/review/suggested-edits/stats">stats</a>
         <a href="/review/suggested-edits/history">history</a>
-        <a href="/review/suggested-edits/history/rejects" class="youarehere">rejects</a>
+        <a href="/review/suggested-edits/history/rejected" class="youarehere">rejects</a>
         <a href="/review/suggested-edits">review</a>
     </div>
 </div>`).append(resultsDiv).append(pagerDiv);
@@ -253,7 +253,7 @@ was rejected <span title="${toDateFormat(rejectionDate)}" class="relativetime">$
             histlink.clone().removeClass('youarehere').attr('href', '/review/suggested-edits/history/rejected').text('rejects').insertAfter(histlink);
         }
         else if(location.pathname === '/admin/links') {
-            $('.content-page ul').first().append(`<li><a href="/review/suggested-edits/history/rejects">Rejected suggested edits</a></li>`);
+            $('.content-page ul').first().append('<li><a href="/review/suggested-edits/history/rejected">Rejected suggested edits</a></li>');
         }
 
     }
@@ -317,6 +317,9 @@ span.userlink {
 .review-bar-container .review-bar {
     line-height: 1;
     font-size: 1rem;
+}
+.review .ajax-loader {
+    margin: 15px;
 }
 .review-instructions {
     margin-left: 14px;
