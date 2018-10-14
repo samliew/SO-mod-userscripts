@@ -330,6 +330,19 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-10-01_121058.png)
 
 
+### [Rejected Suggested Edits](https://github.com/samliew/SO-mod-userscripts/blob/master/RejectedSuggestedEdits.user.js)
+
+- Adds new page `/review/suggested-edits/history/rejected`
+- Adds link to above page via mod links page (`/admin/links`) as well as Suggested Edits tabs
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/2a721b89-98a7-4781-99bf-0a52136aa6a2.png)
+- has toggle date format (like post timelines) and pagination
+- anonymous users are easy to spot because they are unlinked
+- click on left arrow toggle to display review summary
+- anonymous edits reviews are preloaded so we can detect whether they have spam rejection reasons
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/c52e1b6b-a09b-45b8-b987-e54fd9d9831c.png)
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/cac56371-d7c7-4927-9b19-9cb77ab0e1bb.png)
+
+
 
 <br>
 
