@@ -3,7 +3,7 @@
 // @description  New page to review rejected suggested edits
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.4
 //
 // @include      https://*stackoverflow.com/review/suggested-edits*
 // @include      https://*serverfault.com/review/suggested-edits*
@@ -26,6 +26,7 @@
 
     const sitename = StackExchange.options.site.name.replace('Stack Exchange').trim();
     const fkey = StackExchange.options.user.fkey;
+    const apikey = 'FHd6ejY4s4KDhL9VCWhkwQ((';
 
     const now = new Date();
     let today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -122,7 +123,7 @@
         resultsDiv.empty();
         StackExchange.helpers.addSpinner('#reviews');
 
-        $.get(`https://api.stackexchange.com/2.2/suggested-edits?page=${page}&pagesize=100&order=desc&sort=rejection&filter=!*KkBP6Je7loS9)xf&site=${location.hostname}`, function(data) {
+        $.get(`https://api.stackexchange.com/2.2/suggested-edits?page=${page}&pagesize=100&order=desc&sort=rejection&filter=!*KkBP6Je7loS9)xf&site=${location.hostname}&key=${apikey}`, function(data) {
             StackExchange.helpers.removeSpinner();
 
             // Store backoff value if found
