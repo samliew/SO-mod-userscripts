@@ -70,17 +70,6 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-24_140419.png)
 
 
-### [Hide Viewed Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/HideViewedPosts.user.js) ♦
-
-- Avoid posts in mod queue when already seen *and possibly handled by* another moderator
-
-
-### [Show Flags On Deleted Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/ShowFlagsOnDeletedPosts.user.js) ♦
-
-- Hide normal flags in flag queue and only show deleted posts
-- **Not recommended** - probably will roll this into another userscript with more filters/options in future
-
-
 ### [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts/blob/master/DisplayInlineCommentFlagHistory.user.js) ♦
 
 - Grabs post timelines and display comment flag counts beside post comments. This also permalinks to comment in post timeline
