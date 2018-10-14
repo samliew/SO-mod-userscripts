@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.8
+// @version      1.7.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -268,6 +268,21 @@
 
     function doPageLoad() {
 
+        findDeletedUsers();
+
+        $('.post-layout, .comments').on('mouseover', '.deleted-user', function() {
+            const userlink = $(this);
+            if(userlink.hasClass('deleted-username-loaded')) return;
+            userlink.addClass('deleted-username-loaded');
+
+            getDeletedUsername(this.dataset.uid)
+                .then(function(v) {
+                    userlink.after(`<div class="orig-username" title="display name before deletion">${v}</div>`);
+                });
+
+            return false;
+        });
+
         if(/\d+/.test(location.pathname) === false) return;
         const uid = Number(location.pathname.match(/\d+/)[0]);
         const userUrl = `/users/${uid}`;
@@ -322,21 +337,6 @@
         else if(location.pathname.indexOf('/admin/posts-by-deleted-user/') === 0) {
             initMultiPostsTable();
         }
-
-        findDeletedUsers();
-
-        $('.post-layout, .comments').on('mouseover', '.deleted-user', function() {
-            const userlink = $(this);
-            if(userlink.hasClass('deleted-username-loaded')) return;
-            userlink.addClass('deleted-username-loaded');
-
-            getDeletedUsername(this.dataset.uid)
-                .then(function(v) {
-                    userlink.after(`<div class="orig-username" title="display name before deletion">${v}</div>`);
-                });
-
-            return false;
-        });
     }
 
 
