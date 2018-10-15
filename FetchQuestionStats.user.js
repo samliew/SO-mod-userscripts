@@ -22,6 +22,8 @@
 
 
     const fkey = StackExchange.options.user.fkey;
+    const apikey = 'XpzQT9bIKj6zl5)ctj7j)w((';
+    const apikey2= '40LgmwObbfMGyfKA92qegg((';
     const timestampAt = daysago => Math.floor(new Date(Date.now() - daysago * 24 * 60 * 60 * 1000) / 1000);
 
 
@@ -30,7 +32,7 @@
         return new Promise(function(resolve, reject) {
             if(typeof arrPids === 'undefined' || arrPids === null || arrPids.length == 0) { reject(); return; }
 
-            $.get(`http://api.stackexchange.com/2.2/posts/${arrPids.join(';')}/comments?pagesize=100&fromdate=${timestampAt(daysago)}&order=desc&sort=creation&site=${location.hostname}&filter=!*JxbCg3rl-(BR7.w`)
+            $.get(`http://api.stackexchange.com/2.2/posts/${arrPids.join(';')}/comments?pagesize=100&fromdate=${timestampAt(daysago)}&order=desc&sort=creation&site=${location.hostname}&filter=!*JxbCg3rl-(BR7.w&key=${apikey}`)
                 .done(function(data) {
                     resolve(data.items);
                     return;
@@ -45,7 +47,7 @@
         return new Promise(function(resolve, reject) {
             if(typeof arrPids === 'undefined' || arrPids === null || arrPids.length == 0) { reject(); return; }
 
-            $.get(`http://api.stackexchange.com/2.2/posts/${arrPids.join(';')}/revisions?pagesize=100&fromdate=${timestampAt(daysago)}&site=${location.hostname}&filter=!SWJaJDLw60c6cEGmKi`)
+            $.get(`http://api.stackexchange.com/2.2/posts/${arrPids.join(';')}/revisions?pagesize=100&fromdate=${timestampAt(daysago)}&site=${location.hostname}&filter=!SWJaJDLw60c6cEGmKi&key=${apikey2}`)
                 .done(function(data) {
                     resolve(data.items);
                     return;
