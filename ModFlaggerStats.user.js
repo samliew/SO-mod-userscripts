@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.7.1
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -18,6 +18,8 @@
 // @include      https://*askubuntu.com/admin/dashboard*
 // @include      https://*mathoverflow.net/admin/dashboard*
 // @include      https://*.stackexchange.com/admin/dashboard*
+//
+// @exclude      *chat.*
 // ==/UserScript==
 
 (function() {
