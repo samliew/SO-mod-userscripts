@@ -3,7 +3,7 @@
 // @description  Dropdown list of migration targets displaying site icon/logo/header images and links to the selected site's on-topic page and mod list. Displays additional information for custom flagger for selected network site.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.4.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -14,6 +14,7 @@
 //
 // @exclude      *chat.*
 // @exclude      https://stackoverflow.com/c/*
+// @exclude      https://stackoverflow.com/jobs*
 // ==/UserScript==
 
 
