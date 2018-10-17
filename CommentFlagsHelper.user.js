@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0.1
+// @version      3.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -404,11 +404,13 @@
                 $(this).addClass('js-del-loaded').removeClass('dno');
 
                 // Remove default comment expander
-                $(this).next().find('.js-show-link.comments-link').prev().addBack().remove();
+                const elems = $(this).next().find('.js-show-link.comments-link').prev().addBack();
 
                 // Get all including deleted comments
                 const commentsUrl = `/posts/${postId}/comments?includeDeleted=true&_=${Date.now()}`;
-                $('#comments-'+postId).children('ul.comments-list').load(commentsUrl);
+                $('#comments-'+postId).children('ul.comments-list').load(commentsUrl, function() {
+                    elems.remove();
+                });
                 //console.log("Loading comments for " + postId);
             });
 
