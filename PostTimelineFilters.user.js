@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.4
+// @version      1.6.5
 //
 // @include      */posts*/timeline*
 // ==/UserScript==
@@ -154,7 +154,12 @@
         });
 
         // Hide votes (daily summary) is the new default
-        $('a#newdefault').click();
+        if(location.search.includes('filter=flags')) {
+            $('a[data-filter="only-flags"]').click();
+        }
+        else {
+            $('a#newdefault').click();
+        }
     }
 
 
