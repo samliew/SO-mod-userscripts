@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.4
+// @version      1.0.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -351,7 +351,7 @@
             const isQuestion = post.hasClass('question');
             const isDeleted = post.hasClass('deleted-answer');
             const isModDeleted = post.find('.deleted-answer-info').text().includes('♦') || (questionStatus.includes('deleted') && questionStatus.includes('♦'));
-            const isLocked = questionStatus.includes('locked by');
+            const isLocked = questionStatus.includes('locked');
             const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
             const userlink = post.find('.post-layout .user-info:last .user-details a').first().attr('href');
