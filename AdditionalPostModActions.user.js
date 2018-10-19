@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.5
+// @version      1.0.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -347,11 +347,12 @@
         // Append link to post sidebar if it doesn't exist yet
         $('.js-post-issues').not('.js-post-mod-menu').addClass('js-post-mod-menu').each(function() {
             const post = $(this).closest('.question, .answer');
-            const questionStatus = post.find('.question-status').text();
+            const postStatus = post.find('.special-status, .question-status').text();
             const isQuestion = post.hasClass('question');
             const isDeleted = post.hasClass('deleted-answer');
-            const isModDeleted = post.find('.deleted-answer-info').text().includes('♦') || (questionStatus.includes('deleted') && questionStatus.includes('♦'));
-            const isLocked = questionStatus.includes('locked');
+            const isModDeleted = post.find('.deleted-answer-info').text().includes('♦') || (postStatus.includes('deleted') && postStatus.includes('♦'));
+            const isMigrated = postStatus.includes('migrated');
+            const isLocked = isMigrated || postStatus.includes('locked');
             const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
             const userlink = post.find('.post-layout .user-info:last .user-details a').first().attr('href');
@@ -375,7 +376,7 @@
             menuitems += `<a data-action="mod-delete" class="${isModDeleted ? 'disabled' : ''}">mod-delete post</a>`; // Not currently deleted by mod only
             menuitems += `<a data-action="lock-dispute" class="${isLocked ? 'dno' : ''}">lock - dispute (1d)</a>`; // unlocked-only
             menuitems += `<a data-action="lock-comments" class="${isLocked ? 'dno' : ''}">lock - comments (1d)</a>`; // unlocked-only
-            menuitems += `<a data-action="unlock" class="${!isLocked ? 'dno' : ''}">unlock</a>`; // L-only
+            menuitems += `<a data-action="unlock" class="${!isLocked || isMigrated ? 'dno' : ''}">unlock</a>`; // L-only
 
             if(userlink && /.*\/\d+\/.*/.test(userlink)) {
                 const uid = Number(userlink.match(/\/(\d+)\//)[0].replace(/\//g, ''));
@@ -420,12 +421,14 @@
 
             switch(action) {
                 case 'move-comments':
-                    moveCommentsOnPostToChat(pid).then(function(v) {
-                        post.find('.comments-list').html('');
-                        post.find('.comments-link').prev().addBack().remove();
-                        removePostFromModQueue();
-                        reloadPage();
-                    });
+                    if(confirm('Really move comments to chat?')) {
+                        moveCommentsOnPostToChat(pid).then(function(v) {
+                            post.find('.comments-list').html('');
+                            post.find('.comments-link').prev().addBack().remove();
+                            removePostFromModQueue();
+                            reloadPage();
+                        });
+                    }
                     break;
                 case 'purge-comments':
                     deleteCommentsOnPost(pid).then(function(v) {
