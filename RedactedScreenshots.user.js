@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.4
+// @version      1.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -86,8 +86,10 @@
 
             // Set user link text
             // If not full redact, also keep mod diamond in comments
-            const modFlair = this.innerText.includes('♦') ? ' ♦' : '';
-            this.innerText = fullwipe ? "anon" : "anon-" + dataSet[uid] + modFlair;
+            const isComment = $(this).closest('.comment-body').length > 0;
+            const isMod = this.innerText.includes('♦') || $(this).nextAll().map((i, el) => $(el).text()).get().includes('♦');
+            const modFlair = isMod && isComment ? ' ♦' : '';
+            this.innerText = fullwipe ? "anon" : (isMod ? "mod" + modFlair : "anon-" + dataSet[uid]);
         });
 
         // Remove @ replies from beginning of comments
