@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.1
+// @version      2.8.2
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -199,14 +199,14 @@
             case 'post-undeleted':
                 sortFunction = function(a, b) {
                     let aUndel = $(a).find('.flag-row:not(.js-cleared) .revision-comment').text().includes('Post was undeleted by the author');
-                    return aUndel ? -1 : 0;
+                    return aUndel ? -1 : 1;
                 };
                 break;
 
             case 'post-good-delete':
                 sortFunction = function(a, b) {
                     let aDelv = $(a).find('.flag-row:not(.js-cleared) .revision-comment').text().includes('Post has a good score but received delete votes');
-                    return aDelv ? -1 : 0;
+                    return aDelv ? -1 : 1;
                 };
                 break;
 
