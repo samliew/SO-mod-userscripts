@@ -47,7 +47,8 @@
 html, body {
     min-width: 0;
 }
-body > * {
+body > *,
+table {
     max-width: 100% !important;
 }
 .container *, [style*='width']:not(input) {
