@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -13,7 +13,6 @@
 // @include      https://*.stackexchange.com/*
 //
 // @exclude      *chat.*
-// @exclude      https://stackoverflow.com/c/*
 // ==/UserScript==
 
 (function() {
