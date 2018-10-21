@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.2
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -265,6 +265,29 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
             // Select current user on page load
             const currUid = location.pathname.split('/').pop() || '';
             $(`a[href$="/users/${currUid}"]`).first().closest('tr').triggerHandler('click', true);
+
+            // Fix compare links that are on the same date, so we don't get the "to date precedes or equal to start date" error
+            $('a[href^="/admin/user-activity"]').each(function() {
+                const params = this.href.split('#')[1].split('|');
+                const date1 = params[0];
+                const date2 = params[1];
+                const users = params[2];
+                if(date1 == date2) {
+                    let y = Number(date1.split('/')[0]);
+                    let m = Number(date1.split('/')[1]);
+                    let d = Number(date1.split('/')[2]) - 1;
+                    if(d < 0) {
+                        d = 31;
+                        m -= 1;
+
+                        if(m < 0) {
+                            m = 12;
+                            y -= 1;
+                        }
+                    }
+                    this.href = `/admin/user-activity#${y}/${m}/${d}|${date2}|${users}`;
+                }
+            });
         }
 
         // If on user votes page
@@ -298,11 +321,12 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
                         };
                         break;
 
-                    case 2: // rep
+                    case 2: // num
                         sortFunction = function(a, b) {
-                            let aTxt = Number($(a).find('.vote-type').next().text().split(' / ')[0]),
-                                bTxt = Number($(b).find('.vote-type').next().text().split(' / ')[0]);
+                            let aTxt = Number(a.children[2].innerText.split(' / ')[0]),
+                                bTxt = Number(b.children[2].innerText.split(' / ')[0]);
 
+                            console.log(a.children[2].innerText, aTxt);
                             if(aTxt == bTxt) return 0;
                             return (aTxt < bTxt) ? 1 : -1;
                         };
@@ -410,10 +434,10 @@ tr[data-uid].active {
     background: #ffc;
 }
 tr[data-uid].focus {
-    background: #cfc;
+    background: #ffccf8;
 }
 tr[data-uid].curruser {
-    background: lawngreen;
+    background: #a2f370;
 }
 .sorter th {
     cursor: pointer;
