@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.1
+// @version      3.1.2
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -561,8 +561,9 @@ td.js-dashboard-row,
     margin-top: 150px;
 }
 .expander-arrow-small-hide {
-    transform: scale3d(2,2,1);
     margin-right: 10px;
+    transform: scale3d(2,2,1);
+    filter: brightness(0);
 }
 tr.message-divider > td:last-child {
     position: relative;
