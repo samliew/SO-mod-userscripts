@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat. Lightbox images that are displayed smaller than it's original size.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.3
+// @version      1.3.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -18,7 +18,7 @@
     'use strict';
 
 
-    const lbSelector = '.avatar a, .ob-image a, a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
+    const lbSelector = '.gravatar-wrapper-164 a, .ob-image a, a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
 
 
     jQuery.getCachedScript = function(url, callback) {
