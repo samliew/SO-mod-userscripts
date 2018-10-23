@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.5.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -19,8 +19,8 @@
     'use strict';
 
 
-    const ipRegex = /(?<=(?:\b|"|'))(\d{1,3})(\.\d{1,3}){3}(?=(?:\b|"|'))/g;
-    const emailRegex = /(?<=(?:\b|"|'))([^@\s]{1,3})([^@\s]+)@(\S+)\.([a-z]+)(?=(?:\b|"|'))/gi;
+    const ipRegex = /(\d{1,3})(\.\d{1,3}){3}(?=(?:\b|"|'))/g;
+    const emailRegex = /([^@\s]{1,3})([^@\s]+)@(\S+)\.([a-z]+)(?=(?:\b|"|'))/gi;
 
 
     function redactPii(i, elem) {
