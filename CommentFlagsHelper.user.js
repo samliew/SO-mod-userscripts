@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.2
+// @version      3.1.3
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -227,22 +227,6 @@
 
             const actionBtns = $('<div id="actionBtns"></div>');
 
-            // Hide recent comments button (week)
-            $('<button>Ignore week</button>')
-                .click(function() {
-                    $(this).remove();
-                    let now = Date.now();
-                    // Remove comments < oneweek
-                    $('.comment-link').filter(function() {
-                        return now - new Date($(this).children('.relativetime').attr('title')).getTime() <= oneweek;
-                    }).parent().parent().next().addBack().remove();
-                    // Remove posts without comment flags
-                    $('.comments').filter(function() {
-                        return $(this).children().children().length === 0;
-                    }).parents('.flagged-post-row').remove();
-                })
-                .appendTo(actionBtns);
-
             // Hide recent comments button (day)
             $('<button>Ignore day</button>')
                 .click(function() {
@@ -252,6 +236,22 @@
                     // Remove comments < oneday
                     $('.comment-link').filter(function() {
                         return now - new Date($(this).children('.relativetime').attr('title')).getTime() <= oneday;
+                    }).parent().parent().next().addBack().remove();
+                    // Remove posts without comment flags
+                    $('.comments').filter(function() {
+                        return $(this).children().children().length === 0;
+                    }).parents('.flagged-post-row').remove();
+                })
+                .appendTo(actionBtns);
+
+            // Hide recent comments button (week)
+            $('<button>Ignore week</button>')
+                .click(function() {
+                    $(this).remove();
+                    let now = Date.now();
+                    // Remove comments < oneweek
+                    $('.comment-link').filter(function() {
+                        return now - new Date($(this).children('.relativetime').attr('title')).getTime() <= oneweek;
                     }).parent().parent().next().addBack().remove();
                     // Remove posts without comment flags
                     $('.comments').filter(function() {
