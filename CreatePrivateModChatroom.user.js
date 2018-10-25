@@ -3,7 +3,7 @@
 // @description  One-click button to create private/mod chat room with user and grant write access
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.1
+// @version      0.3.2
 //
 // @include      https://chat.stackoverflow.com/users/*
 // @include      https://chat.stackexchange.com/users/*
@@ -23,9 +23,9 @@
     const superpingText = `get in this chatroom please (click the "join this room" orange button)`;
 
 
-    function addFullPageBlocker() {
+    function addFullPageBlocker(msg = "") {
         $('.ajax-blocker').remove();
-        $(`<div class="ajax-blocker"></div>`).appendTo('body');
+        $(`<div class="ajax-blocker">${msg}</div>`).appendTo('body');
     }
 
 
@@ -84,7 +84,7 @@
             $('.roomcard-xxl p').first().css('color', 'transparent');
 
             // Add spinner
-            addFullPageBlocker();
+            addFullPageBlocker("granting write access to user. please wait...");
 
             // Grant access to user
             $.post(`/rooms/setuseraccess/${roomId}`, {
@@ -152,7 +152,7 @@
         var styles = `
 <style>
 .ajax-blocker {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     right: 0;
@@ -161,6 +161,7 @@
     padding-top: calc(50vh - 1em);
     background: rgba(255,255,255,0.8);
     text-align: center;
+    color: #333;
     z-index: 99999;
 }
 .private-button {
