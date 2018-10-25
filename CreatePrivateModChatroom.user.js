@@ -3,7 +3,7 @@
 // @description  One-click button to create private/mod chat room with user and grant write access
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2
+// @version      0.2.1
 //
 // @include      https://chat.stackoverflow.com/users/*
 // @include      https://chat.stackexchange.com/users/*
@@ -47,7 +47,7 @@
             // Insert necessary fields into private form
             // The secret's in the "defaultAccess" and "noDupeCheck" params
             $('#fkey').clone().prependTo(pForm);
-            pForm.find('.button').val('create private room with user');
+            pForm.find('.button').val('create a private room with user');
             pForm.find('input[name="user"]').attr('name', 'description').val((i,v) => 'grant-write:' + v);
             pForm.find('input[name="q"]').attr('name', 'name').val(`Room for ${curruserName} and ${username}`);
             pForm.append(`
