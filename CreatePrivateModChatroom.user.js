@@ -3,7 +3,7 @@
 // @description  One-click button to create private/mod chat room with user and grant write access
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.2
+// @version      0.3
 //
 // @include      https://chat.stackoverflow.com/users/*
 // @include      https://chat.stackexchange.com/users/*
@@ -24,8 +24,8 @@
 
 
     function addFullPageBlocker() {
-        const el = $(`<div class="ajax-blocker"></div>`).appendTo('body');
-        StackExchange.helpers.addSpinner(el);
+        $('.ajax-blocker').remove();
+        $(`<div class="ajax-blocker"></div>`).appendTo('body');
     }
 
 
@@ -80,6 +80,9 @@
             // Simple validation
             if(!fkey || !roomId || !userId || !username) return;
 
+            // Remove from view
+            $('.roomcard-xxl p').first().css('color', 'transparent');
+
             // Add spinner
             addFullPageBlocker();
 
@@ -109,8 +112,7 @@
             const fkey = $('#fkey').val();
             const roomId = CHAT.CURRENT_ROOM_ID;
 
-            let superpingLoaded = false;
-            function findShowSuperping() {
+            let findShowSuperping = function() {
 
                 // Once only
                 if(superpingLoaded) return;
@@ -125,11 +127,16 @@
                 // Show superping button
                 const superpingBtn = $(`<a class="button superpinger" title="mod superping user">superping</a>`);
                 superpingBtn.click(function() {
+                    $(this).remove();
                     $.post(`/chats/${CHAT.CURRENT_ROOM_ID}/messages/new`, {
                         'fkey': fkey,
                         'text': `@@${userId} ${superpingText}`
                     });
+                    return false;
                 }).appendTo(msgs);
+
+                // Once only
+                findShowSuperping = function() { return; }
             }
 
             // On any page update
@@ -152,10 +159,12 @@
     top: 0;
     left: 0;
     right: 0;
-    botton: 0;
-    background: rgba(255,255,255,0.75);
+    bottom: 0;
+    padding: 0 25px;
+    padding-top: calc(50vh - 1em);
+    background: rgba(255,255,255,0.8);
     text-align: center;
-    padding-top: 50%;
+    z-index: 99999;
 }
 .private-button {
     background-color: darkred;
