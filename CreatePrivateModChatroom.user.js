@@ -3,7 +3,7 @@
 // @description  One-click button to create private/mod chat room with user and grant write access
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.1
+// @version      0.2.2
 //
 // @include      https://chat.stackoverflow.com/users/*
 // @include      https://chat.stackexchange.com/users/*
@@ -21,6 +21,12 @@
 
 
     const superpingText = `get in here please.`;
+
+
+    function addFullPageBlocker() {
+        const el = $(`<div class="ajax-blocker"></div>`).appendTo('body');
+        StackExchange.helpers.addSpinner(el);
+    }
 
 
     function doPageload() {
@@ -47,7 +53,7 @@
             // Insert necessary fields into private form
             // The secret's in the "defaultAccess" and "noDupeCheck" params
             $('#fkey').clone().prependTo(pForm);
-            pForm.find('.button').val('create a private room with user');
+            pForm.find('.button').addClass('private-button').val('create a private room with user');
             pForm.find('input[name="user"]').attr('name', 'description').val((i,v) => 'grant-write:' + v);
             pForm.find('input[name="q"]').attr('name', 'name').val(`Room for ${curruserName} and ${username}`);
             pForm.append(`
@@ -73,6 +79,9 @@
 
             // Simple validation
             if(!fkey || !roomId || !userId || !username) return;
+
+            // Add spinner
+            addFullPageBlocker();
 
             // Grant access to user
             $.post(`/rooms/setuseraccess/${roomId}`, {
@@ -107,8 +116,11 @@
                 if(superpingLoaded) return;
 
                 // look for user id message
-                const systemMsg = $('.message .content').filter((i, el) => /^\d+$/.test(el.innerText));
-                const userId = Number(systemMsg.text().trim());
+                const msgs = $('.message .content').filter((i, el) => /\d+$/.test(el.innerText));
+                const userId = Number(msgs.text().match(/\d+$/));
+
+                // Simple validation
+                if(!userId) return;
 
                 // Show superping button
                 const superpingBtn = $(`<a class="button superpinger" title="mod superping user">superping</a>`);
@@ -117,7 +129,7 @@
                         'fkey': fkey,
                         'text': `@@${userId} ${superpingText}`
                     });
-                }).appendTo(systemMsg);
+                }).appendTo(msgs);
             }
 
             // On any page update
@@ -135,6 +147,16 @@
 
         var styles = `
 <style>
+.ajax-blocker {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    botton: 0;
+    background: rgba(255,255,255,0.75);
+    text-align: center;
+    padding-top: 50%;
+}
 .private-button {
     background-color: darkred;
 }
