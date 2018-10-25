@@ -3,7 +3,7 @@
 // @description  One-click button to create private/mod chat room with user and grant write access
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3
+// @version      0.3.1
 //
 // @include      https://chat.stackoverflow.com/users/*
 // @include      https://chat.stackexchange.com/users/*
@@ -20,7 +20,7 @@
     if(!$('.topbar-menu-links').text().includes('♦') && $('#roomtitle span').attr('title').indexOf('Private') !== 0) return;
 
 
-    const superpingText = `get in here please.`;
+    const superpingText = `get in this chatroom please (click the "join this room" orange button)`;
 
 
     function addFullPageBlocker() {
@@ -114,11 +114,8 @@
 
             let findShowSuperping = function() {
 
-                // Once only
-                if(superpingLoaded) return;
-
-                // look for user id message
-                const msgs = $('.message .content').filter((i, el) => /\d+$/.test(el.innerText));
+                // look for user id message in first two messages
+                const msgs = $('.message .content').slice(0, 2).filter((i, el) => /\d+$/.test(el.innerText));
                 const userId = Number(msgs.text().match(/\d+$/));
 
                 // Simple validation
