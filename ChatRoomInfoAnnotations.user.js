@@ -3,7 +3,7 @@
 // @description  Display users' annotations in chat room info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://chat.stackoverflow.com/rooms/info/*
 // @include      https://chat.stackexchange.com/rooms/info/*
@@ -13,7 +13,7 @@
     'use strict';
 
     // Moderator check
-    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+    if(!$('.topbar-menu-links').text().includes('♦')) return;
 
 
     // Solution from https://stackoverflow.com/a/24719409/584192
