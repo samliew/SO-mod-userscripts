@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.6
+// @version      1.0.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -368,7 +368,7 @@
                 menuitems += `<a data-action="convert-edit">convert post to edit</a>`;
             }
             else { // Q-only
-                menuitems += `<a data-action="toggle-protect" class="${isDeleted || !hasComments ? 'disabled' : ''}">toggle protect</a>`;
+                menuitems += `<a data-action="toggle-protect" class="${isDeleted ? 'disabled' : ''}">toggle protect</a>`;
             }
 
             menuitems += `<div class="separator"></div>`;
@@ -565,11 +565,11 @@
     display: none;
 }
 .post-mod-menu a:hover {
-    background-color: #eee;
+    background-color: #e6e6e6;
 }
 .post-mod-menu a.disabled {
-    background-color: #f3f3f3 !important;
-    color: #999 !important;
+    background-color: #f6f6f6 !important;
+    color: #bbb !important;
     cursor: not-allowed;
 }
 .post-mod-menu .separator {
