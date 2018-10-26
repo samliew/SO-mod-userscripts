@@ -3,7 +3,7 @@
 // @description  One-click button to create private/mod chat room with user and grant write access
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.3
+// @version      0.3.4
 //
 // @include      https://chat.stackoverflow.com/users/*
 // @include      https://chat.stackexchange.com/users/*
@@ -99,7 +99,7 @@
                 // Then send a message into the room with the userId
                 $.post(`/chats/${roomId}/messages/new`, {
                     'fkey': fkey,
-                    'text': `*room created for user ${userId}*`
+                    'text': `*private room created with user ${userId}*`
                 });
 
                 // Then clear description, which will also reload page
