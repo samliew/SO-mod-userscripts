@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.9
+// @version      1.7.10
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -175,8 +175,9 @@
         });;
 
         // Action buttons
+        const btnDiv = $(`<div class="actions"></div>`).insertAfter(table);
         $(`<input type="button" class="action-btn" value="Delete selected" />`)
-            .insertAfter(table)
+            .appendTo(btnDiv)
             .click(function() {
                 let selPostIds = $('.selected-post').filter(':checked').map((i, v) => v.value).get();
                 if(selPostIds.length === 0) {
@@ -187,9 +188,8 @@
                 deletePosts(selPostIds);
                 reloadWhenDone();
             });
-
         $(`<input type="button" class="action-btn" value="Undelete selected" />`)
-            .insertAfter(table)
+            .appendTo(btnDiv)
             .click(function() {
                 let selPostIds = $('.selected-post').filter(':checked').map((i, v) => v.value).get();
                 if(selPostIds.length === 0) {
