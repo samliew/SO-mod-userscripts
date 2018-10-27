@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.7
+// @version      1.0.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -26,6 +26,7 @@
     const newlines = '\n\n';
     const fkey = StackExchange.options.user.fkey;
     const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
+    const isSO = location.hostname == 'stackoverflow.com';
 
 
     function goToPost(pid) {
@@ -55,6 +56,49 @@
             $(this).off("ajaxStop");
 
             reloadPage();
+        });
+    }
+
+
+    // Close individual post
+    // closeReason: 'TooBroad', 'OffTopic', 'Unclear', 'OpinionBased',
+    // if 'OffTopic', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec
+    function closeQuestionAsOfftopic(pid, closeReason = 'OffTopic', offtopicReasonId = null) {
+        return new Promise(function(resolve, reject) {
+            if(!isSO) { reject(); return; }
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+            if(typeof closeReason === 'undefined' || closeReason === null) { reject(); return; }
+            if(closeReason === 'OffTopic' && (typeof offtopicReasonId === 'undefined' || offtopicReasonId === null)) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/flags/questions/${pid}/close/add`,
+                data: {
+                    'fkey': fkey,
+                    'closeReasonId': closeReason,
+                    'closeAsOffTopicReasonId': offtopicReasonId,
+                    //'duplicateOfQuestionId': null,
+                    //'offTopicOtherText': '',
+                    //'offTopicOtherCommentId': '',
+                    //'originalOffTopicOtherText': ''
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+    // Reopen individual post
+    function reopenQuestion(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/flags/questions/${pid}/reopen/add`,
+                data: {
+                    'fkey': fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
         });
     }
 
