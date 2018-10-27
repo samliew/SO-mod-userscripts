@@ -3,7 +3,7 @@
 // @description  Add "Redact + Purge + Delete" button to message history page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -73,8 +73,8 @@
         // Other chat pages
         else {
 
-            // If fkey not already cached
-            if(cachedfkey == null && typeof window.fkey === 'function') {
+            // Always re-cache latest fkey if available
+            if(typeof window.fkey === 'function') {
 
                 // Cache fkey for use in message history page
                 store.setItem('fkey', window.fkey().fkey);
