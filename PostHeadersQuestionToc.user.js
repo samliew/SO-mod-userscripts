@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.1
+// @version      1.6.2
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -258,6 +258,11 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 .votecell .vote {
     position: sticky;
     top: 10px;
+    padding-bottom: 20px;
+    background-color: rgba(255,255,255,0.5);
+}
+.deleted-answer .votecell .vote {
+    background-color: rgba(244, 234, 234, 0.6);
 }
 .votecell .vote .message {
     min-width: 360px;
@@ -327,7 +332,9 @@ body:not(.no-grid-post-layout) .post-layout--full {
     grid-column: 2 / 3;
 }
 body:not(.no-grid-post-layout) .post-layout--full .question-status {
-    padding: 15px 12px 4px 18px;
+    position: relative;
+    left: -60px;
+    width: calc(100% + 60px);
 }
 #qtoc-header > span {
     float: right;
