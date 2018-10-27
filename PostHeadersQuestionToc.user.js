@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.6
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -323,6 +323,9 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 }
 
 /* Table of Contents Sidebar */
+body:not(.no-grid-post-layout) .post-layout--full {
+    grid-column: 2 / 3;
+}
 #qtoc-header > span {
     float: right;
     display: inline-block;
