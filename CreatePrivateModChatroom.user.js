@@ -3,7 +3,7 @@
 // @description  One-click button to create private/mod chat room with user and grant write access
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.4
+// @version      1.0
 //
 // @include      https://chat.stackoverflow.com/users/*
 // @include      https://chat.stackexchange.com/users/*
@@ -117,6 +117,9 @@
 
             let findShowSuperping = function() {
 
+                // This function shall be run once only
+                findShowSuperping = function() { return; }
+
                 // look for user id message in first two messages
                 const msgs = $('.message .content').slice(0, 2).filter((i, el) => /\d+$/.test(el.innerText));
                 const userId = Number(msgs.text().match(/\d+$/));
@@ -125,7 +128,8 @@
                 if(!userId) return;
 
                 // Show superping button
-                const superpingBtn = $(`<a class="button superpinger" title="mod superping user">superping</a>`);
+                // <i>&nbsp;</i> is a spacer so highlighting the uid doesn't select the button text as well
+                const superpingBtn = $(`<i>&nbsp;</i><a class="button superpinger" title="mod superping user">superping</a>`);
                 superpingBtn.click(function() {
                     $(this).remove();
                     $.post(`/chats/${CHAT.CURRENT_ROOM_ID}/messages/new`, {
@@ -134,9 +138,6 @@
                     });
                     return false;
                 }).appendTo(msgs);
-
-                // Once only
-                findShowSuperping = function() { return; }
             }
 
             // On any page update
@@ -147,6 +148,9 @@
                     findShowSuperping();
                 }
             });
+
+            // If messages were already loaded, immediately process
+            if($('.message .content').length > 0) findShowSuperping();
         }
     }
 
