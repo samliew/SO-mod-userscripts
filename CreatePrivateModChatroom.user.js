@@ -3,7 +3,7 @@
 // @description  One-click button to create private/mod chat room with user and grant write access
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.1
 //
 // @include      https://chat.stackoverflow.com/users/*
 // @include      https://chat.stackexchange.com/users/*
@@ -127,10 +127,10 @@
                 // Simple validation
                 if(!userId) return;
 
-                // Show superping button
+                // Show profile and superping button
                 // <i>&nbsp;</i> is a spacer so highlighting the uid doesn't select the button text as well
-                const superpingBtn = $(`<i>&nbsp;</i><a class="button superpinger" title="mod superping user">superping</a>`);
-                superpingBtn.click(function() {
+                const inlineButtons = $(`<span class="inline-buttons">&nbsp;<a href="https://${location.hostname}/users/${userId}" target="_blank" class="button" title="view chat profile">profile</a><a class="button superpinger" title="mod superping user">superping</a></span>`);
+                inlineButtons.on('click', '.superpinger', function() {
                     $(this).remove();
                     $.post(`/chats/${CHAT.CURRENT_ROOM_ID}/messages/new`, {
                         'fkey': fkey,
@@ -178,7 +178,7 @@
 .private-button {
     background-color: darkred;
 }
-.superpinger {
+.inline-buttons .button {
     margin-left: 10px;
 }
 </style>
