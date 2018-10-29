@@ -395,6 +395,15 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-14_120923.png)
 
 
+### [Create Private Mod Chatroom](https://github.com/samliew/SO-mod-userscripts/blob/master/CreatePrivateModChatroom.user.js) ♦
+
+- One-click button to create private mod chatroom from user chat profile, and then grants the user write access immediately after
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-10-29_111028.png)
+- When entering this room, add view chat profile and superping buttons in message
+- Clicking on superping button will generate a superping with instructions on how to join the room (because inbox only links to room transcript, and new users may not know what to do)
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-10-29_111052.png)
+
+
 
 <br>
 
@@ -510,6 +519,7 @@ These are highly recommended for everyone because they are too awesome:
 
 - Allows users to insert unicode emojis into chat
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-13_160947.png)
-- If chat messages contains just a single emoji, increase size slightly
+- If chat messages contains just a single emoji, increase size
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-10-29_111015.png)
 
 
