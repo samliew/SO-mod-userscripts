@@ -3,7 +3,7 @@
 // @description  Dropdown list of migration targets displaying site icon/logo/header images and links to the selected site's on-topic page and mod list. Displays additional information for custom flagger for selected network site.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.1
+// @version      2.4.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -151,10 +151,11 @@
         let flaggerUid, flaggerName;
 
         // Detect flagger and suggested site(s)
+        const modQueueFlags = anywhere.parents('.flagged-post-row').find('.flag-row:not(.js-cleared)');
         const flags = $('.active-flag').filter((i,el) => /\b(migrated?|moved?|site)\b/i.test(el.innerText) || $(el).find('a').length != 0);
-        const suggestedSite = flags.map(function(i,el) {
+        const suggestedSite = modQueueFlags.add(flags).map(function(i,el) {
             const flagtext = el.innerText.toLowerCase();
-            const site = networkSites.filter(v => flagtext.contains(v.name.toLowerCase().replace('&amp;', '&')) || flagtext.contains(v.site_url.replace('https://', '')) );
+            const site = networkSites.filter(v => flagtext.contains(v.name.toLowerCase().replace('&amp;', '&')) || flagtext.contains(v.site_url.replace('https://', '').replace(/\.[a-z]+/gi, '')) );
             return site.length > 0 ? {
                 elem: $(el),
                 name: site[0].name,
@@ -176,9 +177,11 @@
         const siteDesc = $(`<div id="site-desc"><div>none selected</div></div>`);
         const siteDropdown = $(`<select id="network-site-selector" class="js-chosen-select" data-placeholder="-- select site --"><option value="">-- select site --</option></select>`).insertAfter(siteTargetField).after(siteDesc)
             .on('change', function(evt) {
+                if(evt.target.selectedIndex < 0) return;
+
                 const sOpt = evt.target.options[evt.target.selectedIndex];
                 const sValue = $(this).val();
-                const sUrl = sOpt.dataset.url.replace('https://', '');
+                const sUrl = (sOpt.dataset.url || "").replace('https://', '');
                 const sSlug = sOpt.dataset.slug;
                 const valid = sValue !== '';
 
