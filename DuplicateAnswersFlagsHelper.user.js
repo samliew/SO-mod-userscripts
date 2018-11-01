@@ -3,7 +3,7 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=answerduplicateanswerauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=answerduplicateanswerauto*
@@ -93,7 +93,7 @@ async function waitForSOMU() {
                 .click(function() {
                     $(this).remove();
                     const visibleItems = $('.js-delete-and-comment:visible');
-                    $('body').showAjaxProgress(visibleItems.length * 2);
+                    $('body').showAjaxProgress(visibleItems.length * 2, { position: 'fixed' });
                     visibleItems.click();
                 })
                 .appendTo(actionBtns);
