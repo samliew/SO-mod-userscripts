@@ -3,7 +3,7 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.4
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=answerduplicateanswerauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=answerduplicateanswerauto*
@@ -11,6 +11,8 @@
 // @include      https://*askubuntu.com/admin/dashboard?flagtype=answerduplicateanswerauto*
 // @include      https://*mathoverflow.net/admin/dashboard?flagtype=answerduplicateanswerauto*
 // @include      https://*.stackexchange.com/admin/dashboard?flagtype=answerduplicateanswerauto*
+//
+// @require      https://raw.githubusercontent.com/samliew/ajax-progress/master/jquery.ajaxProgress.js
 // ==/UserScript==
 
 
@@ -31,6 +33,7 @@ async function waitForSOMU() {
 
     const scriptName = GM_info.script.name;
     const fkey = StackExchange.options.user.fkey;
+    const superusers = [ 584192, 563532, 3956566 ];
     let duplicateComment = `Please [don't post identical answers to multiple questions](https://meta.stackexchange.com/q/104227). Instead, tailor the answer to the question asked. If the questions are exact duplicates of each other, please vote/flag to close instead.`;
 
 
@@ -81,6 +84,20 @@ async function waitForSOMU() {
             $(this).hide();
             $post.hide();
         });
+
+        const actionBtns = $('<div id="actionBtns"></div>').prependTo('.flag-container');
+
+        // Delete + Comment ALL
+        if(superusers.includes(StackExchange.options.user.userId)) {
+            $('<button>Delete + Comment ALL</button>')
+                .click(function() {
+                    $(this).remove();
+                    const visibleItems = $('.js-delete-and-comment:visible');
+                    $('body').showAjaxProgress(visibleItems.length * 2);
+                    visibleItems.click();
+                })
+                .appendTo(actionBtns);
+        }
     }
 
 
@@ -88,6 +105,13 @@ async function waitForSOMU() {
 
         const styles = `
 <style>
+#actionBtns {
+    margin-bottom: 10px;
+}
+#actionBtns button {
+    margin-right: 10px;
+}
+
 .rec-button {
     border-color: red !important;
 }
