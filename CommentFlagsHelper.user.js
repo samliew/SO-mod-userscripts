@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2.1
+// @version      3.2.2
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -37,7 +37,7 @@
     const fkey = StackExchange.options.user.fkey;
     const oneday = 24 * 60 * 60000;
     const oneweek = 7 * oneday;
-    const superusers = [ 584192 ];
+    const superusers = [ 584192, 563532, 3956566 ];
     let reviewFromBottom = false;
     let $eventsTable, $eventsContainer, $events;
     let ajaxTimeout;
@@ -669,6 +669,10 @@ table.flagged-posts tr.flagged-post-row:first-child > td {
 .cmmt-chatty {
     font-weight: bold;
     color: coral;
+}
+
+#actionBtns {
+    margin-bottom: 10px;
 }
 #actionBtns button {
     margin-right: 10px;
