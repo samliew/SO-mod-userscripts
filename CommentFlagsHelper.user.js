@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2
+// @version      3.2.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -18,6 +18,8 @@
 // @include      https://*askubuntu.com/admin/users/*/post-comments*
 // @include      https://*mathoverflow.net/admin/users/*/post-comments*
 // @include      https://*.stackexchange.com/admin/users/*/post-comments*
+//
+// @require      https://raw.githubusercontent.com/samliew/ajax-progress/master/jquery.ajaxProgress.js
 // ==/UserScript==
 
 (function() {
@@ -30,47 +32,6 @@
     jQuery.fn.lcTrimText = function() {
         return this.first().text().trim().toLowerCase();
     };
-
-
-    // jQuery ajax-progress plugin
-    // see https://github.com/samliew/ajax-progress
-    (function(jQuery) {
-
-        // Plugin CSS
-        jQuery('body').append(`
-            <style>
-            .ajax-progressbar {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 3px;
-                z-index: 999999;
-                background-color: white;
-                -webkit-appearance: none;
-                appearance: none;
-            }
-            .ajax-progressbar::-webkit-progress-bar,
-            .ajax-progressbar::-moz-progress-bar {
-                background-color: white;
-            }
-            .ajax-progressbar::-webkit-progress-value {
-                background-color: #F48024;
-            }
-            </style>`);
-
-        jQuery.fn.showAjaxProgress = function(num, styles = {}) {
-
-            const progressbar = jQuery(`<progress class="ajax-progressbar" value="0" max="${num}"></progress>`).css(styles).prependTo(this);
-            let count = 0, max = num;
-
-            jQuery(document).ajaxComplete(function() {
-                progressbar.val(++count);
-                if(count == max) progressbar.remove();
-            });
-        }
-
-    })(jQuery);
 
 
     const fkey = StackExchange.options.user.fkey;
