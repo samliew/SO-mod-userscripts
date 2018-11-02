@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2.4
+// @version      3.2.5
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -274,7 +274,7 @@
 
             // Delete all comments left on page
             if(superusers.includes(StackExchange.options.user.userId)) {
-                $('<button>Delete ALL</button>')
+                $('<button class="btn-warning">Delete ALL</button>')
                     .click(function() {
                         if(!confirm('Confirm Delete ALL?')) return false;
 
