@@ -3,12 +3,14 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.2
+// @version      2.9
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
 // @include      */admin/dashboard?flagtype=answernotananswer*
 // @include      */admin/dashboard?flagtype=reviewlowqualitydisputedauto*
+//
+// @require      https://raw.githubusercontent.com/samliew/ajax-progress/master/jquery.ajaxProgress.js
 // ==/UserScript==
 
 (function() {
@@ -19,6 +21,7 @@
 
 
     const fkey = StackExchange.options.user.fkey;
+    const superusers = [ 584192 ];
     var $postsContainer, $posts;
 
 
@@ -278,6 +281,25 @@
 
             return false;
         });
+
+
+        const actionBtns = $('<div id="actionBtns"></div>').prependTo('.flag-container');
+
+        // If there are lots of flags and is superuser
+        if($('.flagged-post-row').length > 3 && superusers.includes(StackExchange.options.user.userId)) {
+
+            // Delete all posts left on page button
+            $('<button>Delete ALL</button>')
+                .click(function() {
+                    if(!confirm('Confirm Delete ALL?')) return false;
+
+                    $(this).remove();
+                    const visiblePosts = $('input.delete-post:visible');
+                    $('body').showAjaxProgress(visiblePosts.length, { position: 'fixed' });
+                    visiblePosts.click();
+                })
+                .appendTo(actionBtns);
+        }
     }
 
 
@@ -308,6 +330,13 @@
 
         const styles = `
 <style>
+#actionBtns {
+    margin-bottom: 10px;
+}
+#actionBtns button {
+    margin-right: 10px;
+}
+
 .tabs:after,
 #tabs:after {
     content: '';
