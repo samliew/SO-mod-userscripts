@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9
+// @version      2.9.1
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -56,6 +56,24 @@
                 data: {
                     fkey: fkey,
                     comment: comment
+                }
+            })
+            .done(function(data) {
+                resolve();
+            })
+            .fail(reject);
+        });
+    }
+    // Decline/dismiss all flags on post
+    function declinePostFlags(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid == null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/messages/delete-moderator-messages/${pid}/${unsafeWindow.renderTimeTicks}?valid=false`,
+                data: {
+                    fkey: fkey,
+                    comment: 2
                 }
             })
             .done(function(data) {
@@ -289,7 +307,7 @@
         if($('.flagged-post-row').length > 3 && superusers.includes(StackExchange.options.user.userId)) {
 
             // Delete all posts left on page button
-            $('<button>Delete ALL</button>')
+            $('<button class="btn-warning">Delete ALL</button>')
                 .click(function() {
                     if(!confirm('Confirm Delete ALL?')) return false;
 
@@ -297,6 +315,21 @@
                     const visiblePosts = $('input.delete-post:visible');
                     $('body').showAjaxProgress(visiblePosts.length, { position: 'fixed' });
                     visiblePosts.click();
+                })
+                .appendTo(actionBtns);
+
+            // Decline all posts left on page button
+            $('<button class="btn-warning">Decline ALL</button>')
+                .click(function() {
+                    if(!confirm('Confirm Decline ALL?')) return false;
+
+                    $(this).remove();
+                    const visiblePosts = $('.flagged-post-row:visible');
+                    $('body').showAjaxProgress(visiblePosts.length, { position: 'fixed' });
+
+                    visiblePosts.hide().each(function() {
+                        declinePostFlags(this.dataset.postId);
+                    });
                 })
                 .appendTo(actionBtns);
         }
