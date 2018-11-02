@@ -3,7 +3,7 @@
 // @description  Some simple improvements for posts' Mod popup dialog
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.1
+// @version      1.6.2
 //
 // @match        https://stackoverflow.com/*
 // @match        https://serverfault.com/*
@@ -67,6 +67,9 @@
 
                 // Default decline option to second option "a moderator reviewed your flag, but found no evidence to support it"
                 $('#dis_2').click();
+
+                // Focus decline button so we can press space/enter
+                $('#dis_ok').focus();
             }
 
         });
