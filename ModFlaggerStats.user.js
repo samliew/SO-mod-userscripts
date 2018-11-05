@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.1
+// @version      1.8.2
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -180,8 +180,13 @@
                         return !$(this).hasClass('js-userflagstats-loaded') && !$(this).hasClass('js-userflagstats-loaded');
                     });
 
+                    // Do nothing if none needs loading
+                    if(uniqusers.length === 0) return;
+
+                    // Display progress
                     $('body').showAjaxProgress(uniqusers.length, { position: 'fixed' });
 
+                    // Load each flagger info
                     uniqusers.each(loadFlaggingFn);
                 });
         }
