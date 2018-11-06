@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -53,7 +53,10 @@
             // Insert ban message if review link found
             if(typeof params[1] !== 'undefined') {
                 var banMsg = `Your review on https://${location.hostname}${params[1]} wasn't helpful. Please review the history of the post and consider how choosing a different action would help achieve that outcome more quickly.`;
-                setTimeout(() => $('textarea[name=explanation]').val(banMsg), 3000);
+                setTimeout(function() {
+                    $('textarea[name=explanation]').val(banMsg);
+                    $('#days-other').click();
+                }, 3500);
             }
         }
         // Review queues
