@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.1
+// @version      2.9.2
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -217,6 +217,14 @@
                 };
                 break;
 
+            case 'has-modified':
+                sortFunction = function(a, b) {
+                    let aMod = $(a).find('.statscontainer a[title="view revisions"]').parent();
+                    aMod = aMod.hasClass('warning');
+                    return aMod ? -1 : 1;
+                };
+                break;
+
             case 'post-undeleted':
                 sortFunction = function(a, b) {
                     let aUndel = $(a).find('.flag-row:not(.js-cleared) .revision-comment').text().includes('Post was undeleted by the author');
@@ -274,6 +282,7 @@
 <a data-filter="delete-votes" title="Delete Votes">Del. Votes</a>
 <a data-filter="flag-count" title="Flag Count">Flags</a>
 <a data-filter="flagger-rank" title="Flagger Rank (click to sort again after stats loaded)" class="dno">Flagger Rank</a>
+<a data-filter="has-modified" title="Changed since first flag" class="dno">Modified</a>
 <a data-toggle="q" title="Show Questions only">Q</a>
 <a data-toggle="a" title="Show Answers only">A</a>
 <a data-toggle="deleted" title="Show Deleted only">D</a>
@@ -353,6 +362,11 @@
             // Flagger stats loaded, allow sorting by
             if(settings.url.includes('/users/flag-summary/')) {
                 $('#flag-queue-tabs a[data-filter="flagger-rank"]').removeClass('dno');
+            }
+
+            // Post revisions loaded, allow sorting by
+            if(settings.url.includes('/posts/') && settings.url.includes('/revisions?')) {
+                $('#flag-queue-tabs a[data-filter="has-modified"]').removeClass('dno');
             }
 
         });
