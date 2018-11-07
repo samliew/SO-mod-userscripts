@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.10
+// @version      1.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -256,7 +256,8 @@
 
         const networkAccounts = '\n\nNetwork Account: ' + $('.details a').first().attr('href');
         const regdate = '\n' + $('.details .row').first().text().trim().replace(/\s+/g, ' ').replace('Joined network:', 'Joined network: ').replace('Joined site:', '\nJoined site:    ').split(/\s*\n\s*/).map(function(v) {
-            if(v.contains('ago')) v = v.split(':')[0] + ': ' + month + " " + d.getDate() + " '" + year;
+            if(v.contains('ago')) v = v.split(':')[0] + ':  ' + month + " " + d.getDate() + " '" + year;
+            else if(v.contains('yesterday')) v = v.split(':')[0] + ':  ' + month + ' ' + d.getDate() + " '" + year;
             else if(!v.contains("'")) v = v + " '" + year;
             return v;
         }).join('\n');
