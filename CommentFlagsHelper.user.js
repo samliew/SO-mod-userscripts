@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2.6
+// @version      3.2.7
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -35,6 +35,7 @@
 
 
     const fkey = StackExchange.options.user.fkey;
+    const twohours = 2 * 60 * 60000;
     const oneday = 24 * 60 * 60000;
     const oneweek = 7 * oneday;
     const superusers = [ 584192 ];
@@ -229,8 +230,28 @@
 
             const actionBtns = $('<div id="actionBtns"></div>');
 
+            function removePostsWithoutFlags() {
+                $('.comments').filter(function() {
+                    return $(this).children().children().length === 0;
+                }).parents('.flagged-post-row').remove();
+            }
+
             // Hide recent comments button (day)
-            $('<button>Ignore day</button>')
+            $('<button>Ignore 2h</button>')
+                .click(function() {
+                    $(this).remove();
+                    let now = Date.now();
+                    // Remove comments < twohours
+                    $('.comment-link').filter(function() {
+                        return now - new Date($(this).children('.relativetime').attr('title')).getTime() <= twohours;
+                    }).parent().parent().next().addBack().remove();
+                    // Remove posts without comment flags
+                    removePostsWithoutFlags();
+                })
+                .appendTo(actionBtns);
+
+            // Hide recent comments button (day)
+            $('<button>Ignore 1d</button>')
                 .click(function() {
                     $(this).prev().remove();
                     $(this).remove();
@@ -240,15 +261,15 @@
                         return now - new Date($(this).children('.relativetime').attr('title')).getTime() <= oneday;
                     }).parent().parent().next().addBack().remove();
                     // Remove posts without comment flags
-                    $('.comments').filter(function() {
-                        return $(this).children().children().length === 0;
-                    }).parents('.flagged-post-row').remove();
+                    removePostsWithoutFlags();
                 })
                 .appendTo(actionBtns);
 
             // Hide recent comments button (week)
-            $('<button>Ignore week</button>')
+            $('<button>Ignore 1w</button>')
                 .click(function() {
+                    $(this).prev().remove();
+                    $(this).prev().remove();
                     $(this).remove();
                     let now = Date.now();
                     // Remove comments < oneweek
@@ -256,9 +277,7 @@
                         return now - new Date($(this).children('.relativetime').attr('title')).getTime() <= oneweek;
                     }).parent().parent().next().addBack().remove();
                     // Remove posts without comment flags
-                    $('.comments').filter(function() {
-                        return $(this).children().children().length === 0;
-                    }).parents('.flagged-post-row').remove();
+                    removePostsWithoutFlags();
                 })
                 .appendTo(actionBtns);
 
@@ -434,7 +453,6 @@
                 $('#comments-'+postId).children('ul.comments-list').load(commentsUrl, function() {
                     elems.remove();
                 });
-                //console.log("Loading comments for " + postId);
             });
 
             // Continue reviewing from bottom of page if previously selected
@@ -673,10 +691,8 @@ table.flagged-posts tr.flagged-post-row:first-child > td {
     color: coral;
 }
 
-#actionBtns {
-    margin-bottom: 10px;
-}
 #actionBtns button {
+    margin-bottom: 10px;
     margin-right: 10px;
 }
 </style>
