@@ -3,13 +3,15 @@
 // @description  One-click button to create private/mod chat room with user and grant write access
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://chat.stackoverflow.com/users/*
 // @include      https://chat.stackexchange.com/users/*
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
+//
+// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
 // ==/UserScript==
 
 (function() {
@@ -17,7 +19,7 @@
 
 
     // Moderator check
-    if(!$('.topbar-menu-links').text().includes('♦') && $('#roomtitle span').attr('title').indexOf('Private') !== 0) return;
+    if(!isModerator()) return;
 
 
     const superpingText = `get in this chatroom please (click the "join this room" orange button)`;
