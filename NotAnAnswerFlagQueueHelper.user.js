@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.2
+// @version      2.9.3
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -127,8 +127,9 @@
     function sortPosts(filter) {
         console.log("Sort by: " + filter);
 
-        if(filter === 'flagger-rank') {
+        if(filter === 'flagger-rank' && $('#load-flagger-stats').length > 0) {
             $('#load-flagger-stats').click();
+            setTimeout(() => sortPosts('flagger-rank'), 4000);
         }
 
         const getFlaggerWeights = function(el) {
