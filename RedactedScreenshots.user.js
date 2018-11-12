@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.2
+// @version      1.5.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -51,13 +51,16 @@
         $('.my-profile, .user-gravatar32, .user-info .-flair').remove();
 
         // Remove admin stuff from page
-        $('.js-post-issues, .js-mod-inbox-button, .flag-count-item').remove();
+        $('.js-post-issues, .js-mod-inbox-button, .flag-count-item, .delete-comment').remove();
 
         // Redact IP and email addresses in content div
         const content = $('#content');
         $('input, a', content).each(redactPii);
         $('.post-text li, .post-text p', content).each(redactPii);
         $('div > div, div > p, div > span', content).each(redactPii);
+
+        // Shrink user comments table for mod messages
+        $('table.admin-user-comments').css({ width: '720px'});
     }
 
 
@@ -86,7 +89,7 @@
             // Set user link text
             // If not full redact, also keep mod diamond in comments
             const isComment = $(this).closest('.comment-body').length > 0;
-            const isMod = this.innerText.includes('♦') || $(this).nextAll().map((i, el) => $(el).text()).get().includes('♦');
+            const isMod = this.innerText.includes('♦') || $(this).next('.mod-flair').length !== 0;
             const modFlair = isMod && isComment ? ' ♦' : '';
             this.innerText = fullwipe ? "anon" : (isMod ? "mod" + modFlair : "anon-" + dataSet[uid]);
         });
