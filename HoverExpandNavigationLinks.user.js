@@ -52,7 +52,21 @@
     }
 
 
+    function appendStyles() {
+
+        var styles = `
+<style>
+.pager .page-numbers {
+    margin-bottom: 5px;
+}
+</style>
+`;
+        $('body').append(styles);
+    }
+
+
     // On page load
+    appendStyles();
     doPageload();
 
 })();
