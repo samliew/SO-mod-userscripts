@@ -3,7 +3,7 @@
 // @description  On pagination dots "..." mouseover, adds more page links (max 30 per hover)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -24,9 +24,10 @@
 
         // Fix incorrect nav params on page load
         let queryparams = location.search.replace('?', '').replace(/&?page=\d+&?/, '');
+        if(queryparams.length > 0) queryparams += '&';
         $('.pager > a').each(function() {
             const page = this.href.match(/[&?]page=\d+/)[0].replace(/\D+/g, '');
-            this.href = '?' + queryparams + '&page=' + page;
+            this.href = '?' + queryparams + 'page=' + page;
         });
 
         $('.page-numbers.dots').on('click mouseover', null, function() {
