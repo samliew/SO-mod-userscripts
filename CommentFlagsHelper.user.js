@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2.7
+// @version      3.3
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -56,7 +56,7 @@
 
     // Special characters must be escaped with \\
     const chattyKeywords = [
-        'thanks?', 'welcome', 'up-?voted?', 'updated', 'edited', 'added', '(in)?correct(ed)?', 'done', 'worked', 'works', 'glad',
+        'thanks?', 'thx', 'welcome', 'up-?voted?', 'updated', 'edited', 'added', '(in)?correct(ed)?', 'done', 'worked', 'works', 'glad',
         'appreciated?', 'my email', 'email me', 'contact', 'good', 'great', 'sorry', '\\+1', 'love', 'wow', 'pointless', 'no\\s?(body|one)',
         'homework', 'no idea', 'your mind', 'try it', 'typo', 'wrong', 'unclear', 'regret', 'every\\s?(body|one)',
         'exactly', 'check', 'lol', 'ha(ha)+', 'women', 'girl', 'effort', 'understand', 'want', 'need', 'little',
@@ -291,8 +291,19 @@
                 })
                 .appendTo(actionBtns);
 
-            // Delete all comments left on page
             if(superusers.includes(StackExchange.options.user.userId)) {
+
+                // Delete chatty comments on page
+                $('<button class="btn-warning">Delete Chatty</button>')
+                    .click(function() {
+                        $(this).remove();
+                        const chattyComments = $('.cmmt-chatty, .cmmt-rude').filter(':visible').parents('.comment').prev().find('.delete-comment');
+                        $('body').showAjaxProgress(chattyComments.length, { position: 'fixed' });
+                        chattyComments.click();
+                    })
+                    .appendTo(actionBtns);
+
+                // Delete all comments left on page
                 $('<button class="btn-warning">Delete ALL</button>')
                     .click(function() {
                         if(!confirm('Confirm Delete ALL?')) return false;
