@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3
+// @version      3.3.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -56,18 +56,21 @@
 
     // Special characters must be escaped with \\
     const chattyKeywords = [
-        'thanks?', 'thx', 'welcome', 'up-?voted?', 'updated', 'edited', 'added', '(in)?correct(ed)?', 'done', 'worked', 'works', 'glad',
+        'thanks?', 'thx', 'welcome', 'updated', 'edited', 'added', '(in)?correct(ed)?', 'done', 'worked', 'works', 'glad',
         'appreciated?', 'my email', 'email me', 'contact', 'good', 'great', 'sorry', '\\+1', 'love', 'wow', 'pointless', 'no\\s?(body|one)',
         'homework', 'no idea', 'your mind', 'try it', 'typo', 'wrong', 'unclear', 'regret', 'every\\s?(body|one)',
         'exactly', 'check', 'lol', 'ha(ha)+', 'women', 'girl', 'effort', 'understand', 'want', 'need', 'little',
         'give up', 'documentation', 'google\\s', 'what[\\w\\s]+(try|tried)[\\w\\s]*\\?*', 'free', 'obvious',
+        '(down|up)[-\\s]?vot(er|ed|e|ing)',
     ];
     const chattyRegex = new RegExp('\\s(' + chattyKeywords.join('|') + ')(?![/-])', 'gi');
 
 
     function replaceKeywords(jqElem) {
-        this.innerHTML = this.innerHTML.replace(rudeRegex, ' <span class="cmmt-rude">$1</span>');
-        this.innerHTML = this.innerHTML.replace(chattyRegex, ' <span class="cmmt-chatty">$1</span>');
+        let text = ' ' + this.innerHTML;
+        text = text.replace(rudeRegex, ' <span class="cmmt-rude">$1</span>');
+        text = text.replace(chattyRegex, ' <span class="cmmt-chatty">$1</span>');
+        this.innerHTML = text;
     }
 
 
