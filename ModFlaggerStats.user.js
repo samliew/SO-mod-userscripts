@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.2
+// @version      1.8.3
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -135,7 +135,7 @@
             getUserFlagStats(currUid).then(function(v) {
                 const tier = calculateFlagTier(v[1], v[3]);
                 const badge = `<a href="/users/flag-summary/${currUid}" class="flag-badge large ${tier.name}" title="${tier.name} flagger: ${v[1]} (${v[2]}) = ${v[3].toFixed(2)}%" target="_blank"></a>`;
-                $('.user-card-name').append(badge);
+                $('.profile-user--name, .user-card-name').append(badge);
             });
         }
 
