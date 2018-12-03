@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.8
+// @version      1.0.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -14,13 +14,15 @@
 //
 // @exclude      *chat.*
 // @exclude      https://stackoverflow.com/c/*
+//
+// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
 // ==/UserScript==
 
 (function() {
     'use strict';
 
     // Moderator check
-    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+    if(!isModerator()) return;
 
 
     const newlines = '\n\n';
@@ -418,7 +420,7 @@
             menuitems += `<div class="separator"></div>`;
 
             menuitems += `<a data-action="mod-delete" class="${isModDeleted ? 'disabled' : ''}">mod-delete post</a>`; // Not currently deleted by mod only
-            menuitems += `<a data-action="lock-dispute" class="${isLocked ? 'dno' : ''}">lock - dispute (1d)</a>`; // unlocked-only
+            menuitems += `<a data-action="lock-dispute" class="${isLocked ? 'dno' : ''}">lock - dispute (3d)</a>`; // unlocked-only
             menuitems += `<a data-action="lock-comments" class="${isLocked ? 'dno' : ''}">lock - comments (1d)</a>`; // unlocked-only
             menuitems += `<a data-action="unlock" class="${!isLocked || isMigrated ? 'dno' : ''}">unlock</a>`; // L-only
 
@@ -507,7 +509,7 @@
                     modUndelDelete(pid).then(reloadPage);
                     break;
                 case 'lock-dispute':
-                    lockPost(pid, 20).then(reloadPage);
+                    lockPost(pid, 20, 24 * 3).then(reloadPage);
                     break;
                 case 'lock-comments':
                     lockPost(pid, 21).then(reloadPage);
