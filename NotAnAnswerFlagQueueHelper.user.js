@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.3
+// @version      2.9.4
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -310,6 +310,18 @@
             return false;
         });
 
+        // Insert 'skip' button to temporarily hide current post
+        $('.flagged-post-row > td').append(`<a class="skip-post" title="skip (hide) this post" href="#">skip post</a>`);
+
+        // On skip post link click
+        $('.flagged-post-row').on('click', '.skip-post', function() {
+
+            // Hide post immediately so we can move on
+            $(this).parents('.flagged-post-row').remove();
+
+            return false;
+        });
+
 
         const actionBtns = $('<div id="actionBtns"></div>').prependTo('.flag-container');
 
@@ -378,11 +390,9 @@
 
         const styles = `
 <style>
-#actionBtns {
-    margin-bottom: 10px;
-}
-#actionBtns button {
-    margin-right: 10px;
+td.js-dashboard-row,
+.flag-container {
+    position: relative;
 }
 
 .tabs:after,
@@ -419,11 +429,33 @@
     padding-right: 10px;
     text-align: right;
 }
+#actionBtns {
+    margin-bottom: 10px;
+}
+#actionBtns button {
+    margin-right: 10px;
+}
 input.js-helpful-purge {
     border-color: red !important;
 }
 .star-off, .star-on {
     display: none;
+}
+.skip-post {
+    position: absolute !important;
+    bottom: 0;
+    right: 0;
+    margin-left: 20px;
+    padding: 5px 8px;
+    font-size: 1rem;
+    background: #eee;
+    white-space: nowrap;
+    opacity: 0.3;
+}
+.skip-post:hover {
+    background: #07C;
+    color: white;
+    opacity: 1;
 }
 </style>
 `;
