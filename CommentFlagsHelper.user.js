@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3.1
+// @version      3.3.2
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -416,7 +416,7 @@
         $('.flagged-post-row').on('click', '.skip-post', function() {
 
             // Hide post immediately so we can move on
-            $(this).parents('.flagged-post-row').hide();
+            $(this).parents('.flagged-post-row').remove();
 
             return false;
         });
