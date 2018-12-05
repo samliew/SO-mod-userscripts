@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.3
+// @version      1.9
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -24,10 +24,31 @@
 // @require      https://raw.githubusercontent.com/samliew/ajax-progress/master/jquery.ajaxProgress.js
 // ==/UserScript==
 
+
+/* ===== Global utility functions ===== */
+unsafeWindow.lsRemoveItemsWithPrefix = function(prefix) {
+    const store = window.localStorage;
+    let count = 0;
+    for(let i = store.length - 1; i >= 0; i--) {
+        const key = store.key(i);
+        if(key && key.indexOf(prefix) === 0) {
+            store.removeItem(key);
+            count++;
+        }
+    }
+    console.log(count + ' items cleared');
+    return count;
+};
+unsafeWindow.purgeUserFlagStats = function() {
+    lsRemoveItemsWithPrefix('ModFlaggerStats');
+};
+
+
 (function() {
     'use strict';
 
 
+    const store = window.localStorage;
     const isModPage = () => document.body.classList.contains('mod-page');
 
 
@@ -75,7 +96,13 @@
 
 
     function getUserFlagStats(uid) {
+        const keyroot = 'ModFlaggerStats';
+        const fullkey = `${keyroot}:${uid}`;
+        let v = JSON.parse(store.getItem(fullkey));
+
         return new Promise(function(resolve, reject) {
+            if(v != null) { resolve(v); return; }
+
             $.ajax(`https://${location.hostname}/users/flag-summary/${uid}`)
                 .done(function(data) {
                     const rep = Number($('.user-details .reputation-score', data).text().replace(/k/, '000').replace(/[^\d]/g, ''));
@@ -87,7 +114,13 @@
                     let fDeclined = 0, fDeclinedElem = infotable.find('a[href="?group=1&status=3"]');
                     if(fDeclinedElem.length != 0) fDeclined = Number(fDeclinedElem.parent().prev().text().replace(/[^\d]+/g, ''));
 
-                    const fPerc = fDeclined / (fTotal || 1) * 100;
+                    const fPerc = Number((fDeclined / (fTotal || 1) * 100).toFixed(2));
+
+                    // store regular good flaggers
+                    if(fPerc < 1 || fTotal >= 1000) {
+                        store.setItem(fullkey, JSON.stringify([rep, fTotal, fDeclined, fPerc]));
+                    }
+
                     resolve([rep, fTotal, fDeclined, fPerc]);
                 })
                 .fail(reject);
@@ -113,6 +146,9 @@
 
 
     function doPageload() {
+
+        // Clear flagger stats cache on weekends
+        if(new Date().getDay() % 6 === 0) purgeUserFlagStats();
 
         let currUid = StackExchange.options.user.userId;
 
