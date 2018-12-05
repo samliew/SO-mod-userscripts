@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -29,6 +29,8 @@
     const fkey = StackExchange.options.user.fkey;
     const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
     const isSO = location.hostname == 'stackoverflow.com';
+    const isSOMeta = location.hostname == 'meta.stackoverflow.com';
+    const isMeta = typeof StackExchange.options.site.parentUrl !== 'undefined';
 
 
     function goToPost(pid) {
@@ -82,6 +84,25 @@
                     //'offTopicOtherText': '',
                     //'offTopicOtherCommentId': '',
                     //'originalOffTopicOtherText': ''
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+    function closeSOMetaQuestionAsOfftopic(pid, closeReason = 'OffTopic', offtopicReasonId = 6) {
+        return new Promise(function(resolve, reject) {
+            if(!isSOMeta) { reject(); return; }
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+            if(typeof closeReason === 'undefined' || closeReason === null) { reject(); return; }
+            if(closeReason === 'OffTopic' && (typeof offtopicReasonId === 'undefined' || offtopicReasonId === null)) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/flags/questions/${pid}/close/add`,
+                data: {
+                    'fkey': fkey,
+                    'closeReasonId': closeReason,
+                    'closeAsOffTopicReasonId': offtopicReasonId
                 }
             })
             .done(resolve)
@@ -419,7 +440,14 @@
 
             menuitems += `<div class="separator"></div>`;
 
-            menuitems += `<a data-action="mod-delete" class="${isModDeleted ? 'disabled' : ''}">mod-delete post</a>`; // Not currently deleted by mod only
+            // Incorrectly posted question on SO Meta
+            if(isSOMeta && isQuestion && !isModDeleted) {
+                menuitems += `<a data-action="meta-incorrect">close + delete (incorrectly posted)</a>`;
+            }
+            else {
+                menuitems += `<a data-action="mod-delete" class="${isModDeleted ? 'disabled' : ''}">mod-delete post</a>`; // Not currently deleted by mod only
+            }
+
             menuitems += `<a data-action="lock-dispute" class="${isLocked ? 'dno' : ''}">lock - dispute (3d)</a>`; // unlocked-only
             menuitems += `<a data-action="lock-comments" class="${isLocked ? 'dno' : ''}">lock - comments (1d)</a>`; // unlocked-only
 
@@ -509,6 +537,11 @@
                         if(post.find('.question-status b').text().includes('protect')) unprotectPost(pid).then(reloadPage);
                         else protectPost(pid).then(reloadPage);
                     }
+                    break;
+                case 'meta-incorrect':
+                    closeSOMetaQuestionAsOfftopic(pid).then(function() {
+                        deletePost(pid).then(reloadPage);
+                    });
                     break;
                 case 'mod-delete':
                     modUndelDelete(pid).then(reloadPage);
