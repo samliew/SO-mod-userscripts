@@ -3,7 +3,7 @@
 // @description  Display number of comments on each post in question lists. For mod queues, additional info (recent revision history) is also retrieved.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.2
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -24,6 +24,7 @@
     const fkey = StackExchange.options.user.fkey;
     const apikey = 'XpzQT9bIKj6zl5)ctj7j)w((';
     const apikey2= '40LgmwObbfMGyfKA92qegg((';
+    const apikey3= 'UYh5TKTIPsesM0TNjKOvCQ((';
     const timestampAt = daysago => Math.floor(new Date(Date.now() - daysago * 24 * 60 * 60 * 1000) / 1000);
 
 
@@ -48,6 +49,21 @@
             if(typeof arrPids === 'undefined' || arrPids === null || arrPids.length == 0) { reject(); return; }
 
             $.get(`http://api.stackexchange.com/2.2/posts/${arrPids.join(';')}/revisions?pagesize=100&fromdate=${timestampAt(daysago)}&site=${location.hostname}&filter=!SWJaJDLw60c6cEGmKi&key=${apikey2}`)
+                .done(function(data) {
+                    resolve(data.items);
+                    return;
+                })
+                .fail(reject);
+        });
+    }
+
+
+    // Get accepted status for answers
+    function getAcceptStatus(arrPids) {
+        return new Promise(function(resolve, reject) {
+            if(typeof arrPids === 'undefined' || arrPids === null || arrPids.length == 0) { reject(); return; }
+
+            $.get(`http://api.stackexchange.com/2.2/answers/${arrPids.join(';')}?pagesize=50&site=${location.hostname}&filter=!9eVtBsbS*&key=${apikey3}`)
                 .done(function(data) {
                     resolve(data.items);
                     return;
@@ -106,6 +122,19 @@
                     statsContainer.append(`<div><a href="https://${location.hostname}/posts/${pid}/timeline?filter=flags" target="_blank" title="view post timeline">${flagCount} flags</a></div>`);
                 });
             });
+
+            // If mod queue, also load accept status for answers
+            const answers = $('.flagged-posts .answer-hyperlink').parents('.flagged-posts .flagged-post-row');
+            const pids2 = answers.map((i, el) => el.id.replace(/\D+/g, '')).get();
+            getAcceptStatus(pids2).then(function(posts) {
+                let acceptedPosts = posts.filter(o => o.is_accepted).map(o => o.answer_id);
+                answers.each(function() {
+                    const pid = Number(this.id.replace(/\D+/g, ''));
+                    if(acceptedPosts.includes(pid)) {
+                        $(this).find('.statscontainer').before(`<span class="vote-accepted-on" title="accepted answer">accepted</span>`);
+                    }
+                });
+            });
         });
     }
 
@@ -140,6 +169,12 @@
 }
 .flagged-post-row .statscontainer .warning a {
     font-weight: bold;
+}
+.post-summary .vote-accepted-on {
+    display: inline-block;
+}
+.tagged-ignored {
+    opacity: 0.5;
 }
 </style>
 `;
