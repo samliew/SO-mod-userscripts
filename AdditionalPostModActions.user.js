@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -441,7 +441,7 @@
             menuitems += `<div class="separator"></div>`;
 
             // Incorrectly posted question on SO Meta
-            if(isSOMeta && isQuestion && !isModDeleted) {
+            if(isSOMeta && isQuestion && !isDeleted) {
                 menuitems += `<a data-action="meta-incorrect">close + delete (incorrectly posted)</a>`;
             }
             else {
