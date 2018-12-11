@@ -3,7 +3,7 @@
 // @description  Show Deleted Messages in Chat and Transcripts. Works with NoOneboxesInChat userscript
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.2.2
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -58,13 +58,17 @@
     }
 
 
-    function doPageload() {
+    function doPageload()
+    {
+        var me = CHAT.RoomUsers.current();
+        var canSeeDeleted = me.is_moderator || me.is_owner;
+        if (canSeeDeleted || window.location.href.match('/transcript')) {
+            // Once on page load
+            processNewDeletedMessages();
 
-        // Once on page load
-        processNewDeletedMessages();
-
-        // Occasionally, look for new deleted messages and load them
-        setInterval(processNewDeletedMessages, 5000);
+            // Occasionally, look for new deleted messages and load them
+            setInterval(processNewDeletedMessages, 5000);
+        }
     }
 
 
