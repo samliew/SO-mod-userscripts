@@ -58,13 +58,17 @@
     }
 
 
-    function doPageload() {
+    function doPageload()
+    {
+        var me = CHAT.RoomUsers.current();
+        var canSeeDeleted = me.is_moderator || me.is_owner;
+        if (canSeeDeleted) {
+            // Once on page load
+            processNewDeletedMessages();
 
-        // Once on page load
-        processNewDeletedMessages();
-
-        // Occasionally, look for new deleted messages and load them
-        setInterval(processNewDeletedMessages, 5000);
+            // Occasionally, look for new deleted messages and load them
+            setInterval(processNewDeletedMessages, 5000);
+        }
     }
 
 
