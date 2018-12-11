@@ -62,7 +62,7 @@
     {
         var me = CHAT.RoomUsers.current();
         var canSeeDeleted = me.is_moderator || me.is_owner;
-        if (canSeeDeleted) {
+        if (canSeeDeleted || window.location.href.match('/transcript')) {
             // Once on page load
             processNewDeletedMessages();
 
