@@ -3,7 +3,7 @@
 // @description  Display reputation in tooltip upon user link mouseover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -41,8 +41,8 @@
 
     function processUserlinks() {
 
-        // Only userlinks without title
-        const userlinks = $('a[href*="/users/"]').filter((i, el) => el.title === '').each(function(i, el) {
+        // Only userlinks without title and data-uid
+        const userlinks = $('a[href*="/users/"]').filter((i, el) => el.title === '' && typeof el.dataset.uid === 'undefined').each(function(i, el) {
             const id = (el.href.match(/\d+/) || ['']).pop();
             el.dataset.uid = id; // set computed data-uid
         });
