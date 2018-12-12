@@ -3,7 +3,7 @@
 // @description  Some simple improvements for posts' Mod popup dialog
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.3
+// @version      1.6.4
 //
 // @match        https://stackoverflow.com/*
 // @match        https://serverfault.com/*
@@ -77,7 +77,7 @@
 
 
             // If post is expanded and is superuser
-            if(settings.url.includes('/ajax-load?review=true') && superusers.includes(StackExchange.options.user.userId)) {
+            if(!location.href.includes('posttoomanycommentsauto') && settings.url.includes('/ajax-load?review=true') && superusers.includes(StackExchange.options.user.userId)) {
 
                 $('.js-add-link.comments-link').click();
             }
