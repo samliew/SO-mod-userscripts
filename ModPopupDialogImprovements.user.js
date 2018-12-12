@@ -3,7 +3,7 @@
 // @description  Some simple improvements for posts' Mod popup dialog
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.2
+// @version      1.6.3
 //
 // @match        https://stackoverflow.com/*
 // @match        https://serverfault.com/*
@@ -27,6 +27,9 @@
 
     // Moderator check
     if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+
+
+    const superusers = [ 584192 ];
 
 
     function listenToPageUpdates() {
@@ -70,6 +73,13 @@
 
                 // Focus decline button so we can press space/enter
                 $('#dis_ok').focus();
+            }
+
+
+            // If post is expanded and is superuser
+            if(settings.url.includes('/ajax-load?review=true') && superusers.includes(StackExchange.options.user.userId)) {
+
+                $('.js-add-link.comments-link').click();
             }
 
         });
