@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -106,13 +106,13 @@ unsafeWindow.purgeUserFlagStats = function() {
             $.ajax(`https://${location.hostname}/users/flag-summary/${uid}`)
                 .done(function(data) {
                     const rep = Number($('.user-details .reputation-score', data).text().replace(/k/, '000').replace(/[^\d]/g, ''));
-                    const infotable = $('#flag-stat-info-table', data);
+                    const infotable = $('#sidebar .s-sidebarwidget--item.d-block', data);
 
-                    let fTotal = 0, fTotalElem = infotable.find('tr').first();
+                    let fTotal = 0, fTotalElem = infotable.find('a .ta-right').first();
                     if(fTotalElem.length != 0) fTotal = Number(fTotalElem.text().replace(/[^\d]+/g, ''));
 
-                    let fDeclined = 0, fDeclinedElem = infotable.find('a[href="?group=1&status=3"]');
-                    if(fDeclinedElem.length != 0) fDeclined = Number(fDeclinedElem.parent().prev().text().replace(/[^\d]+/g, ''));
+                    let fDeclined = 0, fDeclinedElem = infotable.find('a[href="?group=1&status=3"] .ta-right').first();
+                    if(fDeclinedElem.length != 0) fDeclined = Number(fDeclinedElem.text().replace(/[^\d]+/g, ''));
 
                     const fPerc = Number((fDeclined / (fTotal || 1) * 100).toFixed(2));
 
