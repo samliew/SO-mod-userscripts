@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -418,6 +418,7 @@
             const isQuestion = post.hasClass('question');
             const isDeleted = post.hasClass('deleted-answer');
             const isModDeleted = post.find('.deleted-answer-info').text().includes('♦') || (postStatus.includes('deleted') && postStatus.includes('♦'));
+            const isClosed = postStatus.includes('closed') || postStatus.includes('on hold');
             const isMigrated = postStatus.includes('migrated');
             const isLocked = isMigrated || postStatus.includes('locked');
             const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
@@ -438,6 +439,10 @@
                 menuitems += `<a data-action="toggle-protect" class="${isDeleted ? 'disabled' : ''}">toggle protect</a>`;
             }
 
+            if(isSO && isQuestion && !isClosed && !isDeleted) {
+                menuitems += `<a data-action="close-offtopic">close (offtopic)</a>`;
+            }
+
             menuitems += `<div class="separator"></div>`;
 
             // Incorrectly posted question on SO Meta
@@ -445,7 +450,6 @@
                 menuitems += `<a data-action="meta-incorrect">close + delete (incorrectly posted)</a>`;
             }
             else {
-                menuitems += `<a data-action="close-offtopic" class="${isDeleted ? 'disabled' : ''}">close (offtopic)</a>`;
                 menuitems += `<a data-action="mod-delete" class="${isModDeleted ? 'disabled' : ''}">mod-delete post</a>`; // Not currently deleted by mod only
             }
 
