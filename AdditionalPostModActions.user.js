@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.2
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -66,8 +66,8 @@
 
     // Close individual post
     // closeReason: 'TooBroad', 'OffTopic', 'Unclear', 'OpinionBased',
-    // if 'OffTopic', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec
-    function closeQuestionAsOfftopic(pid, closeReason = 'OffTopic', offtopicReasonId = null) {
+    // if 'OffTopic', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
+    function closeQuestionAsOfftopic(pid, closeReason = 'OffTopic', offtopicReasonId = 3, offTopicOtherText = '') {
         return new Promise(function(resolve, reject) {
             if(!isSO) { reject(); return; }
             if(typeof pid === 'undefined' || pid === null) { reject(); return; }
@@ -81,9 +81,9 @@
                     'closeReasonId': closeReason,
                     'closeAsOffTopicReasonId': offtopicReasonId,
                     //'duplicateOfQuestionId': null,
-                    //'offTopicOtherText': '',
+                    'offTopicOtherText': offtopicReasonId == 3 && isSO ? 'This question does not appear to be about programming within the scope defined in the [help]' : offTopicOtherText,
                     //'offTopicOtherCommentId': '',
-                    //'originalOffTopicOtherText': ''
+                    'originalOffTopicOtherText': 'I\'m voting to close this question as off-topic because ',
                 }
             })
             .done(resolve)
@@ -445,6 +445,7 @@
                 menuitems += `<a data-action="meta-incorrect">close + delete (incorrectly posted)</a>`;
             }
             else {
+                menuitems += `<a data-action="close-offtopic" class="${isDeleted ? 'disabled' : ''}">close (offtopic)</a>`;
                 menuitems += `<a data-action="mod-delete" class="${isModDeleted ? 'disabled' : ''}">mod-delete post</a>`; // Not currently deleted by mod only
             }
 
@@ -541,6 +542,12 @@
                 case 'meta-incorrect':
                     closeSOMetaQuestionAsOfftopic(pid).then(function() {
                         deletePost(pid).then(reloadPage);
+                    });
+                    break;
+                case 'close-offtopic':
+                    closeQuestionAsOfftopic(pid).then(function() {
+                        removePostFromModQueue();
+                        goToPost(qid);
                     });
                     break;
                 case 'mod-delete':
