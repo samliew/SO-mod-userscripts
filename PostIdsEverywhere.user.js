@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.2
+// @version      1.4.3
 //
 // @match        https://*stackoverflow.com/*
 // @match        https://*serverfault.com/*
@@ -11,10 +11,8 @@
 // @match        https://*askubuntu.com/*
 // @match        https://*mathoverflow.net/*
 // @match        https://stackapps.com/*
-// @match        *.stackexchange.com/*
+// @match        https://*.stackexchange.com/*
 //
-// @exclude      */review*
-// @exclude      */tools*
 // @exclude      https://stackoverflow.com/c/*
 // ==/UserScript==
 
@@ -79,7 +77,8 @@
 .user-tab-content h3,
 .summary h3,
 .top-posts .post-container,
-.mod-section table.table td {
+.mod-section table.table td,
+.post-container {
     position: relative;
 }
 .popup[data-questionid],
@@ -105,6 +104,7 @@
     color: #222;
     background: rgba(255,255,255,0.8);
     border: none;
+    outline: none !important;
     opacity: 0.15;
     z-index: 1;
 }
@@ -120,9 +120,9 @@
 }
 #question .post-id,
 #answers .post-id,
-#user-tab-questions .post-id,
-#user-tab-answers .post-id,
-#user-tab-activity .post-id,
+#user-tab-questions .post-id:hover,
+#user-tab-answers .post-id:hover,
+#user-tab-activity .post-id:hover,
 *:hover > .post-id {
     display: inline-block;
     opacity: 1;
