@@ -3,7 +3,7 @@
 // @description  Display reputation in tooltip upon user link mouseover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.0.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -41,8 +41,8 @@
 
     function processUserlinks() {
 
-        // Only userlinks without title and data-uid
-        const userlinks = $('a[href*="/users/"]').filter((i, el) => el.title === '' && typeof el.dataset.uid === 'undefined').each(function(i, el) {
+        // Only userlinks without title and data-uid and data-rep
+        const userlinks = $('a[href*="/users/"]').filter((i, el) => el.title === '' && typeof el.dataset.uid === 'undefined' && typeof el.dataset.rep === 'undefined').each(function(i, el) {
             const id = (el.href.match(/\d+/) || ['']).pop();
             el.dataset.uid = id; // set computed data-uid
         });
@@ -54,7 +54,7 @@
 
         getUserInfo(uids).then(function(users) {
             users.forEach(function(user) {
-                userlinks.filter((i, el) => user.user_id == el.dataset.uid).attr('title', `${user.reputation.toLocaleString('en-US')} reputation`);
+                userlinks.filter((i, el) => user.user_id == el.dataset.uid).attr('title', `${user.reputation.toLocaleString('en-US')} reputation`).attr('data-rep', `${user.reputation}`);
             });
         });
     }
