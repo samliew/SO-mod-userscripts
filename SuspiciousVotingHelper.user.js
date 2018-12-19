@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -289,8 +289,10 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
                 }
             });
 
-            // Hide rows that only contain a single user
-            $('.ip-address').next('td').children('table').filter(function() { return $(this).find('tr').length == 1 }).parents('.odd, .even').addClass('dno');
+            // Move rows that only contain a single user to the bottom
+            $('.odd, .even', '#xref-ids').removeClass('even odd').addClass('ip-group');
+            const singleUserRows = $('.ip-address').next('td').children('table').filter(function() { return $(this).find('tr').length == 1 }).parents('.ip-group').addClass('single-user');
+            $(singleUserRows.get().reverse()).appendTo('#xref-ids > tbody');
         }
 
         // If on user votes page
