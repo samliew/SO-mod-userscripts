@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.4
+// @version      1.4.5
 //
 // @match        https://*stackoverflow.com/*
 // @match        https://*serverfault.com/*
@@ -77,6 +77,7 @@
 .user-tab-content h3,
 .summary h3,
 .summary-table td,
+.history-table td,
 .top-posts .post-container,
 .mod-section table.table td,
 .post-container {
