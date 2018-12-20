@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -81,8 +81,9 @@
 
     function doPageload() {
 
-        // Load ban form for user if passed via querystring
-        if(location.pathname === '/admin/review/bans') {
+        // Linkify ban counts on ban page and historical page tables
+        // /admin/review/bans  &  /admin/review/bans/historical
+        if(location.pathname.includes('/admin/review/bans')) {
 
             // Linkify ban counts to user review ban history page
             $('table tbody tr').each(function() {
@@ -92,6 +93,10 @@
                     return `<a href="/users/history/${uid}?type=User+has+been+banned+from+review" target="_blank" title="see review ban history">${v}</a>`;
                 });
             });
+        }
+
+        // Load ban form for user if passed via querystring
+        if(location.pathname === '/admin/review/bans') {
 
             var params = location.hash.substr(1).split('|');
             var uid = params[0];
