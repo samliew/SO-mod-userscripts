@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.2
+// @version      1.7
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -255,19 +255,22 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 .post-layout--left.votecell {
     grid-row: 1 / 10;
 }
-.votecell .vote {
+.votecell .vote,
+.votecell .js-voting-container {
     position: sticky;
     top: 10px;
     padding-bottom: 20px;
     background-color: rgba(255,255,255,0.5);
 }
-.deleted-answer .votecell .vote {
+.deleted-answer .votecell .vote,
+.deleted-answer .votecell .js-voting-container {
     background-color: rgba(244, 234, 234, 0.6);
 }
-.votecell .vote .message {
+.votecell .vote .message,
+.votecell .js-voting-container .message {
     min-width: 360px;
 }
-.downvoted-answer .vote>* {
+.downvoted-answer .vote > * {
     transform: translateZ(0);
 }
 
@@ -296,16 +299,22 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
     border-bottom: 1px solid #ccc;
     cursor: pointer;
 }
-.post-stickyheader ~ .post-layout .votecell .vote {
+.post-stickyheader ~ .post-layout .votecell .vote,
+.post-stickyheader ~ .post-layout .votecell .js-voting-container {
     top: 51px;
     z-index: 2;
+}
+.question:hover, .answer:hover {
+    z-index: 30;
 }
 .question:hover .post-stickyheader,
 .answer:hover .post-stickyheader {
     z-index: 7;
 }
 .question:hover .votecell .vote,
-.answer:hover .votecell .vote {
+.question:hover .votecell .js-voting-container,
+.answer:hover .votecell .vote,
+.answer:hover .votecell .js-voting-container {
     z-index: 6;
 }
 
@@ -323,7 +332,8 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 .top-bar._fixed ~ .container .post-stickyheader {
     top: 50px;
 }
-.top-bar._fixed ~ .container .post-stickyheader ~ .post-layout .votecell .vote {
+.top-bar._fixed ~ .container .post-stickyheader ~ .post-layout .votecell .vote,
+.top-bar._fixed ~ .container .post-stickyheader ~ .post-layout .votecell .js-voting-container {
     top: 101px;
 }
 
