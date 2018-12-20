@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.4
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -15,8 +15,10 @@
 // @include      */review/late-answers*
 //
 // @include      */users/history/*?type=User+has+been+banned+from+review
+// @include      */users/*?tab=activity&sort=reviews*
 //
-// @include      */admin/review/bans
+// @include      */admin/review/audits*
+// @include      */admin/review/bans*
 // ==/UserScript==
 
 (function() {
@@ -36,6 +38,46 @@
         };
         return xhr;
     }
+
+
+    // Review unban user
+    function reviewUnban(uid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof uid === 'undefined' || uid === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/review/unban-user`,
+                data: {
+                    'userId': uid,
+                    'fkey': fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+
+
+    // Find out if user is currently review banned and returns relative days to ban end date
+    // X >  0 : review banned for X more days
+    // X <= 0 : X days since ban
+    function daysReviewBanned(banStart, banDuration) {
+        let banEndDatetime = new Date(banStart);
+
+        // Simple validation
+        if(isNaN(banDuration) || banDuration <= 0) return false;
+        if(banEndDatetime.toString() == "Invalid Date") return false;
+
+        // Calculate ban end
+        banEndDatetime.setDate(banEndDatetime.getDate() + banDuration);
+
+        // Return difference (in days) to current time
+        return (banEndDatetime - Date.now()) / 86400000;
+    }
+    function isReviewBanned(banStart, banDuration) {
+        return daysReviewBanned(banStart, banDuration) > 0;
+    }
+
 
     function doPageload() {
 
@@ -59,11 +101,36 @@
                 }, 3500);
             }
         }
-        // Review queues
-        else if(location.pathname.indexOf('/users/history') >= 0) {
+        // Mod user history - review bans filter
+        else if(location.pathname.indexOf('/users/history') >= 0 && location.search == "?type=User+has+been+banned+from+review") {
+
             var uid2 = location.pathname.match(/\d+/)[0];
-            $(`<a class="button reviewban-button" href="/admin/review/bans#${uid2}">Review Ban User</a>`).insertAfter('.subheader h1');
+
+            // Get last review ban date and duration
+            const hist = $('#user-history tbody tr:first td');
+
+            if(hist.length == 4) {
+                const lastBannedDate = hist.find('.relativetime').attr('title');
+                const lastBannedDur = Number(hist.eq(2).text().match(/\d+ days/)[0].replace(/\D+/g, ''));
+                const bannedDiff = daysReviewBanned(lastBannedDate, lastBannedDur);
+
+                if(bannedDiff > 0) {
+                    // Currently banned, show unban button
+                    $(`<a class="button reviewban-button" href="/admin/review/bans#${uid2}">Review Unban</a>`)
+                        .click(function() {
+                            if(confirm('Unban user from reviewing?')) {
+                                reviewUnban(uid2).then(() => location.reload(true));
+                            }
+                        })
+                        .insertAfter('.subheader h1');
+                    return;
+                }
+            }
+
+            // Not currently banned, show review ban button
+            $(`<a class="button reviewban-button" href="/admin/review/bans#${uid2}">Review Ban</a>`).insertAfter('.subheader h1');
         }
+        // Completed review, load reviewers info
         else {
             $(document).ajaxComplete(function(event, xhr, settings) {
                 if(settings.url.indexOf('/review/next-task') >= 0) getUsersInfo();
