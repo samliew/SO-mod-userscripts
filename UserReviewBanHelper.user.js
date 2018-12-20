@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.5
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -83,8 +83,21 @@
 
         // Load ban form for user if passed via querystring
         if(location.pathname === '/admin/review/bans') {
+
+            // Linkify ban counts to user review ban history page
+            $('table tbody tr').each(function() {
+                const userlink = $(this).find('td a').first();
+                const uid = userlink.attr('data-uid') || userlink.attr('href').match(/\/\d+\//)[0].replace(/\D+/g, '');
+                $(this).children('td').eq(4).html(function(i, v) {
+                    return `<a href="/users/history/${uid}?type=User+has+been+banned+from+review" target="_blank" title="see review ban history">${v}</a>`;
+                });
+            });
+
             var params = location.hash.substr(1).split('|');
             var uid = params[0];
+
+            // Validation
+            if(!/\d+/.test(uid)) return;
 
             // Insert UID
             $('#user-to-ban').val(uid);
@@ -109,7 +122,7 @@
             setTimeout(() => $('#lookup').click(), 500);
         }
         // Mod user history - review bans filter
-        else if(location.pathname.indexOf('/users/history') >= 0 && location.search == "?type=User+has+been+banned+from+review") {
+        else if(location.pathname.includes('/users/history') && location.search == "?type=User+has+been+banned+from+review") {
 
             var uid2 = location.pathname.match(/\d+/)[0];
 
@@ -140,7 +153,7 @@
         // Completed review, load reviewers info
         else {
             $(document).ajaxComplete(function(event, xhr, settings) {
-                if(settings.url.indexOf('/review/next-task') >= 0) getUsersInfo();
+                if(settings.url.includes('/review/next-task')) getUsersInfo();
             });
         }
     }
