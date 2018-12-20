@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.2
+// @version      1.2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -325,6 +325,28 @@
             undeletePost(pid).then(function() {
                 deletePost(pid).then(resolve, reject);
             }, reject);
+        });
+    }
+
+
+    // Destroy spammer
+    function destroySpammer(uid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof uid === 'undefined' || uid === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/users/${uid}/destroy`,
+                data: {
+                    'annotation': '',
+                    'deleteReasonDetails': '',
+                    'mod-actions': 'destroy',
+                    'destroyReason': 'This user was created to post spam or nonsense and has no other positive participation',
+                    'destroyReasonDetails': '',
+                    'fkey': fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
         });
     }
 
