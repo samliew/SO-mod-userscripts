@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -89,17 +89,24 @@
             // Insert UID
             $('#user-to-ban').val(uid);
 
-            // Submit lookup
-            setTimeout(() => $('#lookup').click(), 500);
-
             // Insert ban message if review link found
             if(typeof params[1] !== 'undefined') {
-                var banMsg = `Your review on https://${location.hostname}${params[1]} wasn't helpful. Please review the history of the post and consider how choosing a different action would help achieve that outcome more quickly.`;
-                setTimeout(function() {
-                    $('textarea[name=explanation]').val(banMsg);
-                    $('#days-other').click();
-                }, 3500);
+
+                // Completed loading lookup
+                $(document).ajaxComplete(function(event, xhr, settings) {
+                    if(settings.url.includes('/admin/review/lookup-bannable-user')) {
+                        var banMsg = `Your review on https://${location.hostname}${params[1]} wasn't helpful. Please review the history of the post and consider how choosing a different action would help achieve that outcome more quickly.`;
+                        $('textarea[name=explanation]').val(banMsg);
+                        $('#days-other').click();
+
+                        // Run once only
+                        $(event.currentTarget).unbind('ajaxComplete');
+                    }
+                });
             }
+
+            // Submit lookup
+            setTimeout(() => $('#lookup').click(), 500);
         }
         // Mod user history - review bans filter
         else if(location.pathname.indexOf('/users/history') >= 0 && location.search == "?type=User+has+been+banned+from+review") {
@@ -137,6 +144,7 @@
             });
         }
     }
+
 
     function getUsersInfo() {
 
@@ -177,9 +185,10 @@
         });
     }
 
+
     function appendStyles() {
 
-        var styles = `
+        const styles = `
 <style>
 a.reviewban-count,
 a.reviewban-link {
@@ -209,10 +218,26 @@ a.reviewban-link {
 a.reviewban-button {
     float: right;
 }
+
+#lookup-result textarea {
+    min-height: 90px;
+    width: 100% !important;
+    margin-bottom: 10px;
+    font-family: monospace;
+}
+#lookup-result input[name="reviewBanDays"] {
+    position: absolute;
+    margin-left: 10px;
+    margin-top: -6px;
+}
+#lookup-result form > div {
+    margin: 5px 0;
+}
 </style>
 `;
         $('body').append(styles);
     }
+
 
     // On page load
     doPageload();
