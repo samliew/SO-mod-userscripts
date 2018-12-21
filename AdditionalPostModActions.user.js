@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.4
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -445,7 +445,10 @@
             const isLocked = isMigrated || postStatus.includes('locked');
             const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
-            const userlink = post.find('.post-layout .user-info:last .user-details a').first().attr('href');
+            const userbox = post.find('.post-layout .user-info:last .user-action-time').filter((i, el) => el.innerText.includes('answered') || el.innerText.includes('asked')).parent();
+            const userlink = userbox.find('a').attr('href');
+            const userrep = userbox.find('.reputation-score').text();
+            const username = userbox.find('.user-details a').first().text();
 
             // Create menu based on post type and state
             let menuitems = '';
@@ -485,8 +488,17 @@
             menuitems += `<a data-action="unlock" class="${!isLocked || isMigrated ? 'dno' : ''}">unlock</a>`; // L-only
 
             if(userlink && /.*\/\d+\/.*/.test(userlink)) {
-                const uid = Number(userlink.match(/\/(\d+)\//)[0].replace(/\//g, ''));
+                const uid = Number(userlink.match(/\/\d+\//)[0].replace(/\D+/g, ''));
+
+                menuitems += `<div class="separator"></div>`;
                 menuitems += `<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" target="_blank" title="opens in a new window">request dissociation</a>`; // non-deleted user only
+
+                if(/^\d+$/.test(userrep) && Number(userrep) < 500) {
+                    menuitems += `<a data-action="destroy-spammer" data-uid="${uid}" data-username="${username}" class="danger" title="confirms whether you want to destroy the account">DESTROY spammer</a>`; // non-deleted user only
+                }
+                else {
+                    menuitems += `<a class="danger disabled" title="user is above 500 reputation">DESTROY spammer</a>`; // non-deleted user only
+                }
             }
 
             $(this).append(`
@@ -510,6 +522,8 @@
             const pid = Number(this.parentNode.dataset.pid);
             const qid = Number($('#question').attr('data-questionid') ||
                                $(this).parents('.mod-post-header').find('.answer-hyperlink, .question-hyperlink').attr('href').match(/\/(\d+)\//)[0].replace(/\//g, ''));
+            const uid = Number(this.dataset.uid);
+            const uName = this.dataset.username;
             //console.log(pid, qid);
             if(isNaN(pid) || isNaN(qid)) return false;
 
@@ -590,6 +604,12 @@
                     break;
                 case 'unlock':
                     unlockPost(pid).then(reloadPage);
+                    break;
+                case 'destroy-spammer':
+                    if(confirm(`Confirm DESTROY the spammer "${uName}" (id: ${uid}) irreversibly???`) &&
+                       confirm("Are you VERY SURE you want to DESTROY this account???")) {
+                        destroySpammer(uid).then(reloadPage);
+                    }
                     break;
                 default:
                     return true;
@@ -692,6 +712,10 @@
     background-color: #f6f6f6 !important;
     color: #bbb !important;
     cursor: not-allowed;
+}
+.post-mod-menu a.danger:hover {
+    background-color: red;
+    color: white;
 }
 .post-mod-menu .separator {
     display: block;
