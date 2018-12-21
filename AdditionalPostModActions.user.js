@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.3.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -495,13 +495,18 @@
                 menuitems += `<div class="separator"></div>`;
                 menuitems += `<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" target="_blank" title="opens in a new window">request dissociation</a>`; // non-deleted user only
 
-                if(/^\d+$/.test(userrep) && Number(userrep) < 500 && postage < 30) {
-                    menuitems += `<a data-action="destroy-spammer" data-uid="${uid}" data-username="${username}" class="danger" title="confirms whether you want to destroy the account">DESTROY spammer</a>`; // non-deleted user only
+                // Allow destroy option only if < 14 days
+                if(postage < 30) {
+
+                    // Allow destroy option only if user < 500 rep
+                    if(/^\d+$/.test(userrep) && Number(userrep) < 500) {
+                        menuitems += `<a data-action="destroy-spammer" data-uid="${uid}" data-username="${username}" class="danger" title="confirms whether you want to destroy the account">DESTROY spammer</a>`; // non-deleted user only
+                    }
+                    // Display disabled destroy menu item with description
+                    else {
+                        menuitems += `<a class="danger disabled" title="user is above 500 rep">DESTROY spammer</a>`; // non-deleted user only
+                    }
                 }
-                /* display disabled destroy menu item with description
-                else {
-                    menuitems += `<a class="danger disabled" title="user is above 500 rep or post older than 30 days">DESTROY spammer</a>`; // non-deleted user only
-                } */
             }
 
             $(this).append(`
