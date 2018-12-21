@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.7.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -305,7 +305,7 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
     z-index: 2;
 }
 .question:hover, .answer:hover {
-    z-index: 30;
+    z-index: 110; /* below sticky header and above "This post has been deleted" message */
 }
 .question:hover .post-stickyheader,
 .answer:hover .post-stickyheader {
