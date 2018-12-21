@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -449,6 +449,8 @@
             const userlink = userbox.find('a').attr('href');
             const userrep = userbox.find('.reputation-score').text();
             const username = userbox.find('.user-details a').first().text();
+            const postdate = userbox.find('.relativetime').attr('title');
+            const postage = (Date.now() - new Date(postdate)) / 86400000;
 
             // Create menu based on post type and state
             let menuitems = '';
@@ -493,12 +495,13 @@
                 menuitems += `<div class="separator"></div>`;
                 menuitems += `<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" target="_blank" title="opens in a new window">request dissociation</a>`; // non-deleted user only
 
-                if(/^\d+$/.test(userrep) && Number(userrep) < 500) {
+                if(/^\d+$/.test(userrep) && Number(userrep) < 500 && postage < 30) {
                     menuitems += `<a data-action="destroy-spammer" data-uid="${uid}" data-username="${username}" class="danger" title="confirms whether you want to destroy the account">DESTROY spammer</a>`; // non-deleted user only
                 }
+                /* display disabled destroy menu item with description
                 else {
-                    menuitems += `<a class="danger disabled" title="user is above 500 reputation">DESTROY spammer</a>`; // non-deleted user only
-                }
+                    menuitems += `<a class="danger disabled" title="user is above 500 rep or post older than 30 days">DESTROY spammer</a>`; // non-deleted user only
+                } */
             }
 
             $(this).append(`
