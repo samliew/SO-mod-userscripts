@@ -3,7 +3,7 @@
 // @description  Fetch vote counts for posts and enables you to click to fetch them again, even if you do not have sufficient rep. Also enables fetch vote counts on posts in mod flag queue.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -23,9 +23,9 @@
 
     function doPageLoad() {
 
-        $('.vote-count-post').attr('title', 'View upvote and downvote totals');
+        $('.js-vote-count, .vote-count-post').attr('title', 'View upvote and downvote totals');
 
-        $('#content').on('click', '.js-vote-count', function() {
+        $('#content').on('click', '.js-vote-count, .vote-count-post', function() {
             const votesElem = $(this);
             let pid = $(this).parents('.answer').first().attr('data-answerid');
             if(pid == null) pid = $(this).parents('.question').attr('data-questionid');
@@ -63,8 +63,9 @@
     function appendStyles() {
 
         const styles = `
-<style>
-.votecell .js-vote-count {
+<style>,
+.votecell .js-vote-count,
+.votecell .vote-count-post {
     cursor: pointer !important;
 }
 </style>
