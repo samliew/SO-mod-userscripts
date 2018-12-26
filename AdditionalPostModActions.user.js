@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.2
+// @version      1.3.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -330,9 +330,13 @@
 
 
     // Destroy spammer
-    function destroySpammer(uid) {
+    function destroySpammer(uid, destroyDetails = '') {
         return new Promise(function(resolve, reject) {
             if(typeof uid === 'undefined' || uid === null) { reject(); return; }
+
+            if(destroyDetails == '') {
+                destroyDetails = prompt('Additional details for destroying user (if any):').trim();
+            }
 
             $.post({
                 url: `https://${location.hostname}/admin/users/${uid}/destroy`,
@@ -341,7 +345,7 @@
                     'deleteReasonDetails': '',
                     'mod-actions': 'destroy',
                     'destroyReason': 'This user was created to post spam or nonsense and has no other positive participation',
-                    'destroyReasonDetails': '',
+                    'destroyReasonDetails': destroyDetails,
                     'fkey': fkey
                 }
             })
@@ -615,7 +619,7 @@
                     break;
                 case 'destroy-spammer':
                     if(confirm(`Confirm DESTROY the spammer "${uName}" (id: ${uid}) irreversibly???`) &&
-                       confirm("Are you VERY SURE you want to DESTROY this account???")) {
+                       confirm(`Are you VERY SURE you want to DESTROY the account "${uName}"???`)) {
                         destroySpammer(uid).then(reloadPage);
                     }
                     break;
