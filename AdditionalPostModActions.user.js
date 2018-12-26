@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.3
+// @version      1.3.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -330,12 +330,16 @@
 
 
     // Destroy spammer
-    function destroySpammer(uid, destroyDetails = '') {
+    function destroySpammer(uid, destroyDetails = null) {
         return new Promise(function(resolve, reject) {
             if(typeof uid === 'undefined' || uid === null) { reject(); return; }
 
-            if(destroyDetails == '') {
-                destroyDetails = prompt('Additional details for destroying user (if any):').trim();
+            // If details is null or whitespace, get optional details
+            if(destroyDetails == null || destroyDetails.trim().length == 0) {
+                destroyDetails = prompt('Additional details for destroying user (if any). Cancel button terminates destroy action.');
+
+                // If still null, reject promise and return early
+                if(destroyDetails == null) { alert('Destroy cancelled. User was not destroyed.'); reject(); return; }
             }
 
             $.post({
@@ -345,7 +349,7 @@
                     'deleteReasonDetails': '',
                     'mod-actions': 'destroy',
                     'destroyReason': 'This user was created to post spam or nonsense and has no other positive participation',
-                    'destroyReasonDetails': destroyDetails,
+                    'destroyReasonDetails': destroyDetails.trim(),
                     'fkey': fkey
                 }
             })
