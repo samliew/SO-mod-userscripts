@@ -64,10 +64,12 @@ These are highly recommended for everyone because they are too awesome:
 
 - Display users' prior review bans in review (links to review ban history), ban quicklink
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-24_140417.png)
-- Insert review ban button in user review ban history page
+- Insert review ban/unban button in user review ban history page
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-24_140443.png)
-- Load ban form for user if user ID passed via hash
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-24_140419.png)
+- If ban quicklink is clicked from a review, auto user lookup if user ID passed via hash, auto-fill reason with review URL
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-12-31_111248.png)
+- Link ban counts in table to user's review history
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-12-31_111202.png)
 
 
 ### [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts/blob/master/DisplayInlineCommentFlagHistory.user.js) ♦
