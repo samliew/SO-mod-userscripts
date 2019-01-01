@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.3
+// @version      1.7.4
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -303,9 +303,6 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 .post-stickyheader ~ .post-layout .votecell .js-voting-container {
     top: 51px;
     z-index: 2;
-}
-.question:hover, .answer:hover {
-    z-index: 1000; /* above "This post has been deleted" message, as well as the sidebar */
 }
 .question:hover .post-stickyheader,
 .answer:hover .post-stickyheader {
