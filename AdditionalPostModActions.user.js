@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.5
+// @version      1.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -378,6 +378,9 @@
         ).click();
 
         $('.popup-submit').click();
+
+        // Failsafe
+        $('#templateName').val('post disassociation');
     }
 
 
@@ -386,9 +389,28 @@
         // Only on main sites
         if(typeof StackExchange.options.site.parentUrl !== 'undefined') return;
 
-        // If on contact CM page and action = dissocciate, click template link
+        // If on contact CM page and action = dissocciate
         if(location.pathname.includes('/admin/cm-message/create/') && getQueryParam('action') == 'dissociate') {
+
+            // On any page update
+            $(document).ajaxComplete(function(event, xhr, settings) {
+
+                console.log(location.pathname, settings.url, getQueryParam('action'), getQueryParam('pid'));
+
+                // If CM templates loaded on contact CM page, and action = dissocciate, update templates
+                if(settings.url.includes('/admin/contact-cm/template-popup/') && location.pathname.includes('/admin/cm-message/create/') && getQueryParam('action') == 'dissociate') {
+
+                    // Run once only. Unbind ajaxComplete event
+                    $(event.currentTarget).unbind('ajaxComplete');
+
+                    // Update CM mod templates
+                    setTimeout(updateModTemplates, 200);
+                }
+            });
+
+            // click template link
             $('#show-templates').click();
+
             return;
         }
 
@@ -411,19 +433,10 @@
             });
             return;
         }
-
-        // On any page update
-        $(document).ajaxComplete(function(event, xhr, settings) {
-
-            // If CM templates loaded on contact CM page, and action = dissocciate, update templates
-            if(settings.url.includes('/admin/contact-cm/template-popup/') && location.pathname.includes('/admin/cm-message/create/') && getQueryParam('action') == 'dissociate') {
-                setTimeout(updateModTemplates, 200);
-            }
-        });
     }
 
 
-    function appendPostModMenuLink() {
+    function appendPostModMenus() {
 
         // Add post issues container in mod flag queues, as expanded posts do not have this functionality
         $('.flagged-post-row .votecell .vote').filter(function() {
@@ -528,7 +541,7 @@
     }
 
 
-    function initPostModMenuLinks() {
+    function initPostModMenuLinkActions() {
 
         // Handle mod actions menu link click
         $('#content').on('click', '.post-mod-menu a', function() {
@@ -638,24 +651,18 @@
         });
 
         // Once on page load
-        appendPostModMenuLink();
+        appendPostModMenus();
     }
 
 
     function doPageload() {
 
-        initPostModMenuLinks();
+        initPostModMenuLinkActions();
         initPostDissociationHelper();
 
-        // On any page update
-        $(document).ajaxComplete(function(event, xhr, settings) {
-
-            appendPostModMenuLink();
-
-            // If CM templates loaded on contact CM page, and action = dissocciate, update templates
-            if(settings.url.includes('/admin/contact-cm/template-popup/') && location.pathname.includes('/admin/cm-message/create/') && getQueryParam('action') == 'dissociate') {
-                setTimeout(updateModTemplates, 200);
-            }
+        // After requests have completed
+        $(document).ajaxStop(function() {
+            appendPostModMenus();
         });
     }
 
