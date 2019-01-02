@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -395,16 +395,14 @@
             // On any page update
             $(document).ajaxComplete(function(event, xhr, settings) {
 
-                console.log(location.pathname, settings.url, getQueryParam('action'), getQueryParam('pid'));
-
                 // If CM templates loaded on contact CM page, and action = dissocciate, update templates
-                if(settings.url.includes('/admin/contact-cm/template-popup/') && location.pathname.includes('/admin/cm-message/create/') && getQueryParam('action') == 'dissociate') {
+                if(settings.url.includes('/admin/contact-cm/template-popup/')) {
 
                     // Run once only. Unbind ajaxComplete event
                     $(event.currentTarget).unbind('ajaxComplete');
 
                     // Update CM mod templates
-                    setTimeout(updateModTemplates, 200);
+                    setTimeout(updateModTemplates, 500);
                 }
             });
 
