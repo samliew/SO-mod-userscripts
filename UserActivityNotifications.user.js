@@ -3,7 +3,7 @@
 // @description  Display notifications on user profile when new activity is detected since page load
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.2
+// @version      0.1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -70,7 +70,7 @@ Notification.requestPermission();
         let n = new Notification(title, options);
 
         // Open content if notification clicked
-        if(typeof link !== 'undefined') {
+        if(typeof link !== 'undefined' && link != null) {
             n.onclick = function(evt) {
                 evt.preventDefault(); // prevent the browser from focusing the triggering Notification's tab
                 window.open(link, '_blank');
@@ -113,18 +113,28 @@ Notification.requestPermission();
             // Take last(latest) three
             v.slice(-3).forEach(function(w) {
                 let action = w.timeline_type;
+                let text = w.title;
+                let url = w.link;
                 switch(w.timeline_type) {
-                    case 'commented': action = 'commented'; break;
-                    case 'revision': action = 'edited post'; break;
-                    case 'suggested': action = 'suggested edit'; break;
-                    case 'reviewed': action = 'reviewed'; break;
-                    case 'answer': action = 'posted answer'; break;
-                    case 'question': action = 'asked question'; break;
-                    case 'accepted': action = 'accepted answer'; break;
-                    case 'badge': action = 'earned badge'; break;
+                    case 'commented': action = 'commented'; text = w.detail;
+                        break;
+                    case 'revision': action = 'edited post';
+                        break;
+                    case 'suggested': action = 'suggested edit';
+                        break;
+                    case 'reviewed': action = 'reviewed edit';
+                        break;
+                    case 'answer': action = 'posted answer';
+                        break;
+                    case 'question': action = 'asked question';
+                        break;
+                    case 'accepted': action = 'accepted answer';
+                        break;
+                    case 'badge': action = 'earned badge'; text = w.detail; url = null;
+                        break;
                 }
-                notify(`${username} ${action}`, w.link, {
-                    body: w.detail ? `"${w.detail}"` : w.title
+                notify(`${username} ${action}`, url, {
+                    body: text
                 });
             });
         });
