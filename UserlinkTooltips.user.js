@@ -3,7 +3,7 @@
 // @description  Display reputation in tooltip upon user link mouseover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -22,6 +22,7 @@
 
 
     const apikey = '6WNNW7fOBHWKrUmONL3Row((';
+    let cachedResults = [], userlinks;
 
 
     // Get user info
@@ -40,13 +41,31 @@
     }
 
 
+    function processResults(user) {
+        userlinks
+            .filter((i, el) => user.user_id == el.dataset.uid)
+            .attr('title', `${user.reputation.toLocaleString('en-US')} reputation`)
+            .attr('data-rep', `${user.reputation}`);
+    }
+
+
     function processUserlinks() {
 
-        // Only userlinks without title and data-uid and data-rep
-        const userlinks = $('a[href*="/users/"]').filter((i, el) => el.title === '' && typeof el.dataset.uid === 'undefined' && typeof el.dataset.rep === 'undefined').each(function(i, el) {
-            const id = (el.href.match(/\d+/) || ['']).pop();
-            el.dataset.uid = id; // set computed data-uid
+        // Only userlinks without title and from same hostname
+        userlinks = $('a[href*="/users/"]')
+            .filter((i, el) => el.title === '' && typeof el.dataset.rep === 'undefined' && el.href.includes(location.hostname))
+            .each(function(i, el) {
+                const id = (el.href.match(/\d+/) || ['']).pop();
+                el.dataset.uid = id; // set computed data-uid
+            });
+
+        // Re-process new userlinks which were already previously cached (i.e.: more comments loaded)
+        cachedResults.forEach(function(user) {
+            processResults(user);
         });
+
+        // Now get userlinks which rep is still unknown
+        userlinks = userlinks.filter((i, el) => typeof el.dataset.rep === 'undefined');
 
         // Get array of non-empty and unique uids
         const uids = userlinks.map((i, el) => el.dataset.uid).get().filter((v, i, self) => v !== '' && self.indexOf(v) === i);
@@ -55,7 +74,8 @@
 
         getUserInfo(uids).then(function(users) {
             users.forEach(function(user) {
-                userlinks.filter((i, el) => user.user_id == el.dataset.uid).attr('title', `${user.reputation.toLocaleString('en-US')} reputation`).attr('data-rep', `${user.reputation}`);
+                cachedResults[user.user_id] = user;
+                processResults(user);
             });
         });
     }
