@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.4.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -387,7 +387,7 @@
     function initPostDissociationHelper() {
 
         // Only on main sites
-        if(typeof StackExchange.options.site.parentUrl !== 'undefined') return;
+        if(isMeta) return;
 
         // If on contact CM page and action = dissocciate
         if(location.pathname.includes('/admin/cm-message/create/') && getQueryParam('action') == 'dissociate') {
@@ -508,7 +508,8 @@
 
             menuitems += `<a data-action="unlock" class="${!isLocked || isMigrated ? 'dno' : ''}">unlock</a>`; // L-only
 
-            if(userlink && /.*\/\d+\/.*/.test(userlink)) {
+            // CM message and destroy options won't work on Meta
+            if(userlink && /.*\/\d+\/.*/.test(userlink) && !isMeta) {
                 const uid = Number(userlink.match(/\/\d+\//)[0].replace(/\D+/g, ''));
 
                 menuitems += `<div class="separator"></div>`;
