@@ -3,7 +3,7 @@
 // @description  Display notifications on user profile when new activity is detected since page load
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.1
+// @version      0.1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -18,6 +18,9 @@
 
 
 // If user accepts, we can show native notifications
+if(!("Notification" in window)) {
+    console.log("This browser does not support desktop notifications.");
+}
 Notification.requestPermission();
 
 
@@ -27,14 +30,44 @@ Notification.requestPermission();
 
     const apikey = 'dhFaTnM59qx5gK807L7dNw((';
     const pollInterval = 30;
-    let lastCheckedDate = 0;
+    let lastCheckedDate = Math.floor(Date.now() / 1000) - 5 * 60; // Start from five minutes ago
     let interval;
     let userId, username;
 
 
+    // Get site favicon, adapted from https://stackoverflow.com/a/10283308
+    let siteIcon = (function() {
+        let ico = undefined;
+        const nodeList = document.getElementsByTagName("link");
+        for (var i = 0; i < nodeList.length; i++)
+        {
+            if(nodeList[i].getAttribute("rel") == "icon" || nodeList[i].getAttribute("rel") == "shortcut icon")
+            {
+                ico = nodeList[i].getAttribute("href");
+                break;
+            }
+        }
+        return ico;
+    })();
+
+
     // Show native notification
-    function notify(title, link, details = {}, dismissAfter = 15) {
-        var n = new Notification(title, details);
+    function notify(title, link, options = {}, dismissAfter = 15) {
+
+        // User has not enabled notifications yet
+        if(Notification.permission !== 'granted') {
+            console.log('Notifications permission not granted.');
+            return false;
+        }
+
+        $.extend(options, {
+            silent: true,
+            noscreen: true,
+            icon: siteIcon,
+            badge: siteIcon,
+        });
+
+        let n = new Notification(title, options);
 
         // Open content if notification clicked
         if(typeof link !== 'undefined') {
@@ -45,7 +78,7 @@ Notification.requestPermission();
         }
 
         // Auto-dismiss notification
-        if(dismissAfter >= 3) setTimeout(n.close.bind(n), dismissAfter * 1000);
+        if(dismissAfter > 0) setTimeout(n.close.bind(n), dismissAfter * 1000);
     }
 
 
@@ -59,11 +92,11 @@ Notification.requestPermission();
     const hasBackoff = () => typeof backoff !== 'undefined' && !isNaN(backoff);
 
 
-    // Get user info
+    // Get user timeline
     function getUserInfo(uid, fromdate = 0) {
         return new Promise(function(resolve, reject) {
             if(typeof uid === 'undefined' || uid === null || hasBackoff()) { reject(); return; }
-            $.get(`http://api.stackexchange.com/2.2/users/${uid}/timeline?pagesize=30&fromdate=${lastCheckedDate}&site=${location.hostname}&filter=!))yem8S&key=${apikey}`)
+            $.get(`http://api.stackexchange.com/2.2/users/${uid}/timeline?pagesize=${Math.ceil(pollInterval/2)}&fromdate=${lastCheckedDate}&site=${location.hostname}&filter=!))yem8S&key=${apikey}`)
                 .done(function(data) {
                     lastCheckedDate = Math.floor(Date.now() / 1000);
                     if(data.backoff) backoff = addBackoff(data.backoff);
@@ -77,10 +110,10 @@ Notification.requestPermission();
 
     function scheduledTask() {
         getUserInfo(userId).then(function(v) {
-            if(v.length > 0) {
-                let lastAction = v[0];
-                let action = "";
-                switch(lastAction.timeline_type) {
+            // Take last(latest) three
+            v.slice(-3).forEach(function(w) {
+                let action = w.timeline_type;
+                switch(w.timeline_type) {
                     case 'commented': action = 'commented'; break;
                     case 'revision': action = 'edited post'; break;
                     case 'suggested': action = 'suggested edit'; break;
@@ -90,10 +123,10 @@ Notification.requestPermission();
                     case 'accepted': action = 'accepted answer'; break;
                     case 'badge': action = 'earned badge'; break;
                 }
-                notify(`${username} ${action}`, lastAction.link, {
-                    body: `${lastAction.detail ? '"'+lastAction.detail+'"' : ''} on ${lastAction.title}`
+                notify(`${username} ${action}`, w.link, {
+                    body: w.detail ? `"${w.detail}"` : w.title
                 });
-            }
+            });
         });
     }
 
@@ -105,7 +138,7 @@ Notification.requestPermission();
 
         // Get user details
         userId = Number(location.pathname.match(/\/\d+\//)[0].replace(/\D+/g, ''));
-        username = $('.profile-user--name > div:first, .mini-avatar .name').text().trim().replace('♦', '').replace(/\s+/g, ' ');
+        username = $('.profile-user--name > div:first, .mini-avatar .name').text().replace('♦', '').replace(/\s+/g, ' ').trim();
 
         // Run once on page load, then start polling API occasionally
         scheduledTask();
