@@ -3,7 +3,7 @@
 // @description  New page to review rejected suggested edits
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.5
 //
 // @include      https://*stackoverflow.com/review/suggested-edits*
 // @include      https://*serverfault.com/review/suggested-edits*
@@ -155,8 +155,9 @@ was rejected <span title="${toDateFormat(rejectionDate)}" class="relativetime">$
 
             buildPagination(Math.ceil(data.total / data.page_size), data.page);
 
-            // Load anonymous details
-            $('span.userlink').parent().siblings('.toggle').trigger('preload');
+            // Load anonymous details if <= 10
+            const anonusers = $('span.userlink');
+            if(anonusers.length <= 10) anonusers.parent().siblings('.toggle').trigger('preload');
         });
     }
 
@@ -166,7 +167,7 @@ was rejected <span title="${toDateFormat(rejectionDate)}" class="relativetime">$
         document.title = `Rejected Reviews - Suggested Edits - ${sitename}`;
 
         // Insert nav and results container
-        const content = $('#mainbar-full').html('').append(`<div class="subheader tools-rev">
+        const content = $('#content').html('<div id="mainbar" role="main" class="grid"></div>').append(`<div class="subheader tools-rev">
     <h1><a href="/review">Review</a><span class="lsep">|</span><span class="review-title">Rejected Suggested Edits</span></h1>
     <div id="tabs">
         <a href="/review/suggested-edits/stats">stats</a>
@@ -233,6 +234,21 @@ was rejected <span title="${toDateFormat(rejectionDate)}" class="relativetime">$
                         const drasticRejects = data.instructions.match(/This edit deviates from the original intent/g);
                         if(drasticRejects && drasticRejects.length > 0) {
                             infoDiv.before(`, for <b>drastic changes</b> x${drasticRejects.length}`);
+                        }
+
+                        const harmfulRejects = data.instructions.match(/completely superfluous or actively harm readability/g);
+                        if(harmfulRejects && harmfulRejects.length > 0) {
+                            infoDiv.before(`, for <b>no improvement</b> x${harmfulRejects.length}`);
+                        }
+
+                        const tagRejects = data.instructions.match(/This edit introduces tags that do not help to define the topic/g);
+                        if(tagRejects && tagRejects.length > 0) {
+                            infoDiv.before(`, for <b>irrelevant tags</b> x${tagRejects.length}`);
+                        }
+
+                        const replyRejects = data.instructions.match(/should have been written as a comment/g);
+                        if(replyRejects && replyRejects.length > 0) {
+                            infoDiv.before(`, for <b>attempting to reply</b> x${replyRejects.length}`);
                         }
                     });
                 });
