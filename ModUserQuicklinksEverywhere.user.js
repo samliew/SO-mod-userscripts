@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.1
+// @version      2.3.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -59,6 +59,8 @@
 
 
     function appendStyles() {
+
+        $('.task-stat-leaderboard').removeClass('user-info');
 
         const styles = `
 <style>
