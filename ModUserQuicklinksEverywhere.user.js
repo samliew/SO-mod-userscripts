@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -80,6 +80,10 @@
 }
 .deleted-answer .mod-userlinks {
     background-color: #f4eaea;
+}
+/* review stats/leaderboard */
+.stats-mainbar .task-stat-leaderboard .user-details {
+    line-height: inherit;
 }
 </style>
 `;
