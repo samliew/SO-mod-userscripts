@@ -3,7 +3,7 @@
 // @description  Dropdown list of migration targets displaying site icon/logo/header images and links to the selected site's on-topic page and mod list. Displays additional information for custom flagger for selected network site.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.2
+// @version      2.4.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -265,6 +265,10 @@ Q&A for ${site.audience}<br><a href="${site.site_url}/help/on-topic" target="_bl
 
 
     function doPageLoad() {
+
+        // Do not run if not on question page or mod queue
+        const cls = document.body.classList;
+        if(!cls.contains('question-page') && !cls.contains('mod-page')) return;
 
         // Cache list in localstorage
         getMainNetworkSites().then(v => {
