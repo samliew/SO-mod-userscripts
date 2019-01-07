@@ -3,7 +3,7 @@
 // @description  Fetch vote counts for posts and enables you to click to fetch them again, even if you do not have sufficient rep. Also enables fetch vote counts on posts in mod flag queue.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.2
+// @version      1.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -21,6 +21,9 @@
     'use strict';
 
 
+    const apikey = 'Omd8BBk1xrNxvCOh*xtiCw((';
+
+
     function doPageLoad() {
 
         $('.js-vote-count, .vote-count-post').attr('title', 'View upvote and downvote totals');
@@ -34,7 +37,7 @@
             if(StackExchange.options.user.rep < 1000) {
                 StackExchange.helpers.addSpinner(this);
 
-                $.get(`https://api.stackexchange.com/2.2/posts/${pid}?filter=!w-*Ytm8Gt4I)pS_ZBu&site=${location.hostname}`)
+                $.get(`https://api.stackexchange.com/2.2/posts/${pid}?filter=!w-*Ytm8Gt4I)pS_ZBu&site=${location.hostname}&key=${apikey}`)
                     .done(function(data) {
                         StackExchange.helpers.removeSpinner();
                         votesElem.attr('title', `${+data.items[0].up_vote_count} up / ${+data.items[0].down_vote_count} down`)
