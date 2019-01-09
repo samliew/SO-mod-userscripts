@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.8.4
+// @version      4.8.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -45,6 +45,7 @@
     const searchSelector = $(`<div class="grid--cell f-select w20 wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
   <option data-url="${mainUrl}/search" ${!isChildMeta ? 'selected="selected"' : ''} data-mixed="0">${mainName}</option>
   <option data-url="${metaUrl}/search" ${ isChildMeta ? 'selected="selected"' : ''}>Meta</option>
+  <option data-url="https://${mseDomain}/search">Meta Stack Exchange</option>
 </select></div>`);
     const lsidebar = $('#left-sidebar');
     const searchform = $('#search');
@@ -1026,7 +1027,9 @@
         }
         // If using new search bar
         else {
-            $('#search-channel-selector option[selected]').after(`<option data-url="${metaUrl}/search">Meta ${mainName}</option>`);
+            $('#search-channel-selector option[selected]')
+                .after(`<option data-url="https://${mseDomain}/search">Meta Stack Exchange</option>`)
+                .after(`<option data-url="${metaUrl}/search">Meta ${mainName}</option>`);
         }
 
         // New left navigation, link to parent/meta site
