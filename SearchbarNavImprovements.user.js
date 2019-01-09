@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.8.3
+// @version      4.8.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1497,16 +1497,12 @@ button, .button,
 .w20 {
     width: 20% !important;
 }
-.f-select>select {
-    margin: 0;
-    padding-top: 6px;
-    padding-bottom: 6px;
-}
 .f-select > select {
     -webkit-appearance: none;
     -moz-appearance: none;
     appearance: none;
     flex: 1 auto;
+    margin: 0;
     padding: 8px 16px;
     padding-right: 32px;
     font-size: 13px;
@@ -1517,6 +1513,9 @@ button, .button,
     border: 1px solid #c8ccd0;
     border-radius: 2px;
     transition: color 600ms cubic-bezier(.165, .84, .44, 1),border-color 600ms cubic-bezier(.165, .84, .44, 1),box-shadow 600ms cubic-bezier(.165, .84, .44, 1),background-color 600ms cubic-bezier(.165, .84, .44, 1);
+}
+.channels-page .search-channel-switcher-select {
+    color: white;
 }
 .search-channel-switcher {
     height: 36px;
