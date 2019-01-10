@@ -3,7 +3,7 @@
 // @description  New page to review rejected suggested edits
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @include      https://*stackoverflow.com/review/suggested-edits*
 // @include      https://*serverfault.com/review/suggested-edits*
@@ -18,6 +18,8 @@
 // @include      https://*askubuntu.com/admin/links
 // @include      https://*mathoverflow.net/admin/links
 // @include      https://*.stackexchange.com/admin/links
+//
+// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
 // ==/UserScript==
 
 (function() {
@@ -37,7 +39,6 @@
 
     const resultsDiv = $(`<div id="reviews"></div>`);
     const pagerDiv = $(`<div class="pager fl"></div>`);
-    let backoff = new Date();
 
 
     const getQueryParam = key => new URLSearchParams(location.search).get(key);
@@ -115,10 +116,7 @@
     function getRejected(page = 1) {
 
         // Check for backoff
-        if(new Date() <= backoff) {
-            console.log('backoff');
-            return;
-        }
+        if(hasBackoff()) { return; }
 
         resultsDiv.empty();
         StackExchange.helpers.addSpinner('#reviews');
@@ -126,11 +124,7 @@
         $.get(`https://api.stackexchange.com/2.2/suggested-edits?page=${page}&pagesize=100&order=desc&sort=rejection&filter=!*KkBP6Je7loS9)xf&site=${location.hostname}&key=${apikey}`, function(data) {
             StackExchange.helpers.removeSpinner();
 
-            // Store backoff value if found
-            if(data.backoff) {
-                backoff = new Date();
-                backoff.setSeconds( backoff.getSeconds() + data.backoff);
-            }
+            addBackoff(data.backoff);
 
             const items = data.items;
             let html = '';
