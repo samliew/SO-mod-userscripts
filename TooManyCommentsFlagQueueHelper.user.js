@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4.6
+// @version      3.4.7
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 // ==/UserScript==
@@ -132,7 +132,7 @@
         // Expand unhandled posts
         const unhandledPosts = $('.flagged-post-row').filter((i,el) => $('.mod-post-actions', el).text().indexOf('ModMovedCommentsToChat') === -1);
         const handledPosts = $('.flagged-post-row').not(unhandledPosts).addClass('comments-handled');
-        setTimeout((unhandledPosts) => $('.expand-body', unhandledPosts).click(), 300, unhandledPosts);
+        setTimeout((unhandledPosts) => $('.expand-body', unhandledPosts).click(), 1000, unhandledPosts);
 
         // Add "done" (no further action (helpful)) button
         $('.delete-options').append(`<input class="immediate-dismiss-all" type="button" value="done (helpful)" title="dismiss all flags (helpful)" />`);
