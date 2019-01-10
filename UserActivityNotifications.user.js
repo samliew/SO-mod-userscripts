@@ -3,7 +3,7 @@
 // @description  Display notifications on user profile when new activity is detected since page load
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.3
+// @version      0.1.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -14,6 +14,8 @@
 //
 // @exclude      *chat.*
 // @exclude      https://stackoverflow.com/c/*
+//
+// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
 // ==/UserScript==
 
 
@@ -82,20 +84,11 @@ Notification.requestPermission();
     }
 
 
-    // Set a global backoff variable from now until X seconds later
-    function addBackoff(secs) {
-        if(isNaN(secs)) return;
-        const w = window;
-        w.backoff = setTimeout(() => { clearTimeout(w.backoff); w.backoff = null }, secs * 1000);
-    }
-    // Helper method to check if backoff is active
-    const hasBackoff = () => typeof backoff !== 'undefined' && !isNaN(backoff);
-
-
     // Get user timeline
     function getUserInfo(uid, fromdate = 0) {
         return new Promise(function(resolve, reject) {
-            if(typeof uid === 'undefined' || uid === null || hasBackoff()) { reject(); return; }
+            if(hasBackoff()) { reject(); return; }
+            if(typeof uid === 'undefined' || uid === null) { reject(); return; }
             $.get(`http://api.stackexchange.com/2.2/users/${uid}/timeline?pagesize=${Math.ceil(pollInterval/2)}&fromdate=${lastCheckedDate}&site=${location.hostname}&filter=!))yem8S&key=${apikey}`)
                 .done(function(data) {
                     lastCheckedDate = Math.floor(Date.now() / 1000);
@@ -103,7 +96,10 @@ Notification.requestPermission();
                     resolve(data.items);
                     return;
                 })
-                .fail(reject);
+                .fail(function() {
+                    addBackoff(5);
+                    reject();
+                });
         });
     }
 
