@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.5.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -93,11 +93,20 @@
                     return `<a href="/users/history/${uid}?type=User+has+been+banned+from+review" target="_blank" title="see review ban history">${v}</a>`;
                 });
             });
-        }
 
-        // Load ban form for user if passed via querystring
-        if(location.pathname === '/admin/review/bans') {
+            // Fix table date sorting
+            setTimeout(() => {
+                $.tablesorter.destroy('.sorter', true, function() {
 
+                    // Add classes to date column headers
+                    $('.sorter th').slice(1,3).addClass('sorter-miniDate');
+
+                    // Reinit sorter
+                    $('.sorter').tablesorter();
+                });
+            }, 1000);
+
+            // Load ban form for user if passed via querystring
             var params = location.hash.substr(1).split('|');
             var uid = params[0];
 
@@ -250,6 +259,13 @@ a.reviewban-button {
 }
 #lookup-result form > div {
     margin: 5px 0;
+}
+
+table.sorter > tbody > tr:nth-child(odd) > td {
+    background-color: #eee !important;
+}
+table.sorter > tbody > tr:nth-child(even) > td {
+    background-color: white !important;
 }
 </style>
 `;
