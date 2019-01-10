@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.1
+// @version      1.10
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -272,7 +272,7 @@
 
         findDeletedUsers();
 
-        $('.post-layout, .comments').on('mouseover', '.deleted-user', function() {
+        $('.post-layout, .comments, .review-content').on('mouseover', '.deleted-user', function() {
             const userlink = $(this);
             if(userlink.hasClass('deleted-username-loaded')) return;
             userlink.addClass('deleted-username-loaded');
@@ -347,8 +347,8 @@
         // On any page update
         $(document).ajaxComplete(function(event, xhr, settings) {
 
-            // More comments loaded or post expanded in mod queue
-            if(settings.url.includes('/comments') || settings.url.includes('/ajax-load')) findDeletedUsers();
+            // More comments loaded or post expanded in mod queue or review loaded
+            if(settings.url.includes('/comments') || settings.url.includes('/ajax-load') || settings.url.includes('/review/next-task/')) findDeletedUsers();
 
             // Pii loaded on mod dashboard page
             if(settings.url.indexOf('/admin/all-pii') >= 0 && location.pathname.startsWith('/users/account-info/')) showDetailsFieldWhenPiiClicked();
