@@ -3,9 +3,11 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4.7
+// @version      3.5
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
+//
+// @require      https://raw.githubusercontent.com/samliew/ajax-progress/master/jquery.ajaxProgress.js
 // ==/UserScript==
 
 (function() {
@@ -16,6 +18,8 @@
 
 
     const fkey = StackExchange.options.user.fkey;
+    const superusers = [ 584192 ];
+    const delCommentThreshold = 70;
     let ajaxTimeout;
 
     const pluralize = n => n && Number(n) !== 1 ? 's' : '';
@@ -138,43 +142,43 @@
         $('.delete-options').append(`<input class="immediate-dismiss-all" type="button" value="done (helpful)" title="dismiss all flags (helpful)" />`);
 
         // On move comments to chat link click
-        $('.flagged-post-row').on('click', '.move-comments-link', function() {
-            if(confirm('Move all comments to chat & purge?')) {
-                const pid = this.dataset.postId;
-                const flaggedPost = $('#flagged-'+pid);
-                const possibleDupeCommentIds = $(`#comments-${pid} .comment`).not('.deleted-comment')
-                    .filter(function(i, el) {
-                        const cmmtText = $(el).find('.comment-copy').text().toLowerCase();
-                        return cmmtText.indexOf('possible duplicate of ') === 0;
-                    })
-                    .map((i, el) => el.dataset.commentId).get();
+        $('.flagged-post-row').on('click handle', '.move-comments-link', function(evt) {
+            if(evt.type == 'click' && !confirm('Move all comments to chat & purge?')) return;
 
-                moveCommentsOnPostToChat(pid)
-                    .then(function(v) {
-                        undeleteComments(pid, possibleDupeCommentIds);
-                        flaggedPost.addClass('comments-handled');
-                    });
-            }
+            const pid = this.dataset.postId;
+            const flaggedPost = $('#flagged-'+pid);
+            const possibleDupeCommentIds = $(`#comments-${pid} .comment`).not('.deleted-comment')
+            .filter(function(i, el) {
+                const cmmtText = $(el).find('.comment-copy').text().toLowerCase();
+                return cmmtText.indexOf('possible duplicate of ') === 0;
+            })
+            .map((i, el) => el.dataset.commentId).get();
+
+            moveCommentsOnPostToChat(pid)
+                .then(function(v) {
+                undeleteComments(pid, possibleDupeCommentIds);
+                flaggedPost.addClass('comments-handled');
+            });
         });
 
         // On purge all comments link click
-        $('.flagged-post-row').on('click', '.purge-comments-link', function() {
-            if(confirm('Delete ALL comments?')) {
-                const pid = this.dataset.postId;
-                const flaggedPost = $('#flagged-'+pid);
-                const possibleDupeCommentIds = $(`#comments-${pid} .comment`).not('.deleted-comment')
-                    .filter(function(i, el) {
-                        const cmmtText = $(el).find('.comment-copy').text().toLowerCase();
-                        return cmmtText.indexOf('possible duplicate of ') === 0 || cmmtText.indexOf('let us continue this discussion ') === 0;
-                    })
-                    .map((i, el) => el.dataset.commentId).get();
+        $('.flagged-post-row').on('click handle', '.purge-comments-link', function() {
+            if(evt.type == 'click' && !confirm('Delete ALL comments?')) return;
 
-                deleteCommentsOnPost(pid)
-                    .then(function(v) {
-                        undeleteComments(pid, possibleDupeCommentIds);
-                        flaggedPost.addClass('comments-handled');
-                    });
-            }
+            const pid = this.dataset.postId;
+            const flaggedPost = $('#flagged-'+pid);
+            const possibleDupeCommentIds = $(`#comments-${pid} .comment`).not('.deleted-comment')
+                .filter(function(i, el) {
+                    const cmmtText = $(el).find('.comment-copy').text().toLowerCase();
+                    return cmmtText.indexOf('possible duplicate of ') === 0 || cmmtText.indexOf('let us continue this discussion ') === 0;
+                })
+                .map((i, el) => el.dataset.commentId).get();
+
+            deleteCommentsOnPost(pid)
+                .then(function(v) {
+                    undeleteComments(pid, possibleDupeCommentIds);
+                    flaggedPost.addClass('comments-handled');
+                });
         });
 
         // On "done" button click
@@ -187,12 +191,41 @@
             $post.hide();
         });
 
-        // Start from bottom link
-        $('<button>Review from bottom</button>')
-            .click(function() {
-                window.scrollTo(0,999999);
-            })
-            .prependTo('.flag-container');
+        // If there are lots of comment flags
+        if($('.flagged-post-row').length > 1) {
+
+            const actionBtns = $('<div id="actionBtns"></div>');
+
+            // Start from bottom link
+            $('<button>Review from bottom</button>')
+                .click(function() {
+                    window.scrollTo(0,999999);
+                })
+                .appendTo(actionBtns);
+
+            if(superusers.includes(StackExchange.options.user.userId)) {
+
+                // Move all comments on page to chat
+                $('<button class="btn-warning">Move ALL to chat</button>')
+                    .click(function() {
+                        $(this).remove();
+                        const moveLinks = $('.move-comments-link:visible');
+                        $('body').showAjaxProgress(moveLinks.length, { position: 'fixed' });
+                        moveLinks.trigger('handle');
+                    })
+                    .appendTo(actionBtns);
+
+                // Dismiss all handled ones
+                $('<button class="btn-warning">Dismiss ALL handled</button>')
+                    .click(function() {
+                        const dismissLinks = $('.immediate-dismiss-all:visible');
+                        dismissLinks.click();
+                    })
+                    .appendTo(actionBtns);
+            }
+
+            actionBtns.prependTo('.flag-container');
+        }
     }
 
 
@@ -234,15 +267,22 @@
                     const closeReason = closeReasonElem.length ? closeReasonElem.get(0).children[0].childNodes[2].nodeValue.replace(/\s*\b(as|by)\b\s*/g, '') : '';
                     const closeReasonText = closeReasonElem.length && closeReason.length ? `<div>closed: ${closeReason}</div>` : '';
                     const cmmts = el.find('.comment-body');
+                    const cmmtsDel = el.find('.deleted-comment');
+                    const percDel = Math.ceil(cmmtsDel.length / cmmts.length * 100);
                     const cmmtUsers = el.find('.comment-body').find('.comment-user:first').map((i, el) => el.href).get().filter((v, i, self) => self.indexOf(v) === i); // unique users
                     const infoDiv = $(`
-<div>
+<div class="post-comment-stats">
   <h3><b>Post info:</b></h3>
   <div>created: ${postCreated}</div>
   ${numAnswersText}
   ${closeReasonText}
-  <div>${cmmts.length} comments, ${cmmtUsers.length} commentators</div>
+  <div>${cmmtUsers.length} commentators</div>
+  <div>${cmmts.length} comments, ${cmmtsDel.length} deleted (<span class="${percDel >= delCommentThreshold ? 'red' : ''}">${percDel}%</span>)</div>
 </div>`).insertBefore(postOpts);
+
+                    if(percDel >= delCommentThreshold) {
+                        post.addClass('too-many-deleted');
+                    }
                 });
             });
 
@@ -280,12 +320,26 @@
 .post-options.keep .delete-options > input[class="dismiss-all"] {
     display: inline-block;
 }
+.flagged-post-row.too-many-deleted .immediate-dismiss-all,
 .flagged-post-row.already-closed .immediate-dismiss-all,
 .flagged-post-row.comments-handled .immediate-dismiss-all {
     display: inline-block !important;
 }
 .tagged-ignored {
-    opacity: 1;
+    opacity: 1 !important;
+}
+.post-comment-stats {
+    margin: 15px 0;
+    text-align: right;
+}
+.post-comment-stats .red {
+    color: red;
+    font-weight: bold;
+}
+
+#actionBtns button {
+    margin-bottom: 10px;
+    margin-right: 10px;
 }
 </style>
 `;
