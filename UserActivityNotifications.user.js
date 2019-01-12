@@ -3,7 +3,7 @@
 // @description  Display notifications on user profile when new activity is detected since page load
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.4
+// @version      0.1.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -143,7 +143,7 @@ Notification.requestPermission();
         if(!document.body.classList.contains('user-page') || !location.pathname.includes('/users/')) return;
 
         // Get user details
-        userId = Number(location.pathname.match(/\/\d+\//)[0].replace(/\D+/g, ''));
+        userId = Number(location.pathname.match(/\/\d+/)[0].replace('/', ''));
         username = $('.profile-user--name > div:first, .mini-avatar .name').text().replace('♦', '').replace(/\s+/g, ' ').trim();
 
         // Run once on page load, then start polling API occasionally
