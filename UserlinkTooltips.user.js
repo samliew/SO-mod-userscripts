@@ -3,7 +3,7 @@
 // @description  Display reputation in tooltip upon user link mouseover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -24,6 +24,7 @@
 
 
     const apikey = '6WNNW7fOBHWKrUmONL3Row((';
+    const ownId = StackExchange.options.user.userId;
     let cachedResults = [], userlinks;
 
 
@@ -41,7 +42,7 @@
                     return;
                 })
                 .fail(function() {
-                    addBackoff(5);
+                    addBackoff(30);
                     reject();
                 });
         });
@@ -59,7 +60,7 @@
     function processUserlinks() {
 
         // Only userlinks without title and from same hostname
-        userlinks = $('a[href*="/users/"]')
+        userlinks = $('#content a[href*="/users/"]')
             .filter((i, el) => el.title === '' && typeof el.dataset.rep === 'undefined' && el.href.includes(location.hostname))
             .each(function(i, el) {
                 const id = (el.href.match(/\d+/) || ['']).pop();
@@ -74,8 +75,8 @@
         // Now get userlinks which rep is still unknown
         userlinks = userlinks.filter((i, el) => typeof el.dataset.rep === 'undefined');
 
-        // Get array of non-empty and unique uids
-        const uids = userlinks.map((i, el) => el.dataset.uid).get().filter((v, i, self) => v !== '' && self.indexOf(v) === i);
+        // Get array of non-empty and unique uids, ignoring own profile id
+        const uids = userlinks.map((i, el) => el.dataset.uid).get().filter((v, i, self) => v !== '' && v != ownId && self.indexOf(v) === i);
 
         if(uids.length == 0) return;
 
