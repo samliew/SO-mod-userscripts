@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.5
+// @version      1.5
 //
 // @match        https://*stackoverflow.com/*
 // @match        https://*serverfault.com/*
@@ -42,8 +42,8 @@
     function insertPostIds() {
 
         // Lists
-        $('a.answer-hyperlink').each((i,el) => $('<input class="post-id" value="'+el.href.match(/(?<=[/#])(\d+)/g).pop()+'" readonly />').insertAfter(el));
-        $('a.question-hyperlink').each((i,el) => $('<input class="post-id" value="'+el.href.match(/(?<=[/#])(\d+)/g).shift()+'" readonly />').insertAfter(el));
+        $('a.answer-hyperlink'  ).each((i,el) => $('<input class="post-id" title="double click to view timeline" value="'+el.href.match(/(?<=[/#])(\d+)/g).pop()  +'" readonly />').insertAfter(el));
+        $('a.question-hyperlink').each((i,el) => $('<input class="post-id" title="double click to view timeline" value="'+el.href.match(/(?<=[/#])(\d+)/g).shift()+'" readonly />').insertAfter(el));
 
         // Q&A
         $('[data-questionid], [data-answerid]').not('.close-question-link').each((i,el) => $('<input class="post-id" value="'+(el.dataset.answerid||el.dataset.questionid)+'" readonly />').insertBefore($(el).find('.post-layout')));
@@ -61,6 +61,9 @@
 
         // Select when focused
         $(document).on('click', 'input.post-id', function() { this.select(); });
+
+        // Open post timeline in new tab when double clicked
+        $(document).on('dblclick', 'input.post-id', function() { window.open(`https://${location.hostname}/q/${this.value}`, ''); });
     }
 
 
