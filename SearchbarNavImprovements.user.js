@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.8.5
+// @version      4.8.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1535,7 +1535,6 @@ button, .button,
 .top-bar .searchbar .btn-topbar-primary {
     transition: none;
     opacity: 1;
-    transform: translateY(-50%) translateX(1px);
     z-index: 1;
 }
 
