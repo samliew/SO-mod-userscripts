@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.5
+// @version      3.5.1
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 //
@@ -19,7 +19,7 @@
 
     const fkey = StackExchange.options.user.fkey;
     const superusers = [ 584192 ];
-    const delCommentThreshold = 70;
+    const delCommentThreshold = 50;
     let ajaxTimeout;
 
     const pluralize = n => n && Number(n) !== 1 ? 's' : '';
@@ -162,7 +162,7 @@
         });
 
         // On purge all comments link click
-        $('.flagged-post-row').on('click handle', '.purge-comments-link', function() {
+        $('.flagged-post-row').on('click handle', '.purge-comments-link', function(evt) {
             if(evt.type == 'click' && !confirm('Delete ALL comments?')) return;
 
             const pid = this.dataset.postId;
