@@ -3,7 +3,7 @@
 // @description  Display notifications on user profile when new activity is detected since page load
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.7
+// @version      0.1.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -34,7 +34,7 @@ Notification.requestPermission();
     const pollInterval = 30;
     let lastCheckedDate = Math.floor(Date.now() / 1000) - 30 * 60; // Start from x minutes ago
     let interval;
-    let userId, username;
+    let userId, username, shortname;
 
 
     // Get site favicon, adapted from https://stackoverflow.com/a/10283308
@@ -133,7 +133,7 @@ Notification.requestPermission();
                     case 'badge': action = 'earned badge'; text = w.detail; url = null;
                         break;
                 }
-                notify(`${username} ${action}`, url, {
+                notify(`${shortname} ${action}`, url, {
                     body: text
                 });
             });
@@ -149,6 +149,7 @@ Notification.requestPermission();
         // Get user details
         userId = Number(location.pathname.match(/\/\d+/)[0].replace('/', ''));
         username = $('.profile-user--name > div:first, .mini-avatar .name').text().replace('♦', '').replace(/\s+/g, ' ').trim();
+        shortname = username.split(' ')[0].substr(0, 12).trim();
 
         // Run once on page load, then start polling API occasionally
         scheduledTask();
