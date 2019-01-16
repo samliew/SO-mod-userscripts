@@ -3,7 +3,7 @@
 // @description  Display notifications on user profile when new activity is detected since page load
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.5
+// @version      0.1.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -32,7 +32,7 @@ Notification.requestPermission();
 
     const apikey = 'dhFaTnM59qx5gK807L7dNw((';
     const pollInterval = 30;
-    let lastCheckedDate = Math.floor(Date.now() / 1000) - 5 * 60; // Start from five minutes ago
+    let lastCheckedDate = Math.floor(Date.now() / 1000) - 10 * 60; // Start from x minutes ago
     let interval;
     let userId, username;
 
