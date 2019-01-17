@@ -3,7 +3,7 @@
 // @description  Display notifications on user profile when new activity is detected since page load
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.8
+// @version      0.1.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -145,6 +145,9 @@ Notification.requestPermission();
 
         // Do not run if not on user page
         if(!document.body.classList.contains('user-page') || !location.pathname.includes('/users/')) return;
+
+        // Do not run if user is deleted
+        if(document.title.contains('User deleted')) return;
 
         // Get user details
         userId = Number(location.pathname.match(/\/\d+/)[0].replace('/', ''));
