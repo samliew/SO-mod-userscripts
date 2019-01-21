@@ -3,7 +3,7 @@
 // @description  Dropdown list of migration targets displaying site icon/logo/header images and links to the selected site's on-topic page and mod list. Displays additional information for custom flagger for selected network site.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.3
+// @version      2.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -15,6 +15,8 @@
 // @exclude      *chat.*
 // @exclude      https://stackoverflow.com/c/*
 // @exclude      https://stackoverflow.com/jobs*
+//
+// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
 // ==/UserScript==
 
 
@@ -27,23 +29,8 @@
 
     const store = window.localStorage;
     const cdn = 'https://cdn.sstatic.net/Sites/';
+    const apikey = 'Wjm8SDrrbQSDSUwcLaifHA((';
     let networkSites, networkSitenames, flaggeraccounts;
-
-
-    jQuery.getCachedScript = function(url, callback) {
-        return $.ajax({
-            url: url,
-            dataType: 'script',
-            cache: true
-        }).done(callback);
-    };
-
-
-    jQuery.fn.getUid = function() {
-        const url = $(this).attr('href') || '';
-        if(url.indexOf('/users/') == -1) return null;
-        return Number((url.match(/\/\d+\/?/) || [''])[0].replace(/[^\d]/g, ''));
-    };
 
 
     function getNetworkSites() {
@@ -53,7 +40,7 @@
         return new Promise(function(resolve, reject) {
             if(v != null) { resolve(v); return; }
 
-            $.get(`https://api.stackexchange.com/2.2/sites?pagesize=999&filter=!)QmDp1jjtiQg0J)1qAulk5k1`)
+            $.get(`https://api.stackexchange.com/2.2/sites?pagesize=999&filter=!)QmDp1jjtiQg0J)1qAulk5k1&key=${apikey}`)
                 .done(function(data) {
                     store.setItem(fullkey, JSON.stringify(data.items));
                     resolve(data.items);
