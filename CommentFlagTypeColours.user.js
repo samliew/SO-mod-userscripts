@@ -3,14 +3,14 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.3
+// @version      1.1.5
 //
-// @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
-// @include      https://*serverfault.com/admin/dashboard?flag*=comment*
-// @include      https://*superuser.com/admin/dashboard?flag*=comment*
-// @include      https://*askubuntu.com/admin/dashboard?flag*=comment*
-// @include      https://*mathoverflow.net/admin/dashboard?flag*=comment*
-// @include      https://*.stackexchange.com/admin/dashboard?flag*=comment*
+// @include      https://*stackoverflow.com/admin/dashboard*
+// @include      https://*serverfault.com/admin/dashboard*
+// @include      https://*superuser.com/admin/dashboard*
+// @include      https://*askubuntu.com/admin/dashboard*
+// @include      https://*mathoverflow.net/admin/dashboard*
+// @include      https://*.stackexchange.com/admin/dashboard*
 //
 // @include      https://*stackoverflow.com/users/flag-summary/*?group=4*
 // @include      https://*serverfault.com/users/flag-summary/*?group=4*
@@ -28,6 +28,7 @@
 //
 // @include      */posts*/timeline*
 //
+// @exclude      */admin/dashboard?flagtype=answerduplicateanswerauto*
 // @exclude      */admin/dashboard?flagtype=commentvandalismdeletionsauto*
 // @exclude      */admin/dashboard?flagtype=commenttoomanydeletedrudenotconstructiveauto*
 // ==/UserScript==
@@ -80,7 +81,10 @@
         }
 
         // all other included pages
-        $('.revision-comment').each(function(i, el) {
+        $('.revision-comment').filter(function() {
+            // not in a mod post list and table cell, or not the first element
+            return ($(this).closest('ul.post-list').length == 0 && $(this).parent('td').length == 0) || $(this).index() !== 0;
+        }).each(function(i, el) {
             let cls = 'ctype-custom';
             el.innerText = el.innerText.trim();
             switch(el.innerText.toLowerCase()) {
