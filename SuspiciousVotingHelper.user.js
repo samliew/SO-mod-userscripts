@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.2
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -25,6 +25,7 @@
 
     const newlines = '\n\n';
     const strToRep = str => Number(str.replace(/\.(\d)k/, '$100').replace(/k/, '000').replace(/[^\d]+/g, ''));
+    const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
 
 
     function mapVotePatternItemsToObject() {
@@ -80,7 +81,7 @@
         let addstr = `This user has a [suspicious history](https://${location.hostname}/admin/show-user-votes/${uid}) of cross-voting and/or targeted votes.` + newlines;
         let appstr = `*(there may also be other minor instances of targeted votes that are unknown to us, as we can only view votes between users if they are above a certain threshold)*`;
 
-        // If template is selected
+        // After template dialog has opened
         let flags, votesFrom, votesTo, votesFromInv = [], votesToInv = [];
         $.when(
 
@@ -230,6 +231,15 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
                     .replace(/(https[^\s]+)/, '$1?tab=reputation') // change userlink to rep tab
                     .replace(/\n\n{todo}/, addstr + appstr) // replace todo with evidence
             );
+
+            // Finally select the template option if we are automating via query params
+            if(getQueryParam('action') == 'suspicious-voting') {
+                template.click();
+                template.closest('.popup').find('.popup-submit').removeAttr('disabled').click();
+
+                // Failsafe
+                $('#templateName').val('suspicious voting');
+            }
 
         }); // End then
     }
@@ -410,6 +420,11 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
             $('.msg-body pre code').each(function() {
                 this.innerHTML = this.innerHTML.replace(uidRegex, `<a href="https://${location.hostname}/users/$1" target="_blank">$1</a>`);
             });
+
+            // click template link if we are automating via query params
+            if(getQueryParam('action') == 'suspicious-voting') {
+                $('#show-templates').click();
+            }
         }
     }
 
@@ -455,7 +470,7 @@ tr[data-uid].curruser {
 
     // On page load
     appendStyles();
-    doPageload();
     listenToPageUpdates();
+    doPageload();
 
 })();
