@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Network Election Schedule
-// @description  Displays a list of upcoming and ongoing elections on http://stackexchange.com/elections
+// @description  Displays a list of upcoming and ongoing elections on https://stackexchange.com/elections
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      0.2
 //
 // @include      https://stackexchange.com/elections
 //
@@ -24,11 +24,11 @@
     let ajaxCount = 0;
 
 
-    const cacheDate = new Date();
-    cacheDate.setUTCDate(cacheDate.getUTCDate() - 1);
-    cacheDate.setUTCHours(0);
-    cacheDate.setUTCMinutes(0);
-    cacheDate.setUTCSeconds(0);
+    let cacheExpireDate = new Date();
+    cacheExpireDate.setUTCDate(cacheExpireDate.getUTCDate() - 1);
+    cacheExpireDate.setUTCHours(0);
+    cacheExpireDate.setUTCMinutes(0);
+    cacheExpireDate.setUTCSeconds(0);
 
 
     // Simple index-based insertion in array
@@ -56,10 +56,11 @@
     function parseDateString(str) {
         if(typeof str === 'undefined' || str == null || str.trim() == '') return null;
 
-        let dt = str.trim().replace("'", '20').replace(/el /, '').split(/\s*(at|a las|às|в)\s*/i);
+        let arr = str.trim().replace("'", '20').replace(/el /, '').split(/\s*(at|a las|às|в)\s*/i);
+        let sep = arr[1];
 
-        let d = mapMonths(dt[0]);
-        if(dt[1].includes('às')) {
+        let d = mapMonths(arr[0]);
+        if(sep && sep.includes('às')) {
             d = d.split('/').reverse();
             let y = '20' + d.shift();
             d.push(y);
@@ -72,19 +73,21 @@
             let y = '20' + d.shift();
             d.push(y);
         }
-        else if(dt[1].includes('в')) {
+        else if(sep && sep.includes('в')) {
             d = d.split(' ').reverse();
             let y = d.shift();
             d.push(y);
         }
-        else if(dt[1].includes('a las')) {
+        else if(sep && sep.includes('a las')) {
             d = d.split(' ').reverse();
             let y = '20' + d.shift();
             d.push(y);
         }
-        else d = d.split(' ');
+        else {
+            d = d.split(' ');
+        }
 
-        return pad(d[1]) + '-' + d[0] + '-' + d[2] + ' ' + dt[2] + ':00Z';
+        return pad(d[1]) + '-' + d[0] + '-' + d[2] + ' ' + arr[2] + ':00Z';
     }
 
 
@@ -121,16 +124,17 @@
         return new Promise(function(resolve, reject) {
 
             // Still fresh, reuse cache
-            if(v != null && v.lastChecked > cacheDate) {
+            if(v != null && v.lastChecked > cacheExpireDate) {
                 //console.log(`using cached data for ${v.site.name}`);
-
-                v.lastElectionEndDate = parseDateString(v.lastElectionEndDate);
 
                 if(v.lastElection != null) displaySiteLastElection(v.site, v.lastElection, v.lastElectionEndDate);
                 else displayNoElectionsYet(v.site);
 
                 resolve(); return;
             }
+
+            // Simple throttle
+            if(ajaxCount > 10) { reject(); return; }
 
             // Scrape election page
             ajaxCount++;
