@@ -3,7 +3,7 @@
 // @description  Displays a list of upcoming and ongoing elections on https://stackexchange.com/elections
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2
+// @version      0.2.1
 //
 // @include      https://stackexchange.com/elections
 //
@@ -47,7 +47,7 @@
             return mapObj[matched.toLowerCase()];
         });
     }
-    function mapMonths(str) {
+    function translateMonths(str) {
         str = replaceAll(str, { "jan":"01", "feb":"02", "mar":"03", "apr":"04", "may":"05", "jun":"06", "jul":"07", "aug":"08", "sep":"09", "oct":"10", "nov":"11", "dec":"12" });
         str = replaceAll(str, { "янв":"01", "фев":"02", "мар":"03", "апр":"04", "май":"05", "июн":"06", "июл":"07", "авг":"08", "сен":"09", "окт":"10", "ноя":"11", "дек":"12" });
         str = replaceAll(str, { "ene.":"01", "feb.":"02", "mar.":"03", "abr.":"04", "may.":"05", "jun.":"06", "jul.":"07", "ago.":"08", "sep.":"09", "oct.":"10", "nov.":"11", "dic.":"12" });
@@ -57,9 +57,9 @@
         if(typeof str === 'undefined' || str == null || str.trim() == '') return null;
 
         let arr = str.trim().replace("'", '20').replace(/el /, '').split(/\s*(at|a las|às|в)\s*/i);
+        let d = translateMonths(arr[0]);
         let sep = arr[1];
 
-        let d = mapMonths(arr[0]);
         if(sep && sep.includes('às')) {
             d = d.split('/').reverse();
             let y = '20' + d.shift();
@@ -87,7 +87,7 @@
             d = d.split(' ');
         }
 
-        return pad(d[1]) + '-' + d[0] + '-' + d[2] + ' ' + arr[2] + ':00Z';
+        return d[2] + '-' + d[0] + '-' + pad(d[1]) + ' ' + arr[2] + ':00Z';
     }
 
 
@@ -134,10 +134,10 @@
             }
 
             // Simple throttle
-            if(ajaxCount > 10) { reject(); return; }
+            if(ajaxCount > 15) { reject(); return; }
+            ajaxCount++;
 
             // Scrape election page
-            ajaxCount++;
             ajaxPromise(site.site_url + '/election', 'html').then(function(data) {
 
                 const html = $($.parseHTML(data));
@@ -193,14 +193,12 @@
 
 
     function getElectionSchedules() {
-        networkSites.forEach(v => {
-            getSiteElectionPage(v);
-        });
+        networkSites.forEach(v => getSiteElectionPage(v).catch(() => {}) );
     }
 
 
     function displaySiteOngoingElection(site, nomination, primary, election, endDate, candidates, seats) {
-        electionItems.prepend(`<tr class="active-election">
+        electionItems.prepend(`<tr class="active-election" data-timestamp="${new Date(endDate).getTime()}">
   <td><img src="${site.icon_url}" class="siteicon" /></td>
   <td><a href="${site.site_url}/election" target="_blank">${site.name}</a></td>
   <td><a href="${site.site_url}/election?tab=nomination" target="_blank">${nomination}</a></td>
@@ -214,7 +212,7 @@
 
 
     function displaySiteLastElection(site, lastElectionNum, lastElectionDate) {
-        electionItems.append(`<tr class="last-election">
+        electionItems.append(`<tr class="last-election" data-timestamp="${new Date(lastElectionDate).getTime()}">
   <td><img src="${site.icon_url}" class="siteicon" /></td>
   <td><a href="${site.site_url}/election" target="_blank">${site.name}</a></td>
   <td colspan="6"><a href="${site.site_url}/election/${lastElectionNum}" target="_blank">last election #${lastElectionNum}</a> ended on ${lastElectionDate}</td>
@@ -234,17 +232,10 @@
     function sortTable() {
 
         const b = $('#elections tbody');
-        b.children(':not(.active-election)').sort(function(a, b) {
-            let aStatus = a.classList.contains('no-elections');
-            let bStatus = b.classList.contains('no-elections');
-            let aStatus2 = a.classList.contains('last-election');
-            return aStatus && bStatus && !aStatus2 ? 0 : aStatus2 ? -1 : 1;
-        }).detach().appendTo(b);
-
-        b.children('.last-election').sort(function(a, b) {
-            let aName = a.children[1].innerText.toLowerCase();
-            let bName = b.children[1].innerText.toLowerCase();
-            return aName < bName ? -1 : 1;
+        b.children(':not(.no-elections)').sort(function(a, b) {
+            let aTime = a.dataset.timestamp;
+            let bTime = b.dataset.timestamp;
+            return aTime > bTime ? -1 : 1;
         }).detach().appendTo(b);
 
         b.children('.no-elections').sort(function(a, b) {
@@ -280,6 +271,9 @@
             networkSitenames = v.map(site => site.name);
             getElectionSchedules();
         });
+
+        // Refresh page every minute
+        setTimeout(location.reload, 60000);
     }
 
 
@@ -298,13 +292,21 @@
 #elections,
 #elections th,
 #elections td {
-    padding: 2px 5px;
+    padding: 2px 7px;
     border: 1px solid #ccc;
     border-collapse: collapse;
     text-align: left;
 }
 #elections a {
     color: #366FB3;
+}
+#elections td:first-child {
+    padding: 0;
+    text-align: center;
+}
+.no-elections td:last-child {
+    font-style: italic;
+    color: #aaa;
 }
 .siteicon {
     max-width: 24px;
