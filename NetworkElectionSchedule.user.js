@@ -3,7 +3,7 @@
 // @description  Displays a list of upcoming and ongoing elections on https://stackexchange.com/elections
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.1
+// @version      0.2.2
 //
 // @include      https://stackexchange.com/elections
 //
@@ -134,7 +134,14 @@
             }
 
             // Simple throttle
-            if(ajaxCount > 15) { reject(); return; }
+            if(ajaxCount > 15) {
+
+                // Refresh page after a minute
+                setTimeout(() => location.reload(), 60000);
+
+                reject();
+                return;
+            }
             ajaxCount++;
 
             // Scrape election page
@@ -271,9 +278,6 @@
             networkSitenames = v.map(site => site.name);
             getElectionSchedules();
         });
-
-        // Refresh page every minute
-        setTimeout(location.reload, 60000);
     }
 
 
