@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.2
+// @version      1.6
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -122,9 +122,14 @@
                 // Completed loading lookup
                 $(document).ajaxComplete(function(event, xhr, settings) {
                     if(settings.url.includes('/admin/review/lookup-bannable-user')) {
-                        var banMsg = `Your review on https://${location.hostname}${params[1]} wasn't helpful. Please review the history of the post and consider how choosing a different action would help achieve that outcome more quickly.`;
+                        var banMsg = `Your review(s) on https://${location.hostname}${params[1]} wasn't helpful. Please review the history of the post(s) and consider how choosing a different action would help achieve that outcome more quickly.`;
                         $('textarea[name=explanation]').val(banMsg);
                         $('#days-other').click();
+
+                        $('#days-3').val('4').next('label').text('4 days for first review ban');
+                        $('#days-7').val('8').next('label').text('8 days for second review ban');
+                        $('#days-30').val('16').next('label').text('16 days for third review ban');
+                        $('#days-other').before(`<input type="radio" value="32" name="reviewBanChoice" id="days-32"><label for="days-32"> 32 days for subsequent review bans</label><br>`);
 
                         // Run once only
                         $(event.currentTarget).unbind('ajaxComplete');
