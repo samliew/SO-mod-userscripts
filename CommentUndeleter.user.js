@@ -78,12 +78,12 @@
                 // Add undelete link to deleted comment info if not found
                 $('.deleted-comment-info').filter(function() {
                     return $(this).children('.undelete-comment').length == 0;
-                }).append(`<a class="undelete-comment">undelete</a>`);
+                }).append(`<a class="mod-undelete-comment">undelete</a>`);
             }
         });
 
         // Undelete comment when link clicked
-        $(document).on('click', '.undelete-comment', function() {
+        $(document).on('click', '.mod-undelete-comment', function() {
             const cmmt = $(this).closest('.comment');
             const pid = cmmt.closest('.comments').attr('id').split('-')[1];
             const cid = cmmt.attr('id').split('-')[1];
