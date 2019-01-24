@@ -3,7 +3,7 @@
 // @description  Allows moderators to undelete user-deleted comments
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      0.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
