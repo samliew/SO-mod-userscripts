@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.8.7
+// @version      4.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -42,7 +42,7 @@
     const mixed = isSO ? '&mixed=0' : '';
 
     const store = window.localStorage;
-    const searchSelector = $(`<div class="grid--cell f-select w20 wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
+    const searchSelector = $(`<div class="grid--cell s-select wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
   <option data-url="${mainUrl}/search" ${!isChildMeta ? 'selected="selected"' : ''} data-mixed="0">${mainName}</option>
   <option data-url="${metaUrl}/search" ${ isChildMeta ? 'selected="selected"' : ''}>Meta</option>
   <option data-url="https://${mseDomain}/search">Meta Stack Exchange</option>
@@ -1491,31 +1491,11 @@ button, .button,
 .top-bar .searchbar .grid {
     display: flex;
 }
-.f-select {
-    position: relative;
-}
 .wmn1 {
     min-width: 8.1025641rem !important;
 }
 .w20 {
     width: 20% !important;
-}
-.f-select > select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    flex: 1 auto;
-    margin: 0;
-    padding: 8px 16px;
-    padding-right: 32px;
-    font-size: 13px;
-    font-family: Arial,"Helvetica Neue",Helvetica,sans-serif;
-    line-height: 1.46153846;
-    color: #3b4045;
-    background-color: #FFF;
-    border: 1px solid #c8ccd0;
-    border-radius: 2px;
-    transition: color 600ms cubic-bezier(.165, .84, .44, 1),border-color 600ms cubic-bezier(.165, .84, .44, 1),box-shadow 600ms cubic-bezier(.165, .84, .44, 1),background-color 600ms cubic-bezier(.165, .84, .44, 1);
 }
 .top-bar .searchbar .s-select select {
     max-width: 140px;
@@ -1526,10 +1506,10 @@ button, .button,
 .search-channel-switcher {
     height: 36px;
     border-radius: 3px !important;
-    border-top-right-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
     border-right: none !important;
-    background-color: #eff0f1 !important;
+    background-color: #eff0f1;
 }
 .search-channel-switcher-field {
     border-top-left-radius: 0 !important;
