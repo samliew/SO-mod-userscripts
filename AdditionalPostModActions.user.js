@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.2
+// @version      1.4.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -637,6 +637,7 @@
                     if(confirm(`Confirm DESTROY the spammer "${uName}" (id: ${uid}) irreversibly???`) &&
                        confirm(`Are you VERY SURE you want to DESTROY the account "${uName}"???`)) {
                         destroySpammer(uid).then(function() {
+                            window.open(`https://${location.hostname}/users/${uid}`);
                             removePostFromModQueue();
                             reloadPage();
                         });
