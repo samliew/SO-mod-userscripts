@@ -3,7 +3,7 @@
 // @description  Displays a list of upcoming and ongoing elections on https://stackexchange.com/elections
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.2
+// @version      0.3
 //
 // @include      https://stackexchange.com/elections
 //
@@ -24,8 +24,11 @@
     let ajaxCount = 0;
 
 
+    const detectFutureSites = ['stackoverflow', 'serverfault', 'superuser', 'math'];
+
+
     let cacheExpireDate = new Date();
-    cacheExpireDate.setUTCDate(cacheExpireDate.getUTCDate() - 1);
+    cacheExpireDate.setUTCDate(cacheExpireDate.getUTCDate() - 3);
     cacheExpireDate.setUTCHours(0);
     cacheExpireDate.setUTCMinutes(0);
     cacheExpireDate.setUTCSeconds(0);
@@ -117,7 +120,7 @@
     }
 
 
-    function getSiteElectionPage(site) {
+    function getSiteElectionPage(site, next = 0) {
         const fullkey = 'NoElection:' + site.api_site_parameter;
         let v = JSON.parse(store.getItem(fullkey));
 
@@ -139,13 +142,16 @@
                 // Refresh page after a minute
                 setTimeout(() => location.reload(), 60000);
 
+                // Display notice
+                $('#more-notice').show();
+
                 reject();
                 return;
             }
             ajaxCount++;
 
             // Scrape election page
-            ajaxPromise(site.site_url + '/election', 'html').then(function(data) {
+            ajaxPromise(site.site_url + '/election' + (next == 0 ? '' : '/' + next), 'html').then(function(data) {
 
                 const html = $($.parseHTML(data));
 
@@ -157,6 +163,11 @@
                     if(lastElectionLink.length > 0) {
                         lastElectionEndDate = parseDateString(lastElectionLink.parent().next().next().text());
                         lastElection = lastElectionLink.length > 0 ? Number(lastElectionLink.attr('href').match(/\d+$/)[0]) : '';
+
+                        // No election on major sites, check if there is a scheduled one (last election + 1)
+                        if(detectFutureSites.includes(site.api_site_parameter)) {
+                            getSiteElectionPage(site, lastElection + 1).then(resolve).finally(() => ajaxCount--);
+                        }
 
                         //console.log(`No election on ${site.name}. Last election #${lastElection} ended on ${lastElectionEndDate}.`, site.site_url + '/election');
                         displaySiteLastElection(site, lastElection, lastElectionEndDate);
@@ -174,24 +185,35 @@
                 }
                 // Individual election page (ongoing)
                 else {
-                    const sidebar = $('#sidebar .module:first', html);
-                    let sidebarData = [];
-                    sidebar.find('.label-value').each(function(i, v) {
-                        const val = this.title || this.innerText.trim();
-                        sidebarData.push(val);
-                    });
-                    if(sidebarData.length == 5) sidebarData.insert(1, ""); // missing 'primary' due to insufficient candidates
+                    const tabs = $('#tabs .youarehere', html).first();
 
-                    //console.log(`Election ongoing on ${site.name}.`, site.site_url + '/election');
-                    //console.log(sidebarData);
-                    displaySiteOngoingElection(site, ...sidebarData);
+                    if(tabs.length == 0) {
+                        displaySiteLastElectionFromCache(site);
+                    }
+                    else {
+                        const link = tabs.get(0);
+                        const href = link.href;
+                        const electionNum = href.match(/\d+/)[0];
 
-                    store.removeItem(fullkey);
+                        const sidebar = $('#sidebar .module:first', html);
+                        let sidebarData = [];
+                        sidebar.find('.label-value').each(function(i, v) {
+                            const val = this.title || this.innerText.trim();
+                            sidebarData.push(val);
+                        });
+                        if(sidebarData.length == 5) sidebarData.insert(1, ""); // missing 'primary' due to insufficient candidates
+
+                        //console.log(`Election ongoing on ${site.name}.`, site.site_url + '/election');
+                        //console.log(sidebarData);
+                        displaySiteOngoingElection(site, electionNum, ...sidebarData);
+
+                        store.removeItem(fullkey);
+                    }
                 }
 
                 ajaxCount--;
 
-                if(ajaxCount == 0) sortTable();
+                if(ajaxCount <= 1) sortTable();
 
                 resolve(); return;
             });
@@ -204,13 +226,13 @@
     }
 
 
-    function displaySiteOngoingElection(site, nomination, primary, election, endDate, candidates, seats) {
+    function displaySiteOngoingElection(site, electionNum, nomination, primary, election, endDate, candidates, seats) {
         electionItems.prepend(`<tr class="active-election" data-timestamp="${new Date(endDate).getTime()}">
   <td><img src="${site.icon_url}" class="siteicon" /></td>
-  <td><a href="${site.site_url}/election" target="_blank">${site.name}</a></td>
-  <td><a href="${site.site_url}/election?tab=nomination" target="_blank">${nomination}</a></td>
-  <td><a href="${site.site_url}/election?tab=primary" target="_blank">${primary ? primary : '-'}</a></td>
-  <td><a href="${site.site_url}/election?tab=election" target="_blank">${election}</a></td>
+  <td><a href="${site.site_url}/election/${electionNum}" target="_blank">${site.name}</a></td>
+  <td><a href="${site.site_url}/election/${electionNum}?tab=nomination" target="_blank">${nomination}</a></td>
+  <td><a href="${site.site_url}/election/${electionNum}?tab=primary" target="_blank">${primary ? primary : '-'}</a></td>
+  <td><a href="${site.site_url}/election/${electionNum}?tab=election" target="_blank">${election}</a></td>
   <td>${endDate}</td>
   <td>${candidates}</td>
   <td>${seats}</td>
@@ -224,6 +246,12 @@
   <td><a href="${site.site_url}/election" target="_blank">${site.name}</a></td>
   <td colspan="6"><a href="${site.site_url}/election/${lastElectionNum}" target="_blank">last election #${lastElectionNum}</a> ended on ${lastElectionDate}</td>
 </tr>`);
+    }
+    function displaySiteLastElectionFromCache(site) {
+        const fullkey = 'NoElection:' + site.api_site_parameter;
+        let v = JSON.parse(store.getItem(fullkey));
+        if(v == null) return;
+        displaySiteLastElection(site, v.lastElectionNum, v.lastElectionDate);
     }
 
 
@@ -258,7 +286,8 @@
         document.title = `Elections on the Stack Exchange Network`;
 
         content = $('#content .contentWrapper').empty();
-        outputTable = $(`<table id="elections">
+        outputTable = $(`
+<table id="elections">
   <thead><tr>
     <th></th>
     <th>Site</th>
@@ -269,7 +298,10 @@
     <th>Candidates</th>
     <th>Seats</th>
   </tr></thead>
-</table>`).appendTo(content);
+</table>`)
+            .before(`<h1>Elections on the Network</h1>`)
+            .after(`<p id="more-notice">This page will automatically load more sites in 60 seconds (to avoid throttling).</p>`)
+            .appendTo(content);
         electionItems = $(`<tbody id="election-items"></tbody>`).appendTo(outputTable);
 
         // Cache list in localstorage
@@ -297,7 +329,7 @@
 #elections th,
 #elections td {
     padding: 2px 7px;
-    border: 1px solid #ccc;
+    border: 1px solid #ddd;
     border-collapse: collapse;
     text-align: left;
 }
@@ -315,6 +347,9 @@
 .siteicon {
     max-width: 24px;
     max-height: 24px;
+}
+#more-notice {
+    display: none;
 }
 </style>
 `;
