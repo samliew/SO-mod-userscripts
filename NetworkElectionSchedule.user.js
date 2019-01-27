@@ -3,7 +3,7 @@
 // @description  Displays a list of upcoming and ongoing elections on https://stackexchange.com/elections
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3
+// @version      0.3.1
 //
 // @include      https://stackexchange.com/elections
 //
@@ -168,9 +168,10 @@
                         if(detectFutureSites.includes(site.api_site_parameter)) {
                             getSiteElectionPage(site, lastElection + 1).then(resolve).finally(() => ajaxCount--);
                         }
-
-                        //console.log(`No election on ${site.name}. Last election #${lastElection} ended on ${lastElectionEndDate}.`, site.site_url + '/election');
-                        displaySiteLastElection(site, lastElection, lastElectionEndDate);
+                        else {
+                            //console.log(`No election on ${site.name}. Last election #${lastElection} ended on ${lastElectionEndDate}.`, site.site_url + '/election');
+                            displaySiteLastElection(site, lastElection, lastElectionEndDate);
+                        }
                     }
                     else {
                         displayNoElectionsYet(site);
@@ -250,7 +251,7 @@
     function displaySiteLastElectionFromCache(site) {
         const fullkey = 'NoElection:' + site.api_site_parameter;
         let v = JSON.parse(store.getItem(fullkey));
-        if(v == null) return;
+        if(v == null || typeof v.lastElectionNum == 'undefined') return;
         displaySiteLastElection(site, v.lastElectionNum, v.lastElectionDate);
     }
 
