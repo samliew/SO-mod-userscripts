@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      2.0
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -24,8 +24,17 @@
 (function() {
     'use strict';
 
+
     // Moderator check
     if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+
+
+    const fkey = StackExchange.options.user.fkey;
+    const defaultBanMessage = `Your recent [reviews](https://${location.hostname}/users/current?tab=activity&sort=reviews) wasn't helpful. Please review the history of the posts and consider how choosing a different action would help achieve those outcomes more quickly.`;
+    const permaBanMessage = `Due to your [poor review history](https://${location.hostname}/users/current?tab=activity&sort=reviews) as well as no signs of improvement after multiple review bans, you are no longer welcome to use any review queues on the site.`;
+
+
+    const reloadPage = () => location.reload(true);
 
 
     // Solution from https://stackoverflow.com/a/24719409/584192
@@ -54,6 +63,32 @@
             })
             .done(resolve)
             .fail(reject);
+        });
+    }
+    // Review ban user
+    function reviewBan(uid, duration = 4, message = defaultBanMessage) {
+        return new Promise(function(resolve, reject) {
+            if(typeof uid === 'undefined' || uid === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/review/ban-user`,
+                data: {
+                    'userId': uid,
+                    'explanation': message,
+                    'reviewBanChoice': 'on',
+                    'reviewBanDays': duration,
+                    'fkey': fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+    function reviewPermaBan(uid) {
+        return new Promise(function(resolve, reject) {
+            reviewBan(uid, 365, permaBanMessage)
+                .then(resolve)
+                .catch(reject);
         });
     }
 
@@ -95,6 +130,7 @@
             });
 
             // Fix table date sorting
+            const table = $('.sorter').attr('id', 'banned-users-table');
             setTimeout(() => {
                 $.tablesorter.destroy('.sorter', true, function() {
 
@@ -105,6 +141,20 @@
                     $('.sorter').tablesorter();
                 });
             }, 1000);
+
+            // Option to renew permanent bans
+            $('.reason', table).filter((i, el) => el.innerText.includes('no longer welcome')).each(function() {
+                const p = $(this).parent();
+                const l = p.find('a.unban').clone().appendTo(this);
+                l.removeClass('unban').addClass('reban').attr('title', (i, s) => s.replace('unban', 'reapply another yearly review ban to').replace(' from reviewing', '')).text((i, s) => s.replace('unban', 'reban'));
+            });
+            table.on('click', '.reban', function() {
+                if(confirm("Apply another year's ban to this user?")) {
+                    const uid = this.dataset.userid;
+                    reviewUnban(uid).then(() => reviewPermaBan(uid).then(reloadPage));
+                }
+                return false;
+            });
 
             // Load ban form for user if passed via querystring
             var params = location.hash.substr(1).split('|');
@@ -271,6 +321,17 @@ table.sorter > tbody > tr:nth-child(odd) > td {
 }
 table.sorter > tbody > tr:nth-child(even) > td {
     background-color: white !important;
+}
+
+.reban {
+    float: right;
+    margin: 5px;
+    padding: 3px 7px;
+    background: #e8e8e8;
+}
+.reban:hover {
+    color: white;
+    background: red;
 }
 </style>
 `;
