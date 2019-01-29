@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.1
+// @version      2.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -166,35 +166,41 @@
             var params = location.hash.substr(1).split('|');
             var uid = params[0];
 
-            // Validation
-            if(!/\d+/.test(uid)) return;
+            // Completed loading lookup
+            $(document).ajaxComplete(function(event, xhr, settings) {
+                if(settings.url.includes('/admin/review/lookup-bannable-user')) {
 
-            // Insert UID
-            $('#user-to-ban').val(uid);
-
-            // Insert ban message if review link found
-            if(typeof params[1] !== 'undefined') {
-
-                // Completed loading lookup
-                $(document).ajaxComplete(function(event, xhr, settings) {
-                    if(settings.url.includes('/admin/review/lookup-bannable-user')) {
+                    // Insert ban message if review link found
+                    if(typeof params[1] !== 'undefined') {
                         var banMsg = `Your review(s) on https://${location.hostname}${params[1]} wasn't helpful. Please review the history of the post(s) and consider how choosing a different action would help achieve that outcome more quickly.`;
                         $('textarea[name=explanation]').val(banMsg);
-                        $('#days-other').click();
-
-                        $('#days-3').val('4').next('label').text('4 days for first review ban');
-                        $('#days-7').val('8').next('label').text('8 days for second review ban');
-                        $('#days-30').val('16').next('label').text('16 days for third review ban');
-                        $('#days-other').before(`<input type="radio" value="32" name="reviewBanChoice" id="days-32"><label for="days-32"> 32 days for subsequent review bans</label><br>`);
-
-                        // Run once only
-                        $(event.currentTarget).unbind('ajaxComplete');
                     }
-                });
-            }
 
-            // Submit lookup
-            setTimeout(() => $('#lookup').click(), 500);
+                    // Change default to other
+                    $('#days-other').click();
+
+                    $('#days-3').val('4').next('label').text('4 days for first review ban');
+                    $('#days-7').val('8').next('label').text('8 days for second review ban');
+                    $('#days-30').val('16').next('label').text('16 days for third review ban');
+                    $('#days-other')
+                        .before(`<input type="radio" value="32" name="reviewBanChoice" id="days-32"><label for="days-32"> 32 days for fourth review ban</label><br>`)
+                        .before(`<input type="radio" value="64" name="reviewBanChoice" id="days-64"><label for="days-64"> 64 days for fifth review ban</label><br>`)
+                        .before(`<input type="radio" value="128" name="reviewBanChoice" id="days-128"><label for="days-128"> 128 days for subsequent review bans</label><br>`);
+
+                    // Run once only
+                    $(event.currentTarget).unbind('ajaxComplete');
+                }
+            });
+
+            // Validation
+            if(/\d+/.test(uid)) {
+
+                // Insert UID
+                $('#user-to-ban').val(uid);
+
+                // Submit lookup
+                setTimeout(() => $('#lookup').click(), 500);
+            }
         }
         // Mod user history - review bans filter
         else if(location.pathname.includes('/users/history') && location.search == "?type=User+has+been+banned+from+review") {
