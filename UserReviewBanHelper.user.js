@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.0.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -135,10 +135,16 @@
                 $.tablesorter.destroy('.sorter', true, function() {
 
                     // Add classes to date column headers
-                    $('.sorter th').slice(1,3).addClass('sorter-miniDate');
+                    const headers = $('.sorter th');
+                    headers.slice(1,3).addClass('sorter-miniDate').removeClass('headerSortDown');
+                    headers.eq(3).addClass('sorter-false');
+                    headers.last().addClass('sorter-false');
 
                     // Reinit sorter
                     $('.sorter').tablesorter();
+
+                    // Default sort header
+                    headers.eq(1).addClass('tablesorter-headerDesc');
                 });
             }, 1000);
 
@@ -321,6 +327,17 @@ table.sorter > tbody > tr:nth-child(odd) > td {
 }
 table.sorter > tbody > tr:nth-child(even) > td {
     background-color: white !important;
+}
+table.sorter > thead > tr .tablesorter-headerAsc,
+table.sorter > thead > tr .tablesorter-headerDesc {
+    background-color: #f90;
+    color: #FFF;
+}
+table.sorter > thead > tr .tablesorter-headerAsc span::after {
+    content: "▲";
+}
+table.sorter > thead > tr .tablesorter-headerDesc span::after {
+    content: "▼";
 }
 
 .reban {
