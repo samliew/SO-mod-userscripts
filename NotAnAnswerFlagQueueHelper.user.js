@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.5
+// @version      2.9.6
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -269,6 +269,7 @@
 <a data-filter="default" class="youarehere">Default</a>
 <a data-filter="post-undeleted" title="Post was undeleted by the author">Undeleted by author</a>
 <a data-filter="post-good-delete" title="Post has a good score but received delete votes">Del. Votes</a>
+<a data-filter="has-modified" title="Changed since first flag" class="dno">Modified</a>
 `);
         }
         else {
