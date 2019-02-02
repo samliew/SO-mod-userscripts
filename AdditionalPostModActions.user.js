@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.3
+// @version      1.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -65,22 +65,24 @@
 
 
     // Close individual post
-    // closeReason: 'TooBroad', 'OffTopic', 'Unclear', 'OpinionBased',
-    // if 'OffTopic', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
-    function closeQuestionAsOfftopic(pid, closeReason = 'OffTopic', offtopicReasonId = 3, offTopicOtherText = '') {
+    // closeReasonId: 'TooBroad', 'OffTopic', 'Unclear', 'OpinionBased', 'Duplicate'
+    // if closeReasonId is 'OffTopic', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
+    function closeQuestionAsOfftopic(pid, closeReasonId = 'OffTopic', offtopicReasonId = 3, offTopicOtherText = '', duplicateOfQuestionId = null) {
         return new Promise(function(resolve, reject) {
             if(!isSO) { reject(); return; }
             if(typeof pid === 'undefined' || pid === null) { reject(); return; }
-            if(typeof closeReason === 'undefined' || closeReason === null) { reject(); return; }
-            if(closeReason === 'OffTopic' && (typeof offtopicReasonId === 'undefined' || offtopicReasonId === null)) { reject(); return; }
+            if(typeof closeReasonId === 'undefined' || closeReasonId === null) { reject(); return; }
+            if(closeReasonId === 'OffTopic' && (typeof offtopicReasonId === 'undefined' || offtopicReasonId === null)) { reject(); return; }
+
+            if(closeReasonId === 'Duplicate') offtopicReasonId = null;
 
             $.post({
                 url: `https://${location.hostname}/flags/questions/${pid}/close/add`,
                 data: {
                     'fkey': fkey,
-                    'closeReasonId': closeReason,
+                    'closeReasonId': closeReasonId,
                     'closeAsOffTopicReasonId': offtopicReasonId,
-                    //'duplicateOfQuestionId': null,
+                    'duplicateOfQuestionId': duplicateOfQuestionId,
                     'offTopicOtherText': offtopicReasonId == 3 && isSO ? 'This question does not appear to be about programming within the scope defined in the [help]' : offTopicOtherText,
                     //'offTopicOtherCommentId': '',
                     'originalOffTopicOtherText': 'I\'m voting to close this question as off-topic because ',
@@ -88,6 +90,15 @@
             })
             .done(resolve)
             .fail(reject);
+        });
+    }
+    function closeQuestionAsDuplicate(pid, targetPid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+            if(typeof targetPid === 'undefined' || targetPid === null) { reject(); return; }
+            closeQuestionAsOfftopic(pid, 'Duplicate', null, 'I\'m voting to close this question as off-topic because ', targetPid)
+               .then(resolve)
+               .error(reject);
         });
     }
     function closeSOMetaQuestionAsOfftopic(pid, closeReason = 'OffTopic', offtopicReasonId = 6) {
@@ -462,6 +473,7 @@
             const isClosed = postStatus.includes('closed') || postStatus.includes('on hold') || postStatus.includes('duplicate');
             const isMigrated = postStatus.includes('migrated');
             const isLocked = isMigrated || postStatus.includes('locked');
+            const isOldDupe = isQuestion && post.find('.post-text > blockquote:first strong').text() == 'Possible Duplicate:';
             const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
             const userbox = post.find('.post-layout .user-info:last .user-action-time').filter((i, el) => el.innerText.includes('answered') || el.innerText.includes('asked')).parent();
@@ -473,6 +485,13 @@
 
             // Create menu based on post type and state
             let menuitems = '';
+
+            if(isSO && isOldDupe) { // Q-only
+                const oldDupePid = isOldDupe ? post.find('.post-text > blockquote:first a').attr('href').match(/\/\d+\//)[0].replace(/\D/g, '') : null;
+
+                menuitems += `<a data-action="old-redupe" data-redupe-pid="${oldDupePid}">close as proper duplicate</a>`;
+                menuitems += `<div class="separator"></div>`;
+            }
 
             menuitems += `<a data-action="move-comments" class="${isDeleted || !hasComments ? 'disabled' : ''}">move comments to chat</a>`; // when there are comments only?
             menuitems += `<a data-action="purge-comments" class="${!hasComments ? 'disabled' : ''}">purge comments</a>`; // when there are comments only?
@@ -550,6 +569,7 @@
             const pid = Number(this.parentNode.dataset.pid);
             const qid = Number($('#question').attr('data-questionid') ||
                                $(this).parents('.mod-post-header').find('.answer-hyperlink, .question-hyperlink').attr('href').match(/\/(\d+)\//)[0].replace(/\//g, ''));
+            const redupePid = Number(this.dataset.redupePid);
             const uid = Number(this.dataset.uid);
             const uName = this.dataset.username;
             //console.log(pid, qid);
@@ -568,6 +588,14 @@
             }
 
             switch(action) {
+                case 'old-redupe':
+                    console.log();
+                    reopenQuestion(pid).then(function(v) {
+                        closeQuestionAsDuplicate(pid, redupePid).then(function(v) {
+                            reloadPage();
+                        });
+                    });
+                    break;
                 case 'move-comments':
                     if(confirm('Really move comments to chat?')) {
                         moveCommentsOnPostToChat(pid).then(function(v) {
