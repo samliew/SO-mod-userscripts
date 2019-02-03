@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.8
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -38,7 +38,14 @@ body .bg-black-050,
     color: ${textcolor};
     border-color: ${bordercolor};
     box-shadow: none;
-    outline: none
+    outline: none;
+    text-shadow: none;
+}
+#sidebar .module {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border: none;
+    border-bottom: 1px dashed #555;
 }
 #sidebar .community-bulletin .bulletin-item-content a,
 a {
@@ -137,6 +144,7 @@ a.fc-dark:hover {
 #footer {
     border-top: 1px solid ${bordercolor};
 }
+.expander-arrow-small-hide,
 #tabs a:before,
 .tabs a:before {
     background: transparent;
@@ -146,8 +154,9 @@ a.fc-dark:hover {
     background-color: white;
     filter: none;
 }
+.s-select:before, .s-select:after,
 .f-select:before, .f-select:after {
-    border-color: #bbb transparent;
+    border-color: #AAA transparent;
 }
 .s-btn__muted.s-btn__outlined.s-btn__dropdown:after {
     border-color: currentColor transparent;
@@ -325,6 +334,7 @@ pre * {
 }
 .ctype-custom {
     background-color: #ffc;
+    color: #333;
 }
 .ctype-bad {
     background-color: #ff2600;
@@ -344,6 +354,57 @@ pre * {
     background-color: red;
 }
 
+/* Chat */
+#header-logo img,
+#footer-logo img {
+    background-color: white;
+}
+#chat-body .messages,
+#chat-body .message,
+.messages,
+.message,
+.monologue .timestamp {
+    background: none;
+    border: none;
+}
+.pager .page-numbers.current,
+#chat-body .button,
+.button {
+    background-color: #444;
+}
+#chat-body .notification {
+    border-bottom: 2px dashed ${textcolor};
+}
+.vote-count-container.stars .img {
+    background-size: 32px;
+    background-position: 0px -343px;
+}
+.vote-count-container.stars.user-star .img {
+    background-size: auto;
+    background-position: top left;
+    background-position: 0 -110px;
+}
+#feed-ticker {
+    border: 2px dashed ${textcolor};
+}
+#feed-ticker > *,
+#feed-ticker .ticker-item {
+    background: none;
+    border: none;
+}
+#chat-body .system-message-container .system-message {
+    color: ${textcolor};
+}
+.room-histogram .mspark .mspbar,
+.mini-room-chart .mspark .mspbar,
+.mini-user-chart .mspark .mspbar {
+    background-color: ${bordercolor};
+}
+.room-histogram .mspark .mspbar.now,
+.mini-room-chart .mspark .mspbar.now,
+.mini-user-chart .mspark .mspbar.now {
+    background-color: #dd6205;
+}
 
 `.replace(/;/g, ' !important;'));
 
