@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.2
+// @version      1.1.3
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -366,7 +366,8 @@ pre * {
 
 /* Chat */
 #header-logo img,
-#footer-logo img {
+#footer-logo img,
+#transcript-logo img {
     background-color: white;
 }
 #chat-body .messages,
@@ -381,6 +382,10 @@ pre * {
 #chat-body .button,
 .button {
     background-color: #444;
+}
+.calendar,
+.calendar-small {
+    background-image: none;
 }
 #chat-body .notification {
     border-bottom: 2px dashed ${textcolor};
@@ -405,15 +410,20 @@ pre * {
 #chat-body .system-message-container .system-message {
     color: ${textcolor};
 }
+.mspark .mspbar,
 .room-histogram .mspark .mspbar,
 .mini-room-chart .mspark .mspbar,
 .mini-user-chart .mspark .mspbar {
     background-color: ${bordercolor};
 }
+.mspark .mspbar.now,
 .room-histogram .mspark .mspbar.now,
 .mini-room-chart .mspark .mspbar.now,
 .mini-user-chart .mspark .mspbar.now {
     background-color: #dd6205;
+}
+#main.select-mode .message.selected .content {
+    background-color: ${textcolor} !important;
 }
 
 `.replace(/;/g, ' !important;'));
