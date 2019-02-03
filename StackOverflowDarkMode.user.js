@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -147,7 +147,7 @@ a.fc-dark:hover {
 .expander-arrow-small-hide,
 #tabs a:before,
 .tabs a:before {
-    background: transparent;
+    background-color: transparent;
 }
 .top-bar .-logo,
 .top-bar .-logo span {
