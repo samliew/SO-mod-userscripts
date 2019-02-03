@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.3
+// @version      1.1.4
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -377,6 +377,9 @@ pre * {
 .monologue .timestamp {
     background: none;
     border: none;
+}
+.message .content a {
+    border-bottom: 1px dotted #777;
 }
 .pager .page-numbers.current,
 #chat-body .button,
