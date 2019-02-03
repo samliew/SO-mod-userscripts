@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.1.2
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -19,6 +19,9 @@
     const bgcolor = '#222';
     const btncolor = '#333';
     const bordercolor = '#555';
+
+    const darkblue = '#035';
+    const orange = '#F48024';
 
 
     GM_addStyle(`
@@ -144,6 +147,7 @@ a.fc-dark:hover {
 #footer {
     border-top: 1px solid ${bordercolor};
 }
+.topbar-dialog .unread-item *,
 .expander-arrow-small-hide,
 #tabs a:before,
 .tabs a:before {
@@ -172,6 +176,9 @@ a.fc-dark:hover {
 }
 .top-bar .indicator-badge._important {
     background-color: #C91D2E;
+}
+.topbar-dialog .unread-item {
+    background-color: ${darkblue};
 }
 ul.comments-list .comment > * {
     border-color: #333;
@@ -216,8 +223,11 @@ body > div[style*="absolute"],
 .s-progress--bar {
     background-color: #42d773;
 }
-a.youarehere {
+.youarehere {
     background-color: ${bordercolor};
+}
+.nav-links .youarehere .nav-links--link {
+    border-right: 3px solid ${orange};
 }
 .bounty-indicator-tab {
     color: white;
