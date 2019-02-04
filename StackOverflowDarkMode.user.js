@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.7
+// @version      1.1.8
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -131,6 +131,10 @@ ul.comments-list .comment:hover .comment-flagging {
 /* Specific elements */
 .fc-dark {
     color: #fff;
+}
+button .svg-icon,
+button .svg-icon * {
+    color: inherit !important;
 }
 #sidebar a,
 #content #sidebar .community-bulletin .bulletin-item-content a,
@@ -366,6 +370,11 @@ pre * {
 .cancel-comment-flag .cancel-delete-comment-flag {
     background-color: red;
 }
+.deleted-answer .mod-userlinks,
+.deleted-answer .post-mod-menu {
+    background-color: #220000;
+}
+
 
 /* Chat */
 #header-logo img,
@@ -431,6 +440,7 @@ pre * {
 #main.select-mode .message.selected .content {
     background-color: ${textcolor} !important;
 }
+
 
 `.replace(/;/g, ' !important;'));
 
