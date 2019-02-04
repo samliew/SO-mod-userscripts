@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.11
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -52,8 +52,8 @@ body .bg-black-050,
 }
 #sidebar .community-bulletin .bulletin-item-content a,
 a {
-    color: #eee;
-    border-bottom: 1px dashed inherit;
+    color: #fff;
+    border-bottom: 1px dashed transparent;
 }
 #sidebar .community-bulletin .bulletin-item-content a:hover,
 a:hover {
@@ -252,11 +252,15 @@ body > div[style*="absolute"],
 .tagged-interesting {
     box-shadow: inset 0 0 20px 0px #fffbec;
 }
-.deleted-answer {
+.deleted-answer,
+.deleted-comment .comment-actions,
+.deleted-comment .comment-text,
+.deleted-comment .comment-flags {
     box-shadow: inset 0 0 0 9999px #220000;
 }
 .tagged-interesting *,
-.deleted-answer * {
+.deleted-answer *:not(.popup),
+.deleted-comment .comment-text *:not(.popup) {
     background-color: transparent;
 }
 .vote-up-off,
@@ -437,6 +441,7 @@ pre * {
 .mini-user-chart .mspark .mspbar.now {
     background-color: #dd6205;
 }
+.highlight .content,
 #main.select-mode .message.selected .content {
     background-color: #135;
 }
