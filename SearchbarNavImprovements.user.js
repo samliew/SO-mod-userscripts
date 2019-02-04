@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.9
+// @version      4.9.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -314,7 +314,7 @@
         const currRefreshDurationSecs = getAutoRefreshDuration(location.search);
         let refreshDurationSecs = currRefreshDurationSecs || autoRefreshDefaultSecs;
 
-        const btnAutoRefresh = $(`<a id="btn-auto-refresh" data-svg="refresh" title="Auto Refresh (${refreshDurationSecs} seconds)"></a>`)
+        const btnAutoRefresh = $(`<a id="btn-auto-refresh" class="s-btn" data-svg="refresh" title="Auto Refresh (${refreshDurationSecs} seconds)"></a>`)
         .click(function() {
             $(this).toggleClass('active');
             if($(this).hasClass('active')) {
@@ -399,7 +399,7 @@
     function initSavedSearch() {
 
         const ss = $('#saved-search');
-        const btnBookmark = $(`<a id="btn-bookmark-search" data-svg="bookmark" title="Bookmark Search"></a>`)
+        const btnBookmark = $(`<a id="btn-bookmark-search" class="s-btn" data-svg="bookmark" title="Bookmark Search"></a>`)
             .click(function() {
                 $(this).toggleClass('active');
                 if($(this).hasClass('active')) {
