@@ -3,12 +3,12 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.5
+// @version      1.1.6
 //
 // @include      https://*stackoverflow.com/*
 //
 // @grant        GM_addStyle
-// @run-at       document-start
+// @run-at       document-body
 // ==/UserScript==
 
 (function() {
