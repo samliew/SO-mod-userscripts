@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -51,14 +51,12 @@ body .bg-black-050,
     border-bottom: 1px dashed #555;
 }
 #sidebar .community-bulletin .bulletin-item-content a,
-a {
+a:not(.s-btn) {
     color: #fff;
-    border-bottom: 1px dashed transparent;
 }
 #sidebar .community-bulletin .bulletin-item-content a:hover,
 a:hover {
     color: #fff;
-    border-bottom-color: white;
 }
 iframe:hover,
 a:hover img,
@@ -230,7 +228,8 @@ body > div[style*="absolute"],
 .s-progress--bar {
     background-color: #42d773;
 }
-.youarehere {
+.youarehere,
+.is-selected {
     background-color: ${bordercolor};
 }
 .nav-links .youarehere .nav-links--link {
