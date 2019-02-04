@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.9
+// @version      1.1.10
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -438,7 +438,7 @@ pre * {
     background-color: #dd6205;
 }
 #main.select-mode .message.selected .content {
-    background-color: ${textcolor};
+    background-color: #135;
 }
 
 
