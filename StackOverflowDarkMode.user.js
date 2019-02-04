@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.10
+// @version      1.1.11
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -132,9 +132,9 @@ ul.comments-list .comment:hover .comment-flagging {
 .fc-dark {
     color: #fff;
 }
-button .svg-icon,
-button .svg-icon * {
-    color: inherit !important;
+.s-btn svg,
+.s-btn svg * {
+    color: inherit;
 }
 #sidebar a,
 #content #sidebar .community-bulletin .bulletin-item-content a,
