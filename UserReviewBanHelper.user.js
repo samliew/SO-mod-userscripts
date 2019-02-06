@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.1.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -217,10 +217,11 @@
 
                 if(bannedDiff > 0) {
                     // Currently banned, show unban button
-                    $(`<a class="button reviewban-button" href="/admin/review/bans#${uid2}">Review Unban</a>`)
+                    $(`<a class="button reviewban-button">Review Unban</a>`)
                         .click(function() {
                             if(confirm('Unban user from reviewing?')) {
-                                reviewUnban(uid2).then(() => location.reload(true));
+                                $(this).remove();
+                                reviewUnban(uid2);
                             }
                         })
                         .insertAfter('.subheader h1');
