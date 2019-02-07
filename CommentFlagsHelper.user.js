@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3.2
+// @version      3.3.3
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -635,6 +635,7 @@ table.flagged-posts .relativetime.old-comment {
     padding: 5px 0 40px;
     font-size: 0;
     white-space: nowrap;
+    background-color: transparent !important;
 }
 .edit-comment {
     display: none;
