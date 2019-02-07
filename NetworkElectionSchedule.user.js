@@ -3,7 +3,7 @@
 // @description  Displays a list of upcoming and ongoing elections on https://stackexchange.com/elections
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.1
+// @version      0.3.2
 //
 // @include      https://stackexchange.com/elections
 //
@@ -300,9 +300,9 @@
     <th>Seats</th>
   </tr></thead>
 </table>`)
+            .appendTo(content)
             .before(`<h1>Elections on the Network</h1>`)
-            .after(`<p id="more-notice">This page will automatically load more sites in 60 seconds (to avoid throttling).</p>`)
-            .appendTo(content);
+            .after(`<p id="more-notice">This page will automatically load more sites in 60 seconds (to avoid throttling).</p>`);
         electionItems = $(`<tbody id="election-items"></tbody>`).appendTo(outputTable);
 
         // Cache list in localstorage
