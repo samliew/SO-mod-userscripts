@@ -3,7 +3,7 @@
 // @description  Dark theme for Stack Overflow
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.2.2
 //
 // @include      https://*stackoverflow.com/*
 //
@@ -79,6 +79,17 @@ input[type="submit"]:hover,
     background-color: ${btncolor};
     color: white;
 }
+body .fc-dark {
+    color: #ddd;
+}
+body .fc-medium {
+    color: #888;
+}
+body .bc-black-1,
+body .bc-black-2,
+body .bc-black-3 {
+    border-color: ${bordercolor};
+}
 
 
 /* Selection */
@@ -127,9 +138,6 @@ ul.comments-list .comment:hover .comment-flagging {
 
 
 /* Specific elements */
-.fc-dark {
-    color: #fff;
-}
 .s-btn svg,
 .s-btn svg * {
     color: inherit;
@@ -222,6 +230,12 @@ body > div[style*="absolute"],
 .tag-popup .-container > * {
     background-color: black;
 }
+.badge1-alternate,
+.badge2-alternate,
+.badge3-alternate,
+.badge-how-to {
+    border-color: transparent;
+}
 .s-progress {
     background-color: #d6d9dc;
 }
@@ -308,6 +322,9 @@ img.diff-add {
 }
 .profile-cards--graph {
     background-image: none;
+}
+#avatar-card {
+    box-shadow: none;
 }
 a.comment-user.owner {
     background-color: #E1ECF4;
