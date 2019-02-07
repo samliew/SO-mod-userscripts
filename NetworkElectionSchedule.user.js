@@ -3,7 +3,7 @@
 // @description  Displays a list of upcoming and ongoing elections on https://stackexchange.com/elections
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.2
+// @version      0.3.3
 //
 // @include      https://stackexchange.com/elections
 //
@@ -58,6 +58,7 @@
     }
     function parseDateString(str) {
         if(typeof str === 'undefined' || str == null || str.trim() == '') return null;
+        if(str == 'yesterday') return str;
 
         let arr = str.trim().replace("'", '20').replace(/el /, '').split(/\s*(at|a las|às|в)\s*/i);
         let d = translateMonths(arr[0]);
@@ -89,6 +90,8 @@
         else {
             d = d.split(' ');
         }
+
+        if(str.includes('undefined')) return str;
 
         return d[2] + '-' + d[0] + '-' + pad(d[1]) + ' ' + arr[2] + ':00Z';
     }
@@ -228,7 +231,7 @@
 
 
     function displaySiteOngoingElection(site, electionNum, nomination, primary, election, endDate, candidates, seats) {
-        electionItems.prepend(`<tr class="active-election" data-timestamp="${new Date(endDate).getTime()}">
+        electionItems.prepend(`<tr class="active-election" data-timestamp="${new Date(endDate).getTime() || Date.now()}">
   <td><img src="${site.icon_url}" class="siteicon" /></td>
   <td><a href="${site.site_url}/election/${electionNum}" target="_blank">${site.name}</a></td>
   <td><a href="${site.site_url}/election/${electionNum}?tab=nomination" target="_blank">${nomination}</a></td>
@@ -242,10 +245,10 @@
 
 
     function displaySiteLastElection(site, lastElectionNum, lastElectionDate) {
-        electionItems.append(`<tr class="last-election" data-timestamp="${new Date(lastElectionDate).getTime()}">
+        electionItems.append(`<tr class="last-election" data-timestamp="${new Date(lastElectionDate).getTime() || Date.now()}">
   <td><img src="${site.icon_url}" class="siteicon" /></td>
   <td><a href="${site.site_url}/election" target="_blank">${site.name}</a></td>
-  <td colspan="6"><a href="${site.site_url}/election/${lastElectionNum}" target="_blank">last election #${lastElectionNum}</a> ended on ${lastElectionDate}</td>
+  <td colspan="6"><a href="${site.site_url}/election/${lastElectionNum}" target="_blank">last election #${lastElectionNum}</a> ended ${lastElectionDate}</td>
 </tr>`);
     }
     function displaySiteLastElectionFromCache(site) {
