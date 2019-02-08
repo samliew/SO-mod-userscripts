@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -515,7 +515,7 @@
                 menuitems += `<a data-action="meta-incorrect">close + delete (incorrectly posted)</a>`;
             }
             else {
-                menuitems += `<a data-action="mod-delete" class="${isModDeleted ? 'disabled' : ''}">mod-delete post</a>`; // Not currently deleted by mod only
+                menuitems += `<a data-action="mod-delete">mod-delete post</a>`;
             }
 
             menuitems += `<a data-action="lock-dispute" class="${isLocked ? 'dno' : ''}">lock - dispute (3d)</a>`; // unlocked-only
