@@ -1,11 +1,20 @@
 // ==UserScript==
-// @name         Stack Overflow Dark Mode
-// @description  Dark theme for Stack Overflow
+// @name         Stack Exchange Dark Mode
+// @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.2
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/*
+// @include      https://*serverfault.com/*
+// @include      https://*superuser.com/*
+// @include      https://*askubuntu.com/*
+// @include      https://*mathoverflow.net/*
+// @include      https://*.stackexchange.com/*
+//
+// @include      https://chat.stackoverflow.com/*
+// @include      https://chat.stackexchange.com/*
+// @include      https://chat.meta.stackexchange.com/*
 //
 // @grant        GM_addStyle
 // @run-at       document-start
