@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.2
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -58,10 +58,8 @@
                 // Remove other actions as they need additional work to get popup working
                 $modActions.last().remove();
 
-                // Collapse headers on click
-                const $infoHeader = $quicklinks.find('h3').click(function() {
-                    $(this).nextAll('div, ul').first().slideToggle(150);
-                }).last().text(username).prependTo($quicklinks);
+                // Headers
+                const $infoHeader = $quicklinks.find('h3').last().text(username).prependTo($quicklinks);
 
                 // Insert user details
                 const $info = $('.mod-section .details', data).insertAfter($infoHeader);
@@ -92,7 +90,7 @@
                 const susMsg = $('.system-alert', data).first().text();
                 if(susMsg.indexOf('suspended') >= 0) {
                     const susDur = susMsg.split('ends')[1].replace(/(^\s|(\s|\.)+$)/g, '');
-                    $quicklinks.find('h3').first().css({ color: 'red' }).attr('title', `currently suspended (ends ${susDur})`);
+                    $quicklinks.find('h3').first().attr({ style: 'color: red !important;' }).attr('title', `currently suspended (ends ${susDur})`);
                 }
 
                 // Append to page
@@ -162,7 +160,6 @@
 }
 #usersidebar h3 {
     margin-bottom: 15px !important;
-    cursor: pointer;
 }
 #usersidebar .details {
     margin-bottom: 15px;
