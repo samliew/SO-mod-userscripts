@@ -3,8 +3,9 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.3.2
 //
+// @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
 // @include      https://*superuser.com/*
@@ -180,6 +181,10 @@ a.fc-dark:hover {
     background-color: white;
     filter: none;
 }
+.top-bar.top-bar__network .-logo {
+    background-color: transparent;
+    opacity: 1;
+}
 .s-select:before, .s-select:after,
 .f-select:before, .f-select:after {
     border-color: #AAA transparent;
@@ -339,6 +344,9 @@ a.comment-user.owner {
     background-color: #E1ECF4;
     color: #555;
 }
+.page-numbers {
+    background-image: none;
+}
 
 
 /* Code colours */
@@ -428,6 +436,23 @@ pre * {
 
 
 /* Chat */
+.topbar {
+    background: black;
+}
+.topbar .topbar-wrapper,
+.topbar .topbar-wrapper *,
+#modflag-count a,
+#flag-count a,
+#annotation-count a {
+    background-color: transparent;
+}
+.topbar .topbar-icon-on,
+.topbar .topbar-icon-on:hover {
+    background-color: #eff0f1;
+}
+.topbar .js-topbar-dialog-corral > * {
+    background-color: black;
+}
 #header-logo img,
 #footer-logo img,
 #transcript-logo img {
