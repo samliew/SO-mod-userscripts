@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -402,6 +402,28 @@ pre * {
 .deleted-answer .mod-userlinks,
 .deleted-answer .post-mod-menu {
     background-color: #220000;
+}
+#search-helper {
+    padding-bottom: 20px;
+    border: 1px solid ${bordercolor};
+    border-top: none;
+}
+#saved-search .handle:before,
+#saved-search .handle:after {
+    background-color: ${bordercolor};
+}
+#search-helper svg,
+#btn-bookmark-search svg,
+#btn-auto-refresh svg {
+    background-color: transparent;
+    fill: #ccc;
+}
+#search-helper .active svg {
+    fill: #888;
+}
+#btn-bookmark-search.active svg,
+#btn-auto-refresh.active svg {
+    fill: gold;
 }
 
 
