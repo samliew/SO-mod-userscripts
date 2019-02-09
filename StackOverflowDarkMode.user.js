@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -30,6 +30,7 @@
     const btncolor = '#333';
     const bordercolor = '#555';
 
+    const darkgreen = '#296538';
     const darkblue = '#035';
     const orange = '#F48024';
 
@@ -109,8 +110,8 @@ body .bc-black-3 {
 
 
 /* Selection */
-::selection { background: #408050; }
-::-moz-selection { background: #408050; }
+::selection { background: ${darkgreen}; }
+::-moz-selection { background: ${darkgreen}; }
 
 
 /* Scrollbars */
@@ -311,6 +312,15 @@ body > div[style*="absolute"],
 }
 .star-on {
     opacity: 1;
+}
+body .bg-green-400,
+.accepted,
+.answered-accepted,
+.special-rep {
+    background-color: ${darkgreen};
+}
+.status > * {
+    background-color: transparent;
 }
 .new-post-activity,
 .new-answer-activity {
