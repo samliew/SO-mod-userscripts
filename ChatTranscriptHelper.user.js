@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.5
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
@@ -13,9 +13,12 @@
 (function() {
     'use strict';
 
+
+    const isMob = document.body.classList.contains('mob');
     const tzOffset = new Date().getTimezoneOffset();
     const tzHours = -(tzOffset / 60);
     const tzSymbol = (tzHours >= 0 ? '+' : '') + tzHours;
+
 
     function doPageload() {
 
@@ -45,12 +48,24 @@
         $('.pager span.page-numbers').text(function(i, str) {
             const t1 = str.split(' - ')[0];
             const t2 = str.split(' - ')[1];
-            let h1 = Number(t1.split(':')[0]) + tzHours;
-            let h2 = Number(t2.split(':')[0]) + tzHours;
+
+            let h1, h2;
+            if(isMob) {
+                h1 = Number(t1) + tzHours;
+                h2 = Number(t2.replace('h', '')) + tzHours;
+            }
+            else {
+                h1 = Number(t1.split(':')[0]) + tzHours;
+                h2 = Number(t2.split(':')[0]) + tzHours;
+            }
+
             if(h1 < 0) h1 += 24;
             else if(h1 >= 24) h1 %= 24;
             if(h2 < 0) h2 += 24;
             else if(h2 >= 24) h2 %= 24;
+
+            if(isNaN(h1) || isNaN(h2)) debugger;
+
             if(h1.toString().length != 2) h1 = '0' + h1;
             if(h2.toString().length != 2) h2 = '0' + h2;
             return `${h1}:00 - ${h2}:00`;
