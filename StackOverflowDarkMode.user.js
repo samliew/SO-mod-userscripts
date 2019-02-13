@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.4.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -313,6 +313,9 @@ body > div[style*="absolute"],
 .star-on {
     opacity: 1;
 }
+body .bg-yellow-100 {
+    background-color: ${bgcolor};
+}
 body .bg-green-400,
 .accepted,
 .answered-accepted,
@@ -363,6 +366,12 @@ a.comment-user.owner {
 }
 .page-numbers {
     background-image: none;
+}
+body table.sorter > tbody > tr:nth-child(odd) > td {
+    background-color: #181818;
+}
+body table.sorter > tbody > tr:nth-child(even) > td {
+    background: none;
 }
 
 
