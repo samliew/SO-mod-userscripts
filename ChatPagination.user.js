@@ -3,7 +3,7 @@
 // @description  Improvements to pagination of user recent messages page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -106,7 +106,8 @@
     padding: 20px 0 0px;
     text-align: center;
 }
-.pager > * {
+.pager > *,
+.pager .page-numbers {
     display: inline-block !important;
     float: none;
 }
