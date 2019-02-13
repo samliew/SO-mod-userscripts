@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.3
+// @version      1.4.4
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -127,7 +127,9 @@ body .bc-black-3 {
 #sidebar > *,
 .deleted-answer,
 .downvoted-answer,
-.top-bar .-logo {
+.top-bar .-logo,
+#usersidebar,
+.usersidebar-open #usersidebar {
     opacity: 0.6;
     transition: opacity 0.2s ease;
 }
@@ -146,6 +148,7 @@ ul.comments-list .comment-flagging {
 .deleted-answer:hover,
 .downvoted-answer:hover,
 .top-bar .-logo:hover,
+#usersidebar:hover,
 .question-summary:hover .started,
 #footer:hover > div,
 ul.comments-list .comment:hover .comment-voting,
@@ -424,6 +427,10 @@ pre * {
 }
 .ctype-meh {
     background-color: #999;
+}
+a.comment-user.owner {
+    background-color: #5f666d;
+    color: #fff;
 }
 .delete-comment,
 .cancel-comment-flag,
