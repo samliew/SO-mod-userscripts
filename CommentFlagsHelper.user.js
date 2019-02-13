@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3.3
+// @version      3.3.4
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
 // @include      https://*serverfault.com/admin/dashboard?flag*=comment*
@@ -583,6 +583,8 @@ table.comments tr.roa-comment > td {
 #footer,
 .t-flag,
 .t-flag ~ .module,
+#chat-feature,
+#chat-feature ~ .module,
 .module p.more-info,
 #mod-history + div:not([class]),
 .undelete-comment {
