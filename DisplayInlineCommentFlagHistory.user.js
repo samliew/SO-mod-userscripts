@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.1
+// @version      2.6.2
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -127,7 +127,9 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
                     if(v == null) return;
                     $(`#comment-${cmmtId} .comment-flags > tr`).each(function(i) {
                         if(v[i] == null || v[i].length != 3) return;
-                        $(this).find('.event-comment').append(`<span> - ${v[i][1]} - ${v[i][2]}</span>`);
+                        let status = v[i][2].toLowerCase().trim();
+                        status = status != 'active' ? '- ' + status : '';
+                        $(this).find('.event-comment').append(`<span> - ${v[i][1]} ${status}</span>`);
                     });
                 });
 
@@ -145,8 +147,8 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
 
     function doPageload() {
 
-        // Clear comment flaggers cache on weekends
-        if(new Date().getDay() % 6 === 0) purgeDisplayInlineCommentFlagHistory();
+        // Clear comment flaggers cache every two days
+        if(new Date().getDay() % 2 === 0) purgeDisplayInlineCommentFlagHistory();
 
         // If timeline page
         if(location.href.indexOf('/timeline') >= 0) {
