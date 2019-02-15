@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.5.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -566,9 +566,11 @@
 
             if($(this).hasClass('disabled')) return false;
 
+            const qlink = $(this).parents('.mod-post-header').find('.answer-hyperlink, .question-hyperlink').add('.reviewable-post-stats a');
+
             const pid = Number(this.parentNode.dataset.pid);
             const qid = Number($('#question').attr('data-questionid') ||
-                               $(this).parents('.mod-post-header').find('.answer-hyperlink, .question-hyperlink').attr('href').match(/\/(\d+)\//)[0].replace(/\//g, ''));
+                               (qlink.attr('href').match(/\/(\d+)\//) || [''])[0].replace(/\//g, ''));
             const redupePid = Number(this.dataset.redupePid);
             const uid = Number(this.dataset.uid);
             const uName = this.dataset.username;
