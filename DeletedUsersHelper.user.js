@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.10
+// @version      1.11
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -213,7 +213,8 @@
         const pre = $('#mainbar-full pre');
         const details = pre.text().split(/\r?\n/);
 
-        const deldate = details[0].split('on ')[1].replace(/(\d+)\/(\d+)\/(\d+) (\d+):(\d+):(\d+) [AP]M/, '$3-0$1-0$2 0$4:0$5:0$6Z').replace(/(?<=[^\d])\d?(\d\d)/g, '$1');
+        const deldate = details[0].split('on ')[1]
+          .replace(/(\d+)\/(\d+)\/(\d+) (\d+):(\d+):(\d+) [AP]M/, '$3-0$1-0$2 0$4:0$5:0$6Z').replace(/([^\d])\d?(\d\d)/g, '$1$2'); // cheat way of padding zeros
         const username = details[1].match(/: ([^\(]+)/)[1].trim();
         const userid = details[1].match(/\((\d+)\)/)[1];
         const networkid = details[1].match(/=(\d+)\)/)[1];
