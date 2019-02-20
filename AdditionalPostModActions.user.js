@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.2
+// @version      1.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -518,11 +518,11 @@
                 menuitems += `<a data-action="mod-delete">mod-delete post</a>`;
             }
 
-            menuitems += `<a data-action="lock-dispute" class="${isLocked ? 'dno' : ''}">lock - dispute (3d)</a>`; // unlocked-only
-            menuitems += `<a data-action="lock-comments" class="${isLocked ? 'dno' : ''}">lock - comments (1d)</a>`; // unlocked-only
+            menuitems += `<a data-action="lock-dispute" class="${isLocked ? 'dno' : ''}">lock - dispute (custom days)</a>`; // unlocked-only
+            menuitems += `<a data-action="lock-comments" class="${isLocked ? 'dno' : ''}">lock - comments (custom days)</a>`; // unlocked-only
 
             if(isQuestion) { // Q-only
-                menuitems += `<a data-action="lock-historical" class="${isLocked ? 'dno' : ''}">lock - historical (perm)</a>`; // unlocked-only
+                // menuitems += `<a data-action="lock-historical" class="${isLocked ? 'dno' : ''}">lock - historical (perm)</a>`; // unlocked-only
             }
 
             menuitems += `<a data-action="unlock" class="${!isLocked || isMigrated ? 'dno' : ''}">unlock</a>`; // L-only
@@ -568,7 +568,8 @@
 
             const qlink = $(this).parents('.mod-post-header').find('.answer-hyperlink, .question-hyperlink').add('.reviewable-post-stats a');
 
-            const pid = Number(this.parentNode.dataset.pid);
+            const menuEl = this.parentNode;
+            const pid = Number(menuEl.dataset.pid);
             const qid = Number($('#question').attr('data-questionid') ||
                                (qlink.attr('href').match(/\/(\d+)\//) || [''])[0].replace(/\//g, ''));
             const redupePid = Number(this.dataset.redupePid);
@@ -651,12 +652,18 @@
                 case 'mod-delete':
                     modUndelDelete(pid).then(reloadPage);
                     break;
-                case 'lock-dispute':
-                    lockPost(pid, 20, 24 * 3).then(reloadPage);
+                case 'lock-dispute': {
+                    let d = Number(prompt('Lock for how many days?', '3').trim());
+                    if(!isNaN(d)) lockPost(pid, 20, 24 * d).then(reloadPage);
+                    else StackExchange.helpers.showErrorMessage(menuEl, 'Invalid number of days');
                     break;
-                case 'lock-comments':
-                    lockPost(pid, 21).then(reloadPage);
+                }
+                case 'lock-comments': {
+                    let d = Number(prompt('Lock for how many days?', '1').trim());
+                    if(!isNaN(d)) lockPost(pid, 21, 24 * d).then(reloadPage);
+                    else StackExchange.helpers.showErrorMessage(menuEl, 'Invalid number of days');
                     break;
+                }
                 case 'lock-historical':
                     lockPost(pid, 22, -1).then(reloadPage);
                     break;
