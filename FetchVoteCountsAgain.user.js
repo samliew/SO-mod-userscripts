@@ -3,7 +3,7 @@
 // @description  Fetch vote counts for posts and enables you to click to fetch them again, even if you do not have sufficient rep. Also enables fetch vote counts on posts in mod flag queue.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -26,7 +26,7 @@
 
     function doPageLoad() {
 
-        $('.js-vote-count, .vote-count-post').attr('title', 'View upvote and downvote totals');
+        $('.js-vote-count, .vote-count-post').attr('title', 'View upvote and downvote totals').off('click');
 
         $('#content').on('click', '.js-vote-count, .vote-count-post', function() {
             const votesElem = $(this);
@@ -35,28 +35,28 @@
 
             // If user does not have vote counts priv, use API to fetch vote counts
             if(StackExchange.options.user.rep < 1000) {
-                StackExchange.helpers.addSpinner(this);
+                StackExchange.helpers.addStacksSpinner(this, "sm");
 
                 $.get(`https://api.stackexchange.com/2.2/posts/${pid}?filter=!w-*Ytm8Gt4I)pS_ZBu&site=${location.hostname}&key=${apikey}`)
                     .done(function(data) {
-                        StackExchange.helpers.removeSpinner();
                         votesElem.attr('title', `${+data.items[0].up_vote_count} up / ${+data.items[0].down_vote_count} down`)
-                            .html(`<div style="color:green">${data.items[0].up_vote_count}</div><div class="vote-count-separator"></div><div style="color:maroon">${-data.items[0].down_vote_count}</div>`);
-                    });
+                            .html(`<div style="color:green">+${data.items[0].up_vote_count}</div><div class="vote-count-separator"></div><div style="color:maroon">${-data.items[0].down_vote_count}</div>`);
+                    })
+                    .always(() => StackExchange.helpers.removeSpinner());
+                return false;
             }
 
             // User has vote count priv and already fetched vote counts once
             //   or on mod page (mods can't fetch vote counts)
             else if((votesElem.children().length > 1 && StackExchange.options.user.rep >= 1000) || $('body').hasClass('mod-page')) {
-                StackExchange.helpers.addSpinner(this);
+                StackExchange.helpers.addStacksSpinner(this, "sm");
 
                 $.get(`https://${location.hostname}/posts/${pid}/vote-counts`)
                     .done(function(data) {
-                        StackExchange.helpers.removeSpinner();
                         votesElem.attr('title', `${+data.up} up / ${+data.down} down`)
                             .html(`<div style="color:green">${data.up}</div><div class="vote-count-separator"></div><div style="color:maroon">${data.down}</div>`);
-                    });
-
+                    })
+                    .always(() => StackExchange.helpers.removeSpinner());
                 return false;
             }
         });
