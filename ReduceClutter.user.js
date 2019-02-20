@@ -60,6 +60,15 @@ ul.comments-list .comment-up-on {
     display: inline;
 }
 
+/*
+    Hide flag summary explanation
+    https://meta.stackexchange.com/q/323055
+    https://meta.stackoverflow.com/q/380413
+*/
+#mainbar.user-flag-history > div:first-child:not(.flagged-post) {
+    display: none;
+}
+
 </style>
 `;
         $('body').append(styles);
