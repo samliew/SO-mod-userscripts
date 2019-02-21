@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -80,6 +80,7 @@
 
         let addstr = `This user has a [suspicious history](https://${location.hostname}/admin/show-user-votes/${uid}) of cross-voting and/or targeted votes.` + newlines;
         let appstr = `*(there may also be other minor instances of targeted votes that are unknown to us, as we can only view votes between users if they are above a certain threshold)*`;
+        let additionalInfo = getQueryParam('info');
 
         // After template dialog has opened
         let flags, votesFrom, votesTo, votesFromInv = [], votesToInv = [];
@@ -221,6 +222,13 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
                 });
 
                 appstr = flagtext + newlines + appstr;
+            }
+
+            // Additional information from querystring, mostly for use with
+            // https://data.stackexchange.com/stackoverflow/query/968803
+            if(additionalInfo != null) {
+                let infotext = `Additional information:` + newlines + ' - ' + decodeURIComponent(additionalInfo);
+                appstr = infotext + newlines + appstr;
             }
 
             // Insert to template
