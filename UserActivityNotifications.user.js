@@ -3,7 +3,7 @@
 // @description  Display notifications on user profile when new activity is detected since page load
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.9
+// @version      0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -20,10 +20,10 @@
 
 
 // If user accepts, we can show native notifications
-if(!("Notification" in window)) {
+var notifyperm = "Notification" in window;
+if(!notifyperm) {
     console.log("This browser does not support desktop notifications.");
 }
-Notification.requestPermission();
 
 
 (function() {
@@ -153,6 +153,9 @@ Notification.requestPermission();
         userId = Number(location.pathname.match(/\/\d+/)[0].replace('/', ''));
         username = $('.profile-user--name > div:first, .mini-avatar .name').text().replace('♦', '').replace(/\s+/g, ' ').trim();
         shortname = username.split(' ')[0].substr(0, 12).trim();
+
+        // Get notification permissions
+        if(notifyperm) Notification.requestPermission();
 
         // Run once on page load, then start polling API occasionally
         scheduledTask();
