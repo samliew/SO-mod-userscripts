@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.11
+// @version      1.12
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -226,9 +226,10 @@
 
         const $html = $(`
 <div class="del-user-info">
-  <div>User <input value="${username}"> (#<input value="${userid}">, network#<input value="${networkid}">) was ${delInfo}</div>
+  <div>User <input value="${username}"> (#<input value="${userid}">, network#<input value="${networkid}" ondblclick="window.open('https://stackexchange.com/users/${networkid}')">) was ${delInfo}</div>
   <div class="del-reason">${reason}</div>
   <div>Last seen from IP: <input value="${lastip}"></div>
+  <div>Network account: &nbsp; <a href="https://stackexchange.com/users/${networkid}" target="_blank">https://stackexchange.com/users/${networkid}</a></div>
 </div>`);
 
         pre.after($html).remove();
