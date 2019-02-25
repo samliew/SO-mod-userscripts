@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.2
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -67,8 +67,22 @@
             initRefresh();
         }
 
+        // When ajax requests have completed
+        $(document).ajaxComplete(function(event, xhr, settings) {
+
+            // If post deleted, remove from queue
+            if(!settings.url.includes('/comments/') && settings.url.includes('/vote/10')) {
+                const pid = settings.url.match(/\/\d+\//)[0].replace(/\//g, '');
+                $('#flagged-' + pid).remove();
+
+                // Refresh if no flags in current queue
+                initRefresh();
+            }
+        });
+
         // When flags are handled
         $(document).ajaxStop(function(event, xhr, settings) {
+
             // Refresh if no flags in current queue
             initRefresh();
         });
