@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.3
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -24,6 +24,23 @@
     const reloadPage = () => location.reload(true);
 
 
+    function initRefresh(main = false) {
+
+        let c = timeoutSecs;
+        $(`<div>Refreshing page in <b id="refresh-counter">${timeoutSecs}</b> seconds...</div>`).appendTo('.flag-container');
+
+        // Main timeout
+        setTimeout(reloadPage, timeoutSecs * 1000);
+
+        // Counter update interval
+        setInterval(function() {
+            $('#refresh-counter').text(--c > 0 ? c : 0);
+        }, 1000);
+
+        return function() {};
+    }
+
+
     function doPageload() {
 
         // If no mod flags, insert mod flags indicator in header anyway...
@@ -40,12 +57,12 @@
 
             // If completely no post flags, redirect to main
             if($('.so-flag, .m-flag, .c-flag').length === 0) {
-                setTimeout(goToMain, timeoutSecs * 1000);
+                initRefresh(true);
             }
 
             // Refresh if no flags in current queue
             else if($('.flagged-posts.moderator').children().length === 0) {
-                setTimeout(reloadPage, timeoutSecs * 1000);
+                initRefresh();
             }
 
             // When flags are handled,
@@ -53,7 +70,7 @@
 
                 // Refresh if no flags in current queue
                 if($('.flagged-post-row').length === 0) {
-                    setTimeout(reloadPage, timeoutSecs * 1000);
+                    initRefresh();
                 }
             });
         }
