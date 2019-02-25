@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -24,7 +24,9 @@
     const reloadPage = () => location.reload(true);
 
 
-    function initRefresh(main = false) {
+    let initRefresh = function(main = false) {
+
+        if($('.flagged-post-row').length > 0) return;
 
         let c = timeoutSecs;
         $(`<div>Refreshing page in <b id="refresh-counter">${timeoutSecs}</b> seconds...</div>`).appendTo('.flag-container');
@@ -37,8 +39,9 @@
             $('#refresh-counter').text(--c > 0 ? c : 0);
         }, 1000);
 
-        return function() {};
-    }
+        // Ensures this function only runs once
+        initRefresh = function() {};
+    };
 
 
     function doPageload() {
@@ -52,28 +55,26 @@
                </li>`);
         }
 
-        // If on mod flag pages
-        if($('body').hasClass('flag-page')) {
+        // If not on mod flag pages, ignore rest of script
+        if(!$('body').hasClass('flag-page')) return;
 
-            // If completely no post flags, redirect to main
-            if($('.so-flag, .m-flag, .c-flag').length === 0) {
-                initRefresh(true);
-            }
-
-            // Refresh if no flags in current queue
-            else if($('.flagged-posts.moderator').children().length === 0) {
-                initRefresh();
-            }
-
-            // When flags are handled,
-            $(document).ajaxStop(function(event, xhr, settings) {
-
-                // Refresh if no flags in current queue
-                if($('.flagged-post-row').length === 0) {
-                    initRefresh();
-                }
-            });
+        // If completely no post flags, redirect to main
+        if($('.so-flag, .m-flag, .c-flag').length === 0) {
+            initRefresh(true);
         }
+        // Refresh if no flags in current queue
+        else {
+            initRefresh();
+        }
+
+        // When flags are handled
+        $(document).ajaxStop(function(event, xhr, settings) {
+            // Refresh if no flags in current queue
+            initRefresh();
+        });
+
+        // On skip post link click
+        $('.flagged-post-row').on('click', '.skip-post', initRefresh);
     }
 
 
