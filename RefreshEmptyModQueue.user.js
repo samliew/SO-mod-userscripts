@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -19,7 +19,7 @@
 (function() {
     'use strict';
 
-    const timeoutSecs = 30;
+    const timeoutSecs = 5;
     const goToMain = () => location.href = '/admin/dashboard?filtered=false';
     const reloadPage = () => location.reload(true);
 
@@ -30,7 +30,7 @@
         $(`<div>Refreshing page in <b id="refresh-counter">${timeoutSecs}</b> seconds...</div>`).appendTo('.flag-container');
 
         // Main timeout
-        setTimeout(reloadPage, timeoutSecs * 1000);
+        setTimeout(main ? goToMain : reloadPage, timeoutSecs * 1000);
 
         // Counter update interval
         setInterval(function() {
