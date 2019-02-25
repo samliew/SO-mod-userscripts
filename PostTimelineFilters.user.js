@@ -3,9 +3,10 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.5
+// @version      1.6.6
 //
 // @include      */posts*/timeline*
+// @include      */admin/posts/*/show-flags*
 // ==/UserScript==
 
 (function() {
@@ -106,6 +107,22 @@
 
 
     function doPageLoad() {
+
+        if(location.pathname.includes('/show-flags')) {
+
+            // Show decline reason
+            $('#flags td[title]').each(function() {
+                if(this.title.length)
+                $(this).html( this.innerHTML + ' - ' + this.title );
+                this.removeAttribute('title');
+            });
+
+            // Add link to post timeline
+            const pid = location.pathname.match(/\/\d+\//)[0].replace(/\//g, '');
+            $('#flags').after(`<a href="/posts/${pid}/timeline?filter=flags" class="btn btn-primary">View flags in post timeline</a>`);
+
+            return;
+        }
 
         // Pre-trim certain elements once on page load to make filtering less complicated
         $('span.event-type, td.event-verb span a').text((i, v) => '' + v.trim());
