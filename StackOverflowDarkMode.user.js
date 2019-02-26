@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -499,7 +499,6 @@ a.comment-user.owner {
     background-color: black;
 }
 #header-logo img,
-#footer-logo img,
 #transcript-logo img {
     background-color: white;
 }
