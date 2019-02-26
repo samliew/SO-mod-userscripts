@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.7
+// @version      1.5
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -527,7 +527,9 @@ a.comment-user.owner {
     border-bottom: 2px dashed ${textcolor};
 }
 #chat-body div.message.reply-parent .content,
-#chat-body div.message.reply-child .content {
+#chat-body div.message.reply-child .content,
+#transcript div.message.reply-parent .content,
+#transcript div.message.reply-child .content {
     background-color: #444;
 }
 .message .mention {
@@ -579,6 +581,9 @@ a.comment-user.owner {
 
         if(location.hostname === "stackoverflow.com") {
             $('.top-bar .-logo .-img').replaceWith(soLogo);
+        }
+        if(location.hostname === "chat.stackoverflow.com") {
+            $('#footer-logo img').replaceWith(soLogo);
         }
     });
 
