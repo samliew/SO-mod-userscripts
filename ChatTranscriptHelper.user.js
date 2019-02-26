@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.7
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
@@ -93,8 +93,39 @@
     }
 
 
+    function scrollToRepliedToMessage() {
+
+        // If replied-to message is on the same page, scroll to it instead
+        $('#transcript').on('click', '.reply-info', function() {
+
+            const pMid = this.href.split('#')[1];
+
+            // Scroll to if exists on page
+            const msg = $('#message-' + pMid);
+            if(msg.length !== 0) {
+
+                // clear all message highlights on page
+                $('.message').removeClass('reply-parent reply-child highlight');
+
+                // highlight current message
+                msg.addClass('highlight');
+
+                // perform scroll
+                $('html, body').animate({ scrollTop: msg.offset().top }, 400);
+
+                // replace browser history
+                window.history.replaceState({}, null, this.href);
+
+                // prevent default link action
+                return false;
+            }
+        });
+    }
+
+
     // On page load
     doPageload();
     highlightMessageReplies();
+    scrollToRepliedToMessage();
 
 })();
