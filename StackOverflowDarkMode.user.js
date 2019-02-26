@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.6
+// @version      1.4.7
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -106,6 +106,9 @@ body .bc-black-1,
 body .bc-black-2,
 body .bc-black-3 {
     border-color: ${bordercolor};
+}
+body .fc-theme-primary {
+    color: ${orange};
 }
 
 
