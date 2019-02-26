@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.4
+// @version      1.7.5
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -213,6 +213,7 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 
             // Remove chat and hot network questions as they take up a lot of sidebar real-estate
             $('#chat-feature, #hot-network-questions').hide();
+            $('.js-chat-ad-link').closest('.module').hide();
 
             const deletedAnswersListitems = $('#qtoc-header').next().find('.deleted-answer');
             const deletedAnswers = postsOnPage.filter('.deleted-answer');
