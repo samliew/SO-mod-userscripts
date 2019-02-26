@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.5.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -477,6 +477,12 @@ a.comment-user.owner {
 }
 .fancybox-container {
     background-color: rgba(0,0,0,0.6);
+}
+#search-helper input[type="radio"] + label:before {
+    color: transparent;
+}
+#search-helper input[type="radio"]:checked + label:before {
+    color: ${orange};
 }
 
 
