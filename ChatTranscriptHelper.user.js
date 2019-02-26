@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.6
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
@@ -75,7 +75,26 @@
     }
 
 
+    function highlightMessageReplies() {
+
+        $('#transcript').on('mouseover', '.message', function() {
+            $('.message').removeClass('reply-parent reply-child'); // reset
+
+            // Replies to selected message
+            const mid = this.id.split('-')[1];
+            $('.reply-info').filter((i, el) => el.href.includes('#'+mid)).closest('.message').addClass('reply-child');
+
+            // Replying to another message
+            const pMid = ($(this).find('.reply-info').attr('href') || '#').split('#')[1];
+            if(pMid !== '') {
+                $('#message-' + pMid).addClass('reply-child');
+            }
+        });
+    }
+
+
     // On page load
     doPageload();
+    highlightMessageReplies();
 
 })();
