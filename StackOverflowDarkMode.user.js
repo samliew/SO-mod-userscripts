@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.5
+// @version      1.4.6
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -526,6 +526,9 @@ a.comment-user.owner {
 #chat-body div.message.reply-parent .content,
 #chat-body div.message.reply-child .content {
     background-color: #444;
+}
+.message .mention {
+    background-color: #8f6224;
 }
 .vote-count-container.stars .img {
     background-size: 32px;
