@@ -3,14 +3,14 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3.5
+// @version      3.3.6
 //
-// @include      https://*stackoverflow.com/admin/dashboard?flag*=comment*
-// @include      https://*serverfault.com/admin/dashboard?flag*=comment*
-// @include      https://*superuser.com/admin/dashboard?flag*=comment*
-// @include      https://*askubuntu.com/admin/dashboard?flag*=comment*
-// @include      https://*mathoverflow.net/admin/dashboard?flag*=comment*
-// @include      https://*.stackexchange.com/admin/dashboard?flag*=comment*
+// @include      https://*stackoverflow.com/admin/dashboard*
+// @include      https://*serverfault.com/admin/dashboard*
+// @include      https://*superuser.com/admin/dashboard*
+// @include      https://*askubuntu.com/admin/dashboard*
+// @include      https://*mathoverflow.net/admin/dashboard*
+// @include      https://*.stackexchange.com/admin/dashboard*
 //
 // @include      https://*stackoverflow.com/admin/users/*/post-comments*
 // @include      https://*serverfault.com/admin/users/*/post-comments*
