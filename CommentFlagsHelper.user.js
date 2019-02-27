@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3.6
+// @version      3.3.7
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -18,6 +18,8 @@
 // @include      https://*askubuntu.com/admin/users/*/post-comments*
 // @include      https://*mathoverflow.net/admin/users/*/post-comments*
 // @include      https://*.stackexchange.com/admin/users/*/post-comments*
+//
+// @exclude      *?flagtype=posttoomanycommentsauto*
 //
 // @require      https://raw.githubusercontent.com/samliew/ajax-progress/master/jquery.ajaxProgress.js
 // ==/UserScript==
@@ -166,7 +168,7 @@
     function doPageload() {
 
         // For Too Many Rude/Abusive queue, load user's R/A flagged comments
-        if(location.href.indexOf('commenttoomanydeletedrudenotconstructiveauto') >= 0) {
+        if(location.search.includes('commenttoomanydeletedrudenotconstructiveauto')) {
 
             // Additional styles for this page
             appendCTMDRNCAstyles();
