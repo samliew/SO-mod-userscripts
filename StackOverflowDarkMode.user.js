@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.4
+// @version      1.5.5
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -54,14 +54,20 @@ body .bg-black-050,
 .fc-light,
 .fc-medium,
 .fc-dark {
-    background-image: none;
     background-color: ${bgcolor};
     color: ${textcolor};
     box-shadow: none;
     outline: none;
     text-shadow: none;
 }
+.btn,
+.button,
+button,
+input[type="submit"],
+input[type="button"],
+input[type="reset"],
 *:not(span) {
+    background-image: none;
     border-color: ${bordercolor};
 }
 #sidebar .module {
