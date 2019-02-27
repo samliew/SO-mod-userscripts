@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.5
+// @version      1.5.6
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -65,8 +65,7 @@ body .bg-black-050,
 button,
 input[type="submit"],
 input[type="button"],
-input[type="reset"],
-*:not(span) {
+input[type="reset"] {
     background-image: none;
     border-color: ${bordercolor};
 }
