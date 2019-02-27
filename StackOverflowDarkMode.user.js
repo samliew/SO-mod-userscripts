@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.6
+// @version      1.5.7
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -67,6 +67,10 @@ input[type="submit"],
 input[type="button"],
 input[type="reset"] {
     background-image: none;
+    border-color: ${bordercolor};
+}
+hr {
+    background-color: ${bordercolor};
     border-color: ${bordercolor};
 }
 #sidebar .module {
@@ -413,6 +417,9 @@ pre * {
 }
 .post-stickyheader {
     background: #111;
+}
+.post-stickyheader * {
+    background: none;
 }
 .ctype-custom,
 .ctype-bad,
