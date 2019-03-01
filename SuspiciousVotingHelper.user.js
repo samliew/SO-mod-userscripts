@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -218,7 +218,7 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
             if(flags.length > 0) {
                 let flagtext = `Reported via [custom flag](https://${location.hostname}/users/flagged-posts/${uid}):\n`;
                 flags.forEach(function(v) {
-                    flagtext += newlines + '> ' + v;
+                    flagtext += newlines + '> ' + v.replace(/\s*[|]\s*/g, '<br>').replace(/\s*([‒–—―])/g, '<br>$1').replace(' site://', ' https://' + location.hostname + '/');
                 });
 
                 appstr = flagtext + newlines + appstr;
