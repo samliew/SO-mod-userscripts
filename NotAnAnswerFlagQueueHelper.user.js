@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.7
+// @version      2.10
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -116,6 +116,7 @@
         console.log("Toggle by: " + filter);
 
         const filterFunction = function() {
+            if(filter === 'magisch') return $(this).find('.active-flag').next('a').text() === 'Magisch';
             if(filter === 'deleted') return $(this).find('.deleted-answer').length > 0;
             return $(this).find('.mod-audit-user-info .user-action-time').text().includes(filter == 'q' ? 'asked' : 'answered');
         };
@@ -288,6 +289,7 @@
 <a data-toggle="q" title="Show Questions only">Q</a>
 <a data-toggle="a" title="Show Answers only">A</a>
 <a data-toggle="deleted" title="Show Deleted only">D</a>
+<a data-toggle="magisch" title="Show flags by Magisch only" class="dno">M</a>
 `);
         }
 
@@ -325,6 +327,11 @@
 
         // Remove old "deemed invalid by" flags as they mess up sorting by flagger rank
         $('.mod-message .flag-row.js-cleared').filter((i, el) => el.innerText.includes('deemed invalid by')).remove();
+
+        // Show Magisch filter option if there are flags by this user
+        if($posts.find('.active-flag').next('a').filter((i, el) => el.innerText === 'Magisch').length > 0) {
+            $filterOpts.find('[data-toggle="magisch"]').removeClass('dno');
+        }
 
 
         const actionBtns = $('<div id="actionBtns"></div>').prependTo('.flag-container');
