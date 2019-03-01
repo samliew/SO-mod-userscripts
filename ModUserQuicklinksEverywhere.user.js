@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.1.1
+// @version      2.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -40,7 +40,8 @@
   <a href="${parentUrl}/users/account-info/${uid}" target="_blank">mod</a>
 | <a href="${parentUrl}/admin/show-user-votes/${uid}" target="_blank">votes</a>
 | <a href="${parentUrl}/admin/xref-user-ips/${uid}?daysback=30&threshold=2" target="_blank">xref</a>
-]</div>`)
+| <a href="${parentUrl}/admin/cm-message/create/${uid}?action=suspicious-voting" target="_blank">cm</a>
+]</div>`);
 
                 if(modFlair.length !== 0) {
                     userlinks.insertAfter(modFlair);
