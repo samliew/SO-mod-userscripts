@@ -3,7 +3,7 @@
 // @description  Allows moderators to undelete user-deleted comments
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.2
+// @version      0.1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -98,8 +98,10 @@
 
         const styles = `
 <style>
-.undelete-comment {
+.undelete-comment,
+.mod-undelete-comment {
     display: inline-block !important;
+    text-transform: lowercase;
 }
 </style>
 `;
