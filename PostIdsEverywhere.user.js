@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.7.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -42,7 +42,7 @@
     function insertPostIds() {
 
         // Lists
-        $('a.question-hyperlink, a.answer-hyperlink').each((i,el) => {
+        $('a.question-hyperlink, a.answer-hyperlink, .js-post-title-link').each((i,el) => {
             if(el.href.includes('/election')) return;
             let pid = el.href.match(/(?<=[/#])(\d+)/g);
             pid = $(this).hasClass('answer-hyperlink') ? pid.pop() : pid.shift();
