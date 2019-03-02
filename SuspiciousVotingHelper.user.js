@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -72,7 +72,9 @@
     }
 
 
-    function updateModTemplates() {
+    let updateModTemplates = function () {
+
+        updateModTemplates = () => 0; // run once only
 
         const uid = location.pathname.match(/\d+$/)[0];
         const userlink = $('.userlink a').filter((i,el) => el.href.includes(`/${uid}/`)).first();
