@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.0
+// @version      4.0.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -237,7 +237,7 @@
 
             function removePostsWithoutFlags() {
                 $('.js-comments-container[data-comment-context="flag"]').filter(function() {
-                    return $(this).children().length === 0;
+                    return $(this).children('.js-flagged-comment').length === 0;
                 }).parents('.js-flagged-post').remove();
             }
 
