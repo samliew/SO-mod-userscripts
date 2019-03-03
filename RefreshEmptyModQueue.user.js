@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -29,7 +29,9 @@
         if($('.js-flagged-post:visible, .flagged-post-row:visible').length > 0) return;
 
         let c = timeoutSecs;
-        $(`<div style="position:absolute; bottom:10px;">Refreshing page in <b id="refresh-counter">${timeoutSecs}</b> seconds...</div>`).appendTo('.flag-container, .js-admin-dashboard');
+        $(`<div style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); line-height:2em;">
+  Refreshing page in <b id="refresh-counter">${timeoutSecs}</b> seconds...
+</div>`).appendTo('.flag-container, .js-admin-dashboard');
 
         // Main timeout
         setTimeout(main ? goToMain : reloadPage, timeoutSecs * 1000);
