@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8
+// @version      1.8.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -44,7 +44,8 @@
     function insertPostIds() {
 
         // Lists
-        $('a.question-hyperlink, a.answer-hyperlink, .js-post-title-link').each((i,el) => {
+        const modQueuePostLinks = $('.js-body-loader').find('a:first');
+        $('a.question-hyperlink, a.answer-hyperlink, .js-post-title-link').add(modQueuePostLinks).each((i,el) => {
             if(el.href.includes('/election')) return;
             let pid = getPostId(el.href);
             $(`<input class="post-id" title="double click to view timeline" value="${pid}" readonly />`).insertAfter(el)
@@ -88,7 +89,8 @@
 .history-table td,
 .top-posts .post-container,
 .mod-section table.table td,
-.post-container {
+.post-container,
+.js-flagged-post .js-body-loader {
     position: relative;
 }
 .popup[data-questionid],
