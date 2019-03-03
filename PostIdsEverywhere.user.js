@@ -130,6 +130,10 @@
 .question:not(#question) > .post-id {
     top: -20px;
 }
+.js-loaded-body .post-id {
+    top: -8px !important;
+    right: -5px;
+}
 #question .post-id,
 #answers .post-id,
 #user-tab-questions .post-id:hover,
