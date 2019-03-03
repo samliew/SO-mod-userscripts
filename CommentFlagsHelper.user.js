@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.1
+// @version      4.2
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -665,6 +665,10 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
     /* so the decline + delete option goes over the sidebar */
     position: relative;
     z-index: 1;
+}
+.js-mod-history-container {
+    margin: 0 !important;
+    background: #f6f6f6;
 }
 .visited-post {
     opacity: 0.7;
