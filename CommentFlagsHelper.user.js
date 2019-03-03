@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.0.1
+// @version      4.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -335,7 +335,7 @@
 
         // Highlight comments from last year or older
         const thisYear = new Date().getFullYear();
-        $('.comment-link .relativetime').filter((i, el) => Number(el.title.substr(0,4)) < thisYear).addClass('old-comment');
+        $('.js-comment-link .relativetime').filter((i, el) => Number(el.title.substr(0,4)) < thisYear).addClass('old-comment');
 
         // On delete/dismiss comment action
         $('.js-comment-delete, .js-dismiss-flags', '.js-flagged-comment').on('click', function() {
@@ -582,7 +582,7 @@ table.comments tr.roa-comment > td {
     min-height: 6em;
     word-break: break-word;
 }
-table.flagged-posts .relativetime.old-comment {
+.js-flagged-comment .relativetime.old-comment {
     color: coral;
 }
 .js-flagged-comment .js-comment-edit {
