@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8
+// @version      2.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -25,6 +25,7 @@
 
     const isChildMeta = StackExchange.options.site.isChildMeta;
     const parentUrl = isChildMeta ? StackExchange.options.site.parentUrl : '';
+    const showOnHover = false;
 
 
     function addUserLinks() {
@@ -36,7 +37,7 @@
                 // Add Votes and IP-xref links after mod-flair if mod, or after the user link
                 const uid = this.href.match(/\d+/);
                 const modFlair = $(this).next('.mod-flair');
-                const userlinks = $(`<div class="mod-userlinks grid--cell">[
+                const userlinks = $(`<div class="mod-userlinks grid--cell ${showOnHover ? 'show-on-hover' : ''}">[
   <a href="${parentUrl}/users/account-info/${uid}" target="_blank">mod</a>
 | <a href="${parentUrl}/admin/show-user-votes/${uid}" target="_blank">votes</a>
 | <a href="${parentUrl}/admin/xref-user-ips/${uid}?daysback=30&threshold=2" target="_blank">xref</a>
@@ -76,10 +77,17 @@
 .mod-userlinks:hover {
     opacity: 1 !important;
 }
-.mod-userlinks.posabs {
+.mod-userlinks.show-on-hover {
     position: absolute !important;
     display: none;
     background: white;
+}
+.mod-userlinks,
+.mod-userlinks a {
+    color: #666;
+}
+.mod-userlinks a:hover {
+    color: #000;
 }
 .mod-flair + .mod-userlinks {
     display: none;
@@ -92,9 +100,11 @@
     background-color: #f4eaea;
 }
 .grid--cell + .mod-userlinks {
+    position: initial !important;
     display: inline-block;
     width: auto;
     opacity: 0.4;
+    background: none;
 }
 /* review stats/leaderboard */
 .stats-mainbar .task-stat-leaderboard .user-details {
