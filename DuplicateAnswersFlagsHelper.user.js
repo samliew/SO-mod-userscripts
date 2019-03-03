@@ -3,7 +3,7 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.4
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=answerduplicateanswerauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=answerduplicateanswerauto*
@@ -54,14 +54,14 @@ async function waitForSOMU() {
         // Remove convert to comment buttons
         $('.convert-to-comment').remove();
 
-        $('.flagged-post-row').each(function() {
+        $('.js-flagged-post').each(function() {
 
             // Add delete and comment button
-            $('.delete-options', this).append(`<input type="button" class="rec-button js-delete-and-comment" data-post-id="${this.dataset.postId}" value="delete + comment" title="delete and add comment" />`);
+            $('.js-post-flag-options', this).append(`<input type="button" class="grid--cell s-btn s-btn__link js-delete-and-comment" data-post-id="${this.dataset.postId}" value="delete + comment" title="delete and add comment" />`);
         })
         .on('click', '.js-delete-and-comment', function() {
             const pid = this.dataset.postId;
-            const $post = $(`#flagged-${pid}`);
+            const $post = $(this).closest('.js-flagged-post');
 
             // Delete post
             $.post({
@@ -85,7 +85,7 @@ async function waitForSOMU() {
             $post.hide();
         });
 
-        const actionBtns = $('<div id="actionBtns"></div>').prependTo('.flag-container');
+        const actionBtns = $('<div id="actionBtns"></div>').insertBefore('.js-mod-history-container');
 
         // Delete + Comment ALL
         if(superusers.includes(StackExchange.options.user.userId)) {
