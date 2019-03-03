@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10
+// @version      3.0-dev
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -102,8 +102,8 @@
         });
 
         // Button event
-        $('.flagged-post-row').on('click', '.js-helpful-purge', function() {
-            const pid = Number($(this).parents('.flagged-post-row').attr('data-post-id')) || -1;
+        $('.js-flagged-post').on('click', '.js-helpful-purge', function() {
+            const pid = Number($(this).parents('.js-flagged-post').attr('data-post-id')) || -1;
             dismissAllHelpful(pid, function() {
                 purgeComments(pid);
                 $('#flagged-'+pid).remove();
@@ -255,10 +255,10 @@
 
     function doPageLoad() {
 
-        $postsContainer = $('.flagged-post-row').first().parent();
-        $posts = $('.flagged-post-row');
+        $postsContainer = $('.js-flagged-post').first().parent();
+        $posts = $('.js-flagged-post');
 
-        let $filterOpts = $(`<div id="flag-queue-tabs" class="tabs"></div>`).insertBefore('.flagged-posts.moderator');
+        let $filterOpts = $(`<div id="flag-queue-tabs" class="tabs"></div>`).insertBefore('.js-mod-history-container');
 
         // If LQDisputed queue
         if(location.search.includes('flagtype=reviewlowqualitydisputedauto')) {
@@ -314,13 +314,13 @@
         });
 
         // Insert 'skip' button to temporarily hide current post
-        $('.flagged-post-row > td').append(`<a class="skip-post" title="skip (hide) this post" href="#">skip post</a>`);
+        $('.js-flagged-post > td').append(`<a class="skip-post" title="skip (hide) this post" href="#">skip post</a>`);
 
         // On skip post link click
-        $('.flagged-post-row').on('click', '.skip-post', function() {
+        $('.js-flagged-post').on('click', '.skip-post', function() {
 
             // Hide post immediately so we can move on
-            $(this).parents('.flagged-post-row').remove();
+            $(this).parents('.js-flagged-post').remove();
 
             return false;
         });
@@ -337,7 +337,7 @@
         const actionBtns = $('<div id="actionBtns"></div>').prependTo('.flag-container');
 
         // If there are lots of flags and is superuser
-        if($('.flagged-post-row').length > 3 && superusers.includes(StackExchange.options.user.userId)) {
+        if($('.js-flagged-post').length > 3 && superusers.includes(StackExchange.options.user.userId)) {
 
             // Delete all posts left on page button
             $('<button class="btn-warning">Delete ALL</button>')
@@ -357,7 +357,7 @@
                     if(!confirm('Confirm Decline ALL?')) return false;
 
                     $(this).remove();
-                    const visiblePosts = $('.flagged-post-row:visible');
+                    const visiblePosts = $('.js-flagged-post:visible');
                     $('body').showAjaxProgress(visiblePosts.length, { position: 'fixed' });
 
                     visiblePosts.hide().each(function() {
@@ -419,7 +419,7 @@ td.js-dashboard-row,
 }
 #flag-queue-tabs {
     float: none;
-    margin: 20px 0 30px;
+    margin: 10px 0 10px;
 }
 #flag-queue-tabs:after {
     position: relative;
@@ -469,12 +469,25 @@ input.js-helpful-purge {
     opacity: 1;
 }
 
-/* Experimental: compat with comment flags helper */
-#mod-history ~ #flag-queue-tabs {
-    margin-top: 203px;
+/* General new mod interface stuff */
+.js-admin-dashboard > div.grid--cell {
+    position: relative; /* so the decline + delete option goes over the sidebar */
+    z-index: 1;
 }
-#mod-history ~ #flag-queue-tabs + .flagged-posts.moderator {
-    margin-top: 0;
+.js-flagged-post .bc-black-3 {
+    border-color: #eee !important;
+}
+.js-post-flag-group > .grid--cell {
+    padding: 8px 0;
+}
+.js-post-flag-group > .grid--cell.ta-right {
+    padding: 18px 8px !important;
+}
+.js-post-flag-group > .grid--cell > div {
+    padding: 2px 0;
+}
+.js-admin-dashboard fieldset.grid--cell {
+    display: none;
 }
 </style>
 `;
