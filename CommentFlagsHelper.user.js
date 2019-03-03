@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.2
+// @version      4.3
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -231,7 +231,7 @@
         $('.js-flagged-comment .js-dismiss-flags').text('decline').append(`<span class="cancel-delete-comment-flag" title="dismiss flags AND delete comment">+delete</span>`);
 
         // If there are lots of comment flags
-        if($('.js-flagged-comments').length > 3 || true) {
+        if($('.js-flagged-comments').length > 3) {
 
             const actionBtns = $('<div id="actionBtns"></div>');
 
@@ -656,7 +656,6 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
 
 #actionBtns button {
     margin-top: 10px;
-    margin-bottom: 10px;
     margin-right: 10px;
 }
 
