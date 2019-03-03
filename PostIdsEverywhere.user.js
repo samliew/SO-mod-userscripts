@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.1
+// @version      1.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -14,6 +14,8 @@
 // @include      https://*.stackexchange.com/*
 //
 // @exclude      https://stackoverflow.com/c/*
+//
+// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
 // ==/UserScript==
 
 (function() {
@@ -44,9 +46,8 @@
         // Lists
         $('a.question-hyperlink, a.answer-hyperlink, .js-post-title-link').each((i,el) => {
             if(el.href.includes('/election')) return;
-            let pid = el.href.match(/(?<=[/#])(\d+)/g);
-            pid = $(this).hasClass('answer-hyperlink') ? pid.pop() : pid.shift();
-            $('<input class="post-id" title="double click to view timeline" value="'+el.href.match(/(?<=[/#])(\d+)/g).pop()  +'" readonly />').insertAfter(el)
+            let pid = getPostId(el.href);
+            $(`<input class="post-id" title="double click to view timeline" value="${pid}" readonly />`).insertAfter(el)
         });
 
         // Q&A
