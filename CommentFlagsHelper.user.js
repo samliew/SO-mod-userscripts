@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.3
+// @version      4.3.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -231,7 +231,7 @@
         $('.js-flagged-comment .js-dismiss-flags').text('decline').append(`<span class="cancel-delete-comment-flag" title="dismiss flags AND delete comment">+delete</span>`);
 
         // If there are lots of comment flags
-        if($('.js-flagged-comments').length > 3) {
+        if($('.js-comments-container').length > 3) {
 
             const actionBtns = $('<div id="actionBtns"></div>');
 
@@ -336,6 +336,11 @@
         // Highlight comments from last year or older
         const thisYear = new Date().getFullYear();
         $('.js-comment-link .relativetime').filter((i, el) => Number(el.title.substr(0,4)) < thisYear).addClass('old-comment');
+
+        // Shorten additional actions descriptions after comment flag
+        $('.js-flag-text').find('span:last:not([title])').html(function(i, v) {
+            return v.replace(/(added (\d+) comments?)/, '<span title="$1">$2C</span>').replace(/(Vote Up)/gi, '<span title="$1">VU</span>').replace(/(Vote Down)/gi, '<span title="$1">VD</span>');
+        });
 
         // On delete/dismiss comment action
         $('.js-comment-delete, .js-dismiss-flags', '.js-flagged-comment').on('click', function() {
@@ -654,8 +659,11 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
     color: coral;
 }
 
-#actionBtns button {
+#actionBtns {
     margin-top: 10px;
+}
+#actionBtns button {
+    margin-bottom: 10px;
     margin-right: 10px;
 }
 
@@ -668,6 +676,9 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
 .js-mod-history-container {
     margin: 0 !important;
     background: #f6f6f6;
+}
+.js-mod-history {
+    padding: 5px 0 5px 10px;
 }
 .visited-post {
     opacity: 0.7;
@@ -683,6 +694,9 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
 }
 .js-post-flag-group > .grid--cell > div {
     padding: 2px 0;
+}
+.js-admin-dashboard span[title]:hover {
+    cursor: help !important;
 }
 
 /* Other new mod interface stuff */
