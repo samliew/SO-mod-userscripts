@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -19,17 +19,17 @@
 (function() {
     'use strict';
 
-    const timeoutSecs = 5;
+    const timeoutSecs = 10;
     const goToMain = () => location.href = '/admin/dashboard?filtered=false';
     const reloadPage = () => location.reload(true);
 
 
     let initRefresh = function(main = false) {
 
-        if($('.flagged-post-row').length > 0) return;
+        if($('.js-flagged-post:visible, .flagged-post-row:visible').length > 0) return;
 
         let c = timeoutSecs;
-        $(`<div>Refreshing page in <b id="refresh-counter">${timeoutSecs}</b> seconds...</div>`).appendTo('.flag-container');
+        $(`<div style="position:absolute; bottom:10px;">Refreshing page in <b id="refresh-counter">${timeoutSecs}</b> seconds...</div>`).appendTo('.flag-container, .js-admin-dashboard');
 
         // Main timeout
         setTimeout(main ? goToMain : reloadPage, timeoutSecs * 1000);
@@ -56,15 +56,19 @@
         }
 
         // If not on mod flag pages, ignore rest of script
-        if(!$('body').hasClass('flag-page')) return;
+        if(!$('body').hasClass('flag-page') && !$('body').hasClass('mod-page unified-theme')) return;
 
         // If completely no post flags, redirect to main
-        if($('.so-flag, .m-flag, .c-flag').length === 0) {
+        if($('.s-sidebarwidget--header .bounty-indicator-tab').length === 0 && $('.so-flag, .m-flag, .c-flag').length === 0) {
             initRefresh(true);
         }
-        // Refresh if no flags in current queue
-        else {
+        // Refresh if no flags left in unfiltered queue
+        else if(location.search.contains('filtered=false')) {
             initRefresh();
+        }
+        // Go to unfiltered queue
+        else {
+            location.search = location.search + '&filtered=false';
         }
 
         // When ajax requests have completed
@@ -88,7 +92,7 @@
         });
 
         // On skip post link click
-        $('.flagged-post-row').on('click', '.skip-post', initRefresh);
+        $('.js-flagged-post, .flagged-post-row').on('click', '.skip-post', initRefresh);
     }
 
 
