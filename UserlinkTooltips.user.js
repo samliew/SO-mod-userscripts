@@ -3,7 +3,7 @@
 // @description  Display reputation in tooltip upon user link mouseover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -63,8 +63,9 @@
         userlinks = $('#content a[href*="/users/"]')
             .filter((i, el) => el.title === '' && typeof el.dataset.rep === 'undefined' && el.href.includes(location.hostname))
             .each(function(i, el) {
-                const id = (el.href.match(/\d+/) || ['']).pop();
+                const id = (el.href.match(/-?\d+/) || ['']).pop();
                 el.dataset.uid = id; // set computed data-uid
+                if(id == '-1') el.dataset.rep = '1'; // community user
             });
 
         // Re-process new userlinks which were already previously cached (i.e.: more comments loaded)
