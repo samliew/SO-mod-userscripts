@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6
+// @version      2.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -28,7 +28,7 @@
 
 
     function addUserLinks() {
-        $('.post-user-info, .user-details, .js-flagged-post .js-post-header .js-hide-on-delete > div > div.ai-center.fw-wrap')
+        $('.post-user-info, .user-details, .js-body-loader div.ai-center.fw-wrap')
             .not('[js-mod-quicklinks]')
             .attr('js-mod-quicklinks', 'true')
             .find('a[href^="/users/"]:first').each(function() {
@@ -71,9 +71,7 @@
 .mod-userlinks {
     display: block;
     width: 100%;
-    font-size: 1em;
-    transform: scale(0.9, 0.9);
-    transform-origin: left center;
+    font-size: 0.9em;
 }
 .mod-userlinks.posabs {
     position: absolute !important;
