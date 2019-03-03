@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -21,7 +21,7 @@
 
     const timeoutSecs = 10;
     const goToMain = () => location.href = '/admin/dashboard?filtered=false';
-    const reloadPage = () => location.reload(true);
+    const reloadPage = () => location.search.contains('filtered=false') ? location.reload(true) : location.search = location.search + '&filtered=false';
 
 
     let initRefresh = function(main = false) {
@@ -64,13 +64,9 @@
         if($('.s-sidebarwidget--header .bounty-indicator-tab').length === 0 && $('.so-flag, .m-flag, .c-flag').length === 0) {
             initRefresh(true);
         }
-        // Refresh if no flags left in unfiltered queue
-        else if(location.search.contains('filtered=false')) {
-            initRefresh();
-        }
-        // Go to unfiltered queue
+        // Refresh if no flags left in current queue
         else {
-            location.search = location.search + '&filtered=false';
+            initRefresh();
         }
 
         // When ajax requests have completed
