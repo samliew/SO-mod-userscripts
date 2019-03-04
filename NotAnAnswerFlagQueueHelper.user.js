@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0-dev
+// @version      3.1
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -116,9 +116,15 @@
         console.log("Toggle by: " + filter);
 
         const filterFunction = function() {
-            if(filter === 'magisch') return $(this).find('.active-flag').next('a').text() === 'Magisch';
+            if(filter === 'magisch') return $(this).find('.js-flag-text a[href^="/users/5389107/"]').length > 0; // Magisch's userid on SO
             if(filter === 'deleted') return $(this).find('.deleted-answer').length > 0;
-            return $(this).find('.mod-audit-user-info .user-action-time').text().includes(filter == 'q' ? 'asked' : 'answered');
+
+            if(filter === 'self-answer') {
+                const postOwners = $(this).find('.post-owner');
+                return postOwners.length == 2 && postOwners.get(0).href === postOwners.get(1).href;
+            }
+
+            return $(this).find('.js-body-loader').length === (filter == 'q' ? 1 : 2);
         };
 
         $posts.hide().filter(filterFunction).show();
@@ -149,8 +155,8 @@
 
             case 'poster-rep':
                 sortFunction = function(a, b) {
-                    let aRep = Number($(a).find('.reputation-score').text().replace(/[^\d.]/g, '')),
-                        bRep = Number($(b).find('.reputation-score').text().replace(/[^\d.]/g, ''));
+                    let aRep = Number($(a).find('.js-post-header .reputation-score').text().replace(/[^\d.]/g, '')),
+                        bRep = Number($(b).find('.js-post-header .reputation-score').text().replace(/[^\d.]/g, ''));
                     if(aRep % 1 > 0) aRep *= 1000;
                     if(bRep % 1 > 0) bRep *= 1000;
 
@@ -159,17 +165,10 @@
                 };
                 break;
 
-            case 'self-answer':
-                sortFunction = function(a, b) {
-                    let aOwner = $(a).find('.mod-audit p:last').text();
-                    return aOwner === '(answering own question)' ? -1 : 1;
-                };
-                break;
-
             case 'date-posted':
                 sortFunction = function(a, b) {
-                    let aDate = new Date($(a).find('.user-action-time .relativetime').attr('title')),
-                        bDate = new Date($(b).find('.user-action-time .relativetime').attr('title'));
+                    let aDate = new Date($(a).find('.js-post-header .relativetime').attr('title')),
+                        bDate = new Date($(b).find('.js-post-header .relativetime').attr('title'));
 
                     if(aDate == bDate) return 0;
                     return (aDate > bDate) ? 1 : -1;
@@ -188,8 +187,8 @@
 
             case 'flag-count':
                 sortFunction = function(a, b) {
-                    let aFlags = Number($(a).find('.dismiss-options .bounty-indicator-tab').text()),
-                        bFlags = Number($(b).find('.dismiss-options .bounty-indicator-tab').text());
+                    let aFlags = $(a).find('.js-post-flag-group .bounty-indicator-tab').map((i,el) => 0+el.innerText).get().reduce((a,c) => a + c),
+                        bFlags = $(b).find('.js-post-flag-group .bounty-indicator-tab').map((i,el) => 0+el.innerText).get().reduce((a,c) => a + c);
 
                     if(aFlags == bFlags) return 0;
                     return (aFlags < bFlags) ? 1 : -1;
@@ -198,8 +197,8 @@
 
             case 'post-length':
                 sortFunction = function(a, b) {
-                    let aLen = $(a).find('.post-summary-body').text().length,
-                        bLen = $(b).find('.post-summary-body').text().length;
+                    let aLen = $(a).find('.js-body-summary').text().length,
+                        bLen = $(b).find('.js-body-summary').text().length;
 
                     if(aLen == bLen) return 0;
                     return (aLen > bLen) ? 1 : -1;
@@ -221,8 +220,7 @@
 
             case 'has-modified':
                 sortFunction = function(a, b) {
-                    let aMod = $(a).find('.statscontainer a[title="view revisions"]').parent();
-                    aMod = aMod.hasClass('warning');
+                    let aMod = $(a).find('.js-flag-text .s-badge[title^="post edited"]').length > 0;
                     return aMod ? -1 : 1;
                 };
                 break;
@@ -248,7 +246,7 @@
 
         // Sort posts in-memory then reattach to container
         $posts.filter(function() {
-            return $(this).find('.mod-message').is(':visible');
+            return $(this).find('.js-post-flag-group').is(':visible');
         }).sort(sortFunction).detach().appendTo($postsContainer);
     }
 
@@ -257,6 +255,47 @@
 
         $postsContainer = $('.js-flagged-post').first().parent();
         $posts = $('.js-flagged-post');
+
+        // Add class to post owners
+        let postOwners = $('.js-flagged-post .js-body-loader').find('a[href^="/users/"]:first').addClass('post-owner');
+
+        // Add post-modified class to edited badges
+        $('.s-badge[title^="post edited"]').addClass('post-modified');
+
+
+        const actionBtns = $('<div id="actionBtns"></div>').insertBefore('.js-mod-history-container');
+
+        // If there are lots of flags and is superuser
+        if($('.js-flagged-post').length > 3 && superusers.includes(StackExchange.options.user.userId)) {
+
+            // Delete all posts left on page button
+            $('<button class="btn-warning">Delete ALL</button>')
+                .click(function() {
+                    if(!confirm('Confirm Delete ALL?')) return false;
+
+                    $(this).remove();
+                    const visiblePosts = $('.js-delete-post:visible');
+                    $('body').showAjaxProgress(visiblePosts.length, { position: 'fixed' });
+                    visiblePosts.click();
+                })
+                .appendTo(actionBtns);
+
+            // Decline all posts left on page button
+            $('<button class="btn-warning">Decline ALL</button>')
+                .click(function() {
+                    if(!confirm('Confirm Decline ALL?')) return false;
+
+                    $(this).remove();
+                    const visiblePosts = $('.js-flagged-post:visible');
+                    $('body').showAjaxProgress(visiblePosts.length, { position: 'fixed' });
+
+                    visiblePosts.hide().each(function() {
+                        declinePostFlags(this.dataset.postId);
+                    });
+                })
+                .appendTo(actionBtns);
+        }
+
 
         let $filterOpts = $(`<div id="flag-queue-tabs" class="tabs"></div>`).insertBefore('.js-mod-history-container');
 
@@ -278,16 +317,16 @@
             // Insert sort options
             $filterOpts.append(`
 <a data-filter="default" class="youarehere">Default</a>
-<a data-filter="self-answer" title="Self Answer">Self</a>
 <a data-filter="poster-rep" title="Poster Rep">Rep</a>
 <a data-filter="date-posted" title="Date Posted">Date</a>
 <a data-filter="post-length" title="Post Length">Length</a>
-<a data-filter="delete-votes" title="Delete Votes">Del. Votes</a>
+<a data-filter="delete-votes" title="Delete Votes" class="dno">*Del. Votes</a>
 <a data-filter="flag-count" title="Flag Count">Flags</a>
-<a data-filter="flagger-rank" title="Flagger Rank (click to sort again after stats loaded)" class="dno">Flagger Rank</a>
-<a data-filter="has-modified" title="Changed since first flag" class="dno">Modified</a>
+<a data-filter="flagger-rank" title="Flagger Rank (click to sort again after stats loaded)" id="flagger-rank" class="dno">Flagger Rank</a>
+<a data-filter="has-modified" title="Edited posts after being flagged">Modified</a>
 <a data-toggle="q" title="Show Questions only">Q</a>
 <a data-toggle="a" title="Show Answers only">A</a>
+<a data-toggle="self-answer" title="Self Answer">Self-A</a>
 <a data-toggle="deleted" title="Show Deleted only">D</a>
 <a data-toggle="magisch" title="Show flags by Magisch only" class="dno">M</a>
 `);
@@ -316,6 +355,15 @@
         // Insert 'skip' button to temporarily hide current post
         $('.js-flagged-post > td').append(`<a class="skip-post" title="skip (hide) this post" href="#">skip post</a>`);
 
+        // Shorten additional actions descriptions after flag
+        $('.js-flag-text > span:last-child').not('[title]').not('.js-abbrev').addClass('js-abbrev').html(function(i, v) {
+            return v.replace(/(added (\d+) comments?)/, '<span title="$1">$2C</span>')
+                .replace(/(Vote Up)/gi, '<span title="$1">VU</span>')
+                .replace(/(Vote Down)/gi, '<span title="$1">VD</span>')
+                .replace(/(Deletion)/gi, '<span title="voted to delete">Deletion</span>')
+                .replace(/(Moderator Review)/gi, '<span title="a moderator took previous action in the mod queue">Mod</span>');
+        });
+
         // On skip post link click
         $('.js-flagged-post').on('click', '.skip-post', function() {
 
@@ -332,40 +380,6 @@
         if($posts.find('.active-flag').next('a').filter((i, el) => el.innerText === 'Magisch').length > 0) {
             $filterOpts.find('[data-toggle="magisch"]').removeClass('dno');
         }
-
-
-        const actionBtns = $('<div id="actionBtns"></div>').prependTo('.flag-container');
-
-        // If there are lots of flags and is superuser
-        if($('.js-flagged-post').length > 3 && superusers.includes(StackExchange.options.user.userId)) {
-
-            // Delete all posts left on page button
-            $('<button class="btn-warning">Delete ALL</button>')
-                .click(function() {
-                    if(!confirm('Confirm Delete ALL?')) return false;
-
-                    $(this).remove();
-                    const visiblePosts = $('input.delete-post:visible');
-                    $('body').showAjaxProgress(visiblePosts.length, { position: 'fixed' });
-                    visiblePosts.click();
-                })
-                .appendTo(actionBtns);
-
-            // Decline all posts left on page button
-            $('<button class="btn-warning">Decline ALL</button>')
-                .click(function() {
-                    if(!confirm('Confirm Decline ALL?')) return false;
-
-                    $(this).remove();
-                    const visiblePosts = $('.js-flagged-post:visible');
-                    $('body').showAjaxProgress(visiblePosts.length, { position: 'fixed' });
-
-                    visiblePosts.hide().each(function() {
-                        declinePostFlags(this.dataset.postId);
-                    });
-                })
-                .appendTo(actionBtns);
-        }
     }
 
 
@@ -380,17 +394,12 @@
                 // Remove post from mod queue
                 const pid = settings.url.match(/\/(\d+)\//)[0].replace(/\//g, '');
                 console.log('Flags cleared: ' + pid);
-                $('#flagged-'+pid).remove();
+                $(`.js-flagged-post[data-post-id="${pid}"]`).remove();
             }
 
             // Flagger stats loaded, allow sorting by
             if(settings.url.includes('/users/flag-summary/')) {
-                $('#flag-queue-tabs a[data-filter="flagger-rank"]').removeClass('dno');
-            }
-
-            // Post revisions loaded, allow sorting by
-            if(settings.url.includes('/posts/') && settings.url.includes('/revisions?')) {
-                $('#flag-queue-tabs a[data-filter="has-modified"]').removeClass('dno');
+                $('#flag-queue-tabs #flagger-rank').removeClass('dno');
             }
 
         });
@@ -488,6 +497,12 @@ input.js-helpful-purge {
 }
 .js-admin-dashboard fieldset.grid--cell {
     display: none;
+}
+
+/* Specific to this userscript */
+.s-badge.post-modified {
+    color: red;
+    border-color: red;
 }
 </style>
 `;
