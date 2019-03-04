@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.1
+// @version      2.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -29,9 +29,7 @@
         if($('.js-flagged-post:visible, .flagged-post-row:visible').length > 0) return;
 
         let c = timeoutSecs;
-        $(`<div style="position:fixed; bottom:0; left:50%; transform:translateX(-50%); line-height:2em;">
-  Refreshing page in <b id="refresh-counter">${timeoutSecs}</b> seconds...
-</div>`).appendTo('.flag-container, .js-admin-dashboard');
+        $(`<div id="somu-refresh-queue-counter">Refreshing page in <b id="refresh-counter">${timeoutSecs}</b> seconds...</div>`).appendTo('.flag-container, .js-admin-dashboard');
 
         // Main timeout
         setTimeout(main ? goToMain : reloadPage, timeoutSecs * 1000);
@@ -82,19 +80,36 @@
             }
         });
 
-        // When flags are handled
-        $(document).ajaxStop(function(event, xhr, settings) {
-
-            // Refresh if no flags in current queue
-            initRefresh();
-        });
+        // When flags are handled, refresh if no flags in current queue
+        $(document).ajaxStop(initRefresh);
 
         // On skip post link click
         $('.js-flagged-post, .flagged-post-row').on('click', '.skip-post', initRefresh);
     }
 
 
+    function appendStyles() {
+
+        const styles = `
+<style>
+#somu-refresh-queue-counter {
+    position:fixed;
+    bottom:0;
+    left:50%;
+    line-height:2em;
+    transform:translateX(-50%);
+}
+.js-admin-dashboard > div > div > fieldset {
+    display: none;
+}
+</style>
+`;
+        $('body').append(styles);
+    }
+
+
     // On page load
+    appendStyles();
     doPageload();
 
 })();
