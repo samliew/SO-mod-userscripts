@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2
+// @version      3.2.1
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -483,6 +483,16 @@ input.js-helpful-purge {
     position: relative; /* so the decline + delete option goes over the sidebar */
     z-index: 1;
 }
+.js-mod-history-container {
+    margin: 10px 8px 15px !important;
+    background: #f6f6f6;
+}
+.js-mod-history {
+    padding: 5px 12px;
+}
+.visited-post {
+    opacity: 0.7;
+}
 .js-flagged-post .bc-black-3 {
     border-color: #eee !important;
 }
@@ -495,8 +505,8 @@ input.js-helpful-purge {
 .js-post-flag-group > .grid--cell > div {
     padding: 2px 0;
 }
-.js-admin-dashboard fieldset.grid--cell {
-    display: none;
+.js-admin-dashboard span[title]:hover {
+    cursor: help !important;
 }
 
 /* Specific to this userscript */
