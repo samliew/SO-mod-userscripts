@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.3.1
+// @version      4.3.2
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -337,9 +337,13 @@
         const thisYear = new Date().getFullYear();
         $('.js-comment-link .relativetime').filter((i, el) => Number(el.title.substr(0,4)) < thisYear).addClass('old-comment');
 
-        // Shorten additional actions descriptions after comment flag
-        $('.js-flag-text').find('span:last:not([title])').html(function(i, v) {
-            return v.replace(/(added (\d+) comments?)/, '<span title="$1">$2C</span>').replace(/(Vote Up)/gi, '<span title="$1">VU</span>').replace(/(Vote Down)/gi, '<span title="$1">VD</span>');
+        // Shorten additional actions descriptions after flag
+        $('.js-flag-text > span:last-child').not('[title]').not('.js-abbrev').addClass('js-abbrev').html(function(i, v) {
+            return v.replace(/(added (\d+) comments?)/, '<span title="$1">$2C</span>')
+                .replace(/(Vote Up)/gi, '<span title="$1">VU</span>')
+                .replace(/(Vote Down)/gi, '<span title="$1">VD</span>')
+                .replace(/(Deletion)/gi, '<span title="voted to delete">Deletion</span>')
+                .replace(/(Moderator Review)/gi, '<span title="a moderator took previous action in the mod queue">Mod</span>');
         });
 
         // On delete/dismiss comment action
