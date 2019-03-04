@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.3.3
+// @version      4.3.4
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -355,12 +355,11 @@
             if($post.length !== 1) return;
 
             // Remove current comment from DOM
-            const $comm = $(this).parents('tr.message-divider').next('tr.comment').addBack();
-            $comm.addClass('js-comment-deleted');
+            const $comm = $(this).closest('.js-flagged-comment').addClass('js-comment-deleted').hide();
 
             // Hide post immediately if no comments remaining
             setTimeout(function($post) {
-                let $remainingComms = $post.find('.js-flagged-comments tr.comment').not('.js-comment-deleted');
+                let $remainingComms = $post.find('.js-flagged-comment').not('.js-comment-deleted');
                 if($remainingComms.length === 0) $post.remove();
             }, 50, $post);
         });
