@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -127,7 +127,7 @@
             //console.table(votesToInv);
 
             // Build evidence
-            let evidence = `Please invalidate the votes shared between these users:` + newlines;
+            let evidence = `Please investigate the votes shared between these users:` + newlines;
 
             // Check for users in the four vote tables
             votesFrom.forEach(function(v,i) {
