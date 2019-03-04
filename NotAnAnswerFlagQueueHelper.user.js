@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1
+// @version      3.2
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -220,7 +220,7 @@
 
             case 'has-modified':
                 sortFunction = function(a, b) {
-                    let aMod = $(a).find('.js-flag-text .s-badge[title^="post edited"]').length > 0;
+                    let aMod = $(a).find('.js-post-flag-group:not(.js-cleared) .s-badge[title^="post edited"]').length > 0;
                     return aMod ? -1 : 1;
                 };
                 break;
