@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -655,13 +655,13 @@
                 case 'lock-dispute': {
                     let d = Number(prompt('Lock for how many days?', '3').trim());
                     if(!isNaN(d)) lockPost(pid, 20, 24 * d).then(reloadPage);
-                    else StackExchange.helpers.showErrorMessage(menuEl, 'Invalid number of days');
+                    else StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'Invalid number of days');
                     break;
                 }
                 case 'lock-comments': {
                     let d = Number(prompt('Lock for how many days?', '1').trim());
                     if(!isNaN(d)) lockPost(pid, 21, 24 * d).then(reloadPage);
-                    else StackExchange.helpers.showErrorMessage(menuEl, 'Invalid number of days');
+                    else StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'Invalid number of days');
                     break;
                 }
                 case 'lock-historical':
@@ -693,6 +693,31 @@
 
 
     function doPageload() {
+
+        // Election page - allow loading of comments under nominations
+        if(document.body.classList.contains('election-page')) {
+
+            const posts = $('#mainbar table').find('div[id^="post-"]');
+
+            posts.each(function() {
+                const pid = this.id.match(/\d+$/)[0];
+                const cmmts = $(this).find('.js-comments-container');
+                const cmmtlinks = $(this).find('[id^="comments-link-"]');
+                cmmtlinks.append(`<span class="js-link-separator">|&nbsp;</span><a class="s-link__danger comments-link js-load-deleted-comments-link" data-pid="${pid}">show deleted comments</a>`);
+            });
+
+            $('.js-load-deleted-comments-link').click(function() {
+                const pid = this.dataset.pid;
+                const elems = $(this).prevAll('.comments-link, .js-link-separator').addBack().not('.js-add-link');
+                const commentsUrl = `/posts/${pid}/comments?includeDeleted=true&_=${Date.now()}`;
+                $('#comments-'+pid).children('ul.comments-list').load(commentsUrl, function() {
+                    elems.remove();
+                });
+            });
+
+            // Stop rest of script
+            return false;
+        }
 
         initPostModMenuLinkActions();
         initPostDissociationHelper();
