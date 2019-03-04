@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4
+// @version      3.5
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -225,16 +225,23 @@
                 };
                 break;
 
+            case 'disputed-has-modified':
+                sortFunction = function(a, b) {
+                    let aMod = $(a).find('.js-post-flag-group .s-badge[title^="post edited"]').length > 0;
+                    return aMod ? -1 : 1;
+                };
+                break;
+
             case 'post-undeleted':
                 sortFunction = function(a, b) {
-                    let aUndel = $(a).find('.flag-row:not(.js-cleared) .revision-comment').text().includes('Post was undeleted by the author');
+                    let aUndel = $(a).find('.js-post-flag-group:not(.js-cleared) .revision-comment').text().includes('Post was undeleted by the author');
                     return aUndel ? -1 : 1;
                 };
                 break;
 
             case 'post-good-delete':
                 sortFunction = function(a, b) {
-                    let aDelv = $(a).find('.flag-row:not(.js-cleared) .revision-comment').text().includes('Post has a good score but received delete votes');
+                    let aDelv = $(a).find('.js-post-flag-group:not(.js-cleared) .revision-comment').text().includes('Post has a good score but received delete votes');
                     return aDelv ? -1 : 1;
                 };
                 break;
@@ -309,7 +316,7 @@
 <a data-filter="default" class="youarehere">Default</a>
 <a data-filter="post-undeleted" title="Post was undeleted by the author">Undeleted by author</a>
 <a data-filter="post-good-delete" title="Post has a good score but received delete votes">Del. Votes</a>
-<a data-filter="has-modified" title="Changed since first flag" class="dno">Modified</a>
+<a data-filter="disputed-has-modified" title="Changed since first flag">Modified</a>
 `);
         }
         else {
