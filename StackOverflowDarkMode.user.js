@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.7
+// @version      1.6
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -331,6 +331,7 @@ body > div[style*="absolute"],
 .star-on {
     opacity: 1;
 }
+body .bg-white,
 body .bg-yellow-100 {
     background-color: ${bgcolor};
 }
@@ -596,6 +597,18 @@ a.comment-user.owner {
 .highlight .content,
 #main.select-mode .message.selected .content {
     background-color: #135;
+}
+
+
+/* New mod interface only */
+body .js-flagged-post .bc-black-3 {
+    border: 1px dotted #666;
+}
+.js-post-flag-options {
+    background-color: transparent;
+}
+.js-post-flag-group.js-cleared {
+    opacity: 0.5;
 }
 
 
