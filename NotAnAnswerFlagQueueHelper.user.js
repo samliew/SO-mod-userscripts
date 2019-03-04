@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2.1
+// @version      3.3
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -388,12 +388,14 @@
         // On any page update
         $(document).ajaxComplete(function(event, xhr, settings) {
 
-            // Flags dismissed or marked helpful, OR post deleted, OR answer converted to comment
-            if(settings.url.includes('/messages/delete-moderator-messages/') || settings.url.includes('/vote/10') || settings.url.includes('/convert-to-comment')) {
+            // Actions taken on post
+            if(settings.url.includes('/messages/delete-moderator-messages/') || // flags cleared
+               (settings.url.includes('/flags/questions/') && settings.url.includes('/close/add')) || // closed
+               settings.url.includes('/vote/10') || // deleted
+               settings.url.includes('/convert-to-comment')) {
 
                 // Remove post from mod queue
                 const pid = settings.url.match(/\/(\d+)\//)[0].replace(/\//g, '');
-                console.log('Flags cleared: ' + pid);
                 $(`.js-flagged-post[data-post-id="${pid}"]`).remove();
             }
 
