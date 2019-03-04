@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.0.1
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -181,11 +181,11 @@ unsafeWindow.purgeUserFlagStats = function() {
         // Non-mods, exit
         if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
 
-        // Ignore mods
-        $('.mod-flair').prev().addClass('js-userflagstats-loaded');
-
         // Load user stats on hover
-        const userlinks = $('.js-flagged-post a[href^="/users/"]').on('loadflaggingstats', loadFlaggingFn);
+        const userlinks = $('.js-post-flag-group a[href^="/users/"]').on('loadflaggingstats', loadFlaggingFn);
+
+        // Ignore mods
+        $('.js-post-flag-group .mod-flair').prev('a').addClass('js-userflagstats-loaded').off('loadflaggingstats');
 
         // Preprocess userlinks to get the uids
         userlinks.each(function() {
@@ -216,7 +216,7 @@ unsafeWindow.purgeUserFlagStats = function() {
                     })
                     .filter(function() {
                         // ignore those already loaded
-                        return !$(this).hasClass('js-userflagstats-loaded') && !$(this).hasClass('js-userflagstats-loaded');
+                        return !$(this).hasClass('js-userflagstats-loading') && !$(this).hasClass('js-userflagstats-loaded');
                     });
 
                     // Do nothing if none needs loading
