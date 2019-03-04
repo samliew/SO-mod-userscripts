@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.3.4
+// @version      4.4
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -167,20 +167,23 @@
 
     function doPageload() {
 
-        // TODO: For Too Many Rude/Abusive queue, load user's R/A flagged comments
-        if(false && location.search.includes('commenttoomanydeletedrudenotconstructiveauto')) {
+        // For Too Many Rude/Abusive queue, load user's R/A flagged comments
+        if(location.search.includes('commenttoomanydeletedrudenotconstructiveauto')) {
 
             // Additional styles for this page
             appendCTMDRNCAstyles();
 
-            $('span.revision-comment a').each(function() {
-                const uid = Number(this.href.match(/\d+/)[0]);
+            $('.js-flag-text a[href$="/post-comments?state=flagged"]').attr('target', '_blank').each(function() {
+                const uid = Number(this.href.match(/\/(\d+)\//)[1]);
                 const post = $(this).closest('.js-flagged-post');
-                const modMessageContent = $(this).closest('td');
-                const cmmtsContainer = $(`<table class="comments"></table>`).appendTo($(this).parents('.js-dashboard-row '));
+                const postheader = post.find('.js-post-header').hide();
+
+                const flagcell = $(this).closest('.js-post-flag-group');
+                const modMessageContent = post.find('.js-comments-container').last().empty();
+                const cmmtsContainer = $(`<table class="comments"></table>`).appendTo(modMessageContent);
 
                 // Add links to user and comment history
-                modMessageContent
+                $(this).parents('.js-flag-text')
                     .append(`<div class="ra-userlinks">[ ` +
                                 `<a href="https://${location.hostname}/users/${uid}" target="_blank">Profile</a> | ` +
                                 `<a href="https://${location.hostname}/users/account-info/${uid}" target="_blank">Dashboard</a> | ` +
@@ -188,10 +191,6 @@
                                 `<a href="https://${location.hostname}/users/message/create/${uid}" target="_blank">Message/Suspend</a> | ` +
                                 `<a href="http://${location.hostname}/admin/users/${uid}/post-comments?state=flagged" target="_blank">Comments</a>` +
                             ` ]</div>`);
-
-                // Move action button
-                modMessageContent
-                    .append(post.find('.post-options.keep'));
 
                 // Load latest R/A helpful comments
                 $.get(this.href.replace('http:', 'https:'), function(data) {
