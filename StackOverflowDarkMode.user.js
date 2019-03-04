@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -144,7 +144,8 @@ body .fc-theme-primary {
 .downvoted-answer,
 .top-bar .-logo,
 #usersidebar,
-.usersidebar-open #usersidebar {
+.usersidebar-open #usersidebar,
+.js-admin-dashboard aside > * {
     opacity: 0.6;
     transition: opacity 0.2s ease;
 }
@@ -164,6 +165,7 @@ ul.comments-list .comment-flagging {
 .downvoted-answer:hover,
 .top-bar .-logo:hover,
 #usersidebar:hover,
+.js-admin-dashboard aside > *:hover,
 .question-summary:hover .started,
 #footer:hover > div,
 ul.comments-list .comment:hover .comment-voting,
