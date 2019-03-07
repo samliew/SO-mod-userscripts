@@ -3,7 +3,7 @@
 // @description  Displays a list of upcoming and ongoing elections on https://stackexchange.com/elections
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.5
+// @version      0.3.6
 //
 // @include      https://stackexchange.com/elections
 //
@@ -110,9 +110,14 @@
 
         return new Promise(function(resolve, reject) {
 
+            // Cache old, clear value
+            if(v != null && v.lastChecked <= cacheExpireDate) {
+                store.removeItem(fullkey);
+            }
             // Still fresh, reuse cache
-            if(v != null && typeof v.lastChecked !== 'undefined' && v.lastChecked > cacheExpireDate) {
-                resolve(v.items); return;
+            else if(v != null && typeof v.lastChecked !== 'undefined' && v.lastChecked > cacheExpireDate) {
+                resolve(v.items);
+                return;
             }
 
             $.get(`https://api.stackexchange.com/2.2/sites?pagesize=999&filter=!2*nS2udIcg(YRE6ca*rtD&key=${apikey}`)
@@ -143,8 +148,12 @@
 
         return new Promise(function(resolve, reject) {
 
+            // Cache old, clear value
+            if(v != null && v.lastChecked <= cacheExpireDate) {
+                store.removeItem(fullkey);
+            }
             // Still fresh, reuse cache
-            if(v != null && v.lastChecked > cacheExpireDate) {
+            else if(v != null && v.lastChecked > cacheExpireDate) {
                 //console.log(`using cached data for ${v.site.name}`);
 
                 if(v.lastElection != null) displaySiteLastElection(v.site, v.lastElection, v.lastElectionEndDate);
