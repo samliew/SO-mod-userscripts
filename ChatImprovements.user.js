@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.1
+// @version      0.1.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -22,7 +22,7 @@
         const userlist = $('#present-users');
 
         // Reset new list
-        newuserlist.empty().insertBefore(userlist);
+        newuserlist.empty().insertAfter(userlist);
 
         // Bugfix: remove dupes from original list when any new message posted
         userlist.children('.user-container').each(function() {
@@ -39,7 +39,7 @@
             $(this).toggleClass('inactive', this.style.opacity == "0.15");
 
             // Remove other fluff, append username, then insert into new list
-            $(this).off().removeClass('present-user').removeAttr('style id alt width height').find('.data').remove();
+            $(this).off().removeAttr('style id alt width height').find('.data').remove();
             $(this).appendTo(newuserlist).append(`<span class="username" title="${username}">${username}</span>`);
         });
     }
@@ -55,14 +55,15 @@
             // Once: userlist is ready
             if(!loaded && settings.url.includes('/rooms/pingable')) {
                 loaded = true; // once
-                updateUserlist(); // init
+                updateUserlist();
+                setTimeout(updateUserlist, 5e3);
 
                 // Occasionally update userlist
-                setInterval(updateUserlist, 30e3);
+                setInterval(updateUserlist, 15e3);
             }
 
             // On new messages
-            if(settings.url.includes('/events') || settings.url.includes('/messages/new')) {
+            if(settings.url.includes('/events') || settings.url.includes('/messages/new') || settings.url.includes('/rooms/pingable')) {
                 updateUserlist();
             }
         });
@@ -74,7 +75,13 @@
         const styles = `
 <style>
 #present-users {
-    display: none;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    opacity: 0;
+    overflow: hidden;
 }
 #present-users-list {
     list-style: none;
