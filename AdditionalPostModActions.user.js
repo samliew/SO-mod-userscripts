@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -426,7 +426,7 @@
         // If on mod flag queues, remove close question and convert to comment buttons when flag message contains "di(sa)?ssociate", and add "dissociate" button
         if(location.pathname.includes('/admin/dashboard')) {
             const dissocFlags = $('.revision-comment.active-flag').filter((i,v) => v.innerText.match(/di(sa)?ssociate/));
-            const dissocPosts = dissocFlags.closest('.flagged-post-row');
+            const dissocPosts = dissocFlags.closest('.js-flagged-post');
             dissocPosts.each(function() {
                 const post = $(this);
                 const userlink = post.find('.mod-audit-user-info a').attr('href');
@@ -436,9 +436,9 @@
 
                 const uid = Number(userlink.match(/\/(\d+)\//)[0].replace(/\//g, ''));
                 const pid = post.attr('data-post-id') || post.attr('data-questionid') || post.attr('data-answerid');
-                $('.delete-options', this).prepend(`<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" class="btn" target="_blank">dissociate</a>`);
+                $('.js-post-flag-options', this).prepend(`<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" class="btn" target="_blank">dissociate</a>`);
 
-                $('.close-question-button, .convert-to-comment', this).hide();
+                $('.close-question-button, .js-convert-to-comment', this).hide();
             });
             return;
         }
@@ -448,7 +448,7 @@
     function appendPostModMenus() {
 
         // Add post issues container in mod flag queues, as expanded posts do not have this functionality
-        $('.flagged-post-row .votecell .vote').filter(function() {
+        $('.js-flagged-post .votecell .vote').filter(function() {
             return $(this).children('.js-post-issues').length == 0;
         }).each(function() {
             const post = $(this).closest('.answer, .question');
@@ -566,12 +566,12 @@
 
             if($(this).hasClass('disabled')) return false;
 
-            const qlink = $(this).parents('.mod-post-header').find('.answer-hyperlink, .question-hyperlink').add('.reviewable-post-stats a');
+            // Get question link if in mod queue
+            const qlink = $(this).closest('.js-flagged-post').find('.js-body-loader:first a').first().get();
 
             const menuEl = this.parentNode;
             const pid = Number(menuEl.dataset.pid);
-            const qid = Number($('#question').attr('data-questionid') ||
-                               (qlink.attr('href').match(/\/(\d+)\//) || [''])[0].replace(/\//g, ''));
+            const qid = Number($('#question').attr('data-questionid') || getPostId(qlink.href)) || null;
             const redupePid = Number(this.dataset.redupePid);
             const uid = Number(this.dataset.uid);
             const uName = this.dataset.username;
@@ -586,7 +586,7 @@
 
             function removePostFromModQueue() {
                 if(location.pathname.includes('/admin/dashboard')) {
-                    post.parents('.flagged-post-row').remove();
+                    post.parents('.js-flagged-post').remove();
                 }
             }
 
