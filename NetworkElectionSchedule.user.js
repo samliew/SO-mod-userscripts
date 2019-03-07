@@ -3,7 +3,7 @@
 // @description  Displays a list of upcoming and ongoing elections on https://stackexchange.com/elections
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.4
+// @version      0.3.5
 //
 // @include      https://stackexchange.com/elections
 //
@@ -57,8 +57,12 @@
         return str;
     }
     function parseDateString(str) {
+        const origStr = str;
+
         if(typeof str === 'undefined' || str == null || str.trim() == '') return null;
         if(str == 'yesterday') return str;
+
+        if(!/'\d{2}/.test(str)) str = str.replace(/(at|a las|às|в)/i, "'" + (new Date().getYear() % 100) + ' $1');
 
         let arr = str.trim().replace("'", '20').replace(/el /, '').split(/\s*(at|a las|às|в)\s*/i);
         let d = translateMonths(arr[0]);
@@ -91,7 +95,10 @@
             d = d.split(' ');
         }
 
-        if(str.includes('undefined')) return str;
+        if(str.includes('undefined')) {
+            console.log('undefined in parsed datestring', origStr, str);
+            return str;
+        }
 
         return d[2] + '-' + d[0] + '-' + pad(d[1]) + ' ' + arr[2] + ':00Z';
     }
