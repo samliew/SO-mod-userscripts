@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      0.1.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -39,7 +39,8 @@
             $(this).toggleClass('inactive', this.style.opacity == "0.15");
 
             // Remove other fluff, append username, then insert into new list
-            $(this).off().removeClass('present-user').removeAttr('style id alt width height').appendTo(newuserlist).append(`<span class="username" title="${username}">${username}</span>`);
+            $(this).off().removeClass('present-user').removeAttr('style id alt width height').find('.data').remove();
+            $(this).appendTo(newuserlist).append(`<span class="username" title="${username}">${username}</span>`);
         });
     }
 
@@ -112,12 +113,15 @@
     position: absolute;
     width: 16px;
     height: 16px;
+    background-color: white;
+    font-size: 0; /* hides broken images alt text */
 }
 #present-users-list li:hover .avatar img {
     width: 24px;
     height: 24px;
     margin-top: -4px;
     margin-left: -4px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.3);
 }
 #present-users-list .username {
     display: inline-block;
