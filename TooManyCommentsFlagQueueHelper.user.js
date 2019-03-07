@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.0
+// @version      4.1
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 //
@@ -134,8 +134,8 @@
     function doPageLoad() {
 
         // Expand unhandled posts
-        const unhandledPosts = $('.js-flagged-post').filter((i,el) => true || $('.mod-post-actions', el).text().indexOf('ModMovedCommentsToChat') === -1);
-        //const handledPosts = $('.js-flagged-post').not(unhandledPosts).addClass('comments-handled');
+        const unhandledPosts = $('.js-flagged-post').filter((i,el) => $('.mod-post-actions', el).text().indexOf('ModMovedCommentsToChat') === -1);
+        const handledPosts = $('.js-flagged-post').not(unhandledPosts).addClass('comments-handled');
         setTimeout((unhandledPosts) => $('.js-post-header .js-expand-body', unhandledPosts).click(), 1000, unhandledPosts);
 
         // Add "done" (no further action (helpful)) button
@@ -146,7 +146,7 @@
             if(evt.type == 'click' && !confirm('Move all comments to chat & purge?')) return;
 
             const pid = this.dataset.postId;
-            const flaggedPost = $('#flagged-'+pid);
+            const flaggedPost = $(this).closest('.js-flagged-post');
             const possibleDupeCommentIds = $(`#comments-${pid} .comment`).not('.deleted-comment')
             .filter(function(i, el) {
                 const cmmtText = $(el).find('.comment-copy').text().toLowerCase();
@@ -166,7 +166,7 @@
             if(evt.type == 'click' && !confirm('Delete ALL comments?')) return;
 
             const pid = this.dataset.postId;
-            const flaggedPost = $('#flagged-'+pid);
+            const flaggedPost = $(this).closest('.js-flagged-post');
             const possibleDupeCommentIds = $(`#comments-${pid} .comment`).not('.deleted-comment')
                 .filter(function(i, el) {
                     const cmmtText = $(el).find('.comment-copy').text().toLowerCase();
@@ -256,7 +256,7 @@
 
                     // Display post stats near action buttons, so we don't have to scroll back up
                     const el = $(this);
-                    const post = $(this).parents('.js-flagged-post');
+                    const post = $(this).closest('.js-flagged-post');
                     const postOpts = post.find('.js-post-flag-options');
 
                     const postCreated = post.find('.post-signature .relativetime').last().get(0).outerHTML;
@@ -315,7 +315,7 @@
 .js-post-flag-options input,
 .dismiss-options,
 .mod-message {
-    display: none;
+    display: none !important;
 }
 .js-flagged-post.too-many-deleted .immediate-dismiss-all,
 .js-flagged-post.already-closed .immediate-dismiss-all,
