@@ -3,7 +3,7 @@
 // @description  Displays a list of upcoming and ongoing elections on https://stackexchange.com/elections
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.3
+// @version      0.3.4
 //
 // @include      https://stackexchange.com/elections
 //
@@ -102,11 +102,18 @@
         let v = JSON.parse(store.getItem(fullkey));
 
         return new Promise(function(resolve, reject) {
-            if(v != null) { resolve(v); return; }
+
+            // Still fresh, reuse cache
+            if(v != null && typeof v.lastChecked !== 'undefined' && v.lastChecked > cacheExpireDate) {
+                resolve(v.items); return;
+            }
 
             $.get(`https://api.stackexchange.com/2.2/sites?pagesize=999&filter=!2*nS2udIcg(YRE6ca*rtD&key=${apikey}`)
                 .done(function(data) {
-                    store.setItem(fullkey, JSON.stringify(data.items));
+                    store.setItem(fullkey, JSON.stringify({
+                        lastChecked: Date.now(),
+                        items: data.items
+                    }));
                     resolve(data.items);
                 })
                 .fail(reject);
