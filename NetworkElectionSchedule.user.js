@@ -3,7 +3,7 @@
 // @description  Displays a list of upcoming and ongoing elections on https://stackexchange.com/elections
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.7
+// @version      0.3.8
 //
 // @include      https://stackexchange.com/elections
 //
@@ -62,7 +62,7 @@
         if(typeof str === 'undefined' || str == null || str.trim() == '') return null;
         if(str == 'yesterday') return str;
 
-        if(!/[-'/]\d{2}/.test(str)) str = str.replace(/(at|a las|às|в)/i, "'" + (new Date().getYear() % 100) + ' $1');
+        if(!/[-'/]\d{2}/.test(str) && !str.includes('a las')) str = str.replace(/(at|a las|às|в)/i, "'" + (new Date().getYear() % 100) + ' $1');
 
         let arr = str.trim().replace("'", '20').replace(/el /, '').split(/\s*(at|a las|às|в)\s*/i);
         let d = translateMonths(arr[0]);
