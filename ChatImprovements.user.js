@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.2
+// @version      0.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -14,6 +14,7 @@
     'use strict';
 
 
+    const fkey = document.getElementById('fkey').value;
     const newuserlist = $(`<div id="present-users-list"></div>`);
 
 
@@ -48,6 +49,13 @@
     function doPageload() {
 
         let loaded = false;
+
+        // Always rejoin favourite rooms
+        $.post(`https://chat.stackoverflow.com/chats/join/favorite`, {
+            quiet: true,
+            immediate: true,
+            fkey: fkey
+        });
 
         // On any page update
         $(document).ajaxComplete(function(event, xhr, settings) {
