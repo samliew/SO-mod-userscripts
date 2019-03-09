@@ -3,7 +3,7 @@
 // @description  Allows users to insert emojis into chat. If chat message contains just an emoji, increase display size
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -63,17 +63,17 @@
 
         const overrideStyles = `
 <style>
-#input-area {
-    height: 100px;
-}
 #bubble {
+    /* Relative to position emoji picker */
     position: relative;
-    height: 88px;
+    height: 78px;
     text-align: left;
 }
-#input {
-    height: 88px;
-    padding-right: 26px;
+#footer-legal {
+    /* Needs repositioning due to #bubble relative */
+    position: absolute;
+    bottom: 9px;
+    right: 0;
 }
 .content.msg-emoji {
     font-size: 2.2em;
