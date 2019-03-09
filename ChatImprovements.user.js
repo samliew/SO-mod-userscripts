@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3
+// @version      0.4
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -50,55 +50,62 @@
 
         let loaded = false;
 
-        // Always rejoin favourite rooms when joining a chat room
+        // When joining a chat room
         if(location.pathname.includes('/rooms/') && !location.pathname.includes('/info/')) {
-            console.log('rejoining favourite rooms');
+
+            // Always rejoin favourite rooms
             $.post(`https://chat.stackoverflow.com/chats/join/favorite`, {
                 quiet: true,
                 immediate: true,
                 fkey: fkey
+            }, () => console.log('rejoined favourite rooms'));
+
+            // If on mobile chat
+            if(document.body.classList.contains('mob')) {
+
+                // Append mobile styles
+                appendStyles(false);
+
+                // Improve room list toggle (click on empty space to close)
+                const roomswitcher = $('.sidebar-middle').click(function(e) {
+                    e.stopPropagation();
+                    if(e.target == roomswitcher) {
+                        $(document.body).removeAttr('data-panel-visible');
+                    }
+                }).get(0);
+
+                // ignore rest of script
+                return;
+            }
+
+            // Move stuff around
+            $('#room-tags').appendTo('#roomdesc');
+            $('#my-rooms > li > a').each(function() {
+                this.innerText = this.title.replace('switch to ', '');
             });
-        }
 
-        // If on mobile
-        if(document.body.classList.contains('mob')) {
+            // On any page update
+            $(document).ajaxComplete(function(event, xhr, settings) {
 
-            // Append mobile styles
-            appendStyles(false);
+                // Once: userlist is ready, init new userlist
+                if(!loaded && settings.url.includes('/rooms/pingable')) {
+                    loaded = true; // once
+                    updateUserlist();
+                    setTimeout(updateUserlist, 5e3);
 
-            // Improve room list toggle (click on empty space to close)
-            const roomswitcher = $('.sidebar-middle').click(function(e) {
-                e.stopPropagation();
-                if(e.target == roomswitcher) {
-                    $(document.body).removeAttr('data-panel-visible');
+                    // Occasionally update userlist
+                    setInterval(updateUserlist, 15e3);
                 }
-            }).get(0);
 
-            // ignore rest of script
-            return;
+                // On new messages, update userlist
+                if(settings.url.includes('/events') || settings.url.includes('/messages/new') || settings.url.includes('/rooms/pingable')) {
+                    updateUserlist();
+                }
+            });
         }
 
         // Append desktop styles
         appendStyles();
-
-        // On any page update
-        $(document).ajaxComplete(function(event, xhr, settings) {
-
-            // Once: userlist is ready, init new userlist
-            if(!loaded && settings.url.includes('/rooms/pingable')) {
-                loaded = true; // once
-                updateUserlist();
-                setTimeout(updateUserlist, 5e3);
-
-                // Occasionally update userlist
-                setInterval(updateUserlist, 15e3);
-            }
-
-            // On new messages, update userlist
-            if(settings.url.includes('/events') || settings.url.includes('/messages/new') || settings.url.includes('/rooms/pingable')) {
-                updateUserlist();
-            }
-        });
     }
 
 
@@ -127,13 +134,92 @@ html.fixed-header body.with-footer main {
 
         const styles = `
 <style>
+/* Reduce room description until mouseover */
+#roomdesc {
+    position: absolute;
+    z-index: 2;
+    width: calc(100% - 24px);
+    height: 15px;
+    padding: 0 !important;
+    overflow: hidden;
+    background: white;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#roomtitle:hover + #roomdesc,
+#roomdesc:hover {
+    height: auto;
+    padding-bottom: 20px !important;
+    border-bottom: 1px dotted #cfcfcf;
+    white-space: unset;
+}
+#sidebar #info #roomtitle {
+    position: relative;
+    margin-bottom: 0;
+    padding-bottom: 5px;
+    padding-right: 18px;
+    line-height: 1.2em;
+}
+#roomdesc + #sidebar-menu {
+    margin-top: 30px;
+}
+
+/* Increase height of textbox */
+#bubble {
+    position: relative;
+    height: 87px;
+}
+#input-area {
+    height: 100px;
+    background-color: #eee;
+}
+#input {
+    height: 88px;
+    padding-right: 26px;
+}
+#tabcomplete-container {
+    bottom: 87px;
+}
+
+/* Other minor stuff */
+#sidebar #info #roomtitle #toggle-favorite {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin-top: 2px;
+}
+#chat-body #searchbox,
+#transcript-body #searchbox {
+    width: 150px;
+    margin-top: -1px;
+    padding: 2px 5px;
+}
+ul#my-rooms .quickleave {
+    float: left;
+    margin: 4px 3px 0 0;
+}
+ul#my-rooms > li > a {
+    display: inline-block;
+    max-width: calc(100% - 15px);
+    margin: 3px 0 -5px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+ul#my-rooms > li > a span {
+    display: none;
+}
+
+
+/* New userlist */
 #present-users {
-    width: 1px;
     height: 1px;
     margin: 0;
     padding: 0;
     border: 0;
     opacity: 0;
+    visibility: hidden;
     overflow: hidden;
 }
 #present-users-list {
@@ -146,14 +232,18 @@ html.fixed-header body.with-footer main {
 }
 #present-users-list li {
     position: relative;
-    margin: 0 0 -9px;
-    padding: 4px 0;
+    display: block;
+    margin: 0 0 -14px;
+    padding: 7px 0;
     opacity: 1 !important;
     z-index: 1;
 
     -webkit-column-break-inside: avoid;
               page-break-inside: avoid;
                    break-inside: avoid;
+}
+#present-users-list:hover li.inactive {
+    display: block !important;
 }
 #present-users-list li:hover,
 #present-users-list li.inactive:hover {
@@ -181,13 +271,13 @@ html.fixed-header body.with-footer main {
     height: 24px;
     margin-top: -4px;
     margin-left: -4px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    box-shadow: 0 0 2px 1px rgba(0,0,0,0.2);
 }
 #present-users-list .username {
     display: inline-block;
-    width: calc(100% - 20px);
+    width: calc(100% - 22px);
     height: 1.3em;
-    margin-left: 4px;
+    margin-left: 5px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -196,13 +286,34 @@ html.fixed-header body.with-footer main {
     display: none;
 }
 
+@media screen and (max-width: 1199px) {
+    #my-rooms .activity-4 .room-info,
+    #my-rooms .activity-5 .room-info,
+    #my-rooms .activity-6 .room-info {
+        display: none;
+    }
+}
 @media screen and (min-width: 1200px) {
     #present-users-list { columns: 3; }
 }
 @media screen and (min-width: 1440px) {
     #present-users-list { columns: 4; }
-    #present-users-list li { padding: 5px 0; }
+    #present-users-list li { padding: 8px 0; }
 }
+
+/* Hide extra inactive users until userlist is focused */
+/*
+@media screen and (max-width: 1199px) {
+   #present-users-list li.inactive:nth-child(n + 15) {
+       display: none;
+   }
+}
+@media screen and (max-width: 1439px) {
+   #present-users-list li.inactive:nth-child(n + 25) {
+       display: none;
+   }
+}
+*/
 </style>
 `;
         $('body').append(desktop ? styles : mobileStyles);
