@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.1
+// @version      0.3
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -60,6 +60,27 @@
             });
         }
 
+        // If on mobile
+        if(document.body.classList.contains('mob')) {
+
+            // Append mobile styles
+            appendStyles(false);
+
+            // Improve room list toggle (click on empty space to close)
+            const roomswitcher = $('.sidebar-middle').click(function(e) {
+                e.stopPropagation();
+                if(e.target == roomswitcher) {
+                    $(document.body).removeAttr('data-panel-visible');
+                }
+            }).get(0);
+
+            // ignore rest of script
+            return;
+        }
+
+        // Append desktop styles
+        appendStyles();
+
         // On any page update
         $(document).ajaxComplete(function(event, xhr, settings) {
 
@@ -81,7 +102,28 @@
     }
 
 
-    function appendStyles() {
+    function appendStyles(desktop = true) {
+
+        const mobileStyles = `
+<style>
+#chat .monologue .message .reply-info {
+    width: 18px;
+    height: 15px;
+    margin-left: -4px;
+    margin-right: 2px;
+    padding: 0;
+    transform: scale(1.2, 1.2);
+}
+html.fixed-header body.with-footer main {
+    padding-bottom: 60px;
+}
+#input-area textarea {
+    height: 52px;
+    padding: 4px 0 4px 5px;
+    line-height: 1;
+}
+</style>
+`;
 
         const styles = `
 <style>
@@ -163,12 +205,11 @@
 }
 </style>
 `;
-        $('body').append(styles);
+        $('body').append(desktop ? styles : mobileStyles);
     }
 
 
     // On page load
-    appendStyles();
     doPageload();
 
 })();
