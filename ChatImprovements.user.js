@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2
+// @version      0.2.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -50,17 +50,20 @@
 
         let loaded = false;
 
-        // Always rejoin favourite rooms
-        $.post(`https://chat.stackoverflow.com/chats/join/favorite`, {
-            quiet: true,
-            immediate: true,
-            fkey: fkey
-        });
+        // Always rejoin favourite rooms when joining a chat room
+        if(location.pathname.includes('/rooms/') && !location.pathname.includes('/info/')) {
+            console.log('rejoining favourite rooms');
+            $.post(`https://chat.stackoverflow.com/chats/join/favorite`, {
+                quiet: true,
+                immediate: true,
+                fkey: fkey
+            });
+        }
 
         // On any page update
         $(document).ajaxComplete(function(event, xhr, settings) {
 
-            // Once: userlist is ready
+            // Once: userlist is ready, init new userlist
             if(!loaded && settings.url.includes('/rooms/pingable')) {
                 loaded = true; // once
                 updateUserlist();
@@ -70,7 +73,7 @@
                 setInterval(updateUserlist, 15e3);
             }
 
-            // On new messages
+            // On new messages, update userlist
             if(settings.url.includes('/events') || settings.url.includes('/messages/new') || settings.url.includes('/rooms/pingable')) {
                 updateUserlist();
             }
