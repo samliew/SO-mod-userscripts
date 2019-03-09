@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.4
+// @version      0.4.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -46,9 +46,15 @@
     }
 
 
-    function doPageload() {
+    function reapplyPersistentChanges() {
 
-        let loaded = false;
+        $('#my-rooms > li > a').each(function() {
+            this.innerText = this.title.replace('switch to ', '');
+        });
+    }
+
+
+    function doPageload() {
 
         // When joining a chat room
         if(location.pathname.includes('/rooms/') && !location.pathname.includes('/info/')) {
@@ -80,11 +86,11 @@
 
             // Move stuff around
             $('#room-tags').appendTo('#roomdesc');
-            $('#my-rooms > li > a').each(function() {
-                this.innerText = this.title.replace('switch to ', '');
-            });
+            reapplyPersistentChanges();
+            setInterval(reapplyPersistentChanges, 5000);
 
             // On any page update
+            let loaded = false;
             $(document).ajaxComplete(function(event, xhr, settings) {
 
                 // Once: userlist is ready, init new userlist
@@ -236,6 +242,7 @@ ul#my-rooms > li > a span {
     margin: 0 0 -14px;
     padding: 7px 0;
     opacity: 1 !important;
+    background-color: transparent !important;
     z-index: 1;
 
     -webkit-column-break-inside: avoid;
