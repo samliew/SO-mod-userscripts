@@ -3,7 +3,7 @@
 // @description  Allows users to insert emojis into chat. If chat message contains just an emoji, increase display size
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -61,9 +61,26 @@
 
         });
 
-        // Override CSS
-        const styles = `
+        const overrideStyles = `
 <style>
+#input-area {
+    height: 100px;
+}
+#bubble {
+    position: relative;
+    height: 88px;
+    text-align: left;
+}
+#input {
+    height: 88px;
+    padding-right: 26px;
+}
+.content.msg-emoji {
+    font-size: 2.2em;
+    line-height: 1.3;
+}
+
+/* Override Plugin CSS */
 .emojionearea .emojionearea-editor {
     min-height: 88px;
     height: 88px;
@@ -108,54 +125,27 @@
 }
 </style>
 `;
-        $('body').append(styles);
+        $('body').append(overrideStyles);
     }
 
 
     function doPageload() {
 
-        // If live chat
-        if(/\/rooms\/\d+\//.test(location.pathname)) {
+        // If live chat and not mobile chat UI
+        if(/\/rooms\/\d+\//.test(location.pathname) && !document.body.classList.contains('mob')) {
 
             // Init emoji picker
             initEmojiPicker();
 
             // Occasionally, look for new single-emoji messages and apply class
-            setInterval(findEmojiMessages, 1000);
+            setInterval(findEmojiMessages, 2000);
         }
 
         findEmojiMessages();
     }
 
 
-    function appendStyles() {
-
-        const styles = `
-<style>
-#input-area {
-    height: 100px;
-}
-#bubble {
-    position: relative;
-    height: 88px;
-    text-align: left;
-}
-#input {
-    height: 88px;
-    padding-right: 26px;
-}
-.content.msg-emoji {
-    font-size: 2.2em;
-    line-height: 1.3;
-}
-</style>
-`;
-        $('body').append(styles);
-    }
-
-
     // On page load
-    appendStyles();
     doPageload();
 
 })(jQuery);
