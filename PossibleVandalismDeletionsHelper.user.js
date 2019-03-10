@@ -3,7 +3,7 @@
 // @description  Display post score and number of undeleted answers, Recommend action based on post info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=postvandalismdeletionsauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=postvandalismdeletionsauto*
@@ -23,12 +23,14 @@
     function doPageload() {
 
         // Transform UI
-        $('.flagged-post-row > td').prepend('<div class="post-recommendation">Dismiss</div>');
-        $('.flagged-post-row').each(function() {
+        $('.js-flag-text .post-list').before('<div class="post-recommendation">Dismiss</div>');
+        $('.js-flagged-post').each(function() {
             const postlist = $('.post-list', this);
 
             // Move top post link to list
-            postlist.prepend(`<li class="deleted-answer"><span class="revision-comment">${$(this).find('a.question-hyperlink, a.answer-hyperlink').first().parent().html()}</span></li>`);
+            let title = $(this).find('.js-post-title-link').text();
+            let link = $(this).find('.js-post-header a').clone(true, true).addClass('answer-hyperlink').text(title);
+            postlist.prepend(`<li class="deleted-answer"><span class="revision-comment">${link[0].outerHTML}</span></li>`);
 
             // Sort questions to end of list
             postlist.append(`<li class="title-divider">Questions</li>`);
@@ -44,7 +46,7 @@
 
             const isQuestion = !$(this).hasClass('answer-hyperlink');
             const total = $(this).parents('.post-list').children().length;
-            const flag = $(this).parents('.flagged-post-row');
+            const flag = $(this).parents('.js-flagged-post');
             const link = $(this);
             const pid = isQuestion ? this.href.match(/\d+/)[0] : this.href.match(/\d+$/)[0];
 
@@ -64,9 +66,9 @@
                     //console.log(html, post, score, dateDiff, age);
 
                     // Insert info
-                    link.before(`<span class="info-num post-score ${score > 0 ? 'red' : ''}" title="post score">${score}</span>`);
-                    link.before(`<span class="info-num answer-count ${answerCount == 0 ? 'red' : ''}" title="non-deleted answers on question">${answerCount}</span>`);
-                    link.before(`<span class="info-num post-age" title="post age">${age}d</span>`);
+                    link.before(`<span class="info-num post-score ${score > 0 ? 'red' : ''}" title="post score (positively-scored answers are more likely to be vandalism)">${score}</span>`);
+                    link.before(`<span class="info-num answer-count ${answerCount == 0 ? 'red' : ''}" title="non-deleted answers on question (lone answer deletions might possibly trigger roomba on the question)">${answerCount}</span>`);
+                    link.before(`<span class="info-num post-age" title="post age (newer posts are more likely to be deleted for inaccuracy instead of vandalism)">${age}d</span>`);
 
                     // Calculate flag recommendation
                     if(score > 0) {
@@ -97,7 +99,10 @@
         const styles = `
 <style>
 .post-list {
-    margin-left: 0;
+    margin-top: 1.5em;
+    margin-left: 0px;
+    list-style: none;
+    width: calc(100% + 60px);
 }
 .post-list .title-divider {
     margin-top: 5px;
@@ -134,9 +139,8 @@
 .tagged-ignored {
     opacity: 1;
 }
-.close-question-button,
-.delete-post,
-.undelete-post {
+.js-post-flag-options,
+.js-body-summary {
     display: none !important;
 }
 </style>
