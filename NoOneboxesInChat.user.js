@@ -3,7 +3,7 @@
 // @description  Collapses oneboxes from chat rooms/transcripts/bookmarks, click to display onebox
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -37,6 +37,9 @@
 
             // If onebox type is a tweet, permalink is the last link in onebox
             if($(this).hasClass('ob-tweet')) url = $(this).find('a').last().attr('href');
+
+            // If onebox type is an image, preload
+            if($(this).hasClass('ob-image')) $(this).find('img').attr('src', url);
 
             const loadOneboxText = 'click to load onebox';
             const hideOneboxText = 'click to hide onebox';
