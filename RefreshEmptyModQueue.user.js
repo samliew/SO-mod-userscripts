@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -22,25 +22,35 @@
     const timeoutSecs = 10;
     const goToMain = () => location.href = '/admin/dashboard?filtered=false';
     const reloadPage = () => location.search.contains('filtered=false') ? location.reload(true) : location.search = location.search + '&filtered=false';
+    let timeout, interval;
 
 
     let initRefresh = function(main = false) {
 
         if($('.js-flagged-post:visible, .flagged-post-row:visible').length > 0) return;
 
+        // Function called again, reset
+        if(timeout || interval) {
+            clearTimeout(timeout);
+            clearInterval(interval);
+            $('#somu-refresh-queue-counter').remove();
+        }
+
         let c = timeoutSecs;
         $(`<div id="somu-refresh-queue-counter">Refreshing page in <b id="refresh-counter">${timeoutSecs}</b> seconds...</div>`).appendTo('.flag-container, .js-admin-dashboard');
 
         // Main timeout
-        setTimeout(main ? goToMain : reloadPage, timeoutSecs * 1000);
+        timeout = setTimeout(main ? goToMain : reloadPage, timeoutSecs * 1000);
 
         // Counter update interval
-        setInterval(function() {
+        interval = setInterval(function() {
             $('#refresh-counter').text(--c > 0 ? c : 0);
         }, 1000);
 
-        // Ensures this function only runs once
-        initRefresh = function() {};
+        // On user action on page, restart countdown
+        $(document).on('touchend mouseup keyup', function() {
+            initRefresh(main);
+        });
     };
 
 
