@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.4.1
+// @version      0.4.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -148,8 +148,6 @@ html.fixed-header body.with-footer main {
     height: 15px;
     padding: 0 !important;
     overflow: hidden;
-    background: white;
-
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -158,6 +156,7 @@ html.fixed-header body.with-footer main {
     height: auto;
     padding-bottom: 20px !important;
     border-bottom: 1px dotted #cfcfcf;
+    background: white;
     white-space: unset;
 }
 #sidebar #info #roomtitle {
