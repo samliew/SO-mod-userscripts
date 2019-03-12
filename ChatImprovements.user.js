@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.5.1
+// @version      0.5.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -61,7 +61,7 @@
         if(location.pathname.includes('/rooms/') && !location.pathname.includes('/info/')) {
 
             // Always rejoin favourite rooms
-            $.post(`https://chat.stackoverflow.com/chats/join/favorite`, {
+            $.post(`https://${location.hostname}/chats/join/favorite`, {
                 quiet: true,
                 immediate: true,
                 fkey: fkey
