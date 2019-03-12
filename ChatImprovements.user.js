@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.4.2
+// @version      0.4.3
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -109,6 +109,11 @@
                 }
             });
         }
+
+        // On any user avatar image error in sidebar, hide image
+        $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
+            $(this).hide();
+        });
 
         // Append desktop styles
         appendStyles();
@@ -232,7 +237,7 @@ ul#my-rooms > li > a span {
     columns: 2;
     padding-bottom: 5px;
     border-bottom: 1px dotted #cfcfcf;
-    font-size: 0.85em;
+    font-size: 8.8px;
     color: #666;
 }
 #present-users-list li {
@@ -292,24 +297,32 @@ ul#my-rooms > li > a span {
     display: none;
 }
 
-@media screen and (max-width: 1199px) {
+@media screen and (max-width: 999px) {
     #my-rooms .activity-4 .room-info,
     #my-rooms .activity-5 .room-info,
     #my-rooms .activity-6 .room-info {
         display: none;
     }
 }
-@media screen and (min-width: 1200px) {
-    #present-users-list { columns: 3; }
+@media screen and (min-width: 1000px) {
+    #present-users-list {
+        columns: 3;
+        font-size: 0.85em;
+    }
 }
-@media screen and (min-width: 1440px) {
+@media screen and (min-width: 1400px) {
     #present-users-list { columns: 4; }
+    #main { width: 65%; }
+    #sidebar { width: 34%; }
+}
+@media screen and (min-width: 1600px) {
+    #present-users-list { columns: 5; }
     #present-users-list li { padding: 8px 0; }
 }
 
 /* Hide extra inactive users until userlist is focused */
 /*
-@media screen and (max-width: 1199px) {
+@media screen and (max-width: 999px) {
    #present-users-list li.inactive:nth-child(n + 15) {
        display: none;
    }
