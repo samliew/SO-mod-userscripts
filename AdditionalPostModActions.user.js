@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8
+// @version      1.8.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -452,7 +452,7 @@
             return $(this).children('.js-post-issues').length == 0;
         }).each(function() {
             const post = $(this).closest('.answer, .question');
-            const pid = post.attr('data-questionid') || post.attr('data-answerid');
+            const pid = post.attr('data-questionid') || post.attr('data-answerid') || post.attr('data-post-id');
             $(this).append(`
 <div class="js-post-issues grid fd-column ai-stretch gs4 mt16">
   <a class="grid--item s-btn s-btn__muted" href="/posts/${pid}/timeline" data-shortcut="T" title="Timeline" target="_blank">
@@ -567,11 +567,11 @@
             if($(this).hasClass('disabled')) return false;
 
             // Get question link if in mod queue
-            const qlink = $(this).closest('.js-flagged-post').find('.js-body-loader:first a').first().get();
+            const qlink = $(this).closest('.js-flagged-post').find('.js-body-loader a').first().attr('href');
 
             const menuEl = this.parentNode;
-            const pid = Number(menuEl.dataset.pid);
-            const qid = Number($('#question').attr('data-questionid') || getPostId(qlink.href)) || null;
+            const pid = Number(menuEl.dataset.postId || menuEl.dataset.pid);
+            const qid = Number($('#question').attr('data-questionid') || getPostId(qlink)) || null;
             const redupePid = Number(this.dataset.redupePid);
             const uid = Number(this.dataset.uid);
             const uName = this.dataset.username;
