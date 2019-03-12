@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.5
+// @version      0.5.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -221,6 +221,9 @@ ul#my-rooms > li > a {
 ul#my-rooms > li > a span {
     display: none;
 }
+.monologue {
+    min-width: 300px;
+}
 
 
 /* New userlist */
@@ -299,9 +302,10 @@ ul#my-rooms > li > a span {
 #present-users-list .username {
     display: inline-block;
     min-width: 58px;
-    width: calc(100% - 22px);
+    width: calc(100% - 24px);
     height: 1.3em;
     margin-left: 5px;
+    padding-right: 2px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -310,6 +314,26 @@ ul#my-rooms > li > a span {
     display: none;
 }
 
+@media screen and (max-width: 700px) {
+    #present-users {
+        height: auto;
+        margin: 0 0 5px;
+        padding: 0 0 5px;
+        border-bottom: 1px dotted #cfcfcf;
+        opacity: 1;
+        visibility: visible;
+        overflow: auto;
+    }
+    #present-users > .present-user,
+    #present-users .more,
+    #present-users .user-gravatar32 {
+        height: 22px;
+        width: 22px !important;
+    }
+    #present-users-list {
+        display: none;
+    }
+}
 @media screen and (max-width: 999px) {
     #my-rooms .activity-4 .room-info,
     #my-rooms .activity-5 .room-info,
@@ -318,7 +342,7 @@ ul#my-rooms > li > a span {
     }
 }
 @media screen and (min-width: 1000px) {
-    #present-users-list { font-size: 0.85em; }
+    #present-users-list { font-size: 0.85em; overflow: visible; }
     #present-users-list li { flex-grow: 0; flex-basis: 33.33%; }
 }
 @media screen and (min-width: 1400px) {
