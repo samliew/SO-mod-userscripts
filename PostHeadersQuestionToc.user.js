@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.1
+// @version      2.0.2
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -36,7 +36,7 @@
     const hasFixedHeader = $('.top-bar').hasClass('_fixed');
 
 
-    const pluralize = num => num > 1 ? 's' : '';
+    const pluralize = num => num != 1 ? 's' : '';
 
 
     // Fetch and store option
