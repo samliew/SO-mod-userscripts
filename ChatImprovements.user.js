@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.5.2
+// @version      0.5.3
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -342,7 +342,11 @@ ul#my-rooms > li > a span {
     }
 }
 @media screen and (min-width: 1000px) {
-    #present-users-list { font-size: 0.85em; overflow: visible; }
+    #present-users-list {
+        max-height: none;
+        overflow: visible;
+        font-size: 0.85em;
+    }
     #present-users-list li { flex-grow: 0; flex-basis: 33.33%; }
 }
 @media screen and (min-width: 1400px) {
