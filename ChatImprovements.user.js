@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.4.3
+// @version      0.5
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -49,6 +49,7 @@
     function reapplyPersistentChanges() {
 
         $('#my-rooms > li > a').each(function() {
+            if(this.classList.contains('reply-count')) return;
             this.innerText = this.title.replace('switch to ', '');
         });
     }
@@ -225,7 +226,7 @@ ul#my-rooms > li > a span {
 /* New userlist */
 #present-users {
     height: 1px;
-    margin: 0;
+    margin: 0 0 -1px;
     padding: 0;
     border: 0;
     opacity: 0;
@@ -233,16 +234,27 @@ ul#my-rooms > li > a span {
     overflow: hidden;
 }
 #present-users-list {
-    list-style: none;
-    columns: 2;
-    padding-bottom: 5px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    align-content: flex-start;
+    align-items: flex-start;
+
+    max-height: 300px;
+    overflow-y: auto;
+    padding-bottom: 16px;
     border-bottom: 1px dotted #cfcfcf;
+    list-style: none;
     font-size: 8.8px;
     color: #666;
 }
 #present-users-list li {
+    flex: 1 0 50%;
+    align-self: auto;
+
     position: relative;
-    display: block;
+    min-width: 80px;
     margin: 0 0 -14px;
     padding: 7px 0;
     opacity: 1 !important;
@@ -286,6 +298,7 @@ ul#my-rooms > li > a span {
 }
 #present-users-list .username {
     display: inline-block;
+    min-width: 58px;
     width: calc(100% - 22px);
     height: 1.3em;
     margin-left: 5px;
@@ -305,34 +318,29 @@ ul#my-rooms > li > a span {
     }
 }
 @media screen and (min-width: 1000px) {
-    #present-users-list {
-        columns: 3;
-        font-size: 0.85em;
-    }
+    #present-users-list { font-size: 0.85em; }
+    #present-users-list li { flex-grow: 0; flex-basis: 33.33%; }
 }
 @media screen and (min-width: 1400px) {
-    #present-users-list { columns: 4; }
+    #present-users-list li { flex-basis: 25%; }
     #main { width: 65%; }
-    #sidebar { width: 34%; }
+    #sidebar { width: 33%; }
 }
 @media screen and (min-width: 1600px) {
-    #present-users-list { columns: 5; }
-    #present-users-list li { padding: 8px 0; }
+    #present-users-list li { flex-basis: 20%; padding: 8px 0; }
 }
 
 /* Hide extra inactive users until userlist is focused */
-/*
 @media screen and (max-width: 999px) {
    #present-users-list li.inactive:nth-child(n + 15) {
        display: none;
    }
 }
-@media screen and (max-width: 1439px) {
+@media screen and (max-width: 1339px) {
    #present-users-list li.inactive:nth-child(n + 25) {
        display: none;
    }
 }
-*/
 </style>
 `;
         $('body').append(desktop ? styles : mobileStyles);
