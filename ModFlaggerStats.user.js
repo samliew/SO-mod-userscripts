@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0.1
+// @version      3.0.2
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -140,7 +140,7 @@ unsafeWindow.purgeUserFlagStats = function() {
 
         getUserFlagStats(uid).then(function(v) {
             const tier = calculateFlagTier(v[1], v[3]);
-            const badge = `<a href="/users/flag-summary/${uid}" class="flag-badge ${tier.name}" title="${v[1]} flags (${v[2]} declined), accuracy ${v[3].toFixed(2)}%" target="_blank"></a>`;
+            const badge = `<a href="/users/flag-summary/${uid}" class="flag-badge ${tier.name}" title="${v[1]} flags, ${v[2]} declined (accuracy ${(100 - v[3]).toFixed(2)}%)" target="_blank"></a>`;
 
             // Apply to all instances of same user on page
             sameUserLinks.not('js-userflagstats-loaded').addClass('js-userflagstats-loaded').after(badge);
@@ -173,7 +173,7 @@ unsafeWindow.purgeUserFlagStats = function() {
 
             getUserFlagStats(currUid).then(function(v) {
                 const tier = calculateFlagTier(v[1], v[3]);
-                const badge = `<a href="/users/flag-summary/${currUid}" class="flag-badge large ${tier.name}" title="${tier.name} flagger: ${v[1]} (${v[2]}) = ${v[3].toFixed(2)}%" target="_blank"></a>`;
+                const badge = `<a href="/users/flag-summary/${currUid}" class="flag-badge large ${tier.name}" title="${tier.name} flagger: ${v[1]} flags, ${v[2]} declined (accuracy ${(100 - v[3]).toFixed(2)}%)" target="_blank"></a>`;
                 $('.profile-user--name, .user-card-name').append(badge);
             });
         }
