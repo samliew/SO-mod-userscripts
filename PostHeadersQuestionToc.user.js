@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.0.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -318,11 +318,6 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
     }
 
 
-    function doPageLoad() {
-
-    }
-
-
     function appendStyles() {
 
         const styles = `
@@ -416,6 +411,10 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 .post-stickyheader .deleted-user {
     margin: -3px 0;
 }
+.election-page .post-stickyheader .sticky-tools {
+    display: none;
+}
+
 /* If topbar is fixed */
 .top-bar._fixed ~ .container .post-stickyheader,
 .election-page .top-bar._fixed ~ .container .votecell .vote,
@@ -491,6 +490,5 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
     appendStyles();
     initStickyPostHeaders();
     initTableOfContentsSidebar();
-    doPageLoad();
 
 })();
