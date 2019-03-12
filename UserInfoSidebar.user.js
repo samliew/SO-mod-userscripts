@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.0.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -112,6 +112,9 @@
                 $('a[href^="/"]', $info).attr('href', (i, v) => mainSiteHostname + v);
                 $('.mod-quick-links a', $quicklinks).attr('href', (i, v) => mainSiteHostname + v);
 
+                // Prepend Mod dashboard link
+                $quicklinks.find('ul').prepend(`<li><a href="/users/account-info/${uid}">mod dashboard</a></li>`);
+
                 // Check if user is currently suspended, highlight username
                 const susMsg = $('.system-alert', data).first().text();
                 if(susMsg.indexOf('suspended') >= 0) {
@@ -169,6 +172,9 @@
                     // change links to main
                     $('.mod-quick-links a', $quicklinks).attr('href', (i, v) => StackExchange.options.site.parentUrl + v);
                 }
+
+                // Prepend Mod dashboard link
+                $quicklinks.find('ul').prepend(`<li><a href="/users/account-info/${uid}">mod dashboard</a></li>`);
 
                 // Check if user is currently suspended, highlight username
                 const susMsg = $('.system-alert', data).first().text();
