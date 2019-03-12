@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.5
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -13,7 +13,17 @@
 // @include      https://*stackapps.com/questions/*
 // @include      https://*.stackexchange.com/questions/*
 //
+// @include      https://*stackoverflow.com/election*
+// @include      https://*serverfault.com/election*
+// @include      https://*superuser.com/election*
+// @include      https://*askubuntu.com/election*
+// @include      https://*mathoverflow.net/election*
+// @include      https://*stackapps.com/election*
+// @include      https://*.stackexchange.com/election*
+//
 // @exclude      *chat.*
+//
+// @run-at       document-end
 // ==/UserScript==
 
 (function() {
@@ -21,8 +31,12 @@
 
 
     const store = window.localStorage;
+    const isElectionPage = document.body.classList.contains('election-page');
     const modflair = '<span class="mod-flair" title="moderator">♦</span>';
     const hasFixedHeader = $('.top-bar').hasClass('_fixed');
+
+
+    const pluralize = num => num > 1 ? 's' : '';
 
 
     // Fetch and store option
@@ -68,10 +82,21 @@
     // Returns true if element found
     function gotoPost(pid, isQuestion = false) {
         const postBaseUrl = $('#question-header h1 a').attr('href');
-        const elem = $(isQuestion ? '#question' : '#answer-'+pid);
+        let elem = $(isQuestion ? '#question' : '#answer-'+pid);
+
+        if(isElectionPage || elem.length === 0) {
+            elem = $(`#post-${pid}, .candidate-row[data-candidate-id="${pid}"]`).first();
+        }
+
         if(elem.length === 1) {
-            history.replaceState(null, document.title, `${postBaseUrl}${isQuestion ? '' : '/'+pid+'#'+pid}`);
-            $('html, body').animate({ scrollTop: $(isQuestion ? '#question' : '#answer-'+pid).offset().top + 1 }, 600);
+
+            if(isElectionPage) {
+                history.replaceState(null, document.title, `${location.pathname}${location.search}#post-${pid}`);
+            }
+            else {
+                history.replaceState(null, document.title, `${postBaseUrl}${isQuestion ? '' : '/'+pid+'#'+pid}`);
+            }
+            $('html, body').animate({ scrollTop: elem.offset().top + 1 }, 600);
             return true;
         }
         return false;
@@ -80,7 +105,7 @@
 
     function initStickyPostHeaders() {
 
-        const postsOnPage = $('#question, .answer').each(function() {
+        const postsOnPage = $('#question, .answer, .candidate-row').each(function() {
             const post = $(this);
             const isQuestion = post.hasClass('question');
             const pid = isQuestion ? this.dataset.questionid : this.dataset.answerid;
@@ -94,6 +119,10 @@
             const postismod = postuser.length != 0 ? postuser.next().hasClass('mod-flair') : false;
             const postdate = $(this).find('.user-info .user-action-time').last().html() || '';
 
+            if(post.find('.post-layout--left').length == 0) {
+                post.find('.post-layout--right').before(`<div class="votecell post-layout--left"></div>`);
+            }
+
             const stickyheader = $(`<div class="post-stickyheader">
 ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair : ''} ${postdate}
 <div class="sticky-tools">
@@ -105,7 +134,7 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
         $('.post-stickyheader a').attr('target', '_blank');
         $('.post-stickyheader').click(function() {
             const isQuestion = $(this.parentNode).hasClass('question');
-            const pid = isQuestion ? this.parentNode.dataset.questionid : this.parentNode.dataset.answerid;
+            const pid = isQuestion ? this.parentNode.dataset.questionid : this.parentNode.dataset.answerid || this.parentNode.id.replace('post-', '');
             gotoPost(pid, isQuestion);
         }).on('click', 'a', function(evt) {
             evt.stopPropagation();
@@ -136,6 +165,60 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
         const postsOnPage = $('#answers > .answer');
         const qid = $('#question').attr('data-questionid');
         const sortby = $('#answers-header #tabs .youarehere').text().trim();
+
+        if(isElectionPage) {
+
+            $('#sidebar').addClass('show-votes');
+
+            let nominations = $('.candidate-row');
+            const answerContainer = nominations.first().parent();
+
+            // Sort by votes if votes shown
+            if($('.js-vote-count').length > 0) {
+                let sortedList = nominations.get().sort(function(a, b) {
+                    const ax = Number($(a).find('.js-vote-count')[0].dataset.value);
+                    const bx = Number($(b).find('.js-vote-count')[0].dataset.value);
+                    return bx - ax; // desc
+                });
+                nominations = $(sortedList);
+                answerContainer.append(nominations);
+            }
+
+            let answerlist = '';
+            nominations.each(function() {
+                const postuser = $(this).find('.user-details a').first();
+                const postusername = postuser.text();
+                const pid = this.id.replace('post-', '') || this.dataset.candidateId;
+                const votes = $(this).find('.js-vote-count').text();
+                const datetime = $(this).find('.relativetime')[0].outerHTML;
+
+                answerlist += `
+<div class="spacer" data-answerid="${pid}">
+  <a href="#${pid}" title="Vote score (upvotes - downvotes)">
+    <div class="answer-votes large">${votes}</div>
+  </a>
+  <a href="#${pid}" class="post-hyperlink">${postusername}</a>
+  ${datetime}
+</div>`;
+            });
+
+            const qtoc = $(`
+<div class="module sidebar-linked" id="qtoc">
+  <h4 id="qtoc-header">${nominations.length} Candidate${pluralize(nominations.length)}</h4>
+  <div class="linked">${answerlist}</div>
+</div>`);
+
+            // If answer is on current page, clicking on them scrolls to the answer
+            qtoc.on('click', 'a', function() {
+                const pid = this.parentNode.dataset.answerid;
+                return !gotoPost(pid);
+            });
+
+            // Insert after featured module
+            $('#sidebar .module.newuser').after(qtoc);
+
+            return;
+        }
 
         // If no answers, do nothing
         if(postsOnPage.length == 0) return;
@@ -195,7 +278,7 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
 
             const qtoc = $(`
 <div class="module sidebar-linked" id="qtoc">
-  <h4 id="qtoc-header">${v.length} Answer${v.length > 1 ? 's' : ''} <span><input id="qtoc-toggle-del" type="checkbox" checked="checked" /><label for="qtoc-toggle-del" title="toggle deleted">${deletedCount} deleted</label></span></h4>
+  <h4 id="qtoc-header">${v.length} Answer${pluralize(v.length)} <span><input id="qtoc-toggle-del" type="checkbox" checked="checked" /><label for="qtoc-toggle-del" title="toggle deleted">${deletedCount} deleted</label></span></h4>
   <div class="linked">${answerlist}</div>
 </div>`);
 
@@ -300,6 +383,10 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
     border-bottom: 1px solid #ccc;
     cursor: pointer;
 }
+.election-page .votecell .vote,
+.election-page .votecell .js-voting-container {
+    top: 0px;
+}
 .post-stickyheader ~ .post-layout .votecell .vote,
 .post-stickyheader ~ .post-layout .votecell .js-voting-container {
     top: 51px;
@@ -330,7 +417,9 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
     margin: -3px 0;
 }
 /* If topbar is fixed */
-.top-bar._fixed ~ .container .post-stickyheader {
+.top-bar._fixed ~ .container .post-stickyheader,
+.election-page .top-bar._fixed ~ .container .votecell .vote,
+.election-page .top-bar._fixed ~ .container .votecell .js-voting-container {
     top: 50px;
 }
 .top-bar._fixed ~ .container .post-stickyheader ~ .post-layout .votecell .vote,
