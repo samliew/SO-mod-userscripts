@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.2
+// @version      1.7
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -600,8 +600,12 @@ a.comment-user.owner {
 #main.select-mode .message.selected .content {
     background-color: #135;
 }
-.emojionearea .emojionearea-button {
-    background-color: #666;
+#starred-posts > div > ul > li {
+    border-bottom-color: #666;
+}
+#sidebar #info #sound {
+    filter: brightness(6.5);
+    background-color: transparent;
 }
 
 
