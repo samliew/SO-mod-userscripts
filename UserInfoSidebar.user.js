@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.1
+// @version      2.0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -108,12 +108,12 @@
                 // Change xref link to month to be more useful (default was week)
                 $quicklinks.find('a[href*="xref-user-ips"]').attr('href', (i, v) => v += '?daysback=30&threshold=2');
 
+                // Prepend Mod dashboard link
+                $quicklinks.find('ul').prepend(`<li><a href="/users/account-info/${uid}">mod dashboard</a></li>`);
+
                 // Since we are on chat, transform links to main links
                 $('a[href^="/"]', $info).attr('href', (i, v) => mainSiteHostname + v);
                 $('.mod-quick-links a', $quicklinks).attr('href', (i, v) => mainSiteHostname + v);
-
-                // Prepend Mod dashboard link
-                $quicklinks.find('ul').prepend(`<li><a href="/users/account-info/${uid}">mod dashboard</a></li>`);
 
                 // Check if user is currently suspended, highlight username
                 const susMsg = $('.system-alert', data).first().text();
@@ -164,6 +164,9 @@
                 // Change xref link to month to be more useful (default was week)
                 $quicklinks.find('a[href*="xref-user-ips"]').attr('href', (i, v) => v += '?daysback=30&threshold=2');
 
+                // Prepend Mod dashboard link
+                $quicklinks.find('ul').prepend(`<li><a href="/users/account-info/${uid}">mod dashboard</a></li>`);
+
                 // If on meta,
                 if(StackExchange.options.site.isMetaSite) {
                     // enable contact user link
@@ -172,9 +175,6 @@
                     // change links to main
                     $('.mod-quick-links a', $quicklinks).attr('href', (i, v) => StackExchange.options.site.parentUrl + v);
                 }
-
-                // Prepend Mod dashboard link
-                $quicklinks.find('ul').prepend(`<li><a href="/users/account-info/${uid}">mod dashboard</a></li>`);
 
                 // Check if user is currently suspended, highlight username
                 const susMsg = $('.system-alert', data).first().text();
