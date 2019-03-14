@@ -3,7 +3,7 @@
 // @description  Allows moderators to undelete user-deleted comments
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.4
+// @version      0.1.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -77,7 +77,7 @@
 
                 // Add undelete link to deleted comment info if not found
                 $('.deleted-comment-info').filter(function() {
-                    return $(this).children('.undelete-comment').length == 0;
+                    return $(this).children('.undelete-comment, .mod-undelete-comment').length == 0;
                 }).append(`<a class="mod-undelete-comment">Undelete</a>`);
             }
         });
