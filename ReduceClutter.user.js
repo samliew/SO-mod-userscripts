@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -12,16 +12,16 @@
 // @include      https://*mathoverflow.net/*
 // @include      https://*stackapps.com/*
 // @include      https://*.stackexchange.com/*
+//
+// @grant        GM_addStyle
+// @run-at       document-start
 // ==/UserScript==
 
 (function() {
     'use strict';
 
 
-    function appendStyles() {
-
-        const styles = `
-<style>
+        GM_addStyle(`
 
 /*
    Fix comment upvote and flag always showing
@@ -54,19 +54,12 @@ ul.comments-list .comment-up-on {
    https://meta.stackoverflow.com/q/374024
 */
 .post-taglist #edit-tags {
-    display: none;
+    opacity: 0.15;
 }
 .post-taglist:hover #edit-tags {
-    display: inline;
+    opacity: 1;
 }
 
-</style>
-`;
-        $('body').append(styles);
-    }
-
-
-    // On page load
-    appendStyles();
+`);
 
 })();
