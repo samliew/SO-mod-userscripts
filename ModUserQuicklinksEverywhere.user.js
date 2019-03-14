@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.2
+// @version      2.9.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -102,6 +102,9 @@
 }
 .deleted-answer .mod-userlinks {
     background-color: #f4eaea;
+}
+.deleted-answer .owner .mod-userlinks {
+    background-color: transparent;
 }
 .grid--cell + .mod-userlinks {
     position: initial !important;
