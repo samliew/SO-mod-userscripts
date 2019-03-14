@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.1
+// @version      4.2
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 //
@@ -240,7 +240,7 @@
             });
 
             // Always expand comments if post is expanded, if comments have not been expanded yet
-            $('.js-comments-container').not('.js-del-loaded').each(function() {
+            $('.comments.js-comments-container').not('.js-del-loaded').each(function() {
 
                 const postId = this.id.match(/\d+/)[0];
 
@@ -295,7 +295,7 @@
 
     function insertCommentLinks() {
 
-        $('.js-comments-container').not('.js-comment-links').addClass('js-comment-links').each(function() {
+        $('.comments.js-comments-container').not('.js-comment-links').addClass('js-comment-links').each(function() {
 
             const pid = this.id.match(/\d+$/)[0];
 
