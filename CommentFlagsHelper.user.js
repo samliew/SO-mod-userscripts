@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.4.2
+// @version      4.4.3
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -390,7 +390,7 @@
         $('.js-flagged-post').on('click', '.purge-comments-link', function() {
 
             const pid = this.dataset.postId;
-            const $post = $(`#flagged-${pid}`);
+            const $post = $(this).parents('.js-flagged-post');
 
             if(confirm('Delete ALL comments? (mark as helpful)')) {
 
