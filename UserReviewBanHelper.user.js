@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1.1
+// @version      2.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -35,6 +35,7 @@
 
 
     const reloadPage = () => location.reload(true);
+    const pluralize = s => s.length != 0 ? 's' : '';
 
 
     // Solution from https://stackoverflow.com/a/24719409/584192
@@ -165,6 +166,23 @@
             // Load ban form for user if passed via querystring
             var params = location.hash.substr(1).split('|');
             var uid = params[0];
+            var posts = params[1].split(';').map(v => v.replace(/\/?review\//, '')).sort();
+
+            // Remove similar consecutive review types from urls
+            var prevType = null;
+            posts = posts.map(v => {
+                if(v.includes(prevType + '/')) v = v.replace(/\D+/g, '');
+                else prevType = v.split('/')[0];
+                return v;
+            });
+
+            // Fit as many URLs as possible into message
+            var posttext = '';
+            var i = posts.length;
+            do {
+                posttext = posts.slice(0, i--).join(", ");
+            }
+            while(i > 1 && 150 + location.hostname.length + posttext.length > 300);
 
             // Completed loading lookup
             $(document).ajaxComplete(function(event, xhr, settings) {
@@ -172,7 +190,7 @@
 
                     // Insert ban message if review link found
                     if(typeof params[1] !== 'undefined') {
-                        var banMsg = `Your review(s) on https://${location.hostname}${params[1]} wasn't helpful. Please review the history of the post(s) and consider how choosing a different action would help achieve that outcome more quickly.`;
+                        var banMsg = `Your review${pluralize(posts)} on https://${location.hostname}/review/${posttext} wasn't helpful. Do review the history of the post${pluralize(posts)} and consider which action would achieve that outcome more quickly.`;
                         $('textarea[name=explanation]').val(banMsg);
                     }
 
