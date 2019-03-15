@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.5.3
+// @version      0.5.5
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -51,6 +51,10 @@
         $('#my-rooms > li > a').each(function() {
             if(this.classList.contains('reply-count')) return;
             this.innerText = this.title.replace('switch to ', '');
+        });
+
+        $('#my-rooms .last-message .text').each(function() {
+            this.title = this.innerText;
         });
     }
 
@@ -194,6 +198,10 @@ html.fixed-header body.with-footer main {
 }
 
 /* Other minor stuff */
+#chat-body #container {
+    padding-left: 10px;
+    padding-right: 10px;
+}
 #sidebar #info #roomtitle #toggle-favorite {
     position: absolute;
     top: 0;
@@ -368,6 +376,22 @@ ul#my-rooms > li > a span {
    #present-users-list li.inactive:nth-child(n + 25) {
        display: none;
    }
+}
+
+/* Show mods with diamonds */
+.monologue .signature {
+    width: 11%;
+}
+.signature .username.moderator {
+    position: relative;
+    padding-right: 0.8em;
+}
+.signature .username.moderator:after {
+    content: '♦';
+    position: absolute;
+    top: -0.1em;
+    right: 0;
+    font-size: 1.2em;
 }
 </style>
 `;
