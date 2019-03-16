@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.5
+// @version      1.7.6
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -647,6 +647,19 @@ a.comment-user.owner {
 #sidebar #info #sound {
     filter: brightness(6.5);
     background-color: transparent;
+}
+button#sayit-button {
+    background: #f48024 url('https://cdn-chat.sstatic.net/chat/Img/mobile/skin/dark/ico-send.svg') 60% 50% no-repeat;
+    opacity: 0.8;
+}
+#header .first-trigger[data-for="sidebar-left"] .ico-hamburger em {
+    background: white;
+}
+#header [data-for="search"] {
+    background: url('https://cdn-chat.sstatic.net/chat/Img/mobile/skin/light/ico-search.svg') 50% 50% no-repeat;
+}
+.sidebar-middle {
+    background: transparent;
 }
 
 
