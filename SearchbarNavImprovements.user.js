@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.9.1
+// @version      4.9.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -340,6 +340,8 @@
 
     function initQuickfilters() {
 
+        console.log(hasSearchResults);
+
         if(!hasSearchResults) return;
 
         let query = sanitizeQuery(location.search);
@@ -353,7 +355,6 @@
         }
         query = sanitizeQuery(query.toLowerCase());
 
-        let resTabs = $('.tabs-filter').parents('.grid');
         let quickfilter = $(`<div id="res-quickfilter">Quick filters:
 <div class="grid tabs-filter tt-capitalize">
   <a class="grid--cell s-btn s-btn__muted s-btn__outlined py8 ws-nowrap ${isOnTagPage ? 'is-selected' : ''}"
@@ -371,7 +372,7 @@
      href="${removeParam(query, 'deleted')}+deleted%3a0${querysuffix}" data-onwhen="deleted%3ano" data-onwhenmissing="deleted%3a"
      data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany${querysuffix}">not deleted</a>
 </div>
-</div>`).insertBefore(resTabs);
+</div>`).insertBefore('#bigsearch');
 
         quickfilter.find('a[data-onwhen]').each(function() {
             let se = this.dataset.onwhen;
@@ -1543,6 +1544,16 @@ button, .button,
 }
 #res-quickfilter .is-selected {
     box-shadow: inset 1px 1px 2px 0px rgba(0,0,0,0.3);
+}
+#res-quickfilter a:first-child {
+    border-bottom-right-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+}
+#res-quickfilter a + a {
+    border-bottom-left-radius: 0 !important;
+    border-top-left-radius: 0 !important;
+    border-left: 0;
+    margin-left: -1px;
 }
 
 /* Other */
