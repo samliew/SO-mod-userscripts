@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -54,9 +54,9 @@ ul.comments-list .comment-up-on {
    https://meta.stackoverflow.com/q/374024
 */
 .post-taglist #edit-tags {
-    opacity: 0.15;
+    opacity: 0.5;
 }
-.post-taglist:hover #edit-tags {
+.post-layout:hover .post-taglist #edit-tags {
     opacity: 1;
 }
 
