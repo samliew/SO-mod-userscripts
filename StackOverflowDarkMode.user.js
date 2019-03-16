@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8
+// @version      1.8.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -30,6 +30,7 @@
     const orange = '#f48024';
 
 
+    let bodyopacity = '1';
     let textcolor = '#bbb';
     let linkcolor = '#fff';
     let highlightcolor = '#eee';
@@ -41,6 +42,7 @@
     // Black mode for past midnight
     const isPastMidnight = new Date().getHours() < 6;
     if(isPastMidnight) {
+        bodyopacity = '0.9';
         textcolor = '#999';
         linkcolor = '#ccc';
         highlightcolor = '#ddd';
@@ -59,6 +61,7 @@
 /* Apply to all */
 body {
     background-image: none;
+    opacity: ${bodyopacity};
 }
 *,
 *:before,
@@ -92,7 +95,7 @@ hr {
     margin-bottom: 25px;
     padding-bottom: 20px;
     border: none;
-    border-bottom: 1px dashed #555;
+    border-bottom: 1px dashed ${bordercolor};
 }
 #sidebar .community-bulletin .bulletin-item-content a,
 a:not(.s-btn) {
@@ -146,9 +149,9 @@ body .fc-theme-primary {
 
 /* Scrollbars */
 ::-webkit-scrollbar{ width:10px; height:10px; }
-::-webkit-scrollbar-thumb{ background-color:rgb(196, 196, 196); border-radius: 5; }
-::-webkit-scrollbar-thumb:hover{ background-color:rgb(196, 196, 196); }
-::-webkit-scrollbar-track{ background-color:rgb(60, 60, 60); }
+::-webkit-scrollbar-thumb{ background-color:${textcolor}; border-radius: 5; }
+::-webkit-scrollbar-thumb:hover{ background-color:${textcolor}; }
+::-webkit-scrollbar-track{ background-color:${bordercolor}; }
 
 
 /* Specific elements opacity & hover */
