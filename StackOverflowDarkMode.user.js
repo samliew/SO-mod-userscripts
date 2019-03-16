@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.7.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -25,7 +25,7 @@
     'use strict';
 
 
-    const textcolor = '#ccc';
+    const textcolor = '#bbb';
     const bgcolor = '#222';
     const btncolor = '#333';
     const bordercolor = '#555';
@@ -175,9 +175,19 @@ ul.comments-list .comment:hover .comment-flagging {
 
 
 /* Specific elements */
+#content,
+.flush-left,
+.question-summary,
+.top-bar .searchbar .s-input,
+#search-channel-selector {
+    border-color: ${bordercolor};
+}
 .s-btn svg,
 .s-btn svg * {
     color: inherit;
+}
+.s-btn * {
+    background: none;
 }
 #sidebar a,
 #content #sidebar .community-bulletin .bulletin-item-content a,
@@ -305,7 +315,7 @@ body > div[style*="absolute"],
     background-color: #9199a1;
 }
 .tagged-interesting {
-    box-shadow: inset 0 0 20px 0px #fffbec;
+    box-shadow: inset 0 0 16px -4px #bbbb00;
 }
 .deleted-answer,
 .deleted-comment .comment-actions,
