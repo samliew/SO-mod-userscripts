@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.4
+// @version      1.7.5
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -495,9 +495,22 @@ a.comment-user.owner {
 .cancel-comment-flag .cancel-delete-comment-flag {
     background-color: red;
 }
+.post-mod-menu-link .post-mod-menu {
+    background-color: ${bgcolor};
+    box-shadow: 0px 0px 5px 0px white;
+}
 .deleted-answer .mod-userlinks,
-.deleted-answer .post-mod-menu {
+.deleted-answer .post-mod-menu-link .post-mod-menu {
     background-color: #220000;
+}
+.post-mod-menu-link .post-mod-menu a.disabled,
+.post-mod-menu-link .post-mod-menu a.disabled:hover {
+    background-color: #222;
+    color: #888;
+}
+.post-mod-menu-link .post-mod-menu a:hover {
+    background-color: #666;
+    color: ${textcolor};
 }
 #search-helper {
     padding-bottom: 20px;
