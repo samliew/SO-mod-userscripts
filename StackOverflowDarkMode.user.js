@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.2
+// @version      1.7.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -420,10 +420,19 @@ pre * {
     color: #d68585;
 }
 .kwd, .dec {
-    color: #7e7ef1;
+    color: #7878d2;
 }
 .typ {
     color: #6dbcd5;
+}
+.atn {
+    color: #d84222;
+}
+.pun, .pln {
+    color: ${textcolor};
+}
+.atv {
+    color: #0F74BD;
 }
 
 
