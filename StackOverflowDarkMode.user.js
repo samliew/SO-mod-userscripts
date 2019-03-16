@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.1
+// @version      1.8.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -39,9 +39,10 @@
     let bordercolor = '#555';
 
 
-    // Black mode for past midnight
-    const isPastMidnight = new Date().getHours() < 6;
-    if(isPastMidnight) {
+    // Black mode for late nights
+    const hour = new Date().getHours();
+    const isLateNight = hour >= 22 || hour <= 6;
+    if(isLateNight) {
         bodyopacity = '0.9';
         textcolor = '#999';
         linkcolor = '#ccc';
@@ -564,6 +565,9 @@ a.comment-user.owner {
 }
 #search-helper input[type="radio"]:checked + label:before {
     color: ${orange};
+}
+.emojionearea .emojionearea-button {
+    background-color: #777;
 }
 
 
