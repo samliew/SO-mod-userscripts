@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.2
+// @version      1.8.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -346,7 +346,7 @@ body > div[style*="absolute"],
     box-shadow: inset 0 0 0 9999px #220000;
 }
 .tagged-interesting *,
-.deleted-answer *:not(.popup),
+.deleted-answer *:not(.popup):not(.post-stickyheader),
 .deleted-comment .comment-text *:not(.popup),
 .question-status * {
     background-color: transparent;
