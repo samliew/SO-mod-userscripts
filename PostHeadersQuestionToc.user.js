@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.2
+// @version      2.0.3
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -124,7 +124,7 @@
             }
 
             const stickyheader = $(`<div class="post-stickyheader">
-${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair : ''} ${postdate}
+${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair : ''} ${postdate}
 <div class="sticky-tools">
   <a href="/posts/${pid}/revisions">revs</a> | <a href="/posts/${pid}/timeline">timeline</a>
 </div></div>`);
@@ -134,7 +134,8 @@ ${isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair :
         $('.post-stickyheader a').attr('target', '_blank');
         $('.post-stickyheader').click(function() {
             const isQuestion = $(this.parentNode).hasClass('question');
-            const pid = isQuestion ? this.parentNode.dataset.questionid : this.parentNode.dataset.answerid || this.parentNode.id.replace('post-', '');
+            const p = this.parentNode;
+            const pid = isQuestion ? p.dataset.questionid : p.dataset.answerid || p.id.replace('post-', '') || p.dataset.candidateId;
             gotoPost(pid, isQuestion);
         }).on('click', 'a', function(evt) {
             evt.stopPropagation();
