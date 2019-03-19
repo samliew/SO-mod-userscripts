@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.5.1
+// @version      3.5.2
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -116,7 +116,7 @@
         console.log("Toggle by: " + filter);
 
         const filterFunction = function() {
-            if(filter === 'magisch') return $(this).find('.js-flag-text a[href^="/users/5389107/"]').length > 0; // Magisch's userid on SO
+            if(filter === 'magisch') return $(this).find('.js-post-flag-group:not(.js-cleared) a[href^="/users/5389107/"]').length > 0; // Magisch's userid on SO
             if(filter === 'deleted') return $(this).find('.deleted-answer').length > 0;
 
             if(filter === 'self-answer') {
@@ -335,7 +335,7 @@
 <a data-toggle="a" title="Show Answers only">A</a>
 <a data-toggle="self-answer" title="Self Answer">Self-A</a>
 <a data-toggle="deleted" title="Show Deleted only">D</a>
-<a data-toggle="magisch" title="Show flags by Magisch only" class="dno">M</a>
+<a data-toggle="magisch" title="Show flags by Magisch only">M</a>
 `);
         }
 
@@ -384,7 +384,7 @@
         $('.mod-message .flag-row.js-cleared').filter((i, el) => el.innerText.includes('deemed invalid by')).remove();
 
         // Show Magisch filter option if there are flags by this user
-        if($posts.find('.active-flag').next('a').filter((i, el) => el.innerText === 'Magisch').length > 0) {
+        if($posts.find('.js-post-flag-group:not(.js-cleared) a[href^="/users/5389107/"]').length > 0) {
             $filterOpts.find('[data-toggle="magisch"]').removeClass('dno');
         }
     }
