@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.1
+// @version      1.6.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -61,5 +61,14 @@ ul.comments-list .comment-up-on {
 }
 
 `);
+
+
+    $(function() {
+
+        // If rep notification is displaying +1, hide it
+        let repBadge = $('.js-achievements-button .indicator-badge');
+        if(repBadge.text() === '+1') repBadge.remove();
+    });
+
 
 })();
