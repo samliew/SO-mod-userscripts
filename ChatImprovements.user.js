@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.5.7
+// @version      0.5.8
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -275,10 +275,12 @@ ul#my-rooms > li > a span {
 #present-users-list:hover li.inactive {
     display: block !important;
 }
-#present-users-list li:hover,
-#present-users-list li.inactive:hover {
-    opacity: 1 !important;
+#present-users-list li:hover {
+    color: #000;
     z-index: 2;
+}
+#present-users-list:hover li.inactive {
+    opacity: 1 !important;
 }
 #present-users-list li.inactive {
     opacity: 0.4 !important;
@@ -349,7 +351,7 @@ ul#my-rooms > li > a span {
     #present-users-list {
         max-height: none;
         overflow: visible;
-        font-size: 0.85em;
+        font-size: 0.9em;
     }
     #present-users-list li { flex-grow: 0; flex-basis: 33.33%; }
 }
