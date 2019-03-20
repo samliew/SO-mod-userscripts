@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.5.6
+// @version      0.5.7
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -196,6 +196,7 @@ html.fixed-header body.with-footer main {
 #chat-body #container {
     padding-left: 10px;
     padding-right: 10px;
+    box-sizing: border-box;
 }
 #sidebar #info #roomtitle #toggle-favorite {
     position: absolute;
