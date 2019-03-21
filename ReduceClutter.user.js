@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.2
+// @version      1.6.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -63,7 +63,7 @@ ul.comments-list .comment-up-on {
 `);
 
 
-    $(function() {
+    document.addEventListener('DOMContentLoaded', function(evt) {
 
         // If rep notification is displaying +1, hide it
         let repBadge = $('.js-achievements-button .indicator-badge');
