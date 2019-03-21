@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.5.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -242,10 +242,18 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
                     .replace(/\n\n{todo}/, addstr + appstr) // replace todo with evidence
             );
 
+            // Show help message if template selected
+            var selBtn = template.closest('.popup').find('.popup-submit');
+            selBtn.on('click', function() {
+                if(template.is(':checked')) {
+                    StackExchange.helpers.showMessage($('#show-templates').parent(), 'Ensure confirmed socks (matching IP & PII) are deleted first. Then in this canned message, remove users that are not cross-voting or targeted voting.');
+                }
+            });
+
             // Finally select the template option if we are automating via query params
             if(getQueryParam('action') == 'suspicious-voting') {
                 template.click();
-                template.closest('.popup').find('.popup-submit').removeAttr('disabled').click();
+                selBtn.removeAttr('disabled').click();
 
                 // Failsafe
                 $('#templateName').val('suspicious voting');
