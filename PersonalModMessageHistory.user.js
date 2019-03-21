@@ -3,7 +3,7 @@
 // @description  Displays your sent mod messages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.4
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -39,13 +39,13 @@
     }
 
 
-    function getModMessages(pageNum) {
+    function getModMessages(pageNum = 1, pagesize = 100) {
 
         const $modMessagesList = $('.your-history ul');
         if($modMessagesList.length === 0) return;
 
         $.ajax({
-            url: 'https://stackoverflow.com/admin/users/messages?page=' + pageNum,
+            url: `https://stackoverflow.com/admin/users/messages?page=${pageNum}&pagesize=${pagesize}`,
             xhr: jQueryXhrOverride,
             success: function(data) {
 
@@ -75,11 +75,7 @@
         // Add mod history results if not added yet
         if($('.modInbox-dialog .your-history').length == 0) {
             const $yourHistory = $('.modInbox-dialog').append('<div class="modal-content your-history"><ul></ul></div>');
-
-            // Stagger requests: Load 1 page with 10 messages at a time
-            for(let i = 0; i < 30; i++) {
-                setTimeout(getModMessages, 500 * i, i+1);
-            }
+            getModMessages(1, 500);
         }
 
         // Toggle display
