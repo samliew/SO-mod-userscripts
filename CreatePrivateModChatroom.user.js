@@ -3,7 +3,7 @@
 // @description  One-click button to create private/mod chat room with user and grant write access
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://chat.stackoverflow.com/users/*
 // @include      https://chat.stackexchange.com/users/*
@@ -123,7 +123,7 @@
                 findShowSuperping = function() { return; }
 
                 // look for user id message in first two messages
-                const msgs = $('.message .content').slice(0, 2).filter((i, el) => /\d+$/.test(el.innerText));
+                const msgs = $('.message .content').slice(0, 2).filter((i, el) => /\d{5,}$/.test(el.innerText));
                 const userId = Number(msgs.text().match(/\d+$/));
 
                 // Simple validation
