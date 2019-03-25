@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.4
+// @version      1.5.5
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -69,7 +69,7 @@
 
         const post = $('#question');
         const postOwner = $('.post-signature:last a', post);
-        const postText = $('.post-text', post).text();
+        const postText = $('h1 .question-hyperlink').text() + $('.post-text', post).text();
 
         // Is a deleted user, do nothing
         if(postOwner.length === 0) return;
@@ -78,7 +78,7 @@
         const uid = postOwner.attr('href').match(/\d+/)[0];
         const hasDupeLink = $('.question-originals-of-duplicate a, .comments-list a', post).filter((i, el) => /(https:\/\/meta\.stackoverflow\.com)?\/q(uestions)?\/255583\/?.*/.test(el.href)).length > 0;
         const hasTags = $('a.post-tag', post).filter((i, el) => ['post-ban', 'banning', 'deleted-'].some(v => el.innerText.contains(v))).length > 0;
-        const hasKeywords = ['unable', 'cannot', 'ban', 'block'].some(v => postText.contains(v)) && ['question', 'answer', 'post'].some(v => postText.contains(v));
+        const hasKeywords = ['unable', 'cannot', 'ban', 'block', 'well received'].some(v => postText.contains(v)) && ['question', 'answer', 'post'].some(v => postText.contains(v));
 
         // Definitely not a post ban question, ignore post
         if(!hasDupeLink && !hasTags && !hasKeywords) return;
