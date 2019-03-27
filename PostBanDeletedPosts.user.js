@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.6
+// @version      1.5.7
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -82,7 +82,7 @@
         const hasKeywords = ['unable', 'cannot', 'ban', 'block', 'well received'].some(v => postText.contains(v)) && ['question', 'answer', 'post'].some(v => postText.contains(v));
 
         // Definitely not a post ban question, ignore post
-        if((!hasDupeLink && !hasTags && !hasKeywords) || Number(userRep) >= 1000) return;
+        if((!hasDupeLink && !hasTags && !hasKeywords) || userRep.indexOf('k') > 0 || Number(userRep) >= 1000) return;
 
         const qnsUrl = `https://${mainDomain}/search?q=user%3a${uid}%20is%3aquestion%20deleted%3a1%20score%3a..0&tab=newest`;
         const ansUrl = `https://${mainDomain}/search?q=user%3a${uid}%20is%3aanswer%20deleted%3a1%20score%3a..0&tab=newest`;
