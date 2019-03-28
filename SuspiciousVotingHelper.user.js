@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.2
+// @version      1.5.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -102,7 +102,14 @@
                     $(el).find('.relativetime').each(function() { this.innerText = '*' + this.title + '*'; });
                     $(el).find('.mod-flag-indicator').remove();
                 })
-                .get().map(v => v.innerText.replace(/\s*(\n|\r)\s*/g,' ').trim());
+                .get().map(v => v.innerText
+                    .replace(/\s*(\n|\r)\s*/g,' ') // remove excessive whitespace
+                    .replace(/\s*[|]\s*/g, '<br>\n') // convert pipes to newlines
+                    .replace(/\s*([‒–—―])/g, '<br>\n$1') // add newlines before hyphens
+                    .replace(/\b((\d{1,2} )?[a-z]{3} (\d{1,2})?,? (\d{4}|'\d{2}))\b/gi, '**$1**') // bold dates
+                    .replace(' site://', ' https://' + location.hostname + '/') // convert SEDE site:// links to proper urls
+                    .trim()
+                );
             }),
 
             // Load votes
@@ -218,9 +225,9 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
 
             // Display flags from users
             if(flags.length > 0) {
-                let flagtext = `Reported via [custom flag](https://${location.hostname}/users/flagged-posts/${uid}):\n`;
+                let flagtext = `\nReported via [custom flag](https://${location.hostname}/users/flagged-posts/${uid}):\n\n`;
                 flags.forEach(function(v) {
-                    flagtext += newlines + '> ' + v.replace(/\s*[|]\s*/g, '<br>').replace(/\s*([‒–—―])/g, '<br>$1').replace(' site://', ' https://' + location.hostname + '/');
+                    flagtext += '> ' + v + newlines;
                 });
 
                 appstr = flagtext + newlines + appstr;
@@ -229,7 +236,7 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
             // Additional information from querystring, mostly for use with
             // https://data.stackexchange.com/stackoverflow/query/968803
             if(additionalInfo != null) {
-                let infotext = `Additional information:` + newlines + ' - ' + decodeURIComponent(additionalInfo);
+                let infotext = `Additional information:` + newlines + ' - ' + decodeURIComponent(additionalInfo) + newlines;
                 appstr = infotext + newlines + appstr;
             }
 
@@ -246,7 +253,8 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
             var selBtn = template.closest('.popup').find('.popup-submit');
             selBtn.on('click', function() {
                 if(template.is(':checked')) {
-                    StackExchange.helpers.showMessage($('#show-templates').parent(), 'Ensure confirmed socks (matching IP & PII) are deleted first. Then in this canned message, remove users that are not cross-voting or targeted voting.');
+                    //StackExchange.helpers.showMessage($('#show-templates').parent(),
+                    //   'Ensure confirmed socks (matching IP & PII) are deleted first. Then in this canned message, remove users that are not cross-voting or targeted voting.');
                 }
             });
 
