@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.5.8
+// @version      0.6
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -14,7 +14,7 @@
     'use strict';
 
 
-    const fkey = document.getElementById('fkey').value;
+    const fkey = document.getElementById('fkey') ? document.getElementById('fkey').value : '';
     const newuserlist = $(`<div id="present-users-list"></div>`);
 
 
@@ -61,8 +61,10 @@
 
     function doPageload() {
 
+
         // When joining a chat room
         if(location.pathname.includes('/rooms/') && !location.pathname.includes('/info/')) {
+
 
             // Always rejoin favourite rooms
             $.post(`https://${location.hostname}/chats/join/favorite`, {
@@ -70,6 +72,7 @@
                 immediate: true,
                 fkey: fkey
             }, () => console.log('rejoined favourite rooms'));
+
 
             // If on mobile chat
             if(document.body.classList.contains('mob')) {
@@ -85,9 +88,18 @@
                     }
                 }).get(0);
 
+                // Open links in a new window
+                $('#chat').on('click', '.content a, a.signature', function() {
+                    $(this).attr('target', '_blank');
+                });
+
                 // ignore rest of script
                 return;
             }
+
+
+            // Append desktop styles
+            appendStyles();
 
             // Move stuff around
             $('#room-tags').appendTo('#roomdesc');
@@ -113,15 +125,94 @@
                     updateUserlist();
                 }
             });
+
+            // On any user avatar image error in sidebar, hide image
+            $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
+                $(this).hide();
+            });
         }
 
-        // On any user avatar image error in sidebar, hide image
-        $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
-            $(this).hide();
-        });
+        // When viewing user info page in mobile
+        if(location.pathname.includes('/users/')) {
+            appendMobileUserStyles();
+        }
 
-        // Append desktop styles
-        appendStyles();
+    }
+
+
+    function appendMobileUserStyles() {
+
+        const styles = `
+<style>
+body,
+.topbar .topbar-wrapper,
+body > #container {
+    max-width: 100vw !important;
+}
+body.outside #container {
+    box-sizing: border-box;
+}
+.topbar,
+.topbar .topbar-wrapper {
+    height: auto;
+}
+.topbar .topbar-links {
+    position: relative;
+}
+.topbar .topbar-links .search-container {
+    float: right;
+    margin-right: 3px;
+}
+.topbar .topbar-links .search-container input[type=text] {
+    margin: 3px 0 0 5px;
+    width: 120px;
+}
+#header {
+    margin-top: 72px;
+}
+#header #hmenu {
+    margin-left: 0px;
+}
+.subheader {
+    height: auto;
+    border: none;
+}
+.subheader #tabs a.youarehere {
+    font-size: 100%;
+}
+.subheader #tabs a,
+.subheader #tabs .disabled {
+    padding: 0 5px;
+}
+.subheader #tabs {
+    float: none;
+    margin: 0 auto;
+    clear: both;
+}
+.subheader #tabs:after {
+    content: '';
+    display: block;
+    clear: both;
+    position: relative;
+    top: -1px;
+    border-bottom: 1px solid #666;
+    z-index: -1;
+}
+.subheader h1,
+.subheader h2 {
+    float: none;
+    font-size: 140%;
+    line-height: 1.4;
+}
+div.xxl-info-layout {
+    max-width: 100%;
+    zoom: 0.85;
+}
+</style>`;
+
+        $('head meta[name=viewport]').remove(); // remove existing viewport tag
+        $('head').append(`<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />`);
+        $('body').append(styles);
     }
 
 
@@ -129,6 +220,7 @@
 
         const mobileStyles = `
 <style>
+/* Increase size of reply link icons */
 #chat .monologue .message .reply-info {
     width: 18px;
     height: 15px;
@@ -143,7 +235,7 @@ html.fixed-header body.with-footer main {
 </style>
 `;
 
-        const styles = `
+        const desktopStyles = `
 <style>
 /* Reduce room description until mouseover */
 #roomdesc {
@@ -375,25 +467,32 @@ ul#my-rooms > li > a span {
        display: none;
    }
 }
+</style>
+`;
 
+        const styles = `
+<style>
 /* Show mods with diamonds */
-.monologue .signature {
-    width: 11%;
+@media screen and (min-width: 768px) {
+    #chat-body .monologue .signature {
+        width: 11%;
+    }
 }
-.signature .username.moderator {
+#chat-body .signature .username.moderator {
     position: relative;
     padding-right: 0.8em;
+    color: #4979b9;
 }
-.signature .username.moderator:after {
+#chat-body .signature .username.moderator:after {
     content: '♦';
     position: absolute;
-    top: -0.1em;
     right: 0;
     font-size: 1.2em;
 }
 </style>
 `;
-        $('body').append(desktop ? styles : mobileStyles);
+
+        $('body').append(styles).append(desktop ? desktopStyles : mobileStyles);
     }
 
 
