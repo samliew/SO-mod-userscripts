@@ -473,21 +473,27 @@ ul#my-rooms > li > a span {
         const styles = `
 <style>
 /* Show mods with diamonds */
+#chat-body .signature .username.moderator {
+    color: #4979b9;
+}
+#chat-body .signature .username.moderator:after {
+    content: ' ♦';
+}
+
 @media screen and (min-width: 768px) {
     #chat-body .monologue .signature {
         width: 11%;
     }
-}
-#chat-body .signature .username.moderator {
-    position: relative;
-    padding-right: 0.8em;
-    color: #4979b9;
-}
-#chat-body .signature .username.moderator:after {
-    content: '♦';
-    position: absolute;
-    right: 0;
-    font-size: 1.2em;
+    #chat-body .signature .username.moderator {
+        position: relative;
+        padding-right: 0.8em;
+    }
+    #chat-body .signature .username.moderator:after {
+        content: '♦';
+        position: absolute;
+        right: 0;
+        font-size: 1.2em;
+    }
 }
 </style>
 `;
