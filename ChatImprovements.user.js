@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.6.1
+// @version      0.6.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
