@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.6
+// @version      0.6.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -133,7 +133,7 @@
         }
 
         // When viewing user info page in mobile
-        if(location.pathname.includes('/users/')) {
+        if(location.pathname.includes('/users/') && $('body').width() < 768) {
             appendMobileUserStyles();
         }
 
