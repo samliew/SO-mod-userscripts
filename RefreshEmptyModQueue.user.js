@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5
+// @version      2.5.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -19,7 +19,7 @@
 (function() {
     'use strict';
 
-    const timeoutSecs = 10;
+    const timeoutSecs = unsafeWindow.modRefreshInterval || 10;
     const goToMain = () => location.href = '/admin/dashboard?filtered=false';
     const reloadPage = () => location.search.contains('filtered=false') ? location.reload(true) : location.search = location.search + '&filtered=false';
     let timeout, interval;
@@ -28,6 +28,7 @@
     let initRefresh = function(main = false) {
 
         if($('.js-flagged-post:visible, .flagged-post-row:visible').length > 0) return;
+        if(timeoutSecs < 1) timeoutSecs = 5;
 
         // Function called again, reset
         if(timeout || interval) {
