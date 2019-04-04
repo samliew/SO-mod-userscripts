@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0.2
+// @version      3.0.3
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -120,7 +120,7 @@ unsafeWindow.purgeUserFlagStats = function() {
                     const fPerc = Number((fDeclined / (fTotal || 1) * 100).toFixed(2));
 
                     // store regular good flaggers
-                    if(fPerc < 1 || fTotal >= 1000) {
+                    if((fPerc < 1 && fTotal >= 1000) || fTotal >= 10000) {
                         store.setItem(fullkey, JSON.stringify([rep, fTotal, fDeclined, fPerc]));
                     }
 
