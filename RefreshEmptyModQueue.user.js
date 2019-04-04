@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.1
+// @version      2.5.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -53,6 +53,7 @@
             initRefresh(main);
         });
     };
+    unsafeWindow.initRefresh = initRefresh;
 
 
     function doPageload() {
