@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.2
+// @version      2.5.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -19,9 +19,9 @@
 (function() {
     'use strict';
 
-    const timeoutSecs = unsafeWindow.modRefreshInterval || 10;
     const goToMain = () => location.href = '/admin/dashboard?filtered=false';
     const reloadPage = () => location.search.contains('filtered=false') ? location.reload(true) : location.search = location.search + '&filtered=false';
+    let timeoutSecs = unsafeWindow.modRefreshInterval || 10;
     let timeout, interval;
 
 
@@ -34,11 +34,13 @@
         if(timeout || interval) {
             clearTimeout(timeout);
             clearInterval(interval);
+            timeout = null;
+            interval = null;
             $('#somu-refresh-queue-counter').remove();
         }
 
         let c = timeoutSecs;
-        $(`<div id="somu-refresh-queue-counter">Refreshing page in <b id="refresh-counter">${timeoutSecs}</b> seconds...</div>`).appendTo('.flag-container, .js-admin-dashboard');
+        $(`<div id="somu-refresh-queue-counter">Refreshing page in <b id="refresh-counter">${timeoutSecs}</b> seconds...</div>`).appendTo('body');
 
         // Main timeout
         timeout = setTimeout(main ? goToMain : reloadPage, timeoutSecs * 1000);
@@ -47,11 +49,6 @@
         interval = setInterval(function() {
             $('#refresh-counter').text(--c > 0 ? c : 0);
         }, 1000);
-
-        // On user action on page, restart countdown
-        $(document).on('touchend mouseup keyup', function() {
-            initRefresh(main);
-        });
     };
     unsafeWindow.initRefresh = initRefresh;
 
@@ -78,6 +75,12 @@
         else {
             initRefresh();
         }
+
+        // On user action on page, restart and lengthen countdown
+        $(document).on('mouseup keyup', 'body', function() {
+            timeoutSecs++;
+            initRefresh();
+        });
 
         // When ajax requests have completed
         $(document).ajaxComplete(function(event, xhr, settings) {
