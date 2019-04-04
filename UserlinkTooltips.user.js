@@ -3,7 +3,7 @@
 // @description  Display reputation in tooltip upon user link mouseover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.3.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -26,14 +26,17 @@
     const apikey = '6WNNW7fOBHWKrUmONL3Row((';
     const ownId = StackExchange.options.user.userId;
     let cachedResults = [], userlinks;
+    let isRunning = false; // simple throttle
 
 
     // Get user info
     function getUserInfo(arrUids) {
         return new Promise(function(resolve, reject) {
-            if(hasBackoff()) { reject(); return; }
+            if(hasBackoff() || isRunning) { reject(); return; }
             if(typeof arrUids === 'undefined' || arrUids === null || arrUids.length == 0) { reject(); return; }
             if(arrUids.length > 100) arrUids = arrUids.slice(0, 100); // API supports up to 100 ids only
+
+            isRunning = true;
 
             $.get(`http://api.stackexchange.com/2.2/users/${arrUids.join(';')}/?pagesize=100&order=desc&sort=reputation&site=${location.hostname}&filter=!40D5EWXuPI9Z0caGy&key=${apikey}`)
                 .done(function(data) {
@@ -44,6 +47,9 @@
                 .fail(function() {
                     addBackoff(30);
                     reject();
+                })
+                always(function() {
+                    isRunning = false;
                 });
         });
     }
