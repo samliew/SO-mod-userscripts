@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.5.2
+// @version      3.5.3
 //
 // @include      */admin/dashboard?flagtype=postother*
 // @include      */admin/dashboard?flagtype=postlowquality*
@@ -381,7 +381,7 @@
         });
 
         // Remove old "deemed invalid by" flags as they mess up sorting by flagger rank
-        $('.mod-message .flag-row.js-cleared').filter((i, el) => el.innerText.includes('deemed invalid by')).remove();
+        $('.js-flag-row.js-cleared').filter((i, el) => el.innerText.includes('deemed invalid by')).remove();
 
         // Show Magisch filter option if there are flags by this user
         if($posts.find('.js-post-flag-group:not(.js-cleared) a[href^="/users/5389107/"]').length > 0) {
