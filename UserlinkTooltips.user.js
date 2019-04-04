@@ -3,7 +3,7 @@
 // @description  Display reputation in tooltip upon user link mouseover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.2
+// @version      1.3.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -48,7 +48,7 @@
                     addBackoff(30);
                     reject();
                 })
-                always(function() {
+                .always(function() {
                     isRunning = false;
                 });
         });
