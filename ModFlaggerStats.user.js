@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0.3
+// @version      3.0.4
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -192,11 +192,10 @@ unsafeWindow.purgeUserFlagStats = function() {
             this.dataset.uid = this.href.match(/-?\d+/)[0];
         });
 
-        // Load user stats on post hover, also load for first three posts on page load
+        // Load user stats on post hover
         $('.js-admin-dashboard').on('mouseover', '.js-flagged-post', function() {
             $('.js-post-flag-group a', this).trigger('loadflaggingstats');
         });
-        $('.js-flagged-post').slice(0,3).trigger('mouseover');
 
         // Load all flagger stats button
         if(isModPage()) {
