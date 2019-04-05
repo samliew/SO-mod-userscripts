@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Fetch Vote Counts Again
-// @description  Fetch vote counts for posts and enables you to click to fetch them again, even if you do not have sufficient rep. Also enables fetch vote counts on posts in mod flag queue.
+// @description  Fetch vote counts for posts and enables you to click to fetch them again, even if you do not have sufficient rep. Also enables fetch vote counts on posts in mod flag queue as well as question/search lists!!!
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.3
+// @version      1.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -32,8 +32,11 @@
         $('#content').on('click', '.js-vote-count, .vote-count-post', function() {
             const votesElem = $(this);
 
-            let post = $(this).parents('.answer, .question')[0];
-            let pid = post.dataset.answerid || post.dataset.questionid || post.id.replace('post-', '');
+            let post = $(this).parents('.answer, .question, .question-summary, .search-result')[0];
+            let pid = Number(post.dataset.answerid || post.dataset.questionid || post.id.replace('post-', '').replace('question-summary-', '').replace('answer-id-', ''));
+
+            // Invalid post id, do nothing
+            if(isNaN(pid)) return;
 
             // If user does not have vote counts priv, use API to fetch vote counts
             if(StackExchange.options.user.rep < 1000) {
@@ -48,9 +51,22 @@
                 return false;
             }
 
+            // Main and teams, question list/search results page
+            else if(votesElem.hasClass('vote-count-post')) {
+                StackExchange.helpers.addStacksSpinner(this, "sm");
+
+                $.get(`https://${location.hostname}${StackExchange.options.site.routePrefix || ''}/posts/${pid}/vote-counts`)
+                    .done(function(data) {
+                        votesElem.attr('title', `${+data.up} up / ${+data.down} down`)
+                            .html(`<div style="color:green">${data.up}</div><div class="vote-count-separator"></div><div style="color:maroon">${data.down}</div>`);
+                    })
+                    .always(() => StackExchange.helpers.removeSpinner());
+                return false;
+            }
+
             // User has vote count priv and already fetched vote counts once
             //   or on mod page (mods can't fetch vote counts)
-            else if((votesElem.children().length > 1 && StackExchange.options.user.rep >= 1000) || $('body').hasClass('mod-page')) {
+            else if((votesElem.children().length > 1 && StackExchange.options.user.rep >= 1000) || document.body.classList.contains('mod-page')) {
                 StackExchange.helpers.addStacksSpinner(this, "sm");
 
                 $.get(`https://${location.hostname}/posts/${pid}/vote-counts`)
@@ -70,8 +86,16 @@
         const styles = `
 <style>
 .votecell .js-vote-count,
-.votecell .vote-count-post {
+.votecell .vote-count-post,
+.question-summary .vote-count-post {
     cursor: pointer !important;
+}
+.vote-count-separator {
+    margin-left: auto;
+    margin-right: auto;
+}
+.vote-count-post:not([title*="totals"]) + .viewcount {
+    display: none;
 }
 </style>
 `;
