@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6
+// @version      2.6.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -78,7 +78,7 @@
 
         // On user action on page, restart and lengthen countdown
         $(document).on('mouseup keyup', 'body', function() {
-            timeoutSecs++;
+            if(timeout) timeoutSecs++;
             initRefresh();
         });
 
