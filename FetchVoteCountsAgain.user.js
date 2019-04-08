@@ -3,7 +3,7 @@
 // @description  Fetch vote counts for posts and enables you to click to fetch them again, even if you do not have sufficient rep. Also enables fetch vote counts on posts in mod flag queue as well as question/search lists!!!
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -15,6 +15,8 @@
 //
 // @exclude      */election*
 // @exclude      *chat.*
+//
+// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
 // ==/UserScript==
 
 
@@ -32,8 +34,16 @@
         $('#content').on('click', '.js-vote-count, .vote-count-post', function() {
             const votesElem = $(this);
 
-            let post = $(this).parents('.answer, .question, .question-summary, .search-result')[0];
-            let pid = Number(post.dataset.answerid || post.dataset.questionid || post.id.replace('post-', '').replace('question-summary-', '').replace('answer-id-', ''));
+            let pid, post = $(this).parents('.answer, .question, .question-summary, .search-result')[0];
+
+            if(post == null) { // reviews
+                post = $(this).parents('.review-content').find('.answer-hyperlink, .question-hyperlink')[0];
+                pid = getPostId(post.href);
+            }
+            else {
+                pid = Number(post.dataset.answerid || post.dataset.questionid || post.id.replace('post-', '').replace('question-summary-', '').replace('answer-id-', ''));
+            }
+
 
             // Invalid post id, do nothing
             if(isNaN(pid)) return;
