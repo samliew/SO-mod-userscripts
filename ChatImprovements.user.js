@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.6.2
+// @version      0.6.3
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -103,6 +103,7 @@
 
             // Move stuff around
             $('#room-tags').appendTo('#roomdesc');
+            $('#roomtitle + div').not('#roomdesc').appendTo('#roomdesc');
             reapplyPersistentChanges();
             setInterval(reapplyPersistentChanges, 5000);
 
@@ -242,7 +243,7 @@ html.fixed-header body.with-footer main {
     position: absolute;
     z-index: 2;
     width: calc(100% - 24px);
-    height: 15px;
+    height: 20px;
     padding: 0 !important;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -264,7 +265,26 @@ html.fixed-header body.with-footer main {
     line-height: 1.2em;
 }
 #roomdesc + #sidebar-menu {
-    margin-top: 30px;
+    margin-top: 30px !important;
+}
+#roomdesc > div {
+    display: none;
+}
+#roomtitle:hover + #roomdesc > div,
+#roomdesc:hover > div {
+    display: block;
+}
+
+/* New AMA chatroom UI */
+.sidebar-widget.wmx3 .s-card {
+    border: none;
+    padding: 0;
+}
+.wxm3 .present-users-list {
+    border: 0;
+}
+#cp-sb-std-jobs {
+    display: none;
 }
 
 /* Increase height of textbox */
