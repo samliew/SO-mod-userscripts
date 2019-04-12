@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat. Lightbox images that are displayed smaller than it's original size.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.3
+// @version      1.4.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -42,7 +42,7 @@
 
         // If unlinked images' width is greater than displayed width of at least 100px, also lightbox the image
         $('img').filter(function() {
-            return typeof this.parentNode.href === 'undefined' && !this.parentNode.classList.some(v => ignoredParentClasses.includes(v));
+            return typeof this.parentNode.href === 'undefined' && !this.parentNode.classList.value.split(' ').some(v => ignoredParentClasses.includes(v));
         }).wrap(function() {
             return `<a class="unlinked-image" data-src="${this.src}"></a>`;
         });
