@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.6.3
+// @version      0.6.4
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -48,14 +48,19 @@
 
     function reapplyPersistentChanges() {
 
+        // Remove "switch to" from other room title tooltips
         $('#my-rooms > li > a').each(function() {
             if(this.classList.contains('reply-count')) return;
             this.innerText = this.title.replace('switch to ', '');
         });
 
+        // Show other room's latest message in a tooltip when hovered
         $('#my-rooms .last-message .text').each(function() {
             this.title = this.innerText;
         });
+
+        // Expand more starred posts in AMA chatroom since we have a scrolling sidebar
+        $('#sidebar-content.wmx3 span.more').filter((i,el) => el.parentNode.innerText.includes('starred') && el.innerText.includes('more')).click();
     }
 
 
@@ -238,6 +243,12 @@ html.fixed-header body.with-footer main {
 
         const desktopStyles = `
 <style>
+/* Sidebar scrollbar */
+#sidebar::-webkit-scrollbar{width:6px;height:6px;}
+#sidebar::-webkit-scrollbar-thumb{background-color:rgb(196, 196, 196); border-radius: 5px;}
+#sidebar::-webkit-scrollbar-thumb:hover{background-color:rgb(196, 196, 196);}
+#sidebar::-webkit-scrollbar-track{background-color:rgba(0, 0, 0, 0.05);}
+
 /* Reduce room description until mouseover */
 #roomdesc {
     position: absolute;
