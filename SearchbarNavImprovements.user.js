@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.9.2
+// @version      4.9.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -340,8 +340,6 @@
 
     function initQuickfilters() {
 
-        console.log(hasSearchResults);
-
         if(!hasSearchResults) return;
 
         let query = sanitizeQuery(location.search);
@@ -372,7 +370,7 @@
      href="${removeParam(query, 'deleted')}+deleted%3a0${querysuffix}" data-onwhen="deleted%3ano" data-onwhenmissing="deleted%3a"
      data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany${querysuffix}">not deleted</a>
 </div>
-</div>`).insertBefore('#bigsearch');
+</div>`).insertAfter('.js-advanced-tips');
 
         quickfilter.find('a[data-onwhen]').each(function() {
             let se = this.dataset.onwhen;
