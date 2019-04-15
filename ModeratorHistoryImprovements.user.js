@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every 30 seconds.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
@@ -13,6 +13,9 @@
 
 (function() {
     'use strict';
+
+
+    const autoRefresh = true;
 
 
     function doPageLoad() {
@@ -68,7 +71,7 @@
         $('#mod-user-history a').attr('target', '_blank');
 
         // Auto reload history
-        setTimeout(() => location.href = location.href, 60000);
+        if(autoRefresh) setTimeout(() => location.href = location.href, 60000);
     }
 
 
@@ -146,10 +149,6 @@
     display: none;
 }
 `);
-
-
-    // Failsafe: Refresh page in 5 minutes if something goes wrong
-    setTimeout(() => location.href = location.href, 5 * 60000);
 
 
     // Wait for page load and jQuery
