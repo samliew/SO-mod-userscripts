@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every minute.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.3
+// @version      1.1.4
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
@@ -96,6 +96,7 @@
     padding: 0 !important;
 }
 .mod-page #mod-user-history > li {
+    position: relative; /* for Post IDs Everywhere userscript */
     display: grid;
     grid-template-columns: 84px 1fr;
     margin-bottom: 25px;
