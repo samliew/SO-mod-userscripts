@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Moderator History Improvements
-// @description  Better UI for mod action history page. Auto-refresh every 30 seconds.
+// @description  Better UI for mod action history page. Auto-refresh every minute.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.2
+// @version      1.1.3
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
