@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every 30 seconds.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.1.2
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
@@ -110,6 +110,8 @@
 }
 .mod-page #mod-user-history > li > .relativetime {
     grid-column: 1;
+    padding-right: 10px;
+    text-align: right;
     color: #999;
 }
 .mod-page #mod-user-history > li > .relativetime + ul > li:first-child {
