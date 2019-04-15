@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every 30 seconds.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
@@ -13,6 +13,9 @@
 
 (function() {
     'use strict';
+
+
+    const hour = 3600000;
 
 
     function doPageLoad() {
