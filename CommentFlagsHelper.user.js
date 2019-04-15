@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.4.4
+// @version      4.4.5
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -536,6 +536,7 @@ table.mod-message .flagcell {
 }
 table.comments {
     width: 100%;
+    word-break: break-word;
 }
 table.comments {
     border: 1px solid #ddd;
