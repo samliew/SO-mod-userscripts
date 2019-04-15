@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every 30 seconds.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.1
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
@@ -15,12 +15,12 @@
     'use strict';
 
 
-    const hour = 3600000;
-
-
     function doPageLoad() {
 
-        document.title = `mod history`;
+        const mod = $('#mod-user-history').parent().prev().find('.user-info');
+        const modname = mod.find('.user-details a').first().text();
+
+        document.title = `${modname} - mod history`;
 
         // Linkify stuff on history page
         $('#mod-user-history > li').each(function() {
@@ -55,7 +55,7 @@
                 $(this).addClass('mod-destroys');
             }
             else if(/(Moderator contacts user|See user-message)/.test(t)) {
-                t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/users/message/$1#$1" target="_blank" title="view message">$1</a>`);
+                t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/users/message/$1" target="_blank" title="view message">$1</a>`);
             }
             else if(/(Moderator removes bounty)/.test(t)) {
                 t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/questions/$1" target="_blank" title="view question">$1</a>`);
@@ -149,7 +149,7 @@
 
 
     // Failsafe: Refresh page in 5 minutes if something goes wrong
-    setTimeout(() => location.href = location.href, hour / 12);
+    setTimeout(() => location.href = location.href, 5 * 60000);
 
 
     // Wait for page load and jQuery
@@ -164,7 +164,7 @@
         // Page is ready
         doPageLoad();
 
-    }, 1000);
+    }, 50);
 
 
     document.title = `loading...`;
