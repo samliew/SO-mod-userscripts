@@ -3,7 +3,7 @@
 // @description  Displays your sent mod messages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -104,7 +104,7 @@
 
                 // Add link once if mod inbox has loaded
                 if($('#js-personalModInboxLink').length == 0) {
-                    $('.modInbox-dialog .-right').prepend('<span><a id="js-personalModInboxLink">your messages</a> | </span>')
+                    $('.modInbox-dialog .-right:last').prepend('<span><a id="js-personalModInboxLink">your messages</a> | </span>')
                     $('#js-personalModInboxLink').on('click', togglePersonalModHistory);
                 }
             }
