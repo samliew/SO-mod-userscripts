@@ -3,34 +3,30 @@
 // @description  Better UI for mod action history page. Auto-refresh every minute.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.6
+// @version      1.2
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
 // @grant        GM_addStyle
-// @run-at       document-start
 // ==/UserScript==
 
 (function() {
     'use strict';
 
 
-    const autoRefresh = true;
+    let $historyContainer;
 
 
-    function doPageLoad() {
-
-        const mod = $('#mod-user-history').parent().prev().find('.user-info');
-        const modname = mod.find('.user-details a').first().text();
-
-        document.title = `${modname} - mod history`;
+    function processNewItems($items) {
 
         // Linkify stuff on history page
-        $('#mod-user-history > li').each(function() {
+        $items.children('li').each(function() {
             let t = this.innerHTML.trim().replace(/\s*- no link available\s*/, '');
             this.innerHTML = t;
         });
-        $('#mod-user-history li ul li').each(function() {
+
+        $('ul li', $items).each(function() {
+
             let t = this.innerText.trim().replace(/\s*- no link available\s*/, '').replace(/- from question id =/, 'for question').replace(/- for id =/, '').replace(/-$/, '');
 
             if(t.includes('Declined)')) $(this).addClass('mod-declined');
@@ -46,6 +42,9 @@
             }
             else if(t.includes('(AnswerNotAnAnswer')) {
                 $(this).addClass('type-naa');
+            }
+            else if(t.includes('(PostOther')) {
+                $(this).addClass('type-postother');
             }
             else if(t.includes('(PostLowQuality')) {
                 $(this).addClass('type-vlq');
@@ -74,14 +73,55 @@
 
             this.innerHTML = t;
         });
-        $('#mod-user-history a').attr('target', '_blank');
-
-        // Auto reload history
-        if(autoRefresh) setTimeout(() => location.href = location.href, 60000);
     }
 
 
-    // Append styles immediately on page load
+    function updatePage() {
+
+        $.get(location.href, function(page) {
+
+            const existingItemIds = $('#mod-user-history > li').get().map(v => Number(v.dataset.pid));
+            const $items = $('#mod-user-history > li', page);
+
+            // Preprocess items to get pid
+            let $newItems = $items.filter(function(i, el) {
+                const url = $(el).find('a.answer-hyperlink, a.question-hyperlink').first().attr('href');
+                const pid = Number(url.match(/\/(\d+)/g).pop().replace('/', ''));
+                $(this).attr('data-pid', pid);
+
+                // Return items that are new
+                return !existingItemIds.includes(pid);
+            })
+            .prependTo($historyContainer);
+
+            processNewItems($newItems);
+
+            StackExchange.realtime.updateRelativeDates();
+        });
+    }
+
+
+    function doPageLoad() {
+
+        // Clear page
+        $historyContainer = $('#mod-user-history').empty();
+
+        // Set page title
+        const mod = $('#mod-user-history').parent().prev().find('.user-info');
+        const modname = mod.find('.user-details a').first().text();
+        document.title = `${modname} - mod history`;
+
+        // Links open in new window since this page auto-updates
+        $('#mod-user-history').on('click', 'a', (i, el) => el.target = '_blank');
+
+        // Init
+        updatePage();
+
+        // Auto update history
+        setInterval(updatePage, 30000);
+    }
+
+
     GM_addStyle(`
 .mod-page #mod-user-history {
     margin-top: 20px;
@@ -161,22 +201,8 @@
 `);
 
 
-    // Wait for page load and jQuery
-    let waitForJquery = setInterval(function() {
+    // Page is ready
+    doPageLoad();
 
-        // If required vars not ready yet, do nothing
-        if (typeof jQuery === 'undefined' ||
-            typeof StackExchange === 'undefined' ||
-            typeof StackExchange.options === 'undefined' ||
-            typeof StackExchange.options.user === 'undefined') return;
-        else clearInterval(waitForJquery);
-
-        // Page is ready
-        doPageLoad();
-
-    }, 50);
-
-
-    document.title = `loading...`;
 
 })();
