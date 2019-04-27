@@ -3,7 +3,7 @@
 // @description  Displays your sent mod messages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.4.2
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -85,7 +85,7 @@
         $('#js-personalModInboxLink').text((i, t) => t === 'your messages' ? 'all messages' : 'your messages');
 
         // Toggle mod inbox header text
-        $('.modInbox-dialog .header h3').first().text((i, t) => t === 'mod messages' ? 'mod messages (personal)' : 'mod messages');
+        $('.modInbox-dialog .header h3').first().text((i, t) => t === 'mod messages' ? 'your messages' : 'mod messages');
     }
 
 
