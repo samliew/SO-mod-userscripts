@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every minute.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.2
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
@@ -14,17 +14,21 @@
     'use strict';
 
 
-    let $historyContainer;
+    let $historyContainer, existingItemIds = [];
 
 
     function processNewItems($items) {
 
-        // Linkify stuff on history page
+        // Remove fluff
         $items.children('li').each(function() {
             let t = this.innerHTML.trim().replace(/\s*- no link available\s*/, '');
             this.innerHTML = t;
         });
 
+        // Links open in new window since this page auto-updates
+        $items.find('a').attr('target', '_blank');
+
+        // Linkify stuff on history page
         $('ul li', $items).each(function() {
 
             let t = this.innerText.trim().replace(/\s*- no link available\s*/, '').replace(/- from question id =/, 'for question').replace(/- for id =/, '').replace(/-$/, '');
@@ -78,23 +82,23 @@
 
     function updatePage() {
 
+        // Get same page
         $.get(location.href, function(page) {
 
-            const existingItemIds = $('#mod-user-history > li').get().map(v => Number(v.dataset.pid));
-            const $items = $('#mod-user-history > li', page);
-
             // Preprocess items to get pid
+            const $items = $('#mod-user-history > li', page);
             let $newItems = $items.filter(function(i, el) {
                 const url = $(el).find('a.answer-hyperlink, a.question-hyperlink').first().attr('href');
                 const pid = Number(url.match(/\/(\d+)/g).pop().replace('/', ''));
                 $(this).attr('data-pid', pid);
 
-                // Return items that are new
-                return !existingItemIds.includes(pid);
+                // Return items that are new, add to existingItemIds
+                return !existingItemIds.includes(pid) && existingItemIds.push(pid);
             })
             .prependTo($historyContainer);
-
             processNewItems($newItems);
+
+            // Update timestamps of items
             StackExchange.realtime.updateRelativeDates();
         });
     }
@@ -102,6 +106,12 @@
 
     function doPageLoad() {
 
+        // Set page title
+        const mod = $('#mod-user-history').parent().prev().find('.user-info');
+        const modname = mod.find('.user-details a').first().text();
+        document.title = `${modname} - mod history`;
+
+        // Cache item container
         $historyContainer = $('#mod-user-history');
 
         // Preprocess items to get pid
@@ -109,17 +119,10 @@
         $items.each(function(i, el) {
             const url = $(el).find('a.answer-hyperlink, a.question-hyperlink').first().attr('href');
             const pid = Number(url.match(/\/(\d+)/g).pop().replace('/', ''));
+            existingItemIds.push(pid);
             $(this).attr('data-pid', pid);
         });
         processNewItems($items);
-
-        // Set page title
-        const mod = $('#mod-user-history').parent().prev().find('.user-info');
-        const modname = mod.find('.user-details a').first().text();
-        document.title = `${modname} - mod history`;
-
-        // Links open in new window since this page auto-updates
-        $('#mod-user-history').on('click', 'a', (i, el) => el.target = '_blank');
 
         // Auto update history
         setInterval(updatePage, 30000);
