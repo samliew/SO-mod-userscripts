@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every minute.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.5
+// @version      1.1.6
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
@@ -59,9 +59,15 @@
             }
             else if(/(Moderator contacts user|See user-message)/.test(t)) {
                 t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/users/message/$1" target="_blank" title="view message">$1</a>`);
+                $(this).addClass('mod-contacts-user');
             }
             else if(/(Moderator removes bounty)/.test(t)) {
                 t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/questions/$1" target="_blank" title="view question">$1</a>`);
+                $(this).addClass('mod-removes-bounty');
+            }
+            else if(/(Moderator edits comment)/.test(t)) {
+                t = t.replace(/ - on post id = (\d+), comment id = (\d+)/, ` <a href="https://${location.hostname}/posts/comments/$2" target="_blank" title="view comment">$2</a>`);
+                $(this).addClass('mod-edits-comment');
             }
 
             t = t.replace(/Flag processed \((\w+), (Declined|Helpful)\)/, '$1');
@@ -160,6 +166,7 @@
 
         // If required vars not ready yet, do nothing
         if (typeof jQuery === 'undefined' ||
+            typeof StackExchange === 'undefined' ||
             typeof StackExchange.options === 'undefined' ||
             typeof StackExchange.options.user === 'undefined') return;
         else clearInterval(waitForJquery);
