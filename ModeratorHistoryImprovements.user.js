@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every minute.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
@@ -95,7 +95,6 @@
             .prependTo($historyContainer);
 
             processNewItems($newItems);
-
             StackExchange.realtime.updateRelativeDates();
         });
     }
@@ -103,8 +102,16 @@
 
     function doPageLoad() {
 
-        // Clear page
-        $historyContainer = $('#mod-user-history').empty();
+        $historyContainer = $('#mod-user-history');
+
+        // Preprocess items to get pid
+        const $items = $historyContainer.children('li');
+        $items.each(function(i, el) {
+            const url = $(el).find('a.answer-hyperlink, a.question-hyperlink').first().attr('href');
+            const pid = Number(url.match(/\/(\d+)/g).pop().replace('/', ''));
+            $(this).attr('data-pid', pid);
+        });
+        processNewItems($items);
 
         // Set page title
         const mod = $('#mod-user-history').parent().prev().find('.user-info');
@@ -113,9 +120,6 @@
 
         // Links open in new window since this page auto-updates
         $('#mod-user-history').on('click', 'a', (i, el) => el.target = '_blank');
-
-        // Init
-        updatePage();
 
         // Auto update history
         setInterval(updatePage, 30000);
