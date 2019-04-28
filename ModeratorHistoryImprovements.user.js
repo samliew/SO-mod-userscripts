@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every minute.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.2
+// @version      1.4
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
@@ -14,7 +14,7 @@
     'use strict';
 
 
-    let $historyContainer, existingItemIds = [];
+    let $historyContainer, lastUpdated = -1;
 
 
     function processNewItems($items) {
@@ -89,14 +89,17 @@
             const $items = $('#mod-user-history > li', page);
             let $newItems = $items.filter(function(i, el) {
                 const url = $(el).find('a.answer-hyperlink, a.question-hyperlink').first().attr('href');
-                const pid = Number(url.match(/\/(\d+)/g).pop().replace('/', ''));
+                const pid = url ? Number(url.match(/\/(\d+)/g).pop().replace('/', '')) : -1;
                 $(this).attr('data-pid', pid);
 
-                // Return items that are new, add to existingItemIds
-                return !existingItemIds.includes(pid) && existingItemIds.push(pid);
+                // Return items that are newer than last time
+                return new Date($(this).find('.relativetime').attr('title')).getTime() > lastUpdated;
             })
             .prependTo($historyContainer);
             processNewItems($newItems);
+
+            // Get last item timestamp
+            lastUpdated = new Date($items.first().find('.relativetime').attr('title')).getTime();
 
             // Update timestamps of items
             StackExchange.realtime.updateRelativeDates();
@@ -118,11 +121,13 @@
         const $items = $historyContainer.children('li');
         $items.each(function(i, el) {
             const url = $(el).find('a.answer-hyperlink, a.question-hyperlink').first().attr('href');
-            const pid = Number(url.match(/\/(\d+)/g).pop().replace('/', ''));
-            existingItemIds.push(pid);
+            const pid = url ? Number(url.match(/\/(\d+)/g).pop().replace('/', '')) : -1;
             $(this).attr('data-pid', pid);
         });
         processNewItems($items);
+
+        // Get last item timestamp
+        lastUpdated = new Date($items.first().find('.relativetime').attr('title')).getTime();
 
         // Auto update history
         setInterval(updatePage, 30000);
