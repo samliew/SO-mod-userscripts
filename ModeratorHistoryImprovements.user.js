@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every minute.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
@@ -14,6 +14,9 @@
     'use strict';
 
 
+    const hour = 3600000;
+    const day = hour * 24;
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     let $historyContainer, lastUpdated = -1;
 
 
@@ -128,6 +131,17 @@
 
         // Get last item timestamp
         lastUpdated = new Date($items.first().find('.relativetime').attr('title')).getTime();
+
+        // If more than 24h, instead of relative date text, show date + time
+        $items.find('.relativetime').each(function() {
+            let d = new Date(this.title);
+            if(Date.now() - day > d) {
+                this.innerText = `${months[d.getMonth()]} ${d.getDate()} at ${('0'+d.getHours()).substr(-2)}:${('0'+d.getMinutes()).substr(-2)}`;
+            }
+        });
+
+        // Remove time from old items
+        $items.find('.relativetime').text((i, v) => v.replace(' at ', ', '));
 
         // Auto update history
         setInterval(updatePage, 30000);
