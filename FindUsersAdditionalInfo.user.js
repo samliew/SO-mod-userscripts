@@ -3,7 +3,7 @@
 // @description  Loads more user details on the find users page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      0.1.1
 //
 // @include      https://stackoverflow.com/admin/find-users?*
 // @include      https://serverfault.com/admin/find-users?*
@@ -65,6 +65,11 @@
         $('#mainbar-full > .subheader + div > div').removeAttr('style');
         $('.subheader h1').text((i, v) => v.split(' - ')[1]);
 
+        const searchField = $('#content input[name="q"]').addClass('s-input s-input__md js-usersearch-input');
+        const searchSubmit = $('#content input[type="submit"]').addClass('s-btn s-btn__md s-btn__primary js-usersearch-submit');
+
+        searchField.add(searchSubmit).wrapAll(`<div class="grid--cell ps-relative fl1"></div>`);
+
         const table = $('#users-list');
         const ids = table.find('tbody tr').find('a:first').attr('target', '_blank').each(function() {
             $(this).closest('tr').attr('id', 'user-' + this.innerText);
@@ -114,8 +119,24 @@ body > .container,
     float: none !important;
 }
 #content form {
-    margin: 30px auto !important;
+    margin: 40px auto !important;
     text-align: center;
+}
+.js-usersearch-input,
+.js-usersearch-submit {
+    height: 45px !important;;
+    margin: 0;
+}
+.js-usersearch-input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    border-right: none;
+    margin-right: -1px;
+}
+.js-usersearch-submit {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
+    padding: 3px 15px !important;
 }
 #users-list {
     margin: 30px auto;
