@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2.1
+// @version      2.3
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -141,6 +141,9 @@
                     headers.eq(3).addClass('sorter-false');
                     headers.last().addClass('sorter-false');
 
+                    // Add duration column header
+                    headers.eq(2).after(`<th class="tablesorter-headerUnSorted">Duration</th>`);
+
                     // Reinit sorter
                     $('.sorter').tablesorter();
 
@@ -148,6 +151,15 @@
                     headers.eq(1).addClass('tablesorter-headerDesc');
                 });
             }, 1000);
+
+            // Add duration column to the other rows
+            table.find('tbody tr').each(function() {
+                const cells = $(this).children('td');
+                let startDate = new Date(cells.eq(1).find('.relativetime').attr('title')).getTime();
+                let endDate = new Date(cells.eq(2).find('.relativetime').attr('title')).getTime();
+                let diffDays = (endDate - startDate) / 86400000;
+                cells.eq(2).after(`<td>${diffDays}</td>`);
+            });
 
             // Option to renew permanent bans
             $('.reason', table).filter((i, el) => el.innerText.includes('no longer welcome')).each(function() {
@@ -367,13 +379,14 @@ table.sorter > thead > tr .tablesorter-headerDesc span::after {
     content: "▼";
 }
 
-.reban {
+a.reban {
     float: right;
     margin: 5px;
     padding: 3px 7px;
     background: #e8e8e8;
+    color: red;
 }
-.reban:hover {
+a.reban:hover {
     color: white;
     background: red;
 }
@@ -384,7 +397,7 @@ table.sorter > thead > tr .tablesorter-headerDesc span::after {
 
 
     // On page load
-    doPageload();
     appendStyles();
+    doPageload();
 
 })();
