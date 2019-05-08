@@ -3,7 +3,7 @@
 // @description  Loads more user details on the find users page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.1
+// @version      0.1.2
 //
 // @include      https://stackoverflow.com/admin/find-users?*
 // @include      https://serverfault.com/admin/find-users?*
@@ -76,7 +76,7 @@
         }).get().map(v => Number(v.innerText));
 
         // Add table headers
-        table.children('thead').children('tr').append(`<th>Network</th><th>Creation Date</th><th>Last Seen</th><th>Reputation</th><th>User Type</th><th>Qns</th><th>Ans</th>`);
+        table.children('thead').children('tr').append(`<th>Network</th><th>Joined</th><th>Seen</th><th>Rep</th><th>UserType</th><th>Qns</th><th>Ans</th>`);
 
         // Split API calls, max 100 per call
         for(let i = 0; i < Math.ceil(ids.length / 100); i++) {
@@ -86,8 +86,8 @@
                         const dateCreated = new Date(user.creation_date * 1000).toISOString().replace('T', ' ').replace(/:\d+\.\d+Z/, 'Z');
                         const dateLastSeen = new Date(user.last_access_date * 1000).toISOString().replace('T', ' ').replace(/:\d+\.\d+Z/, 'Z');
                         $('#user-' + user.user_id)
-                            .append(`<td><a href="https://stackexchange.com/users/${user.account_id}?tab=accounts" target="_blank">${user.account_id}</a></td>
-                                     <td>${dateCreated}</td><td>${dateLastSeen}</td><td>${user.reputation}</td><td>${user.user_type}</td><td>${user.question_count}</td><td>${user.answer_count}</td>`);
+                            .append(`<td class="align-right"><a href="https://stackexchange.com/users/${user.account_id}?tab=accounts" target="_blank">${user.account_id}</a></td>
+                                     <td>${dateCreated}</td><td>${dateLastSeen}</td><td class="align-right">${user.reputation}</td><td class="align-right">${user.user_type}</td><td class="align-right">${user.question_count}</td><td class="align-right">${user.answer_count}</td>`);
                     });
                 });
             }, 10000 * i, ids.slice(i * 100, (i + 1) * 100));
@@ -159,8 +159,15 @@ body > .container,
     display: none;
 }
 #users-list td {
+    min-width: 70px;
     max-width: 320px;
     word-break: break-all;
+}
+#users-list td.align-right,
+#users-list tbody td:first-child {
+    min-width: 30px;
+    text-align: right;
+    word-break: none;
 }
 `);
 
