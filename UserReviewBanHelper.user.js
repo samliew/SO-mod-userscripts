@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1-dev
+// @version      3.1.1-dev
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -47,7 +47,7 @@
 
 
     const reloadPage = () => location.reload(true);
-    const pluralize = s => s.length > 1 ? 's' : '';
+    const pluralize = s => s.length != 1 ? 's' : '';
     const dateToSeDateFormat = d => d.toISOString().replace('T', ' ').replace(/\.\d+Z$/, 'Z');
 
     // For review ban message
@@ -327,10 +327,13 @@
                 numBans = Number(numBansLink.nextSibling.nodeValue.match(/\d+/)[0]);
 
             // Add annotation count
-            const banCountDisplay = $(`<div class="reviewban-history">User was previously review banned <b><a href="${url}" title="view history" target="_blank">${numBans} times</a></b>. </div>`).insertAfter('.message-wrapper');
+            const banCountDisplay = $(`<div class="reviewban-history">User was previously review banned <b><a href="${url}" title="view history" target="_blank">${numBans} time${pluralize(numBans)}</a></b>. </div>`).insertAfter('.message-wrapper');
             banCountDisplay.nextAll().wrapAll(`<div class="duration-wrapper"></div>`);
 
-            // Add currently/recently banned indicator
+            // Default to 2 days
+            $('.duration-radio-group input').first().click();
+
+            // Add currently/recently banned indicator if history found
             let daysago = new Date();
             daysago.setDate(daysago.getDate() - 30);
             histItems.eq(0).each(function() {
@@ -350,6 +353,8 @@
                 }
                 // Halve duration
                 else {
+                    $(`<span class="reviewban-ending">Last review banned for <b>${duration} days</b> until <span class="relativetime" title="${dateToSeDateFormat(banEndDatetime)}">${banEndDatetime}</span>.</span>`)
+                        .appendTo(banCountDisplay);
                     newDuration = Math.ceil(duration / 2);
                 }
                 console.log('Recommended ban duration:', newDuration);
@@ -358,7 +363,7 @@
                 if(newDuration < 2) newDuration = 2; // min duration
                 if(newDuration > 365) newDuration = 365; // max duration
                 $('.duration-radio-group input').each(function() {
-                    if(Number(this.value) <= newDuration) {
+                    if(Number(this.value) <= newDuration + 1) {
                         this.click();
                         recommendedDuration = Number(this.value);
                     }
