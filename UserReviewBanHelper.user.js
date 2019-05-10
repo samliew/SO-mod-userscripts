@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.1-dev
+// @version      3.1.2-dev
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -347,7 +347,7 @@
 
                 // Recent, double duration
                 if(banEndDatetime > daysago) {
-                    $(`<span class="reviewban-ending ${currtext == 'current' ? 'warning' : ''}">${currtext}ly review banned for <b>${duration} days</b> until <span class="relativetime" title="${dateToSeDateFormat(banEndDatetime)}">${banEndDatetime}</span>.</span>`)
+                    $(`<span class="reviewban-ending ${currtext == 'current' ? 'current' : 'recent'}"><span class="type" title="recommended to double the previous ban duration">${currtext}ly</span> review banned for <b>${duration} days</b> until <span class="relativetime" title="${dateToSeDateFormat(banEndDatetime)}">${banEndDatetime}</span>.</span>`)
                         .appendTo(banCountDisplay);
                     newDuration *= 2;
                 }
@@ -357,7 +357,7 @@
                         .appendTo(banCountDisplay);
                     newDuration = Math.ceil(duration / 2);
                 }
-                console.log('Recommended ban duration:', newDuration);
+                console.log('Calculated ban duration:', newDuration);
 
                 // Select recommended duration radio from available options
                 if(newDuration < 2) newDuration = 2; // min duration
@@ -368,7 +368,7 @@
                         recommendedDuration = Number(this.value);
                     }
                 });
-                console.log('Recommended ban duration:', recommendedDuration);
+                console.log('Closest ban duration option:', recommendedDuration);
             });
         });
     }
@@ -503,6 +503,10 @@ a.reviewban-button {
 
 #lookup-result > .reviewban-history {
     margin: 10px 0 10px;
+}
+.reviewban-history .reviewban-ending.current span.type,
+.reviewban-history .reviewban-ending.recent span.type {
+    color: red;
 }
 
 .message-wrapper {
