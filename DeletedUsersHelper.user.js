@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.13
+// @version      1.14
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -244,10 +244,14 @@
             });
 
         // Format links section
-        $('#mainbar-full').next('a').wrap(`<div id="del-user-links"></div>`);
-        const userlinks = $('#del-user-links');
-        userlinks.append(`<a href="/admin/users-with-ip/${lastip}">Other users with IP address "${lastip}"</a>`);
-        userlinks.append(`<a href="/admin/find-users?q=${username}">Find users with "${username}"</a>`);
+        const userlinks = $('#mainbar-full').next('ul').attr('id', 'del-user-links');
+        userlinks.append(`<li><a href="/admin/users-with-ip/${lastip}">Other users with IP address "${lastip}"</a></li>`);
+        userlinks.append(`<li><a href="/admin/find-users?q=${username}">Find users with "${username}"</a></li>`);
+
+        // Format account history section
+        const networkHeader = $('#content > h2').html((i, v) => v.replace('Account history for account # ', 'Network account history for #'));
+        const networkTable = networkHeader.next('table');
+        networkTable.find('tbody th[colspan]').html((i, v) => v.replace('history for user # ', 'history for user #'));
     }
 
 
@@ -327,7 +331,7 @@
         if(location.pathname.indexOf(userUrl) >= 0) {
 
             // Is on deleted user's page
-            if($('#mainbar-full').next('a').length > 0 && $('#mainbar-full').next('a').attr('href').indexOf('/admin/posts-by-deleted-user/') >= 0) {
+            if($('#mainbar-full').find('a[href*="/admin/posts-by-deleted-user/"]').length >= 0) {
                 formatDeletedUserPage();
             }
         }
@@ -424,9 +428,18 @@ table#posts td {
     white-space: pre-wrap;
     margin: 20px 0;
 }
-#del-user-links > a {
+#del-user-links {
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+#del-user-links:before {
+    content: 'User links';
     display: block;
-    margin-bottom: 3px;
+    margin: 0 0 8px -30px;
+    font-weight: bold;
+}
+#del-user-links li {
+    margin-bottom: 4px;
 }
 #pii-info {
     width: 100%;
