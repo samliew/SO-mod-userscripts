@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0-dev
+// @version      3.1-dev
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -32,7 +32,7 @@
 
 
     const fkey = StackExchange.options.user.fkey;
-    const messageCharLimit = 1000;
+    const messageCharLimit = 2000;
 
     const defaultBanMessage = `Your recent [reviews](https://${location.hostname}/users/current?tab=activity&sort=reviews) wasn't helpful. Please review the history of the posts and consider how choosing a different action would help achieve those outcomes more quickly.`;
     const permaBanMessage = `Due to your [poor review history](https://${location.hostname}/users/current?tab=activity&sort=reviews) as well as no signs of improvement after multiple review bans, you are no longer welcome to use any review queues on the site.`;
@@ -47,7 +47,8 @@
 
 
     const reloadPage = () => location.reload(true);
-    const pluralize = s => s.length != 0 ? 's' : '';
+    const pluralize = s => s.length > 1 ? 's' : '';
+    const dateToSeDateFormat = d => d.toISOString().replace('T', ' ').replace(/\.\d+Z$/, 'Z');
 
     // For review ban message
     let params, uid, posts, posttext = '';
@@ -193,36 +194,37 @@
             // Load ban form for user if passed via querystring
             params = location.hash.substr(1).split('|');
             if(params) {
-                uid = params[0];
+                uid = Number(params[0]) || null;
 
                 if(params.length === 2) {
                     posts = params[1].split(';').map(v => v.replace(/\/?review\//, ''));
 
                     // Remove similar consecutive review types from urls
-                    var prevType = null;
-                    posts = posts.map(v => {
-                        if(v.includes(prevType + '/')) v = v.replace(/\D+/g, '');
-                        else prevType = v.split('/')[0];
-                        return v;
-                    });
-                    console.log(posts);
+                    // (possibly no longer needed as we can increase max length)
+                    //var prevType = null;
+                    //posts = posts.map(v => {
+                    //    if(v.includes(prevType + '/')) v = v.replace(/\D+/g, '');
+                    //    else prevType = v.split('/')[0];
+                    //    return v;
+                    //});
+                    //console.log(posts);
 
                     // Fit as many URLs as possible into message
                     var i = posts.length;
                     do {
-                        posttext = posts.slice(0, i--).join(", ");
+                        posttext = posts.slice(0, i--).map(v => `[${v}](/review/${v})`).join(", ");
                     }
                     while(i > 1 && 48 + location.hostname.length + posttext.length > messageCharLimit);
                 }
 
                 // Validation
-                if(/\d+/.test(uid)) {
+                if(!isNaN(uid)) {
 
                     // Insert UID
                     $('#user-to-ban').val(uid);
 
                     // Submit lookup
-                    setTimeout(() => $('#lookup').click(), 200);
+                    setTimeout(() => { $('#lookup').click() }, 500);
                 }
             }
 
@@ -266,6 +268,7 @@
     }
 
 
+    /* For review pages */
     function getUsersInfo() {
 
         $('.review-summary').find('a[href^="/users/"]').each(function() {
@@ -306,6 +309,66 @@
     }
 
 
+    /* For review ban page */
+    function getUserReviewBanHistory(uid) {
+
+        const url = `https://${location.hostname}/users/history/${uid}?type=User+has+been+banned+from+review`;
+
+        // Grab user's history page
+        $.get(url).then(function(data) {
+
+            // Parse user history page
+            const summary = $('#summary', data);
+            const histItems = $('#user-history tbody tr', data);
+            const numBansLink = summary.find('a[href="?type=User+has+been+banned+from+review"]').get(0);
+            let numBans = 0;
+
+            if(typeof numBansLink !== 'undefined')
+                numBans = Number(numBansLink.nextSibling.nodeValue.match(/\d+/)[0]);
+
+            // Add annotation count
+            const banCountDisplay = $(`<div class="reviewban-history">User was previously review banned <b><a href="${url}" title="view history" target="_blank">${numBans} times</a></b>. </div>`).insertAfter('.message-wrapper');
+            banCountDisplay.nextAll().wrapAll(`<div class="duration-wrapper"></div>`);
+
+            // Add currently/recently banned indicator
+            let daysago = new Date();
+            daysago.setDate(daysago.getDate() - 30);
+            histItems.eq(0).each(function() {
+                const datetime = new Date($(this).find('.relativetime').attr('title'));
+                const duration = Number(this.innerText.match(/\= \d+ days/)[0].replace(/\D+/g, ''));
+                let banEndDatetime = new Date(datetime);
+                banEndDatetime.setDate(banEndDatetime.getDate() + duration);
+                const currtext = banEndDatetime > Date.now() ? 'Current' : 'Recent';
+
+                let newDuration = duration, recommendedDuration = duration;
+
+                // Recent, double duration
+                if(banEndDatetime > daysago) {
+                    $(`<span class="reviewban-ending ${currtext == 'current' ? 'warning' : ''}">${currtext}ly review banned for <b>${duration} days</b> until <span class="relativetime" title="${dateToSeDateFormat(banEndDatetime)}">${banEndDatetime}</span>.</span>`)
+                        .appendTo(banCountDisplay);
+                    newDuration *= 2;
+                }
+                // Halve duration
+                else {
+                    newDuration = Math.ceil(duration / 2);
+                }
+                console.log('Recommended ban duration:', newDuration);
+
+                // Select recommended duration radio from available options
+                if(newDuration < 2) newDuration = 2; // min duration
+                if(newDuration > 365) newDuration = 365; // max duration
+                $('.duration-radio-group input').each(function() {
+                    if(Number(this.value) <= newDuration) {
+                        this.click();
+                        recommendedDuration = Number(this.value);
+                    }
+                });
+                console.log('Recommended ban duration:', recommendedDuration);
+            });
+        });
+    }
+
+
     function listenForPageUpdates() {
 
         // Completed loading lookup
@@ -314,10 +377,15 @@
 
                 // Insert ban message if review link found
                 if(typeof posts !== 'undefined') {
-                    var banMsg = `Your review${pluralize(posts)} on https://${location.hostname}/review/${posttext} wasn't helpful.`;
+                    var banMsg = `Your review${pluralize(posts)} on ${posttext} wasn't helpful.`;
                     if(banMsg.length < messageCharLimit - 102) banMsg += ` Do review the history of the post${pluralize(posts)} and consider which action would achieve that outcome more quickly.`;
                     $('textarea[name=explanation]').val(banMsg);
                 }
+
+                // Wrap text nodes in the lookup result ban form with spans so we can select them later if needed
+                $($('#lookup-result form').prop('childNodes')).filter(function() {
+                    return this.nodeType === 3
+                }).wrap('<span>').parent().text((i, v) => v.replace(/^\s*ban\s*$/, 'Ban '));
 
                 // Update message label
                 $('label[for="explanation"]').html(`Explain why this person is being banned; it will be shown to them when they try to review. Comment markdown supported.<div>Example:</div>`)
@@ -328,7 +396,6 @@
 
                 // TODO: Add canned messages
                 const cans = $(`<div id="canned-messages"></div>`).appendTo('.message-wrapper');
-
 
                 // Duration radios
                 $('#days-3').val('2').next('label').text('2 days');
@@ -344,8 +411,8 @@
                     .before(`<div class="duration-error">Please select ban duration!</div>`)
                     .next().addBack().remove();
 
-                // TODO: Default would be based on previous ban duration
-
+                // Default would be based on previous ban duration
+                getUserReviewBanHistory(uid);
 
                 // UI
                 $('#days-3').parent().addClass('duration-radio-group').find('input').addClass('s-radio');
@@ -401,7 +468,7 @@ a.reviewban-button {
 #lookup-result .duration-radio-group {
     display: block;
     width: 300px;
-    margin-bottom: 10px;
+    margin: 10px 0 0;
 }
 #lookup-result .duration-radio-group label {
     margin-left: 2px;
@@ -429,12 +496,16 @@ a.reviewban-button {
     margin: 5px 0;
 }
 
+#lookup-result > .reviewban-history {
+    margin: 10px 0 10px;
+}
+
 .message-wrapper {
     position: relative;
 }
 .message-wrapper textarea {
     display: block;
-    min-height: 120px;
+    min-height: 180px;
     max-width: none !important;
     width: 80% !important;
     margin-bottom: 20px;
