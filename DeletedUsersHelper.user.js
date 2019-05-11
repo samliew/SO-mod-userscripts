@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.14
+// @version      1.14.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -319,7 +319,7 @@
         if(location.pathname.startsWith('/users/account-info/')) {
 
             // Is deleted user
-            if($('#mainbar-full').next('a[href^=/admin/posts-by-deleted-user/]').length === 1) {
+            if($('#content').find('a[href^="/admin/posts-by-deleted-user/"]').length > 0) {
 
                 // Redirect to profile page
                 location.href = location.pathname.replace('/account-info/', '/');
@@ -331,7 +331,7 @@
         if(location.pathname.indexOf(userUrl) >= 0) {
 
             // Is on deleted user's page
-            if($('#mainbar-full').find('a[href*="/admin/posts-by-deleted-user/"]').length >= 0) {
+            if($('#content').find('a[href*="/admin/posts-by-deleted-user/"]').length > 0) {
                 formatDeletedUserPage();
             }
         }
