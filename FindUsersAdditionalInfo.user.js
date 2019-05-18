@@ -3,7 +3,7 @@
 // @description  Loads more user details on the find users page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.2
+// @version      0.1.3
 //
 // @include      https://stackoverflow.com/admin/find-users?*
 // @include      https://serverfault.com/admin/find-users?*
@@ -102,9 +102,11 @@
 
 /* More space */
 body > .container,
+#left-sidebar + #content,
 #content {
-    max-width: none;
+    max-width: none !important;
     width: 100%;
+    border: none;
 }
 #content br,
 #left-sidebar {
