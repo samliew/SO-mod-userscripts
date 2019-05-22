@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every minute.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.5
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
@@ -18,6 +18,11 @@
     const day = hour * 24;
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     let $historyContainer, lastUpdated = -1;
+
+
+    const htmlEntities = str => str.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+        return '&#' + i.charCodeAt(0) + ';';
+    });
 
 
     function processNewItems($items) {
@@ -44,7 +49,8 @@
             }
 
             if(/Comment deleted:/.test(t)) {
-                t = t.replace(/^Comment deleted: (.*)/, `<em>$1</em>`);
+                t = t.replace('Comment deleted: ', '');
+                t = '<em>' + htmlEntities(t) + '</em>';
                 $(this).addClass('type-cmnt');
             }
             else if(t.includes('(AnswerNotAnAnswer')) {
