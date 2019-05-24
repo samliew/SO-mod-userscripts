@@ -3,7 +3,7 @@
 // @description  Display post score and number of undeleted answers, Recommend action based on post info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=postvandalismdeletionsauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=postvandalismdeletionsauto*
@@ -26,11 +26,6 @@
         $('.js-flag-text .post-list').before('<div class="post-recommendation">Dismiss</div>');
         $('.js-flagged-post').each(function() {
             const postlist = $('.post-list', this);
-
-            // Move top post link to list
-            let title = $(this).find('.js-post-title-link').text();
-            let link = $(this).find('.js-post-header a').clone(true, true).addClass('answer-hyperlink').text(title);
-            postlist.prepend(`<li class="deleted-answer"><span class="revision-comment">${link[0].outerHTML}</span></li>`);
 
             // Sort questions to end of list
             postlist.append(`<li class="title-divider">Questions</li>`);
