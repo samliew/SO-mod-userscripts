@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every minute.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.6
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
@@ -65,19 +65,22 @@
             else if(t.includes('(PostTooManyCommentsAuto')) {
                 $(this).addClass('type-toomanycmnts');
             }
+            else if(/^User annotated - /.test(t)) {
+                $(this).addClass('mod-annotates');
+            }
             else if(/^Moderator (deletes|destroys) user/.test(t)) {
                 t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/users/$1" target="_blank" title="view user">$1</a>`);
                 $(this).addClass('mod-destroys');
             }
-            else if(/(Moderator contacts user|See user-message)/.test(t)) {
+            else if(/^(Moderator contacts user|See user-message)/.test(t)) {
                 t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/users/message/$1" target="_blank" title="view message">$1</a>`);
                 $(this).addClass('mod-contacts-user');
             }
-            else if(/(Moderator removes bounty)/.test(t)) {
+            else if(/^(Moderator removes bounty)/.test(t)) {
                 t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/questions/$1" target="_blank" title="view question">$1</a>`);
                 $(this).addClass('mod-removes-bounty');
             }
-            else if(/(Moderator edits comment)/.test(t)) {
+            else if(/^(Moderator edits comment)/.test(t)) {
                 t = t.replace(/ - on post id = (\d+), comment id = (\d+)/, ` <a href="https://${location.hostname}/posts/comments/$2" target="_blank" title="view comment">$2</a>`);
                 $(this).addClass('mod-edits-comment');
             }
@@ -176,7 +179,7 @@
 .mod-page #mod-user-history > li {
     position: relative; /* for Post IDs Everywhere userscript */
     display: grid;
-    grid-template-columns: 84px 1fr;
+    grid-template-columns: 94px 1fr;
     margin-bottom: 25px;
     font-size: 0; /* to fix stray hyphen without FOUC */
 }
@@ -229,6 +232,33 @@
 }
 .mod-page #mod-user-history li.type-toomanycmnts ~ li {
     display: none;
+}
+.mod-page #mod-user-history li.mod-contacts-user:before {
+    display: inline-block;
+    content: "";
+    width: 14px;
+    height: 14px;
+    margin-right: 5px;
+    margin-bottom: -1px;
+    background: url('data:image/svg+xml;utf8,<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="envelope" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-envelope fa-w-16 fa-3x"><path fill="currentColor" d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z" class=""></path></svg>') left 0px bottom 0px/14px no-repeat;
+}
+.mod-page #mod-user-history li.mod-destroys:before {
+    display: inline-block;
+    content: "";
+    width: 14px;
+    height: 14px;
+    margin-right: 5px;
+    margin-bottom: -1px;
+    background: url('data:image/svg+xml;utf8,<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times-octagon" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-times-octagon fa-w-16 fa-3x"><path fill="currentColor" d="M497.9 150.5c9 9 14.1 21.2 14.1 33.9v143.1c0 12.7-5.1 24.9-14.1 33.9L361.5 497.9c-9 9-21.2 14.1-33.9 14.1H184.5c-12.7 0-24.9-5.1-33.9-14.1L14.1 361.5c-9-9-14.1-21.2-14.1-33.9V184.5c0-12.7 5.1-24.9 14.1-33.9L150.5 14.1c9-9 21.2-14.1 33.9-14.1h143.1c12.7 0 24.9 5.1 33.9 14.1l136.5 136.4zM377.6 338c4.7-4.7 4.7-12.3 0-17l-65-65 65.1-65.1c4.7-4.7 4.7-12.3 0-17L338 134.4c-4.7-4.7-12.3-4.7-17 0l-65 65-65.1-65.1c-4.7-4.7-12.3-4.7-17 0L134.4 174c-4.7 4.7-4.7 12.3 0 17l65.1 65.1-65.1 65.1c-4.7 4.7-4.7 12.3 0 17l39.6 39.6c4.7 4.7 12.3 4.7 17 0l65.1-65.1 65.1 65.1c4.7 4.7 12.3 4.7 17 0l39.4-39.8z" class=""></path></svg>') left 0px bottom 0px/14px no-repeat;
+}
+.mod-page #mod-user-history li.mod-annotates:before {
+    display: inline-block;
+    content: "";
+    width: 14px;
+    height: 14px;
+    margin-right: 5px;
+    margin-bottom: -1px;
+    background: url('data:image/svg+xml;utf8,<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="dot-circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-dot-circle fa-w-16 fa-5x"><path fill="currentColor" d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm80 248c0 44.112-35.888 80-80 80s-80-35.888-80-80 35.888-80 80-80 80 35.888 80 80z" class=""></path></svg>') left 0px bottom 0px/14px no-repeat;
 }
 `);
 
