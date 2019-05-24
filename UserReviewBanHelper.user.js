@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.2-dev
+// @version      3.1.3-dev
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -212,7 +212,7 @@
                     // Fit as many URLs as possible into message
                     var i = posts.length;
                     do {
-                        posttext = posts.slice(0, i--).map(v => `[${v}](/review/${v})`).join(", ");
+                        posttext = posts.slice(0, i--).map(v => `\n[${v}](/review/${v})`).join(", ") + '\n';
                     }
                     while(i > 1 && 48 + location.hostname.length + posttext.length > messageCharLimit);
                 }
