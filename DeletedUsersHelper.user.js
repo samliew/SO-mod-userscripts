@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.15
+// @version      1.15.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -256,6 +256,7 @@
         userlinks.append(`<li><a href="/admin/find-users?q=${username}">Find users with "${username}"</a></li>`);
 
         // Fetch network accounts
+        // Note: can't use https://api.stackexchange.com/docs/associated-users#pagesize=100&ids=851&types=main_site&filter=!mxdR15FV-W&run=true as max-page size limit is 100
         const networkaccsList = $(`<ul id="del-user-networkaccs" class="js-loading"></ul>`).insertAfter(userlinks);
         ajaxPromise(networkAccountsUrl)
             .then(function(data) {
