@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.14.1
+// @version      1.15
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -12,7 +12,13 @@
 // @include      https://*mathoverflow.net/*
 // @include      https://*.stackexchange.com/*
 //
+// @exclude      https://stackoverflow.com/c/*
+// @exclude      https://stackoverflow.blog*
 // @exclude      *chat.*
+//
+// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
+//
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
 
@@ -39,7 +45,7 @@
             var $el = $(el);
             var cs = getComputedStyle(el);
             plugin.fakeEl.text(el.value || el.innerText || el.placeholder).css('font', $el.css('font'));
-            $el.css('width', plugin.fakeEl.width() + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight));
+            $el.css('width', plugin.fakeEl.width() + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + 1);
         }
 
         return this.each(function (i, el) {
@@ -49,8 +55,8 @@
     };
 
 
-    // Moderator check
-    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+    // Moderator check, has to be here after checking for 404 page above
+    if(!isModerator()) return;
 
     const fkey = StackExchange.options.user.fkey;
     let ajaxRequests = 0;
@@ -220,6 +226,7 @@
         const username = details[1].match(/: ([^\(]+)/)[1].trim();
         const userid = details[1].match(/\((\d+)\)/)[1];
         const networkid = details[1].match(/=(\d+)\)/)[1];
+        const networkAccountsUrl = `https://stackexchange.com/users/${networkid}?tab=accounts`;
         const modname = details[1].match(/deleted by ([^\(]+)/)[1].trim();
         const modid = details[1].match(/\((\d+)\)/g)[1].replace(/[^\d]+/g, '');
         const lastip = details[details.length - 2].split(': ')[1];
@@ -228,10 +235,10 @@
 
         const $html = $(`
 <div class="del-user-info">
-  <div>User <input value="${username}"> (#<input value="${userid}">, network#<input value="${networkid}" ondblclick="window.open('https://stackexchange.com/users/${networkid}')">) was ${delInfo}</div>
+  <div>User <input value="${username}"> (#<input value="${userid}">, network#<input value="${networkid}" ondblclick="window.open('${networkAccountsUrl}')">) was ${delInfo}</div>
   <div class="del-reason">${reason}</div>
   <div>Last seen from IP: <input value="${lastip}"></div>
-  <div>Network accounts: &nbsp;<a href="https://stackexchange.com/users/${networkid}?tab=accounts" target="_blank">https://stackexchange.com/users/${networkid}?tab=accounts</a></div>
+  <div>Network accounts: &nbsp;<a href="${networkAccountsUrl}" target="_blank">${networkAccountsUrl}</a></div>
 </div>`);
 
         pre.after($html).remove();
@@ -247,6 +254,23 @@
         const userlinks = $('#mainbar-full').next('ul').attr('id', 'del-user-links');
         userlinks.append(`<li><a href="/admin/users-with-ip/${lastip}">Other users with IP address "${lastip}"</a></li>`);
         userlinks.append(`<li><a href="/admin/find-users?q=${username}">Find users with "${username}"</a></li>`);
+
+        // Fetch network accounts
+        const networkaccsList = $(`<ul id="del-user-networkaccs" class="js-loading"></ul>`).insertAfter(userlinks);
+        ajaxPromise(networkAccountsUrl)
+            .then(function(data) {
+                networkaccsList.removeClass('js-loading');
+                const accounts = $('.account-container', data);
+                if(accounts.length > 0) {
+                    accounts.find('a').attr('target', '_blank');
+                    accounts.each(function() {
+                        $(this).appendTo(networkaccsList);
+                    });
+                }
+                else {
+                    networkaccsList.addClass('js-no-accounts');
+                }
+            });
 
         // Format account history section
         const networkHeader = $('#content > h2').html((i, v) => v.replace('Account history for account # ', 'Network account history for #'));
@@ -446,6 +470,120 @@ table#posts td {
     height: calc(8.4em + 20px);
     line-height: 1.2em;
     font-family: monospace;
+}
+
+/* Network Account container */
+#del-user-networkaccs {
+    margin-top: 10px;
+    margin-bottom: 30px;
+}
+#del-user-networkaccs:before {
+    content: 'Network accounts';
+    display: block;
+    margin: 0 0 8px -30px;
+    font-weight: bold;
+    clear: both;
+}
+#del-user-networkaccs:after {
+    content: '';
+    display: block;
+    clear: both;
+}
+#del-user-networkaccs.js-loading:after {
+    content: 'loading...';
+}
+#del-user-networkaccs.js-no-accounts:after {
+    content: '(none)';
+    font-style: italic;
+    color: #999;
+}
+.account-container {
+    float: left;
+    width: 100%;
+    padding: 15px;
+    text-align: left;
+    font-size: 13px
+    border-bottom: 1px solid #F0F0F0;
+    clear: both;
+}
+.account-container .account-icon {
+    width: 48px;
+    height: 48px;
+    float: left;
+    margin-right: 15px;
+    text-align: center;
+    border-bottom: 1px solid #e0e0e0;
+    border-left: 1px solid #f2f2f2;
+    border-right: 1px solid #f2f2f2;
+    border-top: 1px solid #f4f4f4
+}
+.account-container .account-icon img {
+    width: 48px;
+    height: 48px;
+    display: block;
+    -ms-interpolation-mode: bicubic;
+    image-rendering: optimizeQuality
+}
+.account-container .account-site {
+    float: left;
+    width: 424px
+}
+.account-container .account-site h2 {
+    font-size: 16px;
+    line-height: 16px;
+    margin-bottom: 4px;
+    margin-top: 0 !important
+}
+.account-container .account-site p {
+    margin-bottom: 2px
+}
+.account-container .account-stat {
+    width: 80px;
+    height: 52px;
+    text-align: center;
+    color: #A1A1A1;
+    font-size: 12px;
+    float: left;
+    margin-left: 15px
+}
+.account-container .account-stat .account-number {
+    color: #555;
+    display: inline-block;
+    width: 100%;
+    font-size: 20px;
+    font-family: Arial,Helvetica,sans-serif;
+    line-height: 1.6;
+    background: #FDFDFD
+}
+.account-container .account-stat .account-number,
+.account-container .account-stat .account-badges {
+    height: 32px
+}
+.account-container .account-stat .account-badges {
+    font-size: 15px;
+    line-height: 31px;
+    height: 31px !important;
+    color: #555
+}
+.account-container .account-stat .account-badges .badgecount {
+    font-size: 15px
+}
+.account-container .account-stat .account-badges .badge1,
+.account-container .account-stat .account-badges .badge2,
+.account-container .account-stat .account-badges .badge3 {
+    margin-top: -5px
+}
+.account-container .account-stat.account-stat-wide {
+    width: 138px
+}
+.account-container.hidden {
+    background: #E0E0E0
+}
+.account-container.hidden .account-number {
+    background: #E0E0E0
+}
+.account-container.hidden .account-icon {
+    border: 1px solid #E0E0E0
 }
 </style>
 `;
