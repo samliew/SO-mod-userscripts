@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.15.1
+// @version      1.15.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -501,9 +501,10 @@ table#posts td {
 .account-container {
     float: left;
     width: 100%;
+    margin-left: -30px;
     padding: 15px;
     text-align: left;
-    font-size: 13px
+    font-size: 0.9em;
     border-bottom: 1px solid #F0F0F0;
     clear: both;
 }
