@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.3
+// @version      1.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -58,6 +58,15 @@ ul.comments-list .comment-up-on {
 }
 .post-layout:hover .post-taglist #edit-tags {
     opacity: 1;
+}
+
+/*
+   Fix Hot Meta Posts link colour
+   https://meta.stackoverflow.com/q/385643
+*/
+.s-anchors.s-anchors__default.s-anchors__visited a:not(.s-link),
+.s-anchors .s-anchors.s-anchors__default.s-anchors__visited a:not(.s-link) {
+    color: inherit !important;
 }
 
 `);
