@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.3-dev
+// @version      3.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -38,11 +38,16 @@
     const permaBanMessage = `Due to your [poor review history](https://${location.hostname}/users/current?tab=activity&sort=reviews) as well as no signs of improvement after multiple review bans, you are no longer welcome to use any review queues on the site.`;
 
     const cannedMessages = {
-        postNaa: `You recently reviewed [this QUEUENAME post](POSTLINK). Although it was posted as an answer, it clearly did not attempt to provide an answer to the question. You should have flagged it as "not an answer" so that it could be removed.`,
-        postNaaEdited: `You recently edited [this QUEUENAME post](POSTLINK). Please do not edit posts that should have been deleted. Use "edit" only when your edit salvages the post and makes it a valid answer.`,
-        postNaaCommentOnly: `You recently reviewed [this QUEUENAME post](POSTLINK). Although you correctly identified it as not being an answer, you chose to leave a comment. That did not help to solve the problem. You should have flagged it as "not an answer" so that it could be removed.`,
-        postLinkOnly: `You recently reviewed [this post](POSTLINK). It contained nothing more than a link to an off-site resource, which does not meet our minimum standards for an answer (https://stackoverflow.com/help/how-to-answer). You should have flagged it as "not an answer" or "very low quality" so that it could be removed. Please read [How should I get started reviewing Late Answers and First Posts?](https://meta.stackoverflow.com/q/288505)`,
-        postEditPlagiarism: `You reviewed [this post](POSTLINK) incorrectly. The suggested edit was for the most part, plagiarism. Please pay more attention to each review in the future.`,
+        current: '',
+        postNaa: `You recently reviewed this post (POSTLINK). Although it was posted as an answer, it clearly did not attempt to provide an answer to the question. You should have flagged it as "not an answer" so that it could be removed.`,
+        postNaaEdited: `You recently edited this post (POSTLINK). Please do not edit posts that should have been deleted. Use "edit" only when your edit salvages the post and makes it a valid answer.`,
+        postNaaCommentOnly: `You recently reviewed this post (POSTLINK). Although you correctly identified it as not being an answer, you chose to leave a comment. That did not help to solve the problem. You should have flagged it as "not an answer" so that it could be removed.`,
+        postLinkOnly: `You recently reviewed this post (POSTLINK). It contained nothing more than a link to an off-site resource, which does not meet our minimum standards for an answer (https://stackoverflow.com/help/how-to-answer). You should have flagged it as "not an answer" or "very low quality" so that it could be removed. Please read [How should I get started reviewing Late Answers and First Posts?](https://meta.stackoverflow.com/q/288505)`,
+        postEditPoor: `You approved poor edits to this post (POSTLINK), which should have been rejected. Please pay more attention to each review in future.`,
+        postEditPlagiarism: `You reviewed this post (POSTLINK) incorrectly. The suggested edit was for the most part, plagiarism, and should have been rejected. Please pay more attention to each review in future.`,
+        postSpam: `You recently reviewed this spam post (POSTLINK) without flagging it as spam. Please pay more attention to each review in future.`,
+        recentGeneral: defaultBanMessage,
+        noLongerWelcome: permaBanMessage,
     };
 
 
@@ -51,7 +56,8 @@
     const dateToSeDateFormat = d => d.toISOString().replace('T', ' ').replace(/\.\d+Z$/, 'Z');
 
     // For review ban message
-    let params, uid, posts, posttext = '';
+    let textarea;
+    let params, uid, posts, allposts = '', posttext = '';
 
 
     // Review unban user
@@ -116,6 +122,32 @@
     }
     function isReviewBanned(banStart, banDuration) {
         return daysReviewBanned(banStart, banDuration) > 0;
+    }
+
+
+    function initCannedMessages() {
+
+        const cans = $(`<div id="canned-messages"></div>`).on('click', 'a', function(evt) {
+            textarea.val(this.dataset.message);
+            return false;
+        }).appendTo('.message-wrapper');
+
+        Object.keys(cannedMessages).forEach(function(v) {
+            let queuename = '';
+
+            if(posts.length == 1) {
+                queuename = posts[0].split('/')[0] + ' ';
+                allposts = allposts.replace(/(\n|\r)+/g, '');
+            }
+
+            let msg = cannedMessages[v].replace(/"/g, '&quot;').replace(/POSTLINK/g, allposts).replace(/QUEUENAME\s?/g, queuename);
+
+            if(posts.length == 1) {
+                msg = msg.replace(/(\(\n|\n\))/g, '');
+            }
+
+            cans.append(`<a data-message="${msg}">${v}</a>`);
+        });
     }
 
 
@@ -215,6 +247,9 @@
                         posttext = posts.slice(0, i--).map(v => `\n[${v}](/review/${v})`).join(", ") + '\n';
                     }
                     while(i > 1 && 48 + location.hostname.length + posttext.length > messageCharLimit);
+
+                    // Save all posts for canned messages
+                    allposts = posts.map(v => `\n[${v}](/review/${v})`).join(", ") + '\n';
                 }
 
                 // Validation
@@ -383,8 +418,9 @@
                 // Insert ban message if review link found
                 if(typeof posts !== 'undefined') {
                     var banMsg = `Your review${pluralize(posts)} on ${posttext} wasn't helpful.`;
-                    if(banMsg.length < messageCharLimit - 102) banMsg += ` Do review the history of the post${pluralize(posts)} and consider which action would achieve that outcome more quickly.`;
+                    if(banMsg.length < messageCharLimit - 106) banMsg += ` Please review the history of the post${pluralize(posts)} and consider which action would achieve that outcome more quickly.`;
                     $('textarea[name=explanation]').val(banMsg);
+                    cannedMessages.current = banMsg;
                 }
 
                 // Wrap text nodes in the lookup result ban form with spans so we can select them later if needed
@@ -397,10 +433,10 @@
                     .after(`<div class="examples"><pre>You approved edits on [blatant spam](&lt;link to review task&gt;)</pre></div>`);
 
                 // Update message max length
-                $('textarea[name="explanation"]').addClass('s-textarea').attr('maxlength', messageCharLimit).wrapAll(`<div class="message-wrapper"></div>`);
+                textarea = $('textarea[name="explanation"]').addClass('s-textarea').attr('maxlength', messageCharLimit).wrapAll(`<div class="message-wrapper"></div>`);
 
-                // TODO: Add canned messages
-                const cans = $(`<div id="canned-messages"></div>`).appendTo('.message-wrapper');
+                // Add canned messages
+                initCannedMessages();
 
                 // Duration radios
                 $('#days-3').val('2').next('label').text('2 days');
@@ -514,7 +550,7 @@ a.reviewban-button {
 }
 .message-wrapper textarea {
     display: block;
-    min-height: 180px;
+    min-height: 220px;
     max-width: none !important;
     width: 80% !important;
     margin-bottom: 20px;
@@ -535,6 +571,11 @@ a.reviewban-button {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
+}
+#canned-messages a {
+    display: inline-block;
+    float: left;
+    clear: both;
 }
 
 table.sorter > tbody > tr:nth-child(odd) > td {
