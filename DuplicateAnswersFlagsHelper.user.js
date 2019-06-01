@@ -3,7 +3,10 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
+// 
+// @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
+// @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=answerduplicateanswerauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=answerduplicateanswerauto*
