@@ -3,7 +3,10 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.5.2
+// @version      4.3
+// 
+// @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
+// @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
 //
 // @match        */admin/dashboard?flagtype=posttoomanycommentsauto*
 //
@@ -134,19 +137,19 @@
     function doPageLoad() {
 
         // Expand unhandled posts
-        const unhandledPosts = $('.flagged-post-row').filter((i,el) => $('.mod-post-actions', el).text().indexOf('ModMovedCommentsToChat') === -1);
-        const handledPosts = $('.flagged-post-row').not(unhandledPosts).addClass('comments-handled');
-        setTimeout((unhandledPosts) => $('.expand-body', unhandledPosts).click(), 1000, unhandledPosts);
+        const unhandledPosts = $('.js-flagged-post').filter((i,el) => $('.mod-post-actions', el).text().indexOf('ModMovedCommentsToChat') === -1);
+        const handledPosts = $('.js-flagged-post').not(unhandledPosts).addClass('comments-handled');
+        setTimeout((unhandledPosts) => $('.js-post-header .js-expand-body', unhandledPosts).click(), 1000, unhandledPosts);
 
         // Add "done" (no further action (helpful)) button
-        $('.delete-options').append(`<input class="immediate-dismiss-all" type="button" value="done (helpful)" title="dismiss all flags (helpful)" />`);
+        $('.js-post-flag-options').append(`<input class="immediate-dismiss-all" type="button" value="done (helpful)" title="dismiss all flags (helpful)" />`);
 
         // On move comments to chat link click
-        $('.flagged-post-row').on('click handle', '.move-comments-link', function(evt) {
+        $('.js-flagged-post').on('click handle', '.move-comments-link', function(evt) {
             if(evt.type == 'click' && !confirm('Move all comments to chat & purge?')) return;
 
             const pid = this.dataset.postId;
-            const flaggedPost = $('#flagged-'+pid);
+            const flaggedPost = $(this).closest('.js-flagged-post');
             const possibleDupeCommentIds = $(`#comments-${pid} .comment`).not('.deleted-comment')
             .filter(function(i, el) {
                 const cmmtText = $(el).find('.comment-copy').text().toLowerCase();
@@ -156,17 +159,17 @@
 
             moveCommentsOnPostToChat(pid)
                 .then(function(v) {
-                undeleteComments(pid, possibleDupeCommentIds);
-                flaggedPost.addClass('comments-handled');
-            });
+                    undeleteComments(pid, possibleDupeCommentIds);
+                    flaggedPost.addClass('comments-handled');
+                });
         });
 
         // On purge all comments link click
-        $('.flagged-post-row').on('click handle', '.purge-comments-link', function(evt) {
+        $('.js-flagged-post').on('click handle', '.purge-comments-link', function(evt) {
             if(evt.type == 'click' && !confirm('Delete ALL comments?')) return;
 
             const pid = this.dataset.postId;
-            const flaggedPost = $('#flagged-'+pid);
+            const flaggedPost = $(this).closest('.js-flagged-post');
             const possibleDupeCommentIds = $(`#comments-${pid} .comment`).not('.deleted-comment')
                 .filter(function(i, el) {
                     const cmmtText = $(el).find('.comment-copy').text().toLowerCase();
@@ -182,9 +185,9 @@
         });
 
         // On "done" button click
-        $('.flagged-post-row').on('click', '.immediate-dismiss-all', function() {
-            const $post = $(this).closest('.flagged-post-row');
-            const pid = $post.get(0).dataset.postId;
+        $('.js-flagged-post').on('click', '.immediate-dismiss-all', function() {
+            const $post = $(this).closest('.js-flagged-post');
+            const pid = $post[0].dataset.postId;
             dismissAllHelpful(pid);
 
             // Hide post immediately so we can move on
@@ -192,7 +195,7 @@
         });
 
         // If there are lots of comment flags
-        if($('.flagged-post-row').length > 1) {
+        if($('.js-flagged-post').length > 1) {
 
             const actionBtns = $('<div id="actionBtns"></div>');
 
@@ -224,7 +227,7 @@
                     .appendTo(actionBtns);
             }
 
-            actionBtns.prependTo('.flag-container');
+            actionBtns.insertBefore('.js-mod-history-container');
         }
     }
 
@@ -236,11 +239,11 @@
 
             // Closed questions
             $('.question-status').each(function() {
-                $(this).closest('.flagged-post-row').addClass('already-closed');
+                $(this).closest('.js-flagged-post').addClass('already-closed');
             });
 
             // Always expand comments if post is expanded, if comments have not been expanded yet
-            $('.js-comments-container').not('.js-del-loaded').each(function() {
+            $('.comments.js-comments-container').not('.js-del-loaded').each(function() {
 
                 const postId = this.id.match(/\d+/)[0];
 
@@ -256,15 +259,15 @@
 
                     // Display post stats near action buttons, so we don't have to scroll back up
                     const el = $(this);
-                    const post = $(this).parents('.flagged-post-row');
-                    const postOpts = post.find('.post-options');
+                    const post = $(this).closest('.js-flagged-post');
+                    const postOpts = post.find('.js-post-flag-options');
 
-                    const postCreated = post.find('.post-detail .relativetime').last().get(0).outerHTML;
-                    const numAnswers = post.find('.answer-link span').last().text();
-                    const isAccepted = post.find('.vote-accepted-on').length > 0;
+                    const postCreated = post.find('.post-signature .relativetime').last().get(0).outerHTML;
+                    const numAnswers = post.find('.js-post-header span.s-badge').last().text();
+                    const isAccepted = post.find('.js-post-header .s-badge__answered').length > 0;
                     const numAnswersText = numAnswers ? `<div>post type: question (${numAnswers} answer${pluralize(numAnswers)})</div>` : `<div>post type: answer ${isAccepted ? '(accepted)' : ''}</div>`;
                     const closeReasonElem = post.find('.question-status:not(.bounty)');
-                    const closeReason = closeReasonElem.length ? closeReasonElem.get(0).children[0].childNodes[2].nodeValue.replace(/\s*\b(as|by)\b\s*/g, '') : '';
+                    const closeReason = closeReasonElem.length ? closeReasonElem[0].children[0].childNodes[2].nodeValue.replace(/\s*\b(as|by)\b\s*/g, '') : '';
                     const closeReasonText = closeReasonElem.length && closeReason.length ? `<div>closed: ${closeReason}</div>` : '';
                     const cmmts = el.find('.comment-body');
                     const cmmtsDel = el.find('.deleted-comment');
@@ -295,7 +298,7 @@
 
     function insertCommentLinks() {
 
-        $('.js-comments-container').not('.js-comment-links').addClass('js-comment-links').each(function() {
+        $('.comments.js-comments-container').not('.js-comment-links').addClass('js-comment-links').each(function() {
 
             const pid = this.id.match(/\d+$/)[0];
 
@@ -312,17 +315,14 @@
 <style>
 .post-text,
 .post-taglist,
-.post-options.keep .delete-options > input,
+.js-post-flag-options input,
 .dismiss-options,
 .mod-message {
-    display: none;
+    display: none !important;
 }
-.post-options.keep .delete-options > input[class="dismiss-all"] {
-    display: inline-block;
-}
-.flagged-post-row.too-many-deleted .immediate-dismiss-all,
-.flagged-post-row.already-closed .immediate-dismiss-all,
-.flagged-post-row.comments-handled .immediate-dismiss-all {
+.js-flagged-post.too-many-deleted .immediate-dismiss-all,
+.js-flagged-post.already-closed .immediate-dismiss-all,
+.js-flagged-post.comments-handled .immediate-dismiss-all {
     display: inline-block !important;
 }
 .tagged-ignored {
@@ -336,10 +336,22 @@
     color: red;
     font-weight: bold;
 }
+.red-mod-link {
+    color: red;
+}
 
 #actionBtns button {
     margin-bottom: 10px;
     margin-right: 10px;
+}
+
+/* New mod interface */
+.js-post-header .js-loaded-body {
+    margin-left: -44px !important;
+    margin-right: -3px !important;
+}
+.visited-post {
+    opacity: 1;
 }
 </style>
 `;

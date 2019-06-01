@@ -3,7 +3,10 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3.8
+// @version      4.6
+// 
+// @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
+// @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -48,11 +51,11 @@
     // Special characters must be escaped with \\
     const rudeKeywords = [
         'fuck\\w*', 'arse', 'cunts?', 'dick', 'cock', 'pussy', 'hell', 'stupid', 'idiot', '!!+', '\\?\\?+',
-        'grow up', 'shame', 'wtf', 'garbage', 'trash', 'spam', 'damn', 'stop', 'horrible', 'inability', 'bother',
-        'nonsense', 'no sense', 'sense', 'never work', 'illogical', 'fraud', 'crap', '(bull|cow|horse)?\\s?shit',
-        'reported', 'get lost', 'go away', 'useless', 'deleted?', 'delete[\\w\\s]+(answer|question|comment)',
-        'move on', 'gay', 'lesbian', 'sissy', 'brain', 'rtfm', 'blind', 'retard(ed)?', 'jerks?', 'bitch\\w*', 'learn',
-        'read[\\w\\s]+(tutorial|docs|manual)', 'lack[\\w\\s]+research', 'idownvotedbecau.se', 'bad',
+        'grow up', 'shame', 'wtf', 'garbage', 'trash', 'spam', 'damn', 'horrible', 'inability',
+        'nonsense', 'never work', 'illogical', 'fraud', 'crap', '(bull|cow|horse)?\\s?shit',
+        'reported', 'get lost', 'useless', 'deleted?', 'delete[\\w\\s]+(answer|question|comment)',
+        'gay', 'lesbian', 'sissy', 'brain', 'rtfm', 'blind', 'retard(ed)?', 'jerks?', 'bitch\\w*',
+        'read[\\w\\s]+(tutorial|docs|manual)', 'lack[\\w\\s]+research', 'idownvotedbecau.se',
     ];
     const rudeRegex = new RegExp('\\s(' + rudeKeywords.join('|') + ')(?![/-])', 'gi');
 
@@ -63,6 +66,7 @@
         'homework', 'no idea', 'your mind', 'try it', 'typo', 'wrong', 'unclear', 'regret', 'every\\s?(body|one)',
         'exactly', 'check', 'lol', 'ha(ha)+', 'women', 'girl', 'effort', 'understand', 'want', 'need', 'little',
         'give up', 'documentation', 'google\\s', 'what[\\w\\s]+(try|tried)[\\w\\s]*\\?*', 'free', 'obvious',
+        'move on', 'go away', 'stop', 'bad', 'bother', 'no sense', 'sense', 'learn',
         '(down|up)[-\\s]?vot(er|ed|e|ing)',
     ];
     const chattyRegex = new RegExp('\\s(' + chattyKeywords.join('|') + ')(?![/-])', 'gi');
@@ -173,14 +177,17 @@
             // Additional styles for this page
             appendCTMDRNCAstyles();
 
-            $('span.revision-comment a').each(function() {
-                const uid = Number(this.href.match(/\d+/)[0]);
-                const post = $(this).closest('.flagged-post-row');
-                const modMessageContent = $(this).closest('td');
-                const cmmtsContainer = $(`<table class="comments"></table>`).appendTo($(this).parents('.js-dashboard-row '));
+            $('.js-flag-text a[href$="/post-comments?state=flagged"]').attr('target', '_blank').each(function() {
+                const uid = Number(this.href.match(/\/(\d+)\//)[1]);
+                const post = $(this).closest('.js-flagged-post');
+                const postheader = post.find('.js-post-header').hide();
+
+                const flagcell = $(this).closest('.js-post-flag-group');
+                const modMessageContent = post.find('.js-comments-container').last().empty();
+                const cmmtsContainer = $(`<table class="comments"></table>`).appendTo(modMessageContent);
 
                 // Add links to user and comment history
-                modMessageContent
+                $(this).parents('.js-flag-text')
                     .append(`<div class="ra-userlinks">[ ` +
                                 `<a href="https://${location.hostname}/users/${uid}" target="_blank">Profile</a> | ` +
                                 `<a href="https://${location.hostname}/users/account-info/${uid}" target="_blank">Dashboard</a> | ` +
@@ -188,10 +195,6 @@
                                 `<a href="https://${location.hostname}/users/message/create/${uid}" target="_blank">Message/Suspend</a> | ` +
                                 `<a href="http://${location.hostname}/admin/users/${uid}/post-comments?state=flagged" target="_blank">Comments</a>` +
                             ` ]</div>`);
-
-                // Move action button
-                modMessageContent
-                    .append(post.find('.post-options.keep'));
 
                 // Load latest R/A helpful comments
                 $.get(this.href.replace('http:', 'https:'), function(data) {
@@ -222,23 +225,23 @@
         }
 
         // Insert 'skip' button to temporarily hide current post
-        $('.flagged-post-row > td').append(`<a class="skip-post" title="skip (hide) this post" href="#">skip post</a>`);
+        $('.js-flagged-post').append(`<a class="skip-post" title="skip (hide) this post" href="#">skip post</a>`);
 
         // Highlight chatty/rude keywords in comments
-        $('.comment-summary, tr.deleted-row > td > span').each(replaceKeywords);
+        $('.comment-copy, tr.deleted-row > td > span').each(replaceKeywords);
 
         // Change "dismiss" link to "decline", insert alternate action
-        $('.cancel-comment-flag').text('decline').append(`<span class="cancel-delete-comment-flag" title="dismiss flags AND delete comment">+delete</span>`);
+        $('.js-flagged-comment .js-dismiss-flags').text('decline').append(`<span class="cancel-delete-comment-flag" title="dismiss flags AND delete comment">+delete</span>`);
 
         // If there are lots of comment flags
-        if($('.js-flagged-comments').length > 3) {
+        if($('.js-comments-container').length > 3) {
 
             const actionBtns = $('<div id="actionBtns"></div>');
 
             function removePostsWithoutFlags() {
-                $('.comments').filter(function() {
-                    return $(this).children().children().length === 0;
-                }).parents('.flagged-post-row').remove();
+                $('.js-comments-container[data-comment-context="flag"]').filter(function() {
+                    return $(this).children('.js-flagged-comment').length === 0;
+                }).parents('.js-flagged-post').remove();
             }
 
             // Hide recent comments button (day)
@@ -247,9 +250,9 @@
                     $(this).remove();
                     let now = Date.now();
                     // Remove comments < twohours
-                    $('.comment-link').filter(function() {
+                    $('.js-comment-link').filter(function() {
                         return now - new Date($(this).children('.relativetime').attr('title')).getTime() <= twohours;
-                    }).parent().parent().next().addBack().remove();
+                    }).closest('.js-flagged-comment').addBack().remove();
                     // Remove posts without comment flags
                     removePostsWithoutFlags();
                 })
@@ -262,9 +265,9 @@
                     $(this).remove();
                     let now = Date.now();
                     // Remove comments < oneday
-                    $('.comment-link').filter(function() {
+                    $('.js-comment-link').filter(function() {
                         return now - new Date($(this).children('.relativetime').attr('title')).getTime() <= oneday;
-                    }).parent().parent().next().addBack().remove();
+                    }).closest('.js-flagged-comment').addBack().remove();
                     // Remove posts without comment flags
                     removePostsWithoutFlags();
                 })
@@ -278,9 +281,9 @@
                     $(this).remove();
                     let now = Date.now();
                     // Remove comments < oneweek
-                    $('.comment-link').filter(function() {
+                    $('.js-comment-link').filter(function() {
                         return now - new Date($(this).children('.relativetime').attr('title')).getTime() <= oneweek;
-                    }).parent().parent().next().addBack().remove();
+                    }).closest('.js-flagged-comment').addBack().remove();
                     // Remove posts without comment flags
                     removePostsWithoutFlags();
                 })
@@ -302,7 +305,7 @@
                 $('<button class="btn-warning">Delete Chatty</button>')
                     .click(function() {
                         $(this).remove();
-                        const chattyComments = $('.cmmt-chatty, .cmmt-rude').filter(':visible').parents('.comment').prev().find('.delete-comment');
+                        const chattyComments = $('.cmmt-chatty, .cmmt-rude').filter(':visible').parents('.js-flagged-comment').find('.js-comment-delete');
                         $('body').showAjaxProgress(chattyComments.length, { position: 'fixed' });
                         chattyComments.click();
                     })
@@ -314,14 +317,14 @@
                         if(!confirm('Confirm Delete ALL?')) return false;
 
                         $(this).remove();
-                        const visibleComments = $('.delete-comment:visible');
+                        const visibleComments = $('.js-comment-delete:visible');
                         $('body').showAjaxProgress(visibleComments.length, { position: 'fixed' });
                         visibleComments.click();
                     })
                     .appendTo(actionBtns);
             }
 
-            actionBtns.prependTo('.flag-container');
+            actionBtns.insertBefore('.js-mod-history-container');
         }
 
         // Convert urls in comments to clickable links that open in a new window
@@ -335,65 +338,63 @@
 
         // Highlight comments from last year or older
         const thisYear = new Date().getFullYear();
-        $('.comment-link .relativetime').filter((i, el) => Number(el.title.substr(0,4)) < thisYear).addClass('old-comment');
+        $('.js-comment-link .relativetime').filter((i, el) => Number(el.title.substr(0,4)) < thisYear).addClass('old-comment');
 
-        // Highlight OP comments (owner blue background)
-        $('.user-action-time').filter((i, el) => el.innerText.indexOf('asked') >= 0).each(function() {
-            const op = $(this).siblings('.user-details').children('a').first().text();
-            $(this).parents('.flagged-post-row').find('.comment-link').next('a').each(function() {
-                if(this.innerText === op) {
-                    $(this).addClass('comment-user owner');
-                }
-            });
+        // Shorten additional actions descriptions after flag
+        $('.js-flag-text > span:last-child').not('[title]').not('.js-abbrev').addClass('js-abbrev').html(function(i, v) {
+            return v.replace(/(added (\d+) comments?)/, '<span title="$1">$2C</span>')
+                .replace(/(Vote Up)/gi, '<span title="$1">VU</span>')
+                .replace(/(Vote Down)/gi, '<span title="$1">VD</span>')
+                .replace(/(Deletion)/gi, '<span title="voted to delete">Deletion</span>')
+                .replace(/(Moderator Review)/gi, '<span title="a moderator took previous action in the mod queue">Mod</span>');
         });
 
         // On delete/dismiss comment action
-        $('.delete-comment, .cancel-comment-flag').on('click', function() {
+        $('.js-comment-delete, .js-dismiss-flags', '.js-flagged-comment').on('click', function() {
 
-            const $post = $(this).parents('.flagged-post-row');
+            const $post = $(this).parents('.js-flagged-post');
 
             // Sanity check
             if($post.length !== 1) return;
 
             // Remove current comment from DOM
-            const $comm = $(this).parents('tr.message-divider').next('tr.comment').addBack();
-            $comm.addClass('js-comment-deleted');
+            const $comm = $(this).closest('.js-flagged-comment').addClass('js-comment-deleted').hide();
 
             // Hide post immediately if no comments remaining
             setTimeout(function($post) {
-                let $remainingComms = $post.find('.js-flagged-comments tr.comment').not('.js-comment-deleted');
+                let $remainingComms = $post.find('.js-flagged-comment').not('.js-comment-deleted');
                 if($remainingComms.length === 0) $post.remove();
             }, 50, $post);
         });
 
         // On dismiss + delete comment action
-        $('.cancel-delete-comment-flag').on('click', function(evt) {
+        $('.cancel-delete-comment-flag', '.js-flagged-comment').on('click', function(evt) {
             evt.stopPropagation(); // we don't want to bubble the event, but trigger it manually
 
-            const $post = $(this).parents('.flagged-post-row');
-            const cid = $(this).closest('.flag-issue').attr('id').match(/\d+$/)[0];
+            const $post = $(this).parents('.js-flagged-post');
+            const cid = $(this).closest('.js-flagged-comment').attr('data-comment-id');
 
             // Sanity check
             if($post.length !== 1) return;
 
-            // Dismiss flag
-            $(this).parent('.cancel-comment-flag').click();
+            // Dismiss flag by clicking on parent element
+            $(this).parent().click();
 
             // Delete comment after a short delay
             setTimeout(function() {
                 $.post(`https://${location.hostname}/posts/comments/${cid}/vote/10`, {
                     fkey: fkey
                 });
-            }, 1000);
+            }, 500);
 
             return false;
         });
 
         // On purge all comments link click
-        $('.flagged-post-row').on('click', '.purge-comments-link', function() {
+        $('.js-flagged-post').on('click', '.purge-comments-link', function() {
 
             const pid = this.dataset.postId;
-            const $post = $(`#flagged-${pid}`);
+            const $post = $(this).parents('.js-flagged-post');
 
             if(confirm('Delete ALL comments? (mark as helpful)')) {
 
@@ -415,10 +416,10 @@
         });
 
         // On skip post link click
-        $('.flagged-post-row').on('click', '.skip-post', function() {
+        $('.js-flagged-post').on('click', '.skip-post', function() {
 
             // Hide post immediately so we can move on
-            $(this).parents('.flagged-post-row').remove();
+            $(this).parents('.js-flagged-post').remove();
 
             return false;
         });
@@ -437,26 +438,16 @@
         $(document).ajaxComplete(function(event, xhr, settings) {
 
             // Highlight flagged comments in expanded posts
-            const $flaggedComms = $('.js-flagged-comments .comment').not('.roa-comment');
+            const $flaggedComms = $('.js-flagged-comment .js-comment').not('.roa-comment');
             $flaggedComms.each(function() {
-                let cid = this.id.match(/\d+$/)[0];
+                let cid = this.dataset.commentId;
                 $('#comment-'+cid).children().css('background', '#ffc');
             });
 
-            // Highlight OP comments (owner blue background)
-            $('.js-comments-container.js-del-loaded').each(function() {
-                const op = $(this).find('.owner').first().text();
-                $(this).parents('.flagged-post-row').find('.comment-link').next('a').each(function() {
-                    if(this.innerText === op) {
-                        $(this).addClass('comment-user owner');
-                    }
-                });
-            });
-
             // Always expand comments if post is expanded, if comments have not been expanded yet
-            $('.js-comments-container').not('.js-del-loaded').each(function() {
+            $('.question, .answer').find('.js-comments-container').not('.js-del-loaded').each(function() {
 
-                const postId = this.id.match(/\d+/)[0];
+                const postId = this.dataset.postId;
 
                 // So we only load deleted comments once
                 $(this).addClass('js-del-loaded').removeClass('dno');
@@ -486,9 +477,9 @@
 
     function insertCommentLinks() {
 
-        $('.js-comments-container').not('.js-comment-links').addClass('js-comment-links').each(function() {
+        $('.question, .answer').find('.js-comments-container').not('.js-comment-links').addClass('js-comment-links').each(function() {
 
-            const pid = this.id.match(/\d+$/)[0];
+            const pid = this.dataset.postId;
 
             // Insert additional comment actions
             const commentActionLinks = `<div class="mod-action-links" style="float:right; padding-right:10px">` +
@@ -534,10 +525,10 @@ table.sorter > tbody > tr.odd > td {
 .flagged-posts.moderator {
     margin-top: 0;
 }
-.flagged-post-row > td {
+.js-flagged-post > td {
     padding-bottom: 50px !important;
 }
-.flagged-post-row > td > table:first-child {
+.js-flagged-post > td > table:first-child {
     display: none;
 }
 table.mod-message {
@@ -548,6 +539,7 @@ table.mod-message .flagcell {
 }
 table.comments {
     width: 100%;
+    word-break: break-word;
 }
 table.comments {
     border: 1px solid #ddd;
@@ -583,71 +575,51 @@ table.comments tr.roa-comment > td {
         const styles = `
 <style>
 #footer,
-.t-flag,
-.t-flag ~ .module,
-#chat-feature,
-#chat-feature ~ .module,
 .s-sidebarwidget.module,
-.s-sidebarwidget.module ~ .module,
-.module p.more-info,
-#mod-history + div:not([class]),
-.undelete-comment {
+.s-sidebarwidget.module ~ .module {
     display: none !important;
 }
-td.js-dashboard-row,
-.flag-container {
+.js-admin-dashboard {
     position: relative;
 }
-#mod-history {
-    position: absolute;
-    top: 40px;
+.js-mod-history-container {
+    position: relative;
+    display: block !important;
     max-height: 150px;
+    margin: 10px 8px 15px !important;
     overflow-y: auto;
-    background: white;
+    background: #fafafa;
     z-index: 1;
 }
-.flagged-posts.moderator {
-    margin-top: 150px;
+.js-mod-history-container:after {
+    content: 'flag action history';
+    font-size: 10px;
+    position: absolute;
+    bottom: 2px;
+    right: 3px;
+    font-style: italic;
+    color: #888;
+    opacity: 0.5;
 }
-.expander-arrow-small-hide {
-    margin-right: 10px;
-    transform: scale3d(2,2,1);
-    filter: brightness(0);
+.js-flagged-comment > .js-comment > .comment-form > .js-comment-edit-hide {
+    min-height: 6em;
 }
-tr.message-divider > td:last-child {
-    position: relative;
-    padding-right: 140px;
-}
-tr.message-divider[class*=comment-flagged] {
-    height: 42px;
-}
-table.comments {
-    width: 100%;
-}
-tr.comment > td {
-    height: 6em;
+.js-flagged-comment > .js-comment .comment-copy {
     word-break: break-word;
 }
-table.flagged-posts .relativetime.old-comment {
+.js-flagged-comment .relativetime.old-comment {
     color: coral;
 }
-.flag-issue.comment {
-    float: none !important;
-    position: absolute;
-    display: inline-block;
-    top: 0;
-    right: 0;
-    width: 149px;
-    padding: 5px 0 40px;
-    font-size: 0;
-    white-space: nowrap;
-    background-color: transparent !important;
-}
-.edit-comment {
+.js-comment-flag-options > div,
+.js-flagged-comment .js-comment-edit {
     display: none;
 }
-.delete-comment,
-.cancel-comment-flag,
+.js-flagged-post { /* for skip-post button */
+    position: relative;
+    padding-bottom: 25px;
+}
+.js-flagged-comment .js-comment-delete,
+.js-flagged-comment .js-dismiss-flags,
 .skip-post {
     margin-left: 20px;
     padding: 5px 8px;
@@ -656,7 +628,7 @@ table.flagged-posts .relativetime.old-comment {
 }
 .skip-post {
     position: absolute !important;
-    bottom: 10px;
+    bottom: 0;
     right: 0;
     white-space: nowrap;
     opacity: 0.3;
@@ -671,10 +643,6 @@ table.flagged-posts .relativetime.old-comment {
     background: red;
     z-index: 1;
 }
-.comment-edit-hide,
-.comment-delete {
-    visibility: visible;
-}
 .js-del-all-comments {
     color: red !important;
     font-weight: bold;
@@ -682,13 +650,13 @@ table.flagged-posts .relativetime.old-comment {
 .js-comment-deleted {
     display: none !important;
 }
-table.flagged-posts tr.flagged-post-row:first-child > td {
+table.flagged-posts tr.js-flagged-post:first-child > td {
     border-top: 1px solid transparent;
 }
-.cancel-comment-flag {
+.js-dismiss-flags {
     position: relative;
 }
-.cancel-comment-flag .cancel-delete-comment-flag {
+.js-dismiss-flags .cancel-delete-comment-flag {
     position: absolute;
     top: 0;
     left: 100%;
@@ -700,7 +668,7 @@ table.flagged-posts tr.flagged-post-row:first-child > td {
     background: red;
     border-left: 1px solid #eee;
 }
-.cancel-comment-flag:hover .cancel-delete-comment-flag {
+.js-dismiss-flags:hover .cancel-delete-comment-flag {
     display: block;
 }
 .cmmt-rude {
@@ -712,9 +680,53 @@ table.flagged-posts tr.flagged-post-row:first-child > td {
     color: coral;
 }
 
+#actionBtns {
+    margin-top: 10px;
+}
 #actionBtns button {
     margin-bottom: 10px;
     margin-right: 10px;
+}
+
+/* General new mod interface stuff */
+.js-admin-dashboard > div.grid--cell {
+    /* so the decline + delete option goes over the sidebar */
+    position: relative;
+    z-index: 1;
+}
+.visited-post {
+    opacity: 0.7;
+}
+.js-flagged-post .bc-black-3 {
+    border-color: #eee !important;
+}
+.js-post-flag-group > .grid--cell {
+    padding: 8px 12px;
+}
+.js-post-flag-group > .grid--cell.ta-right {
+    padding: 18px 8px !important;
+}
+.js-post-flag-group > .grid--cell > div {
+    padding: 2px 0;
+}
+.js-admin-dashboard span[title]:hover {
+    cursor: help !important;
+}
+
+/* Other new mod interface stuff */
+.js-comment-flag-options {
+    margin-left: 0 !important;
+}
+.js-comment-flag-options button,
+.js-dismiss-flags {
+    text-transform: lowercase;
+}
+.js-comment-flag-options button:hover {
+    background: #ccc;
+}
+.js-comment-flag-options .js-dismiss-flags:hover {
+    background: red;
+    color: white;
 }
 </style>
 `;

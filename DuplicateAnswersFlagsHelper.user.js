@@ -3,7 +3,10 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.4
+// @version      2.2
+// 
+// @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
+// @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=answerduplicateanswerauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=answerduplicateanswerauto*
@@ -54,14 +57,14 @@ async function waitForSOMU() {
         // Remove convert to comment buttons
         $('.convert-to-comment').remove();
 
-        $('.flagged-post-row').each(function() {
+        $('.js-flagged-post').each(function() {
 
             // Add delete and comment button
-            $('.delete-options', this).append(`<input type="button" class="rec-button js-delete-and-comment" data-post-id="${this.dataset.postId}" value="delete + comment" title="delete and add comment" />`);
+            $('.js-post-flag-options .ff-row-wrap', this).append(`<input type="button" class="js-hide-on-delete grid--cell s-btn s-btn__danger s-btn__outlined js-delete-and-comment" data-post-id="${this.dataset.postId}" value="Delete + Comment" title="delete and add dupe comment" />`);
         })
         .on('click', '.js-delete-and-comment', function() {
             const pid = this.dataset.postId;
-            const $post = $(`#flagged-${pid}`);
+            const $post = $(this).closest('.js-flagged-post');
 
             // Delete post
             $.post({
@@ -85,7 +88,7 @@ async function waitForSOMU() {
             $post.hide();
         });
 
-        const actionBtns = $('<div id="actionBtns"></div>').prependTo('.flag-container');
+        const actionBtns = $('<div id="actionBtns"></div>').insertBefore('.js-mod-history-container');
 
         // Delete + Comment ALL
         if(superusers.includes(StackExchange.options.user.userId)) {
@@ -115,7 +118,12 @@ async function waitForSOMU() {
 }
 
 .rec-button {
-    border-color: red !important;
+    padding: 3px 5px;
+    border: 1px solid red !important;
+    color: red !important;
+}
+.rec-button:hover {
+    background-color: #eee;
 }
 </style>
 `;

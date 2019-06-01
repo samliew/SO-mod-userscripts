@@ -3,7 +3,10 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      3.1
+// 
+// @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/ModFlaggerStats.user.js
+// @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/ModFlaggerStats.user.js
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -50,6 +53,9 @@ unsafeWindow.purgeUserFlagStats = function() {
 
     const store = window.localStorage;
     const isModPage = () => document.body.classList.contains('mod-page');
+
+
+    const repStrToNumeric = v => v.replace(/k/, '000').replace(/[^\d]/g, '') * 1 || 0;
 
 
     function calculateFlagTier(fTotal = 0, fPerc = 0) {
@@ -105,7 +111,7 @@ unsafeWindow.purgeUserFlagStats = function() {
 
             $.ajax(`https://${location.hostname}/users/flag-summary/${uid}`)
                 .done(function(data) {
-                    const rep = Number($('.user-details .reputation-score', data).text().replace(/k/, '000').replace(/[^\d]/g, ''));
+                    const rep = repStrToNumeric($('.user-details .reputation-score', data).text());
                     const infotable = $('#sidebar .s-sidebarwidget--item.d-block', data);
 
                     let fTotal = 0, fTotalElem = infotable.find('a .ta-right').first();
@@ -117,7 +123,7 @@ unsafeWindow.purgeUserFlagStats = function() {
                     const fPerc = Number((fDeclined / (fTotal || 1) * 100).toFixed(2));
 
                     // store regular good flaggers
-                    if(fPerc < 1 || fTotal >= 1000) {
+                    if((fPerc < 1 && fTotal >= 1000) || fTotal >= 10000) {
                         store.setItem(fullkey, JSON.stringify([rep, fTotal, fDeclined, fPerc]));
                     }
 
@@ -132,12 +138,12 @@ unsafeWindow.purgeUserFlagStats = function() {
 
         if($(this).hasClass('js-userflagstats-loaded') || $(this).hasClass('js-userflagstats-loading')) return;
         const uid = this.dataset.uid;
-        const sameUserLinks = $(`.mod-message a[href^="/users/${uid}/"]`).addClass('js-userflagstats-loading');
+        const sameUserLinks = $(`.js-post-flag-group a[href^="/users/${uid}/"]`).addClass('js-userflagstats-loading');
         const currLink = $(this).addClass('js-userflagstats-loading');
 
         getUserFlagStats(uid).then(function(v) {
             const tier = calculateFlagTier(v[1], v[3]);
-            const badge = `<a href="/users/flag-summary/${uid}" class="flag-badge ${tier.name}" title="rep: ${v[0]}   flags: ${v[1]} (${v[2]}) = ${v[3].toFixed(2)}%" target="_blank"></a>`;
+            const badge = `<a href="/users/flag-summary/${uid}" class="flag-badge ${tier.name}" title="${v[1]} flags, ${v[2]} declined (accuracy ${(100 - v[3]).toFixed(2)}%)" target="_blank"></a>`;
 
             // Apply to all instances of same user on page
             sameUserLinks.not('js-userflagstats-loaded').addClass('js-userflagstats-loaded').after(badge);
@@ -170,7 +176,7 @@ unsafeWindow.purgeUserFlagStats = function() {
 
             getUserFlagStats(currUid).then(function(v) {
                 const tier = calculateFlagTier(v[1], v[3]);
-                const badge = `<a href="/users/flag-summary/${currUid}" class="flag-badge large ${tier.name}" title="${tier.name} flagger: ${v[1]} (${v[2]}) = ${v[3].toFixed(2)}%" target="_blank"></a>`;
+                const badge = `<a href="/users/flag-summary/${currUid}" class="flag-badge large ${tier.name}" title="${tier.name} flagger: ${v[1]} flags, ${v[2]} declined (accuracy ${(100 - v[3]).toFixed(2)}%)" target="_blank"></a>`;
                 $('.profile-user--name, .user-card-name').append(badge);
             });
         }
@@ -178,22 +184,21 @@ unsafeWindow.purgeUserFlagStats = function() {
         // Non-mods, exit
         if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
 
-        // Ignore mods
-        $('.mod-flair').prev().addClass('js-userflagstats-loaded');
-
         // Load user stats on hover
-        const userlinks = $('.mod-message a[href^="/users/"]').on('loadflaggingstats', loadFlaggingFn);
+        const userlinks = $('.js-post-flag-group a[href^="/users/"]').on('loadflaggingstats', loadFlaggingFn);
+
+        // Ignore mods
+        $('.js-post-flag-group .mod-flair').prev('a').addClass('js-userflagstats-loaded').off('loadflaggingstats');
 
         // Preprocess userlinks to get the uids
         userlinks.each(function() {
             this.dataset.uid = this.href.match(/-?\d+/)[0];
         });
 
-        // Load user stats on post hover, also load for first three posts on page load
-        $('.flagged-posts').on('mouseover', '.flagged-post-row', function() {
-            $('.mod-message a', this).trigger('loadflaggingstats');
+        // Load user stats on post hover
+        $('.js-admin-dashboard').on('mouseover', '.js-flagged-post', function() {
+            $('.js-post-flag-group a', this).trigger('loadflaggingstats');
         });
-        $('.flagged-post-row').slice(0,3).trigger('mouseover');
 
         // Load all flagger stats button
         if(isModPage()) {
@@ -213,7 +218,7 @@ unsafeWindow.purgeUserFlagStats = function() {
                     })
                     .filter(function() {
                         // ignore those already loaded
-                        return !$(this).hasClass('js-userflagstats-loaded') && !$(this).hasClass('js-userflagstats-loaded');
+                        return !$(this).hasClass('js-userflagstats-loading') && !$(this).hasClass('js-userflagstats-loaded');
                     });
 
                     // Do nothing if none needs loading
