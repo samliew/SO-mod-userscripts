@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.4
+// @version      1.5.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -132,7 +132,7 @@
     position: fixed !important;
     bottom: 3px;
     left: 3px;
-    z-index: 1001;
+    z-index: 999999;
 }
 .redact-buttons:hover button ~ button {
     display: inline-block;
