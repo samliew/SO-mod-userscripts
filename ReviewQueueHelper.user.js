@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -434,9 +434,13 @@
                     console.log(post);
 
                     // Check for audits and skip them
-                    const checkAudit = isAudit();
-                    if(responseJson.isAudit || checkAudit) {
-                        console.log('skipping review audit', responseJson.isAudit, checkAudit);
+                    if(responseJson.isAudit) {
+                        console.log('skipping review audit');
+                        skipReview();
+                        return;
+                    }
+                    else if(isAudit()) {
+                        console.log('skipping review audit via manual check');
                         skipReview();
                         return;
                     }
