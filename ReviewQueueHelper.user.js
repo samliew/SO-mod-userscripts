@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -98,7 +98,7 @@
                 processReview = processCloseReview; break;
             case 'first-posts':
                 processReview = processCloseReview; break;
-            case 'last-answers':
+            case 'late-answers':
                 processReview = processCloseReview; break;
         }
 
@@ -328,7 +328,7 @@
                 $('.review-actions input[value*="Close"]').attr('disabled', true);
             }
 
-            // Next review loaded
+            // Next review loaded, transform UI and pre-process review
             else if(settings.url.includes('/review/next-task') || settings.url.includes('/review/task-reviewed/')) {
 
                 // Get additional info about review from JSON response
@@ -341,22 +341,56 @@
                     console.error('error parsing JSON', xhr.responseText);
                 }
 
+                // If action was taken (post was refreshed), don't do anything else
+                if(responseJson.isRefreshing) return;
+
                 setTimeout(function() {
 
+                    // Get post type
+                    const isQuestion = $('.reviewable-post .answers-subheader').length == 1;
+
+                    // Get post status
+                    const isClosedOrDeleted = $('.reviewable-post').first().find('.question-status, .deleted-answer').length > 0;
+                    console.log('isClosedOrDeleted', isClosedOrDeleted);
+
                     // If no more reviews, refresh page every 10 seconds
+                    // Can't use responseJson.isUnavailable here, as it can also refer to current completed review
                     if($('.review-instructions').text().includes('This queue has been cleared!')) {
                         setTimeout(() => location.reload(true), 10000);
                         return;
                     }
 
-                    // Insert "Close" option for first-posts queue, if not already reviewed (no Next button)
-                    if(location.pathname.includes('/review/first-posts/') && !$('.review-status').text().includes('This item is no longer reviewable.')) {
-                        const closeBtn = $(`<input type="button" value="Close" title="close question" />`);
-                        closeBtn.click(function() {
-                            $('.close-question-link').click();
-                            return false;
-                        });
-                        $('.review-actions input').first().after(closeBtn);
+                    // If first-posts or late-answers queue, and not already reviewed (no Next button)
+                    if((location.pathname.includes('/review/first-posts/') || location.pathname.includes('/review/late-answers/'))
+                       && !$('.review-status').text().includes('This item is no longer reviewable.')) {
+
+                        // If question, insert "Close" option
+                        if(isQuestion) {
+                            const closeBtn = $(`<input type="button" value="Close" title="close question" />`).attr('disabled', isClosedOrDeleted);
+                            closeBtn.click(function() {
+                                // If button not disabled
+                                if(!$(this).prop('disabled')) {
+                                    $(this).prop('disabled', true);
+                                    $('.close-question-link').click();
+                                }
+                                return false;
+                            });
+                            $('.review-actions input').first().after(closeBtn);
+                        }
+
+                        // Else if answer, insert "Delete" option
+                        else {
+                            const delBtn = $(`<input type="button" value="Delete" title="delete answer" />`).attr('disabled', isClosedOrDeleted);
+                            delBtn.click(function() {
+                                // If button not disabled
+                                if(!$(this).prop('disabled')) {
+                                    $(this).prop('disabled', true);
+                                    $('.post-menu').first().find('a[title*="delete"]').click();
+                                }
+                                return false;
+                            });
+                            $('.review-actions input').first().after(delBtn);
+                        }
                     }
 
                     // Remove "Delete" option for suggested-edits queue, if not already reviewed (no Next button)
@@ -376,6 +410,8 @@
                         content: $('.post-text').first().text(),
                         votes: parseInt($('.js-vote-count').first().text(), 10),
                         tags: $('.post-taglist .post-tag').get().map(v => v.innerText),
+                        isQuestion: isQuestion,
+                        isClosedOrDeleted: isClosedOrDeleted,
                     };
                     // Parse post stats from sidebar
                     $('.reviewable-post:first .reviewable-post-stats tr').each(function() {
