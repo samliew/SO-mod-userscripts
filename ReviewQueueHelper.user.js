@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.1.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -361,8 +361,9 @@
                     }
 
                     // If first-posts or late-answers queue, and not already reviewed (no Next button)
+                    const reviewStatus = $('.review-status').text();
                     if((location.pathname.includes('/review/first-posts/') || location.pathname.includes('/review/late-answers/'))
-                       && !$('.review-status').text().includes('This item is no longer reviewable.')) {
+                       && !reviewStatus.includes('This item is no longer reviewable.') && !reviewStatus.includes('Review completed')) {
 
                         // If question, insert "Close" option
                         if(isQuestion) {
