@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -311,6 +311,7 @@ async function waitForSOMU() {
             // Close dialog loaded
             if(settings.url.includes('/close/popup')) {
                 setTimeout(function() {
+
                     // Select default radio based on previous votes
                     let opts = $('#popup-close-question .bounty-indicator-tab').slice(0, -1).get().sort((a, b) => Number(a.innerText) - Number(b.innerText));
                     const selOpt = $(opts).last().closest('label').find('input').click();
@@ -483,6 +484,36 @@ async function waitForSOMU() {
 }
 pre {
     max-height: 320px;
+}
+
+/* Number options in popups */
+.popup .action-list li:before {
+    position: absolute;
+    top: 9px;
+    left: -18px;
+    font-weight: bold;
+    color: #333;
+}
+.popup .action-list li:nth-child(1):before {
+    content: '[1]';
+}
+.popup .action-list li:nth-child(2):before {
+    content: '[2]';
+}
+.popup .action-list li:nth-child(3):before {
+    content: '[3]';
+}
+.popup .action-list li:nth-child(4):before {
+    content: '[4]';
+}
+.popup .action-list li:nth-child(5):before {
+    content: '[5]';
+}
+.popup .action-list li:nth-child(6):before {
+    content: '[6]';
+}
+.popup .action-list li:nth-child(7):before {
+    content: '[7]';
 }
 `);
 
