@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -37,17 +37,17 @@ async function waitForSOMU() {
     const queueType = location.href.replace(/\/\d+/, '').split('/').pop();
     const filteredElem = document.querySelector('.review-filter-tags');
     const filteredTags = filteredElem ? (filteredElem.value || '').split(' ') : [''];
-    let processReview, post = {}, skipAnswered = false;
+    let processReview, post = {}, skipAccepted = false;
 
 
     function loadOptions() {
         waitForSOMU().then(function(SOMU) {
 
             // Set option field in sidebar with current custom value; use default value if not set before
-            SOMU.addOption(scriptName, 'Skip Answered', skipAnswered, 'bool');
+            SOMU.addOption(scriptName, 'Skip Accepted Questions', skipAccepted, 'bool');
 
             // Get current custom value with default
-            skipAnswered = SOMU.getOptionValue(scriptName, 'Skip Answered', skipAnswered, 'bool');
+            skipAccepted = SOMU.getOptionValue(scriptName, 'Skip Accepted Questions', skipAccepted, 'bool');
         });
     }
 
@@ -94,7 +94,7 @@ async function waitForSOMU() {
     function processCloseReview() {
 
         // Accepted, skip if enabled
-        if(skipAnswered && post.accepted) {
+        if(skipAccepted && post.accepted) {
             console.log("skipping accepted question");
             skipReview();
             return;
