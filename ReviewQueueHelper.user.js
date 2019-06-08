@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.2
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -20,14 +20,36 @@
 // @grant        GM_addStyle
 // ==/UserScript==
 
+
+// Detect if SOMU is loaded
+const rafAsync = () => new Promise(resolve => { requestAnimationFrame(resolve); });
+async function waitForSOMU() {
+    while(typeof SOMU === 'undefined' || !SOMU.hasInit) { await rafAsync(); }
+    return SOMU;
+}
+
+
 (function() {
     'use strict';
 
 
+    const scriptName = GM_info.script.name;
     const queueType = location.href.replace(/\/\d+/, '').split('/').pop();
     const filteredElem = document.querySelector('.review-filter-tags');
     const filteredTags = filteredElem ? (filteredElem.value || '').split(' ') : [''];
-    let processReview, post = {};
+    let processReview, post = {}, skipAnswered = false;
+
+
+    function loadOptions() {
+        waitForSOMU().then(function(SOMU) {
+
+            // Set option field in sidebar with current custom value; use default value if not set before
+            SOMU.addOption(scriptName, 'Skip Answered', skipAnswered, 'bool');
+
+            // Get current custom value with default
+            skipAnswered = SOMU.getOptionValue(scriptName, 'Skip Answered', skipAnswered, 'bool');
+        });
+    }
 
 
     function skipReview() {
@@ -71,8 +93,8 @@
 
     function processCloseReview() {
 
-        // Accepted, skip
-        if(post.accepted) {
+        // Accepted, skip if enabled
+        if(skipAnswered && post.accepted) {
             console.log("skipping accepted question");
             skipReview();
             return;
@@ -466,6 +488,7 @@ pre {
 
 
     // On page load
+    loadOptions();
     doPageLoad();
     listenToPageUpdates();
 
