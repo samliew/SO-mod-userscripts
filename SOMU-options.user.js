@@ -3,7 +3,7 @@
 // @description  Adds right sidebar to modify options of installed userscripts from the repo https://github.com/samliew/SO-mod-userscripts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -66,12 +66,22 @@ SOMU = unsafeWindow.SOMU || {
         }
 
         // Get option value from store
-        const currValue = SOMU.getOptionValue(scriptName, optionName) || defaultValue;
+        const currValue = SOMU.getOptionValue(scriptName, optionName, defaultValue, dataType) || defaultValue;
+
+        // Build field HTML
+        let fieldHtml = '';
+        if(dataType === 'bool') {
+            fieldHtml = `<input type="checkbox" class="input" name="${uniqueSlug}" data-datatype="bool" data-currentvalue="${currValue}" data-defaultvalue="${defaultValue}" ${currValue === true ? 'checked="checked"': '' } />`;
+        }
+        else if(dataType === 'string') {
+            fieldHtml = `<textarea class="input" name="${uniqueSlug}" data-datatype="string" data-currentvalue="${currValue}" data-defaultvalue="${defaultValue}">${currValue}</textarea>`;
+        }
 
         // Insert option under header
         const optionElem = $(`<div class="col-12 details somu-${uniqueSlug}">
              <div class="info-header">${optionName}:</div>
-             <div class="info-value"><textarea class="input" name="${uniqueSlug}" data-currentvalue="${currValue}" data-defaultvalue="${defaultValue}">${currValue}</textarea>
+             <div class="info-value">
+                 ${fieldHtml}
                  <span class="somu-delete" title="reset value to default value">Del</span><span class="somu-save" title="save changes">Save</span>
            </div></div>`).insertAfter(scriptHeader);
 
@@ -84,8 +94,16 @@ SOMU = unsafeWindow.SOMU || {
     handleSidebarEvents: function() {
         $(this.sidebar)
             .on('change keyup', '.input', function() {
-                $(this).toggleClass('js-changed', this.dataset.currentvalue !== this.value.trim());
-                $(this).toggleClass('js-notdefault', !$(this).hasClass('js-changed') && this.dataset.currentvalue != this.dataset.defaultvalue);
+                if(this.dataset.datatype === 'bool') {
+                    let currvalue = this.dataset.currentvalue === 'true';
+                    let defaultvalue = this.dataset.defaultvalue === 'true';
+                    $(this).toggleClass('js-changed', $(this).prop('checked') != currvalue);
+                    $(this).toggleClass('js-notdefault', !$(this).hasClass('js-changed') && currvalue != defaultvalue);
+                }
+                else {
+                    $(this).toggleClass('js-changed', this.dataset.currentvalue !== this.value.trim());
+                    $(this).toggleClass('js-notdefault', !$(this).hasClass('js-changed') && this.dataset.currentvalue != this.dataset.defaultvalue);
+                }
             })
             .on('focus', '.input', function() {
                 SOMU.sidebar.addClass('focused');
@@ -96,16 +114,27 @@ SOMU = unsafeWindow.SOMU || {
             .on('click', '.somu-save', function() {
                 const $el = $(this).prevAll('.input').removeClass('js-changed');
                 const el = $el.get(0);
-                el.dataset.currentvalue = el.value;
+                if(el.dataset.datatype === 'bool') {
+                    el.dataset.currentvalue = $el.prop('checked');
+                }
+                else {
+                    el.dataset.currentvalue = el.value;
+                }
                 $el.trigger('change');
-                SOMU.saveOptionValue(el.name, el.value);
+                SOMU.saveOptionValue(el.name, el.dataset.currentvalue);
             })
             .on('click', '.somu-delete', function() {
                 const $el = $(this).prevAll('.input');
                 const el = $el.get(0);
-                el.value = el.dataset.currentvalue = el.dataset.defaultvalue;
+                el.dataset.currentvalue = el.dataset.defaultvalue;
+                if(el.dataset.datatype === 'bool') {
+                    $el.prop('checked', el.dataset.defaultvalue === 'true');
+                }
+                else {
+                    el.value = el.dataset.currentvalue;
+                }
                 $el.trigger('change');
-                SOMU.saveOptionValue(el.name, el.value);
+                SOMU.saveOptionValue(el.name, el.dataset.currentvalue);
             })
             .on('click', '.title-section', function() {
                 $(this).nextUntil('.title-section').toggle();
@@ -187,6 +216,9 @@ SOMU = unsafeWindow.SOMU || {
     padding-right: 45px;
     border: 1px solid #ccc;
 }
+#somusidebar .info-value .input[type="checkbox"] {
+    width: auto;
+}
 #somusidebar .info-value .input ~ span {
     position: absolute;
     display: none;
@@ -200,6 +232,11 @@ SOMU = unsafeWindow.SOMU || {
     background: #666;
     color: white;
     cursor: pointer;
+}
+#somusidebar .info-value .input[type="checkbox"] ~ span {
+    top: -11px;
+    height: auto;
+    padding: 5px 5px;
 }
 #somusidebar .info-value .somu-save:hover {
     background: green;
