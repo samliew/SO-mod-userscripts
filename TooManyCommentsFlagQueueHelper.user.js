@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.3
+// @version      4.4
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
@@ -139,10 +139,10 @@
         // Expand unhandled posts
         const unhandledPosts = $('.js-flagged-post').filter((i,el) => $('.mod-post-actions', el).text().indexOf('ModMovedCommentsToChat') === -1);
         const handledPosts = $('.js-flagged-post').not(unhandledPosts).addClass('comments-handled');
-        setTimeout((unhandledPosts) => $('.js-post-header .js-expand-body', unhandledPosts).click(), 1000, unhandledPosts);
+        setTimeout((unhandledPosts) => $('.js-body-loader:last .js-expand-body', unhandledPosts).click(), 1000, unhandledPosts);
 
         // Add "done" (no further action (helpful)) button
-        $('.js-post-flag-options').append(`<input class="immediate-dismiss-all" type="button" value="done (helpful)" title="dismiss all flags (helpful)" />`);
+        $('.js-post-flag-options > .grid').append(`<input class="immediate-dismiss-all" type="button" value="done (helpful)" title="dismiss all flags (helpful)" />`);
 
         // On move comments to chat link click
         $('.js-flagged-post').on('click handle', '.move-comments-link', function(evt) {
@@ -260,7 +260,7 @@
                     // Display post stats near action buttons, so we don't have to scroll back up
                     const el = $(this);
                     const post = $(this).closest('.js-flagged-post');
-                    const postOpts = post.find('.js-post-flag-options');
+                    const postFlags = post.find('.js-post-flags');
 
                     const postCreated = post.find('.post-signature .relativetime').last().get(0).outerHTML;
                     const numAnswers = post.find('.js-post-header span.s-badge').last().text();
@@ -281,7 +281,7 @@
   ${closeReasonText}
   <div>${cmmtUsers.length} commentators</div>
   <div>${cmmts.length} comments, ${cmmtsDel.length} deleted (<span class="${percDel >= delCommentThreshold ? 'red' : ''}">${percDel}%</span>)</div>
-</div>`).insertBefore(postOpts);
+</div>`).appendTo(postFlags);
 
                     if(percDel >= delCommentThreshold) {
                         post.addClass('too-many-deleted');
@@ -329,7 +329,7 @@
     opacity: 1 !important;
 }
 .post-comment-stats {
-    margin: 15px 0;
+    padding: 15px 0;
     text-align: right;
 }
 .post-comment-stats .red {
