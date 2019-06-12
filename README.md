@@ -510,9 +510,10 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/mod-responsive-nav.gif)
 
 
-### [Stack Overflow Dark Mode](https://github.com/samliew/SO-mod-userscripts/blob/master/StackOverflowDarkMode.user.js)
+### [Stack Overflow Dark Mode](https://github.com/samliew/SO-mod-userscripts/blob/master/StackExchangeDarkMode.user.js)
+### [Stack Exchange Dark Mode](https://github.com/samliew/SO-mod-userscripts/blob/master/StackExchangeDarkMode.user.js)
 
-- Dark theme for Stack Overflow.
+- Dark theme for Stack Exchange.
 - Some elements have reduced opacity until focused/mouseover (sidebar modules/images/timestamps). Some important colours are retained.
 - Code highlighting in darker colours
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-30_150956.png)
