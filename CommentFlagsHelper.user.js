@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.6
+// @version      4.7
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -181,20 +181,19 @@
                 const uid = Number(this.href.match(/\/(\d+)\//)[1]);
                 const post = $(this).closest('.js-flagged-post');
                 const postheader = post.find('.js-post-header').hide();
-
-                const flagcell = $(this).closest('.js-post-flag-group');
-                const modMessageContent = post.find('.js-comments-container').last().empty();
-                const cmmtsContainer = $(`<table class="comments"></table>`).appendTo(modMessageContent);
+                const flagText = $(this).parents('.js-flag-text');
 
                 // Add links to user and comment history
-                $(this).parents('.js-flag-text')
-                    .append(`<div class="ra-userlinks">[ ` +
+                const userinfo = $(`<div class="ra-userlinks">[ ` +
                                 `<a href="https://${location.hostname}/users/${uid}" target="_blank">Profile</a> | ` +
                                 `<a href="https://${location.hostname}/users/account-info/${uid}" target="_blank">Dashboard</a> | ` +
                                 `<a href="https://${location.hostname}/users/history/${uid}?type=User+suspended" target="_blank">Susp. History</a> | ` +
                                 `<a href="https://${location.hostname}/users/message/create/${uid}" target="_blank">Message/Suspend</a> | ` +
                                 `<a href="http://${location.hostname}/admin/users/${uid}/post-comments?state=flagged" target="_blank">Comments</a>` +
-                            ` ]</div>`);
+                            ` ]</div>`).appendTo(flagText);
+
+                const flaggroup = post.find('.js-post-flag-group');
+                const cmmtsContainer = $(`<table class="comments"></table>`).insertAfter(flaggroup);
 
                 // Load latest R/A helpful comments
                 $.get(this.href.replace('http:', 'https:'), function(data) {
