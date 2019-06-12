@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.3.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -486,10 +486,27 @@ pre {
     max-height: 320px;
 }
 
+/* Edit reasons link to take up less space */
+.popup a.edit-link {
+    position: absolute;
+    bottom: 25px;
+    left: 25px;
+}
+
 /* Number options in popups */
+.popup-pane,
+.popup-subpane {
+    padding-left: 14px;
+}
+.popup .action-list li {
+    position: relative;
+}
+.popup .action-list .action-name {
+    margin-left: 0px;
+}
 .popup .action-list li:before {
     position: absolute;
-    top: 9px;
+    top: 10px;
     left: -18px;
     font-weight: bold;
     color: #333;
