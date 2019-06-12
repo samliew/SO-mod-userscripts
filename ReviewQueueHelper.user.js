@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.2
+// @version      1.3.3
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -152,10 +152,25 @@ async function waitForSOMU() {
 
         // Keyboard shortcuts event handler
         $(document).on('keyup', function(evt) {
-            const goback = evt.keyCode === 27 || evt.keyCode === 192; // escape button (27) or tilde (192)
+
+            // Back buttons: escape (27) or tilde (192)
+            const goback = evt.keyCode === 27 || evt.keyCode === 192;
+
+            // Get numeric key presses
             let index = evt.keyCode - 49; // 49 = number 1 = 0 (index)
-            if(index < 0 || index > 6) index = null; // handle 1-7 number keys only (index 0-6)
-            //console.log("keypress", evt.keyCode, "index", index);
+            if(index < 0 || index > 6) { // handle 1-7 number keys only (index 0-6)
+
+                // Try keypad keycodes instead
+                let altIndex = evt.keyCode - 97; // 97 = number 1 = 0 (index)
+                if(altIndex >= 0 && altIndex <= 6) {
+                    index = altIndex; // handle 1-7 number keys only (index 0-6)
+                }
+                else {
+                    // Both are invalid
+                    index = null;
+                }
+            }
+            console.log("keypress", evt.keyCode, "index", index);
 
             // Do nothing if post is being edited
             if($('.editing-review-content').length > 0) return;
@@ -495,7 +510,7 @@ pre {
 
 /* Number options in popups */
 .popup-pane,
-.popup-subpane {
+.popup-subpane:not(.close-as-duplicate-pane) {
     padding-left: 14px;
 }
 .popup .action-list li {
@@ -511,25 +526,25 @@ pre {
     font-weight: bold;
     color: #333;
 }
-.popup .action-list li:nth-child(1):before {
+.popup .action-list li:nth-of-type(1):before {
     content: '[1]';
 }
-.popup .action-list li:nth-child(2):before {
+.popup .action-list li:nth-of-type(2):before {
     content: '[2]';
 }
-.popup .action-list li:nth-child(3):before {
+.popup .action-list li:nth-of-type(3):before {
     content: '[3]';
-}
-.popup .action-list li:nth-child(4):before {
+}45456
+.popup .action-list li:nth-of-type(4):before {
     content: '[4]';
 }
-.popup .action-list li:nth-child(5):before {
+.popup .action-list li:nth-of-type(5):before {
     content: '[5]';
 }
-.popup .action-list li:nth-child(6):before {
+.popup .action-list li:nth-of-type(6):before {
     content: '[6]';
 }
-.popup .action-list li:nth-child(7):before {
+.popup .action-list li:nth-of-type(7):before {
     content: '[7]';
 }
 `);
