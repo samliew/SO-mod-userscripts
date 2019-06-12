@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.9.5
+// @version      4.9.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1030,6 +1030,9 @@
                 .after(`<option data-url="https://${mseDomain}/search">Meta Stack Exchange</option>`)
                 .after(`<option data-url="${metaUrl}/search">Meta ${mainName}</option>`);
         }
+
+        // Move new svg search icon before the search field
+        $('#search .svg-icon.s-input-icon__search.iconSearch').insertBefore('#search input[name="q"]');
 
         // New left navigation, link to parent/meta site
         if(isChildMeta) {
