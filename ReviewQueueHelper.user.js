@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.4
+// @version      1.3.5
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -412,7 +412,6 @@ async function waitForSOMU() {
                             closeBtn.click(function() {
                                 // If button not disabled
                                 if(!$(this).prop('disabled')) {
-                                    $(this).prop('disabled', true);
                                     $('.close-question-link').click();
                                 }
                                 return false;
@@ -426,7 +425,6 @@ async function waitForSOMU() {
                             delBtn.click(function() {
                                 // If button not disabled
                                 if(!$(this).prop('disabled')) {
-                                    $(this).prop('disabled', true);
                                     $('.post-menu').first().find('a[title*="delete"]').click();
                                 }
                                 return false;
