@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.5
+// @version      1.4
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -403,7 +403,7 @@ async function waitForSOMU() {
 
                     // If first-posts or late-answers queue, and not already reviewed (no Next button)
                     const reviewStatus = $('.review-status').text();
-                    if((location.pathname.includes('/review/first-posts/') || location.pathname.includes('/review/late-answers/'))
+                    if((location.pathname.includes('/review/first-posts/') || location.pathname.includes('/review/late-answers/') || location.pathname.includes('/review/helper/'))
                        && !reviewStatus.includes('This item is no longer reviewable.') && !reviewStatus.includes('Review completed')) {
 
                         // If question, insert "Close" option
@@ -412,7 +412,7 @@ async function waitForSOMU() {
                             closeBtn.click(function() {
                                 // If button not disabled
                                 if(!$(this).prop('disabled')) {
-                                    $('.close-question-link').click();
+                                    $('.post-menu').first().find('.close-question-link').click();
                                 }
                                 return false;
                             });
@@ -430,6 +430,12 @@ async function waitForSOMU() {
                                 return false;
                             });
                             $('.review-actions input').first().after(delBtn);
+                        }
+
+                        // Show post menu if in the H&I queue
+                        if(location.pathname.includes('/review/helper/')) {
+                            StackExchange.question.fullInit('.question');
+                            $('.close-question-link').show();
                         }
                     }
 
