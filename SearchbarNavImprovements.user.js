@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.9.4
+// @version      4.9.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1102,9 +1102,6 @@
 }
 .top-bar .searchbar {
     max-width: none;
-}
-.searchbar .ps-relative {
-    position: inherit !important;
 }
 @media screen and (max-width: 980px) {
     .search-helper {
