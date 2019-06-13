@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.9.6
+// @version      4.10
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -50,7 +50,12 @@
     const lsidebar = $('#left-sidebar');
     const searchform = $('#search');
     const searchfield = $('#search input[name="q"]');
-    const searchbtn = $('#search .js-search-submit');
+    let searchbtn = $('#search .js-search-submit');
+
+    // If search button is missing due to layout change, attempt to re-insert a semi-hidden one
+    if(searchbtn.length === 0) {
+        searchbtn = $(`<button type="submit" class="js-search-submit alt-submit-button"></button>`).insertAfter(searchfield);
+    }
 
     const autoRefreshDefaultSecs = 60;
     let searchhelper, orderby, autoRefreshTimeout;
@@ -836,7 +841,7 @@
     </div>
   </div>
 </div>
-</div>`).insertAfter(searchbtn);
+</div>`).appendTo(searchform);
 
         orderby.insertBefore('#search-helper-tabs');
 
@@ -1518,6 +1523,15 @@ button, .button,
     transition: none;
     opacity: 1;
     z-index: 1;
+}
+.alt-submit-button {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0 !important;
+    top: 0;
+    right: 0;
+    opacity: 0;
 }
 
 /* Hide duplicate search form on search results page */
