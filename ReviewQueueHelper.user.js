@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.4.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -34,7 +34,7 @@ async function waitForSOMU() {
 
 
     const scriptName = GM_info.script.name;
-    const queueType = location.href.replace(/\/\d+/, '').split('/').pop();
+    const queueType = /^\/review\/.+\/\d+$/.test(location.pathname) ? location.href.replace(/\/\d+/, '').split('/').pop() : null;
     const filteredElem = document.querySelector('.review-filter-tags');
     const filteredTags = filteredElem ? (filteredElem.value || '').split(' ') : [''];
     let processReview, post = {}, skipAccepted = false;
@@ -104,6 +104,13 @@ async function waitForSOMU() {
 
     function doPageLoad() {
 
+        // No queue detected, do nothing
+        if(queueType == null) return;
+        console.log('Review queue:', queueType);
+
+        // Add additional class to body based on review queue
+        document.body.classList.add(queueType + '-review-queue');
+
         // Detect queue type and set appropriate process function
         switch(queueType) {
             case 'close':
@@ -122,11 +129,6 @@ async function waitForSOMU() {
                 processReview = processCloseReview; break;
             case 'late-answers':
                 processReview = processCloseReview; break;
-        }
-
-        // If in suggested edits review, add additional class
-        if(queueType === 'suggested-edits') {
-            document.body.classList.add('suggested-edits-review-queue');
         }
 
         // Focus VTC button when radio button in close dialog popup is selected
