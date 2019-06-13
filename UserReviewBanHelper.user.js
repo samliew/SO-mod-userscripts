@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3
+// @version      3.3.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -296,8 +296,10 @@
             // Not currently banned, show review ban button
             $(`<a class="button reviewban-button" href="/admin/review/bans#${uid2}">Review Ban</a>`).insertAfter('.subheader h1');
         }
-        // Completed review, load reviewers info
+        // Review queues
         else {
+
+            // On any completed review, load reviewers info
             $(document).ajaxComplete(function(event, xhr, settings) {
                 if(settings.url.includes('/review/next-task')) getUsersInfo();
             });
