@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -122,6 +122,11 @@ async function waitForSOMU() {
                 processReview = processCloseReview; break;
             case 'late-answers':
                 processReview = processCloseReview; break;
+        }
+
+        // If in suggested edits review, add additional class
+        if(queueType === 'suggested-edits') {
+            document.body.classList.add('suggested-edits-review-queue');
         }
 
         // Focus VTC button when radio button in close dialog popup is selected
@@ -506,6 +511,13 @@ async function waitForSOMU() {
 }
 pre {
     max-height: 320px;
+}
+
+.suggested-edits-review-queue .review-bar .review-summary {
+    flex-basis: 45%;
+}
+.suggested-edits-review-queue .review-bar .review-actions-container {
+    flex-basis: 55%;
 }
 
 /* Edit reasons link to take up less space */
