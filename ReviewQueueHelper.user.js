@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.2
+// @version      1.5
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -38,6 +38,7 @@ async function waitForSOMU() {
     const filteredElem = document.querySelector('.review-filter-tags');
     const filteredTags = filteredElem ? (filteredElem.value || '').split(' ') : [''];
     let processReview, post = {}, skipAccepted = false;
+    let isLinkOnlyAnswer = false, isCodeOnlyAnswer = false;
 
 
     function loadOptions() {
@@ -93,11 +94,36 @@ async function waitForSOMU() {
 
     function processCloseReview() {
 
-        // Accepted, skip if enabled
-        if(skipAccepted && post.accepted) {
+        // Question has an accepted answer, skip if enabled
+        if(skipAccepted && post.isQuestion && post.accepted) {
             console.log("skipping accepted question");
             skipReview();
             return;
+        }
+    }
+
+
+    function processLowQualityPostsReview() {
+
+        const postEl = $('.reviewable-answer .post-text');
+        const postText = postEl.text();
+        const postHtml = postEl.html();
+        const postNoCodeHtml = postEl.clone(true, true).find('code').remove().end().html();
+
+        // If post type is an answer
+        if(!post.isQuestion) {
+
+            // If is a short answer and there is a link in the post, select "link-only answer" option in delete dialog
+            if(postText.length < 300 && /https?:\/\//.test(postHtml)) {
+                isLinkOnlyAnswer = true;
+                console.log('Possible link-only answer detected.');
+            }
+
+            // Try to detect if the post contains mostly code
+            else if(postNoCodeHtml.length < 80) {
+                isCodeOnlyAnswer = true;
+                console.log('Possible code-only answer detected.');
+            }
         }
     }
 
@@ -122,7 +148,7 @@ async function waitForSOMU() {
             case 'helper':
                 processReview = processCloseReview; break;
             case 'low-quality-posts':
-                processReview = processCloseReview; break;
+                processReview = processLowQualityPostsReview; break;
             case 'triage':
                 processReview = processCloseReview; break;
             case 'first-posts':
@@ -361,6 +387,12 @@ async function waitForSOMU() {
             // Delete dialog loaded
             else if(settings.url.includes('/posts/popup/delete/')) {
                 setTimeout(function() {
+
+                    // Select recommended option
+                    if(isLinkOnlyAnswer) {
+                        $('.popup-active-pane .action-name').filter((i, el) => el.innerText.includes('link-only answer')).prev('input').click();
+                    }
+
                     // Focus Delete button
                     $('#delete-question-popup').find('input:submit').focus();
                 }, 50);
@@ -378,6 +410,10 @@ async function waitForSOMU() {
 
             // Next review loaded, transform UI and pre-process review
             else if(settings.url.includes('/review/next-task') || settings.url.includes('/review/task-reviewed/')) {
+
+                // Reset variables for next task
+                isLinkOnlyAnswer = false;
+                isCodeOnlyAnswer = false;
 
                 // Get additional info about review from JSON response
                 let responseJson = {};
@@ -468,10 +504,13 @@ async function waitForSOMU() {
                     };
                     // Parse post stats from sidebar
                     $('.reviewable-post:first .reviewable-post-stats tr').each(function() {
-                        const k = $(this).find('.label-key').text();
+                        let k = $(this).find('.label-key').text();
                         let v = $(this).find('.label-value').text();
 
                         if(k.length == 0 && v.length == 0) return;
+
+                        // convert key to camelCase (in case of two words, like "is accepted" or "other answers"
+                        k = k.replace(/[^\S\r\n]([^\s])/g, x => x.toUpperCase()).replace(/\s+/g, '');
 
                         // try convert to primitive
                         let d = new Date($(this).find('.label-value').attr('title')).getTime();
