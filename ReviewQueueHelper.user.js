@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -34,7 +34,7 @@ async function waitForSOMU() {
 
 
     const scriptName = GM_info.script.name;
-    const queueType = /^\/review\/.+\/\d+$/.test(location.pathname) ? location.href.replace(/\/\d+/, '').split('/').pop() : null;
+    const queueType = /^\/review\/.+\/\d+$/.test(location.pathname) ? location.href.replace(/\/\d+(\?.*)?$/, '').split('/').pop() : null;
     const filteredElem = document.querySelector('.review-filter-tags');
     const filteredTags = filteredElem ? (filteredElem.value || '').split(' ') : [''];
     let processReview, post = {}, skipAccepted = false;
@@ -154,6 +154,8 @@ async function waitForSOMU() {
             case 'first-posts':
                 processReview = processCloseReview; break;
             case 'late-answers':
+                processReview = processCloseReview; break;
+            default:
                 processReview = processCloseReview; break;
         }
 
