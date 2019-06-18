@@ -3,7 +3,14 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
+//
+// @include      https://*stackoverflow.com/questions/*
+// @include      https://*serverfault.com/questions/*
+// @include      https://*superuser.com/questions/*
+// @include      https://*askubuntu.com/questions/*
+// @include      https://*mathoverflow.net/questions/*
+// @include      https://*.stackexchange.com/questions/*
 //
 // @include      https://*stackoverflow.com/admin/dashboard*
 // @include      https://*serverfault.com/admin/dashboard*
@@ -46,8 +53,8 @@
             $('.deleted-info').html((i, html) => html.replace(/span>\s*([a-z]+(\s[a-z]+)*)\s/i, `><span class="revision-comment">$1</span> `));
         }
 
-        // New mod theme
-        if(document.body.classList.contains('mod-page') && document.body.classList.contains('unified-theme')) {
+        // New stacks theme
+        if(document.body.classList.contains('unified-theme')) {
 
             // wrap comment type text with .revision-comment span
             $('.js-flagged-comment .js-flag-text').html((i, html) => html.replace(/^([^-]*) - /i, `<span class="revision-comment">$1</span> - `));
