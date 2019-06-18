@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.0.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -295,11 +295,17 @@ a.fc-dark:hover {
     background-color: #07C;
     color: white;
 }
+.top-bar .indicator-badge {
+    border: none;
+}
 .top-bar .indicator-badge._important {
     background-color: #C91D2E;
 }
 .topbar-dialog .unread-item {
     background-color: ${darkblue};
+}
+.top-bar ._danger-indicator:after {
+    background-color: #C91D2E;
 }
 ul.comments-list .comment > * {
     border-color: #333;
@@ -358,6 +364,13 @@ body > div[style*="absolute"],
 .nav-links .youarehere .nav-links--link {
     border-right: 3px solid ${orange};
 }
+.summary .bounty-indicator {
+    z-index: 2;
+    position: relative;
+    color: white;
+    background-color: #0077dd;
+}
+.s-badge__bounty,
 .bounty-indicator-tab {
     color: white;
     background-color: #0077dd;
