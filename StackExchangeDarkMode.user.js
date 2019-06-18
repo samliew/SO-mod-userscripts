@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.2
+// @version      2.0.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -171,6 +171,7 @@ body .fc-dark {
 body .fc-medium {
     color: #888;
 }
+#user-menu,
 body .bc-black-1,
 body .bc-black-2,
 body .bc-black-3 {
@@ -461,6 +462,10 @@ img.diff-add {
 }
 #avatar-card {
     box-shadow: none;
+}
+.user-info.user-hover .user-gravatar32,
+.user-info.user-hover .user-gravatar48 {
+    box-shadow: 2px 2px 4px rgba(255,255,255,0.3);
 }
 a.comment-user.owner {
     background-color: #E1ECF4;
