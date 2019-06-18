@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.3
+// @version      2.0.4
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -370,6 +370,11 @@ body > div[style*="absolute"],
     color: white;
     background-color: #0077dd;
 }
+#post-filters,
+.post-tag *,
+.s-badge__bounty * {
+    background: none;
+}
 .supernovabg {
     color: white;
     background-color: #F48024;
@@ -420,7 +425,7 @@ body .bg-yellow-100 {
     background-color: ${bgcolor};
 }
 body .bg-green-400,
-.accepted,
+.accepted:not(.icon-q),
 .answered-accepted,
 .special-rep {
     background-color: ${darkgreen};
