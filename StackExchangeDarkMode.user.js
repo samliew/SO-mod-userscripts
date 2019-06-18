@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.4
+// @version      2.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -12,6 +12,9 @@
 // @include      https://*askubuntu.com/*
 // @include      https://*mathoverflow.net/*
 // @include      https://*.stackexchange.com/*
+//
+// @include      https://stackapps.com/*
+// @include      https://stackoverflow.blog/*
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -230,6 +233,9 @@ ul.comments-list .comment:hover .comment-voting,
 ul.comments-list .comment:hover .comment-flagging {
     opacity: 1;
 }
+.favicon[class$="meta"] {
+    filter: brightness(2.3) contrast(1.8);
+}
 
 
 /* Specific elements */
@@ -237,8 +243,12 @@ ul.comments-list .comment:hover .comment-flagging {
 .flush-left,
 .question-summary,
 .top-bar .searchbar .s-input,
-#search-channel-selector {
+#search-channel-selector,
+.topbar-dialog .modal-content li {
     border-color: ${bordercolor};
+}
+#tabs a, .tabs a {
+    border-color: ${btncolor};
 }
 .s-btn svg,
 .s-btn svg * {
@@ -464,6 +474,14 @@ img.diff-add {
 }
 .profile-cards--graph {
     background-image: none;
+}
+.avatar-wrapper #change-picture,
+.avatar-wrapper .change-picture {
+    background-color: rgba(12,13,14,0.6);
+}
+.avatar-wrapper #change-picture:hover,
+.avatar-wrapper .change-picture:hover {
+    background-color: rgba(12,13,14,0.8);
 }
 #avatar-card {
     box-shadow: none;
