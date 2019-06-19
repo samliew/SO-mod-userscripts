@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.2.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -363,10 +363,12 @@ body > div[style*="absolute"],
 .supernovabg {
     color: white;
     background-color: #F48024;
+    opacity: ${bodyopacity-0.1};
 }
 .hotbg {
     color: white;
     background-color: #CF7721;
+    opacity: ${bodyopacity-0.1};
 }
 .coolbg {
     color: white;
