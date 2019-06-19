@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.5.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -108,7 +108,7 @@ async function waitForSOMU() {
         const postEl = $('.reviewable-answer .post-text');
         const postText = postEl.text();
         const postHtml = postEl.html();
-        const postNoCodeHtml = postEl.clone(true, true).find('code').remove().end().html();
+        const postNoCodeHtml = postEl.clone(true, true).find('pre, code').remove().end().html();
 
         // If post type is an answer
         if(!post.isQuestion) {
@@ -120,7 +120,8 @@ async function waitForSOMU() {
             }
 
             // Try to detect if the post contains mostly code
-            else if(postNoCodeHtml.length < 80) {
+            else if(postEl.find('pre, code').length > 0 &&
+                    (postNoCodeHtml.length < 50 || postHtml.length / postNoCodeHtml.length > 0.9)) {
                 isCodeOnlyAnswer = true;
                 console.log('Possible code-only answer detected.');
             }
@@ -212,6 +213,9 @@ async function waitForSOMU() {
 
             // Do nothing if post is being edited
             if($('.editing-review-content').length > 0) return;
+
+            // Do nothing if a textbox or textarea is focused
+            if($('input:text:focus, textarea:focus').length > 0) return;
 
             // Is close menu open?
             const closeMenu = $('#popup-close-question:visible');
@@ -540,7 +544,7 @@ async function waitForSOMU() {
                     }
 
                     // Process post based on queue type
-                    processReview();
+                    if(typeof processReview === 'function') processReview();
 
                 }, 50);
             }
