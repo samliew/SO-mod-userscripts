@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2.1
+// @version      2.2.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -479,6 +479,13 @@ body table.sorter > tbody > tr:nth-child(odd) > td {
 }
 body table.sorter > tbody > tr:nth-child(even) > td {
     background: none;
+}
+.user-show-new .user-rep-chart-summary .user-rep-chart-summary-bar {
+    background-color: ${darkgreen};
+}
+.highcharts-container *[fill="#FFFFFF"],
+.highcharts-container *[fill="rgb(255,255,255)"] {
+    fill: ${bgcolor};
 }
 
 
