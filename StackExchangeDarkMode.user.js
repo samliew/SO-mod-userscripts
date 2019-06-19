@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2.2
+// @version      2.2.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -332,10 +332,10 @@ body > div[style*="absolute"],
     background-color: black;
 }
 .s-progress {
-    background-color: #d6d9dc;
+    background-color: ${bordercolor};
 }
 .s-progress--bar {
-    background-color: #42d773;
+    background-color: ${darkgreen};
 }
 .youarehere,
 .is-selected {
@@ -482,6 +482,9 @@ body table.sorter > tbody > tr:nth-child(even) > td {
 }
 .user-show-new .user-rep-chart-summary .user-rep-chart-summary-bar {
     background-color: ${darkgreen};
+}
+.profile-cards--graph .line {
+    stroke: ${darkgreen};
 }
 .highcharts-container *[fill="#FFFFFF"],
 .highcharts-container *[fill="rgb(255,255,255)"] {
