@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.3.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -283,8 +283,19 @@ a.fc-dark:hover {
 .f-select:before, .f-select:after {
     border-color: #AAA transparent;
 }
+#sidebar .s-btn__muted {
+    border: none;
+    background-color: transparent;
+}
+.s-btn__muted.s-btn__outlined {
+    border-color: ${bordercolor};
+}
 .s-btn__muted.s-btn__outlined.s-btn__dropdown:after {
     border-color: currentColor transparent;
+}
+.s-btn__filled[disabled] {
+    background-color: #222 !important;
+    color: #666 !important;
 }
 .temp-popover--arrow:before,
 .temp-popover--arrow:after {
@@ -619,6 +630,10 @@ a.comment-user.owner {
 .post-mod-menu-link .post-mod-menu {
     background-color: ${bgcolor};
     box-shadow: 0px 0px 5px 0px white;
+}
+.mod-userlinks,
+.mod-userlinks a {
+    color: #666;
 }
 .deleted-answer .mod-userlinks,
 .deleted-answer .post-mod-menu-link .post-mod-menu {
