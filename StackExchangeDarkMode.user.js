@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.6
+// @version      2.4.7
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -51,7 +51,7 @@
         linkcolor = '#ccc';
         highlightcolor = '#ddd';
         bgcolor = '#000';
-        btncolor = '#555';
+        btncolor = '#333';
         bordercolor = '#333';
     }
 
@@ -322,6 +322,7 @@ a.fc-dark:hover {
     border: none;
     background-color: transparent;
 }
+.s-btn__primary,
 .s-btn__muted.s-btn__outlined {
     border-color: ${bordercolor};
 }
