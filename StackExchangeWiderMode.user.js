@@ -3,7 +3,7 @@
 // @description  Increase max-width of sites to 1440px
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -27,7 +27,8 @@
     const breakpoints = {
         standard: 1264,
         wide: 1440,
-        wider: 1920,
+        wider: 1580,
+        widerer: 1920,
         widest: 2560,
         full: 99999
     };
