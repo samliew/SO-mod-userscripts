@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.1
+// @version      2.4.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -387,7 +387,8 @@ body > div[style*="absolute"],
 .s-progress {
     background-color: ${bordercolor};
 }
-.s-progress--bar {
+.s-progress--bar,
+div.meter div {
     background-color: ${darkgreen};
 }
 .youarehere,
