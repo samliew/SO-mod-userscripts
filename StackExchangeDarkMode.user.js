@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.1
+// @version      2.3.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -79,9 +79,13 @@ body {
 body .bg-black-025,
 body .bg-black-050,
 body .bg-black-700,
-.fc-light,
-.fc-medium,
-.fc-dark {
+body .fc-light,
+body .fc-medium,
+body .fc-dark,
+body .fc-black-900,
+body .fc-black-800,
+body .fc-black-700,
+body .fc-black-600 {
     background-color: ${bgcolor};
     color: ${textcolor};
     box-shadow: none;
@@ -544,6 +548,10 @@ svg path.domain {
 }
 body > div[style*="absolute"].ui-widget {
     background: ${bgcolor};
+}
+.bg-blue-500,
+.wz-progress.wz-progress--active {
+    background-color: #0095ff;
 }
 
 
