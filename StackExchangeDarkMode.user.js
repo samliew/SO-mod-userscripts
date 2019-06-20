@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.2
+// @version      2.4.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -581,7 +581,7 @@ body > div[style*="absolute"].ui-widget {
 
 
 /* Code colours */
-pre {
+pre, code {
     background-color: #333;
 }
 pre * {
