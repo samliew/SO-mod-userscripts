@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.2
+// @version      2.4
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -17,7 +17,7 @@
 // @include      https://stackoverflow.blog/*
 //
 // @include      https://chat.stackoverflow.com/*
-// @include      https://chat.stackexchange.com/*
+// @include      https://chat.stackexchange.com/
 // @include      https://chat.meta.stackexchange.com/*
 //
 // @grant        GM_addStyle
@@ -215,19 +215,42 @@ ul.comments-list .comment:hover .comment-flagging {
 }
 
 
+/* Site Favicons */
 /* gray meta icons */
 .favicon[class$="meta"]:not([title="Meta Stack Exchange"]),
 .favicon[title*="Meta"]:not([title="Meta Stack Exchange"]) {
     filter: brightness(2.1) contrast(1.6);
 }
 /* black or navy blu-ish icons */
-.favicon-anime, .favicon-mathoverflow, .favicon-softwarerecs, .favicon-patents, .favicon-wordpress {
+.favicon-anime, .favicon-mathoverflow, .favicon-patents, .favicon-softwarerecs, .favicon-wordpress {
     filter: invert(1);
     background-color: #e3e3e3;
 }
 /* others that just need a slight boost */
 .favicon-codereview, .favicon-salesforce, .favicon-unix, .favicon-ux {
-    filter: brightness(2.5) contrast(2.2) ;
+    filter: brightness(2.5) contrast(2.3);
+}
+
+
+/* Site Headers */
+.site-header--link {
+    transition: 0.1s opacity linear;
+    opacity: 0.8;
+}
+.site-header--link:hover {
+    opacity: 1;
+}
+/* black or navy blu-ish icons */
+.site-header--link img[src*="/mathoverflow"] {
+    filter: invert(1);
+    background-color: #e3e3e3;
+}
+/* others that just need a slight boost */
+.site-header--link img[src*="/anime"],
+.site-header--link img[src*="/codereview"],
+.site-header--link img[src*="/patents"],
+.site-header--link img[src*="/unix"] {
+    filter: brightness(2.5) contrast(2.3);
 }
 
 
@@ -456,7 +479,8 @@ body .bg-green-400,
 .special-rep {
     background-color: ${darkgreen};
 }
-.status > * {
+.status > *,
+.status.answered-accepted * {
     background-color: transparent;
 }
 .new-post-activity,
