@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.3
+// @version      2.4.4
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -717,6 +717,19 @@ a.comment-user.owner {
 }
 #search-helper input[type="radio"]:checked + label:before {
     color: ${orange};
+}
+#search-helper input[type="radio"] + label:before,
+#search-helper input[type="checkbox"] + label:before {
+    color: transparent;
+}
+#search-helper input[type="radio"]:checked + label:before,
+#search-helper input[type="checkbox"]:checked + label:before {
+    color: #dd8;
+}
+#search-helper .clearbtn {
+    width: 21px;
+    height: 30px;
+    padding: 9px 0;
 }
 .emojionearea .emojionearea-button {
     background-color: #777;
