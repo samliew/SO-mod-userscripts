@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.7
+// @version      2.4.8
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -874,6 +874,7 @@ body .js-flagged-post .bc-black-3 {
 
     document.addEventListener('DOMContentLoaded', function() {
         const $ = unsafeWindow.jQuery || window.jQuery;
+        document.body.classList.add('SOMU-SEDM');
 
         if(location.hostname === "stackoverflow.com") {
             $('.top-bar .-logo .-img').replaceWith(soLogo);
