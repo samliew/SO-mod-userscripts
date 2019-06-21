@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.9
+// @version      2.4.10
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -745,6 +745,10 @@ a.comment-user.owner {
 }
 .emojionearea .emojionearea-button {
     background-color: #777;
+}
+.reviewban-history .reviewban-ending.current span.type,
+.reviewban-history .reviewban-ending.recent span.type {
+    color: ${orange};
 }
 
 
