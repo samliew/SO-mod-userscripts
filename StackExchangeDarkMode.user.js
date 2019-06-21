@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.8
+// @version      2.4.9
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -30,6 +30,7 @@
 
     const darkgreen = '#296538';
     const darkblue = '#035';
+    const bountyblue = '#0057a3';
     const orange = '#f48024';
 
 
@@ -339,8 +340,8 @@ a.fc-dark:hover {
     border-bottom-color: #e4e6e8;
 }
 .top-bar .indicator-badge {
-    background-color: #07C;
-    color: white;
+    background-color: ${bountyblue};
+    color: #eee;
 }
 .top-bar .indicator-badge {
     border: none;
@@ -411,17 +412,19 @@ div.meter div {
     z-index: 2;
     position: relative;
     color: white;
-    background-color: #0077dd;
+    background-color: ${bountyblue};
 }
 .s-badge__bounty,
-.bounty-indicator-tab {
-    color: white;
-    background-color: #0077dd;
+.bounty-indicator,
+.bounty-indicator-tab,
+.tabs .bounty-indicator-tab {
+    color: #eee;
+    background-color: ${bountyblue};
 }
 #post-filters,
 .post-tag *,
 .s-badge__bounty * {
-    background: none;
+    background-color: transparent;
 }
 .supernovabg {
     color: white;
@@ -435,7 +438,7 @@ div.meter div {
 }
 .coolbg {
     color: white;
-    background-color: #9199a1;
+    background-color: ${bountyblue};
 }
 .tagged-interesting {
     position: relative;
