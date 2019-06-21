@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.6.4
+// @version      0.6.5
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -509,6 +509,24 @@ ul#my-rooms > li > a span {
 }
 #chat-body .signature .username.moderator:after {
     content: ' ♦';
+}
+/* Fix size of avatars in case they don't load */
+.avatar-16 {
+    width: 16px;
+    height: 16px;
+    overflow: hidden;
+}
+.avatar-32 {
+    width: 32px;
+    height: 32px;
+    overflow: hidden;
+}
+.monologue .signature .avatar-32 {
+    float: right;
+}
+.monologue .signature .avatar-32 + .username {
+    clear: both;
+    margin-bottom: 2px;
 }
 
 @media screen and (min-width: 768px) {
