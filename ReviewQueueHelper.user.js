@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.4
+// @version      1.5.5
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -190,6 +190,7 @@ async function waitForSOMU() {
         $(document).on('keyup', function(evt) {
 
             // Back buttons: escape (27) or tilde (192)
+            const cancel = evt.keyCode === 27;
             const goback = evt.keyCode === 27 || evt.keyCode === 192;
 
             // Get numeric key presses
@@ -211,8 +212,11 @@ async function waitForSOMU() {
             // Do nothing if key modifiers were pressed
             if(evt.shiftKey || evt.ctrlKey || evt.altKey) return;
 
-            // Do nothing if post is being edited
-            if($('.editing-review-content').length > 0) return;
+            // If edit mode, cancel if esc is pressed
+            if(cancel && $('.editing-review-content').is(':visible')) {
+                $('.review-cancel-editing').click();
+                return;
+            }
 
             // Do nothing if a textbox or textarea is focused
             if($('input:text:focus, textarea:focus').length > 0) return;
