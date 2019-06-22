@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.3
+// @version      1.5.4
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -546,7 +546,7 @@ async function waitForSOMU() {
                     // Process post based on queue type
                     if(typeof processReview === 'function') processReview();
 
-                }, 50);
+                }, 100);
             }
         });
     }
