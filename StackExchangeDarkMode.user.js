@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.10
+// @version      2.4.11
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -481,6 +481,14 @@ div.meter div {
 }
 .star-on {
     opacity: 1;
+}
+body .fc-green-500,
+.fc-green-500 svg * {
+    color: ${darkgreen};
+}
+.show-votes .sidebar-linked .spacer > a:first-child .answer-votes.answered-accepted,
+.show-votes .sidebar-related .spacer > a:first-child .answer-votes.answered-accepted {
+    background-color: ${darkgreen};
 }
 body .bg-white,
 body .bg-yellow-100 {
