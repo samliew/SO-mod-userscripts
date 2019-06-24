@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -398,8 +398,8 @@ async function waitForSOMU() {
             else if(settings.url.includes('/posts/popup/delete/')) {
                 setTimeout(function() {
 
-                    // Select recommended option if there are no comments on post yet
-                    if(post.comments.length == 0 && isLinkOnlyAnswer) {
+                    // Select recommended option if there are no auto comments yet
+                    if(post.comments.some(v => /- From Review/i.test(v)) == false && isLinkOnlyAnswer) {
                         $('.popup-active-pane .action-name').filter((i, el) => el.innerText.includes('link-only answer')).prev('input').click();
                     }
 
