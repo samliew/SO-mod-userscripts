@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -67,6 +67,14 @@ ul.comments-list .comment-up-on {
 .s-anchors.s-anchors__default.s-anchors__visited a:not(.s-link),
 .s-anchors .s-anchors.s-anchors__default.s-anchors__visited a:not(.s-link) {
     color: inherit !important;
+}
+
+/*
+   Remove Products menu in the top bar
+   https://meta.stackoverflow.com/q/386393
+*/
+.top-bar .-marketing-link {
+    display: none !important;
 }
 
 `);
