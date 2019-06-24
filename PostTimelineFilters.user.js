@@ -36,6 +36,13 @@
                 };
                 break;
 
+            case 'only-votes':
+                filterFn = function(i, el) {
+                    const eType = $(el).find('span.event-type').text();
+                    return eType == 'votes';
+                };
+                break;
+
             case 'only-comments':
                 filterFn = function(i, el) {
                     const eType = $(el).find('span.event-type').text();
@@ -144,6 +151,7 @@
                 <a data-filter="all" class="youarehere">Show All</a>
                 <a data-filter="hide-votes" id="newdefault">Hide Votes</a>
                 <a data-filter="hide-votes-comments">Hide Votes & Comments</a>
+                <a data-filter="only-votes">Votes</a>
                 <a data-filter="only-comments">Comments</a>
                 <a data-filter="only-reviews">Reviews</a>
                 <a data-filter="only-answers" class="q-only">Answers</a>
