@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.7
+// @version      1.6
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -398,8 +398,8 @@ async function waitForSOMU() {
             else if(settings.url.includes('/posts/popup/delete/')) {
                 setTimeout(function() {
 
-                    // Select recommended option
-                    if(isLinkOnlyAnswer) {
+                    // Select recommended option if there are no comments on post yet
+                    if(post.comments.length == 0 && isLinkOnlyAnswer) {
                         $('.popup-active-pane .action-name').filter((i, el) => el.innerText.includes('link-only answer')).prev('input').click();
                     }
 
@@ -441,7 +441,7 @@ async function waitForSOMU() {
                 setTimeout(function() {
 
                     // Get post type
-                    const isQuestion = $('.reviewable-post .answers-subheader').length == 1;
+                    const isQuestion = $('.reviewable-post:first .answers-subheader').text().includes('Question');
 
                     // Get post status
                     const isClosedOrDeleted = $('.reviewable-post').first().find('.question-status, .deleted-answer').length > 0;
@@ -506,12 +506,14 @@ async function waitForSOMU() {
                     // Get review vars
                     post = {
                         id: responseJson.postId,
+                        permalink: `https://${location.hostname}/${isQuestion ? 'q':'a'}/${responseJson.postId}`,
                         title: $('h1[itemprop="name"] a').text(),
                         content: $('.post-text').first().text(),
                         votes: parseInt($('.js-vote-count').first().text(), 10),
                         tags: $('.post-taglist .post-tag').get().map(v => v.innerText),
                         isQuestion: isQuestion,
                         isClosedOrDeleted: isClosedOrDeleted,
+                        comments: $('.reviewable-post:first .comment-copy').get().map(v => v.innerText),
                     };
                     // Parse post stats from sidebar
                     $('.reviewable-post:first .reviewable-post-stats tr').each(function() {
