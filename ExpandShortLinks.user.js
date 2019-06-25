@@ -3,14 +3,14 @@
 // @description  Appends more characters to short link texts in posts and comments so they can be easily seen and clicked on
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.2.2
 //
-// @match        https://*stackoverflow.com/*
-// @match        https://*serverfault.com/*
-// @match        https://*superuser.com/*
-// @match        https://*askubuntu.com/*
-// @match        https://*mathoverflow.net/*
-// @match        https://*.stackexchange.com/*
+// @include      https://*stackoverflow.com/*
+// @include      https://*serverfault.com/*
+// @include      https://*superuser.com/*
+// @include      https://*askubuntu.com/*
+// @include      https://*mathoverflow.net/*
+// @include      https://*.stackexchange.com/*
 // ==/UserScript==
 
 (function() {
