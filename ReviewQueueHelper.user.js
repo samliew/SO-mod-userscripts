@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.7.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -580,6 +580,9 @@ async function waitForSOMU() {
 }
 pre {
     max-height: 320px;
+}
+#content {
+    padding-bottom: 120px !important;
 }
 
 .suggested-edits-review-queue .review-bar .review-summary {
