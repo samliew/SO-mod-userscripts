@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.1
+// @version      1.7
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -456,8 +456,8 @@ async function waitForSOMU() {
 
                     // If first-posts or late-answers queue, and not already reviewed (no Next button)
                     const reviewStatus = $('.review-status').text();
-                    if((location.pathname.includes('/review/first-posts/') || location.pathname.includes('/review/late-answers/') || location.pathname.includes('/review/helper/'))
-                       && !reviewStatus.includes('This item is no longer reviewable.') && !reviewStatus.includes('Review completed')) {
+                    if((queueType == 'first-posts' || queueType == 'late-answers' || queueType == 'helper') &&
+                       !reviewStatus.includes('This item is no longer reviewable.') && !reviewStatus.includes('This item is not reviewable.') && !reviewStatus.includes('Review completed')) {
 
                         // If question, insert "Close" option
                         if(isQuestion) {
@@ -490,6 +490,21 @@ async function waitForSOMU() {
                             StackExchange.question.fullInit('.question');
                             $('.close-question-link').show();
                         }
+                    }
+
+                    // If we are in H&I and review is no longer available,
+                    if(queueType == 'helper' && responseJson.isUnavailable) {
+
+                        // Remove edit button so only "Next" is displayed
+                        $('.review-actions input').first().remove();
+
+                        // Load link to triage review
+                        $.get(`https://${location.hostname}/posts/${responseJson.postId}/timeline`)
+                        .done(function(data) {
+                            const triageLink = $('.event-verb a', data).filter((i, el) => el.href.includes('/triage/')).attr('href');
+                            $('.reviewable-post-stats tr').eq(-2).children('td')
+                                .append(`<span class="lsep">| </span><a href="${triageLink}" class="s-btn s-btn__sm s-btn__primary" title="see who voted for requires editing" target="_blank">view triage</a>`);
+                        });
                     }
 
                     // Remove "Delete" option for suggested-edits queue, if not already reviewed (no Next button)
