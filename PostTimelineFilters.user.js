@@ -3,16 +3,121 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.8
 //
 // @include      */posts*/timeline*
 // @include      */admin/posts/*/show-flags*
+//
+// @require      https://raw.githubusercontent.com/DmitryBaranovskiy/raphael/master/raphael.min.js
+// @require      https://raw.githubusercontent.com/adrai/flowchart.js/master/release/flowchart.min.js
 // ==/UserScript==
 
 (function() {
     'use strict';
 
+    const flowchartOpts = {
+        'x': 0,
+        'y': 0,
+        'line-width': 2,
+        'line-length': 20,
+        'text-margin': 5,
+        'font-size': 12,
+        'font-color': '#6a737c',
+        'line-color': 'black',
+        'element-color': 'black',
+        'fill': '#d6d9dc',
+        'flowstate' : {
+            'pending' : { 'fill': '#ccc' },
+            'completed' : { 'fill': '#8DB98D', 'font-color': '#fff', },
+            'invalidated' : { 'fill': '#f4eaea', 'font-color': '#B65454', 'font-style': 'italic' },
+        }
+    };
     let $eventsContainer, $events;
+
+
+    function drawReviewsFlowchart() {
+        if(typeof flowchart === 'undefined') return;
+
+        const pid = Number(location.pathname.match(/\d+/)[0]);
+
+        // do not process if pid < 10000000
+        if(location.hostname == 'stackoverflow.com' && pid < 10000000) return;
+
+        // Get first history event from timeline
+        const firstevt = $events.filter(function(i, el) {
+            return el.dataset.eventtype === 'history';
+        }).last();
+        const firstevtVerb = firstevt.find('.event-verb span').text().trim();
+        const isQuestion = firstevtVerb == 'asked';
+
+        // Get reviews from timeline
+        const items = $events.filter(function(i, el) {
+            const eType = $(el).find('span.event-type').text();
+            return eType === 'review' || el.dataset.eventtype === 'review';
+        }).not('.deleted-event-details');
+
+        const reviews = items.get().map(function(el) {
+            const r = Object.create(null, {}); // 'plain object'
+            r.id = Number($(el).attr('data-eventid'));
+            r.created = $(el).find('.relativetime').attr('title').trim();
+            r.evttype = $(el).find('span.event-type').text().trim();
+            r.verb = $(el).find('.event-verb span').text().trim();
+            r.link = $(el).find('.event-verb a').attr('href');
+
+            // try get additional "deleted-event-details" if review has completed
+            const info = $events.filter('.deleted-event-details').filter((i, el) => el.dataset.eventid == r.id);
+            if(info.length === 1) {
+                r.ended = info.find('.relativetime').attr('title').trim();
+                r.outcome = info.find('.event-verb span').text().trim();
+                r.comment = info.find('.event-comment span').text().trim();
+            }
+
+            return r;
+        }).sort(function(a, b) { // asc
+            return a.id - b.id;
+        });
+        console.table(reviews);
+
+        // If no reviews, do nothing
+        if(reviews.length == 0) return;
+
+        // Build flowchart definitions
+        let defs = '', flow = '\n\n';
+        defs += `st=>start: ${firstevtVerb}:>/q/${pid}\n`;
+        for(let i = 0; i < reviews.length; i++) {
+            const review = reviews[i];
+            defs += `review${i}=>operation: ${review.verb}|${review.outcome}:>${review.link}\n`;
+        }
+        //defs += 'end=>end: now';
+
+        // Link flowchart definitions
+        for(let i = 0; i < reviews.length; i++) {
+            const review = reviews[i];
+            if(i == 0 && reviews.length == 1) {
+                flow += `st(right)->review0(right)->end\n`;
+            }
+            else if(i == 0 && reviews.length > 1) {
+                flow += `st(right)->review0(right)->review1\n`;
+            }
+            else if(i + 1 < reviews.length) {
+                flow += `review${i}(right)->review${i+1}\n`;
+            }
+        }
+        if(reviews.length > 1) {
+            flow += `review${reviews.length-1}(right)->end\n`;
+        }
+        console.log(defs, flow);
+
+        // Draw diagram using library
+        const canvas = $('<div id="review-flowchart"></div>').insertBefore('.event-count');
+        flowchart.parse(defs + flow).drawSVG('review-flowchart', flowchartOpts);
+
+        // Insert title
+        canvas.prepend('<h3 class="event-count">Review flowchart</h3>');
+
+        // Links in diagram open in new tab/window
+        canvas.find('a').attr('target', '_blank');
+    }
 
 
     function filterPosts(filter) {
@@ -245,6 +350,15 @@ tr.separator + tr {
 .post-timeline .event-verb {
     min-width: 115px;
 }
+
+/* Review flowchart */
+#review-flowchart {
+    margin-bottom: 20px;
+    clear: both;
+}
+#review-flowchart .event-count {
+    margin-bottom: 10px;
+}
 </style>
 `;
         $('body').append(styles);
@@ -254,5 +368,6 @@ tr.separator + tr {
     // On page load
     appendStyles();
     doPageLoad();
+    drawReviewsFlowchart();
 
 })();
