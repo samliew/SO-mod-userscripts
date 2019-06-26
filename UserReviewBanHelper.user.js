@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3.4
+// @version      3.3.5
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -374,7 +374,7 @@
 
             // Add currently/recently banned indicator if history found
             let daysago = new Date();
-            daysago.setDate(daysago.getDate() - 30);
+            daysago.setDate(daysago.getDate() - 28);
             histItems.eq(0).each(function() {
                 const datetime = new Date($(this).find('.relativetime').attr('title'));
                 const duration = Number(this.innerText.match(/\= \d+ days/)[0].replace(/\D+/g, ''));
