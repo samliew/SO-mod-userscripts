@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3.2
+// @version      3.3.3
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -389,6 +389,9 @@
                     $(`<span class="reviewban-ending ${currtext == 'current' ? 'current' : 'recent'}"><span class="type" title="recommended to double the previous ban duration">${currtext}ly</span> review banned for <b>${duration} days</b> until <span class="relativetime" title="${dateToSeDateFormat(banEndDatetime)}">${banEndDatetime}</span>.</span>`)
                         .appendTo(banCountDisplay);
                     newDuration *= 2;
+
+                    // Also add warning to the submit button
+                    $('#lookup-result input:submit').addClass('s-btn__danger s-btn__filled js-ban-again').val((i, v) => v + ' again');
                 }
                 // Halve duration
                 else {
