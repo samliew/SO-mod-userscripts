@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every minute.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
@@ -23,6 +23,9 @@
     const htmlEntities = str => str.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
         return '&#' + i.charCodeAt(0) + ';';
     });
+    const linkify = htmlstr => htmlstr
+      .replace(/[\[]{1}([^\]]+)[\]]{1}[\(]{1}([^\)\"]+)(\"(.+)\")?[\)]{1}/g, '<a href="$2" title="$4">$1</a>')
+      .replace(/(?<!>|=")(https?:\/\/)([-_a-z0-9:.,\/#=&?]+[^?.,! ])/gi, '<a href="$1$2" target="_blank">$2</a>');
 
 
     function processNewItems($items) {
@@ -66,6 +69,7 @@
                 $(this).addClass('type-toomanycmnts');
             }
             else if(/^User annotated - /.test(t)) {
+                t = linkify(t);
                 $(this).addClass('mod-annotates');
             }
             else if(/^Moderator (deletes|destroys) user/.test(t)) {
@@ -112,9 +116,6 @@
 
             // Get last item timestamp
             lastUpdated = new Date($items.first().find('.relativetime').attr('title')).getTime();
-
-            // Update timestamps of items
-            StackExchange.realtime.updateRelativeDates();
         });
     }
 
@@ -154,6 +155,11 @@
 
         // Auto update history
         setInterval(updatePage, 30000);
+
+        // Update timestamps of items
+        setInterval(() => {
+            StackExchange.realtime.updateRelativeDates();
+        }, 10000);
     }
 
 
