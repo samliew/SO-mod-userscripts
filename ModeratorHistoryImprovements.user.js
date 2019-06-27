@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every minute.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.1
+// @version      1.7
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
@@ -76,6 +76,10 @@
                 t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/users/$1" target="_blank" title="view user">$1</a>`);
                 $(this).addClass('mod-destroys');
             }
+            else if(/^Moderator merges users/.test(t)) {
+                t = t.replace(/(\d+)/g, `<a href="https://${location.hostname}/users/$1" target="_blank" title="view user">$1</a>`);
+                $(this).addClass('mod-merges-users');
+            }
             else if(/^(Moderator contacts user|See user-message)/.test(t)) {
                 t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/users/message/$1" target="_blank" title="view message">$1</a>`);
                 $(this).addClass('mod-contacts-user');
@@ -87,6 +91,14 @@
             else if(/^(Moderator edits comment)/.test(t)) {
                 t = t.replace(/ - on post id = (\d+), comment id = (\d+)/, ` <a href="https://${location.hostname}/posts/comments/$2" target="_blank" title="view comment">$2</a>`);
                 $(this).addClass('mod-edits-comment');
+            }
+            else if(/^Moderator merges tags/.test(t)) {
+                t = t.replace(/\[([^\]]+)\]/g, `<a href="https://${location.hostname}/tags/$1/info" class="post-tag" target="_blank" title="view tag">$1</a>`);
+                $(this).addClass('mod-merges-tags');
+            }
+            else if(/^Moderator merges questions/.test(t)) {
+                t = t.replace(/(\d+)/g, `<a href="https://${location.hostname}/questions/$1" target="_blank" title="view question">$1</a>`);
+                $(this).addClass('mod-merges-questions');
             }
 
             t = t.replace(/Flag processed \((\w+), (Declined|Helpful)\)/, '$1');
@@ -208,6 +220,9 @@
 }
 .mod-page #mod-user-history > li > *:nth-child(2) {
     grid-row: 1;
+}
+.mod-page #mod-user-history > li > .mod-flair {
+    display: none;
 }
 .mod-page #mod-user-history li.mod-helpful:before {
     content: 'Helpful: ';
