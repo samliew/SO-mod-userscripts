@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3.5
+// @version      3.3.6
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -391,7 +391,7 @@
                     newDuration *= 2;
 
                     // Also add warning to the submit button if currently banned
-                    if(currtext == 'current') {
+                    if(currtext == 'Current') {
                         $('#lookup-result input:submit').addClass('s-btn__danger s-btn__filled js-ban-again').val((i, v) => v + ' again');
                     }
                 }
