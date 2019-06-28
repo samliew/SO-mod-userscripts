@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3.6
+// @version      3.4
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -334,8 +334,9 @@
                     var numBans = 0;
                     var summary = $('#summary', data);
                     var numBansLink = summary.find('a[href="?type=User+has+been+banned+from+review"]').get(0);
-                    if(typeof numBansLink !== 'undefined')
+                    if(typeof numBansLink !== 'undefined') {
                         numBans = Number(numBansLink.nextSibling.nodeValue.match(/\d+/)[0]);
+                    }
 
                     console.log("Review bans for " + uid, numBans);
 
@@ -357,25 +358,67 @@
         $.get(url).then(function(data) {
 
             // Parse user history page
-            const summary = $('#summary', data);
-            const histItems = $('#user-history tbody tr', data);
-            const numBansLink = summary.find('a[href="?type=User+has+been+banned+from+review"]').get(0);
             let numBans = 0;
+            const summary = $('#summary', data);
+            const eventRows = $('#user-history tbody tr', data);
 
-            if(typeof numBansLink !== 'undefined')
+            // Get number from filter menu, because user might have been banned more times and events will overflow to next page
+            const numBansLink = summary.find('a[href="?type=User+has+been+banned+from+review"]').get(0);
+            if(typeof numBansLink !== 'undefined') {
                 numBans = Number(numBansLink.nextSibling.nodeValue.match(/\d+/)[0]);
+            }
 
             // Add annotation count
-            const banCountDisplay = $(`<div class="reviewban-history">User was previously review banned <b><a href="${url}" title="view history" target="_blank">${numBans} time${pluralize(numBans)}</a></b>. </div>`).insertAfter('.message-wrapper');
-            banCountDisplay.nextAll().wrapAll(`<div class="duration-wrapper"></div>`);
+            const banCountDisplay = $(`<div class="reviewban-history-summary">User was previously review banned <b><a href="${url}" title="view history" target="_blank">${numBans} time${pluralize(numBans)}</a></b>. </div>`)
+                .insertAfter('.message-wrapper');
+            banCountDisplay.nextAll().wrapAll('<div class="grid history-duration-wrapper"><div class="grid--cell4 duration-wrapper"></div></div>');
+
+            const pastReviewMessages = $('<div class="grid--cell12 reviewban-history"></div>').appendTo('.history-duration-wrapper');
 
             // Default to 2 days
             $('.duration-radio-group input').first().click();
 
+            // Get hist items from filtered page
+            const histItems = eventRows.map(function(i, el) {
+                const event = Object.assign({}, null); // plain object
+                let startDate = new Date($(el).find('.relativetime').attr('title'));
+                let endDate = new Date(startDate);
+                event.begin = startDate;
+                event.reason = el.children[2].innerHTML.split('duration =')[0];
+                event.mod = el.children[2].innerHTML.split(/duration = \d+ days?/)[1].replace(/\s*by\s*/, '');
+                event.duration = Number(el.children[2].innerText.match(/\= (\d+) day/m)[1]);
+                // calculate end datetime
+                endDate.setDate(endDate.getDate() + event.duration);
+                event.end = endDate;
+                return event;
+            }).get();
+
+            // Append hist items to pastReviewMessages
+            histItems.forEach(function(event) {
+                pastReviewMessages.append(`<div class="item">
+  <div class="item-meta">
+    <div><span class="relativetime" title="${dateToSeDateFormat(event.begin)}">${event.begin.toDateString() + ' ' + event.begin.toLocaleTimeString()}</span></div>
+    <div>${event.duration} days</div>
+    <div><span class="relativetime" title="${dateToSeDateFormat(event.end)}">${event.end.toDateString() + ' ' + event.end.toLocaleTimeString()}</span></div>
+    <div>${event.mod}</div>
+  </div>
+  <div class="item-reason">${event.reason}</div>
+</div>`);
+            });
+
+            // No items
+            if(histItems.length == 0) {
+                pastReviewMessages.append('<em>(none)</em>');
+            }
+            else {
+                pastReviewMessages.find('a').attr('target', '_blank'); // links open in new tab/window
+                StackExchange.realtime.updateRelativeDates();
+            }
+
             // Add currently/recently banned indicator if history found
             let daysago = new Date();
             daysago.setDate(daysago.getDate() - 28);
-            histItems.eq(0).each(function() {
+            eventRows.eq(0).each(function() {
                 const datetime = new Date($(this).find('.relativetime').attr('title'));
                 const duration = Number(this.innerText.match(/\= \d+ days/)[0].replace(/\D+/g, ''));
                 let banEndDatetime = new Date(datetime);
@@ -546,12 +589,69 @@ a.reviewban-button {
     margin: 5px 0;
 }
 
-#lookup-result > .reviewban-history {
-    margin: 10px 0 10px;
+#lookup-result form > .reviewban-history-summary {
+    margin: 10px 0 15px;
 }
-.reviewban-history .reviewban-ending.current span.type,
-.reviewban-history .reviewban-ending.recent span.type {
+.reviewban-history-summary .reviewban-ending.current span.type,
+.reviewban-history-summary .reviewban-ending.recent span.type {
     color: red;
+}
+.reviewban-history {
+    max-height: 500px;
+    border-left: 1px solid #ccc;
+    padding-left: 20px;
+    padding-bottom: 10px;
+    padding-right: 18px;
+    overflow-y: scroll;
+}
+.reviewban-history:before {
+    content: 'Previous review ban reasons:';
+    position: sticky;
+    top: 0;
+    display: block;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    background: white;
+}
+.reviewban-history > .item {
+    margin: 10px 0 20px;
+}
+.reviewban-history .item-meta {
+    font-size: 12px;
+}
+.reviewban-history .item-meta:after {
+    content: '';
+    display: block;
+    clear: both;
+}
+.reviewban-history .item-reason {
+    margin-top: 5px;
+    padding: 7px 12px;
+    background: #f6f6f6;
+    clear: both;
+}
+.reviewban-history .item-meta > div {
+    width: 40%;
+    float: left;
+}
+.reviewban-history .item-meta  > div:before {
+    display: inline-block;
+    min-width: 52px;
+    font-style: italic;
+}
+.reviewban-history .item-meta > div:nth-child(1):before {
+    content: 'Began: ';
+}
+.reviewban-history .item-meta > div:nth-child(2):before {
+    content: 'Duration: ';
+    width: 62px;
+}
+.reviewban-history .item-meta  > div:nth-child(3):before {
+    content: 'Ending: ';
+}
+.reviewban-history .item-meta  > div:nth-child(4):before {
+    content: 'Moderator: ';
+    width: 62px;
 }
 
 .message-wrapper {
