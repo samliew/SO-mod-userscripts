@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.1
+// @version      1.7.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -13,7 +13,6 @@
 // @include      https://*.stackexchange.com/review*
 //
 // @exclude      *chat.*
-// @exclude      *meta.*
 // @exclude      https://stackoverflow.com/c/*
 // @exclude      https://stackoverflow.blog*
 //
@@ -39,6 +38,7 @@ async function waitForSOMU() {
     const filteredTags = filteredElem ? (filteredElem.value || '').split(' ') : [''];
     let processReview, post = {}, skipAccepted = false;
     let isLinkOnlyAnswer = false, isCodeOnlyAnswer = false;
+    let numOfReviews = 0;
 
 
     function loadOptions() {
@@ -54,6 +54,13 @@ async function waitForSOMU() {
 
 
     function skipReview() {
+
+        // If referred from meta or post timeline, and is first review, do not automatically skip
+        if((document.referrer.includes('meta.') || /\/posts\/\d+\/timeline/.test(document.referrer)) && numOfReviews <= 1) {
+            console.log('Not skipping review as it was opened from Meta or post timeline page.');
+            return;
+        }
+
         setTimeout(function() {
             $('.review-actions').find('input[value$="Skip"], input[value$="Next"]').click();
         }, 500);
@@ -420,6 +427,9 @@ async function waitForSOMU() {
 
             // Next review loaded, transform UI and pre-process review
             else if(settings.url.includes('/review/next-task') || settings.url.includes('/review/task-reviewed/')) {
+
+                // Keep track of how many reviews were viewed in this session
+                numOfReviews++;
 
                 // Reset variables for next task
                 isLinkOnlyAnswer = false;
