@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5
+// @version      2.5.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -188,7 +188,7 @@ body .fc-theme-primary {
 
 /* Specific elements opacity & hover */
 .wmd-button-row,
-#left-sidebar,
+#left-sidebar:not(.js-unpinned-left-sidebar),
 #sidebar > *,
 .deleted-answer,
 .downvoted-answer,
