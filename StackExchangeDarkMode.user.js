@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.1
+// @version      2.5.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -768,6 +768,19 @@ a.comment-user.owner {
 .reviewban-history .reviewban-ending.current span.type,
 .reviewban-history .reviewban-ending.recent span.type {
     color: ${orange};
+}
+#review-flowchart svg * {
+    background-color: transparent;
+}
+#review-flowchart svg text {
+    fill: inherit;
+}
+#review-flowchart svg path {
+    fill: ${linkcolor};
+    stroke: ${linkcolor};
+}
+#review-flowchart svg rect {
+    stroke: none;
 }
 
 
