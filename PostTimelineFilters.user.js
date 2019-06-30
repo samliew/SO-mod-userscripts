@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8
+// @version      1.8.1
 //
 // @include      */posts*/timeline*
 // @include      */admin/posts/*/show-flags*
@@ -347,7 +347,8 @@ tr.separator + tr {
 .post-timeline .event-type {
     min-width: 90px !important;
 }
-.post-timeline .event-verb {
+.post-timeline .event-verb,
+.post-timeline-v2 .post-timeline .event-verb {
     min-width: 115px;
 }
 
