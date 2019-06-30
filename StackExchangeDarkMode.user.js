@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.11
+// @version      2.5
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -314,6 +314,17 @@ a.fc-dark:hover {
 .top-bar.top-bar__network .-logo {
     background-color: transparent;
     opacity: 1;
+}
+.top-bar .left-sidebar-toggle span,
+.top-bar .left-sidebar-toggle span:before,
+.top-bar .left-sidebar-toggle span:after {
+    background-color: ${textcolor};
+}
+.top-bar .left-sidebar-toggle.topbar-icon-on span {
+    background-color: transparent;
+}
+.top-bar .left-sidebar-toggle.topbar-icon-on {
+    background-color: ${bordercolor};
 }
 .s-select:before, .s-select:after,
 .f-select:before, .f-select:after {
