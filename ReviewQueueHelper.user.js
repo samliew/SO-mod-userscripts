@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.2
+// @version      1.8
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -11,6 +11,13 @@
 // @include      https://*askubuntu.com/review*
 // @include      https://*mathoverflow.net/review*
 // @include      https://*.stackexchange.com/review*
+//
+// @include      https://*stackoverflow.com/questions/*
+// @include      https://*serverfault.com/questions/*
+// @include      https://*superuser.com/questions/*
+// @include      https://*askubuntu.com/questions/*
+// @include      https://*mathoverflow.net/questions/*
+// @include      https://*.stackexchange.com/questions/*
 //
 // @exclude      *chat.*
 // @exclude      https://stackoverflow.com/c/*
@@ -138,12 +145,23 @@ async function waitForSOMU() {
 
     function doPageLoad() {
 
+        // Focus VTC button when radio button in close dialog popup is selected
+        $(document).on('click', '#popup-close-question input:radio', function() {
+            // Not migrate anywhere radio
+            if(this.id === 'migrate-anywhere') return;
+
+            $('#popup-close-question').find('input:submit').focus();
+        });
+
         // No queue detected, do nothing
         if(queueType == null) return;
         console.log('Review queue:', queueType);
 
         // Add additional class to body based on review queue
         document.body.classList.add(queueType + '-review-queue');
+
+        // Append review queue styles
+        addReviewQueueStyles();
 
         // Detect queue type and set appropriate process function
         switch(queueType) {
@@ -166,14 +184,6 @@ async function waitForSOMU() {
             default:
                 break;
         }
-
-        // Focus VTC button when radio button in close dialog popup is selected
-        $(document).on('click', '#popup-close-question input:radio', function() {
-            // Not migrate anywhere radio
-            if(this.id === 'migrate-anywhere') return;
-
-            $('#popup-close-question').find('input:submit').focus();
-        });
 
         // Focus Delete button when radio button in delete dialog popup is selected
         $(document).on('click', '#delete-question-popup input:radio', function() {
@@ -584,7 +594,8 @@ async function waitForSOMU() {
     }
 
 
-    GM_addStyle(`
+    function addReviewQueueStyles() {
+        GM_addStyle(`
 #footer {
     display: none !important;
 }
@@ -649,6 +660,7 @@ pre {
     content: '[7]';
 }
 `);
+    }
 
 
     // On page load
