@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8
+// @version      1.8.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -457,6 +457,9 @@ async function waitForSOMU() {
 
                 // If action was taken (post was refreshed), don't do anything else
                 if(responseJson.isRefreshing) return;
+
+                // If not review queue, do nothing (e.g.: viewing suggested edit from Q&A)
+                if(queueType == null) return;
 
                 setTimeout(function() {
 
