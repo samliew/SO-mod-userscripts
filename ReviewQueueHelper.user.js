@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.1
+// @version      1.8.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -143,47 +143,7 @@ async function waitForSOMU() {
     }
 
 
-    function doPageLoad() {
-
-        // Focus VTC button when radio button in close dialog popup is selected
-        $(document).on('click', '#popup-close-question input:radio', function() {
-            // Not migrate anywhere radio
-            if(this.id === 'migrate-anywhere') return;
-
-            $('#popup-close-question').find('input:submit').focus();
-        });
-
-        // No queue detected, do nothing
-        if(queueType == null) return;
-        console.log('Review queue:', queueType);
-
-        // Add additional class to body based on review queue
-        document.body.classList.add(queueType + '-review-queue');
-
-        // Append review queue styles
-        addReviewQueueStyles();
-
-        // Detect queue type and set appropriate process function
-        switch(queueType) {
-            case 'close':
-                processReview = processCloseReview; break;
-            case 'reopen':
-                processReview = processCloseReview; break;
-            case 'suggested-edits':
-                processReview = processCloseReview; break;
-            case 'helper':
-                processReview = processCloseReview; break;
-            case 'low-quality-posts':
-                processReview = processLowQualityPostsReview; break;
-            case 'triage':
-                processReview = processCloseReview; break;
-            case 'first-posts':
-                processReview = processCloseReview; break;
-            case 'late-answers':
-                processReview = processCloseReview; break;
-            default:
-                break;
-        }
+    function listenToKeyboardEvents() {
 
         // Focus Delete button when radio button in delete dialog popup is selected
         $(document).on('click', '#delete-question-popup input:radio', function() {
@@ -235,8 +195,8 @@ async function waitForSOMU() {
                 return;
             }
 
-            // Do nothing if a textbox or textarea is focused
-            if($('input:text:focus, textarea:focus').length > 0) return;
+            // Do nothing if a textbox or textarea is focused, unless it's a tilde key - so close dupe dialog has the shortcut
+            if($('input:text:focus, textarea:focus').length > 0 && evt.keyCode !== 192) return;
 
             // Is close menu open?
             const closeMenu = $('#popup-close-question:visible');
@@ -254,6 +214,8 @@ async function waitForSOMU() {
                     else {
                         closeMenu.find('.popup-close a').click();
                     }
+                    // Clear dupe closure search box
+                    $('#search-text').val('');
                     return false;
                 }
 
@@ -372,6 +334,52 @@ async function waitForSOMU() {
                 return false;
             }
         });
+    }
+
+
+    function doPageLoad() {
+
+        listenToKeyboardEvents();
+
+        // Focus VTC button when radio button in close dialog popup is selected
+        $(document).on('click', '#popup-close-question input:radio', function() {
+            // Not migrate anywhere radio
+            if(this.id === 'migrate-anywhere') return;
+
+            $('#popup-close-question').find('input:submit').focus();
+        });
+
+        // No queue detected, do nothing. Required for ajaxComplete function below
+        if(queueType == null) return;
+        console.log('Review queue:', queueType);
+
+        // Add additional class to body based on review queue
+        document.body.classList.add(queueType + '-review-queue');
+
+        // Append review queue styles
+        addReviewQueueStyles();
+
+        // Detect queue type and set appropriate process function
+        switch(queueType) {
+            case 'close':
+                processReview = processCloseReview; break;
+            case 'reopen':
+                processReview = processCloseReview; break;
+            case 'suggested-edits':
+                processReview = processCloseReview; break;
+            case 'helper':
+                processReview = processCloseReview; break;
+            case 'low-quality-posts':
+                processReview = processLowQualityPostsReview; break;
+            case 'triage':
+                processReview = processCloseReview; break;
+            case 'first-posts':
+                processReview = processCloseReview; break;
+            case 'late-answers':
+                processReview = processCloseReview; break;
+            default:
+                break;
+        }
     }
 
 
