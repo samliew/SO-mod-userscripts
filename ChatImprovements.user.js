@@ -1,13 +1,15 @@
 // ==UserScript==
 // @name         Chat Improvements
-// @description  Show users in room as a compact list
+// @description  Show users in room as a list with usernames, more timestamps
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.7
+// @version      0.7.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
 // @include      https://chat.meta.stackexchange.com/*
+//
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
 (function() {
@@ -38,13 +40,12 @@
         }
         */
 
-        // find messages without timestamp, then insert timestamp
+        // Find messages without timestamp, then insert timestamp
         events.forEach(function(event) {
             const msgs = $('#message-' + event.message_id).parent('.messages');
             if(msgs.length && msgs.children('.timestamp').length == 0) {
                 const d = new Date(event.time_stamp * 1000);
-                let time = d.getHours() + ':' +
-                           (d.getMinutes().toString().length != 2 ? '0' : '') + d.getMinutes();
+                let time = d.getHours() + ':' + (d.getMinutes().toString().length != 2 ? '0' : '') + d.getMinutes();
                 let prefix = '';
                 if(d < weekAgo) {
                     prefix = new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit' }).format(d) + ', ';
@@ -65,16 +66,16 @@
     }
 
 
-    function getMessageEvents(beforeMsgId = 0) {
+    function getMessageEvents(beforeMsgId = 0, num = 100) {
         return new Promise(function(resolve, reject) {
             if(typeof CHAT === 'undefined' || CHAT.CURRENT_ROOM_ID === 'undefined') { reject(); return; }
+            if(fkey == '') { reject(); return; }
 
-            $.post({
-                url: `https://chat.stackoverflow.com/chats/${CHAT.CURRENT_ROOM_ID}/events`,
-                since: beforeMsgId,
-                mode: 'Messages',
-                msgCount: 100,
-                fkey: fkey
+            $.post(`https://${location.hostname}/chats/${CHAT.CURRENT_ROOM_ID}/events`, {
+                'since': beforeMsgId,
+                'mode': 'Messages',
+                'msgCount': num,
+                'fkey': fkey
             })
             .done(function(v) {
                 processMessageTimestamps(v.events);
@@ -128,6 +129,15 @@
 
         // Expand more starred posts in AMA chatroom since we have a scrolling sidebar
         $('#sidebar-content.wmx3 span.more').filter((i,el) => el.parentNode.innerText.includes('starred') && el.innerText.includes('more')).click();
+
+        // Append timestamps when new messages detected
+        const d = new Date();
+        let time = d.getHours() + ':' + (d.getMinutes().toString().length != 2 ? '0' : '') + d.getMinutes();
+        $('.messages').filter(function() {
+            return $(this).children('.timestamp').length == 0;
+        }).each(function() {
+            $(this).prepend(`<div class="timestamp">${time}</div>`);
+        });
     }
 
 
@@ -175,6 +185,11 @@
             reapplyPersistentChanges();
             setInterval(reapplyPersistentChanges, 5000);
 
+            // Get latest message timestamps
+            //setInterval(function() {
+            //    getMessageEvents(0, 10);
+            //}, 10000);
+
             // On any user avatar image error in sidebar, hide image
             $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
                 $(this).hide();
@@ -195,6 +210,9 @@
         let loaded = false;
         $(document).ajaxComplete(function(event, xhr, settings) {
 
+            // If not a successful ajax call, do nothing
+            if(xhr.status == 403 || xhr.status == 500) return;
+
             // Once: userlist is ready, init new userlist
             if(!loaded && settings.url.includes('/rooms/pingable')) {
                 loaded = true; // once
@@ -210,7 +228,7 @@
                 updateUserlist();
             }
 
-            // On new events fetch, update cache and insert timestamps
+            // On new events fetch (on page load and loading older messages), update cache and insert timestamps
             if(settings.url.includes('/events')) {
                 processMessageTimestamps(xhr.responseJSON.events);
             }
