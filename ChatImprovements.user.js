@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.7.3
+// @version      0.7.4
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -46,7 +46,7 @@
                 let time = d.getHours() + ':' + (d.getMinutes().toString().length != 2 ? '0' : '') + d.getMinutes();
                 let prefix = '';
                 if(d < weekAgo) {
-                    prefix = new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit' }).format(d) + ', ';
+                    prefix = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(d) + ', ';
                 }
                 else if(d < dayAgo) {
                     prefix = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(d) + ' ';
