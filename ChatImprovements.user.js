@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.7.2
+// @version      0.7.3
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -49,7 +49,7 @@
                     prefix = new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit' }).format(d) + ', ';
                 }
                 else if(d < dayAgo) {
-                    prefix = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(d);
+                    prefix = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(d) + ' ';
                 }
                 msgs.prepend(`<div class="timestamp">${prefix}${time}</div>`);
             }
@@ -438,6 +438,9 @@ ul#my-rooms > li > a span {
 }
 .monologue {
     min-width: 300px;
+}
+.monologue .timestamp {
+    color: #444;
 }
 
 
