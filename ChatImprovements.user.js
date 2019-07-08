@@ -3,7 +3,7 @@
 // @description  Show users in room as a compact list
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.6.5
+// @version      0.7
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -16,6 +16,73 @@
 
     const fkey = document.getElementById('fkey') ? document.getElementById('fkey').value : '';
     const newuserlist = $(`<div id="present-users-list"></div>`);
+    const tzOffset = new Date().getTimezoneOffset();
+    const dayAgo = Date.now() - 86400000;
+    const weekAgo = Date.now() - 7 * 86400000;
+    let messageEvents = [];
+
+
+    function processMessageTimestamps(events) {
+        if(typeof events === 'undefined') return;
+
+        /*
+        event: {
+            content
+            event_type
+            message_id
+            parent_id
+            room_id
+            time_stamp
+            user_id
+            user_name
+        }
+        */
+
+        // find messages without timestamp, then insert timestamp
+        events.forEach(function(event) {
+            const msgs = $('#message-' + event.message_id).parent('.messages');
+            if(msgs.length && msgs.children('.timestamp').length == 0) {
+                const d = new Date(event.time_stamp * 1000);
+                let time = d.getHours() + ':' +
+                           (d.getMinutes().toString().length != 2 ? '0' : '') + d.getMinutes();
+                let prefix = '';
+                if(d < weekAgo) {
+                    prefix = new Intl.DateTimeFormat('en-US', { month: 'short', day: '2-digit' }).format(d) + ', ';
+                }
+                else if(d < dayAgo) {
+                    prefix = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(d);
+                }
+                msgs.prepend(`<div class="timestamp">${prefix}${time}</div>`);
+            }
+        });
+
+        // Cache results
+        // Filter out the unique items, then merge with our cache
+        // https://stackoverflow.com/a/23080662
+        //messageEvents = messageEvents.concat(events.filter(function (item) {
+        //    return messageEvents.indexOf(item) < 0;
+        //}));
+    }
+
+
+    function getMessageEvents(beforeMsgId = 0) {
+        return new Promise(function(resolve, reject) {
+            if(typeof CHAT === 'undefined' || CHAT.CURRENT_ROOM_ID === 'undefined') { reject(); return; }
+
+            $.post({
+                url: `https://chat.stackoverflow.com/chats/${CHAT.CURRENT_ROOM_ID}/events`,
+                since: beforeMsgId,
+                mode: 'Messages',
+                msgCount: 100,
+                fkey: fkey
+            })
+            .done(function(v) {
+                processMessageTimestamps(v.events);
+                resolve(v.events);
+            })
+            .fail(reject);
+        });
+    }
 
 
     function updateUserlist() {
@@ -66,10 +133,8 @@
 
     function doPageload() {
 
-
         // When joining a chat room
         if(location.pathname.includes('/rooms/') && !location.pathname.includes('/info/')) {
-
 
             // Always rejoin favourite rooms
             $.post(`https://${location.hostname}/chats/join/favorite`, {
@@ -77,7 +142,6 @@
                 immediate: true,
                 fkey: fkey
             }, () => console.log('rejoined favourite rooms'));
-
 
             // If on mobile chat
             if(document.body.classList.contains('mob')) {
@@ -102,7 +166,6 @@
                 return;
             }
 
-
             // Append desktop styles
             appendStyles();
 
@@ -111,26 +174,6 @@
             $('#roomtitle + div').not('#roomdesc').appendTo('#roomdesc');
             reapplyPersistentChanges();
             setInterval(reapplyPersistentChanges, 5000);
-
-            // On any page update
-            let loaded = false;
-            $(document).ajaxComplete(function(event, xhr, settings) {
-
-                // Once: userlist is ready, init new userlist
-                if(!loaded && settings.url.includes('/rooms/pingable')) {
-                    loaded = true; // once
-                    updateUserlist();
-                    setTimeout(updateUserlist, 5e3);
-
-                    // Occasionally update userlist
-                    setInterval(updateUserlist, 15e3);
-                }
-
-                // On new messages, update userlist
-                if(settings.url.includes('/events') || settings.url.includes('/messages/new') || settings.url.includes('/rooms/pingable')) {
-                    updateUserlist();
-                }
-            });
 
             // On any user avatar image error in sidebar, hide image
             $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
@@ -143,6 +186,35 @@
             appendMobileUserStyles();
         }
 
+    }
+
+
+    function listenToPageUpdates() {
+
+        // On any page update
+        let loaded = false;
+        $(document).ajaxComplete(function(event, xhr, settings) {
+
+            // Once: userlist is ready, init new userlist
+            if(!loaded && settings.url.includes('/rooms/pingable')) {
+                loaded = true; // once
+                updateUserlist();
+                setTimeout(updateUserlist, 3000);
+
+                // Occasionally update userlist
+                setInterval(updateUserlist, 15000);
+            }
+
+            // On new messages, update userlist
+            if(settings.url.includes('/events') || settings.url.includes('/messages/new') || settings.url.includes('/rooms/pingable')) {
+                updateUserlist();
+            }
+
+            // On new events fetch, update cache and insert timestamps
+            if(settings.url.includes('/events')) {
+                processMessageTimestamps(xhr.responseJSON.events);
+            }
+        });
     }
 
 
@@ -553,5 +625,6 @@ ul#my-rooms > li > a span {
 
     // On page load
     doPageload();
+    listenToPageUpdates();
 
 })();
