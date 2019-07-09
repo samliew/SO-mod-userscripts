@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.7.4
+// @version      0.7.5
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -17,6 +17,7 @@
     const fkey = document.getElementById('fkey') ? document.getElementById('fkey').value : '';
     const newuserlist = $(`<div id="present-users-list"></div>`);
     const tzOffset = new Date().getTimezoneOffset();
+    const now = new Date();
     const dayAgo = Date.now() - 86400000;
     const weekAgo = Date.now() - 7 * 86400000;
     let messageEvents = [];
@@ -24,6 +25,9 @@
 
     function processMessageTimestamps(events) {
         if(typeof events === 'undefined') return;
+
+        // Remove existing "yst" timestamps in favour of ours for consistency
+        $('.timestamp').filter((i, el) => el.innerText.includes('yst')).remove();
 
         /*
         event: {
@@ -48,7 +52,7 @@
                 if(d < weekAgo) {
                     prefix = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(d) + ', ';
                 }
-                else if(d < dayAgo) {
+                else if(d.getDate() != now.getDate()) {
                     prefix = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(d) + ' ';
                 }
                 msgs.prepend(`<div class="timestamp">${prefix}${time}</div>`);
@@ -497,7 +501,7 @@ ul#my-rooms > li > a span {
     opacity: 1 !important;
 }
 #present-users-list li.inactive {
-    opacity: 0.4 !important;
+    opacity: 0.5 !important;
 }
 #present-users-list li .avatar {
     position: relative;
