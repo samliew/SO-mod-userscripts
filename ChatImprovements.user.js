@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.7.5
+// @version      0.7.6
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -131,15 +131,29 @@
 
         // Expand more starred posts in AMA chatroom since we have a scrolling sidebar
         $('#sidebar-content.wmx3 span.more').filter((i,el) => el.parentNode.innerText.includes('starred') && el.innerText.includes('more')).click();
+    }
 
-        // Append timestamps when new messages detected
-        const d = new Date();
-        let time = d.getHours() + ':' + (d.getMinutes().toString().length != 2 ? '0' : '') + d.getMinutes();
-        $('.messages').filter(function() {
-            return $(this).children('.timestamp').length == 0;
-        }).each(function() {
-            $(this).prepend(`<div class="timestamp">${time}</div>`);
-        });
+
+    function applyTimestampsToNewMessages() {
+
+        setInterval(function() {
+
+            // Append timestamps when new messages detected
+            const newMsgs = $('.messages').filter(function() {
+                return $(this).children('.timestamp').length == 0;
+            });
+
+            // No new messages
+            if(newMsgs.length == 0) return;
+
+            // Apply timestamps
+            const d = new Date();
+            let time = d.getHours() + ':' + (d.getMinutes().toString().length != 2 ? '0' : '') + d.getMinutes();
+            newMsgs.each(function() {
+                $(this).prepend(`<div class="timestamp">${time}</div>`);
+            });
+
+        }, 1000);
     }
 
 
@@ -187,10 +201,8 @@
             reapplyPersistentChanges();
             setInterval(reapplyPersistentChanges, 5000);
 
-            // Get latest message timestamps
-            //setInterval(function() {
-            //    getMessageEvents(0, 10);
-            //}, 10000);
+            // Apply message timestamps to new messages
+            applyTimestampsToNewMessages();
 
             // On any user avatar image error in sidebar, hide image
             $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
