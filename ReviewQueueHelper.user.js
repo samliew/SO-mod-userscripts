@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.2
+// @version      1.8.3
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -150,8 +150,12 @@ async function waitForSOMU() {
             $('#delete-question-popup').find('input:submit').focus();
         });
 
-        // Focus Flag button when radio button in flag dialog popup is selected
-        $(document).on('click', '#popup-flag-post input:radio', function() {
+        // Focus Flag button when radio button in flag dialog popup is selected, UNLESS it's the custom reason option
+        $(document).on('click', '#popup-flag-post input:radio', function(evt) {
+
+            // If custom reason option, do nothing
+            if(this.value == 'PostOther') return;
+
             $('#popup-flag-post').find('input:submit').focus();
         });
 
@@ -342,8 +346,15 @@ async function waitForSOMU() {
         listenToKeyboardEvents();
 
         // Focus VTC button when radio button in close dialog popup is selected
-        $(document).on('click', '#popup-close-question input:radio', function() {
-            // Not migrate anywhere radio
+        $(document).on('click', '#popup-close-question input:radio', function(evt) {
+
+            // If dupe radio, do nothing
+            if(this.value === 'Duplicate') return;
+
+            // If custom reason option, do nothing
+            if(this.value == '3') return;
+
+            // If migrate anywhere radio, do nothing
             if(this.id === 'migrate-anywhere') return;
 
             $('#popup-close-question').find('input:submit').focus();
