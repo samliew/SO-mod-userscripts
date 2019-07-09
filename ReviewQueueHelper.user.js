@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.3
+// @version      1.8.4
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -601,11 +601,11 @@ async function waitForSOMU() {
                         skipReview();
                         return;
                     }
-                    else if(isAudit()) {
-                        console.log('skipping review audit via manual check');
-                        skipReview();
-                        return;
-                    }
+                    //else if(isAudit()) {
+                    //    console.log('skipping review audit via manual check');
+                    //    skipReview();
+                    //    return;
+                    //}
 
                     // Process post based on queue type
                     if(typeof processReview === 'function') processReview();
