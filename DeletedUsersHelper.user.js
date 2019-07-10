@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.15.3
+// @version      1.16
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -39,12 +39,17 @@
     // See also https://github.com/samliew/dynamic-width
     $.fn.dynamicWidth = function () {
         var plugin = $.fn.dynamicWidth;
-        if (!plugin.fakeEl) plugin.fakeEl = $('<span>').hide().appendTo(document.body);
+        if (!plugin.fakeEl) plugin.fakeEl = $('<span style="position:absolute;"></span>').hide().appendTo(document.body);
 
         function sizeToContent (el) {
             var $el = $(el);
             var cs = getComputedStyle(el);
-            plugin.fakeEl.text(el.value || el.innerText || el.placeholder).css('font', $el.css('font'));
+            plugin.fakeEl.text(el.value || el.innerText || el.placeholder)
+                .css('font-family', $el.css('font-family'))
+                .css('font-size', $el.css('font-size'))
+                .css('font-weight', $el.css('font-weight'))
+                .css('font-style', $el.css('font-style'))
+                .css('line-height', $el.css('line-height'));
             $el.css('width', plugin.fakeEl.width() + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight) + 1);
         }
 
