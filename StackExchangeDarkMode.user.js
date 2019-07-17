@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.2
+// @version      2.5.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -34,7 +34,6 @@
     const orange = '#f48024';
 
 
-    let bodyopacity = '1';
     let textcolor = '#bbb';
     let linkcolor = '#fff';
     let highlightcolor = '#eee';
@@ -47,7 +46,6 @@
     const hour = new Date().getHours();
     const isLateNight = hour >= 22 || hour <= 6;
     if(isLateNight) {
-        bodyopacity = '0.9';
         textcolor = '#999';
         linkcolor = '#ccc';
         highlightcolor = '#ddd';
@@ -71,7 +69,6 @@
 /* Apply to all */
 body {
     background-image: none;
-    opacity: ${bodyopacity};
 }
 *,
 *:before,
@@ -440,12 +437,10 @@ div.meter div {
 .supernovabg {
     color: white;
     background-color: #F48024;
-    opacity: ${bodyopacity-0.1};
 }
 .hotbg {
     color: white;
     background-color: #CF7721;
-    opacity: ${bodyopacity-0.1};
 }
 .coolbg {
     color: white;
