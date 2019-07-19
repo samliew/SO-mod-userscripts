@@ -3,7 +3,7 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -107,6 +107,7 @@
                     cls = 'ctype-bad';
                     break;
                 case 'unfriendly or unkind':
+                case 'unfriendly or unkind (auto)':
                 case 'unwelcoming':
                     cls = 'ctype-poor';
                     break;
