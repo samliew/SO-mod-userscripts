@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.4
+// @version      1.8.5
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -409,10 +409,13 @@ async function waitForSOMU() {
             if(settings.url.includes('/close/popup')) {
                 setTimeout(function() {
 
-                    // Select default radio based on previous votes
-                    let opts = $('#popup-close-question .bounty-indicator-tab').slice(0, -1).get().sort((a, b) => Number(a.innerText) - Number(b.innerText));
+                    // Find and add class to off-topic bounty indicator so we can avoid it
+                    $('#popup-close-question input[value="OffTopic"]').nextAll('.bounty-indicator-tab').addClass('offtopic-indicator');
+
+                    // Select default radio based on previous votes, ignoring the off-topic reason
+                    let opts = $('#popup-close-question .bounty-indicator-tab').not('.offtopic-indicator').slice(0, -1).get().sort((a, b) => Number(a.innerText) - Number(b.innerText));
                     const selOpt = $(opts).last().closest('label').find('input').click();
-                    console.log(selOpt);
+                    //console.log(opts, selOpt);
 
                     // If selected option is in a subpane, display off-topic subpane instead
                     const pane = selOpt.closest('.popup-subpane');
