@@ -69,6 +69,17 @@ Direct installation links (raw files)
 
 [Rejected Suggested Edits](https://github.com/samliew/SO-mod-userscripts/raw/master/RejectedSuggestedEdits.user.js)
 
+[Stack Exchange Dark Mode](https://github.com/samliew/SO-mod-userscripts/raw/master/StackExchangeDarkMode.user.js)
+
+[Stack Exchange Wider Mode](https://github.com/samliew/SO-mod-userscripts/raw/master/StackExchangeWiderMode.user.js)
+
+[Moderator History Improvements](https://github.com/samliew/SO-mod-userscripts/raw/master/ModeratorHistoryImprovements.user.js)
+
+[Review Queue Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/ReviewQueueHelper.user.js)
+
+[Chat Improvements](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatImprovements.user.js)
+
+
 
 <br>
 
@@ -80,15 +91,15 @@ Direct installation links (raw files)
 
 [Chat Transcript Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatTranscriptHelper.user.js)
 
-[No Oneboxes in Chat Transcripts](https://github.com/samliew/SO-mod-userscripts/raw/master/NoOneboxesInChatTranscripts.user.js)
-
-[No Oneboxes in Chat](https://github.com/samliew/SO-mod-userscripts/raw/master/NoOneboxesInChat.user.js)
-
 [Chat More Magic Links](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatMoreMagicLinks.user.js)
 
 [Show Deleted Messages in Chat](https://github.com/samliew/SO-mod-userscripts/raw/master/ShowDeletedMessagesInChat.user.js) ♦
 
 [Chat Redact Messages](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatRedactMessages.user.js) ♦
+
+[No Oneboxes in Chat](https://github.com/samliew/SO-mod-userscripts/raw/master/NoOneboxesInChat.user.js)
+
+[No Oneboxes in Chat Transcripts](https://github.com/samliew/SO-mod-userscripts/raw/master/NoOneboxesInChatTranscripts.user.js)
 
 
 <br>
@@ -122,7 +133,5 @@ Direct installation links (raw files)
 ## Beta/Development
 
 [Mobile Moderator Pages](https://github.com/samliew/SO-mod-userscripts/raw/master/MobileModeratorPages.user.js)
-
-[Stack Overflow Dark Mode](https://github.com/samliew/SO-mod-userscripts/raw/master/StackOverflowDarkMode.user.js)
 
 [Chat Emojis](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatEmojis.user.js)
