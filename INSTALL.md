@@ -67,13 +67,13 @@ Direct installation links (raw files)
 
 [Fetch Question Stats](https://github.com/samliew/SO-mod-userscripts/raw/master/FetchQuestionStats.user.js)
 
-[Rejected Suggested Edits](https://github.com/samliew/SO-mod-userscripts/raw/master/RejectedSuggestedEdits.user.js)
+[Rejected Suggested Edits](https://github.com/samliew/SO-mod-userscripts/raw/master/RejectedSuggestedEdits.user.js) ♦
 
 [Stack Exchange Dark Mode](https://github.com/samliew/SO-mod-userscripts/raw/master/StackExchangeDarkMode.user.js)
 
 [Stack Exchange Wider Mode](https://github.com/samliew/SO-mod-userscripts/raw/master/StackExchangeWiderMode.user.js)
 
-[Moderator History Improvements](https://github.com/samliew/SO-mod-userscripts/raw/master/ModeratorHistoryImprovements.user.js)
+[Moderator History Improvements](https://github.com/samliew/SO-mod-userscripts/raw/master/ModeratorHistoryImprovements.user.js) ♦
 
 [Review Queue Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/ReviewQueueHelper.user.js)
 
