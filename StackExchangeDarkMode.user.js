@@ -501,7 +501,7 @@ body .bg-yellow-100 {
     background-color: ${bgcolor};
 }
 body .bg-green-400,
-.accepted:not(.icon-q),
+.accepted:not(.icon-q):not(.icon-a),
 .answered-accepted,
 .special-rep {
     background-color: ${darkgreen};
