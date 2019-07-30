@@ -777,7 +777,9 @@ a.comment-user.owner {
 #review-flowchart svg rect {
     stroke: none;
 }
-
+span.mod-flair {
+    background-color: inherit;
+}
 
 /* Chat */
 .topbar {
