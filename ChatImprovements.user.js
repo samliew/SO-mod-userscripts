@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.7.6
+// @version      0.8
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -231,11 +231,11 @@
             if(!loaded && settings.url.includes('/rooms/pingable')) {
                 loaded = true; // once
                 updateUserlist();
-                setTimeout(updateUserlist, 3000);
-
-                // Occasionally update userlist
-                setInterval(updateUserlist, 15000);
+                setTimeout(updateUserlist, 500);
             }
+
+            // Occasionally update userlist
+            setInterval(updateUserlist, 15000);
 
             // On new messages, update userlist
             if(settings.url.includes('/events') || settings.url.includes('/messages/new') || settings.url.includes('/rooms/pingable')) {
