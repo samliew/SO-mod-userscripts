@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.8.1
+// @version      0.9
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -143,7 +143,7 @@
                 return $(this).children('.timestamp').length == 0;
             });
 
-            // No new messages
+            // No new messages, do nothing
             if(newMsgs.length == 0) return;
 
             // Apply timestamps
@@ -152,6 +152,76 @@
             newMsgs.each(function() {
                 $(this).prepend(`<div class="timestamp">${time}</div>`);
             });
+
+        }, 1000);
+    }
+
+
+    /*
+       This function is intended to check for new messages and parse the message text
+       - It converts non-transcript chatroom links to the room transcript
+       - Attempt to display chat domain, and room name or message id with (transcript) label
+       - Also unshortens Q&A links that are truncated by default with ellipsis
+    */
+    function messageParser() {
+
+        function parseMessageLink(i, el) {
+
+            // Convert non-transcript chatroom links to the room transcript
+            if(el.href.includes('chat.') && el.href.includes('/rooms/')) {
+                el.href = el.href.replace('/rooms/', '/transcript/');
+                el.innerText = el.innerText.replace('/rooms/', '/transcript/');
+            }
+
+            // Attempt to display chat domain, and room name or message id with (transcript) label
+            if(el.href.includes('chat.') && el.href.includes('/transcript/')) {
+                let chatDomain = [
+                    { host: 'chat.stackexchange.com', name: 'SE chat' },
+                    { host: 'chat.meta.stackexchange.com', name: 'MSE chat' },
+                    { host: 'chat.stackoverflow.com', name: 'SO chat' }
+                ].filter(v => v.host == el.hostname).pop() || '';
+                let roomName = el.href.split('/').pop().replace(/[?#].+$/, '').replace(/-/g, ' ').replace(/\b./g, m => m.toUpperCase());
+                let messageId = Number((el.href.match(/#(\d+)/) || ['0']).pop());
+
+                if(el.href.includes('/message/') || el.href.includes('?m=')) {
+                    el.innerHTML = chatDomain.name +
+                        (!isNaN(Number(roomName)) && !el.href.includes('/message/') ? ', room #' + roomName : '') +
+                        ', message #' + messageId + ' <i>(transcript)</i>';
+                }
+                else if(isNaN(Number(roomName))) {
+                    el.innerHTML = roomName + ' <i>(transcript)</i>';
+                }
+                else {
+                    el.innerHTML = chatDomain.name + ', room #' + roomName + ' <i>(transcript)</i>';
+                }
+            }
+
+            // For Q&A links
+            if((el.href.includes('/questions/') || el.href.includes('/q/') || el.href.includes('/a/')) && el.innerText.includes('…')) {
+
+                // Avoid truncating inline question links
+                el.innerText = el.href.replace(/^https?:\/\//i, '').replace('/questions/', '/q/').replace(/(\/\D*)+(\/\d+#comment\d+_\d+)?$/, '');
+
+                // Remove user id
+                if(/\/\d+\/\d+$/.test(el.innerText)) {
+                    el.href = el.href.replace(/\/\d+$/, '');
+                    el.innerText = el.innerText.replace(/\/\d+$/, '');
+                }
+            }
+        }
+
+        setInterval(function() {
+
+            // Get new messages
+            const newMsgs = $('.message').not('.js-parsed').addClass('js-parsed');
+
+            // No new messages, do nothing
+            if(newMsgs.length == 0) return;
+
+            // Parse message links, but ignoring oneboxes and quotes
+            newMsgs.find('.content a').filter(function() {
+                return $(this).parents('.onebox, .quote').length == 0;
+            }).each(parseMessageLink);
 
         }, 1000);
     }
@@ -203,6 +273,9 @@
 
             // Apply message timestamps to new messages
             applyTimestampsToNewMessages();
+
+            // Parse messages
+            messageParser();
 
             // On any user avatar image error in sidebar, hide image
             $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
