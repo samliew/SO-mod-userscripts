@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.9
+// @version      0.9.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -194,19 +194,31 @@
                 else {
                     el.innerHTML = chatDomain.name + ', room #' + roomName + ' <i>(transcript)</i>';
                 }
+
+                $(this).addClass('nowrap');
             }
 
             // For Q&A links
             if((el.href.includes('/questions/') || el.href.includes('/q/') || el.href.includes('/a/')) && el.innerText.includes('…')) {
 
                 // Avoid truncating inline question links
-                el.innerText = el.href.replace(/^https?:\/\//i, '').replace('/questions/', '/q/').replace(/(\/\D*)+(\/\d+#comment\d+_\d+)?$/, '');
+                el.innerText = el.href.replace('/questions/', '/q/').replace(/(\/\D*)+(\/\d+#comment\d+_\d+)?$/, '');
 
                 // Remove user id
                 if(/\/\d+\/\d+$/.test(el.innerText)) {
                     el.href = el.href.replace(/\/\d+$/, '');
                     el.innerText = el.innerText.replace(/\/\d+$/, '');
                 }
+            }
+
+            // For all links that are truncated, display full url if url is < 58 chars incl protocol
+            if(el.innerText.includes('…') && el.href.length < 58) {
+                el.innerText = el.href;
+            }
+
+            // Trim protocol and trailing slashes
+            if(/(^https?|\/$)/.test(el.innerText)) {
+                el.innerText = el.innerText.replace(/^https?:\/\//i, '').replace(/\/$/, '');
             }
         }
 
@@ -690,6 +702,7 @@ ul#my-rooms > li > a span {
 #chat-body .signature .username.moderator:after {
     content: ' ♦';
 }
+
 /* Fix size of avatars in case they don't load */
 .avatar-16 {
     width: 16px;
@@ -707,6 +720,11 @@ ul#my-rooms > li > a span {
 .monologue .signature .avatar-32 + .username {
     clear: both;
     margin-bottom: 2px;
+}
+
+/* No wrap chat transcript links */
+a.nowrap {
+    white-space: nowrap;
 }
 
 @media screen and (min-width: 768px) {
