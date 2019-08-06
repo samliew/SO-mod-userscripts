@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.9.2
+// @version      0.9.3
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -168,7 +168,7 @@
         function parseMessageLink(i, el) {
 
             // Convert non-transcript chatroom links to the room transcript
-            if(el.href.includes('chat.') && el.href.includes('/rooms/')) {
+            if(el.href.includes('chat.') && el.href.includes('/rooms/') && !el.href.includes('/info/')) {
                 el.href = el.href.replace('/rooms/', '/transcript/');
                 el.innerText = el.innerText.replace('/rooms/', '/transcript/');
             }
