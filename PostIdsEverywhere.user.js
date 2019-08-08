@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.3
+// @version      1.8.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -82,7 +82,6 @@
 [class*='link']:not(.s-modal),
 [data-questionid],
 [data-answerid],
-[data-post-id],
 .count-cell + td,
 .user-tab-content td,
 .user-tab-content h3,
@@ -91,8 +90,7 @@
 .history-table td,
 .top-posts .post-container,
 .mod-section table.table td,
-.post-container,
-.js-flagged-post .js-body-loader {
+.post-container {
     position: relative;
 }
 .popup[data-questionid],
