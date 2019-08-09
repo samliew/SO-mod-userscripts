@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat. Lightbox images that are displayed smaller than it's original size.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.4
+// @version      1.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -18,7 +18,7 @@
     'use strict';
 
 
-    const lbSelector = '.ob-image a, a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]';
+    const lbSelector = '.ob-image a, a[href$=".jpg"], a[href$=".png"], a[href$=".gif"], a[href*="preview.redd.it"]';
     const ignoredParentClasses = [
         'avatar',
         'hat',
@@ -68,8 +68,11 @@
             });
         });
 
-        // For text links to images, also visually display an indicator
-        $(lbSelector).addClass('image-lightbox');
+        // Occasionally
+        setInterval(() => {
+            // For text links to images, also visually display an indicator
+            $(lbSelector).addClass('image-lightbox');
+        }, 3000);
     }
 
 
