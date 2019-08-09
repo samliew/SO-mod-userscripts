@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.5
+// @version      1.8.6
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -43,9 +43,11 @@ async function waitForSOMU() {
     const queueType = /^\/review/.test(location.pathname) ? location.href.replace(/\/\d+(\?.*)?$/, '').split('/').pop() : null;
     const filteredElem = document.querySelector('.review-filter-tags');
     const filteredTags = filteredElem ? (filteredElem.value || '').split(' ') : [''];
-    let processReview, post = {}, skipAccepted = false;
+    let processReview, post = {};
     let isLinkOnlyAnswer = false, isCodeOnlyAnswer = false;
     let numOfReviews = 0;
+
+    let skipAccepted = false, skipLongQuestions = false;
 
 
     function loadOptions() {
@@ -53,9 +55,13 @@ async function waitForSOMU() {
 
             // Set option field in sidebar with current custom value; use default value if not set before
             SOMU.addOption(scriptName, 'Skip Accepted Questions', skipAccepted, 'bool');
-
             // Get current custom value with default
             skipAccepted = SOMU.getOptionValue(scriptName, 'Skip Accepted Questions', skipAccepted, 'bool');
+
+            // Set option field in sidebar with current custom value; use default value if not set before
+            SOMU.addOption(scriptName, 'Skip Long Questions', skipLongQuestions, 'bool');
+            // Get current custom value with default
+            skipLongQuestions = SOMU.getOptionValue(scriptName, 'Skip Long Questions', skipLongQuestions, 'bool');
         });
     }
 
@@ -111,6 +117,13 @@ async function waitForSOMU() {
         // Question has an accepted answer, skip if enabled
         if(skipAccepted && post.isQuestion && post.accepted) {
             console.log("skipping accepted question");
+            skipReview();
+            return;
+        }
+
+        // Question body is too long, skip if enabled
+        if(skipLongQuestions && post.isQuestion && post.content.length > 3000) {
+            console.log("skipping long question, length " + post.content.length);
             skipReview();
             return;
         }
@@ -188,7 +201,7 @@ async function waitForSOMU() {
                     index = null;
                 }
             }
-            console.log("keypress", evt.keyCode, "index", index);
+            //console.log("keypress", evt.keyCode, "index", index);
 
             // Do nothing if key modifiers were pressed
             if(evt.shiftKey || evt.ctrlKey || evt.altKey) return;
