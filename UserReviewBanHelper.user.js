@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4
+// @version      3.5
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -301,7 +301,9 @@
 
             // On any completed review, load reviewers info
             $(document).ajaxComplete(function(event, xhr, settings) {
-                if(settings.url.includes('/review/next-task')) getUsersInfo();
+                if(settings.url.includes('/review/next-task')) {
+                    getUsersInfo();
+                }
             });
         }
     }
@@ -310,6 +312,16 @@
     /* For review pages */
     function getUsersInfo() {
 
+        // If triage queue, sort by action
+        if(location.pathname.includes('/review/triage/')) {
+            $('.review-instructions .review-results').detach().sort(function(a, b) {
+                const ax = $(a).children('b').last().text();
+                const bx = $(b).children('b').last().text();
+                return ax < bx ? -1 : 1;
+            }).appendTo('.review-instructions');
+        }
+
+        // Get users review history
         $('.review-summary').find('a[href^="/users/"]').each(function() {
             // Ignore mods
             var modFlair = $(this).next('.mod-flair');
