@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.7
+// @version      1.8.8
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -47,7 +47,7 @@ async function waitForSOMU() {
     let isLinkOnlyAnswer = false, isCodeOnlyAnswer = false;
     let numOfReviews = 0;
 
-    let skipAccepted = false, skipLongQuestions = false;
+    let skipAccepted = false, skipMediumQuestions = false, skipLongQuestions = false;
 
 
     function loadOptions() {
@@ -57,6 +57,11 @@ async function waitForSOMU() {
             SOMU.addOption(scriptName, 'Skip Accepted Questions', skipAccepted, 'bool');
             // Get current custom value with default
             skipAccepted = SOMU.getOptionValue(scriptName, 'Skip Accepted Questions', skipAccepted, 'bool');
+
+            // Set option field in sidebar with current custom value; use default value if not set before
+            SOMU.addOption(scriptName, 'Skip Medium-length Questions', skipMediumQuestions, 'bool');
+            // Get current custom value with default
+            skipMediumQuestions = SOMU.getOptionValue(scriptName, 'Skip Medium-length Questions', skipMediumQuestions, 'bool');
 
             // Set option field in sidebar with current custom value; use default value if not set before
             SOMU.addOption(scriptName, 'Skip Long Questions', skipLongQuestions, 'bool');
@@ -121,9 +126,16 @@ async function waitForSOMU() {
             return;
         }
 
+        // Question body is of medium length, skip if enabled
+        if(skipMediumQuestions && post.isQuestion && post.content.length > 1500) {
+            console.log("skipping medium-length question, length " + post.content.length);
+            skipReview();
+            return;
+        }
+
         // Question body is too long, skip if enabled
-        if(skipLongQuestions && post.isQuestion && post.content.length > 3000) {
-            console.log("skipping long question, length " + post.content.length);
+        if(skipLongQuestions && post.isQuestion && post.content.length > 4000) {
+            console.log("skipping long-length question, length " + post.content.length);
             skipReview();
             return;
         }
