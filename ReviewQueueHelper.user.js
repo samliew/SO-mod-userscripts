@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.1
+// @version      1.9.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -438,7 +438,7 @@ async function waitForSOMU() {
 
         // position dialog
         $('.popup').css({
-            top: 150,
+            top: 100,
             left: 0
         });
     }
@@ -697,6 +697,13 @@ pre {
 }
 .suggested-edits-review-queue .review-bar .review-actions-container {
     flex-basis: 55%;
+}
+
+#popup-close-question {
+    opacity: 0.9;
+}
+#popup-close-question:hover {
+    opacity: 1;
 }
 
 /* Edit reasons link to take up less space */
