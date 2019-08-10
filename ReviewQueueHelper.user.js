@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.9
+// @version      1.9
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -43,7 +43,7 @@ async function waitForSOMU() {
     const queueType = /^\/review/.test(location.pathname) ? location.href.replace(/\/\d+(\?.*)?$/, '').split('/').pop() : null;
     const filteredElem = document.querySelector('.review-filter-tags');
     const filteredTags = filteredElem ? (filteredElem.value || '').split(' ') : [''];
-    let processReview, post = {};
+    let processReview, post = {}, flaggedReason = null;
     let isLinkOnlyAnswer = false, isCodeOnlyAnswer = false;
     let numOfReviews = 0;
 
@@ -431,6 +431,19 @@ async function waitForSOMU() {
     }
 
 
+    function repositionReviewDialogs(scrollTop = true) {
+
+        // option to scroll to top of page
+        scrollTop ? setTimeout(() => window.scrollTo(0,0), 100) : 0;
+
+        // position dialog
+        $('.popup').css({
+            top: 150,
+            left: 0
+        });
+    }
+
+
     function listenToPageUpdates() {
 
         // On any page update
@@ -445,6 +458,8 @@ async function waitForSOMU() {
             // Close dialog loaded
             if(settings.url.includes('/close/popup')) {
                 setTimeout(function() {
+
+                    repositionReviewDialogs(true);
 
                     // Find and add class to off-topic bounty indicator so we can avoid it
                     $('#popup-close-question input[value="OffTopic"]').nextAll('.bounty-indicator-tab').addClass('offtopic-indicator');
@@ -466,6 +481,11 @@ async function waitForSOMU() {
 
                         // Re-select option
                         selOpt.click();
+                    }
+
+                    // If no popular vote, select detected general close reason
+                    if(selOpt.length == 0 && ['too broad', 'unclear what you\'re asking', 'primarily opinion-based'].includes(flaggedReason)) {
+                        $('#popup-close-question .action-name').filter((i, el) => el.textContent == flaggedReason).prev().click();
                     }
                 }, 50);
             }
@@ -519,6 +539,10 @@ async function waitForSOMU() {
 
                 // If not review queue, do nothing (e.g.: viewing suggested edit from Q&A)
                 if(queueType == null) return;
+
+                // Parse flagged reason (to select as default if no popular vote)
+                flaggedReason = (responseJson.instructions.match(/(too broad|primarily opinion-based|unclear what you&#39;re asking)/i) || ['']).pop().replace('&#39;', "'");
+                console.log(flaggedReason);
 
                 setTimeout(function() {
 
