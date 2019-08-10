@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.8
+// @version      1.8.9
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -47,7 +47,7 @@ async function waitForSOMU() {
     let isLinkOnlyAnswer = false, isCodeOnlyAnswer = false;
     let numOfReviews = 0;
 
-    let skipAccepted = false, skipMediumQuestions = false, skipLongQuestions = false;
+    let skipAccepted = false, skipMediumQuestions = false, skipLongQuestions = false, autoCloseShortQuestions = false;
 
 
     function loadOptions() {
@@ -67,6 +67,11 @@ async function waitForSOMU() {
             SOMU.addOption(scriptName, 'Skip Long Questions', skipLongQuestions, 'bool');
             // Get current custom value with default
             skipLongQuestions = SOMU.getOptionValue(scriptName, 'Skip Long Questions', skipLongQuestions, 'bool');
+
+            // Set option field in sidebar with current custom value; use default value if not set before
+            SOMU.addOption(scriptName, 'Try to close short Questions', autoCloseShortQuestions, 'bool');
+            // Get current custom value with default
+            autoCloseShortQuestions = SOMU.getOptionValue(scriptName, 'Try to close short Questions', autoCloseShortQuestions, 'bool');
         });
     }
 
@@ -137,6 +142,13 @@ async function waitForSOMU() {
         if(skipLongQuestions && post.isQuestion && post.content.length > 4000) {
             console.log("skipping long-length question, length " + post.content.length);
             skipReview();
+            return;
+        }
+
+        // Question body is short, try to close if enabled
+        if(autoCloseShortQuestions && post.isQuestion && post.content.length < 500) {
+            console.log("short question detected, length " + post.content.length);
+            $('.review-actions input[value*="Close"]').click();
             return;
         }
     }
