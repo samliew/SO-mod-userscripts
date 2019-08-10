@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9
+// @version      1.9.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -541,7 +541,7 @@ async function waitForSOMU() {
                 if(queueType == null) return;
 
                 // Parse flagged reason (to select as default if no popular vote)
-                flaggedReason = (responseJson.instructions.match(/(too broad|primarily opinion-based|unclear what you&#39;re asking)/i) || ['']).pop().replace('&#39;', "'");
+                flaggedReason = (responseJson.instructions.match(/(too broad|unclear what you&#39;re asking|primarily opinion-based)/i) || ['']).pop().replace('&#39;', "'");
                 console.log(flaggedReason);
 
                 setTimeout(function() {
