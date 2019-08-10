@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.6
+// @version      1.8.7
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -571,7 +571,7 @@ async function waitForSOMU() {
                     }
 
                     // Modify buttons
-                    $('.review-actions input').val(function(i, v) {
+                    $('.review-actions input').removeAttr('disabled').val(function(i, v) {
                         if(v.includes('] ')) return v; // do not modify twice
                         return '[' + (i+1) + '] ' + v;
                     });
