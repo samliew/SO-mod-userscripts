@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.9.3
+// @version      0.9.4
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -202,7 +202,7 @@
             if((el.href.includes('/questions/') || el.href.includes('/q/') || el.href.includes('/a/')) && el.innerText.includes('…')) {
 
                 // Avoid truncating inline question links
-                el.innerText = el.href.replace('/questions/', '/q/').replace(/(\/\D*)+(\/\d+#comment\d+_\d+)?$/, '') +
+                el.innerText = el.href.replace('/questions/', '/q/').replace(/(\/\D*)+((\/\d+)?#comment\d+_\d+)?$/, '') +
                     (el.href.includes('#comment') ? el.href.match(/(#comment\d+)_\d+$/)[1] : '');
 
                 // Remove user id
