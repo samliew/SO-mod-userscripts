@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.5
+// @version      2.6
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -833,8 +833,18 @@ span.mod-flair {
 #transcript div.message.reply-child .content {
     background-color: #444;
 }
+#chat-body .mine .messages {
+    background-color: #2f2f2f;
+}
+#chat-body .mine .messages *:not(code) {
+    background-color: transparent;
+}
+#chat-body .signature .username.moderator,
+#chat-body .signature .username.moderator:after {
+    color: #58abbf;
+}
 .message .mention {
-    background-color: #8f6224;
+    background-color: #6f477c;
 }
 .vote-count-container.stars .img {
     background-size: 32px;
@@ -880,8 +890,11 @@ span.mod-flair {
     background-color: transparent;
 }
 button#sayit-button {
-    background: #f48024 url('https://cdn-chat.sstatic.net/chat/Img/mobile/skin/dark/ico-send.svg') 60% 50% no-repeat;
+    background: #f48024 url('') 60% 50% no-repeat;
     opacity: 0.8;
+}
+body.mob button#sayit-button {
+    background-image: url('https://cdn-chat.sstatic.net/chat/Img/mobile/skin/dark/ico-send.svg');
 }
 #header .first-trigger[data-for="sidebar-left"] .ico-hamburger em {
     background: white;
@@ -891,6 +904,9 @@ button#sayit-button {
 }
 .sidebar-middle {
     background: transparent;
+}
+#chat-body #footer-legal a {
+    color: ${textcolor};
 }
 
 
