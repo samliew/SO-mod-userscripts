@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.9.5
+// @version      0.9.6
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -189,7 +189,13 @@
                         ', message #' + messageId + ' <i>(transcript)</i>';
                 }
                 else if(isNaN(Number(roomName))) {
-                    el.innerHTML = roomName + ' <i>(transcript)</i>';
+                    // Change link text to room name only if link text is a URL
+                    if(/^https?/.test(el.innerText)) {
+                        el.innerHTML = roomName + ' <i>(transcript)</i>';
+                    }
+                    else {
+                        el.innerHTML += ' <i>(transcript)</i>';
+                    }
                 }
                 else {
                     el.innerHTML = chatDomain.name + ', room #' + roomName + ' <i>(transcript)</i>';
@@ -294,6 +300,13 @@
             $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
                 $(this).hide();
             });
+
+        }
+        // When viewing page transcripts and bookmarks
+        else if(location.pathname.includes('/transcript/') || location.pathname.includes('/conversation/')) {
+
+            // Parse messages
+            messageParser();
         }
 
         // When viewing user info page in mobile
