@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.16
+// @version      1.17
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -175,9 +175,16 @@
         table.find('.tablesorter-headerRow').prepend(`<th title="Select all"><input type="checkbox" id="select-all" /></th>`);
         table.find('tbody tr').each(function() {
             const url = $(this).find('a').attr('href');
-            const pid = url.match(/\/\d+/g).reverse()[0].substr(1);
-            $(this).prepend(`<td><input type="checkbox" class="selected-post" value="${pid}" /></td>`);
-            $(this).toggleClass('deleted-answer', $(this).children().last().text() === 'Yes');
+
+            if(url) {
+                const pid = url.match(/\/\d+/g).reverse()[0].substr(1);
+                $(this).prepend(`<td><input type="checkbox" class="selected-post" value="${pid}" /></td>`);
+                $(this).toggleClass('deleted-answer', $(this).children().last().text() === 'Yes');
+            }
+            // possible that the row doesn't have a post link if it's a mod nomination post
+            else {
+                $(this).prepend(`<td></td>`);
+            }
         });
 
         // Checkbox toggle
