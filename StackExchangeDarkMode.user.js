@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.4
+// @version      2.5.5
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -391,6 +391,7 @@ ul.comments-list .comment > * {
 .tags .post-tag,
 .post-taglist .post-tag {
     background-color: ${btncolor};
+    border-color: #3b4045;
     color: #aaa;
 }
 body > div[style*="absolute"],
