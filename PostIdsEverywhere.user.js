@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.4
+// @version      1.8.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -80,8 +80,6 @@
         const styles = `
 <style>
 [class*='link']:not(.s-modal),
-[data-questionid],
-[data-answerid],
 .count-cell + td,
 .user-tab-content td,
 .user-tab-content h3,
@@ -144,7 +142,8 @@
     opacity: 1;
 }
 #sidebar .post-id,
-#question-header .post-id {
+#question-header .post-id,
+.js-loaded-body .post-id {
     display: none;
 }
 .post-list .revision-comment {
