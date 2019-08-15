@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.6
+// @version      3.7
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -55,7 +55,7 @@
             if(typeof pid === 'undefined' || pid == null) { reject(); return; }
 
             $.post({
-                url: `https://${location.hostname}/messages/delete-moderator-messages/${pid}/${unsafeWindow.renderTimeTicks}?valid=true`,
+                url: `https://${location.hostname}/messages/delete-moderator-messages/${pid}/${StackExchange.moderator.renderTimeTicks}?valid=true`,
                 data: {
                     fkey: fkey,
                     comment: comment
@@ -73,7 +73,7 @@
             if(typeof pid === 'undefined' || pid == null) { reject(); return; }
 
             $.post({
-                url: `https://${location.hostname}/messages/delete-moderator-messages/${pid}/${unsafeWindow.renderTimeTicks}?valid=false`,
+                url: `https://${location.hostname}/messages/delete-moderator-messages/${pid}/${StackExchange.moderator.renderTimeTicks}?valid=false`,
                 data: {
                     fkey: fkey,
                     comment: 2
