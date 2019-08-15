@@ -119,7 +119,7 @@
             if(typeof pid === 'undefined' || pid == null) { reject(); return; }
 
             $.post({
-                url: `https://${location.hostname}/messages/delete-moderator-messages/${pid}/${unsafeWindow.renderTimeTicks}?valid=true`,
+                url: `https://${location.hostname}/messages/delete-moderator-messages/${pid}/${StackExchange.moderator.renderTimeTicks}?valid=true`,
                 data: {
                     'fkey': fkey,
                     'comment': comment
