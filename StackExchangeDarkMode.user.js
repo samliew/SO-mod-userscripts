@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.1
+// @version      2.6.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -70,7 +70,7 @@
 body {
     background-image: none;
 }
-*,
+*:not(span):not(.msbar),
 *:before,
 *:after,
 #search-channel-selector,
