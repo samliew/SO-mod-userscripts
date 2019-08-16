@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.2
+// @version      2.7
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -102,6 +102,13 @@ input[type="reset"] {
 hr {
     background-color: ${bordercolor};
     border-color: ${bordercolor};
+}
+table,
+table th,
+table td {
+    border-color: ${bordercolor};
+    border-collapse: collapse;
+    border-width: 1px;
 }
 #sidebar .module,
 #sidebar .s-sidebarwidget:not(:last-child),
@@ -266,11 +273,42 @@ ul.comments-list .comment:hover .comment-flag {
 .question-summary,
 .top-bar .searchbar .s-input,
 #search-channel-selector,
-.topbar-dialog .modal-content li {
+.topbar-dialog .modal-content li,
+#badge-progress-menu {
     border-color: ${bordercolor};
 }
-#tabs a, .tabs a {
+#tabs,
+.tabs {
+    position: relative;
+    bottom: 1px;
+}
+#tabs:after,
+.tabs:after {
+    content: '';
+    clear: both;
+    display: block;
+    border-bottom: 1px solid #e4e6e8;
+}
+#tabs a,
+.tabs a {
+    position: relative;
+    bottom: -1px;
     border-color: ${btncolor};
+}
+#tabs a:before,
+.tabs a:before {
+    background-color: transparent;
+}
+#tabs a.youarehere,
+.tabs a.youarehere {
+    border-color: #e4e6e8;
+    border-bottom-color: ${bgcolor};
+}
+#tabs a:hover,
+.tabs a:hover,
+.diff-choices a:hover {
+    background-color: ${btncolor};
+    color: ${linkcolor};
 }
 .s-btn svg,
 .s-btn svg * {
@@ -282,7 +320,8 @@ ul.comments-list .comment:hover .comment-flag {
 #sidebar a,
 #content #sidebar .community-bulletin .bulletin-item-content a,
 a.fc-medium,
-a.fc-dark {
+a.fc-dark,
+.revision-comment {
     color: inherit;
 }
 #sidebar a:hover,
@@ -298,9 +337,7 @@ a.fc-dark:hover {
     border-top: 1px solid ${bordercolor};
 }
 .topbar-dialog .unread-item *,
-.expander-arrow-small-hide,
-#tabs a:before,
-.tabs a:before {
+.expander-arrow-small-hide {
     background-color: transparent;
 }
 .top-bar .-logo,
@@ -523,23 +560,6 @@ body .bg-green-400,
     color: white;
     background-color: #5fba7d;
 }
-span.diff-delete {
-    background-color: #e5bdb2;
-    color: #a82400;
-}
-span.diff-add {
-    background-color: #d1e1ad;
-    color: #405a04;
-}
-img.diff-delete {
-    border-color: red;
-}
-img.diff-add {
-    border-color: #d1e1ad;
-}
-.inserted > div {
-    background-color: #204a2e;
-}
 .profile-cards--graph {
     background-image: none;
 }
@@ -604,6 +624,46 @@ body > div[style*="absolute"].ui-widget {
 .bg-blue-500,
 .wz-progress.wz-progress--active {
     background-color: #0095ff;
+}
+#badge-progress-count {
+    height: auto;
+}
+
+
+/* Diff colours */
+span.diff-delete {
+    background-color: #e5bdb2;
+    color: #a82400;
+}
+span.diff-add {
+    background-color: #d1e1ad;
+    color: #222200;
+}
+span.diff-add .pun,
+span.diff-add .pln {
+    color: ${bgcolor};
+}
+img.diff-delete {
+    border-color: red;
+}
+img.diff-add {
+    border-color: #d1e1ad;
+}
+.inserted > div {
+    background-color: #113311;
+}
+.deleted > div {
+    background-color: #551111;
+}
+.body-diffs {
+    margin: 30px 0;
+}
+.diff-choices a {
+    border-color: ${bordercolor};
+}
+.diff-choices a:hover {
+    background-color: ${btncolor};
+    color: ${linkcolor};
 }
 
 
