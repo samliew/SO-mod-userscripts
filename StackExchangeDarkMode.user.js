@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7
+// @version      2.8
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -472,15 +472,18 @@ div.meter div {
 .s-badge__bounty * {
     background-color: transparent;
 }
-.supernovabg {
+.supernovabg,
+.mod-links .supernovabg {
     color: white;
     background-color: #F48024;
 }
-.hotbg {
+.hotbg,
+.mod-links .hotbg {
     color: white;
     background-color: #CF7721;
 }
-.coolbg {
+.coolbg,
+.mod-links .coolbg {
     color: white;
     background-color: ${bountyblue};
 }
@@ -665,6 +668,9 @@ img.diff-add {
     background-color: ${btncolor};
     color: ${linkcolor};
 }
+.js-search-results .result-highlight {
+    color: #bb5;
+}
 
 
 /* Code colours */
@@ -698,11 +704,15 @@ pre * {
 .js-usercolor:after {
     opacity: 0.7;
 }
-.post-stickyheader {
-    background: #111;
+#mainbar .post-stickyheader {
+    background: #0c0d0e;
 }
 .post-stickyheader * {
     background: none;
+}
+.post-stickyheader .relativetime {
+    color: #cc5555;
+    border-bottom-color: #cc5555;
 }
 .ctype-custom,
 .ctype-bad,
