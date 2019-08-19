@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.1
+// @version      2.8.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -906,7 +906,7 @@ span.mod-flair {
 #chat-body .mine .messages {
     background-color: #181818;
 }
-#chat-body .mine .messages *:not(code) {
+#chat-body .mine .messages *:not(code):not(.popup) {
     background-color: transparent;
 }
 #chat-body .signature .username.moderator,
