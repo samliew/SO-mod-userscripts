@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -413,6 +413,11 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
     margin: -3px 0;
 }
 .election-page .post-stickyheader .sticky-tools {
+    display: none;
+}
+
+/* Remove timeline button in post sidebar as we have a link in the header now */
+.js-post-issue[title="Timeline"] {
     display: none;
 }
 
