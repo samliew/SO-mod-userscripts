@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.4
+// @version      1.9.5
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -207,9 +207,10 @@ async function waitForSOMU() {
         // Keyboard shortcuts event handler
         $(document).on('keyup', function(evt) {
 
-            // Back buttons: escape (27) or tilde (192)
+            // Back buttons: escape (27)
+            // Unable to use tilde (192) as on the UK keyboard it is swapped the single quote keycode
             const cancel = evt.keyCode === 27;
-            const goback = evt.keyCode === 27 || evt.keyCode === 192;
+            const goback = evt.keyCode === 27;
 
             // Get numeric key presses
             let index = evt.keyCode - 49; // 49 = number 1 = 0 (index)
@@ -236,9 +237,8 @@ async function waitForSOMU() {
                 return;
             }
 
-            // Do nothing if a textbox or textarea is focused, unless it's a tilde key - so close dupe dialog has the shortcut
-            // Also ignore single quote key, which triggers dialog close for some reason
-            if(($('input:text:focus, textarea:focus').length > 0 && evt.keyCode !== 192) || (evt.which == "'" || evt.keyCode == 222)) return;
+            // Do nothing if a textbox or textarea is focused
+            if($('input:text:focus, textarea:focus').length > 0) return;
 
             // Is close menu open?
             const closeMenu = $('#popup-close-question:visible');
