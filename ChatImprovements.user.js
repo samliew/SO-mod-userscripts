@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.9.7
+// @version      0.9.8
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -518,6 +518,15 @@ html.fixed-header body.with-footer main {
     bottom: 87px;
 }
 
+/* Always use tiny (compact) signatures */
+.monologue .tiny-signature {
+    display: block !important;
+}
+.monologue .tiny-signature ~ * {
+    display: none !important;
+}
+
+
 /* Other minor stuff */
 #chat-body #container {
     padding-left: 10px;
@@ -529,6 +538,10 @@ html.fixed-header body.with-footer main {
     top: 0;
     right: 0;
     margin-top: 2px;
+}
+#sidebar .sprite-sec-private,
+#sidebar .sprite-sec-gallery {
+    margin-right: 1px;
 }
 #chat-body #searchbox,
 #transcript-body #searchbox {
