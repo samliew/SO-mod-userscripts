@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9
+// @version      2.9.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -70,7 +70,7 @@
 body {
     background-image: none;
 }
-*:not(span):not(.msbar),
+*:not(span):not(svg):not(.msbar),
 *:before,
 *:after,
 #search-channel-selector,
@@ -153,6 +153,9 @@ input[type="submit"]:hover,
     background-color: ${btncolor};
     color: ${linkcolor};
 }
+.s-label {
+    color: inherit;
+}
 body .fc-dark {
     color: #ddd;
 }
@@ -225,6 +228,14 @@ ul.comments-list .comment-flag {
 ul.comments-list .comment:hover .comment-up-off,
 ul.comments-list .comment:hover .comment-flag {
     opacity: 1;
+}
+.wmd-button,
+.wmd-spacer {
+    height: 43px;
+}
+.wmd-button > span {
+    filter: invert(1) brightness(1.2);
+    background-color: transparent;
 }
 
 
@@ -715,12 +726,12 @@ pre * {
 .js-usercolor:after {
     opacity: 0.7;
 }
-#mainbar .post-stickyheader {
+#content .post-stickyheader {
     background: #0c0d0e;
 }
-.post-stickyheader a,
-.post-stickyheader span,
-.post-stickyheader div {
+#content .post-stickyheader a,
+#content .post-stickyheader span,
+#content .post-stickyheader div {
     background: none;
 }
 .post-stickyheader .relativetime,
