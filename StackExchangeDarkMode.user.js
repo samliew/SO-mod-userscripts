@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.5
+// @version      2.9
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -506,7 +506,18 @@ body .deleted-comment .comment-flags {
     box-shadow: inset 0 0 0 9999px #220000;
 }
 .tagged-interesting *,
-.deleted-answer *:not(.popup):not(.post-stickyheader):not(.comment-flags):not(.comment-flagcount),
+.deleted-answer .post-layout,
+.deleted-answer .votecell,
+.deleted-answer .votecell svg,
+.deleted-answer .votecell .js-voting-container,
+.deleted-answer .votecell .js-voting-container > *,
+.deleted-answer .postcell,
+.deleted-answer .postcell *:not(.post-tag),
+.deleted-answer .answercell,
+.deleted-answer .answercell *,
+.deleted-answer .js-post-notices,
+.deleted-answer .js-post-notices *,
+.deleted-answer .answercell *:not(.popup):not(.comment-flags):not(.comment-flagcount),
 .deleted-comment .comment-text *:not(.popup),
 .question-status * {
     background-color: transparent;
@@ -853,6 +864,15 @@ a.comment-user.owner {
 }
 span.mod-flair {
     background-color: inherit;
+}
+.orig-username:before ,
+.orig-username:after {
+    background-color: transparent;
+}
+.deleted-user,
+#answers .deleted-answer .deleted-user,
+#question.deleted-answer .deleted-user {
+    background: indianred;
 }
 
 /* Chat */
