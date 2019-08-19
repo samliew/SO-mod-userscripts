@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.4
+// @version      2.8.5
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -506,13 +506,13 @@ body .deleted-comment .comment-flags {
     box-shadow: inset 0 0 0 9999px #220000;
 }
 .tagged-interesting *,
-.deleted-answer *:not(.popup):not(.post-stickyheader),
+.deleted-answer *:not(.popup):not(.post-stickyheader):not(.comment-flags):not(.comment-flagcount),
 .deleted-comment .comment-text *:not(.popup),
 .question-status * {
     background-color: transparent;
 }
-.question-status {
-    background-color: #333;
+#question .question-status {
+    background-color: ${bgcolor};
 }
 .vote-up-off,
 .vote-down-off,
@@ -707,12 +707,15 @@ pre * {
 #mainbar .post-stickyheader {
     background: #0c0d0e;
 }
-.post-stickyheader * {
+.post-stickyheader a,
+.post-stickyheader span,
+.post-stickyheader div {
     background: none;
 }
-.post-stickyheader .relativetime {
-    color: #cc5555;
-    border-bottom-color: #cc5555;
+.post-stickyheader .relativetime,
+.post-stickyheader .sticky-tools a {
+    color: ${textcolor};
+    border-bottom-color: ${textcolor};
 }
 .ctype-custom,
 .ctype-bad,
