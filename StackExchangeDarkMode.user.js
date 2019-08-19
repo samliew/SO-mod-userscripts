@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.3
+// @version      2.9.4
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -296,35 +296,35 @@ ul.comments-list .comment:hover .comment-flag {
     border-color: ${bordercolor};
 }
 #tabs,
-.tabs {
+#content .tabs {
     position: relative;
     bottom: 1px;
 }
 #tabs:after,
-.tabs:after {
+#content .tabs:after {
     content: '';
     clear: both;
     display: block;
     border-bottom: 1px solid #e4e6e8;
 }
 #tabs a,
-.tabs a {
+#content .tabs a {
     position: relative;
     bottom: -1px;
     border-color: ${btncolor};
 }
 #tabs a:before,
-.tabs a:before {
+#content .tabs a:before {
     background-color: transparent;
 }
 #tabs a.youarehere,
-.tabs a.youarehere {
+#content .tabs a.youarehere {
     border-color: #e4e6e8;
     border-bottom-color: ${bgcolor};
 }
 #tabs a:hover,
-.tabs a:hover,
-.diff-choices a:hover {
+#content .tabs a:hover,
+#content .diff-choices a:hover {
     background-color: ${btncolor};
     color: ${linkcolor};
 }
@@ -464,7 +464,8 @@ ul.comments-list .comment > * {
     color: #aaa;
 }
 body > div[style*="absolute"],
-.tag-popup {
+#content .tag-popup,
+#badge-progress-bar-vis {
     background-color: transparent;
 }
 .tag-popup .-container,
@@ -472,11 +473,11 @@ body > div[style*="absolute"],
 .tag-popup .-container .grid {
     background-color: black;
 }
-.s-progress {
+#content .s-progress {
     background-color: ${bordercolor};
 }
-.s-progress--bar,
-div.meter div {
+#content .s-progress--bar,
+#content div.meter > div {
     background-color: ${darkgreen};
 }
 .youarehere,
@@ -995,13 +996,21 @@ body#chat-body .messages .message.cmmt-deleted .content * {
     background-color: #6f477c;
 }
 .vote-count-container.stars .img {
+    background-size: 11px;
+    background-position: 0px -125px;
+    filter: brightness(0.8);
+}
+.vote-count-container.stars.owner-star .img {
     background-size: 32px;
     background-position: 0px -343px;
+    filter: brightness(1);
 }
+.vote-count-container.stars.owner-star.user-star .img,
 .vote-count-container.stars.user-star .img {
     background-size: auto;
     background-position: top left;
     background-position: 0 -110px;
+    filter: brightness(1);
 }
 #feed-ticker {
     border: 2px dashed ${textcolor};
