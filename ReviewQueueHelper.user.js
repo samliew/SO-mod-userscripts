@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.5
+// @version      1.9.6
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -698,6 +698,10 @@ pre {
 }
 .suggested-edits-review-queue .review-bar .review-actions-container {
     flex-basis: 55%;
+}
+
+.reviewable-post .question {
+    position: relative;
 }
 
 #popup-close-question {
