@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.2
+// @version      2.9.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -336,6 +336,10 @@ ul.comments-list .comment:hover .comment-flag {
 .s-btn * {
     background: none;
 }
+#content span[class*="badge"] a {
+    background-color: transparent;
+    color: white;
+}
 #sidebar a,
 #content #sidebar .community-bulletin .bulletin-item-content a,
 a.fc-medium,
@@ -394,12 +398,18 @@ a.fc-dark:hover {
 .s-btn__muted.s-btn__outlined {
     border-color: ${bordercolor};
 }
+#content .s-btn__primary {
+    background: #242729;
+}
+#content .s-btn__primary:hover {
+    background: #333;
+}
 .s-btn__muted.s-btn__outlined.s-btn__dropdown:after {
     border-color: currentColor transparent;
 }
 .s-btn__filled[disabled] {
-    background-color: #222 !important;
-    color: #666 !important;
+    background-color: #222;
+    color: #666;
 }
 .temp-popover--arrow:before,
 .temp-popover--arrow:after {
@@ -568,9 +578,25 @@ body .fc-green-500,
 .answered-accepted,
 .answered-accepted strong,
 .show-votes .sidebar-linked .spacer > a:first-child .answer-votes.answered-accepted,
-.show-votes .sidebar-related .spacer > a:first-child .answer-votes.answered-accepted {
+.show-votes .sidebar-related .spacer > a:first-child .answer-votes.answered-accepted,
+.user-show-new #user-tab-answers .answer-votes.accepted,
+.user-show-new .post-container .vote.accepted,
+.user-show-new .user-panel .mini-counts.accepted,
+.user-show-new .user-rep .rep-amount .rep-down.accepted,
+.user-show-new .user-rep .rep-amount .rep-up.accepted,
+.user-show-new #user-tab-answers .answer-votes.answered-accepted,
+.user-show-new .post-container .vote.answered-accepted,
+.user-show-new .user-panel .mini-counts.answered-accepted,
+.user-show-new .user-rep .rep-amount .rep-down.answered-accepted,
+.user-show-new .user-rep .rep-amount .rep-up.answered-accepted,
+.user-show-new #user-tab-answers .answer-votes.special-rep,
+.user-show-new .post-container .vote.special-rep,
+.user-show-new .user-panel .mini-counts.special-rep,
+.user-show-new .user-rep .rep-amount .rep-down.special-rep,
+.user-show-new .user-rep .rep-amount .rep-up.special-rep {
     color: ${linkcolor};
     background-color: ${darkgreen};
+    border: none;
 }
 body .bg-white,
 body .bg-yellow-100 {
