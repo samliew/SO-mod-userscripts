@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.4
+// @version      2.9.5
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -70,7 +70,7 @@
 body {
     background-image: none;
 }
-*:not(em):not(strong):not(span):not(svg):not(.deleted-answer):not(.accepted):not(.answered-accepted):not(.coolbg):not(.hotbg):not(.supernovabg):not(.bounty-indicator):not(.badge):not(.s-badge):not(.msbar):not(.mini-counts):not(.s-progress):not(.s-progress--bar):not(.favicon),
+*,
 *:before,
 *:after,
 #search-channel-selector,
