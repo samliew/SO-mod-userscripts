@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.9.6
+// @version      0.9.7
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -734,6 +734,9 @@ ul#my-rooms > li > a span {
 .monologue .signature .avatar-32 + .username {
     clear: both;
     margin-bottom: 2px;
+}
+.system-message-container {
+    margin: 15px 0px;
 }
 
 /* No wrap chat transcript links */
