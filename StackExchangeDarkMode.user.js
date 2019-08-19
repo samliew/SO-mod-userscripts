@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.5
+// @version      2.9.6
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -538,6 +538,10 @@ body td.deleted-answer {
 }
 .tagged-interesting *,
 #content .deleted-answer > a,
+.deleted-answer .statscontainer,
+.deleted-answer .statscontainer *,
+.deleted-answer .summary,
+.deleted-answer .summary *,
 .deleted-answer .post-layout,
 .deleted-answer .votecell,
 .deleted-answer .votecell svg,
