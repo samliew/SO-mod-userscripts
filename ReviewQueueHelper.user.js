@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.3
+// @version      1.9.4
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -237,7 +237,8 @@ async function waitForSOMU() {
             }
 
             // Do nothing if a textbox or textarea is focused, unless it's a tilde key - so close dupe dialog has the shortcut
-            if($('input:text:focus, textarea:focus').length > 0 && evt.keyCode !== 192) return;
+            // Also ignore single quote key, which triggers dialog close for some reason
+            if(($('input:text:focus, textarea:focus').length > 0 && evt.keyCode !== 192) || (evt.which == "'" || evt.keyCode == 222)) return;
 
             // Is close menu open?
             const closeMenu = $('#popup-close-question:visible');
