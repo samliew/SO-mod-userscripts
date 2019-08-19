@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.1
+// @version      2.9.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -70,7 +70,7 @@
 body {
     background-image: none;
 }
-*:not(span):not(svg):not(.msbar),
+*:not(em):not(strong):not(span):not(svg):not(.deleted-answer):not(.accepted):not(.answered-accepted):not(.coolbg):not(.hotbg):not(.supernovabg):not(.bounty-indicator):not(.badge):not(.s-badge):not(.msbar):not(.mini-counts):not(.s-progress):not(.s-progress--bar):not(.favicon),
 *:before,
 *:after,
 #search-channel-selector,
@@ -89,6 +89,13 @@ body .fc-black-600 {
     box-shadow: none;
     outline: none;
     text-shadow: none;
+}
+i,
+b,
+em,
+strong,
+span {
+    color: ${textcolor};
 }
 .btn,
 .button,
@@ -325,6 +332,7 @@ ul.comments-list .comment:hover .comment-flag {
 .s-btn svg * {
     color: inherit;
 }
+.s-badge__votes,
 .s-btn * {
     background: none;
 }
@@ -370,6 +378,9 @@ a.fc-dark:hover {
 }
 .top-bar .left-sidebar-toggle.topbar-icon-on {
     background-color: ${bordercolor};
+}
+.topbar-dialog.help-dialog .item-summary {
+    color: ${textcolor};
 }
 .s-select:before, .s-select:after,
 .f-select:before, .f-select:after {
@@ -483,18 +494,15 @@ div.meter div {
 .s-badge__bounty * {
     background-color: transparent;
 }
-.supernovabg,
-.mod-links .supernovabg {
+.supernovabg {
     color: white;
     background-color: #F48024;
 }
-.hotbg,
-.mod-links .hotbg {
+.hotbg {
     color: white;
     background-color: #CF7721;
 }
-.coolbg,
-.mod-links .coolbg {
+.coolbg {
     color: white;
     background-color: ${bountyblue};
 }
@@ -513,10 +521,12 @@ div.meter div {
 body .deleted-answer,
 body .deleted-comment .comment-actions,
 body .deleted-comment .comment-text,
-body .deleted-comment .comment-flags {
+body .deleted-comment .comment-flags,
+body td.deleted-answer {
     box-shadow: inset 0 0 0 9999px #220000;
 }
 .tagged-interesting *,
+#content .deleted-answer > a,
 .deleted-answer .post-layout,
 .deleted-answer .votecell,
 .deleted-answer .votecell svg,
@@ -555,8 +565,11 @@ body .fc-green-500,
 .fc-green-500 svg * {
     color: ${darkgreen};
 }
+.answered-accepted,
+.answered-accepted strong,
 .show-votes .sidebar-linked .spacer > a:first-child .answer-votes.answered-accepted,
 .show-votes .sidebar-related .spacer > a:first-child .answer-votes.answered-accepted {
+    color: ${linkcolor};
     background-color: ${darkgreen};
 }
 body .bg-white,
