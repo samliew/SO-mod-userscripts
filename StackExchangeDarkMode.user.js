@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.6
+// @version      2.9.8
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -95,7 +95,7 @@ b,
 em,
 strong,
 span {
-    color: ${textcolor};
+    color: inherit;
 }
 .btn,
 .button,
@@ -931,7 +931,8 @@ span.mod-flair {
 }
 
 /* Chat */
-.topbar {
+#chat-body .topbar,
+#chat-transcript .topbar {
     background: black;
 }
 .topbar .topbar-wrapper,
@@ -954,14 +955,13 @@ span.mod-flair {
 }
 #chat-body .messages,
 #chat-body .message,
+#transcript .messages,
+#transcript .message,
 .messages,
 .message,
 .monologue .timestamp {
     background: none;
     border: none;
-}
-.message .content a {
-    border-bottom: 1px dotted #777;
 }
 .pager .page-numbers.current,
 #chat-body .button,
@@ -989,7 +989,10 @@ span.mod-flair {
 }
 body#chat-body .messages .message.cmmt-deleted,
 body#chat-body .messages .message.cmmt-deleted .content,
-body#chat-body .messages .message.cmmt-deleted .content * {
+body#chat-body .messages .message.cmmt-deleted .content *,
+body#transcript-body .messages .message.cmmt-deleted,
+body#transcript-body .messages .message.cmmt-deleted .content,
+body#transcript-body .messages .message.cmmt-deleted .content * {
     background-color: #331111;
 }
 #chat-body .signature .username.moderator,
@@ -1024,8 +1027,23 @@ body#chat-body .messages .message.cmmt-deleted .content * {
     background: none;
     border: none;
 }
-#chat-body .system-message-container .system-message {
+#chat-body .system-message-container .system-message,
+#chat-transcript .system-message-container .system-message {
     color: ${textcolor};
+}
+#chat-body #sidebar a.permalink {
+    color: ${textcolor};
+    font-style: italic;
+}
+#chat-body .message .content a,
+#chat-transcript .message .content a,
+#chat-body #sidebar a {
+    color: ${linkcolor};
+}
+#chat-body .message .content a:hover,
+#chat-transcript .message .content a:hover,
+#chat-body #sidebar a:hover {
+    color: #fff;
 }
 .mspark .mspbar,
 .room-histogram .mspark .mspbar,
@@ -1051,9 +1069,11 @@ body#chat-body .messages .message.cmmt-deleted .content * {
     background-color: transparent;
 }
 #sidebar .sprite-sec-private {
+    background-color: white;
     filter: invert(0.9);
 }
 #sidebar .sprite-sec-gallery {
+    background-color: white;
     filter: invert(0.9) brightness(2);
 }
 button#sayit-button {
@@ -1077,6 +1097,14 @@ body.mob button#sayit-button {
 }
 div.message .meta {
     background: ${bgcolor};
+}
+#room-tags .tag,
+.ob-post-tag,
+.ob-user-tag {
+    color: #ccc;
+    background-color: #444;
+    border: 1px solid #666;
+    font-style: normal;
 }
 
 
@@ -1103,7 +1131,7 @@ body .js-flagged-post .bc-black-3 {
             $('.top-bar .-logo .-img').replaceWith(soLogo);
         }
         else if(location.hostname === "chat.stackoverflow.com") {
-            $('#footer-logo img').replaceWith(soLogo);
+            $('#footer-logo img, #transcript-logo img').replaceWith(soLogo);
         }
         else if(location.hostname === "superuser.com") {
             $('.site-header .site-header--link img').replaceWith(suLogo);
