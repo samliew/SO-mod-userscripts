@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.3
+// @version      2.8.4
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -499,10 +499,10 @@ div.meter div {
     width: 3px;
     background: #bbbb00;
 }
-.deleted-answer,
-.deleted-comment .comment-actions,
-.deleted-comment .comment-text,
-.deleted-comment .comment-flags {
+body .deleted-answer,
+body .deleted-comment .comment-actions,
+body .deleted-comment .comment-text,
+body .deleted-comment .comment-flags {
     box-shadow: inset 0 0 0 9999px #220000;
 }
 .tagged-interesting *,
@@ -963,6 +963,12 @@ body#chat-body .messages .message.cmmt-deleted .content * {
 #sidebar #info #sound {
     filter: brightness(6.5);
     background-color: transparent;
+}
+#sidebar .sprite-sec-private {
+    filter: invert(0.9);
+}
+#sidebar .sprite-sec-gallery {
+    filter: invert(0.9) brightness(2);
 }
 button#sayit-button {
     background: #f48024 url('') 60% 50% no-repeat;
