@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8
+// @version      2.8.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -904,7 +904,7 @@ span.mod-flair {
     background-color: #444;
 }
 #chat-body .mine .messages {
-    background-color: #2f2f2f;
+    background-color: #181818;
 }
 #chat-body .mine .messages *:not(code) {
     background-color: transparent;
@@ -977,6 +977,9 @@ body.mob button#sayit-button {
 }
 #chat-body #footer-legal a {
     color: ${textcolor};
+}
+div.message .meta {
+    background: ${bgcolor};
 }
 
 
