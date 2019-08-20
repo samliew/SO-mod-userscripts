@@ -32,6 +32,12 @@ These are highly recommended for everyone because they are too awesome:
 - [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts#post-timeline-filters)
 
 
+Recommended chat userscripts:
+
+- [Chat Improvements](https://github.com/samliew/SO-mod-userscripts#chat-improvements)
+- [No Oneboxes in Chat](https://github.com/samliew/SO-mod-userscripts#no-oneboxes-in-chat)
+
+
 
 <br>
 
@@ -337,21 +343,26 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/cac56371-d7c7-4927-9b19-9cb77ab0e1bb.png)
 
 
+### [Chat Transcripts By Default](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatTranscriptsByDefault.user.js)
+
+- Rewrites chat room links to chat transcript in Q&A comments, to avoid joining the room
+
+
 
 <br>
 
 ## Chat-specific userscripts
 
 
-### [Chat Room Info Annotations](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatRoomInfoAnnotations.user.js) ♦
+### [Chat Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatImprovements.user.js)
 
-- Display users' annotation count in chat room general info tab
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210431.png)
-
-
-### [Chat Transcripts By Default](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatTranscriptsByDefault.user.js)
-
-- Rewrites chat room links in comments to chat transcript, to avoid joining the room
+- Show users in room as a list with usernames
+- Timestamps on every message
+- Use tiny avatars only
+- Message parser (better links)
+- Collapse room description and room tags
+- Wider search box
+- Mods with diamonds
 
 
 ### [Chat Transcript Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatTranscriptHelper.user.js)
@@ -384,6 +395,12 @@ These are highly recommended for everyone because they are too awesome:
   - `[meta-help]`
   - `[tour]`
   - `[chat]`
+
+
+### [Chat Room Info Annotations](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatRoomInfoAnnotations.user.js) ♦
+
+- Display users' annotation count in chat room general info tab
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-23_210431.png)
 
 
 ### [Show Deleted Messages in Chat](https://github.com/samliew/SO-mod-userscripts/blob/master/ShowDeletedMessagesInChat.user.js) ♦
@@ -489,6 +506,18 @@ These are highly recommended for everyone because they are too awesome:
 
 ## Miscellaneous
 
+
+### [Stack Overflow Dark Mode](https://github.com/samliew/SO-mod-userscripts/blob/master/StackExchangeDarkMode.user.js)
+### [Stack Exchange Dark Mode](https://github.com/samliew/SO-mod-userscripts/blob/master/StackExchangeDarkMode.user.js)
+
+- Dark theme for Stack Exchange.
+- Some elements have reduced opacity until focused/mouseover (sidebar modules/images/timestamps). Some important colours are retained.
+- Code highlighting in darker colours
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-30_150956.png)
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-30_150953.png)
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-30_150909.png)
+
+
 ### [SOMU Options](https://github.com/samliew/SO-mod-userscripts/blob/master/SOMU-options.user.js)
 
 - Required for userscripts that allows further customization
@@ -508,17 +537,6 @@ These are highly recommended for everyone because they are too awesome:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-31_110831-befaft.png)
 - Use new responsive menu
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/mod-responsive-nav.gif)
-
-
-### [Stack Overflow Dark Mode](https://github.com/samliew/SO-mod-userscripts/blob/master/StackExchangeDarkMode.user.js)
-### [Stack Exchange Dark Mode](https://github.com/samliew/SO-mod-userscripts/blob/master/StackExchangeDarkMode.user.js)
-
-- Dark theme for Stack Exchange.
-- Some elements have reduced opacity until focused/mouseover (sidebar modules/images/timestamps). Some important colours are retained.
-- Code highlighting in darker colours
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-30_150956.png)
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-30_150953.png)
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-30_150909.png)
 
 
 ### [Chat Emojis](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatEmojis.user.js)
