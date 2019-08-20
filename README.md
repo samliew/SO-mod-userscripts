@@ -14,15 +14,15 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 
 These are highly recommended for moderators. Minor changes to the UI/defaults makes your mod life easier by a *huge* amount (saving clicks, or having to hunt for a particular link/mod feature, or displaying more info upfront). Click these to jump to their descriptions below:
 
-- [Mod User Quicklinks Everywhere](https://github.com/samliew/SO-mod-userscripts#mod-user-quicklinks-everywhere-)
-- [User Info Sidebar](https://github.com/samliew/SO-mod-userscripts#user-info-sidebar-)
-- [User Review Ban Helper](https://github.com/samliew/SO-mod-userscripts#user-review-ban-helper-)
-- [Comment Flags Helper](https://github.com/samliew/SO-mod-userscripts#comment-flags-helper-)
-- [Not An Answer Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts#not-an-answer-flag-queue-helper-)
-- [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts#display-inline-comment-flag-history-)
-- [Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts#deleted-users-helper-)
-- [User History Improvements](https://github.com/samliew/SO-mod-userscripts#user-history-improvements-)
-- [Additional Post Mod Actions](https://github.com/samliew/SO-mod-userscripts#additional-post-mod-actions-)
+- [Mod User Quicklinks Everywhere](https://github.com/samliew/SO-mod-userscripts#mod-user-quicklinks-everywhere-) ♦
+- [User Info Sidebar](https://github.com/samliew/SO-mod-userscripts#user-info-sidebar-) ♦
+- [User Review Ban Helper](https://github.com/samliew/SO-mod-userscripts#user-review-ban-helper-) ♦
+- [Comment Flags Helper](https://github.com/samliew/SO-mod-userscripts#comment-flags-helper-) ♦
+- [Not An Answer Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts#not-an-answer-flag-queue-helper-) ♦
+- [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts#display-inline-comment-flag-history-) ♦
+- [Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts#deleted-users-helper-) ♦
+- [User History Improvements](https://github.com/samliew/SO-mod-userscripts#user-history-improvements-) ♦
+- [Additional Post Mod Actions](https://github.com/samliew/SO-mod-userscripts#additional-post-mod-actions-) ♦
 
 
 These are highly recommended for everyone because they are too awesome:
