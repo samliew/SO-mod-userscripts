@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.9
+// @version      2.9.10
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -555,7 +555,8 @@ body td.deleted-answer {
 .deleted-answer .js-post-notices *,
 .deleted-answer .answercell *:not(.popup):not(.comment-flags):not(.comment-flagcount),
 .deleted-comment .comment-text *:not(.popup),
-.question-status * {
+.question-status *,
+.js-admin-dashboard .deleted-answer * {
     background-color: transparent;
 }
 #question .question-status {
