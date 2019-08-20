@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.0.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -208,7 +208,7 @@
             if((el.href.includes('/questions/') || el.href.includes('/q/') || el.href.includes('/a/')) && el.innerText.includes('…')) {
 
                 // Avoid truncating inline question links
-                el.innerText = el.href.replace('/questions/', '/q/').replace(/\?cb=\d/i, '').replace(/(\/\D*)+((\/\d+)?#comment\d+_\d+)?$/, '') +
+                el.innerText = el.href.replace('/questions/', '/q/').replace(/\?(&?(cb|noredirect)=\d+)+/i, '').replace(/(\/\D*)+((\/\d+)?#comment\d+_\d+)?$/, '') +
                     (el.href.includes('#comment') ? el.href.match(/(#comment\d+)_\d+$/)[1] : '');
 
                 // Remove user id
