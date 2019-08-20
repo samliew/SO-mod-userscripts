@@ -77,7 +77,7 @@ Direct installation links (raw files)
 
 [Review Queue Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/ReviewQueueHelper.user.js)
 
-[Chat Improvements](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatImprovements.user.js)
+[Chat Transcripts By Default](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatTranscriptsByDefault.user.js)
 
 
 
@@ -85,13 +85,13 @@ Direct installation links (raw files)
 
 ## Chat-specific userscripts
 
-[Chat Room Info Annotations](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatRoomInfoAnnotations.user.js) ♦
-
-[Chat Transcripts By Default](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatTranscriptsByDefault.user.js)
+[Chat Improvements](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatImprovements.user.js)
 
 [Chat Transcript Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatTranscriptHelper.user.js)
 
 [Chat More Magic Links](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatMoreMagicLinks.user.js)
+
+[Chat Room Info Annotations](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatRoomInfoAnnotations.user.js) ♦
 
 [Show Deleted Messages in Chat](https://github.com/samliew/SO-mod-userscripts/raw/master/ShowDeletedMessagesInChat.user.js) ♦
 
@@ -124,6 +124,8 @@ Direct installation links (raw files)
 <br>
 
 ## Miscellaneous
+
+[Stack Exchange Dark Mode](https://github.com/samliew/SO-mod-userscripts/raw/master/StackExchangeDarkMode.user.js)
 
 [SOMU Options](https://github.com/samliew/SO-mod-userscripts/raw/master/SOMU-options.user.js)
 
