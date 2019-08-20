@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.17
+// @version      1.18
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -425,8 +425,8 @@
     color: #ffffdd !important;
 }
 .comment-user .deleted-user {
+    background: none !important;
     color: indianred !important;
-    background: none;
     padding: 0;
 }
 .orig-username:before {
