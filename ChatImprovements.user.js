@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.9.8
+// @version      1.0
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -208,7 +208,7 @@
             if((el.href.includes('/questions/') || el.href.includes('/q/') || el.href.includes('/a/')) && el.innerText.includes('…')) {
 
                 // Avoid truncating inline question links
-                el.innerText = el.href.replace('/questions/', '/q/').replace(/(\/\D*)+((\/\d+)?#comment\d+_\d+)?$/, '') +
+                el.innerText = el.href.replace('/questions/', '/q/').replace(/\?cb=\d/i, '').replace(/(\/\D*)+((\/\d+)?#comment\d+_\d+)?$/, '') +
                     (el.href.includes('#comment') ? el.href.match(/(#comment\d+)_\d+$/)[1] : '');
 
                 // Remove user id
@@ -304,6 +304,9 @@
         }
         // When viewing page transcripts and bookmarks
         else if(location.pathname.includes('/transcript/') || location.pathname.includes('/conversation/')) {
+
+            // Append desktop styles
+            appendStyles();
 
             // Parse messages
             messageParser();
@@ -440,6 +443,9 @@ div.xxl-info-layout {
 }
 html.fixed-header body.with-footer main {
     padding-bottom: 60px;
+}
+#chat-body.mob #present-users-list {
+    display: none !important;
 }
 </style>
 `;
