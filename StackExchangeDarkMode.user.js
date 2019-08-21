@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.12
+// @version      2.9.13
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -556,10 +556,12 @@ body td.deleted-answer {
 .deleted-answer .answercell *:not(.popup):not(.comment-flags):not(.comment-flagcount),
 .deleted-comment .comment-text *:not(.popup),
 .question-status *,
+#revisions .vote-revision *,
 .js-admin-dashboard .deleted-answer * {
     background-color: transparent;
 }
-#question .question-status {
+#question .question-status,
+#revisions .vote-revision {
     background-color: #111;
 }
 .vote-up-off,
