@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.11
+// @version      2.9.12
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -560,7 +560,7 @@ body td.deleted-answer {
     background-color: transparent;
 }
 #question .question-status {
-    background-color: ${bgcolor};
+    background-color: #111;
 }
 .vote-up-off,
 .vote-down-off,
