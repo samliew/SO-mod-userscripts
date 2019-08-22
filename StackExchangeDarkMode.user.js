@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.14
+// @version      2.9.15
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -428,6 +428,9 @@ a.fc-dark:hover {
 }
 .topbar-dialog .unread-item {
     background-color: ${darkblue};
+}
+.danger-dialog .-item.danger-active a:before {
+    background: #535a60;
 }
 .top-bar ._danger-indicator:after,
 .danger-dialog .-item.danger-urgent a:before {
@@ -1141,7 +1144,7 @@ body .js-flagged-post .bc-black-3 {
             $('.top-bar .-logo .-img').replaceWith(soLogo);
         }
         else if(location.hostname === "chat.stackoverflow.com") {
-            $('#footer-logo img, #transcript-logo img').replaceWith(soLogo);
+            $('#footer-logo img, #transcript-logo img, #header-logo img').replaceWith(soLogo);
         }
         else if(location.hostname === "superuser.com") {
             $('.site-header .site-header--link img').replaceWith(suLogo);
