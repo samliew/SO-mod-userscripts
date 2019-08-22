@@ -547,6 +547,6 @@ Recommended chat userscripts:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-10-29_111015.png)
 
 
-### [Find Users Additional Info](https://github.com/samliew/SO-mod-userscripts/blob/master/FindUsersAdditionalInfo.user.js)
+### [Find Users Additional Info](https://github.com/samliew/SO-mod-userscripts/blob/master/FindUsersAdditionalInfo.user.js) ♦
 
 - Improvements for /admin/find-users
