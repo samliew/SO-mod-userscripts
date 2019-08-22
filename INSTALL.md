@@ -137,3 +137,5 @@ Direct installation links (raw files)
 [Mobile Moderator Pages](https://github.com/samliew/SO-mod-userscripts/raw/master/MobileModeratorPages.user.js)
 
 [Chat Emojis](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatEmojis.user.js)
+
+[Find Users Additional Info](https://github.com/samliew/SO-mod-userscripts/raw/master/FindUsersAdditionalInfo.user.js)
