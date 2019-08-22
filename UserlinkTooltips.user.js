@@ -3,7 +3,7 @@
 // @description  Display reputation in tooltip upon user link mouseover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.3
+// @version      1.3.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -65,9 +65,9 @@
 
     function processUserlinks() {
 
-        // Only userlinks without title and from same hostname
+        // Only userlinks without title and from same hostname, and not a channel user
         userlinks = $('#content a[href*="/users/"]')
-            .filter((i, el) => el.title === '' && typeof el.dataset.rep === 'undefined' && el.href.includes(location.hostname))
+            .filter((i, el) => el.title === '' && typeof el.dataset.rep === 'undefined' && el.href.includes(location.hostname) && !el.href.includes('/c/'))
             .each(function(i, el) {
                 const id = (el.href.match(/-?\d+/) || ['']).pop();
                 el.dataset.uid = id; // set computed data-uid
