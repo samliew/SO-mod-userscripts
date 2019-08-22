@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.3
+// @version      1.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -163,7 +163,7 @@
        - Attempt to display chat domain, and room name or message id with (transcript) label
        - Also unshortens Q&A links that are truncated by default with ellipsis
     */
-    function messageParser() {
+    function initMessageParser() {
 
         function parseMessageLink(i, el) {
 
@@ -205,7 +205,7 @@
             }
 
             // For Q&A links
-            if((el.href.includes('/questions/') || el.href.includes('/q/') || el.href.includes('/a/')) && el.innerText.includes('…')) {
+            if(((el.href.includes('/questions/') && !el.href.includes('/tagged/')) || el.href.includes('/q/') || el.href.includes('/a/')) && el.innerText.includes('…')) {
 
                 // Avoid truncating inline question links
                 el.innerText = el.href.replace('/questions/', '/q/').replace(/\?(&?(cb|noredirect)=\d+)+/i, '').replace(/(\/\D*)+((\/\d+)?#comment\d+_\d+)?$/, '') +
@@ -234,13 +234,26 @@
             // Get new messages
             const newMsgs = $('.message').not('.js-parsed').addClass('js-parsed');
 
-            // No new messages, do nothing
-            if(newMsgs.length == 0) return;
+            // Have new messages
+            if(newMsgs.length > 0) {
 
-            // Parse message links, but ignoring oneboxes and quotes
-            newMsgs.find('.content a').filter(function() {
-                return $(this).parents('.onebox, .quote').length == 0;
-            }).each(parseMessageLink);
+                // Parse message links, but ignoring oneboxes, room minis, and quotes
+                newMsgs.find('.content a').filter(function() {
+                    return $(this).parents('.onebox, .quote, .room-mini').length == 0;
+                }).each(parseMessageLink);
+            }
+
+            // Get new starred messages
+            const newStarredMsgs = $('#starred-posts li').not('.js-parsed').addClass('js-parsed');
+
+            // Have new starred messages
+            if(newStarredMsgs.length > 0) {
+
+                // Parse links, but ignoring transcript links
+                newStarredMsgs.find('a').filter(function() {
+                    return !this.href.includes('/transcript/');
+                }).each(parseMessageLink);
+            }
 
         }, 1000);
     }
@@ -294,7 +307,7 @@
             applyTimestampsToNewMessages();
 
             // Parse messages
-            messageParser();
+            initMessageParser();
 
             // On any user avatar image error in sidebar, hide image
             $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
@@ -309,7 +322,7 @@
             appendStyles();
 
             // Parse messages
-            messageParser();
+            initMessageParser();
         }
 
         // When viewing user info page in mobile
@@ -758,9 +771,12 @@ ul#my-rooms > li > a span {
     margin: 15px 0px;
 }
 
-/* No wrap chat transcript links */
+/* No wrap chat transcript links, unless in sidebar */
 a.nowrap {
     white-space: nowrap;
+}
+#sidebar a.nowrap {
+    white-space: initial;
 }
 
 @media screen and (min-width: 768px) {
