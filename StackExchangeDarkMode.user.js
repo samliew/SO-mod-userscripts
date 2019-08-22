@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.15
+// @version      2.9.16
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -178,13 +178,17 @@ body .bc-black-3 {
 body .fc-theme-primary {
     color: ${orange};
 }
-.s-modal {
+.s-modal,
+body #content .s-modal {
     background-color: rgba(12,13,14,0.4);
 }
 .popup,
+body #content .popup,
+body #content .share-tip,
 .s-modal--dialog {
     border: 2px solid #888;
     border-radius: 7px;
+    background-color: ${bgcolor};
 }
 
 
