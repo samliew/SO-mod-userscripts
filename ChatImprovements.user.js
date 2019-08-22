@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -190,7 +190,7 @@
                 }
                 else if(isNaN(Number(roomName))) {
                     // Change link text to room name only if link text is a URL
-                    if(/^https?/.test(el.innerText)) {
+                    if(/(^https?|\.com)/.test(el.innerText)) {
                         el.innerHTML = roomName + ' <i>(transcript)</i>';
                     }
                     else {
