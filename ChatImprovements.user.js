@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -229,24 +229,37 @@
             }
         }
 
+        function parseRoomMini(i, el) {
+
+            // Convert main chatroom title link to the room transcript
+            const roomLink = el.querySelector('a');
+            roomLink.href = roomLink.href.replace('/rooms/', '/transcript/');
+            roomLink.innerText = roomLink.innerText.replace('/rooms/', '/transcript/');
+
+            // Show longer description
+            const desc = $(el).find('.room-mini-description').each(function(i, el) {
+                el.innerHTML = el.title.replace(/https?:\/\/[^\s]+/gi, '<a href="$&" rel="nofollow noopener noreferrer">$&</a>');
+                el.title = "";
+            });
+        }
+
         setInterval(function() {
 
             // Get new messages
             const newMsgs = $('.message').not('.js-parsed').addClass('js-parsed');
-
-            // Have new messages
             if(newMsgs.length > 0) {
 
                 // Parse message links, but ignoring oneboxes, room minis, and quotes
                 newMsgs.find('.content a').filter(function() {
                     return $(this).parents('.onebox, .quote, .room-mini').length == 0;
                 }).each(parseMessageLink);
+
+                // Parse room minis
+                newMsgs.find('.room-mini').each(parseRoomMini);
             }
 
             // Get new starred messages
             const newStarredMsgs = $('#starred-posts li').not('.js-parsed').addClass('js-parsed');
-
-            // Have new starred messages
             if(newStarredMsgs.length > 0) {
 
                 // Parse links, but ignoring transcript links
@@ -777,6 +790,11 @@ a.nowrap {
 }
 #sidebar a.nowrap {
     white-space: initial;
+}
+
+/* Break all links in expanded room mini infobox */
+.room-mini-description a {
+    word-break: break-all;
 }
 
 @media screen and (min-width: 768px) {
