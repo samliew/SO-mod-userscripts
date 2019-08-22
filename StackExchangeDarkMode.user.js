@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.17
+// @version      2.9.18
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -943,7 +943,7 @@ span.mod-flair {
 
 /* Chat */
 #chat-body .topbar,
-#chat-transcript .topbar {
+#transcript-body .topbar {
     background: black;
 }
 .topbar .topbar-wrapper,
@@ -1045,7 +1045,7 @@ body#transcript-body .messages .message.cmmt-deleted .content * {
     border: none;
 }
 #chat-body .system-message-container .system-message,
-#chat-transcript .system-message-container .system-message {
+#transcript-body .system-message-container .system-message {
     color: ${textcolor};
 }
 #chat-body #sidebar a.permalink {
@@ -1053,12 +1053,12 @@ body#transcript-body .messages .message.cmmt-deleted .content * {
     font-style: italic;
 }
 #chat-body .message .content a,
-#chat-transcript .message .content a,
+#transcript-body .message .content a,
 #chat-body #sidebar a {
     color: ${linkcolor};
 }
 #chat-body .message .content a:hover,
-#chat-transcript .message .content a:hover,
+#transcript-body .message .content a:hover,
 #chat-body #sidebar a:hover {
     color: #fff;
 }
