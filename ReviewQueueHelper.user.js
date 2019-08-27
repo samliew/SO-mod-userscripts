@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.10
+// @version      1.10.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -153,18 +153,18 @@ async function waitForSOMU() {
             return;
         }
 
-        // Question body is of medium length, skip if enabled
-        if(skipMediumQuestions && post.isQuestion && post.content.length > 1200) {
-            console.log('skipping medium-length question, length ' + post.content.length);
-            toastMessage('skipping medium-length question, length ' + post.content.length);
-            skipReview();
-            return;
-        }
-
         // Question body is too long, skip if enabled
         if(skipLongQuestions && post.isQuestion && post.content.length > 3000) {
             console.log('skipping long-length question, length ' + post.content.length);
             toastMessage('skipping long-length question, length ' + post.content.length);
+            skipReview();
+            return;
+        }
+
+        // Question body is of medium length, skip if enabled
+        if(skipMediumQuestions && post.isQuestion && post.content.length > 1200) {
+            console.log('skipping medium-length question, length ' + post.content.length);
+            toastMessage('skipping medium-length question, length ' + post.content.length);
             skipReview();
             return;
         }
