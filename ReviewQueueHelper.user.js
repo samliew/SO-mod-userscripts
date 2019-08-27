@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.6
+// @version      1.10
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -76,6 +76,27 @@ async function waitForSOMU() {
     }
 
 
+    let toastTimeout, defaultDuration = 1;
+    function toastMessage(msg, duration = defaultDuration) {
+        // Validation
+        duration = Number(duration);
+        if(typeof(msg) !== 'string') return;
+        if(isNaN(duration)) duration = defaultDuration;
+
+        // Clear existing timeout
+        if(toastTimeout) clearTimeout(toastTimeout);
+
+        // Reuse or create new
+        let div = $('#toasty').html(msg).show();
+        if(div.length == 0) div = $(`<div id="toasty">${msg}</div>`).appendTo(document.body);
+
+        // Hide div
+        toastTimeout = setTimeout(function(div) {
+            div.hide();
+        }, duration * 1000, div);
+    }
+
+
     function skipReview() {
 
         // If referred from meta or post timeline, and is first review, do not automatically skip
@@ -126,28 +147,31 @@ async function waitForSOMU() {
 
         // Question has an accepted answer, skip if enabled
         if(skipAccepted && post.isQuestion && post.accepted) {
-            console.log("skipping accepted question");
+            console.log('skipping accepted question');
+            toastMessage('skipping accepted question');
             skipReview();
             return;
         }
 
         // Question body is of medium length, skip if enabled
         if(skipMediumQuestions && post.isQuestion && post.content.length > 1200) {
-            console.log("skipping medium-length question, length " + post.content.length);
+            console.log('skipping medium-length question, length ' + post.content.length);
+            toastMessage('skipping medium-length question, length ' + post.content.length);
             skipReview();
             return;
         }
 
         // Question body is too long, skip if enabled
         if(skipLongQuestions && post.isQuestion && post.content.length > 3000) {
-            console.log("skipping long-length question, length " + post.content.length);
+            console.log('skipping long-length question, length ' + post.content.length);
+            toastMessage('skipping long-length question, length ' + post.content.length);
             skipReview();
             return;
         }
 
         // Question body is short, try to close if enabled
         if(autoCloseShortQuestions && post.isQuestion && post.content.length < 500) {
-            console.log("short question detected, length " + post.content.length);
+            console.log('short question detected, length ' + post.content.length);
             $('.review-actions input[value*="Close"]').click();
             return;
         }
@@ -663,6 +687,7 @@ async function waitForSOMU() {
                     // Check for audits and skip them
                     if(responseJson.isAudit) {
                         console.log('skipping review audit');
+                        toastMessage('skipping review audit');
                         skipReview();
                         return;
                     }
@@ -756,6 +781,18 @@ pre {
 }
 .popup .action-list li:nth-of-type(7):before {
     content: '[7]';
+}
+
+#toasty {
+    display: block;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate3d(-50%, -50%, 0);
+    z-index: 999999;
+    padding: 20px 30px;
+    background: rgba(255,255,255,0.7) !important;
+    color: black !important;
 }
 `);
     }
