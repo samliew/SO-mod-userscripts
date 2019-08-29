@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.7
+// @version      3.7.1
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -307,7 +307,8 @@
         }
 
 
-        let $filterOpts = $(`<div id="flag-queue-tabs" class="tabs"></div>`).insertBefore('.js-mod-history-container');
+        let $filterOpts = $(`<div id="flag-queue-tabs" class="tabs"></div>`);
+        $('.js-flagged-post').first().parent().prepend($filterOpts);
 
         // If LQDisputed queue
         if(location.search.includes('flagtype=reviewlowqualitydisputedauto')) {
@@ -435,7 +436,7 @@
 }
 #flag-queue-tabs {
     float: none;
-    margin: 10px 0 10px;
+    margin: 20px 24px 10px;
 }
 #flag-queue-tabs:after {
     position: relative;
