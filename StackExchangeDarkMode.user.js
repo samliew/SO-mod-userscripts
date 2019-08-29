@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.18
+// @version      2.9.19
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -189,6 +189,9 @@ body #content .share-tip,
     border: 2px solid #888;
     border-radius: 7px;
     background-color: ${bgcolor};
+}
+.grid {
+    background-color: transparent;
 }
 
 
