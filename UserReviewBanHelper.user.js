@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.5
+// @version      3.5.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -40,7 +40,7 @@
     // Use {POSTLINK} and {QUEUENAME} placeholders
     const cannedMessages = {
         current: '',
-        triageQuestionReqEdits: `Your review on {POSTLINK} wasn't helpful. "Requires Editing" should only be used when other community users (*like you*) are able to edit/format the question into a better shape. If a question is poor or unsalvagable, and can only be improved by the author, please flag/vote to close or delete instead.`,
+        triageQuestionReqEdits: `Your review on {POSTLINK} wasn't helpful. "Requires Editing" should only be used when other community users (*like you*) are able to edit/format the question into a better shape. If a question is unsalvagable and/or can only be improved by the author, please flag/vote to close or delete instead.`,
         postNaa: `You recently reviewed this post {POSTLINK}. Although it was posted as an answer, it clearly did not attempt to provide an answer to the question. You should have flagged it as "not an answer" so that it could be removed.`,
         postNaaEdited: `You recently edited this post {POSTLINK}. Please do not edit posts that should have been deleted. Use "edit" only when your edit salvages the post and makes it a valid answer.`,
         postNaaCommentOnly: `You recently reviewed this post {POSTLINK}. Although you correctly identified it as not being an answer, you chose to leave a comment. That did not help to solve the problem. You should have flagged it as "not an answer" so that it could be removed.`,
