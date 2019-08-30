@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.5
+// @version      4.6
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
@@ -198,6 +198,7 @@
         if($('.js-flagged-post').length > 1) {
 
             const actionBtns = $('<div id="actionBtns"></div>');
+            $('.js-flagged-post').first().parent().prepend(actionBtns);
 
             // Start from bottom link
             $('<button>Review from bottom</button>')
@@ -226,8 +227,6 @@
                     })
                     .appendTo(actionBtns);
             }
-
-            actionBtns.insertBefore('.js-mod-history-container');
         }
     }
 
@@ -340,8 +339,10 @@
     color: red;
 }
 
+#actionBtns {
+    margin: 40px 24px 0px;
+}
 #actionBtns button {
-    margin-bottom: 10px;
     margin-right: 10px;
 }
 
