@@ -3,7 +3,7 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.3
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
@@ -88,7 +88,8 @@ async function waitForSOMU() {
             $post.hide();
         });
 
-        const actionBtns = $('<div id="actionBtns"></div>').insertBefore('.js-mod-history-container');
+        const actionBtns = $('<div id="actionBtns"></div>');
+        $('.js-flagged-post').first().parent().prepend(actionBtns);
 
         // Delete + Comment ALL
         if(superusers.includes(StackExchange.options.user.userId)) {
@@ -111,7 +112,7 @@ async function waitForSOMU() {
         const styles = `
 <style>
 #actionBtns {
-    margin-bottom: 10px;
+    margin: 40px 24px 0px;
 }
 #actionBtns button {
     margin-right: 10px;
