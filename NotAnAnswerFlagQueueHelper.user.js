@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.7.1
+// @version      3.8
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -273,7 +273,8 @@
         $('.s-badge[title^="post edited"]').addClass('post-modified');
 
 
-        const actionBtns = $('<div id="actionBtns"></div>').insertBefore('.js-mod-history-container');
+        const actionBtns = $('<div id="actionBtns"></div>');
+        $('.js-flagged-post').first().parent().prepend(actionBtns);
 
         // If there are lots of flags and is superuser
         if($('.js-flagged-post').length > 3 && superusers.includes(StackExchange.options.user.userId)) {
@@ -457,12 +458,14 @@
     padding-right: 10px;
     text-align: right;
 }
+
 #actionBtns {
-    margin-bottom: 10px;
+    margin: 40px 24px 0px;
 }
 #actionBtns button {
     margin-right: 10px;
 }
+
 input.js-helpful-purge {
     border-color: red !important;
 }
