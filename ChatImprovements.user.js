@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -207,18 +207,34 @@
             // For Q&A links
             if(((el.href.includes('/questions/') && !el.href.includes('/tagged/')) || el.href.includes('/q/') || el.href.includes('/a/')) && el.innerText.includes('…')) {
 
-                // Avoid truncating inline question links
-                el.innerText = el.href.replace('/questions/', '/q/').replace(/\?(&?(cb|noredirect)=\d+)+/i, '').replace(/(\/\D*)+((\/\d+)?#comment\d+_\d+)?$/, '') +
-                    (el.href.includes('#comment') ? el.href.match(/(#comment\d+)_\d+$/)[1] : '');
+                var displayUrl = el.href;
 
-                // Remove user id
-                if(/\/\d+\/\d+$/.test(el.innerText)) {
-                    el.href = el.href.replace(/\/\d+$/, '');
-                    el.innerText = el.innerText.replace(/\/\d+$/, '');
+                // If long answer link
+                if(el.href.includes('/questions/') && /\/\d+\/[\w-]+\/\d+/.test(el.href)) {
+
+                    // Convert to short answer link text
+                    displayUrl = displayUrl.replace(/\/questions\/\d+\/[^\/]+\/(\d+)(#comment\d+_\d+)?$/i, '/a/$1') +
+                        (el.href.includes('#comment') ? el.href.match(/(#comment\d+)_\d+$/)[1] : '');
                 }
+                // If long question link
+                else {
+
+                    // Convert to short question link text
+                    // Avoid truncating inline question links
+                    displayUrl = displayUrl.replace('/questions/', '/q/').replace(/\?(&?(cb|noredirect)=\d+)+/i, '').replace(/(\/\D[\w-]*)+((\/\d+)?#comment\d+_\d+)?$/, '') +
+                        (el.href.includes('#comment') ? el.href.match(/(#comment\d+)_\d+$/)[1] : '');
+                }
+
+                el.innerText = displayUrl;
             }
 
-            // For all links that are truncated, display full url if url is < 58 chars incl protocol
+            // Remove user id
+            if(/\/\d+\/\d+$/.test(el.href)) {
+                el.href = el.href.replace(/\/\d+$/, '');
+                el.innerText = el.innerText.replace(/\/\d+$/, '');
+            }
+
+            // For all other links that are truncated, display full url if url is < 58 chars incl protocol
             if(el.innerText.includes('…') && el.href.length < 58) {
                 el.innerText = el.href;
             }
