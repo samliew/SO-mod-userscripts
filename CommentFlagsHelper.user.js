@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.7.2
+// @version      4.8
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -236,6 +236,7 @@
         if($('.js-comments-container').length > 3) {
 
             const actionBtns = $('<div id="actionBtns"></div>');
+            $('.js-flagged-post').first().parent().prepend(actionBtns);
 
             function removePostsWithoutFlags() {
                 $('.js-comments-container[data-comment-context="flag"]').filter(function() {
@@ -322,8 +323,6 @@
                     })
                     .appendTo(actionBtns);
             }
-
-            actionBtns.insertBefore('.js-mod-history-container');
         }
 
         // Convert urls in comments to clickable links that open in a new window
@@ -680,10 +679,9 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
 }
 
 #actionBtns {
-    margin-top: 10px;
+    margin: 40px 24px 0px;
 }
 #actionBtns button {
-    margin-bottom: 10px;
     margin-right: 10px;
 }
 
