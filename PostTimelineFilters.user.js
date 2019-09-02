@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.1
+// @version      1.9
 //
 // @include      */posts*/timeline*
 // @include      */admin/posts/*/show-flags*
@@ -236,6 +236,20 @@
             return;
         }
 
+        // Display whether this is a question or answer, and link to question if it's an answer...
+        const title = $('.subheader h1');
+        const link = title.find('a').first();
+        if(link.attr('href').includes('#')) { // answer
+            link.before('<span class="posttype-indicator">answer</span>');
+
+            // link to question too
+            const qid = Number(link.attr('href').match(/\/(\d+)\//)[1]);
+            link.after(`<span class="timeline-linked-question">(<a href="https://${location.hostname}/q/${qid}" class="question-hyperlink">Q permalink</a> | <a href="https://${location.hostname}/posts/${qid}/timeline">Q timeline</a>)</span>`);
+        }
+        else {
+            link.before('<span class="posttype-indicator">question</span>');
+        }
+
         // Pre-trim certain elements once on page load to make filtering less complicated
         $('span.event-type, td.event-verb span a').text((i, v) => '' + v.trim());
         $('td.event-type, td.event-verb span').filter((i, el) => el.children.length === 0).text((i, v) => '' + v.trim());
@@ -342,6 +356,25 @@ tr.separator {
 tr.separator + tr {
     border-top: 1px solid #e4e6e8;
 }
+
+.subheader h1 .posttype-indicator {
+}
+.subheader h1 .posttype-indicator:after {
+    content: ': ';
+}
+.subheader h1 .timeline-linked-question {
+    margin-left: 20px;
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+.subheader h1 .timeline-linked-question a {
+    font-size: 0.7em;
+    text-transform: uppercase;
+}
+.subheader h1 .timeline-linked-question .post-id {
+    display: none;
+}
+
 
 /* Increase cell min-widths to avoid jumping when comment flags are expanded */
 .post-timeline .event-type {
