@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.19
+// @version      2.9.20
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -423,7 +423,8 @@ a.fc-dark:hover {
     border-color: transparent;
     border-bottom-color: #e4e6e8;
 }
-.top-bar .indicator-badge {
+.top-bar .indicator-badge,
+.bounty-award {
     background-color: ${bountyblue};
     color: #eee;
 }
