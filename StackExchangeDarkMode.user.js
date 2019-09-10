@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.20
+// @version      2.9.21
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -26,6 +26,8 @@
 
 (function() {
     'use strict';
+
+    let $ = unsafeWindow.jQuery || null;
 
 
     const darkgreen = '#296538';
@@ -752,6 +754,9 @@ img.diff-add {
 .js-search-results .result-highlight {
     color: #bb5;
 }
+ul.comments-list .comment__highlighted .comment-text {
+    border-right: 2px solid yellowgreen;
+}
 
 
 /* Code colours */
@@ -1144,10 +1149,19 @@ body .js-flagged-post .bc-black-3 {
 `.replace(/;/g, ' !important;'));
 
 
+    function highlightComment() {
+        if(/#comment\d+_\d+/.test(location.hash)) {
+            const cid = Number(location.hash.match(/#comment(\d+)_\d+/)[1]);
+            document.getElementById('comment-' + cid).classList.add('comment__highlighted');
+        }
+    }
+
+
     document.addEventListener('DOMContentLoaded', function() {
-        const $ = unsafeWindow.jQuery || window.jQuery;
+        $ = unsafeWindow.jQuery;
         document.body.classList.add('SOMU-SEDM');
 
+        // Replace logos
         if(location.hostname === "stackoverflow.com") {
             $('.top-bar .-logo .-img').replaceWith(soLogo);
         }
@@ -1166,6 +1180,8 @@ body .js-flagged-post .bc-black-3 {
         else if(location.hostname === "stackapps.com") {
             $('.site-header .site-header--link img').replaceWith(stackappsLogo);
         }
+
+        highlightComment();
     });
 
 
