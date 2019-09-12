@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.21
+// @version      2.9.23
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -952,7 +952,8 @@ span.mod-flair {
 
 /* Chat */
 #chat-body .topbar,
-#transcript-body .topbar {
+#transcript-body .topbar,
+#conversation-body .topbar {
     background: black;
 }
 .topbar .topbar-wrapper,
@@ -1018,7 +1019,10 @@ body#chat-body .messages .message.cmmt-deleted .content,
 body#chat-body .messages .message.cmmt-deleted .content *,
 body#transcript-body .messages .message.cmmt-deleted,
 body#transcript-body .messages .message.cmmt-deleted .content,
-body#transcript-body .messages .message.cmmt-deleted .content * {
+body#transcript-body .messages .message.cmmt-deleted .content *,
+body#conversation-body .messages .message.cmmt-deleted,
+body#conversation-body .messages .message.cmmt-deleted .content,
+body#conversation-body .messages .message.cmmt-deleted .content * {
     background-color: #331111;
 }
 #chat-body .signature .username.moderator,
@@ -1054,7 +1058,8 @@ body#transcript-body .messages .message.cmmt-deleted .content * {
     border: none;
 }
 #chat-body .system-message-container .system-message,
-#transcript-body .system-message-container .system-message {
+#transcript-body .system-message-container .system-message,
+#conversation-body .system-message-container .system-message {
     color: ${textcolor};
 }
 #chat-body #sidebar a.permalink {
@@ -1063,11 +1068,13 @@ body#transcript-body .messages .message.cmmt-deleted .content * {
 }
 #chat-body .message .content a,
 #transcript-body .message .content a,
+#conversation-body .message .content a,
 #chat-body #sidebar a {
     color: ${linkcolor};
 }
 #chat-body .message .content a:hover,
 #transcript-body .message .content a:hover,
+#conversation-body .message .content a:hover,
 #chat-body #sidebar a:hover {
     color: #fff;
 }
