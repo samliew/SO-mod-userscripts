@@ -3,7 +3,7 @@
 // @description  Collapses oneboxes from chat rooms/transcripts/bookmarks, click to display onebox
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.2.2
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -33,7 +33,7 @@
         $('.onebox').not('.js-onebox-hidden').addClass('js-onebox-hidden').hide().each(function() {
 
             // Onebox permalink is usually the first URL in the onebox
-            let url = $(this).find('a').first().attr('href');
+            let url = $(this).find('a[href]').first().attr('href');
 
             // If onebox type is a tweet, permalink is the last link in onebox
             if($(this).hasClass('ob-tweet')) url = $(this).find('a').last().attr('href');
