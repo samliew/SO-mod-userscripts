@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.5
+// @version      1.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -66,6 +66,14 @@
 
     function anonymizeUsers(fullwipe = false) {
 
+        // Wrap spans around question closers text in close reasons so we can process those too
+        $('.close-as-off-topic-status-list li').each(function() {
+            if(this.innerHTML.includes('–') && !this.innerHTML.includes('js-reason-user')) {
+                let parts = this.innerHTML.split('–');
+                this.innerHTML = parts[0] + '–' + parts[1].replace(/(,? )([\w\s]+)/g, '$1<span class="js-reason-user">$2</span>');
+            }
+        });
+
         const dataSet = [];
         let usernum = 1;
 
@@ -75,6 +83,7 @@
         // Get user links
         const userlinks = $('a[href*="/users/"]', $sections).each(function(i, el) {
 
+            const username = this.innerText.trim();
             const match = this.href.match(/.*\/users\/-?(\d+)(\/.*)?/);
 
             // Does not match valid user URL, ignore this link
@@ -92,6 +101,9 @@
             const isMod = this.innerText.includes('♦') || $(this).next('.mod-flair').length !== 0;
             const modFlair = isMod && isComment ? ' ♦' : '';
             this.innerText = fullwipe ? "anon" : (isMod ? "mod" + modFlair : "anon-" + dataSet[uid]);
+
+            // Also find same username in question close reasons
+            $('.close-as-off-topic-status-list .js-reason-user').filter((i, el) => el.innerText == username).text(this.innerText);
         });
 
         // Remove @ replies from beginning of comments
