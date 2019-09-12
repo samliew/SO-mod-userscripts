@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.23
+// @version      2.9.24
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -948,6 +948,7 @@ span.mod-flair {
 #answers .deleted-answer .deleted-user,
 #question.deleted-answer .deleted-user {
     background: indianred;
+    color: white;
 }
 
 /* Chat */
