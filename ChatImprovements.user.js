@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.5
+// @version      1.3
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -296,12 +296,17 @@
         // When joining a chat room
         if(location.pathname.includes('/rooms/') && !location.pathname.includes('/info/')) {
 
-            // Always rejoin favourite rooms
-            $.post(`https://${location.hostname}/chats/join/favorite`, {
-                quiet: true,
-                immediate: true,
-                fkey: fkey
-            }, () => console.log('rejoined favourite rooms'));
+            // Rejoin favourite rooms on link click
+            let rejoinFavsBtn = $(`<a href="#">rejoin starred</a><span class="divider"> / </span>`).prependTo($('#my-rooms').parent('.sidebar-widget').find('.msg-small').first());
+            rejoinFavsBtn.click(function() {
+                $(this).next('span.divider').addBack().remove();
+                $.post(`https://${location.hostname}/chats/join/favorite`, {
+                    quiet: true,
+                    immediate: true,
+                    fkey: fkey
+                }, () => console.log('rejoined favourite rooms'));
+                return false;
+            });
 
             // If on mobile chat
             if(document.body.classList.contains('mob')) {
