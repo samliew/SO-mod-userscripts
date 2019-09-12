@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -157,6 +157,7 @@
     }
 
 
+
     /*
        This function is intended to check for new messages and parse the message text
        - It converts non-transcript chatroom links to the room transcript
@@ -167,14 +168,22 @@
 
         function parseMessageLink(i, el) {
 
-            // Convert non-transcript chatroom links to the room transcript
-            if(el.href.includes('chat.') && el.href.includes('/rooms/') && !el.href.includes('/info/')) {
+
+            // Ignore links to bookmarked conversations
+            if(/\/rooms\/\d+\/conversation\//.test(el.href)) { }
+            // Ignore X messages moved links
+            else if(/^\d+ messages?$/.test(el.innerText)) { }
+            // Ignore room info links
+            else if(el.href.includes('/info/')) { }
+            // Convert all other chatroom links to the room transcript
+            else if(el.href.includes('chat.') && el.href.includes('/rooms/')) {
                 el.href = el.href.replace('/rooms/', '/transcript/');
                 el.innerText = el.innerText.replace('/rooms/', '/transcript/');
             }
 
+
             // Attempt to display chat domain, and room name or message id with (transcript) label
-            if(el.href.includes('chat.') && el.href.includes('/transcript/') && !/^\d+ messages?$/.test(el.innerText)) {
+            if(el.href.includes('chat.') && el.href.includes('/transcript/')) {
                 let chatDomain = [
                     { host: 'chat.stackexchange.com', name: 'SE chat' },
                     { host: 'chat.meta.stackexchange.com', name: 'MSE chat' },
@@ -183,11 +192,13 @@
                 let roomName = el.href.split('/').pop().replace(/[?#].+$/, '').replace(/-/g, ' ').replace(/\b./g, m => m.toUpperCase());
                 let messageId = Number((el.href.match(/#(\d+)/) || ['0']).pop());
 
+                // Display message id
                 if(el.href.includes('/message/') || el.href.includes('?m=')) {
                     el.innerHTML = chatDomain.name +
                         (!isNaN(Number(roomName)) && !el.href.includes('/message/') ? ', room #' + roomName : '') +
                         ', message #' + messageId + ' <i>(transcript)</i>';
                 }
+                // Display room name
                 else if(isNaN(Number(roomName))) {
                     // Change link text to room name only if link text is a URL
                     if(/(^https?|\.com)/.test(el.innerText)) {
@@ -197,15 +208,17 @@
                         el.innerHTML += ' <i>(transcript)</i>';
                     }
                 }
+                // Fallback to generic domain since no room slug
                 else {
                     el.innerHTML = chatDomain.name + ', room #' + roomName + ' <i>(transcript)</i>';
                 }
 
+                // Verbose links should not wrap across lines
                 $(this).addClass('nowrap');
             }
 
             // For Q&A links
-            if(((el.href.includes('/questions/') && !el.href.includes('/tagged/')) || el.href.includes('/q/') || el.href.includes('/a/')) && el.innerText.includes('…')) {
+            else if(((el.href.includes('/questions/') && !el.href.includes('/tagged/')) || el.href.includes('/q/') || el.href.includes('/a/')) && el.innerText.includes('…')) {
 
                 var displayUrl = el.href;
 
@@ -231,22 +244,28 @@
                 el.innerText = displayUrl;
             }
 
+
             // Remove user id if question or answer
             if((el.href.includes('/q/') || el.href.includes('/a/')) && /\/\d+\/\d+$/.test(el.href)) {
                 el.href = el.href.replace(/\/\d+$/, '');
                 el.innerText = el.innerText.replace(/\/\d+$/, '');
             }
 
-            // For all other links that are truncated, display full url if url is < 58 chars incl protocol
+
+            // For all other links that are still truncated at this stage,
+            //  display full url if url is <58 chars incl protocol
             if(el.innerText.includes('…') && el.href.length < 58) {
                 el.innerText = el.href;
             }
 
-            // Trim protocol and trailing slashes
+
+            // Finally we trim all protocols and trailing slashes for shorter URLs
             if(/(^https?|\/$)/.test(el.innerText)) {
                 el.innerText = el.innerText.replace(/^https?:\/\//i, '').replace(/\/$/, '');
             }
+
         }
+
 
         function parseRoomMini(i, el) {
 
@@ -288,7 +307,10 @@
             }
 
         }, 1000);
+
     }
+    /* End message parser */
+
 
 
     function doPageload() {
