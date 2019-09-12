@@ -3,7 +3,7 @@
 // @description  Show Deleted Messages in Chat and Transcripts. Works with NoOneboxesInChat userscript
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.4
+// @version      1.2.5
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -42,7 +42,13 @@
 
             // Hide oneboxes if userscript is installed
             if (typeof hideOneboxes === 'function') { hideOneboxes(); }
+
+            // Bugfix for favicon resetting to default in Firefox on network request
+            // modified from https://stackoverflow.com/a/4630726
+            $('head link[rel="shortcut icon"]').detach().attr('href', (i,v) => v + '#' + Math.floor(Math.random() * 100000) + 1).appendTo('head');
         });
+
+        return false;
     }
 
 
@@ -58,8 +64,8 @@
     }
 
 
-    function doPageload()
-    {
+    function doPageload() {
+
         // Mobile chat transcript does not have this
         if(typeof CHAT.RoomUsers.current === 'undefined') return;
 
