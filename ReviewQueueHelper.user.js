@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.10.1
+// @version      1.10.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -47,7 +47,7 @@ async function waitForSOMU() {
     let isLinkOnlyAnswer = false, isCodeOnlyAnswer = false;
     let numOfReviews = 0;
 
-    let skipAccepted = false, skipMediumQuestions = false, skipLongQuestions = false, autoCloseShortQuestions = false;
+    let skipAccepted = false, skipMultipleAnswers = false, skipMediumQuestions = false, skipLongQuestions = false, autoCloseShortQuestions = false;
 
 
     function loadOptions() {
@@ -57,6 +57,11 @@ async function waitForSOMU() {
             SOMU.addOption(scriptName, 'Skip Accepted Questions', skipAccepted, 'bool');
             // Get current custom value with default
             skipAccepted = SOMU.getOptionValue(scriptName, 'Skip Accepted Questions', skipAccepted, 'bool');
+
+            // Set option field in sidebar with current custom value; use default value if not set before
+            SOMU.addOption(scriptName, 'Skip Questions with >1 Answer', skipMultipleAnswers, 'bool');
+            // Get current custom value with default
+            skipMultipleAnswers = SOMU.getOptionValue(scriptName, 'Skip Questions with >1 Answer', skipMultipleAnswers, 'bool');
 
             // Set option field in sidebar with current custom value; use default value if not set before
             SOMU.addOption(scriptName, 'Skip Medium-length Questions', skipMediumQuestions, 'bool');
@@ -149,6 +154,14 @@ async function waitForSOMU() {
         if(skipAccepted && post.isQuestion && post.accepted) {
             console.log('skipping accepted question');
             toastMessage('skipping accepted question');
+            skipReview();
+            return;
+        }
+
+        // Question has multiple answers, skip if enabled
+        if(skipMultipleAnswers && post.isQuestion && post.answers > 1) {
+            console.log('skipping question with >1 answer');
+            toastMessage('skipping question with >1 answer');
             skipReview();
             return;
         }
