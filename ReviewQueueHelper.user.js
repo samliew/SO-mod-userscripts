@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.10.2
+// @version      1.11
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -38,6 +38,7 @@ async function waitForSOMU() {
 (function() {
     'use strict';
 
+    const fkey = StackExchange.options.user.fkey;
 
     const scriptName = GM_info.script.name;
     const queueType = /^\/review/.test(location.pathname) ? location.href.replace(/\/\d+(\?.*)?$/, '').split('/').pop() : null;
@@ -47,7 +48,7 @@ async function waitForSOMU() {
     let isLinkOnlyAnswer = false, isCodeOnlyAnswer = false;
     let numOfReviews = 0;
 
-    let skipAccepted = false, skipMultipleAnswers = false, skipMediumQuestions = false, skipLongQuestions = false, autoCloseShortQuestions = false;
+    let skipAccepted = false, skipMultipleAnswers = false, skipMediumQuestions = false, skipLongQuestions = false, autoCloseShortQuestions = false, downvoteAfterClose = false;
 
 
     function loadOptions() {
@@ -77,11 +78,16 @@ async function waitForSOMU() {
             SOMU.addOption(scriptName, 'Try to close short Questions', autoCloseShortQuestions, 'bool');
             // Get current custom value with default
             autoCloseShortQuestions = SOMU.getOptionValue(scriptName, 'Try to close short Questions', autoCloseShortQuestions, 'bool');
+
+            // Set option field in sidebar with current custom value; use default value if not set before
+            SOMU.addOption(scriptName, 'Downvote after Question Closure', downvoteAfterClose, 'bool');
+            // Get current custom value with default
+            downvoteAfterClose = SOMU.getOptionValue(scriptName, 'Downvote after Question Closure', downvoteAfterClose, 'bool');
         });
     }
 
 
-    let toastTimeout, defaultDuration = 1;
+    let toastTimeout, defaultDuration = 1.5;
     function toastMessage(msg, duration = defaultDuration) {
         // Validation
         duration = Number(duration);
@@ -99,6 +105,23 @@ async function waitForSOMU() {
         toastTimeout = setTimeout(function(div) {
             div.hide();
         }, duration * 1000, div);
+    }
+
+
+    // Downvote individual post
+    function downvotePost(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/posts/${pid}/vote/3`,
+                data: {
+                    fkey: fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
     }
 
 
@@ -550,6 +573,12 @@ async function waitForSOMU() {
             // Question was closed
             else if(settings.url.includes('/close/add')) {
                 $('.review-actions input[value*="Close"]').attr('disabled', true);
+
+                // If downvoteAfterClose option enabled, and score >= 0
+                if(downvoteAfterClose && post.isQuestion && post.votes >= 0) {
+                    console.log('post downvoted', post.id);
+                    downvotePost(post.id);
+                }
             }
 
             // Next review loaded, transform UI and pre-process review
