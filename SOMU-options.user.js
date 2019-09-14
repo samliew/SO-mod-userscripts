@@ -3,7 +3,7 @@
 // @description  Adds right sidebar to modify options of installed userscripts from the repo https://github.com/samliew/SO-mod-userscripts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -151,7 +151,7 @@ SOMU = unsafeWindow.SOMU || {
     z-index: 8950;
     top: 44px;
     left: 100%;
-    width: calc(100% - 60px);
+    width: calc(100% - 250px);
     height: calc(100vh - 43px);
     padding: 10px 5px 40px;
     background: white;
