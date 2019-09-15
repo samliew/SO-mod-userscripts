@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.12
+// @version      1.12.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -62,7 +62,7 @@ async function waitForSOMU() {
             // Set option field in sidebar with current custom value; use default value if not set before
             SOMU.addOption(scriptName, 'Skip Upvoted Posts', skipUpvoted, 'bool');
             // Get current custom value with default
-            skipUpvoted = SOMU.getOptionValue(scriptName, 'Skip Questions with Positive Scores', skipUpvoted, 'bool');
+            skipUpvoted = SOMU.getOptionValue(scriptName, 'Skip Upvoted Posts', skipUpvoted, 'bool');
 
             // Set option field in sidebar with current custom value; use default value if not set before
             SOMU.addOption(scriptName, 'Skip Questions with >1 Answer', skipMultipleAnswers, 'bool');
