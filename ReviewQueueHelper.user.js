@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.11
+// @version      1.12
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -48,7 +48,7 @@ async function waitForSOMU() {
     let isLinkOnlyAnswer = false, isCodeOnlyAnswer = false;
     let numOfReviews = 0;
 
-    let skipAccepted = false, skipMultipleAnswers = false, skipMediumQuestions = false, skipLongQuestions = false, autoCloseShortQuestions = false, downvoteAfterClose = false;
+    let skipAccepted = false, skipUpvoted = false, skipMultipleAnswers = false, skipMediumQuestions = false, skipLongQuestions = false, autoCloseShortQuestions = false, downvoteAfterClose = false;
 
 
     function loadOptions() {
@@ -58,6 +58,11 @@ async function waitForSOMU() {
             SOMU.addOption(scriptName, 'Skip Accepted Questions', skipAccepted, 'bool');
             // Get current custom value with default
             skipAccepted = SOMU.getOptionValue(scriptName, 'Skip Accepted Questions', skipAccepted, 'bool');
+
+            // Set option field in sidebar with current custom value; use default value if not set before
+            SOMU.addOption(scriptName, 'Skip Upvoted Posts', skipUpvoted, 'bool');
+            // Get current custom value with default
+            skipUpvoted = SOMU.getOptionValue(scriptName, 'Skip Questions with Positive Scores', skipUpvoted, 'bool');
 
             // Set option field in sidebar with current custom value; use default value if not set before
             SOMU.addOption(scriptName, 'Skip Questions with >1 Answer', skipMultipleAnswers, 'bool');
@@ -177,6 +182,14 @@ async function waitForSOMU() {
         if(skipAccepted && post.isQuestion && post.accepted) {
             console.log('skipping accepted question');
             toastMessage('skipping accepted question');
+            skipReview();
+            return;
+        }
+
+        // Post has positive score, skip if enabled
+        if(skipUpvoted && post.votes > 0) {
+            console.log('skipping upvoted post');
+            toastMessage('skipping upvoted post');
             skipReview();
             return;
         }
