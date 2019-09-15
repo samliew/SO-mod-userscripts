@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.12.1
+// @version      1.12.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -187,7 +187,7 @@ async function waitForSOMU() {
         }
 
         // Post has positive score, skip if enabled
-        if(skipUpvoted && post.votes > 0) {
+        if(skipUpvoted && post.votes > 3) {
             console.log('skipping upvoted post');
             toastMessage('skipping upvoted post');
             skipReview();
