@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.24
+// @version      2.9.25
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -66,6 +66,7 @@
 
 
     GM_addStyle(`
+/* ===== Stack Exhchange Dark Mode ===== */
 
 
 /* Apply to all */
@@ -204,7 +205,7 @@ body #content .share-tip,
 
 /* Scrollbars */
 ::-webkit-scrollbar{ width:10px; height:10px; }
-::-webkit-scrollbar-thumb{ background-color:${textcolor}; border-radius: 5; }
+::-webkit-scrollbar-thumb{ background-color:${textcolor}; border-radius: 5px; }
 ::-webkit-scrollbar-thumb:hover{ background-color:${textcolor}; }
 ::-webkit-scrollbar-track{ background-color:${bordercolor}; }
 
@@ -920,8 +921,8 @@ a.comment-user.owner {
 .emojionearea .emojionearea-button {
     background-color: #777;
 }
-.reviewban-history .reviewban-ending.current span.type,
-.reviewban-history .reviewban-ending.recent span.type {
+.reviewban-history-summary .reviewban-ending.current span.type,
+.reviewban-history-summary .reviewban-ending.recent span.type {
     color: ${orange};
 }
 #review-flowchart svg * {
