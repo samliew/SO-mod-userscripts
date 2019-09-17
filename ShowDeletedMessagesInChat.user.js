@@ -3,7 +3,7 @@
 // @description  Show Deleted Messages in Chat and Transcripts. Works with NoOneboxesInChat userscript
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.5
+// @version      1.2.6
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -47,8 +47,6 @@
             // modified from https://stackoverflow.com/a/4630726
             $('head link[rel="shortcut icon"]').detach().attr('href', (i,v) => v + '#' + Math.floor(Math.random() * 100000) + 1).appendTo('head');
         });
-
-        return false;
     }
 
 
