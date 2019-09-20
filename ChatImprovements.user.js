@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.2
+// @version      1.3.3
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -183,7 +183,7 @@
 
 
             // Attempt to display chat domain, and room name or message id with (transcript) label
-            if(el.href.includes('chat.') && el.href.includes('/transcript/')) {
+            if(el.href.includes('chat.') && el.href.includes('/transcript/') && el.innerText.includes('https://')) {
                 let chatDomain = [
                     { host: 'chat.stackexchange.com', name: 'SE chat' },
                     { host: 'chat.meta.stackexchange.com', name: 'MSE chat' },
