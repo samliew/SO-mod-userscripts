@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.8.1
+// @version      4.8.2
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -57,7 +57,7 @@
         'gay', 'lesbian', 'sissy', 'brain', 'rtfm', 'blind', 'retard(ed)?', 'jerks?', 'bitch\\w*',
         'read[\\w\\s]+(tutorial|docs|manual)', 'lack[\\w\\s]+research', 'idownvotedbecau.se',
     ];
-    const rudeRegex = new RegExp('\\s(' + rudeKeywords.join('|') + ')(?![/-])', 'gi');
+    const rudeRegex = new RegExp('\\b(' + rudeKeywords.join('|') + ')(?![/-])', 'gi');
 
     // Special characters must be escaped with \\
     const chattyKeywords = [
@@ -65,17 +65,17 @@
         'appreciated?', 'my email', 'email me', 'contact', 'good', 'great', 'sorry', '\\+1', 'love', 'wow', 'pointless', 'no\\s?(body|one)',
         'homework', 'no idea', 'your mind', 'try it', 'typo', 'wrong', 'unclear', 'regret', 'every\\s?(body|one)',
         'exactly', 'check', 'lol', 'ha(ha)+', 'women', 'girl', 'effort', 'understand', 'want', 'need', 'little',
-        'give up', 'documentation', 'google\\s', 'what[\\w\\s]+(try|tried)[\\w\\s]*\\?*', 'free', 'obvious',
+        'give up', 'documentation', 'google\\s?', 'what[\\w\\s]+(try|tried)[\\w\\s]*\\?*', 'free', 'obvious',
         'move on', 'go away', 'stop', 'bad', 'bother', 'no sense', 'sense', 'learn',
-        '(down|up)[-\\s]?vot(er|ed|e|ing)',
+        '(down|up)[-\\s]?vot(er|ed|e|ing)', 'idownvotedbecau',
     ];
-    const chattyRegex = new RegExp('\\s(' + chattyKeywords.join('|') + ')(?![/-])', 'gi');
+    const chattyRegex = new RegExp('\\b(' + chattyKeywords.join('|') + ')(?![/-])', 'gi');
 
 
     function replaceKeywords(jqElem) {
         let text = ' ' + this.innerHTML;
-        text = text.replace(rudeRegex, ' <span class="cmmt-rude">$1</span>');
-        text = text.replace(chattyRegex, ' <span class="cmmt-chatty">$1</span>');
+        text = text.replace(rudeRegex, '<span class="cmmt-rude">$1</span>');
+        text = text.replace(chattyRegex, '<span class="cmmt-chatty">$1</span>');
         this.innerHTML = text;
     }
 
