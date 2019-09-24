@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.8
+// @version      4.8.1
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -289,16 +289,6 @@
                 })
                 .appendTo(actionBtns);
 
-            // Start from bottom link (only when more than 3 posts present on page)
-            $('<button>Review from bottom</button>')
-                .click(function() {
-                    reviewFromBottom = true;
-                    $(this).remove();
-                    $('.flagged-posts.moderator').css('margin-top', '600px');
-                    window.scrollTo(0,999999);
-                })
-                .appendTo(actionBtns);
-
             if(superusers.includes(StackExchange.options.user.userId)) {
 
                 // Delete chatty comments on page
@@ -320,6 +310,30 @@
                         const visibleComments = $('.js-comment-delete:visible');
                         $('body').showAjaxProgress(visibleComments.length, { position: 'fixed' });
                         visibleComments.click();
+                    })
+                    .appendTo(actionBtns);
+
+                // Decline all comments left on page
+                $('<button class="btn-warning">Decline ALL</button>')
+                    .click(function() {
+                        if(!confirm('Confirm Decline ALL?')) return false;
+
+                        $(this).remove();
+                        const visibleComments = $('.js-dismiss-flags:visible');
+                        $('body').showAjaxProgress(visibleComments.length, { position: 'fixed' });
+                        visibleComments.click();
+                    })
+                    .appendTo(actionBtns);
+            }
+            else {
+
+                // Start from bottom link (only when more than 3 posts present on page)
+                $('<button>Review from bottom</button>')
+                    .click(function() {
+                        reviewFromBottom = true;
+                        $(this).remove();
+                        $('.flagged-posts.moderator').css('margin-top', '600px');
+                        window.scrollTo(0,999999);
                     })
                     .appendTo(actionBtns);
             }
