@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.4
+// @version      1.3.5
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -253,9 +253,27 @@
 
 
             // For all other links that are still truncated at this stage,
-            //  display full url if url is <58 chars incl protocol
-            if(el.innerText.includes('…') && el.href.length < 58) {
-                el.innerText = el.href;
+            if(el.innerText.includes('…')) {
+
+                // display full url if url is <64 chars incl protocol
+                if(el.href.length < 64) {
+                    el.innerText = el.href;
+                }
+                // else display next directory path if it's <X chars
+                else {
+                    let displayed = el.innerText.replace('…', '');
+                    let hiddenPath = el.href.replace(/^https?:\/\/(www\.)?/, '').replace(displayed, '').split('/');
+                    console.log(hiddenPath);
+
+                    if(hiddenPath[0].length < 40) {
+                        el.innerText = displayed + hiddenPath[0];
+
+                        // if there are >1 hidden paths, continue displaying ellipsis at the end
+                        if(hiddenPath.length > 1) {
+                            el.innerText += '/…';
+                        }
+                    }
+                }
             }
 
 
