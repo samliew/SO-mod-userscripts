@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.13
+// @version      1.13.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -263,7 +263,8 @@ async function waitForSOMU() {
 
         if(voteCont.find('.js-vote-up-btn, .js-vote-down-btn').length != 2) {
             voteCont.find('.fs-caption').remove();
-            voteCont.find('.js-vote-count').removeClass('mb8').before(upvoteBtn).after(dnvoteBtn);
+            voteCont.find('.fc-black-500').removeClass('fc-black-500');
+            voteCont.find('.js-vote-count').removeClass('mb8').addClass('fc-black-500').before(upvoteBtn).after(dnvoteBtn);
 
             StackExchange.question.fullInit('.question');
             StackExchange.question.fullInit('.answer');
