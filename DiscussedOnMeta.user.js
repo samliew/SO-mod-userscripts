@@ -3,7 +3,7 @@
 // @description  For questions and answers, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.1
+// @version      2.10.2
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
@@ -15,6 +15,15 @@
 // @exclude      *meta.*
 //
 // @grant        GM_xmlhttpRequest
+//
+// @connect      *
+// @connect      self
+// @connect      stackoverflow.com
+// @connect      serverfault.com
+// @connect      superuser.com
+// @connect      askubuntu.com
+// @connect      mathoverflow.com
+// @connect      stackexchange.com
 // ==/UserScript==
 
 (function() {
