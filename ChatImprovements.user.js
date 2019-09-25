@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.5
+// @version      1.3.6
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -192,6 +192,9 @@
                 let roomName = el.href.split('/').pop().replace(/[?#].+$/, '').replace(/-/g, ' ').replace(/\b./g, m => m.toUpperCase());
                 let messageId = Number((el.href.match(/#(\d+)/) || ['0']).pop());
 
+                // Check if we have a valid parsed message id
+                if(messageId == 0) messageId = roomName;
+
                 // Display message id
                 if(el.href.includes('/message/') || el.href.includes('?m=')) {
                     el.innerHTML = chatDomain.name +
@@ -217,7 +220,7 @@
                 $(this).addClass('nowrap');
             }
 
-            // For Q&A links
+            // Shorten Q&A links
             else if(((el.href.includes('/questions/') && !el.href.includes('/tagged/')) || el.href.includes('/q/') || el.href.includes('/a/')) && el.innerText.includes('…')) {
 
                 var displayUrl = el.href;
@@ -244,6 +247,12 @@
                 el.innerText = displayUrl;
             }
 
+            // Shorten /questions/tagged links
+            else if(el.href.includes('/questions/tagged/')) {
+
+                el.innerText = el.href.replace('/questions/tagged/', '/tags/');
+            }
+
 
             // Remove user id if question or answer
             if((el.href.includes('/q/') || el.href.includes('/a/')) && /\/\d+\/\d+$/.test(el.href)) {
@@ -259,18 +268,32 @@
                 if(el.href.length < 64) {
                     el.innerText = el.href;
                 }
-                // else display next directory path if it's <X chars
+                // else display next directory path if it's short enough
                 else {
                     let displayed = el.innerText.replace('…', '');
                     let hiddenPath = el.href.replace(/^https?:\/\/(www\.)?/, '').replace(displayed, '').split('/');
-                    console.log(hiddenPath);
+                    let hiddenPathLastIndex = hiddenPath.length - 1;
+                    let shown1;
+                    //console.log(hiddenPath);
 
-                    if(hiddenPath[0].length < 40) {
+                    // If next hidden path is short, or is only hidden path
+                    if(hiddenPath[0].length <= 25 || (hiddenPath.length == 1 && hiddenPath[hiddenPathLastIndex].length <= 35)) {
                         el.innerText = displayed + hiddenPath[0];
+                        shown1 = true;
 
                         // if there are >1 hidden paths, continue displaying ellipsis at the end
                         if(hiddenPath.length > 1) {
                             el.innerText += '/…';
+                        }
+                    }
+
+                    // Display last directory path if it's short enough
+                    if(hiddenPath.length > 1 && hiddenPath[hiddenPathLastIndex].length <= 35) {
+                        el.innerText += '/' + hiddenPath[hiddenPathLastIndex];
+
+                        // if full url is shown at this stage, strip ellipsis
+                        if(shown1 && hiddenPath.length <= 2) {
+                            el.innerText = el.innerText.replace('/…', '');
                         }
                     }
                 }
@@ -624,6 +647,15 @@ html.fixed-header body.with-footer main {
 
 
 /* Other minor stuff */
+#loading #loading-message {
+    top: 40%;
+    left: 50%;
+    right: unset;
+    height: unset;
+    width: unset;
+    max-width: 600px;
+    transform: translate(-50%, -50%);
+}
 #chat-body #container {
     padding-left: 10px;
     padding-right: 10px;
