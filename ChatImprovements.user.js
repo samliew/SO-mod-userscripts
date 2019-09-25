@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.7
+// @version      1.3.8
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -270,8 +270,8 @@
                 el.innerText = displayUrl;
             }
 
-            // Shorten /questions/tagged links
-            else if(el.href.includes('/questions/tagged/')) {
+            // Shorten /questions/tagged links, but ignore tag inline-boxes
+            else if(el.href.includes('/questions/tagged/') && el.children.length == 0) {
 
                 el.innerText = el.href.replace('/questions/tagged/', '/tags/');
             }
