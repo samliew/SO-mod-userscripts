@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.12.2
+// @version      1.13
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -249,6 +249,24 @@ async function waitForSOMU() {
                 isCodeOnlyAnswer = true;
                 console.log('Possible code-only answer detected.');
             }
+        }
+    }
+
+
+    function insertVotingButtonsIfMissing() {
+
+        const voteCont = $('.js-voting-container').first();
+        if(voteCont.length == 0) return;
+
+        const upvoteBtn = `<button class="js-vote-up-btn grid--cell s-btn s-btn__unset c-pointer" title="This question shows research effort; it is useful and clear" aria-pressed="false" aria-label="up vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowUpLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 26h32L18 10 2 26z"></path></svg></button>`;
+        const dnvoteBtn = `<button class="js-vote-down-btn grid--cell s-btn s-btn__unset c-pointer" title="This question does not show any research effort; it is unclear or not useful" aria-pressed="false" aria-label="down vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowDownLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 10h32L18 26 2 10z"></path></svg></button>`;
+
+        if(voteCont.find('.js-vote-up-btn, .js-vote-down-btn').length != 2) {
+            voteCont.find('.fs-caption').remove();
+            voteCont.find('.js-vote-count').removeClass('mb8').before(upvoteBtn).after(dnvoteBtn);
+
+            StackExchange.question.fullInit('.question');
+            StackExchange.question.fullInit('.answer');
         }
     }
 
@@ -754,6 +772,9 @@ async function waitForSOMU() {
 
                     // Process post based on queue type
                     if(typeof processReview === 'function') processReview();
+
+                    // Insert voting buttons
+                    insertVotingButtonsIfMissing();
 
                 }, 100);
             }
