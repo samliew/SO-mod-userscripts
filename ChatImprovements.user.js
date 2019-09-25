@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.6
+// @version      1.3.7
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -228,12 +228,35 @@
                 // Strip certain querystrings
                 displayUrl = displayUrl.replace(/[?&]noredirect=1/, '');
 
+                // Get comment target (is it on a question or answer), based on second parameter
+                let commentId = null, commentTarget = null;
+                if(/#comment\d+_\d+$/.test(el.href)) {
+                    commentId = el.href.match(/#comment(\d+)_\d+$/)[1];
+                    commentTarget = Number(el.href.match(/#comment\d+_(\d+)$/)[1]);
+                }
+
                 // If long answer link
                 if(el.href.includes('/questions/') && /\/\d+\/[\w-]+\/\d+/.test(el.href)) {
 
-                    // Convert to short answer link text
-                    displayUrl = displayUrl.replace(/\/questions\/\d+\/[^\/]+\/(\d+)(#\d+)?(#comment\d+_\d+)?$/i, '/a/$1') +
-                        (el.href.includes('#comment') ? el.href.match(/(#comment\d+)_\d+$/)[1] : '');
+                    // If has comment in url, check if comment target is answer
+                    if(commentId != null && commentTarget != null) {
+                        const answerId = Number(el.href.match(/\/\d+\/[\w-]+\/(\d+)/)[1]);
+
+                        if(commentTarget == answerId) {
+                            // Convert to short answer link text with comment hash
+                            displayUrl = displayUrl.replace(/\/questions\/\d+\/[^\/]+\/(\d+)(#\d+)?(#comment\d+_\d+)?$/i, '/a/$1') +
+                                '#comment' + commentId;
+                        }
+                        else {
+                            // Convert to short question link text with comment hash
+                            displayUrl = displayUrl.replace(/\/questions\/(\d+)\/[^\/]+\/(\d+)(#\d+)?(#comment\d+_\d+)?$/i, '/q/$1') +
+                                '#comment' + commentId;
+                        }
+                    }
+                    else {
+                        // Convert to short answer link text
+                        displayUrl = displayUrl.replace(/\/questions\/\d+\/[^\/]+\/(\d+)(#\d+)?(#comment\d+_\d+)?$/i, '/a/$1');
+                    }
                 }
                 // If long question link
                 else {
@@ -241,7 +264,7 @@
                     // Convert to short question link text
                     // Avoid truncating inline question links
                     displayUrl = displayUrl.replace('/questions/', '/q/').replace(/\?(&?(cb|noredirect)=\d+)+/i, '').replace(/(\/\D[\w-]*)+((\/\d+)?#comment\d+_\d+)?$/, '') +
-                        (el.href.includes('#comment') ? el.href.match(/(#comment\d+)_\d+$/)[1] : '');
+                        (commentId != null ? '#comment' + commentId : '');
                 }
 
                 el.innerText = displayUrl;
@@ -271,13 +294,13 @@
                 // else display next directory path if it's short enough
                 else {
                     let displayed = el.innerText.replace('…', '');
-                    let hiddenPath = el.href.replace(/^https?:\/\/(www\.)?/, '').replace(displayed, '').split('/');
+                    let hiddenPath = el.href.replace(/^https?:\/\/(www\.)?/, '').replace(displayed, '').replace(/\/$/, '').split('/');
                     let hiddenPathLastIndex = hiddenPath.length - 1;
                     let shown1;
-                    //console.log(hiddenPath);
+                    console.log(hiddenPath);
 
                     // If next hidden path is short, or is only hidden path
-                    if(hiddenPath[0].length <= 25 || (hiddenPath.length == 1 && hiddenPath[hiddenPathLastIndex].length <= 35)) {
+                    if(hiddenPath[0].length <= 25 || (hiddenPath.length == 1 && hiddenPath[hiddenPathLastIndex].length <= 50)) {
                         el.innerText = displayed + hiddenPath[0];
                         shown1 = true;
 
@@ -288,7 +311,7 @@
                     }
 
                     // Display last directory path if it's short enough
-                    if(hiddenPath.length > 1 && hiddenPath[hiddenPathLastIndex].length <= 35) {
+                    if(hiddenPath.length > 1 && hiddenPath[hiddenPathLastIndex].length <= 50) {
                         el.innerText += '/' + hiddenPath[hiddenPathLastIndex];
 
                         // if full url is shown at this stage, strip ellipsis
