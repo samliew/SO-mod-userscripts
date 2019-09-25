@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.8.2
+// @version      4.8.3
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -227,7 +227,7 @@
         $('.js-flagged-post').append(`<a class="skip-post" title="skip (hide) this post" href="#">skip post</a>`);
 
         // Highlight chatty/rude keywords in comments
-        $('.comment-copy, tr.deleted-row > td > span').each(replaceKeywords);
+        $('.comment-copy, tr.text-row > td > span').each(replaceKeywords);
 
         // Change "dismiss" link to "decline", insert alternate action
         $('.js-flagged-comment .js-dismiss-flags').text('decline').append(`<span class="cancel-delete-comment-flag" title="dismiss flags AND delete comment">+delete</span>`);
