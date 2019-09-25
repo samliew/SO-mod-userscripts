@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.10
+// @version      4.11
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -545,6 +545,9 @@
 
         const today = new Date();
 
+        // Remove new top-search
+        $('#top-search').remove();
+
         orderby = $(`<div id="order-by">
   <span class="label">Order by: </span>
   <input type="radio" name="tab" id="tab-relevance" value="" checked /><label for="tab-relevance">relevance</label>
@@ -875,6 +878,8 @@
         searchhelper
             .on('mouseenter click mouseup', keepOpen)
             .on('focus change click mouseup', 'input, select', keepOpen);
+        searchform
+            .on('focus change click mouseup', '.js-search-field', keepOpen);
 
         // Save default checked state on radio buttons for reset purposes
         $('input:radio:checked').attr('data-default', '');
