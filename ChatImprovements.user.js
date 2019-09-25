@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.8
+// @version      1.3.9
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -166,6 +166,8 @@
     */
     function initMessageParser() {
 
+        const transcriptIndicator = ' <i class="transcript-link">(transcript)</i>';
+
         function parseMessageLink(i, el) {
 
 
@@ -190,7 +192,7 @@
                     { host: 'chat.stackoverflow.com', name: 'SO chat' }
                 ].filter(v => v.host == el.hostname).pop() || '';
                 let roomName = el.href.split('/').pop().replace(/[?#].+$/, '').replace(/-/g, ' ').replace(/\b./g, m => m.toUpperCase());
-                let messageId = Number((el.href.match(/#(\d+)/) || ['0']).pop());
+                let messageId = Number((el.href.match(/(#|\?m=)(\d+)/) || [0]).pop());
 
                 // Check if we have a valid parsed message id
                 if(messageId == 0) messageId = roomName;
@@ -199,21 +201,21 @@
                 if(el.href.includes('/message/') || el.href.includes('?m=')) {
                     el.innerHTML = chatDomain.name +
                         (!isNaN(Number(roomName)) && !el.href.includes('/message/') ? ', room #' + roomName : '') +
-                        ', message #' + messageId + ' <i>(transcript)</i>';
+                        ', message #' + messageId + transcriptIndicator;
                 }
                 // Display room name
                 else if(isNaN(Number(roomName))) {
                     // Change link text to room name only if link text is a URL
                     if(/(^https?|\.com)/.test(el.innerText)) {
-                        el.innerHTML = roomName + ' <i>(transcript)</i>';
+                        el.innerHTML = roomName + transcriptIndicator;
                     }
                     else {
-                        el.innerHTML += ' <i>(transcript)</i>';
+                        el.innerHTML += transcriptIndicator;
                     }
                 }
                 // Fallback to generic domain since no room slug
                 else {
-                    el.innerHTML = chatDomain.name + ', room #' + roomName + ' <i>(transcript)</i>';
+                    el.innerHTML = chatDomain.name + ', room #' + roomName + transcriptIndicator;
                 }
 
                 // Verbose links should not wrap across lines
@@ -720,6 +722,10 @@ ul#my-rooms > li > a span {
 }
 .monologue .timestamp {
     color: #444;
+}
+.message a i.transcript-link {
+    opacity: 0.5;
+    font-size: 0.9em;
 }
 
 
