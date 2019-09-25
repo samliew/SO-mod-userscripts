@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.8
+// @version      1.2.9
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -32,7 +32,8 @@
 
             // Special class for message/suspension rows
             const aType = $(this).children().first().text().trim().toLowerCase();
-            if(/(suspension|message)/.test(aType)) {
+            const aHasLink = $(this).children().eq(3).find('a').length > 0;
+            if(/(suspension|message)/.test(aType) && aHasLink) {
                 $(this).addClass('user-message');
                 return;
             }
