@@ -3,7 +3,7 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.3
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -109,6 +109,7 @@
                 case 'unfriendly or unkind':
                 case 'unfriendly or unkind (auto)':
                 case 'unwelcoming':
+                case 'robot says unfriendly':
                     cls = 'ctype-poor';
                     break;
                 case 'no longer needed':
