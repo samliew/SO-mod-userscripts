@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.8.3
+// @version      4.9
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -77,6 +77,23 @@
         text = text.replace(rudeRegex, '<span class="cmmt-rude">$1</span>');
         text = text.replace(chattyRegex, '<span class="cmmt-chatty">$1</span>');
         this.innerHTML = text;
+    }
+
+
+    // Dismiss all flags on comment
+    function dismissCommentFlags(cid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof cid === 'undefined' || cid == null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/comment/${cid}/clear-flags`,
+                data: {
+                    fkey: fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
     }
 
 
@@ -440,6 +457,16 @@
         if(location.pathname.includes('/admin/users/') && location.pathname.includes('/post-comments')) {
 
             initCommentFilters();
+
+            // Init decline buttons (clear-flags) on user comments page for active flags
+            $('.comment-flag-on').append(`<a class="dismiss-comment" href="#" title="decline flags on comment">decline</a>`);
+            $('.admin-user-comments').on('click', '.dismiss-comment', function() {
+                const cid = Number($(this).closest('tr.text-row').attr('data-id'));
+                if(isNaN(cid)) return;
+                $(this).remove();
+                dismissCommentFlags(cid);
+                return false;
+            });
         }
     }
 
@@ -638,6 +665,19 @@ table.comments tr.roa-comment > td {
     font-size: 1rem;
     background: #eee;
 }
+.meta-row .delete-comment,
+.meta-row .edit-comment,
+.text-row .comment-flag-on .dismiss-comment {
+    float: right;
+    margin-top: -5px;
+    margin-left: 10px;
+    padding: 5px 8px;
+    font-size: 1rem;
+    background: #eee;
+}
+.text-row .comment-flag-on .dismiss-comment {
+    float: none;
+}
 .skip-post {
     position: absolute !important;
     bottom: 0;
@@ -650,6 +690,7 @@ table.comments tr.roa-comment > td {
     color: white;
     opacity: 1;
 }
+.text-row .comment-flag-on .dismiss-comment:hover,
 .cancel-comment-flag:hover {
     color: white;
     background: red;
