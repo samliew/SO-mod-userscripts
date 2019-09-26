@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.10
+// @version      1.4
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -459,6 +459,30 @@
 
             // Parse messages
             initMessageParser();
+        }
+        // When viewing room access tab
+        else if(location.pathname.includes('/rooms/info/') && location.search.includes('tab=access')) {
+
+            // Append desktop styles
+            appendStyles();
+
+            const roomId = Number(location.pathname.match(/\/(\d+)\//).pop());
+
+            // Prepare container
+            const logdiv = $('<div id="access-section-owner-log"></div>').appendTo('#access-section-owner');
+
+            // Search for and append room owner changelog
+            logdiv.load(`https://${location.hostname}/search?q=the+list+of+this+room&user=-2&room=${roomId} .messages`, function(response) {
+                const messages = logdiv.find('.messages').wrap('<div class="monologue"></div>');
+                logdiv.find('.content').find('a:last').replaceWith('<span>list of room owners</span>');
+                logdiv.find('.messages a').attr('target', '_blank');
+
+                // Remove invalid entries
+                messages.filter((i, el) => !/(has added|has removed).+(to|from) the list of room owners\.$/.test(el.innerText)).remove();
+
+                // Add title
+                logdiv.prepend('<h4>Room Owner Changelog</h4>');
+            });
         }
 
         // When viewing user info page in mobile
@@ -946,6 +970,25 @@ a.nowrap {
 /* Break all links in expanded room mini infobox */
 .room-mini-description a {
     word-break: break-all;
+}
+
+/* RO changelog */
+#access-section-owner-log {
+    margin: 10px 0;
+    padding-bottom: 32px;
+}
+#access-section-owner-log .flash {
+    display: none;
+}
+body.outside .access-section h2 {
+    margin-bottom: 5px;
+}
+.access-section .access-list {
+}
+.access-section .access-list:after {
+    content: "";
+    display: table;
+    clear: both;
 }
 
 @media screen and (min-width: 768px) {
