@@ -3,7 +3,7 @@
 // @description  Allows moderators to undelete user-deleted comments
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -143,6 +143,13 @@
 
         const styles = `
 <style>
+/* Show undelete link even on deleted answers */
+.deleted-answer .comments .deleted-comment .undelete-comment,
+.deleted-answer .comments .deleted-comment:hover .undelete-comment {
+    display: inline-block;
+}
+
+/* Same on CommentFlagsHelper userscript */
 .meta-row .delete-comment,
 .meta-row .edit-comment {
     float: right;
