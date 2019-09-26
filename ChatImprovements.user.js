@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.4.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -488,6 +488,13 @@
 
                 // Remove invalid entries
                 messages.filter((i, el) => !/(has added|has removed).+(to|from) the list of room owners\.$/.test(el.innerText)).remove();
+                // Remove empty monologues
+                logdiv.children('.monologue:empty').remove();
+
+                // Add indicator icon
+                logdiv.find('.content').each(function() {
+                    $(this).prepend(this.innerText.includes('has added') ? '<b class="green">+</b>' : '<b class="red">-</b>');
+                });
 
                 // Add title
                 logdiv.prepend('<h4>Room Owner Changelog</h4>');
@@ -986,8 +993,22 @@ a.nowrap {
     margin: 10px 0;
     padding-bottom: 32px;
 }
+#access-section-owner-log h4 {
+    margin-bottom: 5px;
+}
 #access-section-owner-log .flash {
     display: none;
+}
+#access-section-owner-log .message .content b:first-child {
+    display: inline-block;
+    width: 20px;
+    text-align: center;
+}
+#access-section-owner-log b.green {
+    color: green !important;
+}
+#access-section-owner-log b.red {
+    color: red !important;
 }
 body.outside .access-section h2 {
     margin-bottom: 5px;
