@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -395,6 +395,8 @@
         // When joining a chat room
         if(location.pathname.includes('/rooms/') && !location.pathname.includes('/info/')) {
 
+            const roomId = CHAT.CURRENT_ROOM_ID;
+
             // Rejoin favourite rooms on link click
             let rejoinFavsBtn = $(`<a href="#">rejoin starred</a><span class="divider"> / </span>`).prependTo($('#my-rooms').parent('.sidebar-widget').find('.msg-small').first());
             rejoinFavsBtn.click(function() {
@@ -436,6 +438,7 @@
             // Move stuff around
             $('#room-tags').appendTo('#roomdesc');
             $('#roomtitle + div').not('#roomdesc').appendTo('#roomdesc');
+            $('#sidebar-menu').append(`<span> | <a id="room-transcript" title="view room transcript" href="/transcript/${roomId}">transcript</a> | <a id="room-owners" title="view room owners" href="/rooms/info/${roomId}/?tab=access#access-section-owner">owners</a></span>`);
             reapplyPersistentChanges();
             setInterval(reapplyPersistentChanges, 5000);
 
@@ -473,6 +476,12 @@
 
             // Search for and append room owner changelog
             logdiv.load(`https://${location.hostname}/search?q=the+list+of+this+room&user=-2&room=${roomId} .messages`, function(response) {
+
+                // Jump to section again on load if hash present
+                if(location.hash == '#access-section-owner') {
+                    document.getElementById('access-section-owner').scrollIntoView();
+                }
+
                 const messages = logdiv.find('.messages').wrap('<div class="monologue"></div>');
                 logdiv.find('.content').find('a:last').replaceWith('<span>list of room owners</span>');
                 logdiv.find('.messages a').attr('target', '_blank');
