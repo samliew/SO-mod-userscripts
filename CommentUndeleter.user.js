@@ -3,7 +3,7 @@
 // @description  Allows moderators to undelete user-deleted comments
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.5
+// @version      1.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -42,7 +42,7 @@
             })
             .done(function(json) {
                 if(json.Success) $('#comment-'+cid).replaceWith(json.Message);
-                resolve();
+                resolve(cid);
             })
             .fail(reject);
         });
@@ -60,7 +60,7 @@
             })
             .done(function(data) {
                 $('#comment-'+cid).replaceWith(data);
-                resolve();
+                resolve(cid);
             })
             .fail(reject);
         });
@@ -80,21 +80,92 @@
                     return $(this).children('.undelete-comment, .mod-undelete-comment').length == 0;
                 }).append(`<a class="mod-undelete-comment">Undelete</a>`);
             }
+
+            // If comment was deleted while on user comments page
+            else if(/\/admin\/comment\/\d+\/delete/.test(settings.url) && /\/admin\/users\/\d+\/post-comments/.test(location.pathname)) {
+
+                // Add undelete links to meta-rows without delete/undelete links
+                $('.deleted-row.meta-row').filter(function() {
+                    return $(this).find('.delete-comment, .mod-undelete-comment').length == 0;
+                }).find('.creation-date').before(`<a class="mod-undelete-comment" href="#">undelete?</a>`);
+            }
         });
 
-        // Undelete comment when link clicked
-        $(document).on('click', '.mod-undelete-comment', function() {
-            const cmmt = $(this).closest('.comment');
-            const pid = cmmt.closest('.comments').attr('id').split('-')[1];
-            const cid = cmmt.attr('id').split('-')[1];
+        // User comments page
+        if(/\/admin\/users\/\d+\/post-comments/.test(location.pathname)) {
 
-            undeleteComment(pid, cid);
-            return false;
-        });
+            // Add undelete links
+            $('.deleted-row.meta-row').find('.creation-date').before(`<a class="mod-undelete-comment" href="#">undelete?</a>`);
+
+            // Handle undelete
+            $('.admin-user-comments').on('click', '.mod-undelete-comment', function(evt) {
+                const cmmt = $(this).closest('tr.meta-row').get(0);
+                const pid = cmmt.dataset.postid;
+                const cid = cmmt.dataset.id;
+
+                undeleteComment(pid, cid).then(function(cid) {
+                    $(evt.target).replaceWith(`<a class="mod-redelete-comment" href="#">delete</a>`);
+                    $(cmmt).next('tr.text-row').addBack().removeClass('deleted-row');
+                });
+                return false;
+            });
+
+            // Handle re-delete
+            $('.admin-user-comments').on('click', '.mod-redelete-comment', function(evt) {
+                const cmmt = $(this).closest('tr.meta-row').get(0);
+                const cid = cmmt.dataset.id;
+
+                deleteComment(cid).then(function(cid) {
+                    $(evt.target).replaceWith(`<a class="mod-undelete-comment" href="#">undelete?</a>`);
+                    $(cmmt).next('tr.text-row').addBack().addClass('deleted-row');
+                });
+                return false;
+            });
+
+        }
+        // all other (Q&A)
+        else {
+
+            // Undelete comment when link clicked
+            $(document).on('click', '.mod-undelete-comment', function() {
+                const cmmt = $(this).closest('.comment');
+                const pid = cmmt.closest('.comments').attr('id').split('-')[1];
+                const cid = cmmt.attr('id').split('-')[1];
+
+                undeleteComment(pid, cid);
+                return false;
+            });
+        }
+    }
+
+
+    function appendStyles() {
+
+        const styles = `
+<style>
+.meta-row.deleted-row .mod-undelete-comment,
+.meta-row .mod-redelete-comment {
+    float: right;
+    margin-top: -5px;
+    padding: 5px 8px;
+    font-size: 1rem;
+    background: #eee;
+}
+.meta-row.deleted-row .mod-undelete-comment {
+    margin-left: 35px;
+    color: red;
+}
+.meta-row .mod-redelete-comment {
+    margin-left: 57px;
+}
+</style>
+`;
+        $('body').append(styles);
     }
 
 
     // On page load
+    appendStyles();
     doPageload();
 
 })();
