@@ -3,7 +3,7 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.3.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -104,6 +104,7 @@
             switch(el.innerText.toLowerCase()) {
                 case 'rude or offensive':
                 case 'harassment, bigotry, or abuse':
+                case 'harrassment, bigotry, or abuse':
                     cls = 'ctype-bad';
                     break;
                 case 'unfriendly or unkind':
