@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -45,7 +45,7 @@
 
                 const msg = $('.message:first', v);
                 const msgContent = msg.find('.content');
-                const userId = Number(msg.closest('.monologue')[0].className.match(/user-(\d+)/)[1]);
+                const userId = Number(msg.closest('.monologue')[0].className.match(/user-(-?\d+)/)[1]);
                 const userName = msg.closest('.monologue').find('.username a').text();
                 const timestamp = msg.prev('.timestamp').text();
                 const permalink = msg.children('a').first().attr('href');
