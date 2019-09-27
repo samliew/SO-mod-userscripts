@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.25
+// @version      2.9.26
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -714,6 +714,9 @@ body > div[style*="absolute"].ui-widget {
 }
 #badge-progress-count {
     height: auto;
+}
+.list-originals .post-link a {
+    font-weight: normal;
 }
 
 
