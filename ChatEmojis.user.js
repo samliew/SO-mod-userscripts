@@ -3,7 +3,7 @@
 // @description  Allows users to insert emojis into chat. If chat message contains just an emoji, increase display size
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.5
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -51,14 +51,32 @@
                 template: "<editor/><filters/><tabs/>",
                 standalone: true,
                 hideSource: false,
+                autoHideFilters: true,
                 events: {
+                    filter_click: function (filter, event) {
+                        // Add labels to emojis
+                        $('.emojionearea-tab:visible i.emojibtn').each(function(i, el) {
+                            $(this).attr('title', el.children[0].dataset.name.replace(/(^:|:$)/g, ''));
+                        });
+                    },
                     'emojibtn_click': function(button, event) {
+                        // Add emoji to chat field
                         const emoji = el.get(0).emojioneArea.getText();
                         chatfield.value += emoji;
                         chatfield.focus();
-                        //console.log(button.html(), button.children().get(0).dataset.name, emoji);
                     },
                 },
+            });
+
+            // Close events when open
+            $(document).on('keyup', function(evt) {
+                if (evt.keyCode === 27 && !$('.emojionearea-filters').hasClass('ea-hidden')) { // esc
+                    $('.emojionearea-button').click();
+                }
+            }).on('keydown click focus', '#input, #chat, #sidebar', function(evt) {
+                if (!$('.emojionearea-filters').hasClass('ea-hidden')) {
+                    $('.emojionearea-button').click();
+                }
             });
 
         });
