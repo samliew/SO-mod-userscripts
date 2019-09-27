@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.2
+// @version      1.5
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -32,6 +32,44 @@
     const dayAgo = Date.now() - 86400000;
     const weekAgo = Date.now() - 7 * 86400000;
     let messageEvents = [];
+
+
+    // Get message info
+    function getMessage(mid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof mid === 'undefined' || mid == null) { reject(); return; }
+
+            $.get(`https://${location.hostname}/messages/${mid}/history`)
+            .done(function(v) {
+                console.log('fetched message info', mid);
+
+                const msg = $('.message:first', v);
+                const msgContent = msg.find('.content');
+                const userId = Number(msg.closest('.monologue')[0].className.match(/user-(\d+)/)[1]);
+                const userName = msg.closest('.monologue').find('.username a').text();
+                const timestamp = msg.prev('.timestamp').text();
+                const permalink = msg.children('a').first().attr('href');
+                const roomId = Number(permalink.match(/\/(\d+)/)[1]);
+
+                const parentId = Number(($('.message-source:last', v).text().match(/^:(\d+)/) || ['0']).pop()) || null;
+
+                resolve({
+                    id: mid,
+                    parentId: parentId,
+                    roomId: roomId,
+                    timestamp: timestamp,
+                    permalink: permalink,
+                    userId: userId,
+                    username: userName,
+                    html: msgContent.html().trim(),
+                    text: msgContent.text().trim(),
+                    stars: Number(msg.find('.stars .times').text()) || 0,
+                    isPinned: msg.find('.owner-star').length == 1,
+                });
+            })
+            .fail(reject);
+        });
+    }
 
 
     function processMessageTimestamps(events) {
@@ -453,6 +491,33 @@
                 $(this).hide();
             });
 
+            // Sidebar starred messages, show full content on hover
+            function loadFullStarredMessage() {
+                const el = $(this);
+                const mid = Number(this.id.replace(/\D+/g, ''));
+
+                // already fetched or nothing to expand, do nothing (toggle via css)
+                if(el.hasClass('js-hasfull') || !/\.\.\.\s*- <a rel="noreferrer noopener" class="permalink"/.test(el.html())) return;
+
+                // prefetch stuff
+                el.addClass('js-hasfull').contents().filter(function() {
+                    return this.nodeType === 3 || !/(permalink|relativetime|quick-unstar)/.test(this.className) && this.title == "";
+                }).wrapAll(`<div class="message-orig"></div>`);
+                el.children('.sidebar-vote').prependTo(el);
+                el.children('.message-orig').html((i, v) => v.replace(/\s*-\s*by\s*$/, ''));
+                el.children('.permalink').before(`<div class="message-full"><i>loading...</i></div><span> - </span>`).after('<span> by </span>');
+                el.children('.quick-unstar').before('<span> </span>');
+
+                // load full message content
+                getMessage(mid).then(v => {
+                    el.children('.message-full').html(v.html);
+                });
+            }
+            setTimeout(() => {
+                $('#starred-posts li:visible').each(loadFullStarredMessage); // on page load, after short delay
+            }, 5000);
+            $('#starred-posts').on('mouseover', 'li', loadFullStarredMessage); // when additional starred messages are viewed
+
         }
         // When viewing page transcripts and bookmarks
         else if(location.pathname.includes('/transcript/') || location.pathname.includes('/conversation/')) {
@@ -777,6 +842,26 @@ ul#my-rooms > li > a span {
 .message a i.transcript-link {
     opacity: 0.5;
     font-size: 0.9em;
+}
+
+
+/* Full message previews on hover */
+#starred-posts .js-hasfull {
+    min-height: 28px;
+}
+#starred-posts .message-full,
+#starred-posts .js-hasfull:hover .message-orig {
+    display: none;
+}
+#starred-posts .message-orig,
+#starred-posts .js-hasfull:hover .message-full {
+    display: inline;
+}
+#starred-posts ul.collapsible.expanded {
+    max-height: 50vh;
+    padding-right: 3px;
+    padding-bottom: 50px;
+    overflow-y: scroll;
 }
 
 
