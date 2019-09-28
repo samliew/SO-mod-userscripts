@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.8
+// @version      1.6.9
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -1212,10 +1212,10 @@ body.outside .access-section h2 {
     #sidebar #present-users-list li.inactive {
         opacity: 0.7 !important;
     }
-    #starred-posts ul.collapsible.expanded {
+    #sidebar #starred-posts ul.collapsible.expanded {
         max-height: none;
         padding-bottom: 0;
-        overflow: auto;
+        overflow: visible;
     }
     #chat {
         padding-bottom: 20px;
