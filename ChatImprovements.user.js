@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.4
+// @version      1.6.6
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -491,6 +491,9 @@
                 $(this).hide();
             });
 
+            // Add "currentuser" class to own userlist item
+            $('#sidebar .user-' + CHAT.CURRENT_USER_ID).addClass('user-currentuser');
+
             // Sidebar starred messages, show full content on hover
             function loadFullStarredMessage() {
                 const el = $(this);
@@ -513,10 +516,10 @@
                     el.children('.message-full').html(v.html);
                 });
             }
-            setTimeout(() => {
-                $('#starred-posts li:visible').each(loadFullStarredMessage); // on page load, after short delay
-            }, 5000);
-            $('#starred-posts').on('mouseover', 'li', loadFullStarredMessage); // when additional starred messages are viewed
+            // Occasionally check for new sidebar starred messages and load full expanded content
+            setInterval(() => {
+                $('#starred-posts li').each(loadFullStarredMessage);
+            }, 1000);
 
         }
         // When viewing page transcripts and bookmarks
@@ -1130,6 +1133,7 @@ body.outside .access-section h2 {
 @media print {
 
     body {
+        max-width: 780px;
         font-size: 11px;
         background-color: #fff;
         background-image: none;
@@ -1147,11 +1151,14 @@ body.outside .access-section h2 {
     #widgets > .sidebar-widget:nth-child(2),
     #widgets > .sidebar-widget:last-child,
     #sidebar .more,
+    #sidebar .user-currentuser,
     #sidebar .js-hasfull .message-orig,
     #toggle-favorite,
     .js-dynamic-timestamp,
     .monologue .avatar,
-    .message-controls
+    .message-controls,
+    .message > .action-link,
+    .message > .meta
     {
         display: none !important;
     }
@@ -1234,6 +1241,7 @@ body.outside .access-section h2 {
         display: flex;
         page-break-inside: avoid;
         break-inside: avoid;
+        border: none !important;
     }
     .message .content {
         flex: 1 1 100%;
@@ -1243,6 +1251,9 @@ body.outside .access-section h2 {
     #chat .message.cmmt-deleted span.deleted {
         position: absolute;
         right: 28px;
+    }
+    .stars .img {
+        filter: saturate(0) grayscale(1) brightness(0) !important;
     }
 
 }
