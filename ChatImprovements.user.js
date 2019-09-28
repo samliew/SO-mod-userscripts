@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -104,7 +104,7 @@
                 else if(d.getDate() != now.getDate()) {
                     prefix = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(d) + ' ';
                 }
-                msgs.prepend(`<div class="timestamp">${prefix}${time}</div>`);
+                msgs.prepend(`<div class="timestamp js-dynamic-timestamp">${prefix}${time}</div>`);
             }
         });
 
@@ -1129,7 +1129,11 @@ body.outside .access-section h2 {
 <style>
 @media print {
 
-    body { font-size: 11px; }
+    body {
+        font-size: 11px;
+        background-color: #fff;
+        background-image: none;
+    }
 
     #feed-ticker,
     #bottom,
@@ -1145,6 +1149,7 @@ body.outside .access-section h2 {
     #sidebar .more,
     #sidebar .js-hasfull .message-orig,
     #toggle-favorite,
+    .js-dynamic-timestamp,
     .monologue .avatar,
     .message-controls
     {
@@ -1213,6 +1218,7 @@ body.outside .access-section h2 {
     }
     .monologue .messages {
         flex: 1 0 80%;
+        background-color: #f8f8f8;
     }
     .monologue.catchup-marker {
         padding-top: 0;
