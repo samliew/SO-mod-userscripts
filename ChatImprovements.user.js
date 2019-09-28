@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.7
+// @version      1.6.8
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -1156,6 +1156,7 @@ body.outside .access-section h2 {
     #sidebar .more,
     #sidebar .user-currentuser,
     #sidebar .js-hasfull .message-orig,
+    #sidebar #room-ad,
     #toggle-favorite,
     .js-dynamic-timestamp,
     .monologue .avatar,
@@ -1206,7 +1207,7 @@ body.outside .access-section h2 {
         color: #000;
     }
     #sidebar #present-users-list li {
-        flex: 0 0 125px;
+        flex: 0 0 20%;
     }
     #sidebar #present-users-list li.inactive {
         opacity: 0.7 !important;
@@ -1226,7 +1227,7 @@ body.outside .access-section h2 {
     }
     .monologue .signature {
         flex: 0 1 100px;
-        margin-right: 10px;
+        margin-right: 8px;
     }
     .monologue .messages {
         flex: 1 0 80%;
