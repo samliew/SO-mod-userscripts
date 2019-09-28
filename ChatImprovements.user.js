@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.6
+// @version      1.6.7
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -1132,13 +1132,16 @@ body.outside .access-section h2 {
 <style>
 @media print {
 
-    body {
+    html, body {
         max-width: 780px;
+    }
+    body {
         font-size: 11px;
         background-color: #fff;
         background-image: none;
     }
 
+    body > span[style*="absolute"],
     #feed-ticker,
     #bottom,
     #input-area,
