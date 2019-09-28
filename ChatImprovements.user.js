@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.6
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -1028,7 +1028,7 @@ ul#my-rooms > li > a span {
 </style>
 `;
 
-        const styles = `
+        const generalstyles = `
 <style>
 /* Show mods with diamonds */
 #chat-body .signature .username.moderator {
@@ -1125,7 +1125,124 @@ body.outside .access-section h2 {
 </style>
 `;
 
-        $('body').append(styles).append(desktop ? desktopStyles : mobileStyles);
+        const printstyles = `
+<style>
+@media print {
+
+    body { font-size: 11px; }
+
+    #feed-ticker,
+    #bottom,
+    #input-area,
+    #sound,
+    input,
+    button,
+    .button,
+    #container > a,
+    #container > br,
+    #widgets > .sidebar-widget:nth-child(2),
+    #widgets > .sidebar-widget:last-child,
+    #sidebar .more,
+    #sidebar .js-hasfull .message-orig,
+    #toggle-favorite,
+    .monologue .avatar,
+    .message-controls
+    {
+        display: none !important;
+    }
+
+    #sidebar #info #roomdesc > div,
+    #starred-posts > div > ul > li
+    {
+        display: block !important;
+    }
+
+    #sidebar .js-hasfull .message-full
+    {
+        display: inline !important;
+    }
+
+    #main {
+        display: flex;
+        flex-direction: column-reverse;
+        width: 100%;
+    }
+    #sidebar {
+        position: relative;
+        width: auto;
+        margin: 10px 0 20px;
+        padding: 10px;
+        border: 1px dotted black;
+    }
+    #sidebar #info #roomdesc {
+        position: relative !important;
+        height: auto !important;
+        padding-bottom: 0 !important;
+        border: none !important;
+        background: transparent !important;
+        white-space: unset !important;
+    }
+    #sidebar #info #roomdesc + #sidebar-menu {
+        margin-top: 10px !important;
+    }
+    #sidebar #present-users-list {
+        color: #000;
+    }
+    #sidebar #present-users-list li {
+        flex: 0 0 125px;
+    }
+    #sidebar #present-users-list li.inactive {
+        opacity: 0.7 !important;
+    }
+    #starred-posts ul.collapsible.expanded {
+        max-height: none;
+        padding-bottom: 0;
+        overflow: auto;
+    }
+    #chat {
+        padding-bottom: 20px;
+    }
+    .monologue {
+        display: flex;
+        margin: 10px 20px 0 0;
+        padding: 0;
+    }
+    .monologue .signature {
+        flex: 0 1 100px;
+        margin-right: 10px;
+    }
+    .monologue .messages {
+        flex: 1 0 80%;
+    }
+    .monologue.catchup-marker {
+        padding-top: 0;
+        border-top: none;
+    }
+    #chat .monologue,
+    #chat .monologue * {
+        float: none !important;
+    }
+    #chat .messages .timestamp {
+        float: right !important;
+    }
+    .message {
+        display: flex;
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
+
+}
+</style>
+`;
+
+        $('body').append(generalstyles).append(printstyles);
+
+        if(desktop) {
+            $('body').append(desktopStyles);
+        }
+        else {
+            $('body').append(mobileStyles)
+        }
     }
 
 
