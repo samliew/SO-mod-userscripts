@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.10
+// @version      1.7
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -180,6 +180,9 @@
 
         // Expand more starred posts in AMA chatroom since we have a scrolling sidebar
         $('#sidebar-content.wmx3 span.more').filter((i,el) => el.parentNode.innerText.includes('starred') && el.innerText.includes('more')).click();
+
+        // Remove existing "yst" timestamps in favour of ours for consistency
+        $('.timestamp').filter((i, el) => el.innerText.includes('yst')).remove();
     }
 
 
@@ -187,8 +190,9 @@
 
         setInterval(function() {
 
-            // Append timestamps when new messages detected
-            const newMsgs = $('.messages').filter(function() {
+            // Append timestamps when new messages detected (after the last message with a timestamp!)
+            const lastMessage = $('.messages .timestamp').last().closest('.monologue');
+            const newMsgs = lastMessage.nextAll('.monologue').find('messages').filter(function() {
                 return $(this).children('.timestamp').length == 0;
             });
 
@@ -1158,7 +1162,6 @@ body.outside .access-section h2 {
     #sidebar .js-hasfull .message-orig,
     #sidebar #room-ad,
     #toggle-favorite,
-    .js-dynamic-timestamp,
     .monologue .avatar,
     .message-controls,
     .message > .action-link,
