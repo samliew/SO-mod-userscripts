@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.9
+// @version      1.6.10
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -500,7 +500,7 @@
                 const mid = Number(this.id.replace(/\D+/g, ''));
 
                 // already fetched or nothing to expand, do nothing (toggle via css)
-                if(el.hasClass('js-hasfull') || !/\.\.\.\s*- <a rel="noreferrer noopener" class="permalink"/.test(el.html())) return;
+                if(el.hasClass('js-hasfull') || !/\.\.\.\s*(<i><\/i>)*\s*- <a rel="noreferrer noopener" class="permalink"/.test(el.html())) return;
 
                 // prefetch stuff
                 el.addClass('js-hasfull').contents().filter(function() {
