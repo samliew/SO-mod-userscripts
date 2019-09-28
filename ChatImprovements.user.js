@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.2
+// @version      1.7.3
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -183,6 +183,13 @@
 
         // Remove existing "yst" timestamps in favour of ours for consistency
         $('.timestamp').filter((i, el) => el.innerText.includes('yst')).remove();
+
+        // Always load more for long messages
+        // can't use this for some reason: $('.more-data').click();
+        $('.more-data').each(function(i, el) {
+            el.click();
+        });
+
     }
 
 
@@ -1245,12 +1252,15 @@ body.outside .access-section h2 {
     .message {
         display: flex;
         page-break-inside: avoid;
-        break-inside: avoid;
         border: none !important;
     }
     .message .content {
         flex: 1 1 100%;
         padding-right: 50px;
+    }
+    div.message .full,
+    div.message .partial {
+        max-height: none;
     }
     #chat .messages .timestamp,
     #chat .message.cmmt-deleted span.deleted {
