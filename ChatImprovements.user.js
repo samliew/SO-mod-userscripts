@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.4
+// @version      1.7.5
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -433,6 +433,12 @@
                 }).each(parseMessageLink);
             }
 
+            // Parse user-popups
+            const userpopup = $('.user-popup');
+            userpopup.find('a').filter(function() {
+                return this.pathname.indexOf('/rooms/') == 0;
+            }).each(parseMessageLink);
+
         }, 1000);
 
     }
@@ -539,6 +545,10 @@
         // When viewing page transcripts and bookmarks
         else if(location.pathname.includes('/transcript/') || location.pathname.includes('/conversation/')) {
 
+            // Insert room access button
+            const aboutBtn = $('#transcript-links a').eq(1);
+            const roBtn = aboutBtn.clone(true, true).insertAfter(aboutBtn).attr('href', (i, v) => v + '?tab=access#access-section-owner').text('room owners');
+
             // Append desktop styles
             appendStyles();
 
@@ -557,7 +567,11 @@
             const logdiv = $('<div id="access-section-owner-log"></div>').appendTo('#access-section-owner');
 
             // Search for and append room owner changelog
-            logdiv.load(`https://${location.hostname}/search?q=the+list+of+this+room&user=-2&room=${roomId} .messages`, function(response) {
+            const searchUrl = `https://${location.hostname}/search?q=to+the+list+of+this&user=-2&room=${roomId}`;
+            logdiv.load(searchUrl + ' .messages', function(response) {
+
+                // Add title
+                logdiv.prepend('<h4>Room Owner Changelog</h4>');
 
                 // Jump to section again on load if hash present
                 if(location.hash == '#access-section-owner') {
@@ -565,7 +579,7 @@
                 }
 
                 const messages = logdiv.find('.messages').wrap('<div class="monologue"></div>');
-                logdiv.find('.content').find('a:last').replaceWith('<span>list of room owners</span>');
+                logdiv.find('.content').find('a:last').filter((i, v) => v).replaceWith('<span>list of room owners</span>');
                 logdiv.find('.messages a').attr('target', '_blank');
 
                 // Remove invalid entries
@@ -575,11 +589,16 @@
 
                 // Add indicator icon
                 logdiv.find('.content').each(function() {
-                    $(this).prepend(this.innerText.includes('has added') ? '<b class="green">+</b>' : '<b class="red">-</b>');
+                    $(this).prepend(this.innerText.includes('has removed') ? '<b class="red">-</b>' : '<b class="green">+</b>');
                 });
 
-                // Add title
-                logdiv.prepend('<h4>Room Owner Changelog</h4>');
+                // Find automatic room owners
+                $.get(`https://${location.hostname}/search?q=has+been+automatically+appointed+as+owner+of+this+room.&user=-2&room=${roomId}`, function(response) {
+                    $('.messages', response).appendTo(logdiv).wrap('<div class="monologue"></div>').find('.content').prepend('<b class="green">+</b>');
+
+                    // Add view all link if there is more
+                    if(messages.length >= 50) logdiv.append(`<div class="monologue" id="more-room-owners"><a href="${searchUrl}" target="_blank">view more</a></div>`);
+                });
             });
         }
 
