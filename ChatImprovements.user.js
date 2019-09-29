@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.3
+// @version      1.7.4
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -162,6 +162,9 @@
             $(this).off().removeAttr('style id alt width height').find('.data').remove();
             $(this).appendTo(newuserlist).append(`<span class="username" title="${username}">${username}</span>`);
         });
+
+        // Add "currentuser" class to own userlist item
+        $('#sidebar .user-' + CHAT.CURRENT_USER_ID).addClass('user-currentuser');
     }
 
 
@@ -487,7 +490,12 @@
             $('#roomtitle + div').not('#roomdesc').appendTo('#roomdesc');
             $('#sidebar-menu').append(`<span> | <a id="room-transcript" title="view room transcript" href="/transcript/${roomId}">transcript</a> | <a id="room-owners" title="view room owners" href="/rooms/info/${roomId}/?tab=access#access-section-owner">owners</a></span>`);
             reapplyPersistentChanges();
-            setInterval(reapplyPersistentChanges, 5000);
+
+            // Occasionally reapply changes
+            setInterval(reapplyPersistentChanges, 3000);
+
+            // Occasionally update userlist
+            setInterval(updateUserlist, 10000);
 
             // Apply message timestamps to new messages
             applyTimestampsToNewMessages();
@@ -499,9 +507,6 @@
             $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
                 $(this).hide();
             });
-
-            // Add "currentuser" class to own userlist item
-            $('#sidebar .user-' + CHAT.CURRENT_USER_ID).addClass('user-currentuser');
 
             // Sidebar starred messages, show full content on hover
             function loadFullStarredMessage() {
@@ -598,11 +603,7 @@
             // Once: userlist is ready, init new userlist
             if(!loaded && (settings.url.includes('/events') || settings.url.includes('/rooms/pingable'))) {
                 loaded = true; // once
-                updateUserlist();
                 setTimeout(updateUserlist, 1000);
-
-                // Occasionally update userlist
-                setInterval(updateUserlist, 15000);
             }
 
             // On new messages, update userlist
