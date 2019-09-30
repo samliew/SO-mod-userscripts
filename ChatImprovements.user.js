@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.7
+// @version      1.7.8
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -458,6 +458,9 @@
 
             const roomId = CHAT.CURRENT_ROOM_ID;
 
+            // Parse messages
+            initMessageParser();
+
             // Rejoin favourite rooms on link click
             let rejoinFavsBtn = $(`<a href="#">rejoin starred</a><span class="divider"> / </span>`).prependTo($('#my-rooms').parent('.sidebar-widget').find('.msg-small').first());
             rejoinFavsBtn.click(function() {
@@ -510,9 +513,6 @@
 
             // Apply message timestamps to new messages
             applyTimestampsToNewMessages();
-
-            // Parse messages
-            initMessageParser();
 
             // On any user avatar image error in sidebar, hide image
             $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
@@ -723,6 +723,25 @@ div.xxl-info-layout {
 
         const mobileStyles = `
 <style>
+/* Hide stuff */
+#chat-body.mob #present-users-list {
+    display: none !important;
+}
+/* Increase font sizes */
+* {
+    font-size: 14px !important;
+    line-height: 1.3 !important;
+}
+html.fixed-header body.with-footer main {
+    padding-bottom: 80px;
+}
+#input-area textarea#input {
+    height: calc(2.8em + 24px);
+    padding: 5px 8px !important;
+}
+#header .title {
+    overflow: hidden;
+}
 /* Increase size of reply link icons */
 #chat .monologue .message .reply-info {
     width: 18px;
@@ -732,11 +751,16 @@ div.xxl-info-layout {
     padding: 0;
     transform: scale(1.2, 1.2);
 }
-html.fixed-header body.with-footer main {
-    padding-bottom: 60px;
+/* Reduce size of timestamps */
+.mob #chat .monologue .timestamp {
+    font-size: 12px !important;
 }
-#chat-body.mob #present-users-list {
-    display: none !important;
+#present-users li {
+    height: 38px !important;
+    overflow: hidden;
+}
+.quote {
+    padding: 5px 0 5px 10px;
 }
 </style>
 `;
