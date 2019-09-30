@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.27
+// @version      2.9.28
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -1136,6 +1136,17 @@ body.mob button#sayit-button {
 }
 #header [data-for="search"] {
     background: url('https://cdn-chat.sstatic.net/chat/Img/mobile/skin/light/ico-search.svg') 50% 50% no-repeat;
+}
+.mob #header [data-for="search"].cancel-search {
+    background-image: none;
+}
+.mob .search-form input[type=search] {
+    background-image: none;
+    padding-left: 10px;
+}
+.mob .sidebar-left nav ul li a {
+    line-height: 2em !important;
+    margin-top: 14px;
 }
 .sidebar-middle {
     background: transparent;
