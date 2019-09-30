@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.6
+// @version      1.7.7
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -268,6 +268,11 @@
                 else if(isNaN(Number(roomName))) {
                     // Change link text to room name only if link text is a URL
                     if(/(^https?|\.com)/.test(el.innerText)) {
+
+                        // Properly capitalize common room names
+                        roomName = roomName.replace('So Close Vote Reviewers', 'SO Close Vote Reviewers');
+                        roomName = roomName.replace('Javascript', 'JavaScript');
+
                         el.innerHTML = roomName + transcriptIndicator;
                     }
                     else {
