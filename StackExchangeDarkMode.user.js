@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.26
+// @version      2.9.27
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -229,8 +229,9 @@ body #content .share-tip,
     transition: opacity 0.2s ease;
 }
 ul.comments-list .comment-up-off,
+ul.comments-list .js-comment-flag,
 ul.comments-list .comment-flag {
-    opacity: 0.1;
+    opacity: 0.25;
 }
 .wmd-button-row:hover,
 #left-sidebar:hover,
@@ -242,9 +243,13 @@ ul.comments-list .comment-flag {
 .js-admin-dashboard aside > *:hover,
 .question-summary:hover .started,
 #footer:hover > div,
-ul.comments-list .comment:hover .comment-up-off,
-ul.comments-list .comment:hover .comment-flag {
+ul.comments-list .comment:hover .comment-up-off:hover {
     opacity: 1;
+}
+ul.comments-list .comment:hover .comment-up-off,
+ul.comments-list .comment:hover .js-comment-flag,
+ul.comments-list .comment:hover .comment-flag {
+    opacity: 0.5;
 }
 .wmd-button,
 .wmd-spacer {
@@ -253,6 +258,11 @@ ul.comments-list .comment:hover .comment-flag {
 .wmd-button > span {
     filter: invert(1) brightness(1.2);
     background-color: transparent;
+}
+ul.comments-list .comment-up-on,
+ul.comments-list .comment-up-on * {
+    color: white;
+    fill: white;
 }
 
 
