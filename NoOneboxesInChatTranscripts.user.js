@@ -3,7 +3,7 @@
 // @description  Collapses oneboxes from chat transcripts, click to display onebox
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
@@ -38,7 +38,7 @@
             const hideOneboxText = 'click to hide onebox';
             let isVisible = false;
             // Click placeholder to show onebox
-            $(`<span class="has-onebox" title="${loadOneboxText}">${url}</span>`)
+            $(`<span class="has-onebox" title="${loadOneboxText}"><a href="${url}" class="print-onebox">${url}</a><span>${url}</span></span>`)
                 .click(function() {
                     isVisible = !isVisible;
                     if (isVisible) {
@@ -79,6 +79,18 @@
 }
 .js-show-onebox + .js-onebox-hidden {
     display: block !important;
+}
+.has-onebox .print-onebox {
+    display: none;
+}
+
+@media print {
+    .print-onebox {
+        display: inline !important;
+    }
+    .print-onebox + span {
+        display: none !important;
+    }
 }
 </style>
 `;
