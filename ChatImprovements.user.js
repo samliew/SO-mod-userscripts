@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8
+// @version      1.9
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -139,6 +139,9 @@
 
     function updateUserlist() {
 
+        // Do not update new user list if mouse is on
+        if(newuserlist.hasClass('mouseon')) return;
+
         const userlist = $('#present-users');
 
         // Reset new list
@@ -150,7 +153,7 @@
         });
 
         // Clone remaining users into new list
-        userlist.children('.user-container').clone(true).each(function() {
+        const users = userlist.children('.user-container').clone(true).each(function() {
 
             // Get username from img title attribute
             const username = $(this).find('img')[0].title;
@@ -162,6 +165,10 @@
             $(this).off().removeAttr('style id alt width height').find('.data').remove();
             $(this).appendTo(newuserlist).append(`<span class="username" title="${username}">${username}</span>`);
         });
+        console.log('userlist updated', users.length);
+
+        // Add count of users below
+        newuserlist.append(`<span class="users-count">${newuserlist.children().length} users</span>`);
 
         // Add "currentuser" class to own userlist item
         $('#sidebar .user-' + CHAT.CURRENT_USER_ID).addClass('user-currentuser');
@@ -183,6 +190,9 @@
 
         // Expand more starred posts in AMA chatroom since we have a scrolling sidebar
         $('#sidebar-content.wmx3 span.more').filter((i,el) => el.parentNode.innerText.includes('starred') && el.innerText.includes('more')).click();
+
+        // Apply class to starred posts usernames in sidebar
+        $('#starred-posts a[href^="/users/"]').addClass('starred-signature');
 
         // Remove existing "yst" timestamps in favour of ours for consistency
         $('.timestamp').filter((i, el) => el.innerText.includes('yst')).remove();
@@ -511,12 +521,25 @@
             // Occasionally update userlist
             setInterval(updateUserlist, 10000);
 
+            // Track if userlist has mouse focus, to prevent update if in use
+            newuserlist
+                .on('mouseover', null, evt => newuserlist.addClass('mouseon'))
+                .on('mouseout', null, evt => newuserlist.removeClass('mouseon'));
+
             // Apply message timestamps to new messages
             applyTimestampsToNewMessages();
 
             // On any user avatar image error in sidebar, hide image
             $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
                 $(this).hide();
+            });
+
+            // Highlight links of user on any mouse hover
+            $('#widgets, #chat').on('mouseover', '.signature, .sidebar-widget .user-container, a[href*="/users/"]', function() {
+                const userId = Number( /\d+/.test(this.className) ? this.className.match(/\d+/)[0] : this.href.match(/\/(\d+)\//).pop() );
+                $(`.user-${userId}, a[href*="/users/${userId}/"]`).addClass('js-user-highlight');
+            }).on('mouseout', '.signature, .sidebar-widget .user-container, a[href*="/users/"]', function() {
+                $('.js-user-highlight').removeClass('js-user-highlight');
             });
 
             // Sidebar starred messages, show full content on hover
@@ -948,6 +971,7 @@ ul#my-rooms > li > a span {
     overflow: hidden;
 }
 #present-users-list {
+    position: relative;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
@@ -1025,6 +1049,14 @@ ul#my-rooms > li > a span {
 }
 #present-users-list .username + .username {
     display: none;
+}
+#present-users-list > .users-count {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin-top: 6px;
+    font-size: 0.9em;
+    color: #222;
 }
 
 @media screen and (max-width: 700px) {
@@ -1130,6 +1162,17 @@ ul#my-rooms > li > a span {
 }
 .system-message-container {
     margin: 15px 0px;
+}
+
+/* Highlight links of user on any mouse hover */
+#chat a.signature.js-user-highlight .username,
+#present-users li.user-container.js-user-highlight .username,
+#present-users-list li.user-container.js-user-highlight .username,
+#starred-posts a[href^="/users/"].js-user-highlight {
+    background-color: yellow;
+}
+#present-users-list .inactive.js-user-highlight {
+    opacity: 1 !important;
 }
 
 /* No wrap chat transcript links, unless in sidebar */
