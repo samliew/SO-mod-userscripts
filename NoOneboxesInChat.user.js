@@ -3,7 +3,7 @@
 // @description  Collapses oneboxes from chat rooms/transcripts/bookmarks, click to display onebox
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -100,6 +100,7 @@
 }
 .has-onebox .print-onebox {
     display: none;
+    word-break: break-all;
 }
 
 @media print {
