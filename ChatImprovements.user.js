@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.9
+// @version      1.8
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -550,15 +550,16 @@
         // When viewing page transcripts and bookmarks
         else if(location.pathname.includes('/transcript/') || location.pathname.includes('/conversation/')) {
 
-            const roomId = Number(location.pathname.match(/\/(\d+)\//).pop());
+            const roomId = Number(location.pathname.match(/\/(\d+)\/?/).pop());
 
             // Insert room access button
             const aboutBtn = $('#transcript-links a').eq(1);
             const roBtn = aboutBtn.clone(true, true).insertAfter(aboutBtn).attr('href', (i, v) => v + '?tab=access#access-section-owner').attr('id', 'room-owners-button').text('room owners');
             roBtn.after(`<br><a class="button" href="/rooms/info/${roomId}?tab=stars" id="starred-messages-button">view starred messages</a>`);
 
-            // Append desktop styles
-            appendStyles();
+            // Append styles
+            const isDesktop = !document.body.classList.contains('mob');
+            appendStyles(isDesktop);
 
             // Parse messages
             initMessageParser();
@@ -755,6 +756,7 @@ html.fixed-header body.with-footer main {
     transform: scale(1.2, 1.2);
 }
 /* Reduce size of timestamps */
+.mob #chat .tiny-signature .username a,
 .mob #chat .monologue .timestamp {
     font-size: 12px !important;
 }
@@ -1225,6 +1227,10 @@ body.outside .access-section h2 {
     #sidebar .js-hasfull .message-orig,
     #sidebar #room-ad,
     #toggle-favorite,
+    #transcript-body #info br + br,
+    #transcript-body .room-mini ~ br,
+    #transcript-body #transcript-logo,
+    #transcript-body #copyright,
     .monologue .avatar,
     .message-controls,
     .message > .action-link,
@@ -1257,6 +1263,9 @@ body.outside .access-section h2 {
         margin: 10px 0 20px;
         padding: 10px;
         border: 1px dotted black;
+    }
+    #transcript-body #sidebar {
+        margin-bottom: -10px;
     }
     #sidebar #info #roomdesc {
         position: relative !important;
@@ -1339,7 +1348,7 @@ body.outside .access-section h2 {
             $('body').append(desktopStyles);
         }
         else {
-            $('body').append(mobileStyles)
+            $('body').append(mobileStyles);
         }
     }
 
