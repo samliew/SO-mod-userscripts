@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.8
+// @version      1.7.9
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -550,9 +550,12 @@
         // When viewing page transcripts and bookmarks
         else if(location.pathname.includes('/transcript/') || location.pathname.includes('/conversation/')) {
 
+            const roomId = Number(location.pathname.match(/\/(\d+)\//).pop());
+
             // Insert room access button
             const aboutBtn = $('#transcript-links a').eq(1);
-            const roBtn = aboutBtn.clone(true, true).insertAfter(aboutBtn).attr('href', (i, v) => v + '?tab=access#access-section-owner').text('room owners');
+            const roBtn = aboutBtn.clone(true, true).insertAfter(aboutBtn).attr('href', (i, v) => v + '?tab=access#access-section-owner').attr('id', 'room-owners-button').text('room owners');
+            roBtn.after(`<br><a class="button" href="/rooms/info/${roomId}?tab=stars" id="starred-messages-button">view starred messages</a>`);
 
             // Append desktop styles
             appendStyles();
@@ -903,6 +906,12 @@ ul#my-rooms > li > a span {
 .message a i.transcript-link {
     opacity: 0.5;
     font-size: 0.9em;
+}
+#transcript-links #room-owners-button {
+    margin-left: 8px;
+}
+#transcript-body #sidebar-content .room-mini + div .tag {
+    display: none;
 }
 
 
