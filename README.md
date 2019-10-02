@@ -362,12 +362,13 @@ Recommended chat userscripts:
 - Mods with diamonds in signatures
 - Message parser (smart links and link expander)
 - Minimize room description and room tags (hover to expand)
-- Wider search box
-- Expand starred messages on hover
+- Topbar with live notifications and chat domain switcher
+- Link to rejoin starred rooms
+- Expand starred messages in sidebar on hover and on print
 - Mobile improvements
 - Highlight occurances of same user link
 - Room owner changelog
-- Print styles
+- Print styles for live chat (for printing to PDF with clickable links)
 - and more...
 
 
