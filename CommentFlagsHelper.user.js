@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.9.1
+// @version      4.9.2
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -674,9 +674,6 @@ table.comments tr.roa-comment > td {
     padding: 5px 8px;
     font-size: 1rem;
     background: #eee;
-}
-.text-row .comment-flag-on .dismiss-comment {
-    float: none;
 }
 .skip-post {
     position: absolute !important;
