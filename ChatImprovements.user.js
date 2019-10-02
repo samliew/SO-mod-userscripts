@@ -3,7 +3,7 @@
 // @description  Show users in room as a list with usernames, more timestamps, tiny avatars only, timestamps on every message, message parser, collapse room description and room tags, wider search box, mods with diamonds
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.1
+// @version      1.9.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -461,6 +461,17 @@
 
 
 
+    function addLinksToOtherChatDomains() {
+
+        // Add links to other chat domains when on Chat.SO
+        const allrooms = $('#allrooms, #info a:first');
+        if(allrooms[0].href.includes('stackoverflow.com')) {
+            allrooms.after(`<a rel="noopener noreferrer" id="allrooms2" class="button" href="https://chat.stackexchange.com">Chat.SE</a> <a rel="noopener noreferrer" id="allrooms3" class="button" href="https://chat.meta.stackexchange.com">Chat.MSE</a>`);
+        }
+    }
+
+
+
     function doPageload() {
 
         // When joining a chat room
@@ -513,6 +524,7 @@
             $('#room-tags').appendTo('#roomdesc');
             $('#roomtitle + div').not('#roomdesc').appendTo('#roomdesc');
             $('#sidebar-menu').append(`<span> | <a id="room-transcript" title="view room transcript" href="/transcript/${roomId}">transcript</a> | <a id="room-owners" title="view room owners" href="/rooms/info/${roomId}/?tab=access#access-section-owner">owners</a></span>`);
+            addLinksToOtherChatDomains();
             reapplyPersistentChanges();
 
             // Occasionally reapply changes
@@ -574,6 +586,8 @@
         else if(location.pathname.includes('/transcript/') || location.pathname.includes('/conversation/')) {
 
             const roomId = Number(location.pathname.match(/\/(\d+)\/?/).pop());
+
+            addLinksToOtherChatDomains();
 
             // Insert room access button
             const aboutBtn = $('#transcript-links a').eq(1);
@@ -800,6 +814,14 @@ html.fixed-header body.with-footer main {
 #sidebar::-webkit-scrollbar-thumb{background-color:rgb(196, 196, 196); border-radius: 5px;}
 #sidebar::-webkit-scrollbar-thumb:hover{background-color:rgb(196, 196, 196);}
 #sidebar::-webkit-scrollbar-track{background-color:rgba(0, 0, 0, 0.05);}
+
+#allrooms,
+#transcript-body #sidebar #info > div > a:first-child {
+    margin-right: 5px;
+}
+#sound + div.fl {
+    margin-bottom: 5px;
+}
 
 /* Reduce room description until mouseover */
 #roomdesc {
