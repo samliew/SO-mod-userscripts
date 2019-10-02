@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.10
+// @version      1.11
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -375,7 +375,7 @@
                     let hiddenPath = el.href.replace(/^https?:\/\/(www\.)?/, '').replace(displayed, '').replace(/\/$/, '').split('/');
                     let hiddenPathLastIndex = hiddenPath.length - 1;
                     let shown1;
-                    console.log(hiddenPath);
+                    //console.log(hiddenPath);
 
                     // If next hidden path is short, or is only hidden path
                     if(hiddenPath[0].length <= 25 || (hiddenPath.length == 1 && hiddenPath[hiddenPathLastIndex].length <= 50)) {
@@ -507,6 +507,175 @@
 
 
 
+    function initTopBar() {
+
+        // If existing topbar exists, do nothing
+        if($('#topbar, .topbar').length > 0) return;
+
+        // If mobile, ignore
+        if(CHAT.IS_MOBILE) return;
+
+        const user = CHAT.RoomUsers.current();
+        const isMod = CHAT.RoomUsers.current().is_moderator;
+        const modDiamond = isMod ? '&nbsp;&#9830;' : '';
+
+        // Remove search due to conflict
+        $('#sidebar form').remove();
+
+        // Remove all rooms buttons
+        $('#sound').next('.fl').remove();
+
+        // Move notification icon next to title
+        $('#sound').prependTo('#roomtitle');
+
+        const topbarStyles = $(`
+<link rel="stylesheet" type="text/css" href="https://cdn.sstatic.net/shared/chrome/chrome.css" />
+<style>
+#info > .fl,
+#info > .fl + .clear-both {
+    display: none;
+}
+#sidebar {
+    padding-top: 40px;
+}
+#chat-body #container {
+    padding-top: 50px;
+}
+#sidebar #info #sound {
+    margin-top: 3px;
+}
+
+.topbar {
+    position: fixed;
+    background: black;
+}
+.topbar .topbar-wrapper {
+    width: auto;
+    padding: 0 20px;
+}
+.topbar .topbar-links {
+    right: 20px;
+}
+a.topbar-icon .topbar-dialog {
+    display: none;
+    position: absolute;
+    top: 100%;
+    cursor: initial;
+}
+a.topbar-icon.topbar-icon-on .topbar-dialog {
+    display: block !important;
+}
+.topbar .network-chat-links {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    height: 34px;
+    margin-left: 10px;
+}
+.topbar .network-chat-links > a {
+    flex: 0 0 auto;
+    margin: 0 3px;
+    background: #666;
+    border: none;
+    font-weight: normal;
+}
+.topbar .network-chat-links > a:active,
+.topbar .network-chat-links > a:hover {
+    background: #444;
+    border: none;
+}
+#chat-body #searchbox {
+    margin: 3px 0 0 20px;
+    float: none;
+    width: 194px;
+    font-size: 13px;
+}
+</style>
+`).appendTo(document.body);
+
+        const topbar = $(`
+<div class="topbar" id="topbar">
+    <div class="topbar-wrapper">
+
+        <div class="js-topbar-dialog-corral"></div>
+        <div class="network-items">
+            <a href="http://stackexchange.com"
+               class="topbar-icon icon-site-switcher yes-hover js-site-switcher-button"
+               data-gps-track="site_switcher.show"
+               title="A list of all Stack Exchange sites">
+                <span class="hidden-text">Stack Exchange</span>
+            </a>
+            <a href="#"
+               class="topbar-icon icon-inbox yes-hover js-inbox-button"
+               title="Recent inbox messages">
+                <span class="unread-count"></span>
+            </a>
+            <a href="#"
+               class="topbar-icon icon-achievements yes-hover js-achievements-button"
+               data-unread-class="icon-achievements-unread"
+               title="Recent achievements: reputation, badges, and privileges earned">
+                <span class="unread-count"></span>
+            </a>
+        </div>
+        <div class="network-chat-links">
+            <a rel="noopener noreferrer" id="allrooms1"  class="button" href="https://chat.stackoverflow.com">Chat.SO</a>
+            <a rel="noopener noreferrer" id="allrooms2" class="button" href="https://chat.stackexchange.com">Chat.SE</a>
+            <a rel="noopener noreferrer" id="allrooms3" class="button" href="https://chat.meta.stackexchange.com">Chat.MSE</a>
+        </div>
+        <div class="topbar-links">
+            <div class="links-container">
+                <span class="topbar-menu-links">
+                    <a href="/users/${user.id}" title="${user.name + modDiamond}">${user.name + modDiamond}</a>
+                    ${isMod ? '<a href="/admin">mod</a>' : ''}
+                </span>
+            </div>
+            <div class="search-container">
+                <form action="/search" method="get" autocomplete="off">
+                    <input name="q" id="searchbox" type="text" placeholder="search" size="28" maxlength="80" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+`).prependTo('#chat-body');
+
+        // Events
+        topbar
+        .on('click', '.js-site-switcher-button', function() {
+            $(this).siblings().removeClass('topbar-icon-on icon-site-switcher-on').children('.topbar-dialog').hide(); // reset others
+            if($(this).children('.topbar-dialog').length == 0) {
+                $(this).load(`https://${location.hostname}/topbar/site-switcher`, function() {
+
+                });
+            }
+            $(this).toggleClass('topbar-icon-on icon-site-switcher-on');
+            return false;
+        })
+        .on('click', '.js-inbox-button', function() {
+            $(this).siblings().removeClass('topbar-icon-on icon-site-switcher-on').children('.topbar-dialog').hide(); // reset others
+            if($(this).children('.topbar-dialog').length == 0) {
+                $(this).load(`https://${location.hostname}/topbar/inbox`, function() {
+
+                });
+            }
+            $(this).toggleClass('topbar-icon-on');
+            return false;
+        })
+        .on('click', '.js-achievements-button', function() {
+            $(this).siblings().removeClass('topbar-icon-on icon-site-switcher-on').children('.topbar-dialog').hide(); // reset others
+            if($(this).children('.topbar-dialog').length == 0) {
+                $(this).load(`https://${location.hostname}/topbar/achievements`, function() {
+
+                });
+            }
+            $(this).toggleClass('topbar-icon-on');
+            return false;
+        });
+
+    }
+
+
+
     function doPageload() {
 
         // When joining a chat room
@@ -554,9 +723,8 @@
             // Append desktop styles
             appendStyles();
 
-            initUserHighlighter();
-
             // Move stuff around
+            initTopBar();
             $('#room-tags').appendTo('#roomdesc');
             $('#roomtitle + div').not('#roomdesc').appendTo('#roomdesc');
             $('#sidebar-menu').append(`<span> | <a id="room-transcript" title="view room transcript" href="/transcript/${roomId}">transcript</a> | <a id="room-owners" title="view room owners" href="/rooms/info/${roomId}/?tab=access#access-section-owner">owners</a></span>`);
@@ -581,6 +749,9 @@
             $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
                 $(this).hide();
             });
+
+            // Highlight elements with same username on hover
+            initUserHighlighter();
 
             // Sidebar starred messages, show full content on hover
             function loadFullStarredMessage() {
@@ -880,7 +1051,8 @@ html.fixed-header body.with-footer main {
 #roomdesc + #sidebar-menu {
     margin-top: 30px !important;
 }
-#roomdesc > div {
+#roomdesc > div,
+#roomdesc a.button {
     display: none;
 }
 #roomtitle:hover + #roomdesc > div,
