@@ -356,13 +356,19 @@ Recommended chat userscripts:
 
 ### [Chat Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatImprovements.user.js)
 
-- Show users in room as a list with usernames
+- New responsive user list displaying usernames and total count
 - Timestamps on every message
-- Use tiny avatars only
-- Message parser (better links)
-- Collapse room description and room tags
+- Use tiny signatures and avatars only
+- Mods with diamonds in signatures
+- Message parser (smart links and link expander)
+- Minimize room description and room tags (hover to expand)
 - Wider search box
-- Mods with diamonds
+- Expand starred messages on hover
+- Mobile improvements
+- Highlight occurances of same user link
+- Room owner changelog
+- Print styles
+- and more...
 
 
 ### [Chat Transcript Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatTranscriptHelper.user.js)
