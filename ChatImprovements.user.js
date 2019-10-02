@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.11.1
+// @version      2.0
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -25,6 +25,7 @@
     'use strict';
 
 
+    const store = window.localStorage;
     const fkey = document.getElementById('fkey') ? document.getElementById('fkey').value : '';
     const newuserlist = $(`<div id="present-users-list"></div>`);
     const tzOffset = new Date().getTimezoneOffset();
@@ -557,6 +558,9 @@
 .topbar .topbar-links {
     right: 20px;
 }
+a.topbar-icon {
+    cursor: pointer;
+}
 a.topbar-icon .topbar-dialog {
     display: none;
     position: absolute;
@@ -600,22 +604,17 @@ a.topbar-icon.topbar-icon-on .topbar-dialog {
 
         <div class="js-topbar-dialog-corral"></div>
         <div class="network-items">
-            <a href="http://stackexchange.com"
-               class="topbar-icon icon-site-switcher yes-hover js-site-switcher-button"
+            <a class="topbar-icon icon-site-switcher yes-hover js-site-switcher-button"
                data-gps-track="site_switcher.show"
                title="A list of all Stack Exchange sites">
                 <span class="hidden-text">Stack Exchange</span>
             </a>
-            <a href="#"
-               class="topbar-icon icon-inbox yes-hover js-inbox-button"
+            <a class="topbar-icon icon-inbox yes-hover js-inbox-button"
                title="Recent inbox messages">
-                <span class="unread-count"></span>
             </a>
-            <a href="#"
-               class="topbar-icon icon-achievements yes-hover js-achievements-button"
+            <a class="topbar-icon icon-achievements yes-hover js-achievements-button"
                data-unread-class="icon-achievements-unread"
                title="Recent achievements: reputation, badges, and privileges earned">
-                <span class="unread-count"></span>
             </a>
         </div>
         <div class="network-chat-links">
@@ -640,14 +639,106 @@ a.topbar-icon.topbar-icon-on .topbar-dialog {
 </div>
 `).prependTo('#chat-body');
 
+
+        // Functions
+        function addInboxCount(num) {
+            const btn = $('#topbar .js-inbox-button').children('.unread-count').remove().end()
+            if(num > 0) btn.prepend(`<span class="unread-count">${num}</span>`);
+        }
+        function addAchievementCount(num) {
+            const btn = $('#topbar .js-achievements-button').children('.unread-count').remove().end()
+            if(num > 0) btn.prepend(`<span class="unread-count">${num}</span>`);
+        }
+
+        /*
+         * Modified helper functions to subscribe to live inbox notifications using network ID
+         * - with thanks from JC3: https://github.com/JC3/SEUserScripts/blob/master/ChatTopBar.user.js#L280
+         */
+        let defAccountId = getAccountId();
+        defAccountId.then(function (id) {
+
+            if (id === null) {
+                console.log('Not opening WebSocket (no account ID).');
+            } else {
+                let realtimeConnect = function () {
+                    console.log('Opening WebSocket...');
+                    let ws = new WebSocket('wss://qa.sockets.stackexchange.com');
+                    ws.onopen = function () {
+                        console.log(`WebSocket opened (your network ID is ${id}).`);
+                        ws.send(`${id}-topbar`);
+                    };
+                    ws.onmessage = function (event) {
+                        if (event && event.data) {
+                            try {
+                                var tbevent = JSON.parse(event.data);
+                                if (tbevent && tbevent.data) {
+                                    var tbdata = JSON.parse(tbevent.data);
+                                    console.log(tbdata);
+                                    if(tbdata.Inbox)
+                                        addInboxCount(tbdata.Inbox.UnreadInboxCount);
+                                    if(tbdata.Achievement)
+                                        addAchievementCount(tbdata.Achievement.UnreadRepCount + tbdata.Achievement.UnreadNonRepCount);
+                                }
+                            } catch (e) {
+                                // Just ignore, it's a JSON parse error, means event.data wasn't a string or something.
+                            }
+                        }
+                    };
+                    ws.onerror = function (event) {
+                        console.log(`WebSocket error: ${event.code} (${event.reason})`);
+                    };
+                    ws.onclose = function (event) {
+                        console.log(`WebSocket closed: ${event.code} (${event.reason}), will reopen in ${RECONNECT_WAIT_MS} ms.`);
+                        window.setTimeout(realtimeConnect, RECONNECT_WAIT_MS);
+                    };
+                };
+                realtimeConnect();
+            }
+        });
+        function getAccountId() {
+            // If user is not logged in CHAT.CURRENT_USER_ID will be 0.
+            return $.Deferred(function (def) {
+                if (CHAT.CURRENT_USER_ID === 0) {
+                    console.log('Cannot get account ID: You are not logged in.');
+                    def.resolve(null);
+                    return;
+                }
+                let server = location.hostname;
+                let fkey = $('#fkey').val();
+                let account_cached = store.getItem('account');
+
+                if (fkey !== store.getItem(`fkey-${server}`, null) || !account_cached) {
+                    console.log(`Obtaining parent profile (your chat ID is ${CHAT.CURRENT_USER_ID})...`);
+                    $.get(`/users/thumbs/${CHAT.CURRENT_USER_ID}`, function (data) {
+                        let a = document.createElement('a');
+                        a.href = data.profileUrl;
+                        let site = a.hostname;
+                        let uid = /\/users\/([0-9]+)/.exec(a.pathname)[1];
+                        console.log(`Obtaining network ID (your parent ID is ${uid} on ${site})...`);
+                        $.get(`//api.stackexchange.com/2.2/users/${uid}?order=desc&sort=reputation&site=${site}&filter=TiTab6.mdk`, function (r) {
+                            if (r.items && r.items.length > 0) {
+                                store.setItem('account', r.items[0].account_id);
+                                store.setItem(`fkey-${server}`, fkey);
+                                def.resolve(r.items[0].account_id);
+                            }
+                        });
+                    });
+                } else {
+                    def.resolve(account_cached);
+                }
+            }).promise();
+        }
+
+
         // Events
         topbar
+        .on('click', '.topbar-dialog', function(e) {
+            e.stopPropagation();
+        })
         .on('click', '.js-site-switcher-button', function() {
             $(this).siblings().removeClass('topbar-icon-on icon-site-switcher-on').children('.topbar-dialog').hide(); // reset others
             if($(this).children('.topbar-dialog').length == 0) {
-                $(this).load(`https://${location.hostname}/topbar/site-switcher`, function() {
-
-                });
+                $(this).load(`https://${location.hostname}/topbar/site-switcher`);
             }
             $(this).toggleClass('topbar-icon-on icon-site-switcher-on');
             return false;
@@ -655,9 +746,10 @@ a.topbar-icon.topbar-icon-on .topbar-dialog {
         .on('click', '.js-inbox-button', function() {
             $(this).siblings().removeClass('topbar-icon-on icon-site-switcher-on').children('.topbar-dialog').hide(); // reset others
             if($(this).children('.topbar-dialog').length == 0) {
-                $(this).load(`https://${location.hostname}/topbar/inbox`, function() {
-
-                });
+                $(this).load(`https://${location.hostname}/topbar/inbox`);
+            }
+            else {
+                // clear unread counts?
             }
             $(this).toggleClass('topbar-icon-on');
             return false;
@@ -665,15 +757,42 @@ a.topbar-icon.topbar-icon-on .topbar-dialog {
         .on('click', '.js-achievements-button', function() {
             $(this).siblings().removeClass('topbar-icon-on icon-site-switcher-on').children('.topbar-dialog').hide(); // reset others
             if($(this).children('.topbar-dialog').length == 0) {
-                $(this).load(`https://${location.hostname}/topbar/achievements`, function() {
-
-                });
+                $(this).load(`https://${location.hostname}/topbar/achievements`);
+            }
+            else {
+                // clear unread counts?
             }
             $(this).toggleClass('topbar-icon-on');
             return false;
+        })
+        .on('keyup', '#js-site-filter-txt', function() {
+            const v = this.value.trim();
+            const sites = $('#topbar .js-other-sites li');
+            if(v != '') {
+                sites.hide().children('a').filter((i, el) => el.hostname.replace('stackexchange.com', '').includes(v) || el.innerText.includes(v)).parent().show();
+            }
+            else {
+                sites.show();
+            }
+        });
+        // Hide dialogs when clicking elsewhere
+        $('#main, #sidebar').on('click', function() {
+            $('#topbar .topbar-icon').removeClass('topbar-icon-on icon-site-switcher-on');
         });
 
-    }
+
+        // Jobs
+        function getUnreadCounts() {
+
+            // Get and update topbar counts
+            $.get(`https://${location.hostname}/topbar/get-unread-counts`, function(data) {
+                addInboxCount(data.UnreadInboxCount);
+                addAchievementCount(data.UnreadRepCount + data.UnreadNonRepCount);
+            });
+        }
+        getUnreadCounts();
+
+    } // End initTopBar
 
 
 
