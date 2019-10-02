@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.4
+// @version      1.10
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -405,7 +405,6 @@
             if(/(^https?|\/$)/.test(el.innerText)) {
                 el.innerText = el.innerText.replace(/^https?:\/\//i, '').replace(/\/$/, '');
             }
-
         }
 
 
@@ -423,11 +422,27 @@
             });
         }
 
+
+        function parseMessagesForUsernames(i, el) {
+
+            // ignore oneboxes
+            if($(el).find('.onebox').length > 0) return;
+
+            // has mentions, wrap in span so we can select and highlight it
+            if(el.textContent.includes('@')) {
+                el.innerHTML = el.innerHTML.replace(/(^@|\s@)(\w+)\b/g, ' <span class="mention-others" data-username="$2">@$2</span>');
+            }
+        }
+
+
         setInterval(function() {
 
             // Get new messages
             const newMsgs = $('.message').not('.js-parsed').addClass('js-parsed');
             if(newMsgs.length > 0) {
+
+                // Try to detect usernames and mentions in messages
+                newMsgs.find('.content').each(parseMessagesForUsernames);
 
                 // Parse message links, but ignoring oneboxes, room minis, and quotes
                 newMsgs.find('.content a').filter(function() {
@@ -461,6 +476,26 @@
 
 
 
+    function initUserHighlighter() {
+
+        // Highlight elements with username on any mouse hover
+        const eventSelector = '.tiny-signature, .sidebar-widget .user-container, .mention-others, a[href*="/users/"]';
+        $('#widgets, #chat, #transcript').on('mouseover', eventSelector, function() {
+
+            const userName = (this.dataset.username || $(this).find('.username').first().text() || this.innerText || "").replace(/\W+/g, '').toLowerCase();
+            if(userName) {
+                $('.username, .mention, .mention-others, .starred-signature')
+                    .filter((i, el) => (el.dataset.username || el.title || el.innerText).replace(/\W+/g, '').toLowerCase() == userName)
+                    .closest('.mention, .mention-others, .signature, .sidebar-widget .user-container, a[href*="/users/"]').addClass('js-user-highlight');
+            }
+        })
+            .on('mouseout', eventSelector, function() {
+            $('.js-user-highlight').removeClass('js-user-highlight');
+        });
+    }
+
+
+
     function addLinksToOtherChatDomains() {
 
         // Add links to other chat domains when on Chat.SO
@@ -479,7 +514,6 @@
 
             const roomId = CHAT.CURRENT_ROOM_ID;
 
-            // Parse messages
             initMessageParser();
 
             // Rejoin favourite rooms on link click
@@ -520,6 +554,8 @@
             // Append desktop styles
             appendStyles();
 
+            initUserHighlighter();
+
             // Move stuff around
             $('#room-tags').appendTo('#roomdesc');
             $('#roomtitle + div').not('#roomdesc').appendTo('#roomdesc');
@@ -544,14 +580,6 @@
             // On any user avatar image error in sidebar, hide image
             $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
                 $(this).hide();
-            });
-
-            // Highlight links of user on any mouse hover
-            $('#widgets, #chat').on('mouseover', '.signature, .sidebar-widget .user-container, a[href*="/users/"]', function() {
-                const userId = Number( /\d+/.test(this.className) ? this.className.match(/\d+/)[0] : this.href.match(/\/(\d+)\//).pop() );
-                $(`.user-${userId}, a[href*="/users/${userId}/"]`).addClass('js-user-highlight');
-            }).on('mouseout', '.signature, .sidebar-widget .user-container, a[href*="/users/"]', function() {
-                $('.js-user-highlight').removeClass('js-user-highlight');
             });
 
             // Sidebar starred messages, show full content on hover
@@ -598,8 +626,8 @@
             const isDesktop = !document.body.classList.contains('mob');
             appendStyles(isDesktop);
 
-            // Parse messages
             initMessageParser();
+            initUserHighlighter();
         }
         // When viewing room access tab
         else if(location.pathname.includes('/rooms/info/') && location.search.includes('tab=access')) {
@@ -982,6 +1010,23 @@ ul#my-rooms > li > a span {
 }
 
 
+/* Highlight links of user on any mouse hover */
+#chat .signature.js-user-highlight .username,
+#chat .mention.js-user-highlight,
+#chat .mention-others.js-user-highlight,
+#transcript .signature.js-user-highlight .username,
+#transcript .mention.js-user-highlight,
+#transcript .mention-others.js-user-highlight,
+#present-users .user-container.js-user-highlight .username,
+#present-users-list .user-container.js-user-highlight .username,
+#starred-posts a[href^="/users/"].js-user-highlight {
+    background-color: yellow;
+}
+#present-users-list .inactive.js-user-highlight {
+    opacity: 1 !important;
+}
+
+
 /* New userlist */
 #present-users {
     height: 1px;
@@ -1184,17 +1229,6 @@ ul#my-rooms > li > a span {
 }
 .system-message-container {
     margin: 15px 0px;
-}
-
-/* Highlight links of user on any mouse hover */
-#chat a.signature.js-user-highlight .username,
-#present-users li.user-container.js-user-highlight .username,
-#present-users-list li.user-container.js-user-highlight .username,
-#starred-posts a[href^="/users/"].js-user-highlight {
-    background-color: yellow;
-}
-#present-users-list .inactive.js-user-highlight {
-    opacity: 1 !important;
 }
 
 /* No wrap chat transcript links, unless in sidebar */
