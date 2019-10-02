@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -645,10 +645,14 @@ a.topbar-icon.topbar-icon-on .topbar-dialog {
             const btn = $('#topbar .js-inbox-button').children('.unread-count').remove().end()
             if(num > 0) btn.prepend(`<span class="unread-count">${num}</span>`);
         }
-        function addAchievementCount(num) {
+        function addRepCount(num) {
             const btn = $('#topbar .js-achievements-button').children('.unread-count').remove().end()
             if(num > 0) btn.prepend(`<span class="unread-count">${num}</span>`);
         }
+        function addAchievementCount(num) {
+            $('#topbar .js-achievements-button').toggleClass('icon-achievements-unread', num > 0);
+        }
+
 
         /*
          * Modified helper functions to subscribe to live inbox notifications using network ID
@@ -676,8 +680,10 @@ a.topbar-icon.topbar-icon-on .topbar-dialog {
                                     console.log(tbdata);
                                     if(tbdata.Inbox)
                                         addInboxCount(tbdata.Inbox.UnreadInboxCount);
-                                    if(tbdata.Achievement)
-                                        addAchievementCount(tbdata.Achievement.UnreadRepCount + tbdata.Achievement.UnreadNonRepCount);
+                                    if(tbdata.Achievements && tbdata.Achievements.UnreadRepCount)
+                                        addRepCount(tbdata.Achievements.UnreadRepCount);
+                                    if(tbdata.Achievements && tbdata.Achievements.UnreadNonRepCount)
+                                        addAchievementCount(tbdata.Achievements.UnreadNonRepCount);
                                 }
                             } catch (e) {
                                 // Just ignore, it's a JSON parse error, means event.data wasn't a string or something.
@@ -786,8 +792,10 @@ a.topbar-icon.topbar-icon-on .topbar-dialog {
 
             // Get and update topbar counts
             $.get(`https://${location.hostname}/topbar/get-unread-counts`, function(data) {
+                console.log('topbar counts', data);
                 addInboxCount(data.UnreadInboxCount);
-                addAchievementCount(data.UnreadRepCount + data.UnreadNonRepCount);
+                addRepCount(data.UnreadRepCount);
+                addAchievementCount(data.UnreadNonRepCount);
             });
         }
         getUnreadCounts();
