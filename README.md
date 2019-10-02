@@ -365,10 +365,10 @@ Recommended chat userscripts:
 - Topbar with live notifications and chat domain switcher
 - Link to rejoin starred rooms
 - Expand starred messages in sidebar on hover and on print
-- Mobile improvements
-- Highlight occurances of same user link
+- On mouseover user links or mentions, highlight occurances of same user's links and mentions on page
 - Room owner changelog
 - Print styles for live chat (for printing to PDF with clickable links)
+- Mobile font size increase
 - and more...
 
 
