@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.29
+// @version      2.9.30
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -974,8 +974,8 @@ span.mod-flair {
 #present-users .user-container.js-user-highlight .username,
 #present-users-list .user-container.js-user-highlight .username,
 #starred-posts a[href^="/users/"].js-user-highlight {
-    background-color: #d2d200 !important;
-    color: black !important;
+    background-color: #d2d200;
+    color: black;
 }
 
 
