@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.1.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -200,8 +200,16 @@
 
         // Always load more for long messages
         // can't use this for some reason: $('.more-data').click();
+        // this opens the link in a new window sometimes: el.click();
+        // so we implement our own full text fetcher
         $('.more-data').each(function(i, el) {
-            el.click();
+            const parent = $(this).parent('.content');
+            $.get(el.href).done(function(data) {
+                const isQuote = /^&gt;\s/.test(data);
+                const full = $(`<div class="full ${isQuote ? 'quote' : 'text'}"></div>`).append(data.replace(/^(:\d+|&gt;) /, '').replace(/\r\n?|\n/g, ' <br> '));
+                parent.empty().append(full);
+            });
+            return false;
         });
 
     }
@@ -482,16 +490,16 @@
         // Highlight elements with username on any mouse hover
         const eventSelector = '.tiny-signature, .sidebar-widget .user-container, .mention-others, a[href*="/users/"]';
         $('#widgets, #chat, #transcript').on('mouseover', eventSelector, function() {
-
             const userName = (this.dataset.username || $(this).find('.username').first().text() || this.innerText || "").replace(/\W+/g, '').toLowerCase();
             if(userName) {
                 $('.username, .mention, .mention-others, .starred-signature')
                     .filter((i, el) => (el.dataset.username || el.title || el.innerText).replace(/\W+/g, '').toLowerCase() == userName)
                     .closest('.mention, .mention-others, .signature, .sidebar-widget .user-container, a[href*="/users/"]').addClass('js-user-highlight');
+                $('#present-users-list').addClass('mouseon');
             }
-        })
-            .on('mouseout', eventSelector, function() {
+        }).on('mouseout', eventSelector, function() {
             $('.js-user-highlight').removeClass('js-user-highlight');
+            $('#present-users-list').removeClass('mouseon');
         });
     }
 
@@ -522,9 +530,6 @@
 
         // Remove search due to conflict
         $('#sidebar form').remove();
-
-        // Remove all rooms buttons
-        $('#sound').next('.fl').remove();
 
         // Move notification icon next to title
         $('#sound').prependTo('#roomtitle');
@@ -617,7 +622,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog {
                title="Recent achievements: reputation, badges, and privileges earned">
             </a>
         </div>
-        <div class="network-chat-links">
+        <div class="network-chat-links" id="network-chat-links">
             <a rel="noopener noreferrer" id="allrooms1"  class="button" href="https://chat.stackoverflow.com">Chat.SO</a>
             <a rel="noopener noreferrer" id="allrooms2" class="button" href="https://chat.stackexchange.com">Chat.SE</a>
             <a rel="noopener noreferrer" id="allrooms3" class="button" href="https://chat.meta.stackexchange.com">Chat.MSE</a>
@@ -639,6 +644,9 @@ a.topbar-icon.topbar-icon-on .topbar-dialog {
 </div>
 `).prependTo('#chat-body');
 
+        // Move network site rooms button to topbar
+        $('#siterooms').appendTo('#network-chat-links');
+
 
         // Functions
         function addInboxCount(num) {
@@ -658,6 +666,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog {
          * Modified helper functions to subscribe to live inbox notifications using network ID
          * - with thanks from JC3: https://github.com/JC3/SEUserScripts/blob/master/ChatTopBar.user.js#L280
          */
+        const RECONNECT_WAIT_MS = 15000;
         let defAccountId = getAccountId();
         defAccountId.then(function (id) {
 
@@ -898,7 +907,8 @@ a.topbar-icon.topbar-icon-on .topbar-dialog {
                 el.children('.permalink').before(`<div class="message-full"><i>loading...</i></div><span> - </span>`).after('<span> by </span>');
                 el.children('.quick-unstar').before('<span> </span>');
 
-                // load full message content
+                // load semi-full message content as displayed in message history
+                // - don't get full text using /messages/{rid}/{mid} in case it's a wall of text
                 getMessage(mid).then(v => {
                     el.children('.message-full').html(v.html);
                 });
