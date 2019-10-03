@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.28
+// @version      2.9.29
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -964,6 +964,20 @@ span.mod-flair {
     background: indianred;
     color: white;
 }
+/* Chat highlight links of user on any mouse hover */
+#chat .signature.js-user-highlight .username,
+#chat .mention.js-user-highlight,
+#chat .mention-others.js-user-highlight,
+#transcript .signature.js-user-highlight .username,
+#transcript .mention.js-user-highlight,
+#transcript .mention-others.js-user-highlight,
+#present-users .user-container.js-user-highlight .username,
+#present-users-list .user-container.js-user-highlight .username,
+#starred-posts a[href^="/users/"].js-user-highlight {
+    background-color: #d2d200 !important;
+    color: black !important;
+}
+
 
 /* Chat */
 #chat-body .topbar,
