@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2.1
+// @version      2.2.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -571,7 +571,8 @@
 .topbar .topbar-links {
     right: 20px;
 }
-a.topbar-icon {
+.topbar .topbar-icon {
+    position: relative;
     cursor: pointer;
 }
 a.topbar-icon .topbar-dialog {
@@ -580,7 +581,8 @@ a.topbar-icon .topbar-dialog {
     top: 100%;
     cursor: initial;
 }
-a.topbar-icon.topbar-icon-on .topbar-dialog {
+a.topbar-icon.topbar-icon-on .topbar-dialog,
+.topbar .topbar-icon.topbar-icon-on .js-loading-indicator {
     display: block !important;
 }
 .topbar .network-chat-links {
@@ -602,6 +604,17 @@ a.topbar-icon.topbar-icon-on .topbar-dialog {
     background: #444;
     border: none;
 }
+.topbar .topbar-icon .js-loading-indicator {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: -12px;
+    background: white;
+    padding: 15px 20px 20px;
+}
+.topbar .topbar-icon .js-loading-indicator img {
+    float: left;
+}
 #chat-body #searchbox {
     margin: 3px 0 0 20px;
     float: none;
@@ -620,14 +633,17 @@ a.topbar-icon.topbar-icon-on .topbar-dialog {
             <a class="topbar-icon icon-site-switcher yes-hover js-site-switcher-button"
                data-gps-track="site_switcher.show"
                title="A list of all Stack Exchange sites">
+                <span class="js-loading-indicator"><img src="https://stackoverflow.com/content/img/progress-dots.gif" /></span>
                 <span class="hidden-text">Stack Exchange</span>
             </a>
             <a class="topbar-icon icon-inbox yes-hover js-inbox-button"
                title="Recent inbox messages">
+                <span class="js-loading-indicator"><img src="https://stackoverflow.com/content/img/progress-dots.gif" /></span>
             </a>
             <a class="topbar-icon icon-achievements yes-hover js-achievements-button"
                data-unread-class="icon-achievements-unread"
                title="Recent achievements: reputation, badges, and privileges earned">
+                <span class="js-loading-indicator"><img src="https://stackoverflow.com/content/img/progress-dots.gif" /></span>
             </a>
         </div>
         <div class="network-chat-links" id="network-chat-links">
