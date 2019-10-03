@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1.4
+// @version      2.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -143,10 +143,13 @@
         // Do not update new user list if mouse is on
         if(newuserlist.hasClass('mouseon')) return;
 
+        // Do not update user list if updated less than X seconds ago
+        if(newuserlist.hasClass('js-no-update')) return;
+
         const userlist = $('#present-users');
 
         // Reset new list
-        newuserlist.empty().insertAfter(userlist);
+        newuserlist.addClass('js-no-update').empty().insertAfter(userlist);
 
         // Bugfix: remove dupes from original list when any new message posted
         userlist.children('.user-container').each(function() {
@@ -173,6 +176,11 @@
 
         // Add "currentuser" class to own userlist item
         $('#sidebar .user-' + CHAT.CURRENT_USER_ID).addClass('user-currentuser');
+
+        // Remove update blocker after X seconds
+        setTimeout(() => {
+            newuserlist.removeClass('js-no-update');
+        }, 15000);
     }
 
 
@@ -791,7 +799,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog {
             }
         });
         // Hide dialogs when clicking elsewhere
-        $('#main, #sidebar').on('click', function() {
+        $('#main, #sidebar, #container').on('click', function() {
             $('#topbar .topbar-icon').removeClass('topbar-icon-on icon-site-switcher-on');
         });
 
