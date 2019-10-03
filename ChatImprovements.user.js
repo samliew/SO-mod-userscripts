@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2.2
+// @version      2.3
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -219,6 +219,11 @@
             });
             return false;
         });
+
+        // If topbar is found
+        if($('#topbar').length) {
+            $('.reply-info').off('click');
+        }
 
     }
 
@@ -542,6 +547,9 @@
         // Move notification icon next to title
         $('#sound').prependTo('#roomtitle');
 
+        // Add class to body
+        $('#chat-body').addClass('has-topbar');
+
         const topbarStyles = $(`
 <link rel="stylesheet" type="text/css" href="https://cdn.sstatic.net/shared/chrome/chrome.css" />
 <style>
@@ -616,9 +624,10 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
     float: left;
 }
 #chat-body #searchbox {
-    margin: 3px 0 0 20px;
     float: none;
     width: 194px;
+    margin: 3px 0 0 20px;
+    padding: 2px 3px 2px 24px !important;
     font-size: 13px;
 }
 </style>
@@ -941,6 +950,48 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             setInterval(() => {
                 $('#starred-posts li').each(loadFullStarredMessage);
             }, 1000);
+
+            // Improve reply-info marker hover & click
+            const hasTopbar = $('#topbar, .topbar').length;
+            const topbarOffset = hasTopbar ? 50 : 0;
+            window.hiTimeout = null;
+            $('#chat').on('click', '.reply-info', function(evt) {
+                // Clear all message highlights on page
+                if(window.hiTimeout) clearTimeout(window.hiTimeout);
+                $('.highlight').removeClass('highlight');
+
+                const parentMid = Number(this.href.match(/#(\d+)/).pop());
+                const parentMsg = $('#message-'+parentMid).addClass('highlight');
+
+                // Check if message is on page, and has a topbar we need to offset by
+                if(hasTopbar && parentMsg.length) {
+                    $('html, body').animate({ scrollTop: (parentMsg.offset().top - topbarOffset) + 'px' }, 400, function() {
+                        window.hiTimeout = setTimeout(() => { parentMsg.removeClass('highlight') }, 3000);
+                    });
+                    return false;
+                }
+
+                // Else message is off page, show in popup first
+                // second clicking will trigger default behaviour (open in new window)
+                else if(parentMsg.length === 0) {
+                    // TODO
+                }
+
+            }).on('mouseover', '.reply-info', function(evt) {
+                const parentMid = Number(this.href.match(/#(\d+)/).pop());
+                const parentMsg = $('#message-'+parentMid);
+
+                // Check if message is off screen, show in popup
+                if(parentMsg.offset().top <= window.scrollY + topbarOffset || parentMsg.offset().top >= window.scrollY) {
+                    // TODO
+                }
+
+            }).on('click', '.newreply', function(evt) {
+                // Clear all message highlights on page
+                $('.highlight').removeClass('highlight');
+                // Highlight selected message we are replying to
+                $(this).closest('.message').addClass('highlight');
+            });
 
         }
         // When viewing page transcripts and bookmarks
@@ -1353,7 +1404,7 @@ ul#my-rooms > li > a span {
 #transcript .mention-others.js-user-highlight,
 #present-users .user-container.js-user-highlight .username,
 #present-users-list .user-container.js-user-highlight .username,
-#starred-posts a[href^="/users/"].js-user-highlight {
+#chat-body #sidebar #starred-posts a.js-user-highlight {
     background-color: yellow;
 }
 #present-users-list .inactive.js-user-highlight {
