@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.3.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -529,6 +529,93 @@
 
 
 
+    // Improve reply-info marker hover & click
+    function initBetterMessageLinks() {
+
+        const isTranscript = $('#transcript-body').length;
+        const hasTopbar = $('#topbar, .topbar').length;
+        const topbarOffset = hasTopbar ? 50 : 0;
+        window.hiTimeout = null;
+
+        // Try loading more messages once
+        $('#chat').one('mouseover', '.reply-info', function(evt) {
+            $('#getmore').click();
+        });
+
+        // Re-implement scroll to message, and for transcripts
+        $('#chat, #transcript').on('click', '.reply-info', function(evt) {
+            // Clear all message highlights on page
+            if(window.hiTimeout) clearTimeout(window.hiTimeout);
+            $('.highlight').removeClass('highlight');
+
+            const message = $(this).closest('.message');
+            const parentMid = Number(this.href.match(/#(\d+)/).pop());
+            const parentMsg = $('#message-'+parentMid).addClass('highlight');
+            const dialogMsg = $('#dialog-message-'+parentMid);
+
+            // Check if message is on page
+            if(parentMsg.length) {
+                $('html, body').animate({ scrollTop: (parentMsg.offset().top - topbarOffset) + 'px' }, 400, function() {
+                    window.hiTimeout = setTimeout(() => { parentMsg.removeClass('highlight') }, 3000);
+                });
+                return false;
+            }
+
+            // Else message is off page, show in popup first
+            // second clicking will trigger default behaviour (open in new window)
+            else if(!dialogMsg.length) {
+
+                getMessage(parentMid).then(function(msg) {
+                    const parentIcon = isNaN(msg.parentId) ? `<a class="reply-info" title="This is a reply to an earlier message" href="/transcript/message/${msg.parentId}#${msg.parentId}"> </a>` : '';
+                    const parentDialog = $(`
+<div class="dialog-message" id="dialog-message-${msg.id}">
+  <a class="action-link" href="/transcript/message/${msg.id}#${msg.id}"><span class="img menu"> </span></a>
+  ${parentIcon}
+  <div class="content">${msg.html}</div>
+  <span class="meta"><span class="newreply" data-mid="${msg.id}" title="link my next chat message as a reply to this"></span></span>
+  <span class="flash"><span class="stars vote-count-container"><span class="img vote" title="star this message as useful / interesting for the transcript"></span><span class="times">${msg.stars > 0 ? msg.stars : ''}</span></span></span>
+</div>`);
+                    message.addClass('show-parent-dialog').prepend(parentDialog);
+                });
+                return false;
+            }
+
+        });
+
+        if(isTranscript) return;
+
+        // Dialog message replies
+
+
+        // For live chat, implement additional helpers
+        $('#chat, #transcript').on('mouseover', '.reply-info', function(evt) {
+            const parentMid = Number(this.href.match(/#(\d+)/).pop());
+            const parentMsg = $('#message-'+parentMid);
+
+            // Check if message is off screen, show in popup
+            if(parentMsg.length && (parentMsg.offset().top <= window.scrollY + topbarOffset || parentMsg.offset().top >= window.scrollY)) {
+                // TODO
+
+            }
+
+        }).on('click', '.newreply', function(evt) {
+            // Clear all message highlights on page
+            $('.highlight').removeClass('highlight');
+            // Highlight selected message we are replying to
+            $(this).closest('.dialog-message, .message').addClass('highlight');
+        }).on('click', '.dialog-message', function(evt) {
+            $(this).closest('.message').find('.popup').remove();
+            $(this).remove();
+            return false;
+        }).on('click', '.dialog-message .newreply', function(evt) {
+            const input = document.getElementById('input');
+            input.value = ':' + this.dataset.mid + ' ' + input.value.replace(/^:\d+\s*/, '');
+            return false;
+        });
+    }
+
+
+
     function initTopBar() {
 
         // If existing topbar exists, do nothing
@@ -537,6 +624,7 @@
         // If mobile, ignore
         if(CHAT.IS_MOBILE) return;
 
+        const roomId = CHAT.CURRENT_ROOM_ID;
         const user = CHAT.RoomUsers.current();
         const isMod = CHAT.RoomUsers.current().is_moderator;
         const modDiamond = isMod ? '&nbsp;&#9830;' : '';
@@ -670,6 +758,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             <div class="search-container">
                 <form action="/search" method="get" autocomplete="off">
                     <input name="q" id="searchbox" type="text" placeholder="search" size="28" maxlength="80" />
+                    <input name="room" type="hidden" value="${roomId}" />
                 </form>
             </div>
         </div>
@@ -951,47 +1040,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
                 $('#starred-posts li').each(loadFullStarredMessage);
             }, 1000);
 
-            // Improve reply-info marker hover & click
-            const hasTopbar = $('#topbar, .topbar').length;
-            const topbarOffset = hasTopbar ? 50 : 0;
-            window.hiTimeout = null;
-            $('#chat').on('click', '.reply-info', function(evt) {
-                // Clear all message highlights on page
-                if(window.hiTimeout) clearTimeout(window.hiTimeout);
-                $('.highlight').removeClass('highlight');
-
-                const parentMid = Number(this.href.match(/#(\d+)/).pop());
-                const parentMsg = $('#message-'+parentMid).addClass('highlight');
-
-                // Check if message is on page, and has a topbar we need to offset by
-                if(hasTopbar && parentMsg.length) {
-                    $('html, body').animate({ scrollTop: (parentMsg.offset().top - topbarOffset) + 'px' }, 400, function() {
-                        window.hiTimeout = setTimeout(() => { parentMsg.removeClass('highlight') }, 3000);
-                    });
-                    return false;
-                }
-
-                // Else message is off page, show in popup first
-                // second clicking will trigger default behaviour (open in new window)
-                else if(parentMsg.length === 0) {
-                    // TODO
-                }
-
-            }).on('mouseover', '.reply-info', function(evt) {
-                const parentMid = Number(this.href.match(/#(\d+)/).pop());
-                const parentMsg = $('#message-'+parentMid);
-
-                // Check if message is off screen, show in popup
-                if(parentMsg.offset().top <= window.scrollY + topbarOffset || parentMsg.offset().top >= window.scrollY) {
-                    // TODO
-                }
-
-            }).on('click', '.newreply', function(evt) {
-                // Clear all message highlights on page
-                $('.highlight').removeClass('highlight');
-                // Highlight selected message we are replying to
-                $(this).closest('.message').addClass('highlight');
-            });
+            initBetterMessageLinks();
 
         }
         // When viewing page transcripts and bookmarks
@@ -1012,6 +1061,9 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
 
             initMessageParser();
             initUserHighlighter();
+
+            // Apply our own message reply link scroll-to if message is on same page
+            initBetterMessageLinks();
         }
         // When viewing room access tab
         else if(location.pathname.includes('/rooms/info/') && location.search.includes('tab=access')) {
@@ -1660,6 +1712,43 @@ body.outside .access-section h2 {
     content: "";
     display: table;
     clear: both;
+}
+
+/* Message replies dialog */
+.dialog-message {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 24px;
+    right: 0;
+    background: #222;
+    color: #eee;
+    padding: 7px 12px;
+    margin: -7px -12px;
+    border-radius: 7px;
+    z-index: 1;
+}
+.dialog-message.highlight {
+    background: #222 !important;
+}
+.dialog-message > .action-link {
+    left: -12px !important;
+    top: 0;
+    color: #f6f6f6 !important;
+    background-color: #767676;
+}
+.dialog-message > .action-link .img.menu {
+    background-image: url('https://cdn-chat.sstatic.net/chat/Img/sprites.png');
+    background-repeat: no-repeat;
+    background-position: top left;
+    background-position: 2px -286px;
+    width: 16px;
+    height: 13px;
+    margin-top: 2px;
+}
+div.dialog-message > .meta {
+    display: block !important;
+    background-color: #222;
+    border-radius: 5px;
 }
 
 @media screen and (min-width: 768px) {
