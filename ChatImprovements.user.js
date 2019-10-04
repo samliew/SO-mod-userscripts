@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.1
+// @version      2.3.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -501,9 +501,9 @@
     function initUserHighlighter() {
 
         // Highlight elements with username on any mouse hover
-        const eventSelector = '.tiny-signature, .sidebar-widget .user-container, .mention-others, a[href*="/users/"]';
+        const eventSelector = '.tiny-signature, .sidebar-widget .user-container, .mention-others, .content a[href*="/users/"]';
         $('#widgets, #chat, #transcript').on('mouseover', eventSelector, function() {
-            const userName = (this.dataset.username || $(this).find('.username').first().text() || this.innerText || "").replace(/\W+/g, '').toLowerCase();
+            const userName = (this.dataset.username || $(this).find('.username, .name').last().text() || this.innerText || "").replace(/\W+/g, '').toLowerCase();
             if(userName) {
                 $('.username, .mention, .mention-others, .starred-signature')
                     .filter((i, el) => (el.dataset.username || el.title || el.innerText).replace(/\W+/g, '').toLowerCase() == userName)
