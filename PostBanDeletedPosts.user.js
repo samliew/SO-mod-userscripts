@@ -34,7 +34,8 @@
 
             options.method = options.method || 'GET';
             options.onload = function(response) {
-                resolve(response.responseText);
+                let parser = new DOMParser();
+                resolve(parser.parseFromString(response.responseText, 'text/html'));
             };
             options.onerror = function() {
                 reject();
