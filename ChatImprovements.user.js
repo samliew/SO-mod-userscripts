@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.3
+// @version      2.4
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -1018,7 +1018,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
                 const mid = Number(this.id.replace(/\D+/g, ''));
 
                 // already fetched or nothing to expand, do nothing (toggle via css)
-                if(el.hasClass('js-hasfull') || !/\.\.\.\s*(<i><\/i>)*\s*- <a rel="noreferrer noopener" class="permalink"/.test(el.html())) return;
+                if(el.hasClass('js-hasfull') || !/\.\.\.\s*.*\s*- <a rel="noreferrer noopener" class="permalink"/.test(el.html())) return;
 
                 // prefetch stuff
                 el.addClass('js-hasfull').contents().filter(function() {
@@ -1110,6 +1110,22 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
                     if(messages.length >= 50) logdiv.append(`<div class="monologue" id="more-room-owners"><a href="${searchUrl}" target="_blank">view more</a></div>`);
                 });
             });
+        }
+        // When viewing search results
+        else if(location.pathname == '/search' && location.search != '') {
+
+            // Append desktop styles
+            appendStyles();
+
+            const query = $('#q').val();
+            const regex = new RegExp('\\s(' + query + ')\\s', 'gi');
+
+            // Highlight all instances in results that are not oneboxes
+            $('.content').filter(function() { return $(this).children('.onebox').length == 0; })
+            .html(function(i, v) {
+                return v.replace(regex, function(match, p1) { return ` <span class="chat-search-highlight">${p1}</span> `; });
+            });
+
         }
 
         // When viewing user info page in mobile
@@ -1749,6 +1765,11 @@ div.dialog-message > .meta {
     display: block !important;
     background-color: #222;
     border-radius: 5px;
+}
+
+/* Chat search highlight keyword */
+.chat-search-highlight {
+    color: orange;
 }
 
 @media screen and (min-width: 768px) {
