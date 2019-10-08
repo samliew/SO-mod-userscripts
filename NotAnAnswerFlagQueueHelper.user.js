@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.8
+// @version      3.9
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -127,8 +127,10 @@
                 return postOwners.length == 2 && postOwners.get(0).href === postOwners.get(1).href;
             }
 
-            return $(this).find('.js-body-loader').length === (filter == 'q' ? 1 : 2);
-        };
+            const pid = this.dataset.postId;
+            const postLink = this.dataset.postLink;
+            return postLink.includes('/questions/' + pid) == (filter === 'q');
+        }
 
         $posts.hide().filter(filterFunction).show();
     }
@@ -158,8 +160,8 @@
 
             case 'poster-rep':
                 sortFunction = function(a, b) {
-                    let aRep = Number($(a).find('.js-post-header .reputation-score').text().replace(/[^\d.]/g, '')),
-                        bRep = Number($(b).find('.js-post-header .reputation-score').text().replace(/[^\d.]/g, ''));
+                    let aRep = Number($(a).find('.js-body-loader:last .reputation-score').text().replace(/[^\d.]/g, '')),
+                        bRep = Number($(b).find('.js-body-loader:last .reputation-score').text().replace(/[^\d.]/g, ''));
                     if(aRep % 1 > 0) aRep *= 1000;
                     if(bRep % 1 > 0) bRep *= 1000;
 
@@ -170,8 +172,8 @@
 
             case 'date-posted':
                 sortFunction = function(a, b) {
-                    let aDate = new Date($(a).find('.js-post-header .relativetime').attr('title')),
-                        bDate = new Date($(b).find('.js-post-header .relativetime').attr('title'));
+                    let aDate = new Date($(a).find('.js-body-loader:last .relativetime:not(.old):last').attr('title')),
+                        bDate = new Date($(b).find('.js-body-loader:last .relativetime:not(.old):last').attr('title'));
 
                     if(aDate == bDate) return 0;
                     return (aDate > bDate) ? 1 : -1;
@@ -180,8 +182,8 @@
 
             case 'delete-votes':
                 sortFunction = function(a, b) {
-                    let aDelv = Number(($(a).find('.delete-post').val() || "0").replace(/[^\d]/g, '')),
-                        bDelv = Number(($(b).find('.delete-post').val() || "0").replace(/[^\d]/g, ''));
+                    let aDelv = Number(($(a).find('.js-delete-post').val() || "0").replace(/\D+/g, '')),
+                        bDelv = Number(($(b).find('.js-delete-post').val() || "0").replace(/\D+/g, ''));
 
                     if(aDelv == bDelv) return 0;
                     return (aDelv < bDelv) ? 1 : -1;
@@ -190,8 +192,8 @@
 
             case 'flag-count':
                 sortFunction = function(a, b) {
-                    let aFlags = $(a).find('.js-post-flag-group .bounty-indicator-tab').map((i,el) => 0+el.innerText).get().reduce((a,c) => a + c),
-                        bFlags = $(b).find('.js-post-flag-group .bounty-indicator-tab').map((i,el) => 0+el.innerText).get().reduce((a,c) => a + c);
+                    let aFlags = $(a).find('.js-post-flag-group .bounty-indicator-tab').map((i,el) => Number(el.innerText)).get().reduce((a,c) => a + c),
+                        bFlags = $(b).find('.js-post-flag-group .bounty-indicator-tab').map((i,el) => Number(el.innerText)).get().reduce((a,c) => a + c);
 
                     if(aFlags == bFlags) return 0;
                     return (aFlags < bFlags) ? 1 : -1;
