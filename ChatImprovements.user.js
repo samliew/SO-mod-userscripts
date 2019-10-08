@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.4.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -447,12 +447,13 @@
 
         function parseMessagesForUsernames(i, el) {
 
-            // ignore oneboxes
+            // Ignore oneboxes
             if($(el).find('.onebox').length > 0) return;
 
-            // has mentions, wrap in span so we can select and highlight it
+            // Has mentions, wrap in span tag so we can select and highlight it
+            // (\b|\s) instead of just \b so it allows usernames ending with periods '.'
             if(el.textContent.includes('@')) {
-                el.innerHTML = el.innerHTML.replace(/(^@|\s@)(\w+)\b/g, ' <span class="mention-others" data-username="$2">@$2</span>');
+                el.innerHTML = el.innerHTML.replace(/(^@|\s@)([\w.]+)(\b|\s)/g, ' <span class="mention-others" data-username="$2">@$2</span>$3');
             }
         }
 
@@ -503,10 +504,10 @@
         // Highlight elements with username on any mouse hover
         const eventSelector = '.tiny-signature, .sidebar-widget .user-container, .mention-others, .content a[href*="/users/"]';
         $('#widgets, #chat, #transcript').on('mouseover', eventSelector, function() {
-            const userName = (this.dataset.username || $(this).find('.username, .name').last().text() || this.innerText || "").replace(/\W+/g, '').toLowerCase();
+            const userName = (this.dataset.username || $(this).find('.username, .name').last().text() || this.innerText || "").replace(/[^\w.]+/g, '').toLowerCase();
             if(userName) {
                 $('.username, .mention, .mention-others, .starred-signature')
-                    .filter((i, el) => (el.dataset.username || el.title || el.innerText).replace(/\W+/g, '').toLowerCase() == userName)
+                    .filter((i, el) => (el.dataset.username || el.title || el.innerText).replace(/[^\w.]+/g, '').toLowerCase() == userName)
                     .closest('.mention, .mention-others, .signature, .sidebar-widget .user-container, a[href*="/users/"]').addClass('js-user-highlight');
                 $('#present-users-list').addClass('mouseon');
             }
