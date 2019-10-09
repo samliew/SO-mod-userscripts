@@ -3,7 +3,7 @@
 // @description  Hides post score until voted
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.0.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -42,6 +42,11 @@
 
             // If we have voted, show post votes
             $('.js-voting-container .fc-theme-primary').parent().removeClass('js-score-hidden');
+        });
+
+        // Show vote counts on double-click
+        $(document).on('dblclick', '.js-score-hidden', function() {
+            $(this).removeClass('js-score-hidden');
         });
     }
 
