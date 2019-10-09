@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.4
+// @version      2.5.5
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -807,11 +807,19 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
         // Functions
         function addInboxCount(num) {
             const btn = $('#topbar .js-inbox-button').children('.unread-count').remove().end()
-            if(num > 0) btn.prepend(`<span class="unread-count">${num}</span>`);
+            if(num > 0) {
+                btn.prepend(`<span class="unread-count">${num}</span>`);
+                btn.children('.topbar-dialog').remove();
+                btn.append(`<span class="js-loading-indicator"><img src="https://stackoverflow.com/content/img/progress-dots.gif"></span>`);
+            }
         }
         function addRepCount(num) {
             const btn = $('#topbar .js-achievements-button').children('.unread-count').remove().end()
-            if(num > 0) btn.prepend(`<span class="unread-count">${num}</span>`);
+            if(num > 0) {
+                btn.prepend(`<span class="unread-count">${num}</span>`);
+                btn.children('.topbar-dialog').remove();
+                btn.append(`<span class="js-loading-indicator"><img src="https://stackoverflow.com/content/img/progress-dots.gif"></span>`);
+            }
         }
         function addAchievementCount(num) {
             $('#topbar .js-achievements-button').toggleClass('icon-achievements-unread', num > 0);
