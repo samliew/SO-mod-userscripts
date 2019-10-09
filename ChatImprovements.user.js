@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.2
+// @version      2.5.3
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -197,7 +197,7 @@
                 }
             });
         }
-        console.log('userlist updated', init, users.length);
+        //console.log('userlist updated', init, users.length);
 
         // Add count of users below
         newuserlist.find('.users-count').text(users.length);
@@ -534,7 +534,7 @@
         $('#widgets, #chat, #transcript').on('mouseover', eventSelector, function() {
             const userName = (this.dataset.username || $(this).find('.username, .name').last().text() || this.innerText || "").replace(/[^\w.]+/g, '').toLowerCase();
             if(userName) {
-                $('.username, .mention, .mention-others, .starred-signature')
+                $('.username .name, .username, .mention, .mention-others, .starred-signature')
                     .filter((i, el) => (el.dataset.username || el.title || el.innerText).replace(/[^\w.]+/g, '').toLowerCase() == userName)
                     .closest('.mention, .mention-others, .signature, .sidebar-widget .user-container, a[href*="/users/"]').addClass('js-user-highlight');
                 $('#present-users-list').addClass('mouseon');
@@ -1517,7 +1517,8 @@ ul#my-rooms > li > a span {
     opacity: 1 !important;
 }
 .monologue .tiny-signature .username {
-    display: inline;
+    height: unset !important;
+    margin-top: 3px;
 }
 
 
@@ -1874,7 +1875,9 @@ div.dialog-message > .meta {
     .monologue .avatar,
     .message-controls,
     .message > .action-link,
-    .message > .meta
+    .message > .meta,
+    .username .name + br,
+    .username .pronouns
     {
         display: none !important;
     }
