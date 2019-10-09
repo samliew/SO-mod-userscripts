@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.6
+// @version      4.6.1
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
@@ -61,7 +61,7 @@
                 }
             })
             .done(function(data) {
-                $('#comment-'+pid).remove();
+                $('#comment-' + pid).remove();
                 resolve();
             })
             .fail(reject);
@@ -82,8 +82,8 @@
                 }
             })
             .done(function(data) {
-                $('#comments-'+pid).remove();
-                $('#comments-link-'+pid).html('<b>Comments deleted.</b>');
+                $('#comments-' + pid).remove();
+                $('#comments-link-' + pid).html('<b>Comments deleted.</b>');
                 resolve();
             })
             .fail(reject);
@@ -100,12 +100,12 @@
                 url: `https://${location.hostname}/admin/posts/${pid}/move-comments-to-chat`,
                 data: {
                     'fkey': fkey,
-                    'delete-moved-comments': 'true'
+                    'deleteMovedComments': 'true'
                 }
             })
             .done(function(data) {
-                $('#comments-'+pid).remove();
-                $('#comments-link-'+pid).html('<b>Comments moved to chat and purged.</b>');
+                $('#comments-' + pid).remove();
+                $('#comments-link-' + pid).html(`<b>${data.info}</b>`);
                 resolve();
             })
             .fail(reject);
@@ -126,7 +126,7 @@
                 }
             })
             .done(function(data) {
-                $('#flagged-'+pid).remove();
+                $('#flagged-' + pid).remove();
                 resolve();
             })
             .fail(reject);
@@ -266,7 +266,7 @@
                     const isAccepted = post.find('.js-post-header .s-badge__answered').length > 0;
                     const numAnswersText = numAnswers ? `<div>post type: question (${numAnswers} answer${pluralize(numAnswers)})</div>` : `<div>post type: answer ${isAccepted ? '(accepted)' : ''}</div>`;
                     const closeReasonElem = post.find('.question-status:not(.bounty)');
-                    const closeReason = closeReasonElem.length ? closeReasonElem[0].children[0].childNodes[2].nodeValue.replace(/\s*\b(as|by)\b\s*/g, '') : '';
+                    const closeReason = closeReasonElem.length ? ( closeReasonElem[0].children[0].childNodes[2] ? closeReasonElem[0].children[0].childNodes[2].nodeValue.replace(/\s*\b(as|by)\b\s*/g, '') : '' ) : '';
                     const closeReasonText = closeReasonElem.length && closeReason.length ? `<div>closed: ${closeReason}</div>` : '';
                     const cmmts = el.find('.comment-body');
                     const cmmtsDel = el.find('.deleted-comment');
@@ -281,6 +281,8 @@
   <div>${cmmtUsers.length} commentators</div>
   <div>${cmmts.length} comments, ${cmmtsDel.length} deleted (<span class="${percDel >= delCommentThreshold ? 'red' : ''}">${percDel}%</span>)</div>
 </div>`).appendTo(postFlags);
+
+                    //console.log(closeReasonElem, closeReason);
 
                     if(percDel >= delCommentThreshold) {
                         post.addClass('too-many-deleted');
