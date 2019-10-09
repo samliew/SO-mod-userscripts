@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.3
+// @version      2.5.4
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -212,6 +212,23 @@
     }
 
 
+    function initLoadMoreLinks() {
+
+        // Always load more for long messages
+        // can't use this for some reason: $('.more-data').click();
+        // this opens the link in a new window sometimes: el.click();
+        // so we implement our own full text fetcher
+        $('.content .more-data').each(function(i, el) {
+            const parent = $(this).parent('.content');
+            $.get(el.href).done(function(data) {
+                const isQuote = /^&gt;\s/.test(data);
+                const full = $(`<div class="full ${isQuote ? 'quote' : 'text'}"></div>`).append(data.replace(/^(:\d+|&gt;) /, '').replace(/\r\n?|\n/g, ' <br> '));
+                parent.empty().append(full);
+            });
+        });
+    }
+
+
     function reapplyPersistentChanges() {
 
         // Remove "switch to" from other room title tooltips
@@ -234,19 +251,7 @@
         // Remove existing "yst" timestamps in favour of ours for consistency
         $('.timestamp').filter((i, el) => el.innerText.includes('yst')).remove();
 
-        // Always load more for long messages
-        // can't use this for some reason: $('.more-data').click();
-        // this opens the link in a new window sometimes: el.click();
-        // so we implement our own full text fetcher
-        $('.more-data').each(function(i, el) {
-            const parent = $(this).parent('.content');
-            $.get(el.href).done(function(data) {
-                const isQuote = /^&gt;\s/.test(data);
-                const full = $(`<div class="full ${isQuote ? 'quote' : 'text'}"></div>`).append(data.replace(/^(:\d+|&gt;) /, '').replace(/\r\n?|\n/g, ' <br> '));
-                parent.empty().append(full);
-            });
-            return false;
-        });
+        initLoadMoreLinks();
 
         // If topbar is found
         if($('#topbar').length) {
@@ -1091,6 +1096,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
 
             initMessageParser();
             initUserHighlighter();
+            setTimeout(initLoadMoreLinks, 2000);
 
             // Apply our own message reply link scroll-to if message is on same page
             initBetterMessageLinks();
