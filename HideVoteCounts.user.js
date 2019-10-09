@@ -3,7 +3,7 @@
 // @description  Hides post score until voted
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -58,10 +58,9 @@
             if(/\/posts\/\d+\/vote\/\d/.test(settings.url)) {
                 const pid = Number(settings.url.match(/\/(\d+)\//)[1]);
                 const votetype = Number(settings.url.match(/\d+$/)[0]);
-                const success = xhr.responseJSON.Success;
 
                 // Show if voted, hide if unvoted successfully
-                $(`.js-voting-container[data-post-id="${pid}"]`).toggleClass('js-score-hidden', votetype === 0 && success);
+                if(xhr.responseJSON.Success) $(`.js-voting-container[data-post-id="${pid}"]`).toggleClass('js-score-hidden', votetype === 0);
             }
         });
     }
