@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.1
+// @version      1.8.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -297,8 +297,8 @@
                 }
             })
             .done(function(data) {
-                $('#comments-'+pid).remove();
-                $('#comments-link-'+pid).html('<b>Comments deleted.</b>');
+                $('#comments-' + pid).remove();
+                $('#comments-link-' + pid).html('<b>Comments deleted.</b>');
                 resolve();
             })
             .fail(reject);
@@ -315,12 +315,12 @@
                 url: `https://${location.hostname}/admin/posts/${pid}/move-comments-to-chat`,
                 data: {
                     'fkey': fkey,
-                    'delete-moved-comments': 'true'
+                    'deleteMovedComments': 'true'
                 }
             })
             .done(function(data) {
-                $('#comments-'+pid).remove();
-                $('#comments-link-'+pid).html('<b>Comments moved to chat and purged.</b>');
+                $('#comments-' + pid).remove();
+                $('#comments-link-' + pid).html(`<span>${data.info}</span>`);
                 resolve();
             })
             .fail(reject);
@@ -568,10 +568,11 @@
 
             // Get question link if in mod queue
             const qlink = $(this).closest('.js-flagged-post').find('.js-body-loader a').first().attr('href');
+            const reviewlink = $('.question-hyperlink').attr('href');
 
             const menuEl = this.parentNode;
             const pid = Number(menuEl.dataset.postId || menuEl.dataset.pid);
-            const qid = Number($('#question').attr('data-questionid') || getPostId(qlink)) || null;
+            const qid = Number($('#question').attr('data-questionid') || getPostId(qlink) || getPostId(reviewlink)) || null;
             const redupePid = Number(this.dataset.redupePid);
             const uid = Number(this.dataset.uid);
             const uName = this.dataset.username;
@@ -710,7 +711,7 @@
                 const pid = this.dataset.pid;
                 const elems = $(this).prevAll('.comments-link, .js-link-separator').addBack().not('.js-add-link');
                 const commentsUrl = `/posts/${pid}/comments?includeDeleted=true&_=${Date.now()}`;
-                $('#comments-'+pid).children('ul.comments-list').load(commentsUrl, function() {
+                $('#comments-' + pid).children('ul.comments-list').load(commentsUrl, function() {
                     elems.remove();
                 });
             });
