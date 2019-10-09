@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.1
+// @version      2.5
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -27,12 +27,16 @@
 
     const store = window.localStorage;
     const fkey = document.getElementById('fkey') ? document.getElementById('fkey').value : '';
-    const newuserlist = $(`<div id="present-users-list"></div>`);
+    const newuserlist = $(`<div id="present-users-list"><span class="users-count"></span></div>`);
     const tzOffset = new Date().getTimezoneOffset();
     const now = new Date();
     const dayAgo = Date.now() - 86400000;
     const weekAgo = Date.now() - 7 * 86400000;
     let messageEvents = [];
+
+
+    // Helper functions
+    jQuery.fn.reverse = [].reverse;
 
 
     // Get message info
@@ -138,25 +142,34 @@
     }
 
 
-    function updateUserlist() {
+    function updateUserlist(init = false) {
 
         // Do not update new user list if mouse is on
         if(newuserlist.hasClass('mouseon')) return;
 
         // Do not update user list if updated less than X seconds ago
-        if(newuserlist.hasClass('js-no-update')) return;
+        if(init) {
+            newuserlist.addClass('js-no-update');
+        }
+        else if(!init && newuserlist.hasClass('js-no-update')) {
+            return;
+        }
 
+        // Add new list to parent if not initialized yet
         const userlist = $('#present-users');
+        if(newuserlist.parents('#present-users').length == 0) {
+            newuserlist.insertAfter(userlist);
+        }
 
-        // Reset new list
-        newuserlist.addClass('js-no-update').empty().insertAfter(userlist);
-
-        // Bugfix: remove dupes from original list when any new message posted
+        // Bugfix: remove dupes from original list, e.g.: when any new message posted
         userlist.children('.user-container').each(function() {
             $(this).siblings(`[id="${this.id}"]`).remove();
         });
 
-        // Clone remaining users into new list
+        // Create new temp list with users
+        const templist = $(`<div id="present-users-list"></div>`);
+
+        // Clone remaining users into temp list
         const users = userlist.children('.user-container').clone(true).each(function() {
 
             // Get username from img title attribute
@@ -165,22 +178,37 @@
             // Apply a class to inactive users
             $(this).toggleClass('inactive', this.style.opacity == "0.15");
 
-            // Remove other fluff, append username, then insert into new list
+            // Remove other fluff, append username, then insert into list
             $(this).off().removeAttr('style id alt width height').find('.data').remove();
-            $(this).appendTo(newuserlist).append(`<span class="username" title="${username}">${username}</span>`);
+            $(this).appendTo(templist).append(`<span class="username" title="${username}">${username}</span>`);
         });
-        console.log('userlist updated', users.length);
+
+        if(init) {
+            // Redo list
+            newuserlist.children('.user-container').remove();
+            newuserlist.append(templist.children());
+        }
+        else {
+            // Compare list with temp list and copy changes over
+            templist.children().reverse().each(function() {
+                const clname = '.' + this.className.match(/(user-\d+)/)[0];
+                if(newuserlist.find(clname).length == 0) {
+                    newuserlist.prepend(this);
+                }
+            });
+        }
+        console.log('userlist updated', init, users.length);
 
         // Add count of users below
-        newuserlist.append(`<span class="users-count">${newuserlist.children().length} users</span>`);
+        newuserlist.find('.users-count').text(users.length);
 
-        // Add "currentuser" class to own userlist item
+        // Add "currentuser" class to own userlist items
         $('#sidebar .user-' + CHAT.CURRENT_USER_ID).addClass('user-currentuser');
 
-        // Remove update blocker after X seconds
+        // Remove full update blocker after X seconds
         setTimeout(() => {
             newuserlist.removeClass('js-no-update');
-        }, 15000);
+        }, 10000);
     }
 
 
@@ -995,7 +1023,8 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             setInterval(reapplyPersistentChanges, 3000);
 
             // Occasionally update userlist
-            setInterval(updateUserlist, 10000);
+            setInterval(updateUserlist, 5000); // quick update
+            setInterval(() => { updateUserlist(true); }, 30000); // full update
 
             // Track if userlist has mouse focus, to prevent update if in use
             newuserlist
@@ -1149,13 +1178,16 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             // Once: userlist is ready, init new userlist
             if(!loaded && (settings.url.includes('/events') || settings.url.includes('/rooms/pingable'))) {
                 loaded = true; // once
-                setTimeout(updateUserlist, 1000);
+                setTimeout(() => { updateUserlist(true); }, 1000);
             }
 
-            // On new messages, update userlist
-            if(settings.url.includes('/events') || settings.url.includes('/messages/new') || settings.url.includes('/rooms/pingable')) {
-                updateUserlist();
+            // On new message, quick update newuserlist by moving user to front
+            if(settings.url.includes('/messages/new')) {
+                const clname = $('#chat .user-container').last().attr('class').match(/user-\d+/)[0];
+                if(clname) newuserlist.children('.' + clname).prependTo(newuserlist);
             }
+
+            // What does '/rooms/pingable' do? Can ignore this.
 
             // On new events fetch (on page load and loading older messages), update cache and insert timestamps
             if(settings.url.includes('/events')) {
@@ -1456,6 +1488,11 @@ ul#my-rooms > li > a span {
 #starred-posts .js-hasfull:hover .message-full {
     display: inline;
 }
+#starred-posts ul.collapsible {
+    max-height: 35vh;
+    margin-right: -10px;
+    overflow-y: scroll;
+}
 #starred-posts ul.collapsible.expanded {
     max-height: 50vh;
     padding-right: 3px;
@@ -1578,6 +1615,9 @@ ul#my-rooms > li > a span {
     margin-top: 6px;
     font-size: 0.9em;
     color: #222;
+}
+#present-users-list > .users-count:after {
+    content: ' users';
 }
 
 @media screen and (max-width: 700px) {
