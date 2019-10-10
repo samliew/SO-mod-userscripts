@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.5
+// @version      2.5.6
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -317,7 +317,10 @@
                     { host: 'chat.meta.stackexchange.com', name: 'MSE chat' },
                     { host: 'chat.stackoverflow.com', name: 'SO chat' }
                 ].filter(v => v.host == el.hostname).pop() || '';
-                let roomName = el.href.split('/').pop().replace(/[?#].+$/, '').replace(/-/g, ' ').replace(/\b./g, m => m.toUpperCase());
+                let roomName = el.href.split('/').pop()
+                    .replace(/[?#].+$/, '').replace(/-/g, ' ') // remove non-title bit from url
+                    .replace(/\b./g, m => m.toUpperCase()) // title case
+                    .replace(/\b\w{2}\b/g, m => m.toUpperCase()); // capitalize two-letter words
                 let messageId = Number((el.href.match(/(#|\?m=)(\d+)/) || [0]).pop());
 
                 // Check if we have a valid parsed message id
@@ -335,7 +338,6 @@
                     if(/(^https?|\.com)/.test(el.innerText)) {
 
                         // Properly capitalize common room names
-                        roomName = roomName.replace('So Close Vote Reviewers', 'SO Close Vote Reviewers');
                         roomName = roomName.replace('Javascript', 'JavaScript');
 
                         el.innerHTML = roomName + transcriptIndicator;
