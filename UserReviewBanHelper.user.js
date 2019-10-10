@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.5.2
+// @version      3.5.3
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -131,6 +131,7 @@
 
         const cans = $(`<div id="canned-messages"></div>`).on('click', 'a', function(evt) {
             textarea.val(this.dataset.message);
+            $('#lookup-result input:submit').focus(); // focus submit button
             return false;
         }).appendTo('.message-wrapper');
 
