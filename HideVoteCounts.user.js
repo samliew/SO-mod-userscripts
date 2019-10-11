@@ -3,7 +3,7 @@
 // @description  Hides post score until voted
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.3
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -24,17 +24,32 @@
 (function() {
     'use strict';
 
-    const uid = StackExchange.options.user.userId;
-
 
     function doPageload() {
+
+        // Validation. If rep is too low, do nothing. Rep for guests is 0, so this covers not logged-in users.
+        if(StackExchange.options.user.rep < 125) return;
 
         // Hide all vote counts immediately on page load
         $('.js-voting-container').addClass('js-score-hidden');
 
-        // Show vote counts on own posts
-        $('.question, .answer').filter(function() {
-            return $(this).find(`.user-details[itemprop="author"] > a[href^="/users/${uid}/"]`).length > 0;
+        // Show vote counts for these scenarios
+        const showVotes = $('.question, .answer').filter(function() {
+            const postScore = $(this).find('.js-vote-count').data('value');
+            return (
+
+                // extreme score
+                postScore <= -200 || postScore >= 200
+
+                // deleted posts
+                || $(this).hasClass('deleted-answer')
+
+                // locked posts (dispute or hist sig)
+                || ($(this).find('.question-status').last().text().includes('locked') || $(this).find('.js-vote-up-btn').length == 0)
+
+                // own posts
+                || $(this).find(`.user-details[itemprop="author"] > a[href^="/users/${StackExchange.options.user.userId}/"]`).length > 0
+            );
         }).find('.js-voting-container').removeClass('js-score-hidden');
 
         // Function to check for votes again when Q&A has initialized
@@ -48,6 +63,9 @@
         $(document).on('dblclick', '.js-score-hidden', function() {
             $(this).removeClass('js-score-hidden');
         });
+
+        // Listen for events
+        listenToPageUpdates();
     }
 
 
@@ -97,6 +115,5 @@
     // On page load
     appendStyles();
     doPageload();
-    listenToPageUpdates();
 
 })();
