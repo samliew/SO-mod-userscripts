@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.5
+// @version      1.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -38,7 +38,7 @@
 
         return this.each(function (i, el) {
             sizeToContent(el);
-            $(el).on('change keypress keyup blur', evt => sizeToContent(evt.target));
+            $(el).filter('input:not([readonly])').on('change keypress keyup blur', evt => sizeToContent(evt.target));
         });
     };
 
@@ -47,14 +47,21 @@
 
         // Lists
         const modQueuePostLinks = $('.js-body-loader').find('a:first');
-        $('a.question-hyperlink, a.answer-hyperlink, .js-post-title-link').add(modQueuePostLinks).each((i,el) => {
-            if(el.href.includes('/election')) return;
-            let pid = getPostId(el.href);
-            $(`<input class="post-id" title="double click to view timeline" value="${pid}" readonly />`).insertAfter(el)
-        });
+        $('a.question-hyperlink, a.answer-hyperlink, .js-post-title-link').add(modQueuePostLinks)
+            .not('.js-somu-post-ids').addClass('js-somu-post-ids')
+            .each((i,el) => {
+                if(el.href.includes('/election')) return;
+                const pid = getPostId(el.href);
+                $(`<input class="post-id" title="double click to view timeline" value="${pid}" readonly />`).insertAfter(el);
+            });
 
         // Q&A
-        $('[data-questionid], [data-answerid]').not('.close-question-link').each((i,el) => $('<input class="post-id" value="'+(el.dataset.answerid||el.dataset.questionid)+'" readonly />').insertBefore($(el).find('.post-layout')));
+        $('[data-questionid], [data-answerid]').not('.close-question-link')
+            .not('.js-somu-post-ids').addClass('js-somu-post-ids')
+            .each((i,el) => {
+                const pid = el.dataset.answerid||el.dataset.questionid;
+                $(`<input class="post-id" title="double click to view timeline" value="${pid}" readonly />`).insertBefore($(el).find('.post-layout'));
+            });
 
         // Remove duplicates if necessary
         $('.post-id ~ .post-id').remove();
@@ -64,7 +71,7 @@
 
 
     function doPageLoad() {
-        $(document).ajaxComplete(insertPostIds);
+        $(document).ajaxStop(insertPostIds);
         insertPostIds();
 
         // Select when focused
