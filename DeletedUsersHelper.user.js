@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.18
+// @version      1.19
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -147,13 +147,13 @@
     function linkifyDeletedUser(i, elem) {
 
         // ignore non-deleted users or already processed
-        if($(elem).find('a').length !== 0 || $(elem).children('span').hasClass('d-none')) return;
+        if($(elem).children('a').length !== 0) return;
 
         // Replace generic username with link to profile page
-        const username = $(elem).text().trim();
-        const uid = username.replace(/[^\d]+/g, '');
+        const username = $(elem).children('span.d-none').andSelf().last().text().trim();
+        const uid = Number(username.replace(/\D+/g, ''));
 
-        if(username === '' || uid === '') return;
+        if(username === '' || isNaN(uid)) return;
 
         $(elem).html(`<a href="/users/${uid}" title="deleted user" class="deleted-user" data-uid="${uid}" target="_blank">${username}</a>`);
     }
