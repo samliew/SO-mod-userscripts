@@ -110,7 +110,7 @@
             const isQuestion = post.hasClass('question');
             const pid = isQuestion ? this.dataset.questionid : this.dataset.answerid;
 
-            const postuser = $(this).find('.user-info:last .user-details').first().children('span.d-none').andSelf().last();
+            const postuser = $(this).find('.user-info:last .user-details').first().children('span.d-none').addBack().last();
             let postuserHtml = '<span class="deleted-user">' + postuser.text() + '</span>'; // default to deleted user
             if(postuser.find('a').length != 0) {
                 postuserHtml = postuser.find('a')[0].outerHTML;
