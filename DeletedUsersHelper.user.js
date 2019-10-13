@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.19.2
+// @version      1.19.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -148,6 +148,9 @@
 
         // Ignore non-deleted users or already processed
         if($(elem).children('a').length !== 0) return;
+
+        // If post editor details, do not linkify if is also post author
+        if(!$(elem).closest('.post-signature').hasClass('owner') && $(elem).is('[itemprop="author"]')) return;
 
         // Get display name from hidden element in usercard stub, or (self) comment user span
         const username = $(elem).children('span.d-none').addBack('.comment-user').text().trim();
