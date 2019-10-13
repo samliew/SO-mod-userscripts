@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.10.1
+// @version      4.10.2
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -348,7 +348,7 @@
                         if(!confirm('Confirm Decline + Delete ALL?')) return false;
 
                         $(this).remove();
-                        const visibleComments = $('.js-cancel-delete-comment-flag:visible');
+                        const visibleComments = $('.js-dismiss-flags:visible .js-cancel-delete-comment-flag');
                         $('body').showAjaxProgress(visibleComments.length * 2, { position: 'fixed' });
                         visibleComments.click();
                     })
