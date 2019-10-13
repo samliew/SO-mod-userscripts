@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.9.2
+// @version      4.10
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -247,7 +247,7 @@
         $('.comment-copy, tr.text-row > td > span').each(replaceKeywords);
 
         // Change "dismiss" link to "decline", insert alternate action
-        $('.js-flagged-comment .js-dismiss-flags').text('decline').append(`<span class="cancel-delete-comment-flag" title="dismiss flags AND delete comment">+delete</span>`);
+        $('.js-flagged-comment .js-dismiss-flags').text('decline').append(`<span class="js-cancel-delete-comment-flag" title="dismiss flags AND delete comment">+delete</span>`);
 
         // If there are lots of comment flags
         if($('.js-comments-container').length > 3) {
@@ -276,14 +276,14 @@
                 .appendTo(actionBtns);
 
             // Hide recent comments button (day)
-            $('<button>Ignore 1d</button>')
+            $('<button>Ignore 12h</button>')
                 .click(function() {
                     $(this).prev().remove();
                     $(this).remove();
                     let now = Date.now();
                     // Remove comments < oneday
                     $('.js-comment-link').filter(function() {
-                        return now - new Date($(this).children('.relativetime').attr('title')).getTime() <= oneday;
+                        return now - new Date($(this).children('.relativetime').attr('title')).getTime() <= (oneday / 2);
                     }).closest('.js-flagged-comment').addBack().remove();
                     // Remove posts without comment flags
                     removePostsWithoutFlags();
@@ -309,7 +309,7 @@
             if(superusers.includes(StackExchange.options.user.userId)) {
 
                 // Delete chatty comments on page
-                $('<button class="btn-warning">Delete Chatty</button>')
+                $('<button class="btn-warning" title="Delete comments with chatty keywords">Chatty Only</button>')
                     .click(function() {
                         $(this).remove();
                         const chattyComments = $('.cmmt-chatty, .cmmt-rude').filter(':visible').parents('.js-flagged-comment').find('.js-comment-delete');
@@ -319,7 +319,7 @@
                     .appendTo(actionBtns);
 
                 // Delete all comments left on page
-                $('<button class="btn-warning">Delete ALL</button>')
+                $('<button class="btn-warning" title="Delete all comments left on page">Delete</button>')
                     .click(function() {
                         if(!confirm('Confirm Delete ALL?')) return false;
 
@@ -331,13 +331,25 @@
                     .appendTo(actionBtns);
 
                 // Decline all comments left on page
-                $('<button class="btn-warning">Decline ALL</button>')
+                $('<button class="btn-warning" title="Decline all comments left on page">Decline</button>')
                     .click(function() {
                         if(!confirm('Confirm Decline ALL?')) return false;
 
                         $(this).remove();
                         const visibleComments = $('.js-dismiss-flags:visible');
                         $('body').showAjaxProgress(visibleComments.length, { position: 'fixed' });
+                        visibleComments.click();
+                    })
+                    .appendTo(actionBtns);
+
+                // Decline + Delete all comments left on page
+                $('<button class="btn-warning" title="Decline + Delete all comments left on page">DD ALL</button>')
+                    .click(function() {
+                        if(!confirm('Confirm Decline + Delete ALL?')) return false;
+
+                        $(this).remove();
+                        const visibleComments = $('.js-cancel-delete-comment-flag:visible');
+                        $('body').showAjaxProgress(visibleComments.length * 2, { position: 'fixed' });
                         visibleComments.click();
                     })
                     .appendTo(actionBtns);
@@ -397,7 +409,7 @@
         });
 
         // On dismiss + delete comment action
-        $('.cancel-delete-comment-flag', '.js-flagged-comment').on('click', function(evt) {
+        $('.js-cancel-delete-comment-flag', '.js-flagged-comment').on('click', function(evt) {
             evt.stopPropagation(); // we don't want to bubble the event, but trigger it manually
 
             const $post = $(this).parents('.js-flagged-post');
@@ -706,7 +718,7 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
 .js-dismiss-flags {
     position: relative;
 }
-.js-dismiss-flags .cancel-delete-comment-flag {
+.js-dismiss-flags .js-cancel-delete-comment-flag {
     position: absolute;
     top: 0;
     left: 100%;
@@ -718,7 +730,7 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
     background: red;
     border-left: 1px solid #eee;
 }
-.js-dismiss-flags:hover .cancel-delete-comment-flag {
+.js-dismiss-flags:hover .js-cancel-delete-comment-flag {
     display: block;
 }
 .cmmt-rude {
