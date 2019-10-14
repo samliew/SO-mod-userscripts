@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.19.3
+// @version      1.19.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -149,8 +149,8 @@
         // Ignore non-deleted users or already processed
         if($(elem).children('a').length !== 0) return;
 
-        // If post editor details, do not linkify if is also post author
-        if(!$(elem).closest('.post-signature').hasClass('owner') && $(elem).is('[itemprop="author"]')) return;
+        // Ignore post editor usercard if no avatar found (i.e.: post author)
+        if($(elem).siblings('.user-gravatar32').children().length == 0) return;
 
         // Get display name from hidden element in usercard stub, or (self) comment user span
         const username = $(elem).children('span.d-none').addBack('.comment-user').text().trim();
@@ -166,7 +166,8 @@
 
 
     function findDeletedUsers() {
-        $('.user-details, span.comment-user').each(linkifyDeletedUser);
+        $('.post-signature .user-details').each(linkifyDeletedUser);
+        $('span.comment-user').each(linkifyDeletedUser);
     }
 
 
