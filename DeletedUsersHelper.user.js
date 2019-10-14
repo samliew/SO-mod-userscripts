@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.19.4
+// @version      1.19.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -150,7 +150,7 @@
         if($(elem).children('a').length !== 0) return;
 
         // Ignore post editor usercard if no avatar found (i.e.: post author)
-        if($(elem).siblings('.user-gravatar32').children().length == 0) return;
+        if($(elem).hasClass('user-details') && $(elem).siblings('.user-gravatar32').children().length == 0) return;
 
         // Get display name from hidden element in usercard stub, or (self) comment user span
         const username = $(elem).children('span.d-none').addBack('.comment-user').text().trim();
