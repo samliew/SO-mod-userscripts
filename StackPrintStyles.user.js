@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.4
+// @version      0.1.5
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -209,8 +209,10 @@
     #sidebar .js-hasfull .message-orig,
     #sidebar #room-ad,
     #toggle-favorite,
-    #transcript-body #info br + br,
+    #transcript-body #info br,
     #transcript-body .room-mini ~ br,
+    #transcript-body .room-mini .mspbar.now,
+    #transcript-body #info .tag,
     #transcript-body #transcript-logo,
     #transcript-body #copyright,
     .monologue .avatar,
@@ -307,7 +309,6 @@
         float: none;
     }
     .message {
-        display: flex;
         page-break-inside: avoid;
         border: none;
     }
@@ -330,15 +331,65 @@
     .stars .img {
         filter: saturate(0) grayscale(1) brightness(0);
     }
+    #transcript-body .pager .page-numbers {
+        margin-bottom: 3px;
+    }
 
     /* SOMU - Chat Transcript Helper - switch back to original timestamp (UTC) */
+    .page-numbers[data-orig-text],
     .timestamp[data-orig-timestamp] {
         font-size: 0;
     }
+    .page-numbers[data-orig-text]:before,
     .timestamp[data-orig-timestamp]:before {
         content: attr(data-orig-timestamp);
         font-size: 9px;
         white-space: nowrap;
+    }
+    .page-numbers[data-orig-text]:before {
+        content: attr(data-orig-text);
+        font-size: 14px;
+    }
+
+    /* Chat Transcript - room mini - expand full description */
+    #transcript-body #info .room-mini {
+        width: auto;
+        margin-bottom: 15px;
+    }
+    #transcript-body #info .room-mini .room-mini-description {
+        font-size: 0;
+    }
+    #transcript-body #info .room-mini .room-current-user-count,
+    #transcript-body #info .room-mini .room-message-count {
+        width: auto;
+        font-size: 11px;
+    }
+    #transcript-body #info .room-mini .room-current-user-count:before,
+    #transcript-body #info .room-mini .room-message-count:before,
+    #transcript-body #info .room-mini .room-mini-description:before {
+        display: inline-block;
+        content: attr(title);
+        margin-right: 3px;
+        font-size: 11px;
+        word-break: break-word;
+    }
+
+    /* Chat Transcript - convert calendar to text with year */
+    #transcript-body #info > h2 {
+        display: inline-block;
+    }
+    #transcript-body #info .icon .calendar,
+    #transcript-body #info .calendar-small-link {
+        display: none;
+    }
+    #transcript-body #info .icon {
+        display: inline-block;
+        float: none;
+        font-size: 0;
+    }
+    #transcript-body #info .icon:before {
+        content: attr(title);
+        font-size: 1rem;
     }
 
 }
