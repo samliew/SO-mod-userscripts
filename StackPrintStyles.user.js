@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.1
+// @version      0.1.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -68,9 +68,16 @@
         border: none;
     }
 
-    /* Lighten bg of deleted answer */
+    /* Lighten bg of deleted answers */
     .deleted-answer {
         background-color: #fff8f8;
+    }
+    /* Do not fade downvoted answers */
+    .downvoted-answer .comment-body,
+    .downvoted-answer .post-signature,
+    .downvoted-answer .post-text,
+    .downvoted-answer .vote>* {
+        opacity: 1;
     }
 
     /* Don't show if you have voted */
