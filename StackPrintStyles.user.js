@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      0.1.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -40,22 +40,32 @@
         background-color: #fff;
         background-image: none;
     }
+    header,
+    footer,
     #topbar,
+    #sidebar,
+    #left-sidebar,
     #footer,
+    #post-form,
+    body > span,
+    .site-header,
     .deleted-comment-info,
     .comment-flagging,
     .comment-voting,
     .js-post-issue,
     .comments + div[id^="comments-link"],
     .pager-answers,
-    body > span,
+    .bottom-notice,
+    a.new-answer,
     .js-comment-edit,
     .js-comment-delete
     {
         display: none;
     }
+
+    #content
     .question-page #answers .answer {
-        border-bottom: none;
+        border: none;
     }
 
     /* Lighten bg of deleted answer */
@@ -99,7 +109,8 @@
         height: 1px;
         page-break-before: always;
     }
-    #answers > a:nth-of-type(2) {
+    #answers > a:nth-of-type(2),
+    #answers > a:last-of-type {
         page-break-before: auto;
     }
 
