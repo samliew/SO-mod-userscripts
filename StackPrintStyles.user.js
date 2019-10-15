@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.5
+// @version      0.1.6
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -307,6 +307,9 @@
     #chat .monologue,
     #chat .monologue * {
         float: none;
+    }
+    #chat .message {
+        display: flex;
     }
     .message {
         page-break-inside: avoid;
