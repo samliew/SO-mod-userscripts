@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.8
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
@@ -36,16 +36,18 @@
             $(this).text(`${h}:${m}`).attr('data-orig-timestamp', str);
         });
 
-        $('.msplab').text(function(i, str) {
+        $('.msplab').each(function(i, elem) {
+            const str = $(this).text();
             let h = Number(str.split(':')[0]) + tzHours;
             const m = str.split(':')[1];
             if(h < 0) h += 24;
             else if(h >= 24) h %= 24;
             if(h.toString().length != 2) h = '0' + h;
-            return `${h}:${m}`;
+            $(this).text(`${h}:${m}`).attr('data-orig-timestamp', str);
         });
 
-        $('.pager span.page-numbers').text(function(i, str) {
+        $('.pager span.page-numbers').each(function(i, elem) {
+            const str = $(this).text();
             const t1 = str.split(' - ')[0];
             const t2 = str.split(' - ')[1];
 
@@ -68,7 +70,7 @@
 
             if(h1.toString().length != 2) h1 = '0' + h1;
             if(h2.toString().length != 2) h2 = '0' + h2;
-            return `${h1}:00 - ${h2}:00`;
+            $(this).text(`${h1}:00 - ${h2}:00`).attr('data-orig-text', str);
         });
 
         $('.msg-small').text(`all times have been converted to local time (UTC${tzSymbol})`);
