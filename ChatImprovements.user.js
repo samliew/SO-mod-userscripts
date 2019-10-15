@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.9
+// @version      2.5.10
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -1884,8 +1884,10 @@ div.dialog-message > .meta {
     #sidebar .js-hasfull .message-orig,
     #sidebar #room-ad,
     #toggle-favorite,
-    #transcript-body #info br + br,
+    #transcript-body #info br,
     #transcript-body .room-mini ~ br,
+    #transcript-body .room-mini .mspbar.now,
+    #transcript-body #info .tag,
     #transcript-body #transcript-logo,
     #transcript-body #copyright,
     .monologue .avatar,
@@ -1895,7 +1897,7 @@ div.dialog-message > .meta {
     .username .name + br,
     .username .pronouns
     {
-        display: none !important;
+        display: none;
     }
 
     #sidebar #info #roomdesc > div,
@@ -1903,12 +1905,12 @@ div.dialog-message > .meta {
     .ob-message.js-onebox-hidden,
     #chat .monologue:first-child .js-dynamic-timestamp
     {
-        display: block !important;
+        display: block;
     }
 
     #sidebar .js-hasfull .message-full
     {
-        display: inline !important;
+        display: inline;
     }
 
     #main {
@@ -1920,22 +1922,22 @@ div.dialog-message > .meta {
         position: relative;
         width: auto;
         margin: 10px 0 20px;
-        padding: 10px !important;
+        padding: 10px;
         border: 1px dotted black;
     }
     #transcript-body #sidebar {
         margin-bottom: -10px;
     }
     #sidebar #info #roomdesc {
-        position: relative !important;
-        height: auto !important;
-        padding-bottom: 0 !important;
-        border: none !important;
-        background: transparent !important;
-        white-space: unset !important;
+        position: relative;
+        height: auto;
+        padding-bottom: 0;
+        border: none;
+        background: transparent;
+        white-space: unset;
     }
     #sidebar #info #roomdesc + #sidebar-menu {
-        margin-top: 10px !important;
+        margin-top: 10px;
     }
     #sidebar #present-users-list {
         max-height: none;
@@ -1946,7 +1948,7 @@ div.dialog-message > .meta {
         flex: 0 0 20%;
     }
     #sidebar #present-users-list li.inactive {
-        opacity: 0.7 !important;
+        opacity: 0.7;
     }
     #sidebar #starred-posts ul.collapsible,
     #sidebar #starred-posts ul.collapsible.expanded {
@@ -1955,7 +1957,7 @@ div.dialog-message > .meta {
         overflow: visible;
     }
     #chat-body #container {
-        padding-top: 0 !important;
+        padding-top: 0;
     }
     #chat {
         padding-bottom: 20px;
@@ -1979,16 +1981,18 @@ div.dialog-message > .meta {
     }
     #chat .monologue,
     #chat .monologue * {
-        float: none !important;
+        float: none;
     }
     .message {
-        display: flex;
         page-break-inside: avoid;
-        border: none !important;
+        border: none;
     }
     .message .content {
         flex: 1 1 100%;
         padding-right: 50px;
+    }
+    .message .mention {
+        background-color: transparent;
     }
     div.message .full,
     div.message .partial {
@@ -2000,15 +2004,72 @@ div.dialog-message > .meta {
         right: 28px;
     }
     .stars .img {
-        filter: saturate(0) grayscale(1) brightness(0) !important;
+        filter: saturate(0) grayscale(1) brightness(0);
     }
-    .message .mention {
-        background-color: transparent !important;
+    #transcript-body .pager .page-numbers {
+        margin-bottom: 3px;
+    }
+
+    /* SOMU - Chat Transcript Helper - switch back to original timestamp (UTC) */
+    .page-numbers[data-orig-text],
+    .timestamp[data-orig-timestamp] {
+        font-size: 0;
+    }
+    .page-numbers[data-orig-text]:before,
+    .timestamp[data-orig-timestamp]:before {
+        content: attr(data-orig-timestamp);
+        font-size: 9px;
+        white-space: nowrap;
+    }
+    .page-numbers[data-orig-text]:before {
+        content: attr(data-orig-text);
+        font-size: 14px;
+    }
+
+    /* Chat Transcript - room mini - expand full description */
+    #transcript-body #info .room-mini {
+        width: auto;
+        margin-bottom: 15px;
+    }
+    #transcript-body #info .room-mini .room-mini-description {
+        font-size: 0;
+    }
+    #transcript-body #info .room-mini .room-current-user-count,
+    #transcript-body #info .room-mini .room-message-count {
+        width: auto;
+        font-size: 11px;
+    }
+    #transcript-body #info .room-mini .room-current-user-count:before,
+    #transcript-body #info .room-mini .room-message-count:before,
+    #transcript-body #info .room-mini .room-mini-description:before {
+        display: inline-block;
+        content: attr(title);
+        margin-right: 3px;
+        font-size: 11px;
+        word-break: break-word;
+    }
+
+    /* Chat Transcript - convert calendar to text with year */
+    #transcript-body #info > h2 {
+        display: inline-block;
+    }
+    #transcript-body #info .icon .calendar,
+    #transcript-body #info .calendar-small-link {
+        display: none;
+    }
+    #transcript-body #info .icon {
+        display: inline-block;
+        float: none;
+        font-size: 0;
+    }
+    #transcript-body #info .icon:before {
+        content: attr(title);
+        font-size: 1rem;
     }
 
 }
 </style>
-`;
+`.replace(/ !important/g, '').replace(/;/g, ' !important;');
 
         $('body').append(generalstyles).append(printstyles);
 
