@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time, Load entire day into single page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.1
+// @version      2.0.2
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
@@ -140,8 +140,12 @@
             .clone(true, true).appendTo(main).end().end();
         main.children('.button').remove();
 
+        // If there are no other hourly links/pagination, do nothing
+        const currentHoursItem = $('.pager > span.current');
+        if(currentHoursItem.length == 0) return;
+
         // Wrap current transcript messages into an hourly div
-        const currHours = $('.pager > span.current').attr('data-orig-text').split(' - ');
+        const currHours = currentHoursItem.attr('data-orig-text').split(' - ');
         const currStartHour = Number(currHours[0].split(':').shift());
         const currEndHour = Number(currHours[1].split(':').shift());
         const currHour = $(`<div class="hourly" data-hour-start="${currStartHour}" data-hour-end="${currEndHour}"></div>`).appendTo(tsWrapper);
