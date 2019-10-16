@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time, Load entire day into single page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.2
+// @version      2.0.3
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
@@ -233,6 +233,9 @@
 }
 .load-entire-day-button:hover {
     opacity: 1;
+}
+#transcript > .hourly > div[id="transcript"] {
+    padding-bottom: 0px;
 }
 `);
 
