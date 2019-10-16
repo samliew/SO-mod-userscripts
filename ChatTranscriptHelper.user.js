@@ -1,13 +1,15 @@
 // ==UserScript==
 // @name         Chat Transcript Helper
-// @description  Converts UTC timestamps to local time
+// @description  Converts UTC timestamps to local time, Load entire day into single page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8
+// @version      2.0
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
 // @include      https://chat.meta.stackexchange.com/transcript/*
+//
+// @grant        GM_addStyle
 // ==/UserScript==
 
 (function() {
@@ -20,9 +22,9 @@
     const tzSymbol = (tzHours >= 0 ? '+' : '') + tzHours;
 
 
-    function doPageload() {
+    function parseTimestamps() {
 
-        $('.timestamp').each(function(i, elem) {
+        $('.timestamp').not('[data-orig-timestamp]').each(function(i, elem) {
             const str = $(this).text();
             let h = Number(str.split(':')[0]);
             const m = str.split(':')[1].split(' ')[0];
@@ -36,7 +38,7 @@
             $(this).text(`${h}:${m}`).attr('data-orig-timestamp', str);
         });
 
-        $('.msplab').each(function(i, elem) {
+        $('.msplab').not('[data-orig-timestamp]').each(function(i, elem) {
             const str = $(this).text();
             let h = Number(str.split(':')[0]) + tzHours;
             const m = str.split(':')[1];
@@ -46,7 +48,7 @@
             $(this).text(`${h}:${m}`).attr('data-orig-timestamp', str);
         });
 
-        $('.pager span.page-numbers').each(function(i, elem) {
+        $('.pager span.page-numbers').not('[data-orig-text]').each(function(i, elem) {
             const str = $(this).text();
             const t1 = str.split(' - ')[0];
             const t2 = str.split(' - ')[1];
@@ -73,7 +75,9 @@
             $(this).text(`${h1}:00 - ${h2}:00`).attr('data-orig-text', str);
         });
 
-        $('.msg-small').text(`all times have been converted to local time (UTC${tzSymbol})`);
+        // Amend timezone message in sidebar
+        $('#info .msg-small').text(`all times have been converted to local time (UTC${tzSymbol})`);
+
     }
 
 
@@ -125,9 +129,112 @@
     }
 
 
+    function addLoadEntireDayButton() {
+
+        // Fix transcript nav
+        const main = $('#main');
+        const tsWrapper = $('#transcript');
+        let btns = main.children('.button');
+        let btns2 = btns.slice(Math.floor(btns.length / 2));
+        let nav = $('<div class="transcript-nav"></div>').prependTo(main).append(btns2)
+            .clone(true, true).appendTo(main).end().end();
+        main.children('.button').remove();
+
+        // Wrap current transcript messages into an hourly div
+        const currHours = $('.pager > span.current').attr('data-orig-text').split(' - ');
+        const currHour = $(`<div class="hourly" data-hour-start="${currHours[0].split(':').shift()}" data-hour-end="${currHours[1].split(':').shift()}"></div>`).appendTo(tsWrapper);
+        tsWrapper.children('.monologue').appendTo(currHour);
+
+        // Get today's date from sidebar
+        const date = $('#info > .icon').attr('title').split('-');
+
+        // Get current room ID from sidebar
+        const roomId = Number($('#info .room-name a').attr('href').match(/\/(\d+)\//)[1]);
+
+        // Note the pages we need to fetch
+        const otherPageLinks = $('.pager').first().children('a').get().map(el => el.href);
+
+        console.log(date, roomId, otherPageLinks);
+
+        // Add load-entire-day-button to top nav
+        const loadDayBtn = $(`<a href="#" class="button noprint load-entire-day-btn" title="Load entire day into this page for easier reading/printing/searching">Load entire day</a>`).appendTo(nav);
+        loadDayBtn.click(function() {
+
+            // This button can only be clicked once
+            $(this).remove();
+
+            // Change URL to start of "today"
+            history.replaceState(null, '', '/transcript/' + roomId + '/' + date.join('/'));
+
+            // Fetch content of hourly pages and attach to current page
+            otherPageLinks.forEach(function(v) {
+                const hours = v.split('/').pop();
+                const n = Number(hours.split('-')[0]);
+                const m = Number(hours.split('-')[1]);
+                const wrapper = $(`<div class="hourly" data-hour-start="${n}" data-hour-end="${m}"></div>`).load(v + ' #transcript');
+
+                if(m <= currHours[1]) {
+                    wrapper.insertBefore(currHour);
+                }
+                else {
+                    wrapper.appendTo(tsWrapper);
+                }
+            });
+
+            // Remove highlight and hourly selectors from sidebar
+            $('#info .mspark .msparea').remove();
+
+            // Remove hourly selectors from subnavs
+            $('#main').children('.pager').remove();
+
+            return false;
+        });
+
+        // Parse timestamps for loaded pages
+        $(document).ajaxStop(parseTimestamps);
+
+    }
+
+
+    function doPageload() {
+
+        parseTimestamps();
+        highlightMessageReplies();
+        scrollToRepliedToMessage();
+        addLoadEntireDayButton();
+    }
+
+
+    function appendStyles() {
+
+        GM_addStyle(`
+.transcript-nav {
+    display: block;
+    padding: 10px 0;
+}
+.transcript-nav .button {
+    margin-right: 5px;
+}
+.transcript-nav .load-entire-day-btn {
+    border: 2px solid #822d00;
+}
+.load-entire-day-button {
+    position: fixed !important;
+    bottom: 3px;
+    right: 3px;
+    z-index: 999999;
+    opacity: 0.5;
+}
+.load-entire-day-button:hover {
+    opacity: 1;
+}
+`);
+
+    }
+
+
     // On page load
+    appendStyles();
     doPageload();
-    highlightMessageReplies();
-    scrollToRepliedToMessage();
 
 })();
