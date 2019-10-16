@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time, Load entire day into single page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.0.1
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
@@ -142,8 +142,10 @@
 
         // Wrap current transcript messages into an hourly div
         const currHours = $('.pager > span.current').attr('data-orig-text').split(' - ');
-        const currHour = $(`<div class="hourly" data-hour-start="${currHours[0].split(':').shift()}" data-hour-end="${currHours[1].split(':').shift()}"></div>`).appendTo(tsWrapper);
-        tsWrapper.children('.monologue').appendTo(currHour);
+        const currStartHour = Number(currHours[0].split(':').shift());
+        const currEndHour = Number(currHours[1].split(':').shift());
+        const currHour = $(`<div class="hourly" data-hour-start="${currStartHour}" data-hour-end="${currEndHour}"></div>`).appendTo(tsWrapper);
+        tsWrapper.children('.monologue, .system-message-container').appendTo(currHour);
 
         // Get today's date from sidebar
         const date = $('#info > .icon').attr('title').split('-');
@@ -173,7 +175,7 @@
                 const m = Number(hours.split('-')[1]);
                 const wrapper = $(`<div class="hourly" data-hour-start="${n}" data-hour-end="${m}"></div>`).load(v + ' #transcript');
 
-                if(m <= currHours[1]) {
+                if(m <= currEndHour) {
                     wrapper.insertBefore(currHour);
                 }
                 else {
