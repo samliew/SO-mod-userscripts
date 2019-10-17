@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.14
+// @version      2.5.15
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -1031,6 +1031,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
 
             // Move stuff around
             initTopBar();
+            $('#footer-legal').prepend('<span> | </span>').prepend($('#toggle-notify'));
             $('#room-tags').appendTo('#roomdesc');
             $('#roomtitle + div').not('#roomdesc').appendTo('#roomdesc');
             $('#sidebar-menu').append(`<span> | <a id="room-transcript" title="view room transcript" href="/transcript/${roomId}">transcript</a> | <a id="room-owners" title="view room owners" href="/rooms/info/${roomId}/?tab=access#access-section-owner">owners</a></span>`);
@@ -1087,6 +1088,19 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             setInterval(() => {
                 $('#starred-posts li').each(loadFullStarredMessage);
             }, 1000);
+
+            // Keep starred posts height calculated based on available height
+            const topbar = $('#topbar');
+            const sidebar = $('#sidebar');
+            const info = $('#info');
+            const starred = $('#starred-posts ul');
+            const inputArea = $('#input-area');
+            $(window).on('load resize', function(evt) {
+                const visibleWidgetsHeight = $('#widgets .sidebar-widget:visible').filter((i, el) => $(el).find('#starred-posts').length == 0).map((i, el) => $(el).height()).get().reduce((a, c) => a + c);
+                const h = sidebar.height() - info.height() - visibleWidgetsHeight - topbar.height() - inputArea.height() - 80;
+                console.log(sidebar.height(), info.height(), visibleWidgetsHeight, topbar.height(), inputArea.height());
+                starred.css('max-height', h + 'px');
+            });
 
             initBetterMessageLinks();
 
@@ -1514,7 +1528,7 @@ ul#my-rooms > li > a span {
     overflow-y: scroll;
 }
 #starred-posts ul.collapsible.expanded {
-    max-height: 50vh;
+    max-height: 50vh !important;
     padding-right: 3px;
     padding-bottom: 50px;
     overflow-y: scroll;
