@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.15
+// @version      2.5.16
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -46,7 +46,7 @@
 
             $.get(`https://${location.hostname}/messages/${mid}/history`)
             .done(function(v) {
-                console.log('fetched message info', mid);
+                //console.log('fetched message info', mid);
 
                 const msg = $('.message:first', v);
                 const msgContent = msg.find('.content');
@@ -843,10 +843,10 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
                 console.log('Not opening WebSocket (no account ID).');
             } else {
                 let realtimeConnect = function () {
-                    console.log('Opening WebSocket...');
+                    //console.log('Opening WebSocket...');
                     let ws = new WebSocket('wss://qa.sockets.stackexchange.com');
                     ws.onopen = function () {
-                        console.log(`WebSocket opened (your network ID is ${id}).`);
+                        console.log(`WebSocket opened for topbar notifications (your network ID is ${id}).`);
                         ws.send(`${id}-topbar`);
                     };
                     ws.onmessage = function (event) {
@@ -1098,7 +1098,6 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             $(window).on('load resize', function(evt) {
                 const visibleWidgetsHeight = $('#widgets .sidebar-widget:visible').filter((i, el) => $(el).find('#starred-posts').length == 0).map((i, el) => $(el).height()).get().reduce((a, c) => a + c);
                 const h = sidebar.height() - info.height() - visibleWidgetsHeight - topbar.height() - inputArea.height() - 80;
-                console.log(sidebar.height(), info.height(), visibleWidgetsHeight, topbar.height(), inputArea.height());
                 starred.css('max-height', h + 'px');
             });
 
