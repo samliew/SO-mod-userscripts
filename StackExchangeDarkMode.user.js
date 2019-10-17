@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.3
+// @version      2.10.5
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -1123,6 +1123,9 @@ body#conversation-body .messages .message.cmmt-deleted .content * {
 #chat-body #sidebar a:hover {
     color: #fff;
 }
+.mspark .msplab {
+    background-color: transparent;
+}
 .mspark .mspbar,
 .room-histogram .mspark .mspbar,
 .mini-room-chart .mspark .mspbar,
@@ -1206,6 +1209,15 @@ body .js-flagged-post .bc-black-3 {
 }
 .js-post-flag-group.js-cleared {
     opacity: 0.5;
+}
+
+
+/* Site-specific header logos */
+.top-bar .-logo[href*="ja.stackoverflow.com"] .-img._glyph,
+.top-bar .-logo[href*="es.stackoverflow.com"] .-img._glyph,
+.top-bar .-logo[href*="ru.stackoverflow.com"] .-img._glyph,
+.top-bar .-logo[href*="pt.stackoverflow.com"] .-img._glyph {
+    background-color: #666;
 }
 
 
