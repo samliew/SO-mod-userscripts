@@ -3,7 +3,7 @@
 // @description  Collapses oneboxes from chat rooms/transcripts/bookmarks, click to display onebox
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.4
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -80,6 +80,13 @@
 
         // Occasionally, look for new oneboxes and hide them
         setInterval(hideOneboxes, 1000);
+
+        // When page is not focused
+        $(window).on('blur', function() {
+
+            // re-hide all expanded oneboxes
+            hideOneboxes(-1);
+        });
     }
 
 
