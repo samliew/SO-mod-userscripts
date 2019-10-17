@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.13
+// @version      2.5.14
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -821,7 +821,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
         function addRepCount(num) {
             const btn = $('#topbar .js-achievements-button').children('.unread-count').remove().end()
             if(num > 0) {
-                btn.prepend(`<span class="unread-count">${num}</span>`);
+                btn.prepend(`<span class="unread-count">+${num}</span>`);
                 btn.children('.topbar-dialog').remove();
                 btn.append(`<span class="js-loading-indicator"><img src="https://stackoverflow.com/content/img/progress-dots.gif"></span>`);
             }
