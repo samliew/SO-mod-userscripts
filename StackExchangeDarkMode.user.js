@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.5
+// @version      2.10.6
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -1010,9 +1010,11 @@ span.mod-flair {
 .topbar .js-topbar-dialog-corral > * {
     background-color: black;
 }
-#header-logo img,
-#transcript-logo img {
+#header-logo img {
     background-color: white;
+}
+#transcript-logo img {
+    filter: none;
 }
 #chat-body .messages,
 #chat-body .message,
