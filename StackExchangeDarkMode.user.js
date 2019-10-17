@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.2
+// @version      2.10.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -1023,6 +1023,11 @@ span.mod-flair {
 .monologue .timestamp {
     background: none;
     border: none;
+}
+/* Transparent images in chat should have a white BG so we can read black text */
+.message img.user-image[src*="png"],
+.message img.user-image[src*="png"]:hover {
+    background-color: white;
 }
 .pager .page-numbers.current,
 #chat-body .button,
