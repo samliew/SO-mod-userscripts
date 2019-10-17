@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.6
+// @version      0.1.7
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -215,6 +215,7 @@
     #transcript-body #info .tag,
     #transcript-body #transcript-logo,
     #transcript-body #copyright,
+    #transcript-body .action-link,
     .monologue .avatar,
     .message-controls,
     .message > .action-link,
@@ -298,6 +299,12 @@
     }
     .monologue .messages {
         flex: 1 0 80%;
+        border-color: #f2f2f2;
+        background-color: #f8f8f8;
+    }
+    div.message.reply-parent,
+    div.message.reply-child {
+        border-color: #f2f2f2;
         background-color: #f8f8f8;
     }
     .monologue.catchup-marker {
@@ -320,7 +327,7 @@
         padding-right: 50px;
     }
     .message .mention {
-        background-color: transparent !important;
+        background-color: transparent;
     }
     div.message .full,
     div.message .partial {
@@ -364,6 +371,7 @@
     }
     #transcript-body #info .room-mini .room-current-user-count,
     #transcript-body #info .room-mini .room-message-count {
+        display: none;
         width: auto;
         font-size: 11px;
     }
