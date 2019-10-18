@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.7
+// @version      0.1.8
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -216,6 +216,7 @@
     #transcript-body #transcript-logo,
     #transcript-body #copyright,
     #transcript-body .action-link,
+    #transcript-body .transcript-nav,
     .monologue .avatar,
     .message-controls,
     .message > .action-link,
@@ -251,7 +252,11 @@
         padding: 10px;
         border: 1px dotted black;
     }
+    #transcript-body #container {
+        padding: 0;
+    }
     #transcript-body #sidebar {
+        margin-top: 0;
         margin-bottom: -10px;
     }
     #sidebar #info #roomdesc {
@@ -289,12 +294,13 @@
         padding-bottom: 20px;
     }
     .monologue {
-        display: flex;
+        display: table !important;
+        page-break-inside: avoid;
         margin: 10px 20px 0 0;
         padding: 0;
     }
     .monologue .signature {
-        flex: 0 1 100px;
+        flex: 0 1 120px;
         margin-right: 8px;
     }
     .monologue .messages {
@@ -329,6 +335,9 @@
     .message .mention {
         background-color: transparent;
     }
+    div.message {
+        padding-left: 15px;
+    }
     div.message .full,
     div.message .partial {
         max-height: none;
@@ -340,6 +349,13 @@
     }
     .stars .img {
         filter: saturate(0) grayscale(1) brightness(0);
+    }
+    #transcript-body .pager {
+        text-align: center;
+    }
+    #transcript-body .pager > * {
+        float: none;
+        display: inline-block;
     }
     #transcript-body .pager .page-numbers {
         margin-bottom: 3px;
@@ -400,7 +416,8 @@
     }
     #transcript-body #info .icon:before {
         content: attr(title);
-        font-size: 1rem;
+        font-size: 16.5px;
+        font-weight: bold;
     }
 
 }
