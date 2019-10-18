@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time, Load entire day into single page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.3
+// @version      2.0.4
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
@@ -171,6 +171,9 @@
 
             // Change URL to start of "today"
             history.replaceState(null, '', '/transcript/' + roomId + '/' + date.join('/'));
+
+            // Change document title to remove pagination, and add domain
+            document.title = location.hostname + ' - ' + document.title.replace(/ \(.+$/, '');
 
             // Fetch content of hourly pages and attach to current page
             otherPageLinks.forEach(function(v) {
