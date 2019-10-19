@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.1
+// @version      0.2.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -136,7 +136,8 @@
         page-break-before: always;
     }
     #answers > a:nth-of-type(2),
-    #answers > a:last-of-type {
+    #answers > a:last-of-type,
+    .js-answer-page[data-page="1"] > a:first-child {
         page-break-before: auto;
     }
 
