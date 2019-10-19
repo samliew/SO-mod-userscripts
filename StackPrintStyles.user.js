@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.12
+// @version      0.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -25,6 +25,23 @@
 
 (function() {
     'use strict';
+
+
+    // jQuery plugin to support an array of deferreds for jQuery.when
+    // With thanks from https://stackoverflow.com/a/16208232
+    if (typeof jQuery.when.all === 'undefined') {
+        jQuery.when.all = function (deferreds) {
+            return $.Deferred(function (def) {
+                $.when.apply(jQuery, deferreds).then(
+                    function () {
+                        def.resolveWith(this, [Array.prototype.slice.call(arguments)]);
+                    },
+                    function () {
+                        def.rejectWith(this, [Array.prototype.slice.call(arguments)]);
+                    });
+            });
+        }
+    }
 
 
     function appendQnaPrintStyles() {
@@ -58,7 +75,8 @@
     .bottom-notice,
     a.new-answer,
     .js-comment-edit,
-    .js-comment-delete
+    .js-comment-delete,
+    .z-banner
     {
         display: none;
     }
@@ -423,28 +441,84 @@
     } // End chat styles
 
 
-    function loadAllComments(inclDeleted = false) {
+    function loadAllAnswersAndComments(inclDeletedComments = false) {
 
-        // Short delay for Q&A to init
-        setTimeout(() => {
+        // Load answers from other pages (if more than one)
+        function loadAllAnswers() {
 
-            // Always expand comments if comments have not been expanded yet
-            $('.question, .answer').find('.js-comments-container').not('.js-del-loaded').addClass('js-del-loaded').each(function() {
+            // Wrap all existing answers in a div
+            let previousPage = $(`<div class="js-answer-page" data-page="1"></div>`).insertAfter('#answers-header');
+            $('#answers').children('.answer, a[name]').not('[name="new-answer"], [name="tab-top"]').appendTo(previousPage);
 
+            return new Promise(function(resolve, reject) {
+
+                // Get other pages, if no other pages resolve immediately
+                const pages = $('.pager-answers').first().children('a').not('[rel]');
+                if(pages.length == 0) {
+                    console.log('only one page of answers');
+                    resolve();
+                    return;
+                }
+
+                // Remove pagination
+                $('.pager-answers').remove();
+
+                // Load each pager's url into divs below existing answers
+                let deferreds = [];
+                pages.each(function(i, el) {
+                    const pageNum = el.innerText.trim();
+                    let page = $(`<div class="js-answer-page" data-page="${pageNum}"></div>`).insertAfter(previousPage);
+                    let aj = page.load(el.href + ' #answers', function() {
+                        page.children().children().not('.answer, a').remove();
+                    });
+                    previousPage = page;
+                    deferreds.push(aj);
+                });
+
+                // Resolve when all pages load
+                $.when.all(deferreds).then(function() {
+                    console.log('loaded all answer pages');
+
+                    // short delay to allow comments to be added to page
+                    setTimeout(() => { resolve(); }, 1000);
+                }, reject);
+
+            });
+        }
+
+        // Always expand comments if comments have not been expanded yet
+        function loadAllComments(inclDeletedComments) {
+
+            $('.question, #answers .answer').find('.js-comments-container').not('.js-del-loaded').addClass('js-del-loaded').each(function() {
+
+                // Get post id which is required for loading comments
                 const postId = this.dataset.answerid || this.dataset.questionid || this.dataset.postId;
 
-                // Remove default comment expander
-                const elems = $(this).next().find('.js-show-link.comments-link').prev().addBack();
+                // Remove default comment expander after loading comments
+                const elems = $(this).next().find('.js-show-link.comments-link:visible').prev('.js-link-separator').addBack();
+
+                // If no comment expander and not loading deleted comments,
+                // do nothing else since everything is already displayed
+                if(!inclDeletedComments && elems.length == 0) {
+                    return;
+                }
 
                 // Get all including deleted comments
                 // This method will avoid jumping to comments section
-                const commentsUrl = `/posts/${postId}/comments?includeDeleted=${inclDeleted}&_=${Date.now()}`;
-                $('#comments-'+postId).children('ul.comments-list').load(commentsUrl, function() {
+                const commentsUrl = `/posts/${postId}/comments?includeDeleted=${inclDeletedComments}&_=${Date.now()}`;
+                $('#comments-' + postId).show().children('ul.js-comments-list').load(commentsUrl, function() {
+                    console.log('loaded comments ' + postId);
                     elems.remove();
                 });
             });
+        }
 
+        // Short delay for Q&A to init
+        setTimeout(() => {
+            // Do one then the other after
+            loadAllAnswers().then(() => loadAllComments(inclDeletedComments));
         }, 1000);
+
     }
 
 
@@ -453,9 +527,9 @@
         if(location.pathname.includes('/questions/')) {
             appendQnaPrintStyles();
 
-            const commentButtons = $(`<div class="print-comment-buttons"><button>Load comments</button></div>`).appendTo('body');
+            const commentButtons = $(`<div class="print-comment-buttons"><button>Load answers and comments</button></div>`).appendTo('body');
             if(StackExchange.options.user.isModerator) {
-                commentButtons.prepend(`<button data-incldeleted="true">Load deleted comments</button>`);
+                commentButtons.prepend(`<button data-incldeletedcomments="true">+ deleted comments (mod)</button>`);
             }
 
             commentButtons.on('click', 'button', function(evt) {
@@ -463,8 +537,8 @@
                 // Remove buttons
                 commentButtons.remove();
 
-                const inclDeleted = !!evt.target.dataset.incldeleted;
-                loadAllComments(inclDeleted);
+                const inclDeletedComments = !!evt.target.dataset.incldeletedcomments;
+                loadAllAnswersAndComments(inclDeletedComments);
 
                 return false;
             });
