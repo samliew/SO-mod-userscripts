@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.1
+// @version      2.6.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -697,10 +697,21 @@
 
 .topbar {
     position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
     background: black;
+}
+.topbar > * {
+    opacity: 1;
+    transition: opacity 0.4s ease;
+}
+.topbar.js-loading-assets > * {
+    opacity: 0;
 }
 .topbar .topbar-wrapper {
     width: auto;
+    height: 34px;
     padding: 0 20px;
 }
 .topbar .topbar-links {
@@ -761,7 +772,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
 `).appendTo(document.body);
 
         const topbar = $(`
-<div class="topbar" id="topbar">
+<div class="topbar js-loading-assets" id="topbar">
     <div class="topbar-wrapper">
 
         <div class="js-topbar-dialog-corral"></div>
@@ -977,6 +988,12 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             });
         }
         getUnreadCounts();
+
+
+        // Show topbar after a delay while topbar css is loaded
+        setTimeout(() => {
+            $('#topbar').removeClass('js-loading-assets');
+        }, 2000);
 
     } // End initTopBar
 
@@ -1497,6 +1514,9 @@ ul#my-rooms > li > a span {
 .message a i.transcript-link {
     opacity: 0.5;
     font-size: 0.9em;
+}
+.message.highlight {
+    margin-right: 0;
 }
 #transcript-links #room-owners-button {
     margin-left: 8px;
