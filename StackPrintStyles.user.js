@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.2
+// @version      0.2.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -152,9 +152,11 @@
         page-break-inside: avoid;
     }
 
-    /* Do not break comments between pages */
+    /* Do not break comments and usercards between pages */
     .comment,
-    .comment-text {
+    .comment-text,
+    .post-signature,
+    .user-gravatar32 {
         page-break-inside: avoid;
     }
 
@@ -517,8 +519,15 @@
 
         // Short delay for Q&A to init
         setTimeout(() => {
+
+            // If on Teams, strip out "Stack Overflow" from title
+            if(location.pathname.includes('/c/')) {
+                document.title = document.title.replace('Stack Overflow - ', '');
+            }
+
             // Do one then the other after
             loadAllAnswers().then(() => loadAllComments(inclDeletedComments));
+
         }, 1000);
 
     }
