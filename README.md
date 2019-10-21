@@ -356,19 +356,23 @@ Recommended chat userscripts:
 
 ### [Chat Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatImprovements.user.js)
 
-- New responsive user list displaying usernames and total count
-- Timestamps on every message
+Works with [No Oneboxes In Chat](https://github.com/samliew/SO-mod-userscripts#no-oneboxes-in-chat) and [Stack Exchange Dark Mode](https://github.com/samliew/SO-mod-userscripts#stack-exchange-dark-mode).
+
+- **New responsive user list** displaying usernames and total count
+- **Timestamps on every message** in live chat
 - Use tiny signatures and avatars only
 - Mods with diamonds in signatures
-- Message parser (smart links and link expander)
+- **Message parser** (smart links and link expander)
 - Minimize room description and room tags (hover to expand)
-- Topbar with live notifications and chat domain switcher
+- **Topbar with live inbox notifications** and chat domain switcher
 - Link to rejoin starred rooms
 - Expand starred messages in sidebar on hover and on print
-- On mouseover user links or mentions, highlight occurances of same user's links and mentions on page
-- Room owner changelog
-- Print styles for live chat (for printing to PDF with clickable links)
-- Mobile font size increase
+- Starred messages are now scrollable instead of having to click on "show more"
+- On mouseover user signatures or mentions, highlight occurances of same user's links and mentions on page
+- **Room owner changelog** in access info page
+- Add transcript and room owners links above user list
+- Print styles for live chat and transcripts (for printing to PDF with clickable links)
+- (Mobile) font size increase
 - and more...
 
 
