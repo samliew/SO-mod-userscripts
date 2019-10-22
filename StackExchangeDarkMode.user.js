@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.6
+// @version      2.10.7
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -675,9 +675,15 @@ body .bg-green-400,
 .user-info.user-hover .user-gravatar48 {
     box-shadow: 2px 2px 4px rgba(255,255,255,0.3);
 }
-a.comment-user.owner {
-    background-color: #E1ECF4;
-    color: #555;
+.post-signature.owner {
+    background-color: #333;
+}
+.post-signature.owner .user-info,
+.post-signature.owner .user-action-time,
+.post-signature.owner .relativetime,
+.post-signature.owner .user-details,
+.post-signature.owner .user-details * {
+    background-color: transparent;
 }
 .page-numbers {
     background-image: none;
@@ -849,7 +855,7 @@ pre * {
     color: red;
 }
 a.comment-user.owner {
-    background-color: #5f666d;
+    background-color: #444;
     color: ${linkcolor};
 }
 .delete-comment,
