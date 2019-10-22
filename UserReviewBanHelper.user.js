@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.5.4
+// @version      3.6
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -430,6 +430,7 @@
             }
 
             // Add currently/recently banned indicator if history found
+            let isCurrentlyBanned = false;
             let daysago = new Date();
             daysago.setDate(daysago.getDate() - 28);
             eventRows.eq(0).each(function() {
@@ -449,6 +450,7 @@
 
                     // Also add warning to the submit button if currently banned
                     if(currtext == 'Current') {
+                        isCurrentlyBanned = true;
                         $('#lookup-result input:submit').addClass('s-btn__danger s-btn__filled js-ban-again').val((i, v) => v + ' again');
                     }
                 }
@@ -471,6 +473,13 @@
                 });
                 console.log('Closest ban duration option:', recommendedDuration);
             });
+
+            // If is currently banned, add confirmation prompt when trying to ban user
+            if(isCurrentlyBanned) {
+                $('#lookup-result form').submit(function() {
+                    return confirm('User is currently review banned!\n\nAre you sure you want to replace with a new ban?');
+                });
+            }
         });
     }
 
