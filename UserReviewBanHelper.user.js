@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.5.3
+// @version      3.5.4
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -31,6 +31,7 @@
     if(!isModerator()) return;
 
 
+    const superusers = [ 584192 ];
     const fkey = StackExchange.options.user.fkey;
     const messageCharLimit = 2000;
 
@@ -388,7 +389,7 @@
 
             const pastReviewMessages = $('<div class="grid--cell12 reviewban-history"></div>').appendTo('.history-duration-wrapper');
 
-            // Default to 2 days
+            // Default to first radio button
             $('.duration-radio-group input').first().click();
 
             // Get hist items from filtered page
@@ -504,7 +505,7 @@
                 initCannedMessages();
 
                 // Duration radios
-                $('#days-3').val('2').next('label').text('2 days');
+                const firstRadio = $('#days-3').val('2').next('label').text('2 days').addBack();
                 $('#days-7').val('4').next('label').text('4 days');
                 $('#days-30').val('8').next('label').text('8 days');
                 $('#days-other')
@@ -517,12 +518,16 @@
                     .before(`<div class="duration-error">Please select ban duration!</div>`)
                     .next().addBack().remove();
 
-                // Default would be based on previous ban duration
-                getUserReviewBanHistory(uid);
-
-                // UI
+                // UI stuff
                 $('#days-3').parent().addClass('duration-radio-group').find('input').addClass('s-radio');
                 $('#lookup-result input:submit').addClass('s-btn s-btn__primary');
+
+                if(superusers.includes(StackExchange.options.user.userId)) {
+                    firstRadio.remove();
+                }
+
+                // Default would be based on previous ban duration
+                getUserReviewBanHistory(uid);
             }
         });
     }
