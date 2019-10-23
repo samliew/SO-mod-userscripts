@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9
+// @version      1.9.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -98,7 +98,7 @@ ul.comments-list .comment-up-on {
 
         // If rep notification is displaying +1, hide it
         let repBadge = document.querySelector('.js-achievements-button .indicator-badge');
-        if(repBadge.innerText.includes('+1')) repBadge.parentNode.removeChild(repBadge);
+        if(repBadge && repBadge.innerText.includes('+1')) repBadge.parentNode.removeChild(repBadge);
 
         // Show announcement bar when active and doesn't contain blacklisted keywords
         const annBar = document.getElementById('announcement-banner');
