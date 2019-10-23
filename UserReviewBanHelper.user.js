@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.6
+// @version      3.6.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -388,6 +388,9 @@
             banCountDisplay.nextAll().wrapAll('<div class="grid history-duration-wrapper"><div class="grid--cell4 duration-wrapper"></div></div>');
 
             const pastReviewMessages = $('<div class="grid--cell12 reviewban-history"></div>').appendTo('.history-duration-wrapper');
+
+            // Change user profile link to directly link to user reviews tab page
+            $('.duration-wrapper a').first().attr('href', (i, v) => v + '?tab=activity&sort=reviews').attr('title', 'view other recent reviews by user');
 
             // Default to first radio button
             $('.duration-radio-group input').first().click();
