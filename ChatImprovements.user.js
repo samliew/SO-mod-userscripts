@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7
+// @version      2.8
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -1011,6 +1011,20 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
 
     function doPageload() {
 
+        // If on mobile chat
+        if(document.body.classList.contains('mob')) {
+            appendStyles(false); // append mobile styles
+        }
+        else {
+            appendStyles();
+        }
+
+        // When viewing user info page in mobile widths
+        if(location.pathname.includes('/users/') && $('body').width() < 768) {
+            appendMobileUserStyles();
+        }
+
+
         // When joining a chat room
         if(location.pathname.includes('/rooms/') && !location.pathname.includes('/info/')) {
 
@@ -1033,9 +1047,6 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             // If on mobile chat
             if(document.body.classList.contains('mob')) {
 
-                // Append mobile styles
-                appendStyles(false);
-
                 // Improve room list toggle (click on empty space to close)
                 const roomswitcher = $('.sidebar-middle').click(function(e) {
                     e.stopPropagation();
@@ -1052,9 +1063,6 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
                 // ignore rest of script
                 return;
             }
-
-            // Append desktop styles
-            appendStyles();
 
             // Move stuff around
             initTopBar();
@@ -1141,10 +1149,6 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             const roBtn = aboutBtn.clone(true, true).insertAfter(aboutBtn).attr('href', (i, v) => v + '?tab=access#access-section-owner').attr('id', 'room-owners-button').text('room owners');
             roBtn.after(`<br><a class="button" href="/rooms/info/${roomId}?tab=stars" id="starred-messages-button">view starred messages</a>`);
 
-            // Append styles
-            const isDesktop = !document.body.classList.contains('mob');
-            appendStyles(isDesktop);
-
             initMessageParser();
             initUserHighlighter();
             setTimeout(initLoadMoreLinks, 2000);
@@ -1154,9 +1158,6 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
         }
         // When viewing room access tab
         else if(location.pathname.includes('/rooms/info/') && location.search.includes('tab=access')) {
-
-            // Append desktop styles
-            appendStyles();
 
             const roomId = Number(location.pathname.match(/\/(\d+)\//).pop());
 
@@ -1201,11 +1202,10 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
         // When viewing search results
         else if(location.pathname == '/search' && location.search != '') {
 
-            // Append desktop styles
-            appendStyles();
-
-            const query = $('#q').val();
+            // Trim non-text chars from beginning and end of query, then match non-word chars in middle
+            const query = $('#q').val().toLowerCase().replace(/(^\W+|\W+$)/g, '').replace(/\W+/g, '.{1,3}');
             const regex = new RegExp('\\s(' + query + ')\\s', 'gi');
+            console.log('Highlight query in results:', query);
 
             // Highlight all instances in results that are not oneboxes
             $('.content').filter(function() { return $(this).children('.onebox').length == 0; })
@@ -1214,10 +1214,31 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             });
 
         }
+        // When viewing user pages
+        else if(/\/users\/\d+\//.test(location.pathname)) {
 
-        // When viewing user info page in mobile
-        if(location.pathname.includes('/users/') && $('body').width() < 768) {
-            appendMobileUserStyles();
+            // "replies" tab link to default to last 30 days
+            const thirtyDaysAgo = new Date(Date.now() - (30 * 24 * 60 * 60 * 1000));
+            $('#tabs a[href="?tab=replies"]').attr('href', (i, v) => v + `&StartDate=${thirtyDaysAgo.getFullYear()}-${thirtyDaysAgo.getMonth() + 1}-${thirtyDaysAgo.getDate()}`);
+
+            // If on "recent" page, apply pagination to top and bottom of list
+            if(location.search.includes('tab=recent')) {
+                const results = $('.subheader').next('div');
+
+                // Build pagination, same style as all rooms list pagination for consistency
+                let currpage = Number((location.search.match(/&page=(\d+)/) || [1]).pop()); // default to page 1
+                let paginationHtml = '<div class="pager clear-both">'; // Begin pagination
+                if(currpage != 1) paginationHtml += `<a href="?tab=recent&amp;page=${currpage-1}" title="previous page" rel="prev"><span class="page-numbers prev">prev</span></a>`;
+                for(let i = 1; i <= currpage + 10; i++) {
+                    paginationHtml += `<a href="?tab=recent&amp;page=${i}" class="${(currpage == i ? 'current' : '' )}" title="page ${i}"><span class="page-numbers ${(currpage == i ? 'current' : '' )}">${i}</span></a>`;
+                }
+                paginationHtml += `<a href="?tab=recent&amp;page=${currpage+1}" title="next page" rel="next"><span class="page-numbers next">next</span></a></div>`; // End pagination
+
+                // Insert before and after results
+                const pager = $(paginationHtml);
+                if(currpage - 5 > 1) pager.children('*:not([rel]):not(.current)').slice(0, currpage - 5).remove();
+                pager.insertBefore(results).clone(true, true).insertAfter(results);
+            }
         }
 
     }
@@ -1914,6 +1935,21 @@ div.dialog-message > .meta {
     color: black;
     font-weight: bold;
     background: yellow;
+}
+
+/* Improve pagination UI */
+.pager {
+    text-align: center;
+}
+.pager > * {
+    float: none;
+    display: inline-block !important;
+    margin: 0 2px;
+    padding: 0;
+}
+.pager .page-numbers {
+    padding: 3px 7px;
+    border-radius: 3px;
 }
 
 @media screen and (min-width: 768px) {
