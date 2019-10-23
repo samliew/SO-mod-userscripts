@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.8
+// @version      2.11
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -1245,23 +1245,28 @@ body .js-flagged-post .bc-black-3 {
         document.body.classList.add('SOMU-SEDM');
 
         // Replace logos
+        const chatLogoImages = $('#footer-logo, #transcript-logo, #header-logo').find('img');
+        const chatLogoLinks = $('#footer-logo, #transcript-logo, #header-logo').children('a');
+        const chatLogoUrl = chatLogoLinks.attr('href') || '';
         if(location.hostname === "stackoverflow.com") {
             $('.top-bar .-logo .-img').replaceWith(soLogo);
         }
-        else if(location.hostname === "chat.stackoverflow.com") {
-            $('#footer-logo img, #transcript-logo img, #header-logo img').replaceWith(soLogo);
+        else if(location.hostname === "chat.stackoverflow.com" || chatLogoUrl.includes('stackoverflow.com')) {
+            chatLogoImages.replaceWith(soLogo);
         }
-        else if(location.hostname === "superuser.com") {
+        else if(location.hostname === "superuser.com" || chatLogoUrl.includes('superuser.com')) {
             $('.site-header .site-header--link img').replaceWith(suLogo);
+            chatLogoImages.replaceWith(suLogo);
         }
-        else if(location.hostname === "serverfault.com") {
+        else if(location.hostname === "serverfault.com" || chatLogoUrl.includes('serverfault.com')) {
             $('.site-header .site-header--link img').replaceWith(sfLogo);
-        }
-        else if(location.hostname === "stackoverflow.blog") {
-            $('.site-header .so-icon-logo').replaceWith(blogLogo);
+            chatLogoImages.replaceWith(sfLogo);
         }
         else if(location.hostname === "stackapps.com") {
             $('.site-header .site-header--link img').replaceWith(stackappsLogo);
+        }
+        else if(location.hostname === "stackoverflow.blog") {
+            $('.site-header .so-icon-logo').replaceWith(blogLogo);
         }
 
         highlightComment();
