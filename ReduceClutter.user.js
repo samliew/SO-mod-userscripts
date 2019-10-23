@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8
+// @version      1.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -17,8 +17,13 @@
 // @run-at       document-start
 // ==/UserScript==
 
+
 (function() {
     'use strict';
+
+
+    // Show announcement bar if it does not contain these keywords
+    const blacklistedAnnouncementWords = [ 'podcast' ];
 
 
         GM_addStyle(`
@@ -77,14 +82,36 @@ ul.comments-list .comment-up-on {
     display: none !important;
 }
 
+/*
+   Hide announcements bar before page load,
+     then check text for blacklisted words after page load
+   https://meta.stackoverflow.com/q/390709
+*/
+#announcement-banner {
+    display: none !important;
+}
+
 `);
 
 
     document.addEventListener('DOMContentLoaded', function(evt) {
 
         // If rep notification is displaying +1, hide it
-        let repBadge = $('.js-achievements-button .indicator-badge');
-        if(repBadge.text() === '+1') repBadge.remove();
+        let repBadge = document.querySelector('.js-achievements-button .indicator-badge');
+        if(repBadge.innerText.includes('+1')) repBadge.parentNode.removeChild(repBadge);
+
+        // Show announcement bar when active and doesn't contain blacklisted keywords
+        const annBar = document.getElementById('announcement-banner');
+        if(annBar) {
+            const annText = annBar.innerText.trim().toLowerCase();
+            const isBlacklisted = blacklistedAnnouncementWords && blacklistedAnnouncementWords.some(v => annText.includes(v));
+            if(!isBlacklisted) {
+                annBar.style.setProperty('display', 'block', 'important');
+            }
+            else {
+                console.log('Announcement bar has been blocked.', annText);
+            }
+        }
     });
 
 
