@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11
+// @version      2.11.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -970,6 +970,9 @@ span.mod-flair {
     background: indianred;
     color: white;
 }
+#chat-body .topbar .network-chat-links > a.current-site {
+    background: #3667af;
+}
 /* Chat highlight links of user on any mouse hover */
 #chat .signature.js-user-highlight .username,
 #chat .mention.js-user-highlight,
@@ -1229,7 +1232,7 @@ body .js-flagged-post .bc-black-3 {
 }
 
 
-`.replace(/;/g, ' !important;'));
+`.replace(/ !important;/g, ';').replace(/;/g, ' !important;'));
 
 
     function highlightComment() {
