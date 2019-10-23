@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.1
+// @version      2.8.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -1130,11 +1130,13 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             const info = $('#info');
             const starred = $('#starred-posts ul');
             const inputArea = $('#input-area');
-            $(window).on('load resize', function(evt) {
+            function resizeStarredWidget(evt) {
                 const visibleWidgetsHeight = $('#widgets .sidebar-widget:visible').filter((i, el) => $(el).find('#starred-posts').length == 0).map((i, el) => $(el).height()).get().reduce((a, c) => a + c);
                 const h = sidebar.height() - info.height() - visibleWidgetsHeight - topbar.height() - inputArea.height() - 80;
                 starred.css('max-height', h + 'px');
-            });
+            }
+            setTimeout(resizeStarredWidget, 3000);
+            $(window).on('resize', resizeStarredWidget);
 
             initBetterMessageLinks();
 
