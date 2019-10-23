@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8
+// @version      2.8.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -1204,7 +1204,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
 
             // Trim non-text chars from beginning and end of query, then match non-word chars in middle
             const query = $('#q').val().toLowerCase().replace(/(^\W+|\W+$)/g, '').replace(/\W+/g, '.{1,3}');
-            const regex = new RegExp('\\s(' + query + ')\\s', 'gi');
+            const regex = new RegExp('(\\s(' + query + ')|(' + query + ')\\s)', 'gi');
             console.log('Highlight query in results:', query);
 
             // Highlight all instances in results that are not oneboxes
