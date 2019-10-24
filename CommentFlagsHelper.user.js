@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.10.3
+// @version      4.10.4
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -492,7 +492,7 @@
             const $flaggedComms = $('.js-flagged-comment .js-comment').not('.roa-comment');
             $flaggedComms.each(function() {
                 let cid = this.dataset.commentId;
-                $('#comment-'+cid).children().css('background', '#ffc');
+                $('#comment-'+cid).addClass('js-active-flag');
             });
 
             // Always expand comments if post is expanded, if comments have not been expanded yet
@@ -732,6 +732,19 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
 }
 .js-dismiss-flags:hover .js-cancel-delete-comment-flag {
     display: block;
+}
+.comment.js-active-flag .js-comment-actions {
+    position: relative;
+}
+.comment.js-active-flag .js-comment-actions:before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 0;
+    left: -3px;
+    bottom: 0;
+    width: 3px;
+    background: #F48024 !important;
 }
 .cmmt-rude {
     font-weight: bold;
