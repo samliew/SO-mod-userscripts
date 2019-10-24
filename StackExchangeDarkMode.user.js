@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.2
+// @version      2.11.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -497,9 +497,9 @@ body > div[style*="absolute"],
     background-color: transparent;
 }
 .tag-popup .-container,
-.tag-popup .-container > *,
-.tag-popup .-container .grid {
-    background-color: black;
+.tag-popup .-container .-arrow:before,
+.tag-popup .-container *:not(button):not(svg) {
+    background-color: #111;
 }
 #content .s-progress {
     background-color: ${bordercolor};
