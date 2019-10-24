@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.9
+// @version      3.10
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -394,6 +394,16 @@
         if($posts.find('.js-post-flag-group:not(.js-cleared) a[href^="/users/5389107/"]').length > 0) {
             $filterOpts.find('[data-toggle="magisch"]').removeClass('dno');
         }
+
+        // Selects default decline reason and focus submit button
+        $('.js-resolve-action[data-type="decline"]').click(function(evt) {
+            const flagOpts = $(this).closest('.js-post-flag-group, .js-post-flag-options');
+            setTimeout(() => {
+                const opt = flagOpts.find('input[name="dismiss-reason"][value="2"]:visible').get(0);
+                if(opt) opt.click();
+                const btn = flagOpts.find('.js-submit-btn').focus();
+            }, 100);
+        });
     }
 
 
