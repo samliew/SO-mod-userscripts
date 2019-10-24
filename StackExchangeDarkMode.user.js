@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.1
+// @version      2.11.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -486,6 +486,10 @@ ul.comments-list .comment > * {
     background-color: ${btncolor};
     border-color: #3b4045;
     color: #aaa;
+}
+.post-tag.moderator-tag {
+    background-color: #3a0000;
+    border-color: #6d0000;
 }
 body > div[style*="absolute"],
 #content .tag-popup,
