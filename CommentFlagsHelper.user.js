@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.10.4
+// @version      4.10.5
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -54,8 +54,8 @@
         'grow up', 'shame', 'wtf', 'garbage', 'trash', 'spam', 'damn', 'horrible', '(in)?ability',
         'nonsense', 'never work', 'illogical', 'fraud', 'crap', '(bull|cow|horse)?\\s?shit', 'screw',
         'reported', 'get lost', 'useless', 'deleted?', 'delete[\\w\\s]+(answer|question|comment)',
-        'gay', 'lesbian', 'sissy', 'brain', 'rtfm', 'blind', 'retard(ed)?', 'jerks?', 'bitch\\w*',
-        'read[\\w\\s]+(tutorial|docs|manual)', 'lack[\\w\\s]+research', 'https?://idownvotedbecau.se/\\w+/?',
+        'gay', 'lesbian', 'sissy', 'brain', 'rtfm', 'blind', 'retard(ed)?', 'jerks?', 'bitch\\w*', 'silly',
+        'read[\\w\\s]+(tutorial|docs|manual)', 'lack[\\w\\s]+research', 'https?:\\/\\/idownvotedbecau.se/\\w+/?',
     ];
     const rudeRegex = new RegExp('\\s(' + rudeKeywords.join('|') + ')(?![/-])', 'gi');
 
@@ -65,9 +65,10 @@
         'appreciated?', 'my email', 'email me', 'contact', 'good', 'great', 'sorry', '\\+1', 'love', 'wow', 'pointless', 'no\\s?(body|one)',
         'homework', 'no idea', 'your mind', 'try it', 'typo', 'wrong', 'unclear', 'regret', 'every\\s?(body|one)',
         'exactly', 'check', 'lol', 'ha(ha)+', 'women', 'girl', 'dude', 'effort', 'understand', 'want', 'need', 'little',
-        'give up', 'documentation', 'google\\s?', 'what[\\w\\s]+(try|tried)[\\w\\s]*\\?*', 'free', 'obvious',
-        'move on', 'go away', 'stop', 'bad', 'bother', 'no sense', 'sense', 'learn', 'ugly', 'read',
-        '(down|up)[-\\s]?vot(er|ed|e|ing)', '\\w+ off',
+        'give up', 'documentation', 'what[\\w\\s]+(try|tried)[\\w\\s]*\\?*', 'free', 'obvious', 'tried',
+        'move on', 'go away', 'stop', 'bad', 'bother', 'no sense', 'sense', 'learn', 'ugly', 'read', 'pay(ing)?',
+        '(down|up)[-\\s]?vot(er|ed|e|ing)', '\\w+ off', 'jesus', 'allah', 'unnecessary', 'code(-\s)writing',
+        'googl(ed?|ing)\\s?', 'https:\\/\\/www.google[^\\s]+',
     ];
     const chattyRegex = new RegExp('\\s(' + chattyKeywords.join('|') + ')(?![/-])', 'gi');
 
