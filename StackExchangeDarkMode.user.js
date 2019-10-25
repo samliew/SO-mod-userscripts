@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.3
+// @version      2.11.4
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -995,13 +995,24 @@ span.mod-flair {
 
 
 /* Chat */
+.topbar,
+.top-bar,
+.top-bar .-container > ol,
+.top-bar .-rep,
+.top-bar .-badges,
+.top-bar .-badges span,
 #chat-body .topbar,
 #transcript-body .topbar,
 #conversation-body .topbar {
-    background: black;
+    background-color: black;
 }
 .topbar .topbar-wrapper,
 .topbar .topbar-wrapper *,
+.top-bar svg,
+.top-bar .-container,
+.top-bar .-container > *,
+.top-bar .-container > ol > li,
+.top-bar .-container > ol > li > a,
 #modflag-count a,
 #flag-count a,
 #annotation-count a {
