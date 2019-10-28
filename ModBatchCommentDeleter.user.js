@@ -3,9 +3,9 @@
 // @description  Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
-// @include      https://stackoverflow.com/admin/deleter
+// @include      https://*stackoverflow.com/admin/deleter
 // @include      https://*serverfault.com/admin/deleter
 // @include      https://*superuser.com/admin/deleter
 // @include      https://*askubuntu.com/admin/deleter
@@ -19,12 +19,12 @@
 
     const fkey = StackExchange.options.user.fkey;
     const params = {
-        itemsPerBatch: 10,
-        delayPerBatch: 3000,
+        itemsPerBatch: 20,
+        delayPerBatch: 5000,
     };
     let content, button, preview, textarea;
     let isRunning = false;
-    let failures = 0;
+    let failures = 0, retryCount = 0;
 
 
     function deleteOne(url, callback = null) {
@@ -74,11 +74,25 @@
         $(document).unbind('ajaxStop').ajaxStop(function() {
             updateProgress();
 
-            // No more items, cleanup and exit
-            if(failures >= 5) cleanup(true);
+            // Some errors, wait and try up to 3 times
+            if(failures > 1) {
 
-            // Do callback after short delay
-            setTimeout(processNextBatch, params.delayPerBatch);
+                // Too many errors, stop
+                if(retryCount >= 3) {
+                    cleanup(true);
+                    return;
+                }
+
+                // Reset and try last batch again in 2 minutes
+                retryCount++;
+                failures = 0;
+                currentNum -= params.itemsPerBatch;
+                setTimeout(processNextBatch, 120000);
+            }
+            // Continue next batch after a delay
+            else {
+                setTimeout(processNextBatch, params.delayPerBatch);
+            }
         });
 
         // Begin
@@ -99,8 +113,11 @@
             button.remove();
 
             const endTime = new Date();
-            preview.text(hasError ? 'Receiving response errors. Check if you are rate-limited or these items are already deleted.' : `Completed ${total} items in ${Math.round((endTime - startTime) / 60000)} minutes!`);
-            document.title = 'Completed!';
+            preview.text(hasError ?
+                `Receiving response errors. Check if you are rate-limited or these items are already deleted. Stopped at ${currentNum - itemsPerBatch} items.` :
+                `Completed ${total} items in ${Math.round((endTime - startTime) / 60000)} minutes!`
+            );
+            document.title = hasError ? 'Completed!' : 'Error!';
         }
 
         // for safety, doDeleteAll can be called once only
