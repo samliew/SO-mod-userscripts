@@ -3,9 +3,14 @@
 // @description  Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://stackoverflow.com/admin/deleter
+// @include      https://*serverfault.com/admin/deleter
+// @include      https://*superuser.com/admin/deleter
+// @include      https://*askubuntu.com/admin/deleter
+// @include      https://*mathoverflow.net/admin/deleter
+// @include      https://*.stackexchange.com/admin/deleter
 // ==/UserScript==
 
 (function() {
