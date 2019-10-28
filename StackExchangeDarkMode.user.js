@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.4
+// @version      2.11.5
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -306,6 +306,9 @@ ul.comments-list .comment-up-on * {
 
 
 /* Specific elements */
+.lightbox {
+    display: none;
+}
 #content,
 .flush-left,
 .question-summary,
