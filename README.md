@@ -561,3 +561,8 @@ Works with [No Oneboxes In Chat](https://github.com/samliew/SO-mod-userscripts#n
 ### [Find Users Additional Info](https://github.com/samliew/SO-mod-userscripts/blob/master/FindUsersAdditionalInfo.user.js) ♦
 
 - Improvements for /admin/find-users
+
+
+### [Mod Batch Comment Deleter](https://github.com/samliew/SO-mod-userscripts/blob/master/ModBatchCommentDeleter.user.js) ♦
+
+- Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
