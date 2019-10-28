@@ -565,4 +565,5 @@ Works with [No Oneboxes In Chat](https://github.com/samliew/SO-mod-userscripts#n
 
 ### [Mod Batch Comment Deleter](https://github.com/samliew/SO-mod-userscripts/blob/master/ModBatchCommentDeleter.user.js) ♦
 
-- Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
+- Batch delete comments using comment permalinks from SEDE, e.g.: https://data.stackexchange.com/stackoverflow/query/1131935
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/mod-batch-comments-deleter.gif)
