@@ -3,7 +3,7 @@
 // @description  Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.0.2
 //
 // @include      https://stackoverflow.com/admin/deleter
 // @include      https://*serverfault.com/admin/deleter
@@ -94,8 +94,10 @@
             $(document).unbind('ajaxStop');
             $(window).off('beforeunload');
 
+            button.remove();
+
             const endTime = new Date();
-            content.text(hasError ? 'Receiving response errors. Check if you are rate-limited or these items are already deleted.' : `Completed ${total} items in ${Math.round((endTime - startTime) / 60000)} minutes!`);
+            preview.text(hasError ? 'Receiving response errors. Check if you are rate-limited or these items are already deleted.' : `Completed ${total} items in ${Math.round((endTime - startTime) / 60000)} minutes!`);
             document.title = 'Completed!';
         }
 
@@ -145,14 +147,14 @@
     <div class="grid ai-center jc-space-between mb12 bb bc-black-3 pb12">
         <div class="fs-body3 grid--cell fl1 mr12">Batch Comment Deleter</div>
     </div>
-    <div class="deleter-info">Items per batch: ${itemsPerBatch}, Delay between batches: ${delayPerBatch}</div>
+    <div class="deleter-info">items per batch: ${itemsPerBatch}; delay between batches: ${delayPerBatch}</div>
 </div>
 `);
         button = $(`<button>Delete ALL</button>`).on('click', function() {
             $(this).prop('disabled', true).text('processing...');
             doDeleteAll();
         });
-        preview = $(`<div class="html-preview">Use this <a href="https://data.stackexchange.com/stackoverflow/query/1131935/auto-delete-comments" target="_blank">SEDE query</a> to find comments to delete. Download results and paste the comment permalinks column below.</div>`).appendTo(content);
+        preview = $(`<div class="html-preview">Use this <a href="https://data.stackexchange.com/stackoverflow/query/1131935" target="_blank">SEDE query</a> to find comments to delete. Download results and paste the comment permalinks column below.</div>`).appendTo(content);
         textarea = $('<textarea placeholder="paste comment permalinks from exported query" class="html-editor"></textarea>').appendTo(content).one('change keyup', parseInputUpdatePreview);
     }
 
