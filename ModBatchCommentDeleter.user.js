@@ -3,7 +3,7 @@
 // @description  Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.1
 //
 // @include      https://stackoverflow.com/admin/deleter
 // @include      https://*serverfault.com/admin/deleter
@@ -18,8 +18,10 @@
 
 
     const fkey = StackExchange.options.user.fkey;
-    const itemsPerBatch = 10;
-    const delayPerBatch = 3000;
+    const params = {
+        itemsPerBatch: 10,
+        delayPerBatch: 3000,
+    };
     let content, button, preview, textarea;
     let isRunning = false;
     let failures = 0;
@@ -63,8 +65,8 @@
         // Callback
         function processNextBatch() {
             if(currentNum >= total) cleanup();
-            links.slice(currentNum, currentNum + itemsPerBatch).forEach(v => { deleteOne(v); });
-            currentNum += itemsPerBatch;
+            links.slice(currentNum, currentNum + params.itemsPerBatch).forEach(v => { deleteOne(v); });
+            currentNum += params.itemsPerBatch;
             if(currentNum > total) currentNum = total;
         }
 
@@ -76,7 +78,7 @@
             if(failures >= 5) cleanup(true);
 
             // Do callback after short delay
-            setTimeout(processNextBatch, delayPerBatch);
+            setTimeout(processNextBatch, params.delayPerBatch);
         });
 
         // Begin
@@ -147,7 +149,7 @@
     <div class="grid ai-center jc-space-between mb12 bb bc-black-3 pb12">
         <div class="fs-body3 grid--cell fl1 mr12">Batch Comment Deleter</div>
     </div>
-    <div class="deleter-info">items per batch: ${itemsPerBatch}; delay between batches: ${delayPerBatch}</div>
+    <div class="deleter-info">items per batch: <input type="number" min="1" max="100" class="inline" data-param-name="itemsPerBatch" value="${params.itemsPerBatch}" />; secs delay between batches: <input type="number" min="0" max="60" class="inline" data-param-name="delayPerBatch" data-multiplier="1000" value="${params.delayPerBatch/1000}" placeholder="millis" /></div>
 </div>
 `);
         button = $(`<button>Delete ALL</button>`).on('click', function() {
@@ -156,6 +158,16 @@
         });
         preview = $(`<div class="html-preview">Use this <a href="https://data.stackexchange.com/stackoverflow/query/1131935" target="_blank">SEDE query</a> to find comments to delete. Download results and paste the comment permalinks column below.</div>`).appendTo(content);
         textarea = $('<textarea placeholder="paste comment permalinks from exported query" class="html-editor"></textarea>').appendTo(content).one('change keyup', parseInputUpdatePreview);
+
+        // Events to update params
+        content.on('change', 'input[data-param-name]', function(evt) {
+            const paramName = this.dataset.paramName;
+            const num = Number(this.value) * (Number(this.dataset.multiplier) || 1);
+            const isNum = !isNaN(num);
+
+            if(this.value != '') params[paramName] = isNum ? num : this.value;
+            //console.log(params);
+        });
     }
 
 
@@ -380,6 +392,12 @@
 }
 .html-preview {
     margin: 20px auto;
+}
+input.inline {
+    width: 100px;
+    padding: 4px 7px !important;
+    border: none !important;
+    border-bottom: 1px dotted #333 !important;
 }
 
 </style>
