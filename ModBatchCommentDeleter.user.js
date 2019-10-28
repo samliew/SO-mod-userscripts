@@ -3,7 +3,7 @@
 // @description  Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.2.2
 //
 // @include      https://*stackoverflow.com/admin/deleter
 // @include      https://*serverfault.com/admin/deleter
@@ -117,7 +117,7 @@
                 `Receiving response errors. Check if you are rate-limited or these items are already deleted. Stopped at ${currentNum - params.itemsPerBatch} items.` :
                 `Completed ${total} items in ${Math.round((endTime - startTime) / 60000)} minutes!`
             );
-            document.title = hasError ? 'Completed!' : 'Error!';
+            document.title = hasError ? 'Error!' : 'Completed!';
         }
 
         // for safety, doDeleteAll can be called once only
