@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.5
+// @version      2.9
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -1019,6 +1019,234 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
     } // End initTopBar
 
 
+    function initRoChangelog() {
+        const roomId = Number(location.pathname.match(/\/(\d+)\//).pop());
+
+        // Prepare container
+        const logdiv = $('<div id="access-section-owner-log"></div>').appendTo('#access-section-owner');
+
+        // Search for and append room owner changelog
+        const searchUrl = `https://${location.hostname}/search?q=to+the+list+of+this&user=-2&room=${roomId}`;
+        logdiv.load(searchUrl + ' .messages', function(response) {
+
+            // Add title
+            logdiv.prepend('<h4>Room Owner Changelog</h4>');
+
+            // Jump to section again on load if hash present
+            if(location.hash == '#access-section-owner') {
+                document.getElementById('access-section-owner').scrollIntoView();
+            }
+
+            const messages = logdiv.find('.messages').wrap('<div class="monologue"></div>');
+            logdiv.find('.content').find('a:last').filter((i, v) => v).replaceWith('<span>list of room owners</span>');
+            logdiv.find('.messages a').attr('target', '_blank');
+
+            // Remove invalid entries
+            messages.filter((i, el) => !/(has added|has removed).+(to|from) the list of room owners\.$/.test(el.innerText)).remove();
+            // Remove empty monologues
+            logdiv.children('.monologue:empty').remove();
+
+            // Add indicator icon
+            logdiv.find('.content').each(function() {
+                $(this).prepend(this.innerText.includes('has removed') ? '<b class="red">-</b>' : '<b class="green">+</b>');
+            });
+
+            // Find automatic room owners
+            $.get(`https://${location.hostname}/search?q=has+been+automatically+appointed+as+owner+of+this+room.&user=-2&room=${roomId}`, function(response) {
+                $('.messages', response).appendTo(logdiv).wrap('<div class="monologue"></div>').find('.content').prepend('<b class="green">+</b>');
+
+                // Add view all link if there is more
+                if(messages.length >= 50) logdiv.append(`<div class="monologue" id="more-room-owners"><a href="${searchUrl}" target="_blank">view more</a></div>`);
+            });
+        });
+    }
+
+
+    function defaultRepliesLinkRange() {
+
+        // "replies" tab link to default to last 30 days
+        const thirtyDaysAgo = new Date(Date.now() - (30 * 24 * 60 * 60 * 1000));
+        $('#tabs a[href="?tab=replies"]').attr('href', (i, v) => v + `&StartDate=${thirtyDaysAgo.getFullYear()}-${thirtyDaysAgo.getMonth() + 1}-${thirtyDaysAgo.getDate()}`);
+    }
+
+
+    function initUserRecentPagination() {
+
+        const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
+
+        function updatePager(curr) {
+            curr = Number(curr);
+            if(typeof curr !== 'number') return;
+
+            const qs = location.search.replace(/&page=\d+/, '');
+            const pager = $('.pager').empty();
+
+            const start = Math.max(1, curr - 5);
+            const stop  = Math.max(10, curr + 5);
+            const prev  = Math.max(1, curr - 1);
+            const next  = curr + 1;
+
+            let htmlstr = `<a href="https://${location.hostname}${location.pathname}${qs}&page=${prev}" data-page="${prev}"><span class="page-numbers prev">prev</span></a>`;
+            for(let i = start; i <= stop; i++) {
+                htmlstr += `<a href="https://${location.hostname}${location.pathname}${qs}&page=${i}" data-page="${i}"><span class="page-numbers ${i == curr ? 'current' : ''}">${i}</span></a>`;
+            }
+            htmlstr += `<a href="https://${location.hostname}${location.pathname}${qs}&page=${next}" data-page="${next}"><span class="page-numbers next">next</span></a>`;
+
+            pager.append(htmlstr);
+        }
+
+        function getPage(url, selector, callback = null) {
+            window.history.replaceState({}, '', url);
+
+            $.ajax({
+                url: url,
+                success: function(data) {
+                    let tmp = $(selector, data);
+                    $(selector).html(tmp.html());
+
+                    if(typeof callback === 'function') callback.call();
+                }
+            });
+        }
+
+        $('.pager').first().remove();
+
+        const content = $('#content');
+        const userpage = location.pathname.includes('/users/') && getQueryParam('tab') == 'recent';
+        const roomspage = location.pathname.includes('/rooms');
+        const pager = $(`<div class="pager clear-both"></div>`).insertAfter('#content');
+        pager.clone(true).insertAfter('#content .subheader');
+
+        let curr = getQueryParam('page') || 1;
+        updatePager(curr);
+
+        $('.pager').on('click', 'a', function() {
+            window.scrollTo(0,0);
+            const num = Number(this.dataset.page);
+            getPage(this.href, '#content', function() {
+                pager.clone(true).insertAfter('#content .subheader');
+                updatePager(num);
+                defaultRepliesLinkRange();
+            });
+            return false;
+        });
+    }
+
+
+    function initLiveChat() {
+        const roomId = CHAT.CURRENT_ROOM_ID;
+
+        initMessageParser();
+
+        // Rejoin favourite rooms on link click
+        let rejoinFavsBtn = $(`<a href="#">rejoin starred</a><span class="divider"> / </span>`).prependTo($('#my-rooms').parent('.sidebar-widget').find('.msg-small').first());
+        rejoinFavsBtn.click(function() {
+            $(this).next('span.divider').addBack().remove();
+            $.post(`https://${location.hostname}/chats/join/favorite`, {
+                quiet: true,
+                immediate: true,
+                fkey: fkey
+            }, () => console.log('rejoined favourite rooms'));
+            return false;
+        });
+
+        // If on mobile chat
+        if(document.body.classList.contains('mob')) {
+
+            // Improve room list toggle (click on empty space to close)
+            const roomswitcher = $('.sidebar-middle').click(function(e) {
+                e.stopPropagation();
+                if(e.target == roomswitcher) {
+                    $(document.body).removeAttr('data-panel-visible');
+                }
+            }).get(0);
+
+            // Open links in a new window
+            $('#chat').on('click', '.content a, a.signature', function() {
+                $(this).attr('target', '_blank');
+            });
+
+            // ignore rest of script
+            return;
+        }
+
+        // Move stuff around
+        initTopBar();
+        $('#footer-legal').prepend('<span> | </span>').prepend($('#toggle-notify'));
+        $('#room-tags').appendTo('#roomdesc');
+        $('#roomtitle + div').not('#roomdesc').appendTo('#roomdesc');
+        $('#sidebar-menu').append(`<span> | <a id="room-transcript" title="view room transcript" href="/transcript/${roomId}">transcript</a> | <a id="room-owners" title="view room owners" href="/rooms/info/${roomId}/?tab=access#access-section-owner">owners</a></span>`);
+        addLinksToOtherChatDomains();
+        reapplyPersistentChanges();
+
+        // Occasionally reapply changes
+        setInterval(reapplyPersistentChanges, 3000);
+
+        // Occasionally update userlist
+        setInterval(updateUserlist, 5000); // quick update
+        setInterval(() => { updateUserlist(true); }, 30000); // full update
+
+        // Track if userlist has mouse focus, to prevent update if in use
+        newuserlist
+            .on('mouseover', null, evt => newuserlist.addClass('mouseon'))
+            .on('mouseout', null, evt => newuserlist.removeClass('mouseon'));
+
+        // Apply message timestamps to new messages
+        applyTimestampsToNewMessages();
+
+        // On any user avatar image error in sidebar, hide image
+        $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
+            $(this).hide();
+        });
+
+        // Highlight elements with same username on hover
+        initUserHighlighter();
+
+        // Sidebar starred messages, show full content on hover
+        function loadFullStarredMessage() {
+            const el = $(this);
+            const mid = Number(this.id.replace(/\D+/g, ''));
+
+            // already fetched or nothing to expand, do nothing (toggle via css)
+            if(el.hasClass('js-hasfull') || !/\.\.\.\s*.*\s*- <a rel="noreferrer noopener" class="permalink"/.test(el.html())) return;
+
+            // prefetch stuff
+            el.addClass('js-hasfull').contents().filter(function() {
+                return this.nodeType === 3 || !/(permalink|relativetime|quick-unstar)/.test(this.className) && this.title == "";
+            }).wrapAll(`<div class="message-orig"></div>`);
+            el.children('.sidebar-vote').prependTo(el);
+            el.children('.message-orig').html((i, v) => v.replace(/\s*-\s*by\s*$/, ''));
+            el.children('.permalink').before(`<div class="message-full"><i>loading...</i></div><span> - </span>`).after('<span> by </span>');
+            el.children('.quick-unstar').before('<span> </span>');
+
+            // load semi-full message content as displayed in message history
+            // - don't get full text using /messages/{rid}/{mid} in case it's a wall of text
+            getMessage(mid).then(v => {
+                el.children('.message-full').html(v.html);
+            });
+        }
+        // Occasionally check for new sidebar starred messages and load full expanded content
+        setInterval(() => {
+            $('#starred-posts li').each(loadFullStarredMessage);
+        }, 1000);
+
+        // Keep starred posts height calculated based on available height
+        const topbar = $('#topbar');
+        const sidebar = $('#sidebar');
+        const info = $('#info');
+        const starred = $('#starred-posts ul');
+        const inputArea = $('#input-area');
+        function resizeStarredWidget(evt) {
+            const visibleWidgetsHeight = $('#widgets .sidebar-widget:visible').filter((i, el) => $(el).find('#starred-posts').length == 0).map((i, el) => $(el).height()).get().reduce((a, c) => a + c);
+            const h = sidebar.height() - info.height() - visibleWidgetsHeight - topbar.height() - inputArea.height() - 80;
+            starred.css('max-height', h + 'px');
+        }
+        setTimeout(resizeStarredWidget, 3000);
+        $(window).on('resize', resizeStarredWidget);
+
+        initBetterMessageLinks();
+    }
+
 
     function doPageload() {
 
@@ -1038,123 +1266,10 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
 
         // When joining a chat room
         if(location.pathname.includes('/rooms/') && !location.pathname.includes('/info/')) {
-
-            const roomId = CHAT.CURRENT_ROOM_ID;
-
-            initMessageParser();
-
-            // Rejoin favourite rooms on link click
-            let rejoinFavsBtn = $(`<a href="#">rejoin starred</a><span class="divider"> / </span>`).prependTo($('#my-rooms').parent('.sidebar-widget').find('.msg-small').first());
-            rejoinFavsBtn.click(function() {
-                $(this).next('span.divider').addBack().remove();
-                $.post(`https://${location.hostname}/chats/join/favorite`, {
-                    quiet: true,
-                    immediate: true,
-                    fkey: fkey
-                }, () => console.log('rejoined favourite rooms'));
-                return false;
-            });
-
-            // If on mobile chat
-            if(document.body.classList.contains('mob')) {
-
-                // Improve room list toggle (click on empty space to close)
-                const roomswitcher = $('.sidebar-middle').click(function(e) {
-                    e.stopPropagation();
-                    if(e.target == roomswitcher) {
-                        $(document.body).removeAttr('data-panel-visible');
-                    }
-                }).get(0);
-
-                // Open links in a new window
-                $('#chat').on('click', '.content a, a.signature', function() {
-                    $(this).attr('target', '_blank');
-                });
-
-                // ignore rest of script
-                return;
-            }
-
-            // Move stuff around
-            initTopBar();
-            $('#footer-legal').prepend('<span> | </span>').prepend($('#toggle-notify'));
-            $('#room-tags').appendTo('#roomdesc');
-            $('#roomtitle + div').not('#roomdesc').appendTo('#roomdesc');
-            $('#sidebar-menu').append(`<span> | <a id="room-transcript" title="view room transcript" href="/transcript/${roomId}">transcript</a> | <a id="room-owners" title="view room owners" href="/rooms/info/${roomId}/?tab=access#access-section-owner">owners</a></span>`);
-            addLinksToOtherChatDomains();
-            reapplyPersistentChanges();
-
-            // Occasionally reapply changes
-            setInterval(reapplyPersistentChanges, 3000);
-
-            // Occasionally update userlist
-            setInterval(updateUserlist, 5000); // quick update
-            setInterval(() => { updateUserlist(true); }, 30000); // full update
-
-            // Track if userlist has mouse focus, to prevent update if in use
-            newuserlist
-                .on('mouseover', null, evt => newuserlist.addClass('mouseon'))
-                .on('mouseout', null, evt => newuserlist.removeClass('mouseon'));
-
-            // Apply message timestamps to new messages
-            applyTimestampsToNewMessages();
-
-            // On any user avatar image error in sidebar, hide image
-            $('#present-users').parent('.sidebar-widget').on('error', 'img', function() {
-                $(this).hide();
-            });
-
-            // Highlight elements with same username on hover
-            initUserHighlighter();
-
-            // Sidebar starred messages, show full content on hover
-            function loadFullStarredMessage() {
-                const el = $(this);
-                const mid = Number(this.id.replace(/\D+/g, ''));
-
-                // already fetched or nothing to expand, do nothing (toggle via css)
-                if(el.hasClass('js-hasfull') || !/\.\.\.\s*.*\s*- <a rel="noreferrer noopener" class="permalink"/.test(el.html())) return;
-
-                // prefetch stuff
-                el.addClass('js-hasfull').contents().filter(function() {
-                    return this.nodeType === 3 || !/(permalink|relativetime|quick-unstar)/.test(this.className) && this.title == "";
-                }).wrapAll(`<div class="message-orig"></div>`);
-                el.children('.sidebar-vote').prependTo(el);
-                el.children('.message-orig').html((i, v) => v.replace(/\s*-\s*by\s*$/, ''));
-                el.children('.permalink').before(`<div class="message-full"><i>loading...</i></div><span> - </span>`).after('<span> by </span>');
-                el.children('.quick-unstar').before('<span> </span>');
-
-                // load semi-full message content as displayed in message history
-                // - don't get full text using /messages/{rid}/{mid} in case it's a wall of text
-                getMessage(mid).then(v => {
-                    el.children('.message-full').html(v.html);
-                });
-            }
-            // Occasionally check for new sidebar starred messages and load full expanded content
-            setInterval(() => {
-                $('#starred-posts li').each(loadFullStarredMessage);
-            }, 1000);
-
-            // Keep starred posts height calculated based on available height
-            const topbar = $('#topbar');
-            const sidebar = $('#sidebar');
-            const info = $('#info');
-            const starred = $('#starred-posts ul');
-            const inputArea = $('#input-area');
-            function resizeStarredWidget(evt) {
-                const visibleWidgetsHeight = $('#widgets .sidebar-widget:visible').filter((i, el) => $(el).find('#starred-posts').length == 0).map((i, el) => $(el).height()).get().reduce((a, c) => a + c);
-                const h = sidebar.height() - info.height() - visibleWidgetsHeight - topbar.height() - inputArea.height() - 80;
-                starred.css('max-height', h + 'px');
-            }
-            setTimeout(resizeStarredWidget, 3000);
-            $(window).on('resize', resizeStarredWidget);
-
-            initBetterMessageLinks();
-
+            initLiveChat();
         }
         // When viewing page transcripts and bookmarks
         else if(location.pathname.includes('/transcript/') || location.pathname.includes('/conversation/')) {
-
             const roomId = Number(location.pathname.match(/\/(\d+)\/?/).pop());
 
             // Insert room access button
@@ -1171,46 +1286,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
         }
         // When viewing room access tab
         else if(location.pathname.includes('/rooms/info/') && location.search.includes('tab=access')) {
-
-            const roomId = Number(location.pathname.match(/\/(\d+)\//).pop());
-
-            // Prepare container
-            const logdiv = $('<div id="access-section-owner-log"></div>').appendTo('#access-section-owner');
-
-            // Search for and append room owner changelog
-            const searchUrl = `https://${location.hostname}/search?q=to+the+list+of+this&user=-2&room=${roomId}`;
-            logdiv.load(searchUrl + ' .messages', function(response) {
-
-                // Add title
-                logdiv.prepend('<h4>Room Owner Changelog</h4>');
-
-                // Jump to section again on load if hash present
-                if(location.hash == '#access-section-owner') {
-                    document.getElementById('access-section-owner').scrollIntoView();
-                }
-
-                const messages = logdiv.find('.messages').wrap('<div class="monologue"></div>');
-                logdiv.find('.content').find('a:last').filter((i, v) => v).replaceWith('<span>list of room owners</span>');
-                logdiv.find('.messages a').attr('target', '_blank');
-
-                // Remove invalid entries
-                messages.filter((i, el) => !/(has added|has removed).+(to|from) the list of room owners\.$/.test(el.innerText)).remove();
-                // Remove empty monologues
-                logdiv.children('.monologue:empty').remove();
-
-                // Add indicator icon
-                logdiv.find('.content').each(function() {
-                    $(this).prepend(this.innerText.includes('has removed') ? '<b class="red">-</b>' : '<b class="green">+</b>');
-                });
-
-                // Find automatic room owners
-                $.get(`https://${location.hostname}/search?q=has+been+automatically+appointed+as+owner+of+this+room.&user=-2&room=${roomId}`, function(response) {
-                    $('.messages', response).appendTo(logdiv).wrap('<div class="monologue"></div>').find('.content').prepend('<b class="green">+</b>');
-
-                    // Add view all link if there is more
-                    if(messages.length >= 50) logdiv.append(`<div class="monologue" id="more-room-owners"><a href="${searchUrl}" target="_blank">view more</a></div>`);
-                });
-            });
+            initRoChangelog();
         }
         // When viewing search results
         else if(location.pathname == '/search' && location.search != '') {
@@ -1225,32 +1301,15 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             .html(function(i, v) {
                 return v.replace(regex, function(match, p1) { return ` <span class="chat-search-highlight">${p1}</span> `; });
             });
-
         }
         // When viewing user pages
         else if(/\/users\/\d+\//.test(location.pathname)) {
 
-            // "replies" tab link to default to last 30 days
-            const thirtyDaysAgo = new Date(Date.now() - (30 * 24 * 60 * 60 * 1000));
-            $('#tabs a[href="?tab=replies"]').attr('href', (i, v) => v + `&StartDate=${thirtyDaysAgo.getFullYear()}-${thirtyDaysAgo.getMonth() + 1}-${thirtyDaysAgo.getDate()}`);
+            defaultRepliesLinkRange();
 
             // If on "recent" page, apply pagination to top and bottom of list
             if(location.search.includes('tab=recent')) {
-                const results = $('.subheader').next('div');
-
-                // Build pagination, same style as all rooms list pagination for consistency
-                let currpage = Number((location.search.match(/&page=(\d+)/) || [1]).pop()); // default to page 1
-                let paginationHtml = '<div class="pager clear-both">'; // Begin pagination
-                if(currpage != 1) paginationHtml += `<a href="?tab=recent&amp;page=${currpage-1}" title="previous page" rel="prev"><span class="page-numbers prev">prev</span></a>`;
-                for(let i = 1; i <= currpage + 10; i++) {
-                    paginationHtml += `<a href="?tab=recent&amp;page=${i}" class="${(currpage == i ? 'current' : '' )}" title="page ${i}"><span class="page-numbers ${(currpage == i ? 'current' : '' )}">${i}</span></a>`;
-                }
-                paginationHtml += `<a href="?tab=recent&amp;page=${currpage+1}" title="next page" rel="next"><span class="page-numbers next">next</span></a></div>`; // End pagination
-
-                // Insert before and after results
-                const pager = $(paginationHtml);
-                if(currpage - 5 > 1) pager.children('*:not([rel]):not(.current)').slice(0, currpage - 5).remove();
-                pager.insertBefore(results).clone(true, true).insertAfter(results);
+                initUserRecentPagination();
             }
         }
 
@@ -1566,6 +1625,7 @@ ul#my-rooms > li > a span {
     display: none;
 }
 .pager .page-numbers {
+    min-width: 14px;
     margin-bottom: 3px;
 }
 
@@ -1948,8 +2008,18 @@ div.dialog-message > .meta {
 }
 
 /* Improve pagination UI */
+#roomlist {
+    clear: both;
+}
+#roomlist .pager,
+#roomlist .fr {
+    display: inherit;
+}
 .pager {
+    margin: 0;
+    padding: 20px 0 10px;
     text-align: center;
+    clear: both !important;
 }
 .pager > * {
     float: none;
@@ -1958,8 +2028,16 @@ div.dialog-message > .meta {
     padding: 0;
 }
 .pager .page-numbers {
+    margin: 0;
     padding: 3px 7px;
     border-radius: 3px;
+}
+#content .subheader ~ div:last-of-type > div[style*="float:left; width:230px"] {
+    position: sticky;
+    top: 10px;
+}
+.room-mini {
+    min-height: 110px;
 }
 
 @media screen and (min-width: 768px) {
