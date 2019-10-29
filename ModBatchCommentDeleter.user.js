@@ -3,7 +3,7 @@
 // @description  Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       @samliew
-// @version      1.2.2
+// @version      1.2.3
 //
 // @include      https://*stackoverflow.com/admin/deleter
 // @include      https://*serverfault.com/admin/deleter
@@ -166,7 +166,7 @@
     <div class="grid ai-center jc-space-between mb12 bb bc-black-3 pb12">
         <div class="fs-body3 grid--cell fl1 mr12">Batch Comment Deleter</div>
     </div>
-    <div class="deleter-info">items per batch: <input type="number" min="1" max="100" class="inline" data-param-name="itemsPerBatch" value="${params.itemsPerBatch}" />; secs delay between batches: <input type="number" min="0" max="60" class="inline" data-param-name="delayPerBatch" data-multiplier="1000" value="${params.delayPerBatch/1000}" placeholder="millis" /></div>
+    <div class="deleter-info">items per batch: <input type="number" min="1" max="100" class="inline" data-param-name="itemsPerBatch" value="${params.itemsPerBatch}" />; secs delay between batches: <input type="number" min="0" max="60" class="inline" data-param-name="delayPerBatch" data-multiplier="1000" value="${params.delayPerBatch/1000}" /></div>
 </div>
 `);
         button = $(`<button>Delete ALL</button>`).on('click', function() {
