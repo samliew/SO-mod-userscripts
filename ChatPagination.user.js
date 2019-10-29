@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Chat Pagination
-// @description  Improvements to pagination of user recent messages page
+// @description  Improvements to pagination of user recent messages page. Do not install if you have ChatImprovements as it also implements this.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
