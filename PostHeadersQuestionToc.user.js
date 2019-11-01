@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.1
+// @version      2.4
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -109,10 +109,14 @@
             const post = $(this);
             const isQuestion = post.hasClass('question');
             const pid = isQuestion ? this.dataset.questionid : this.dataset.answerid;
+            const isWiki = $(this).find('span.community-wiki').length > 0;
 
-            const postuser = $(this).find('.user-info:last .user-details').first().children('a, span.d-none');
+            const postuser = $(this).find('.user-info:last .user-details').last().children('a, span.d-none');
             let postuserHtml = '<span class="deleted-user">' + postuser.last().text() + '</span>'; // default to deleted user
-            if(postuser.length == 2) {
+            if(isWiki) {
+                postuserHtml = '<span>' + postuser.last().text() + '</span>';
+            }
+            else if(postuser.length == 2) {
                 postuserHtml = postuser.filter('a')[0].outerHTML;
             }
 
