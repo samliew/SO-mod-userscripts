@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.1
+// @version      1.9.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -45,6 +45,7 @@ ul.comments-list .comment-up-on {
     visibility: visible !important;
 }
 
+
 /*
    Make comment edited icon same color as timestamp
    https://meta.stackoverflow.com/q/371313
@@ -53,6 +54,7 @@ ul.comments-list .comment-up-on {
 .iconPencilSm {
     color: #9199a1 !important;
 }
+
 
 /*
    Revert change to permanent "edit tags" link
@@ -65,6 +67,7 @@ ul.comments-list .comment-up-on {
     opacity: 1;
 }
 
+
 /*
    Fix Hot Meta Posts link colour
    https://meta.stackoverflow.com/q/385643
@@ -74,6 +77,7 @@ ul.comments-list .comment-up-on {
     color: inherit !important;
 }
 
+
 /*
    Remove Products menu in the top bar
    https://meta.stackoverflow.com/q/386393
@@ -82,12 +86,19 @@ ul.comments-list .comment-up-on {
     display: none !important;
 }
 
+
 /*
    Hide announcements bar before page load,
      then check text for blacklisted words after page load
    https://meta.stackoverflow.com/q/390709
 */
 #announcement-banner {
+    display: none !important;
+}
+
+
+/* Hide newsletter sidebar ad */
+#newsletter-ad {
     display: none !important;
 }
 
