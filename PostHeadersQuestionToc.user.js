@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.5
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -21,7 +21,11 @@
 // @include      https://*stackapps.com/election*
 // @include      https://*.stackexchange.com/election*
 //
+// @include      https://stackoverflow.com/c/*/questions/*
+//
 // @exclude      *chat.*
+//
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 //
 // @run-at       document-end
 // ==/UserScript==
@@ -31,6 +35,7 @@
 
 
     const store = window.localStorage;
+    const routePrefix = StackExchange.options.site.routePrefix || '';
     const isElectionPage = document.body.classList.contains('election-page');
     const modflair = '<span class="mod-flair" title="moderator">♦</span>';
     const hasFixedHeader = $('.top-bar').hasClass('_fixed');
@@ -56,7 +61,9 @@
         return new Promise(function(resolve, reject) {
             if(pid == null) { reject(); return; }
 
-            $.ajax(`https://${location.hostname}/posts/${pid}/timeline`)
+            $.ajax(`https://${location.hostname}${routePrefix}/posts/${pid}/timeline`, {
+                    xhr: jQueryXhrOverride
+                })
                 .done(function(data) {
                     const events = $('.event-rows', data);
                     resolve(events);
@@ -130,7 +137,7 @@
             const stickyheader = $(`<div class="post-stickyheader">
 ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair : ''} ${postdate}
 <div class="sticky-tools">
-  <a href="/posts/${pid}/revisions">revs</a> | <a href="/posts/${pid}/timeline">timeline</a>
+  <a href="${routePrefix}/posts/${pid}/revisions">revs</a> | <a href="${routePrefix}/posts/${pid}/timeline">timeline</a>
 </div></div>`);
             post.prepend(stickyheader);
         });
