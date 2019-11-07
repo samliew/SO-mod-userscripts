@@ -69,7 +69,7 @@ Recommended chat userscripts:
 ### [Redacted Screenshots](https://github.com/samliew/SO-mod-userscripts/blob/master/RedactedScreenshots.user.js)
 
 - Anonymizes user links in posts and comments
-- Masks and hides user-identifing info on page (IPs and email addresses)
+- Masks and hides user-identifying info on page (IPs and email addresses)
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-09-07_110958.png)
 - Redact button can be found fixed on the bottom-left of the screen
 
@@ -454,7 +454,7 @@ Recommended chat userscripts:
 
 <br>
 
-## Mod Queue-specific Userscripts
+## Mod Queue-specific userscripts
 
 
 ### [Comment Flags Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/CommentFlagsHelper.user.js) ♦
