@@ -285,6 +285,7 @@ Recommended chat userscripts:
 ### [New Comments Layout](https://github.com/samliew/SO-mod-userscripts/blob/master/NewCommentsLayout.user.js)
 
 Better comments layout for easier readability and moderation.
+
 - Reduce comment body font-size to 96%
 - Comment meta-text is on a new line, font-size reduced to 90%
 - Usernames in comments are italicized
