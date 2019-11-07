@@ -284,6 +284,19 @@ Recommended chat userscripts:
 - Fixes display style on comment flags expansion (jQuery show/hide defaults to block, breaking table)
 
 
+### [New Comments Layout](https://github.com/samliew/SO-userscripts/blob/master/NewCommentsLayout.user.js)
+Experiemental comments UI changes. Includes [ReduceClutter](https://github.com/samliew/SO-mod-userscripts/#reduce-clutter).
+
+- Reduce comment body font-size to 96%
+- Comment meta-text is on a new line, font-size reduced to 90%
+- Usernames in comments are italicized
+- Deleted comment info is floated right to keep comments compact instead of taking up a new line
+- Delete links are floated right (to make it consistent with Undelete links)
+- When mouse is over comments section, show faint preview of all delete links
+- Comment hover background
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-userscripts/master/images/Screenshot_2019-03-14_110300.png)
+
+
 
 <br>
 
