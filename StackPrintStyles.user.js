@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.3
+// @version      0.2.4
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -535,7 +535,7 @@
 
     function doPageload() {
 
-        if(location.pathname.includes('/questions/')) {
+        if(location.pathname.includes('/questions/') && document.getElementById('question')) {
             appendQnaPrintStyles();
 
             const commentButtons = $(`<div class="print-comment-buttons"><button>Load answers and comments</button></div>`).appendTo('body');
