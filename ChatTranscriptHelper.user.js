@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time, Load entire day into single page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.4
+// @version      2.0.5
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
@@ -140,6 +140,9 @@
             .clone(true, true).appendTo(main).end().end();
         main.children('.button').remove();
 
+        // Add domain to document title
+        document.title = location.hostname + ' - ' + document.title;
+
         // If there are no other hourly links/pagination, do nothing
         const currentHoursItem = $('.pager > span.current');
         if(currentHoursItem.length == 0) return;
@@ -172,8 +175,8 @@
             // Change URL to start of "today"
             history.replaceState(null, '', '/transcript/' + roomId + '/' + date.join('/'));
 
-            // Change document title to remove pagination, and add domain
-            document.title = location.hostname + ' - ' + document.title.replace(/ \(.+$/, '');
+            // Remove pagination from document title
+            document.title = document.title.replace(/ \(.+$/, '');
 
             // Fetch content of hourly pages and attach to current page
             otherPageLinks.forEach(function(v) {
