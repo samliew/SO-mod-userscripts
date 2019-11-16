@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.4
+// @version      0.2.5
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -156,7 +156,8 @@
     .comment,
     .comment-text,
     .post-signature,
-    .user-gravatar32 {
+    .user-gravatar32,
+    .post-text ~ div {
         page-break-inside: avoid;
     }
 
