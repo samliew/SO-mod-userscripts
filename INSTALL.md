@@ -66,6 +66,8 @@ Direct installation links (raw files)
 
 [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts/raw/master/DisplayInlineCommentFlagHistory.user.js) ♦
 
+[New Comments Layout](https://github.com/samliew/SO-mod-userscripts/raw/master/NewCommentsLayout.user.js)
+
 
 
 <br>
