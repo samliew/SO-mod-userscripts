@@ -415,6 +415,13 @@ Better comments layout for easier readability and moderation.
 ## Mod Improvements & New Tools
 
 
+### [10k Tools Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/10kToolsHelper.user.js)
+
+- Expands all sections
+- Adds question or answer filters to Delete votes page
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2019-11-19_141119.png)
+
+
 ### [Mobile Moderator Pages](https://github.com/samliew/SO-mod-userscripts/blob/master/MobileModeratorPages.user.js)
 
 - Before/After *(screenshot redacted using RedactedScreenshots, and also running CommentFlagsHelper and CommentFlagTypeColours)*
