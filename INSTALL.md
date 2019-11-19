@@ -112,6 +112,8 @@ Direct installation links (raw files)
 
 ## Mod Improvements & New Tools
 
+[10k Tools Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/10kToolsHelper.user.js)
+
 [Mobile Moderator Pages](https://github.com/samliew/SO-mod-userscripts/raw/master/MobileModeratorPages.user.js) ♦
 
 [Mod Batch Comment Deleter](https://github.com/samliew/SO-mod-userscripts/raw/master/ModBatchCommentDeleter.user.js) ♦
