@@ -173,6 +173,11 @@ Recommended chat userscripts:
 - Works for posts with IDs >= 100000 only to prevent false positives
 
 
+### [Downvote Posts in Search Results](https://github.com/samliew/SO-mod-userscripts/blob/master/DownvotePostsInSearchResults.user.js)
+
+- When searching for not locked posts (`locked:0` or `locked:no`), adds button in bottom right to downvote all displayed results
+
+
 ### [Fetch Question Stats](https://github.com/samliew/SO-mod-userscripts/blob/master/FetchQuestionStats.user.js)
 
 - Display number of recent comments (in the last 30 days) on each post in question lists
