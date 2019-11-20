@@ -578,7 +578,7 @@ Works with [No Oneboxes In Chat](https://github.com/samliew/SO-mod-userscripts#n
 - Link to rejoin starred rooms
 - Expand starred messages in sidebar on hover and on print
 - Starred messages are now scrollable instead of having to click on "show more"
-- On mouseover user signatures or mentions, highlight occurances of same user's links and mentions on page
+- On mouseover user signatures or mentions, highlight occurences of same user's links and mentions on page
 - **Room owner changelog** in access info page
 - Add transcript and room owners links above user list
 - Print styles for live chat and transcripts (for printing to PDF with clickable links)
