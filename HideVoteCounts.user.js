@@ -3,7 +3,7 @@
 // @description  Hides post score until voted
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -12,6 +12,7 @@
 // @include      https://*mathoverflow.net/*
 // @include      https://*.stackexchange.com/*
 //
+// @exclude      https://data.stackexchange.com/*
 // @exclude      */c/*
 // @exclude      */admin/*
 // @exclude      *chat.*
