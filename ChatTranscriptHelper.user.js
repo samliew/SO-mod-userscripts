@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time, Load entire day into single page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.5
+// @version      2.0.6
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
@@ -140,8 +140,10 @@
             .clone(true, true).appendTo(main).end().end();
         main.children('.button').remove();
 
-        // Add domain to document title
-        document.title = location.hostname + ' - ' + document.title;
+        // Add domain to document title when printing
+        $(window).one('beforeprint', function() {
+            document.title = location.hostname + ' - ' + document.title;
+        });
 
         // If there are no other hourly links/pagination, do nothing
         const currentHoursItem = $('.pager > span.current');
