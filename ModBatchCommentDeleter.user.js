@@ -3,7 +3,7 @@
 // @description  Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       @samliew
-// @version      1.2.5
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/admin/deleter
 // @include      https://*serverfault.com/admin/deleter
@@ -49,8 +49,11 @@
 
     let doDeleteAll = function() {
         const startTime = new Date();
-        let linkElems = preview.find('a[href*="/vote/10"]').hide();
-        let links = linkElems.get().map(el => el.href);
+        let linkElems = preview.find('a').hide();
+        let links = linkElems.get().map(el => {
+            if(!el.href.includes('/vote/10')) { return el.href + '/vote/10' }
+            return el.href;
+        });
         let total = links.length;
         let currentNum = 0;
 
@@ -144,17 +147,12 @@
         }
         // Links pasted from CSV
         else {
-            preview.html(`<a href="//${location.hostname}/` + this.value.replace(/[\s\n\r]+/g, ' ').trim().split(/\s?site:\/\//).join(`" target="_blank">link</a> <a href="//${location.hostname}/`) + `">link</a>`);
+            preview.html(`<a href="//${location.hostname}/` + this.value.replace(/[\s\n\r]+/g, ' ').trim().split(/\s?site:\/\//).join(`" target="_blank">link</a> <a href="//${location.hostname}/`) + `" target="_blank">link</a>`);
             preview.children().first().remove();
-            preview.children('a').each(function(i, el) {
-                if(el.href.includes('/posts/comments/') && !el.href.includes('/vote/10')) {
-                    el.href = el.href.replace(/\/$/, '') + '/vote/10';
-                }
-            });
         }
 
         // Show delete all button
-        button.insertBefore(preview).text('Delete ALL ' + preview.find('a[href*="/vote/10"]').length.toLocaleString());
+        button.insertBefore(preview).text('Delete ALL ' + preview.find('a').length.toLocaleString());
     }
 
 
