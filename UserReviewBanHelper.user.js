@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.6.1
+// @version      3.7
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -157,21 +157,36 @@
 
     function doPageload() {
 
+        // If on /admin/review/bans/historical, linkify ban count
+        if(location.pathname.includes('/admin/review/bans/historical')) {
+
+            // Linkify historical ban counts to user review ban history page
+            const table = $('.sorter').attr('id', 'banned-users-table');
+            table.find('tbody tr').each(function() {
+                const userlink = $(this).find('td a').first();
+                const uid = userlink.attr('href').match(/\/(\d+)\//)[1];
+                $(this).children('td').last().html(function(i, v) {
+                    return `<a href="/users/history/${uid}?type=User+has+been+banned+from+review" target="_blank" title="see review ban history">${v}</a>`;
+                });
+            });
+        }
+
         // Linkify ban counts on ban page and historical page tables
         // /admin/review/bans  &  /admin/review/bans/historical
-        if(location.pathname.includes('/admin/review/bans')) {
+        else if(location.pathname.includes('/admin/review/bans')) {
+
+            const table = $('.sorter').attr('id', 'banned-users-table');
 
             // Linkify ban counts to user review ban history page
-            $('table tbody tr').each(function() {
-                const userlink = $(this).find('td a').first();
-                const uid = userlink.attr('data-uid') || userlink.attr('href').match(/\/\d+\//)[0].replace(/\D+/g, '');
+            table.find('tbody tr').each(function() {
+                const userlink = $(this).find('a').first();
+                const uid = userlink.attr('data-uid') || userlink.attr('href').match(/\/(\d+)\//)[1];
                 $(this).children('td').eq(4).html(function(i, v) {
                     return `<a href="/users/history/${uid}?type=User+has+been+banned+from+review" target="_blank" title="see review ban history">${v}</a>`;
                 });
             });
 
             // Fix table date sorting
-            const table = $('.sorter').attr('id', 'banned-users-table');
             setTimeout(() => {
                 $.tablesorter.destroy('.sorter', true, function() {
 
