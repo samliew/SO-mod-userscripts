@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.12
+// @version      4.12.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -839,14 +839,14 @@
       <a class="button extbutton" data-exturl="http://data.stackexchange.com/${currentSiteSlug}/query/898774/?Query={comment-query}">SEDE</a>
     </div>
     <div class="ext">
-      <label for="comment-query">Comments replying to username:</label>
-      <input name="comment-query3" id="comment-query3" data-clearbtn placeholder="user display name without spaces (case-insensitive)" />
-      <a class="button extbutton" data-exturl="http://data.stackexchange.com/${currentSiteSlug}/query/1160376/?UsernameWithoutSpaces={comment-query}">SEDE</a>
+      <label for="comment-query2">Comments replying to username:</label>
+      <input name="comment-query2" id="comment-query2" data-clearbtn placeholder="user display name without spaces (case-insensitive)" />
+      <a class="button extbutton" data-exturl="http://data.stackexchange.com/${currentSiteSlug}/query/1160376/?UsernameWithoutSpaces={comment-query2}">SEDE</a>
     </div>
     <div class="ext">
-      <label for="comment-query">Comments by user: (autocomplete)</label>
-      <input name="comment-query2" id="comment-query2" class="input-small js-dnlookup" data-clearbtn placeholder="username or id" />
-      <a class="button extbutton" data-exturl="http://data.stackexchange.com/${currentSiteSlug}/query/1160377/?UserId={comment-query}">SEDE</a>
+      <label for="comment-query3">Comments by user: (autocomplete)</label>
+      <input name="comment-query3" id="comment-query3" class="input-small js-dnlookup" data-clearbtn placeholder="username or id" />
+      <a class="button extbutton" data-exturl="http://data.stackexchange.com/${currentSiteSlug}/query/1160377/?UserId={comment-query3}">SEDE</a>
     </div>
     <label class="section-label">Archive for</label>
     <div class="ext">
@@ -985,7 +985,7 @@
         // External button links
         searchhelper.find('.extbutton[data-exturl]')
             .each(function(i, el) {
-                const linkedEls = '#' + this.dataset.exturl.match(/{[a-z_-]+}/i).join(', #').replace(/[{}]/g, '');
+                const linkedEls = '#' + this.dataset.exturl.match(/{[a-z0-9_-]+}/i).join(', #').replace(/[{}]/g, '');
                 $(linkedEls).on('change keyup', function(evt) {
                     $(el).trigger('updatelink');
                 });
@@ -995,7 +995,7 @@
                 let valid = true;
                 let output = this.dataset.exturl;
                 const el = this;
-                const linkedEls = output.match(/{[a-z_-]+}/i);
+                const linkedEls = output.match(/{[a-z0-9_-]+}/i);
 
                 linkedEls.forEach(function(tag) {
                     tag = tag.replace(/[{}]/g, '');
