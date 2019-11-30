@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.11.1
+// @version      4.12
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -730,7 +730,7 @@
       <label for="user-self">my own posts:</label>
       <input type="checkbox" name="user-self" id="user-self" value="user:me" data-clears="#user-id" data-autofill /><label for="user-self">self</label>
     </div>
-    <label for="user-id">posts by user:</label>
+    <label for="user-id">posts by user: (autocomplete)</label>
     <input name="user-id" id="user-id" class="input-small js-dnlookup" placeholder="username or id" data-clearbtn data-clears="#user-self" data-autofill data-prefix="user:" />
   </div>
   <div>
@@ -739,7 +739,7 @@
       <label for="fav-self">my own favorites:</label>
       <input type="checkbox" name="fav-self" id="fav-self" value="infavorites:mine" data-clears="#fav-id" data-autofill /><label for="fav-self">self</label>
     </div>
-    <label for="fav-id">favorited by:</label>
+    <label for="fav-id">favourited by: (autocomplete)</label>
     <input name="fav-id" id="fav-id" class="input-small js-dnlookup" placeholder="username or id" data-clearbtn data-clears="#fav-self" data-autofill data-prefix="infavorites:" />
   </div>
   <div>
@@ -834,9 +834,19 @@
     </div>
     <label class="section-label">Search comments</label>
     <div class="ext">
-      <label for="comment-query">Query:</label>
+      <label for="comment-query">Text:</label>
       <input name="comment-query" id="comment-query" data-clearbtn />
       <a class="button extbutton" data-exturl="http://data.stackexchange.com/${currentSiteSlug}/query/898774/?Query={comment-query}">SEDE</a>
+    </div>
+    <div class="ext">
+      <label for="comment-query">Comments replying to username:</label>
+      <input name="comment-query3" id="comment-query3" data-clearbtn placeholder="user display name without spaces (case-insensitive)" />
+      <a class="button extbutton" data-exturl="http://data.stackexchange.com/${currentSiteSlug}/query/1160376/?UsernameWithoutSpaces={comment-query}">SEDE</a>
+    </div>
+    <div class="ext">
+      <label for="comment-query">Comments by user: (autocomplete)</label>
+      <input name="comment-query2" id="comment-query2" class="input-small js-dnlookup" data-clearbtn placeholder="username or id" />
+      <a class="button extbutton" data-exturl="http://data.stackexchange.com/${currentSiteSlug}/query/1160377/?UserId={comment-query}">SEDE</a>
     </div>
     <label class="section-label">Archive for</label>
     <div class="ext">
