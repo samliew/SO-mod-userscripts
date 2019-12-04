@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.2
+// @version      1.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -466,14 +466,14 @@
         // Append link to post sidebar if it doesn't exist yet
         $('.js-voting-container').not('.js-post-mod-menu').addClass('js-post-mod-menu').each(function() {
             const post = $(this).closest('.question, .answer');
-            const postStatus = post.find('.special-status, .question-status').text();
+            const postStatus = post.find('.js-post-notice, .special-status, .question-status').text();
             const isQuestion = post.hasClass('question');
             const isDeleted = post.hasClass('deleted-answer');
             const isModDeleted = post.find('.deleted-answer-info').text().includes('♦') || (postStatus.includes('deleted') && postStatus.includes('♦'));
-            const isClosed = postStatus.includes('closed') || postStatus.includes('on hold') || postStatus.includes('duplicate');
+            const isClosed = postStatus.includes('closed') || postStatus.includes('on hold') || postStatus.includes('duplicate') || postStatus.includes('already has');
             const isMigrated = postStatus.includes('migrated');
             const isLocked = isMigrated || postStatus.includes('locked');
-            const isOldDupe = isQuestion && post.find('.post-text > blockquote:first strong').text() == 'Possible Duplicate:';
+            const isOldDupe = isQuestion && post.find('.post-text blockquote').first().find('strong').text().includes('Possible Duplicate');
             const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
             const userbox = post.find('.post-layout .user-info:last .user-action-time').filter((i, el) => el.innerText.includes('answered') || el.innerText.includes('asked')).parent();
