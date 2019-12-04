@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.19.5
+// @version      1.19.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -76,6 +76,13 @@
 
             $.get(`https://${location.hostname}/users/${uid}`)
                 .done(function(data) {
+
+                    // If deletion record not found, do nothing
+                    if(data.includes('Could not find a user or deletion record')) {
+                        reject();
+                        return;
+                    }
+
                     const page = $(data);
                     const pageTitle = $('title', data).text();
 
@@ -332,7 +339,8 @@
             getDeletedUsername(this.dataset.uid)
                 .then(function(v) {
                     userlink.after(`<div class="orig-username" title="display name before deletion">${v}</div>`);
-                });
+                })
+                .catch(function() { });
 
             return false;
         });
