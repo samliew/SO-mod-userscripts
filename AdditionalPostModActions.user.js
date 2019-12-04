@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9
+// @version      1.9.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -98,7 +98,7 @@
             if(typeof targetPid === 'undefined' || targetPid === null) { reject(); return; }
             closeQuestionAsOfftopic(pid, 'Duplicate', null, 'I\'m voting to close this question as off-topic because ', targetPid)
                .then(resolve)
-               .error(reject);
+               .catch(reject);
         });
     }
     function closeSOMetaQuestionAsOfftopic(pid, closeReason = 'OffTopic', offtopicReasonId = 6) {
@@ -595,9 +595,7 @@
                 case 'old-redupe':
                     console.log();
                     reopenQuestion(pid).then(function(v) {
-                        closeQuestionAsDuplicate(pid, redupePid).then(function(v) {
-                            reloadPage();
-                        });
+                        closeQuestionAsDuplicate(pid, redupePid).finally(reloadPage);
                     });
                     break;
                 case 'move-comments':
@@ -635,13 +633,13 @@
                     });
                     break;
                 case 'toggle-protect': {
-                        if(post.find('.question-status b').text().includes('protect')) unprotectPost(pid).then(reloadPage);
-                        else protectPost(pid).then(reloadPage);
+                        if(post.find('.question-status b').text().includes('protect')) unprotectPost(pid).finally(reloadPage);
+                        else protectPost(pid).finally(reloadPage);
                     }
                     break;
                 case 'meta-incorrect':
                     closeSOMetaQuestionAsOfftopic(pid).then(function() {
-                        deletePost(pid).then(reloadPage);
+                        deletePost(pid).finally(reloadPage);
                     });
                     break;
                 case 'close-offtopic':
