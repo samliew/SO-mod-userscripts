@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.12
+// @version      2.13
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -19,6 +19,8 @@
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
 // @include      https://chat.meta.stackexchange.com/*
+//
+// @exclude      https://winterbash*.stackexchange.com/*
 //
 // @grant        GM_addStyle
 // @run-at       document-start
@@ -783,6 +785,17 @@ img.diff-add {
 }
 ul.comments-list .comment__highlighted .comment-text {
     border-right: 2px solid yellowgreen;
+}
+.wb-activitytab-hat span,
+.hat,
+.hat img,
+.hat + img,
+.wb-hat-checked img {
+    background-color: transparent;
+    filter: none;
+}
+.wb-overlay {
+    background: rgba(0, 0, 0, 0.4);
 }
 
 
