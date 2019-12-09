@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.12.1
+// @version      4.12.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -13,6 +13,7 @@
 // @include      https://*.stackexchange.com/*
 //
 // @exclude      https://data.stackexchange.com/*
+// @exclude      https://contests.stackoverflow.com/*
 //
 // @exclude      *chat.*
 // ==/UserScript==
