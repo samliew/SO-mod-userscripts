@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat. Lightbox images that are displayed smaller than it's original size.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.5.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -26,6 +26,12 @@
         'avatar',
         'hat',
         '-logo',
+        'gravatar-wrapper-24',
+        'gravatar-wrapper-32',
+        'gravatar-wrapper-48',
+        'gravatar-wrapper-64',
+        'gravatar-wrapper-128',
+        'gravatar-wrapper-164',
     ];
 
 
