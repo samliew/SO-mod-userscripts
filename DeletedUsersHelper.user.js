@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.20
+// @version      1.20.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -153,7 +153,11 @@
         if($(elem).hasClass('user-details') && $(elem).siblings('.user-gravatar32').children().length == 0) return;
 
         // Get display name from hidden element in usercard stub, or (self) comment user span
-        const username = $(elem).children('span.d-none').addBack('.comment-user').text().trim();
+        let username = $(elem).children('span.d-none').addBack('.comment-user').text().trim();
+
+        // If no username yet (i.e.: old templates like mod messages), try get username from display text
+        if(username == '') username = $(elem).text().trim();
+
         // Grab numeric digits from display name
         const uid = Number(username.replace(/\D+/g, ''));
 
@@ -168,6 +172,7 @@
     function findDeletedUsers() {
         $('.post-signature .user-details').each(linkifyDeletedUser);
         $('span.comment-user').each(linkifyDeletedUser);
+        $('.msg.msg-moderator .user-details').each(linkifyDeletedUser);
     }
 
 
