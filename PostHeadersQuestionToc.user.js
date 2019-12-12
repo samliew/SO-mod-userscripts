@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6
+// @version      2.6.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -117,10 +117,10 @@
         let elem = $('#' + aid);
         let isQuestion = elem.closest('.answer').length == 0;
         let post = elem.closest('.question, .answer').get(0);
-        let pid = post ? post.dataset.questionid || post.dataset.answerid : -1;
+        let pid = post ? Number(post.dataset.questionid || post.dataset.answerid) : 0;
 
-        if(elem.length === 1) {
-            history.replaceState(null, document.title, `${postBaseUrl}${isQuestion ? '' : '/'+pid+'#'+aid}`);
+        if(pid && elem.length === 1) {
+            history.replaceState(null, document.title, `${postBaseUrl}${isQuestion ? '#'+aid : '/'+pid+'#'+aid}`);
             $('html, body').animate({ scrollTop: elem.offset().top - (hasFixedHeader ? 40 : 50) }, 400);
             return true;
         }
@@ -171,6 +171,8 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
         });
 
         function hashChange(evt) {
+            if(location.hash == null || /^#\d+$/.test(location.hash) == false) return;
+
             let id = location.hash.match(/\d+/)[0];
             let elem;
 
@@ -352,6 +354,9 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 
         // Parse headers and insert anchors
         $('.post-text').find('h1, h2, h3').each(function() {
+            // Only if they do not contain links
+            if($(this).children('a').length > 0) return;
+
             const id = this.innerText.toLowerCase().replace(/'/g, '').replace(/\W+/g, '-').replace(/(^\W+|\W+$)/g, '')
             this.id = id;
             $(this).wrap(`<a class="js-named-anchor" href="#${id}"></a>`);
@@ -364,7 +369,7 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
         });
 
         // On page load, if not answer permalink
-        if(/^#\d+$/.test(location.hash) == false) {
+        if(location.hash && /^#\d+?$/.test(location.hash) == false) {
             setTimeout(() => gotoAnchor(location.hash), 50);
         }
     }
