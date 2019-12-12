@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.10.5
+// @version      5.0
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -195,7 +195,7 @@
             // Additional styles for this page
             appendCTMDRNCAstyles();
 
-            $('.js-flag-text a[href$="/post-comments?state=flagged"]').attr('target', '_blank').each(function() {
+            $('.js-flag-text a[href*="/post-comments"]').attr('target', '_blank').each(function() {
                 const uid = Number(this.href.match(/\/(\d+)\//)[1]);
                 const post = $(this).closest('.js-flagged-post');
                 const postheader = post.find('.js-post-header').hide();
@@ -213,27 +213,32 @@
                 const flaggroup = post.find('.js-post-flag-group');
                 const cmmtsContainer = $(`<table class="comments"></table>`).insertAfter(flaggroup);
 
+                const flagpage = this.href.replace('http:', 'https:').replace('?state=flagged', '?state=All&flagState=all');
+
                 // Load latest R/A helpful comments
-                $.get(this.href.replace('http:', 'https:'), function(data) {
+                $.get(flagpage, function(data) {
 
                     // Filter and Transform
-                    $('.deleted-info', data)
-                        .filter((i, el) => (el.innerText.indexOf('Rude Or Offensive') >= 0 || el.innerText.indexOf('Unwelcoming') >= 0) && el.innerText.indexOf('Helpful') >= 0)
-                        .prev('span')
+                    const result = $('tbody tr', data)
+                        .filter((i, el) => el.innerText.indexOf('Rude/Abusive') >= 0 || el.innerText.indexOf('Unfriendly') >= 0)
                         .each(function() {
-                            const metaRow = $(this).closest('.text-row').prev('.meta-row');
-                            $(this).attr({
-                                'data-pid' : metaRow.attr('data-postid'),
-                                'data-cid' : metaRow.attr('data-id'),
-                                'data-date': metaRow.find('.relativetime').text()
-                            });
+                            const commentCell = $(this).children().eq(1).children(0).html();
+
+                            // Create new element and add data as attributes
+                            $('<tr class="comment roa-comment"></tr>')
+                                .html('<td>'+commentCell+'</td>')
+                                .toggleClass('deleted-comment', $(this).hasClass('bg-red-050'))
+                                .attr({
+                                    'data-postid': this.dataset.postid,
+                                    'data-id': this.dataset.id,
+                                    'data-date': $(this).find('.relativetime').text(),
+                                })
+                                .appendTo(cmmtsContainer)
+                                .each(replaceKeywords)
+                                .each(function() {
+                                    $(`<a class="relativetime" href="/q/${this.dataset.postid}" target="_blank">${this.dataset.date}</a>`).appendTo(this.children[0]);
+                                });
                         })
-                        .appendTo(cmmtsContainer)
-                        .each(replaceKeywords)
-                        .wrap('<tr class="comment roa-comment"><td>')
-                        .each(function() {
-                            $(`<a class="relativetime" href="/q/${this.dataset.pid}" target="_blank">${this.dataset.date}</a>`).insertAfter(this);
-                        });
 
                     // Remove old comments
                     $('.comments .relativetime').filter((i, el) => el.innerText.indexOf("'") >= 0).closest('.roa-comment').remove();
@@ -580,6 +585,8 @@ table.sorter > tbody > tr.odd > td {
 .js-flagged-post > td {
     padding-bottom: 50px !important;
 }
+.js-loaded-body,
+.js-body-summary,
 .js-flagged-post > td > table:first-child {
     display: none;
 }
@@ -613,6 +620,7 @@ table.comments tr.roa-comment > td {
 .ra-userlinks {
     margin: 18px 0 0;
 }
+.visited-post,
 .tagged-ignored {
     opacity: 1 !important;
 }
