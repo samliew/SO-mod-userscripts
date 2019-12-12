@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5
+// @version      2.6
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -103,7 +103,25 @@
             else {
                 history.replaceState(null, document.title, `${postBaseUrl}${isQuestion ? '' : '/'+pid+'#'+pid}`);
             }
-            $('html, body').animate({ scrollTop: elem.offset().top + 1 }, 600);
+            $('html, body').animate({ scrollTop: elem.offset().top + 1 }, 400);
+            return true;
+        }
+        return false;
+    }
+
+
+    function gotoAnchor(aid) {
+        aid = aid.replace(/^#/, '');
+
+        const postBaseUrl = $('#question-header h1 a').attr('href');
+        let elem = $('#' + aid);
+        let isQuestion = elem.closest('.answer').length == 0;
+        let post = elem.closest('.question, .answer').get(0);
+        let pid = post ? post.dataset.questionid || post.dataset.answerid : -1;
+
+        if(elem.length === 1) {
+            history.replaceState(null, document.title, `${postBaseUrl}${isQuestion ? '' : '/'+pid+'#'+aid}`);
+            $('html, body').animate({ scrollTop: elem.offset().top - (hasFixedHeader ? 40 : 50) }, 400);
             return true;
         }
         return false;
@@ -153,13 +171,13 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
         });
 
         function hashChange(evt) {
-            let id, elem;
+            let id = location.hash.match(/\d+/)[0];
+            let elem;
+
             if(location.hash.indexOf('#comment') == 0) {
-                id = location.hash.match(/\d+/)[0];
                 elem = $('#comment-'+id);
             }
             else if(location.hash.length > 1) {
-                id = location.hash.match(/\d+/)[0];
                 elem = $('#answer'-id);
             }
 
@@ -330,6 +348,28 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
     }
 
 
+    function initNamedAnchors() {
+
+        // Parse headers and insert anchors
+        $('.post-text').find('h1, h2, h3').each(function() {
+            const id = this.innerText.toLowerCase().replace(/'/g, '').replace(/\W+/g, '-').replace(/(^\W+|\W+$)/g, '')
+            this.id = id;
+            $(this).wrap(`<a class="js-named-anchor" href="#${id}"></a>`);
+        });
+
+        // Click event
+        $('.post-text').on('click', 'a.js-named-anchor', function() {
+            gotoAnchor(this.hash);
+            return false;
+        });
+
+        // On page load, if not answer permalink
+        if(/^#\d+$/.test(location.hash) == false) {
+            setTimeout(() => gotoAnchor(location.hash), 50);
+        }
+    }
+
+
     function appendStyles() {
 
         const styles = `
@@ -340,6 +380,12 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 }
 #qinfo p.label-key {
     margin-bottom: 6px;
+}
+
+/* Hide newsletter sidebar ad,
+   since we need all the space we can get */
+#newsletter-ad {
+    display: none !important;
 }
 
 /* Sticky post votes/sidebar */
@@ -501,6 +547,12 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
 #qtoc .deleted-user {
     margin: -3px 0;
 }
+
+/* Named anchors functionality */
+a.js-named-anchor {
+    text-decoration: none !important;
+    color: inherit !important;
+}
 </style>
 `;
         $('body').append(styles);
@@ -510,5 +562,6 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
     appendStyles();
     initStickyPostHeaders();
     initTableOfContentsSidebar();
+    initNamedAnchors();
 
 })();
