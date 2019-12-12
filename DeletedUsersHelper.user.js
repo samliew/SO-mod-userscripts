@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.19.6
+// @version      1.20
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -76,13 +76,6 @@
 
             $.get(`https://${location.hostname}/users/${uid}`)
                 .done(function(data) {
-
-                    // If deletion record not found, do nothing
-                    if(data.includes('Could not find a user or deletion record')) {
-                        reject();
-                        return;
-                    }
-
                     const page = $(data);
                     const pageTitle = $('title', data).text();
 
@@ -339,19 +332,19 @@
             getDeletedUsername(this.dataset.uid)
                 .then(function(v) {
                     userlink.after(`<div class="orig-username" title="display name before deletion">${v}</div>`);
-                })
-                .catch(function() { });
+                });
 
             return false;
         });
 
         if(/\d+/.test(location.pathname) === false) return;
+        const is404 = document.title.toLowerCase().includes('page not found');
         const uid = Number(location.pathname.match(/\d+/)[0]);
         const userUrl = `/users/${uid}`;
 
         // 404 on user page or mod page with an ID in the URL
         if((document.body.classList.contains('user-page') || document.body.classList.contains('mod-page')) &&
-           !isNaN(uid) && document.title.indexOf('Page Not Found') === 0) {
+           !isNaN(uid) && is404) {
 
             // Redirect to user profile page if not already on it
             if(location.pathname !== userUrl) location = userUrl;
@@ -360,7 +353,7 @@
         }
 
         // 404 on short user link page /u/{uid}
-        if(/\/u\/\d+/.test(location.pathname) && document.title.indexOf('Page Not Found') === 0) {
+        if(/\/u\/\d+/.test(location.pathname) && is404) {
 
             // Redirect to user profile page
             if(location.pathname !== userUrl) location = userUrl;
@@ -379,7 +372,7 @@
             }
         }
 
-        // If on user profile page and not 404
+        // If on user profile page
         if(location.pathname.indexOf(userUrl) >= 0) {
 
             // Is on deleted user's page
