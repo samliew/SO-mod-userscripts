@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.1
+// @version      1.10
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -553,7 +553,10 @@
   <svg aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 512" class="svg-icon mln1 mr0"><path fill="currentColor"
        d="M64 208c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48zM16 104c0 26.5 21.5 48 48 48s48-21.5 48-48-21.5-48-48-48-48 21.5-48 48zm0 304c0 26.5 21.5 48 48 48s48-21.5 48-48-21.5-48-48-48-48 21.5-48 48z"></path>
   </svg>
-  <div class="post-mod-menu" title="" data-pid="${pid}">${menuitems}</div>
+  <div class="post-mod-menu" title="" data-pid="${pid}" role="dialog">
+    <div class="post-mod-menu-header">Post mod actions:</div>
+    ${menuitems}
+  </div>
 </a>`);
         });
     }
@@ -762,7 +765,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    padding: 6px 0;
+    padding: 0 0 6px;
     z-index: 3;
     cursor: auto;
 
@@ -779,6 +782,17 @@
 
     user-select: none;
     white-space: nowrap;
+}
+.post-mod-menu-header {
+    display: block;
+    margin-bottom: 5px;
+    padding: 8px 0;
+    padding-left: 26px;
+    padding-right: 48px;
+    background-color: #fbf2d4;
+    border-bottom: 1px solid #f1e5bc;
+    color: black;
+    font-weight: bold;
 }
 .post-mod-menu a {
     display: block;
