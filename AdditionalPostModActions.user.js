@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.10.1
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -31,6 +31,9 @@
     const isSO = location.hostname == 'stackoverflow.com';
     const isSOMeta = location.hostname == 'meta.stackoverflow.com';
     const isMeta = typeof StackExchange.options.site.parentUrl !== 'undefined';
+
+    // Manually switch this variable to true when site under spam attack so you can delete accounts as fast as possible without distractions and multiple confirmations
+    const underSpamAttackMode = false;
 
 
     function goToPost(pid) {
@@ -347,7 +350,10 @@
 
             // If details is null or whitespace, get optional details
             if(destroyDetails == null || destroyDetails.trim().length == 0) {
-                destroyDetails = prompt('Additional details for destroying user (if any). Cancel button terminates destroy action.');
+
+                // Prompt for additional details if userscript is not under spam attack mode
+                if(underSpamAttackMode) destroyDetails = '';
+                else destroyDetails = prompt('Additional details for destroying user (if any). Cancel button terminates destroy action.');
 
                 // If still null, reject promise and return early
                 if(destroyDetails == null) { alert('Destroy cancelled. User was not destroyed.'); reject(); return; }
@@ -674,11 +680,11 @@
                     break;
                 case 'destroy-spammer':
                     if(confirm(`Confirm DESTROY the spammer "${uName}" (id: ${uid}) irreversibly???`) &&
-                       confirm(`Are you VERY SURE you want to DESTROY the account "${uName}"???`)) {
+                       (underSpamAttackMode || confirm(`Are you VERY SURE you want to DESTROY the account "${uName}"???`))) {
                         destroySpammer(uid).then(function() {
-                            window.open(`https://${location.hostname}/users/${uid}`);
+                            if(!underSpamAttackMode) window.open(`https://${location.hostname}/users/${uid}`);
                             removePostFromModQueue();
-                            reloadPage();
+                            if(!underSpamAttackMode) reloadPage();
                         });
                     }
                     break;
