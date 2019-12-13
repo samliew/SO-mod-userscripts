@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.10
+// @version      3.10.1
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -367,7 +367,7 @@
         });
 
         // Insert 'skip' button to temporarily hide current post
-        $('.js-flagged-post > td').append(`<a class="skip-post" title="skip (hide) this post" href="#">skip post</a>`);
+        $('.js-flagged-post > td').append(`<a class="js-skip-post" title="skip (hide) this post" href="#">skip post</a>`);
 
         // Shorten additional actions descriptions after flag
         $('.js-flag-text > span:last-child').not('[title]').not('.js-abbrev').addClass('js-abbrev').html(function(i, v) {
@@ -379,7 +379,7 @@
         });
 
         // On skip post link click
-        $('.js-flagged-post').on('click', '.skip-post', function() {
+        $('.js-flagged-post').on('click', '.js-skip-post', function() {
 
             // Hide post immediately so we can move on
             $(this).parents('.js-flagged-post').remove();
@@ -484,7 +484,7 @@ input.js-helpful-purge {
 .star-off, .star-on {
     display: none;
 }
-.skip-post {
+.js-skip-post {
     position: absolute !important;
     bottom: 0;
     right: 0;
@@ -495,7 +495,7 @@ input.js-helpful-purge {
     white-space: nowrap;
     opacity: 0.3;
 }
-.skip-post:hover {
+.js-skip-post:hover {
     background: #07C;
     color: white;
     opacity: 1;
