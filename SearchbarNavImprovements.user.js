@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.13
+// @version      4.13.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -337,7 +337,7 @@
         const currRefreshDurationSecs = getAutoRefreshDuration(location.search);
         let refreshDurationSecs = currRefreshDurationSecs || autoRefreshDefaultSecs;
 
-        const btnAutoRefresh = $(`<a id="btn-auto-refresh" class="s-btn" data-svg="refresh" title="Auto Refresh (${refreshDurationSecs} seconds)">
+        const btnAutoRefresh = $(`<a id="btn-auto-refresh" class="s-btn" href="#" data-svg="refresh" tabindex="0" title="Auto Refresh (${refreshDurationSecs} seconds)">
   <div class="radial-progress" data-progress="0">
     <div class="circle">
       <div class="mask full">
@@ -434,7 +434,7 @@
     function initSavedSearch() {
 
         const ss = $('#saved-search');
-        const btnBookmark = $(`<a id="btn-bookmark-search" class="s-btn" data-svg="bookmark" title="Bookmark Search"></a>`)
+        const btnBookmark = $(`<a id="btn-bookmark-search" class="s-btn" href="#" data-svg="bookmark" tabindex="0" title="Bookmark Search"></a>`)
             .click(function() {
                 $(this).toggleClass('active');
                 if($(this).hasClass('active')) {
@@ -1414,6 +1414,10 @@
 #btn-auto-refresh {
     margin-left: 10px;
 }
+#btn-bookmark-search:focus,
+#btn-auto-refresh:focus {
+    box-shadow: 0 0 0 4px rgba(0, 149, 255, 0.15) !important;
+}
 #search-helper a[data-svg]:hover,
 #btn-bookmark-search:hover,
 #btn-auto-refresh:hover {
@@ -1438,7 +1442,6 @@
 }
 #btn-saved-search.active {
     background: #ddd !important;
-    box-shadow: inset 1px 1px 0 0 rgba(0,0,0,0.2) !important;
     border-right: none;
     border-bottom: none;
 }
@@ -1448,7 +1451,6 @@
     border: none;
     background: #9E9E9E;
     fill: gold;
-    box-shadow: none !important;
 }
 #btn-saved-search.active ~ #saved-search {
     display: block
@@ -2085,7 +2087,6 @@ button, .button,
 #res-quickfilter a + a {
     border-bottom-left-radius: 0 !important;
     border-top-left-radius: 0 !important;
-    border-left: 0;
     margin-left: -1px;
 }
 
