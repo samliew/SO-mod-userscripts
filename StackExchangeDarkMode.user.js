@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.14
+// @version      2.14.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -790,6 +790,7 @@ ul.comments-list .comment__highlighted .comment-text {
 .hat,
 .hat img,
 .hat + img,
+.hat + .avatar img,
 .wb-hat-checked img {
     background-color: transparent;
     filter: none;
