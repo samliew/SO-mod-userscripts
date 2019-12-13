@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.14.1
+// @version      2.15
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -1315,6 +1315,14 @@ body .js-flagged-post .bc-black-3 {
         else if(location.hostname === "stackoverflow.blog") {
             $('.site-header .so-icon-logo').replaceWith(blogLogo);
         }
+
+        // need to be additionally processed
+        $(document).ajaxStop(function() {
+            // msbar with inline styles
+            $('.msbar').attr('style', (i, s) => s.replace(/(background-color:\s?(rgb\(.+\)|#\w+));?/, '$1 !important;'));
+            // ip legend for xref lookup
+            $('.ip-legend span[style]').attr('style', (i, s) => s.replace(/(color:\s?(rgb\(.+\)|#\w+));?/, '$1 !important;'));
+        });
 
         highlightComment();
     });
