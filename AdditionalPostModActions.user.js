@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.10
+// @version      1.10.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -466,7 +466,7 @@
         // Append link to post sidebar if it doesn't exist yet
         $('.js-voting-container').not('.js-post-mod-menu').addClass('js-post-mod-menu').each(function() {
             const post = $(this).closest('.question, .answer');
-            const postStatus = post.find('.js-post-notice, .special-status, .question-status').text();
+            const postStatus = post.find('.js-post-notice, .special-status, .question-status').text().toLowerCase();
             const isQuestion = post.hasClass('question');
             const isDeleted = post.hasClass('deleted-answer');
             const isModDeleted = post.find('.deleted-answer-info').text().includes('♦') || (postStatus.includes('deleted') && postStatus.includes('♦'));
@@ -493,19 +493,19 @@
                 menuitems += `<div class="separator"></div>`;
             }
 
-            menuitems += `<a data-action="move-comments" class="${isDeleted || !hasComments ? 'disabled' : ''}">move comments to chat</a>`; // when there are comments only?
-            menuitems += `<a data-action="purge-comments" class="${!hasComments ? 'disabled' : ''}">purge comments</a>`; // when there are comments only?
+            menuitems += `<a data-action="move-comments" class="${isDeleted || !hasComments ? 'disabled' : ''}" title="${hasComments ? '' : 'no comments to move!'}">move comments to chat</a>`; // when there are comments only?
+            menuitems += `<a data-action="purge-comments" class="${!hasComments ? 'disabled' : ''}" title="${hasComments ? '' : 'no comments to purge!'}">purge comments</a>`; // when there are comments only?
 
             if(!isQuestion) { // A-only
-                menuitems += `<a data-action="convert-comment" title="only the post, under the question">convert post to comment</a>`;
-                menuitems += `<a data-action="convert-edit">convert post to edit</a>`;
+                menuitems += `<a data-action="convert-comment" title="convert only the post to a comment on the question">convert post to comment</a>`;
+                menuitems += `<a data-action="convert-edit" title="append the post as an edit to the question">convert post to edit</a>`;
             }
             else { // Q-only
-                menuitems += `<a data-action="toggle-protect" class="${isDeleted ? 'disabled' : ''}">toggle protect</a>`;
+                menuitems += `<a data-action="toggle-protect" class="${isDeleted ? 'disabled' : ''}" title="${isDeleted ? 'question is deleted!' : ''}">toggle protect</a>`;
             }
 
             if(isSO && isQuestion && !isClosed && !isDeleted) {
-                menuitems += `<a data-action="close-offtopic">close (offtopic)</a>`;
+                menuitems += `<a data-action="close-offtopic" title="close with default off-topic reason">close (offtopic)</a>`;
             }
 
             menuitems += `<div class="separator"></div>`;
@@ -515,11 +515,11 @@
                 menuitems += `<a data-action="meta-incorrect">close + delete (incorrectly posted)</a>`;
             }
             else {
-                menuitems += `<a data-action="mod-delete">mod-delete post</a>`;
+                menuitems += `<a data-action="mod-delete" title="redelete post as moderator to prevent undeletion">mod-delete post</a>`;
             }
 
-            menuitems += `<a data-action="lock-dispute" class="${isLocked ? 'dno' : ''}">lock - dispute (custom days)</a>`; // unlocked-only
-            menuitems += `<a data-action="lock-comments" class="${isLocked ? 'dno' : ''}">lock - comments (custom days)</a>`; // unlocked-only
+            menuitems += `<a data-action="lock-dispute" class="${isLocked ? 'dno' : ''}" title="prompts for number of days to dispute lock">lock - dispute (custom days)</a>`; // unlocked-only
+            menuitems += `<a data-action="lock-comments" class="${isLocked ? 'dno' : ''}" title="prompts for number of days to comment lock">lock - comments (custom days)</a>`; // unlocked-only
 
             if(isQuestion) { // Q-only
                 // menuitems += `<a data-action="lock-historical" class="${isLocked ? 'dno' : ''}">lock - historical (perm)</a>`; // unlocked-only
@@ -532,18 +532,18 @@
                 const uid = Number(userlink.match(/\/\d+\//)[0].replace(/\D+/g, ''));
 
                 menuitems += `<div class="separator"></div>`;
-                menuitems += `<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" target="_blank" title="opens in a new window">request dissociation</a>`; // non-deleted user only
+                menuitems += `<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" target="_blank" title="compose CM dissociation message in a new window">request dissociation</a>`; // non-deleted user only
 
-                // Allow destroy option only if < 14 days
+                // Allow destroy option only if < 30 days
                 if(postage < 30) {
 
-                    // Allow destroy option only if user < 500 rep
-                    if(/^\d+$/.test(userrep) && Number(userrep) < 500) {
-                        menuitems += `<a data-action="destroy-spammer" data-uid="${uid}" data-username="${username}" class="danger" title="confirms whether you want to destroy the account">DESTROY spammer</a>`; // non-deleted user only
+                    // Allow destroy option only if user < 200 rep
+                    if(/^\d+$/.test(userrep) && Number(userrep) < 200) {
+                        menuitems += `<a data-action="destroy-spammer" data-uid="${uid}" data-username="${username}" class="danger" title="confirms whether you want to destroy the account">DESTROY spammer (confirm)</a>`; // non-deleted user only
                     }
                     // Display disabled destroy menu item with description
                     else {
-                        menuitems += `<a class="danger disabled" title="user is above 500 rep">DESTROY spammer</a>`; // non-deleted user only
+                        menuitems += `<a class="danger disabled" title="user rep too high to use this option">DESTROY spammer</a>`; // non-deleted user only
                     }
                 }
             }
