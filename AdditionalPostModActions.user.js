@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -727,13 +727,16 @@
             return false;
         }
 
+        // If spam mode is switched on
         if(underSpamAttackMode) {
             document.body.classList.add('js-spam-mode');
 
-            // Expand all flagged posts in mod dashboard
-            setTimeout(function() {
-                $('.js-expand-body:visible').click();
-            }, 1000);
+            // If filtered to spamoffensive in mod dashboard, expand all flagged posts
+            if(location.search.includes('flags=spamoffensive')) {
+                setTimeout(function() {
+                    $('.js-expand-body:visible').click();
+                }, 1000); // short wait for dashboard scripts to init
+            }
         }
 
         initPostModMenuLinkActions();
