@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -727,6 +727,15 @@
             return false;
         }
 
+        if(underSpamAttackMode) {
+            document.body.classList.add('js-spam-mode');
+
+            // Expand all flagged posts in mod dashboard
+            setTimeout(function() {
+                $('.js-expand-body:visible').click();
+            }, 1000);
+        }
+
         initPostModMenuLinkActions();
         initPostDissociationHelper();
 
@@ -828,6 +837,20 @@
     display: block;
     border-top: 1px solid #ddd;
     margin: 5px 0;
+}
+
+/* Additional things for mod dashboard */
+.js-loaded-body,
+.js-loaded-body.overflow-x-auto {
+    overflow: initial !important;
+}
+
+/* Hide question summary if in spam mode */
+body.js-spam-mode .post-layout.expandable-question-summary {
+    display: none !important;
+}
+body.js-spam-mode .visited-post {
+    opacity: 1 !important;
 }
 </style>
 `;
