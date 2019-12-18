@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.10.1
+// @version      3.11
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -120,6 +120,7 @@
 
         const filterFunction = function() {
             if(filter === 'magisch') return $(this).find('.js-post-flag-group:not(.js-cleared) a[href^="/users/5389107/"]').length > 0; // Magisch's userid on SO
+            if(filter === 'ekad')    return $(this).find('.js-post-flag-group:not(.js-cleared) a[href^="/users/1905949/"]').length > 0; // ekad's userid on SO
             if(filter === 'deleted') return $(this).find('.deleted-answer').length > 0;
 
             if(filter === 'self-answer') {
@@ -330,20 +331,28 @@
 
             // Insert sort options
             $filterOpts.append(`
-<a data-filter="default" class="youarehere">Default</a>
+<a data-filter="default" class="youarehere">Reset</a>
 <a data-filter="poster-rep" title="Poster Rep">Rep</a>
 <a data-filter="date-posted" title="Date Posted">Date</a>
-<a data-filter="post-length" title="Post Length">Length</a>
-<a data-filter="delete-votes" title="Delete Votes" class="dno">*Del. Votes</a>
+<a data-filter="post-length" title="Post Length">Len</a>
+<a data-filter="delete-votes" title="Delete Votes" class="dno">*Delv</a>
 <a data-filter="flag-count" title="Flag Count">Flags</a>
-<a data-filter="flagger-rank" title="Flagger Rank (click to sort again after stats loaded)" id="flagger-rank" class="dno">Flagger Rank</a>
-<a data-filter="has-modified" title="Edited posts after being flagged">Modified</a>
+<a data-filter="flagger-rank" title="Flagger Rank (click to sort again after stats loaded)" id="flagger-rank" class="dno">Rank</a>
+<a data-filter="has-modified" title="Edited posts after being flagged">Edited</a>
 <a data-toggle="q" title="Show Questions only">Q</a>
 <a data-toggle="a" title="Show Answers only">A</a>
-<a data-toggle="self-answer" title="Self Answer">Self-A</a>
-<a data-toggle="deleted" title="Show Deleted only">D</a>
-<a data-toggle="magisch" title="Show flags by Magisch only">M</a>
+<a data-toggle="self-answer" title="Self Answer">Self</a>
+<a data-toggle="deleted" title="Show Deleted only">Del</a>
 `);
+
+            // Insert additional filter options
+            if(superusers.includes(StackExchange.options.user.userId)) {
+
+                $filterOpts.append(`
+<a data-toggle="magisch" title="Show flags by "Magisch" only">Mg</a>
+<a data-toggle="ekad" title="Show flags by "ekad" only">Ek</a>
+`);
+            }
         }
 
         // Sort options event
