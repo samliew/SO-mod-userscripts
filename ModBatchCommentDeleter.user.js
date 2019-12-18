@@ -3,7 +3,7 @@
 // @description  Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://*stackoverflow.com/admin/deleter
 // @include      https://*serverfault.com/admin/deleter
@@ -81,7 +81,7 @@
             if(failures > 1) {
 
                 // Too many errors, stop
-                if(retryCount >= 3) {
+                if(retryCount >= 10) {
                     cleanup(true);
                     return;
                 }
@@ -90,9 +90,9 @@
                 retryCount++;
                 failures = 0;
                 $('input[data-param-name="itemsPerBatch"]').val('20').trigger('change');
-                $('input[data-param-name="delayPerBatch"]').val('10').trigger('change');
+                $('input[data-param-name="delayPerBatch"]').val('20').trigger('change');
                 currentNum -= params.itemsPerBatch;
-                setTimeout(processNextBatch, 120000);
+                setTimeout(processNextBatch, 300000);
             }
             // Continue next batch after a delay
             else {
