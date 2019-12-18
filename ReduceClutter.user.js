@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.10.2
+// @version      1.10.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -23,7 +23,7 @@
 
 
     // Show announcement bar if it does not contain these keywords
-    const blacklistedAnnouncementWords = [ 'podcast' ];
+    const blacklistedAnnouncementWords = [ 'podcast', 'listen', 'tune' ];
 
 
         GM_addStyle(`
