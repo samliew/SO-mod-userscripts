@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.0
+// @version      5.0.1
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -207,13 +207,14 @@
                                 `<a href="https://${location.hostname}/users/account-info/${uid}" target="_blank">Dashboard</a> | ` +
                                 `<a href="https://${location.hostname}/users/history/${uid}?type=User+suspended" target="_blank">Susp. History</a> | ` +
                                 `<a href="https://${location.hostname}/users/message/create/${uid}" target="_blank">Message/Suspend</a> | ` +
-                                `<a href="http://${location.hostname}/admin/users/${uid}/post-comments?state=flagged" target="_blank">Comments</a>` +
+                                `<a href="http://${location.hostname}/admin/users/${uid}/post-comments?state=All&flagState=all" target="_blank">Comments</a>` +
                             ` ]</div>`).appendTo(flagText);
 
                 const flaggroup = post.find('.js-post-flag-group');
                 const cmmtsContainer = $(`<table class="comments"></table>`).insertAfter(flaggroup);
 
                 const flagpage = this.href.replace('http:', 'https:').replace('?state=flagged', '?state=All&flagState=all');
+                this.href = flagpage;
 
                 // Load latest R/A helpful comments
                 $.get(flagpage, function(data) {
