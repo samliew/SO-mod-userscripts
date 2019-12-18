@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.11
+// @version      3.12
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -125,7 +125,7 @@
 
             if(filter === 'self-answer') {
                 const postOwners = $(this).find('.post-owner');
-                return postOwners.length == 2 && postOwners.get(0).href === postOwners.get(1).href;
+                return postOwners.length == 2 ? postOwners.get(0).href === postOwners.get(1).href : postOwners.parent().text().includes('Self-answered');
             }
 
             const pid = this.dataset.postId;
