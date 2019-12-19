@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.15.1
+// @version      2.15.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -213,7 +213,6 @@ body #content .share-tip,
 
 
 /* Specific elements opacity & hover */
-.wmd-button-row,
 #left-sidebar:not(.js-unpinned-left-sidebar),
 #sidebar > *,
 .deleted-answer,
@@ -235,7 +234,6 @@ ul.comments-list .js-comment-flag,
 ul.comments-list .comment-flag {
     opacity: 0.25;
 }
-.wmd-button-row:hover,
 #left-sidebar:hover,
 #sidebar > *:hover,
 .deleted-answer:hover,
@@ -252,6 +250,10 @@ ul.comments-list .comment:hover .comment-up-off,
 ul.comments-list .comment:hover .js-comment-flag,
 ul.comments-list .comment:hover .comment-flag {
     opacity: 0.5;
+}
+.wmd-button-row {
+    background-color: white;
+    filter: invert(1) brightness(5) contrast(0.8);
 }
 .wmd-button,
 .wmd-spacer {
