@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.13.1
+// @version      4.13.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1554,7 +1554,7 @@
 }
 .radial-progress .circle .mask .fill {
   clip: rect(0px, 14px, 28px, 0px);
-  background-color: #ffd700;
+  background-color: #ffd700 !important;
 }
 .radial-progress .inset {
   width: 24px;
