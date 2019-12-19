@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.15
+// @version      2.15.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -929,6 +929,9 @@ a.comment-user.owner {
 #btn-bookmark-search.active svg,
 #btn-auto-refresh.active svg {
     fill: gold;
+}
+.radial-progress .inset {
+    background-color: #222;
 }
 .fancybox-bg,
 .fancybox-inner,
