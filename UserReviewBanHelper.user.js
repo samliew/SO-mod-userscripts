@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.8
+// @version      3.8.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -344,6 +344,7 @@
             .click(function() {
                 $('.review-results').filter((i, el) => el.innerText.includes('Requires Editing')).find('.reviewban-link').each((i, el) => el.click());
                 $(this).remove();
+                unsafeWindow.top.close();
             });
         }
 
