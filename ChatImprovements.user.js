@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.4
+// @version      2.11.5
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -2205,6 +2205,11 @@ div.dialog-message > .meta {
         width: calc(100% - 26px);
         margin: 0;
         padding: 0;
+    }
+    .monologue,
+    .system-message-container {
+        padding-top: 15px;
+        margin-bottom: -15px;
     }
     .monologue .signature {
         flex: 0 1 120px;
