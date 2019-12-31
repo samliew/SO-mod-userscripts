@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.10.3
+// @version      1.11
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -24,6 +24,9 @@
 
     // Show announcement bar if it does not contain these keywords
     const blacklistedAnnouncementWords = [ 'podcast', 'listen', 'tune' ];
+
+    // Hide clickbaity blog posts titles if they contain these keywords
+    const blacklistedBlogWords = [ 'worst', 'bad', 'surprise', 'trick', 'terrible', 'will change', 'actually' ];
 
 
         GM_addStyle(`
@@ -138,6 +141,32 @@ ul.comments-list .comment-up-on {
                 console.log('Announcement bar has been blocked.', annText);
             }
         }
+
+        // Hide clickbaity featured blog post titles from sidebar
+        const blogheader = $('.s-sidebarwidget__yellow .s-sidebarwidget--header').filter((i, el) => el.innerText.includes('Blog'));
+        if(blogheader.length) {
+            blogheader.next().find('a[href^="https://stackoverflow.blog"]').each(function(i, el) {
+                const blogtext = el.innerText.toLowerCase();
+                const isBlacklisted = blacklistedBlogWords && blacklistedBlogWords.some(v => blogtext.includes(v));
+                if(isBlacklisted) {
+                    blogheader.next().remove();
+                    blogheader.remove();
+                    console.log('Featured blogpost has been blocked.', blogtext);
+                }
+            });
+        }
+
+        // Strip unnecessary tracking
+        let trackedElemCount = 0;
+        $('.js-gps-track, [data-ga], [data-gps-track]').each(function(i, el) {
+            $(this).off('click');
+            this.classList.remove('js-gps-track');
+            el.dataset.ga = '';
+            el.dataset.gpsTrack = '';
+            trackedElemCount++;
+        });
+        console.log('Removed tracking data from ' + trackedElemCount + ' elements');
+
     });
 
 
