@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1.2
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -764,12 +764,16 @@
 .post-mod-menu-link {
     position: relative;
     display: inline-block;
+    margin-top: 8px;
+    padding: 8px;
     color: inherit;
     cursor: pointer;
 }
 .post-mod-menu-link svg {
     max-width: 19px;
     max-height: 18px;
+    width: 19px;
+    height: 18px;
 }
 .post-mod-menu-link:hover .post-mod-menu,
 .post-mod-menu-link .post-mod-menu:hover {
@@ -802,7 +806,7 @@
     white-space: nowrap;
 }
 .post-mod-menu-header {
-    display: block;
+    display: block !important;
     margin-bottom: 5px;
     padding: 8px 0;
     padding-left: 26px;
@@ -841,6 +845,19 @@
     border-top: 1px solid #ddd;
     margin: 5px 0;
 }
+
+@media screen and (max-width: 500px) {
+
+    header.-summary {
+        overflow: initial;
+    }
+    .post-mod-menu-link svg {
+        max-width: 17px;
+        max-height: 16px;
+        color: #666;
+    }
+}
+
 
 /* Additional things for mod dashboard */
 .js-loaded-body,
