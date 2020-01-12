@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.8.1
+// @version      3.9
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -560,7 +560,14 @@
                 $('#lookup-result input:submit').addClass('s-btn s-btn__primary');
 
                 if(superusers.includes(StackExchange.options.user.userId)) {
+
+                    // Minimum 4-day review ban to get their attention
                     firstRadio.remove();
+
+                    // If triage review, select alternate by default
+                    if(location.hash.includes('|/review/triage/')) {
+                        $('#canned-messages a[data-message*="Requires Editing"]').click();
+                    }
                 }
 
                 // Default would be based on previous ban duration
