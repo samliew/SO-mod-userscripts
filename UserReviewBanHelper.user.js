@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.9.1
+// @version      3.9.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -722,7 +722,7 @@ a.reviewban-button {
 }
 .message-wrapper textarea {
     display: block;
-    min-height: 220px;
+    min-height: 240px;
     max-width: none !important;
     width: 80% !important;
     margin-bottom: 20px;
