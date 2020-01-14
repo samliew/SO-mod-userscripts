@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.9.2
+// @version      3.9.3
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -241,6 +241,9 @@
                     $(this).addClass('validation-error');
                     return false;
                 }
+
+                // Disable button to prevent double submission
+                $('#lookup-result input:submit').prop('disabled', true);
             });
 
             // Load ban form for user if passed via querystring
