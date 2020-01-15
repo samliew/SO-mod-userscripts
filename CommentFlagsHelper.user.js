@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.0.1
+// @version      5.0.2
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -245,6 +245,12 @@
                     $('.comments .relativetime').filter((i, el) => el.innerText.indexOf("'") >= 0).closest('.roa-comment').remove();
                 });
             });
+        }
+
+        // If commentrobotsaysunfriendly queue, hide comments with all other flag types
+        if(location.search.includes('commentrobotsaysunfriendly')) {
+
+            $('.revision-comment').filter((i, el) => el.innerText != 'Unfriendly or unkind (auto)').closest('.js-flagged-comment').remove();
         }
 
         // Insert 'skip' button to temporarily hide current post
