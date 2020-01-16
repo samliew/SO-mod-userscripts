@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.15.2
+// @version      2.15.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -859,8 +859,9 @@ pre * {
     color: white;
 }
 .ctype-custom {
-    background-color: #ffc;
-    color: #333;
+    background-color: #330;
+    color: #ccc;
+    letter-spacing: 0.03em;
 }
 .ctype-bad {
     background-color: #ff2600;
