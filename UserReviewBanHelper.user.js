@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.9.3
+// @version      3.10
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -32,6 +32,8 @@
 
 
     const superusers = [ 584192 ];
+    const isSuperuser = () => superusers.includes(StackExchange.options.user.userId);
+
     const fkey = StackExchange.options.user.fkey;
     const messageCharLimit = 2000;
 
@@ -317,8 +319,28 @@
             // Not currently banned, show review ban button
             $(`<a class="button reviewban-button" href="/admin/review/bans#${uid2}">Review Ban</a>`).insertAfter('.subheader h1');
         }
+
         // Review queues
         else {
+
+            // If triage queue
+            if(location.pathname.includes('/review/triage/')) {
+
+                // Sort by action
+                $('.review-instructions .review-results').detach().sort(function(a, b) {
+                    const ax = $(a).children('b').last().text();
+                    const bx = $(b).children('b').last().text();
+                    return ax < bx ? -1 : 1;
+                }).appendTo('.review-instructions');
+
+                // Add review-ban button for users who selected "requires editing"
+                $(`<button class="mt16">Review ban "Requires Editing"</button>`).appendTo('.reviewable-post-stats')
+                    .click(function() {
+                    $('.review-results').filter((i, el) => el.innerText.includes('Requires Editing')).find('.reviewban-link').each((i, el) => el.click());
+                    $(this).remove();
+                    unsafeWindow.top.close();
+                });
+            }
 
             // On any completed review, load reviewers info
             $(document).ajaxComplete(function(event, xhr, settings) {
@@ -333,27 +355,9 @@
     /* For review pages */
     function getUsersInfo() {
 
-        // If triage queue
-        if(location.pathname.includes('/review/triage/')) {
-
-            // Sort by action
-            $('.review-instructions .review-results').detach().sort(function(a, b) {
-                const ax = $(a).children('b').last().text();
-                const bx = $(b).children('b').last().text();
-                return ax < bx ? -1 : 1;
-            }).appendTo('.review-instructions');
-
-            // Add review-ban button for users who selected "requires editing"
-            $(`<button class="mt16">Review ban "Requires Editing"</button>`).appendTo('.reviewable-post-stats')
-            .click(function() {
-                $('.review-results').filter((i, el) => el.innerText.includes('Requires Editing')).find('.reviewban-link').each((i, el) => el.click());
-                $(this).remove();
-                unsafeWindow.top.close();
-            });
-        }
-
         // Get users review history
         $('.review-summary').find('a[href^="/users/"]').each(function() {
+
             // Ignore mods
             var modFlair = $(this).next('.mod-flair');
             if(modFlair.length) return;
@@ -367,27 +371,31 @@
             $(`<a class="reviewban-link" href="${banUrl}" title="Ban user from reviews" target="_blank">X</a>`)
                 .insertBefore(userlink);
 
-            // Grab user's history
-            $.ajax({
-                url: url,
-                xhr: jQueryXhrOverride,
-                success: function(data) {
+            // Skip fetching history for supermods since we will already be fetching that while attempting to ban
+            if(!isSuperuser()) {
 
-                    // Parse user history page
-                    var numBans = 0;
-                    var summary = $('#summary', data);
-                    var numBansLink = summary.find('a[href="?type=User+has+been+banned+from+review"]').get(0);
-                    if(typeof numBansLink !== 'undefined') {
-                        numBans = Number(numBansLink.nextSibling.nodeValue.match(/\d+/)[0]);
+                // Grab user's history
+                $.ajax({
+                    url: url,
+                    xhr: jQueryXhrOverride,
+                    success: function(data) {
+
+                        // Parse user history page
+                        var numBans = 0;
+                        var summary = $('#summary', data);
+                        var numBansLink = summary.find('a[href="?type=User+has+been+banned+from+review"]').get(0);
+                        if(typeof numBansLink !== 'undefined') {
+                            numBans = Number(numBansLink.nextSibling.nodeValue.match(/\d+/)[0]);
+                        }
+
+                        console.log("Review bans for " + uid, numBans);
+
+                        // Add annotation count
+                        $(`<a class="reviewban-count ${numBans > 2 ? 'warning' : ''}" href="${url}" title="${numBans} prior review bans" target="_blank">${numBans}</a>`)
+                            .insertBefore(userlink);
                     }
-
-                    console.log("Review bans for " + uid, numBans);
-
-                    // Add annotation count
-                    $(`<a class="reviewban-count ${numBans > 2 ? 'warning' : ''}" href="${url}" title="${numBans} prior review bans" target="_blank">${numBans}</a>`)
-                        .insertBefore(userlink);
-                }
-            });
+                });
+            }
         });
     }
 
@@ -563,7 +571,7 @@
                 $('#days-3').parent().addClass('duration-radio-group').find('input').addClass('s-radio');
                 $('#lookup-result input:submit').addClass('s-btn s-btn__primary');
 
-                if(superusers.includes(StackExchange.options.user.userId)) {
+                if(isSuperuser()) {
 
                     // Minimum 4-day review ban to get their attention
                     firstRadio.remove();
