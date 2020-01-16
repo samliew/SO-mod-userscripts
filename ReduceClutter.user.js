@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.11
+// @version      1.11.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -25,8 +25,8 @@
     // Show announcement bar if it does not contain these keywords
     const blacklistedAnnouncementWords = [ 'podcast', 'listen', 'tune' ];
 
-    // Hide clickbaity blog posts titles if they contain these keywords
-    const blacklistedBlogWords = [ 'worst', 'bad', 'surprise', 'trick', 'terrible', 'will change', 'actually' ];
+    // Hide ads/clickbaity blog posts titles if they contain these keywords
+    const blacklistedBlogWords = [ 'worst', 'bad', 'surprise', 'trick', 'terrible', 'will change', 'actually', 'team', 'try', 'free', 'easy', 'easier' ];
 
 
         GM_addStyle(`
@@ -145,15 +145,21 @@ ul.comments-list .comment-up-on {
         // Hide clickbaity featured blog post titles from sidebar
         const blogheader = $('.s-sidebarwidget__yellow .s-sidebarwidget--header').filter((i, el) => el.innerText.includes('Blog'));
         if(blogheader.length) {
-            blogheader.next().find('a[href^="https://stackoverflow.blog"]').each(function(i, el) {
+            let itemsRemoved = 0;
+            let items = blogheader.next().find('a[href^="https://stackoverflow.blog"]').each(function(i, el) {
                 const blogtext = el.innerText.toLowerCase();
                 const isBlacklisted = blacklistedBlogWords && blacklistedBlogWords.some(v => blogtext.includes(v));
                 if(isBlacklisted) {
                     blogheader.next().remove();
-                    blogheader.remove();
+                    itemsRemoved++;
                     console.log('Featured blogpost has been blocked.', blogtext);
                 }
             });
+
+            // if no items remaining, remove "Blog" heading
+            if(items.length == itemsRemoved) {
+                blogheader.remove();
+            }
         }
 
         // Strip unnecessary tracking
