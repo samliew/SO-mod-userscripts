@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.10
+// @version      3.10.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -323,25 +323,6 @@
         // Review queues
         else {
 
-            // If triage queue
-            if(location.pathname.includes('/review/triage/')) {
-
-                // Sort by action
-                $('.review-instructions .review-results').detach().sort(function(a, b) {
-                    const ax = $(a).children('b').last().text();
-                    const bx = $(b).children('b').last().text();
-                    return ax < bx ? -1 : 1;
-                }).appendTo('.review-instructions');
-
-                // Add review-ban button for users who selected "requires editing"
-                $(`<button class="mt16">Review ban "Requires Editing"</button>`).appendTo('.reviewable-post-stats')
-                    .click(function() {
-                    $('.review-results').filter((i, el) => el.innerText.includes('Requires Editing')).find('.reviewban-link').each((i, el) => el.click());
-                    $(this).remove();
-                    unsafeWindow.top.close();
-                });
-            }
-
             // On any completed review, load reviewers info
             $(document).ajaxComplete(function(event, xhr, settings) {
                 if(settings.url.includes('/review/next-task')) {
@@ -354,6 +335,25 @@
 
     /* For review pages */
     function getUsersInfo() {
+
+        // If triage queue
+        if(location.pathname.includes('/review/triage/')) {
+
+            // Sort by action
+            $('.review-instructions .review-results').detach().sort(function(a, b) {
+                const ax = $(a).children('b').last().text();
+                const bx = $(b).children('b').last().text();
+                return ax < bx ? -1 : 1;
+            }).appendTo('.review-instructions');
+
+            // Add review-ban button for users who selected "requires editing"
+            $(`<button class="mt16">Review ban "Requires Editing"</button>`).appendTo('.reviewable-post-stats')
+                .click(function() {
+                $('.review-results').filter((i, el) => el.innerText.includes('Requires Editing')).find('.reviewban-link').each((i, el) => el.click());
+                $(this).remove();
+                unsafeWindow.top.close();
+            });
+        }
 
         // Get users review history
         $('.review-summary').find('a[href^="/users/"]').each(function() {
