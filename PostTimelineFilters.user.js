@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.10
+// @version      1.11
 //
 // @include      */posts*/timeline*
 // @include      */admin/posts/*/show-flags*
@@ -236,6 +236,11 @@
             return;
         }
 
+        // Redirect to version with post summaries
+        if(!location.search.includes('filter=WithVoteSummaries')) {
+            location.search = 'filter=WithVoteSummaries';
+        }
+
         // Display whether this is a question or answer, and link to question if it's an answer...
         const title = $('.subheader h1');
         const link = title.find('a').first();
@@ -257,8 +262,8 @@
         // Rename "CommentNoLongerNeeded" event-verb to take up less space
         $('.event-verb span').filter((i, el) => el.innerText.indexOf('Comment') === 0).text((i, v) => v.replace(/^Comment/, ''));
 
-        // Minor ui stuff
-        $('.mainbar-full fieldset .s-label').removeClass('s-label');
+        // Hide event filters, since we are rolling our own
+        $('.mainbar-full fieldset').remove();
 
         $eventsContainer = $('table.post-timeline');
         $events = $('.event-rows > tr').not('.separator'); // .filter((i, el) => el.dataset.eventtype !== 'flag' && $(el).find('span.event-type').text() !== 'flag')
