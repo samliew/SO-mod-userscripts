@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9
+// @version      1.10
 //
 // @include      */posts*/timeline*
 // @include      */admin/posts/*/show-flags*
@@ -109,7 +109,7 @@
         console.log(defs, flow);
 
         // Draw diagram using library
-        const canvas = $('<div id="review-flowchart"></div>').insertBefore('.event-count');
+        const canvas = $('<div id="review-flowchart"></div>').insertAfter('.mainbar-full .subheader');
         flowchart.parse(defs + flow).drawSVG('review-flowchart', flowchartOpts);
 
         // Insert title
@@ -256,6 +256,9 @@
 
         // Rename "CommentNoLongerNeeded" event-verb to take up less space
         $('.event-verb span').filter((i, el) => el.innerText.indexOf('Comment') === 0).text((i, v) => v.replace(/^Comment/, ''));
+
+        // Minor ui stuff
+        $('.mainbar-full fieldset .s-label').removeClass('s-label');
 
         $eventsContainer = $('table.post-timeline');
         $events = $('.event-rows > tr').not('.separator'); // .filter((i, el) => el.dataset.eventtype !== 'flag' && $(el).find('span.event-type').text() !== 'flag')
