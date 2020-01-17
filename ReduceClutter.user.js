@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.11.1
+// @version      1.11.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -157,7 +157,7 @@ ul.comments-list .comment-up-on {
             });
 
             // if no items remaining, remove "Blog" heading
-            if(items.length == itemsRemoved) {
+            if(items.length <= itemsRemoved * 2) {
                 blogheader.remove();
             }
         }
