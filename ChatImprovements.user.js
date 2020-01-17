@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.8
+// @version      2.11.9
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -1582,6 +1582,13 @@ html.fixed-header body.with-footer main {
     display: none !important;
 }
 
+/* Custom scrollbars (mostly for Windows) */
+.sidebar-widget *::-webkit-scrollbar { width: 2px; height: 5px; }
+.sidebar-widget *::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 5; }
+.sidebar-widget *::-webkit-scrollbar-track { background-color: transparent; }
+.sidebar-widget *:hover::-webkit-scrollbar { width: 5px; }
+.sidebar-widget *:hover::-webkit-scrollbar-thumb { background-color: #aaa; }
+
 
 /* Other minor stuff */
 #loading #loading-message {
@@ -1663,6 +1670,7 @@ ul#my-rooms > li > a span {
 #starred-posts ul.collapsible {
     max-height: 35vh;
     margin-right: -10px;
+    padding-right: 10px !important;
     overflow-y: scroll;
 }
 #starred-posts ul.collapsible.expanded {
@@ -1817,13 +1825,6 @@ ul#my-rooms > li > a span {
         display: none;
     }
 }
-@media screen and (max-width: 999px) {
-    #my-rooms .activity-4 .room-info,
-    #my-rooms .activity-5 .room-info,
-    #my-rooms .activity-6 .room-info {
-        display: none;
-    }
-}
 @media screen and (max-width: 1033px) {
     #footer-legal,
     #footer-logo,
@@ -1856,6 +1857,33 @@ ul#my-rooms > li > a span {
     }
     #chat-body .monologue .messages {
         width: calc(100% - 30px);
+    }
+}
+@media screen and (max-width: 1600px) {
+    #my-rooms {
+        max-height: 90px;
+        overflow-y: auto;
+        margin-right: -10px;
+        padding-right: 5px !important;
+    }
+    #my-rooms .activity-5 .room-info,
+    #my-rooms .activity-6 .room-info {
+        display: none;
+    }
+    #my-rooms li:first-child .room-info {
+        display: block !important;
+    }
+    .fr {
+        margin: 5px 0;
+    }
+}
+@media screen and (max-width: 1200px) {
+    #my-rooms .activity-3 .room-info,
+    #my-rooms .activity-4 .room-info {
+        display: none;
+    }
+    .fr {
+        margin: 0 0;
     }
 }
 @media screen and (min-width: 1000px) {
