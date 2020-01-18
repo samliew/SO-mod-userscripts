@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.10.1
+// @version      3.11
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -177,6 +177,11 @@
         // Linkify ban counts on ban page and historical page tables
         // /admin/review/bans  &  /admin/review/bans/historical
         else if(location.pathname.includes('/admin/review/bans')) {
+
+            // If superuser, close tab/window if a user has just been banned
+            if(isSuperuser() && location.pathname == '/admin/review/bans' && history.length >= 2 && location.hash == '') {
+                window.top.close();
+            }
 
             const table = $('.sorter').attr('id', 'banned-users-table');
 
