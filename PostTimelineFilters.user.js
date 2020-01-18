@@ -3,10 +3,15 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.11
+// @version      1.12
 //
-// @include      */posts*/timeline*
-// @include      */admin/posts/*/show-flags*
+// @include      https://*stackoverflow.com/*
+// @include      https://*serverfault.com/*
+// @include      https://*superuser.com/*
+// @include      https://*askubuntu.com/*
+// @include      https://*mathoverflow.net/*
+// @include      https://*stackapps.com/*
+// @include      https://*.stackexchange.com/*
 //
 // @require      https://raw.githubusercontent.com/DmitryBaranovskiy/raphael/master/raphael.min.js
 // @require      https://raw.githubusercontent.com/adrai/flowchart.js/master/release/flowchart.min.js
@@ -33,6 +38,18 @@
         }
     };
     let $eventsContainer, $events;
+
+
+    function initTimelineLinkConvertor() {
+
+        function processTimelineLinks() {
+            // Convert timeline links to show all events
+            $('a.js-post-issue[href$="/timeline"]').attr('href', (i, v) => v + '?filter=WithVoteSummaries');
+        }
+
+        processTimelineLinks();
+        $(document).ajaxStop(processTimelineLinks);
+    }
 
 
     function drawReviewsFlowchart() {
@@ -220,6 +237,7 @@
 
     function doPageLoad() {
 
+        // Post flags page
         if(location.pathname.includes('/show-flags')) {
 
             // Show decline reason
@@ -236,82 +254,90 @@
             return;
         }
 
-        // Redirect to version with post summaries
-        if(!location.search.includes('filter=WithVoteSummaries')) {
-            location.search = 'filter=WithVoteSummaries';
-        }
+        // Post timeline page
+        else if(location.pathname.includes('/timeline')) {
 
-        // Display whether this is a question or answer, and link to question if it's an answer...
-        const title = $('.subheader h1');
-        const link = title.find('a').first();
-        if(link.attr('href').includes('#')) { // answer
-            link.before('<span class="posttype-indicator">answer</span>');
+            // Redirect to version with post summaries
+            if(!location.search.includes('filter=WithVoteSummaries')) {
+                location.search = 'filter=WithVoteSummaries';
+            }
 
-            // link to question too
-            const qid = Number(link.attr('href').match(/\/(\d+)\//)[1]);
-            link.after(`<span class="timeline-linked-question">(<a href="https://${location.hostname}/q/${qid}" class="question-hyperlink">Q permalink</a> | <a href="https://${location.hostname}/posts/${qid}/timeline">Q timeline</a>)</span>`);
-        }
-        else {
-            link.before('<span class="posttype-indicator">question</span>');
-        }
+            // Display whether this is a question or answer, and link to question if it's an answer...
+            const title = $('.subheader h1');
+            const link = title.find('a').first();
+            if(link.attr('href').includes('#')) { // answer
+                link.before('<span class="posttype-indicator">answer</span>');
 
-        // Pre-trim certain elements once on page load to make filtering less complicated
-        $('span.event-type, td.event-verb span a').text((i, v) => '' + v.trim());
-        $('td.event-type, td.event-verb span').filter((i, el) => el.children.length === 0).text((i, v) => '' + v.trim());
+                // link to question too
+                const qid = Number(link.attr('href').match(/\/(\d+)\//)[1]);
+                link.after(`<span class="timeline-linked-question">(<a href="https://${location.hostname}/q/${qid}" class="question-hyperlink">Q permalink</a> | <a href="https://${location.hostname}/posts/${qid}/timeline">Q timeline</a>)</span>`);
+            }
+            else {
+                link.before('<span class="posttype-indicator">question</span>');
+            }
 
-        // Rename "CommentNoLongerNeeded" event-verb to take up less space
-        $('.event-verb span').filter((i, el) => el.innerText.indexOf('Comment') === 0).text((i, v) => v.replace(/^Comment/, ''));
+            // Pre-trim certain elements once on page load to make filtering less complicated
+            $('span.event-type, td.event-verb span a').text((i, v) => '' + v.trim());
+            $('td.event-type, td.event-verb span').filter((i, el) => el.children.length === 0).text((i, v) => '' + v.trim());
 
-        // Hide event filters, since we are rolling our own
-        $('.mainbar-full fieldset').remove();
+            // Rename "CommentNoLongerNeeded" event-verb to take up less space
+            $('.event-verb span').filter((i, el) => el.innerText.indexOf('Comment') === 0).text((i, v) => v.replace(/^Comment/, ''));
 
-        $eventsContainer = $('table.post-timeline');
-        $events = $('.event-rows > tr').not('.separator'); // .filter((i, el) => el.dataset.eventtype !== 'flag' && $(el).find('span.event-type').text() !== 'flag')
+            $eventsContainer = $('table.post-timeline');
+            $events = $('.event-rows > tr').not('.separator'); // .filter((i, el) => el.dataset.eventtype !== 'flag' && $(el).find('span.event-type').text() !== 'flag')
 
-        const userType = StackExchange.options.user.isModerator ? 'mod' : 'normal';
-        const postType = $('td.event-verb span').filter((i, el) => el.innerText === 'asked' || el.innerText === 'answered').text() === 'asked' ? 'question' : 'answer';
+            const userType = StackExchange.options.user.isModerator ? 'mod' : 'normal';
+            const postType = $('td.event-verb span').filter((i, el) => el.innerText === 'asked' || el.innerText === 'answered').text() === 'asked' ? 'question' : 'answer';
 
-        console.log(userType, postType);
+            console.log(userType, postType);
 
-        // Insert sort options
-        const $filterOpts = $(`<div id="post-timeline-tabs" class="tabs posttype-${postType} usertype-${userType}">
-                <a data-filter="all" class="youarehere">Show All</a>
-                <a data-filter="hide-votes" id="newdefault">Hide Votes</a>
-                <a data-filter="hide-votes-comments">Hide Votes & Comments</a>
-                <a data-filter="only-votes">Votes</a>
-                <a data-filter="only-comments">Comments</a>
-                <a data-filter="only-reviews">Reviews</a>
-                <a data-filter="only-answers" class="q-only">Answers</a>
-                <a data-filter="only-history" title="Edits, Delete, Undelete">History</a>
-                <a data-filter="only-closereopen" class="q-only">Close & Reopen</a>
-                <a data-filter="only-flags" class="mod-only">♦ Flags</a>
-                <a data-filter="only-mod" class="mod-only">♦ Mod-only</a>
-            </div>`)
+            // Insert sort options
+            const $filterOpts = $(`<div id="post-timeline-tabs" class="tabs posttype-${postType} usertype-${userType}">
+<a data-filter="all" class="youarehere">Show All</a>
+<a data-filter="hide-votes" id="newdefault">Hide Votes</a>
+<a data-filter="hide-votes-comments">Hide Votes & Comments</a>
+<a data-filter="only-votes">Votes</a>
+<a data-filter="only-comments">Comments</a>
+<a data-filter="only-reviews">Reviews</a>
+<a data-filter="only-answers" class="q-only">Answers</a>
+<a data-filter="only-history" title="Edits, Delete, Undelete">History</a>
+<a data-filter="only-closereopen" class="q-only">Close & Reopen</a>
+<a data-filter="only-flags" class="mod-only">♦ Flags</a>
+<a data-filter="only-mod" class="mod-only">♦ Mod-only</a>
+</div>`)
             .insertBefore($eventsContainer);
 
-        // Filter options event
-        $('#post-timeline-tabs').on('click', 'a[data-filter]', function() {
-            if($(this).hasClass('youarehere')) return false;
+            // Filter options event
+            $('#post-timeline-tabs').on('click', 'a[data-filter]', function() {
+                if($(this).hasClass('youarehere')) return false;
 
-            // Hide expanded flags
-            $('.expander-arrow-small-show').click();
+                // Hide expanded flags
+                $('.expander-arrow-small-show').click();
 
-            // Filter posts based on selected filter
-            filterPosts(this.dataset.filter);
+                // Filter posts based on selected filter
+                filterPosts(this.dataset.filter);
 
-            // Update active tab highlight class
-            $(this).addClass('youarehere').siblings().removeClass('youarehere');
+                // Update active tab highlight class
+                $(this).addClass('youarehere').siblings().removeClass('youarehere');
 
-            return false;
-        });
+                return false;
+            });
 
-        // Hide votes (daily summary) is the new default
-        if(location.search.includes('filter=flags')) {
-            $('a[data-filter="only-flags"]').click();
+            // Hide votes (daily summary) is the new default
+            if(location.search.includes('filter=flags')) {
+                $('a[data-filter="only-flags"]').click();
+            }
+            else {
+                $('a#newdefault').click();
+            }
         }
+
+        // All other pages
         else {
-            $('a#newdefault').click();
+
+            initTimelineLinkConvertor();
         }
+
     }
 
 
@@ -400,6 +426,11 @@ tr.separator + tr {
 }
 #review-flowchart .event-count {
     margin-bottom: 10px;
+}
+
+/* Hide new event filter */
+.post-timeline-v2 > fieldset {
+    display: none;
 }
 </style>
 `;
