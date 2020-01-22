@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.2
+// @version      2.6.3
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -61,7 +61,7 @@
         return new Promise(function(resolve, reject) {
             if(pid == null) { reject(); return; }
 
-            $.ajax(`https://${location.hostname}${routePrefix}/posts/${pid}/timeline?filter=WithVoteSummaries`, {
+            $.ajax(`https://${location.hostname}${routePrefix}/posts/${pid}/timeline`, {
                     xhr: jQueryXhrOverride
                 })
                 .done(function(data) {
@@ -155,7 +155,7 @@
             const stickyheader = $(`<div class="post-stickyheader">
 ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair : ''} ${postdate}
 <div class="sticky-tools">
-  <a href="${routePrefix}/posts/${pid}/revisions">revs</a> | <a href="${routePrefix}/posts/${pid}/timeline">timeline</a>
+  <a href="${routePrefix}/posts/${pid}/revisions">revs</a> | <a href="${routePrefix}/posts/${pid}/timeline?filter=WithVoteSummaries">timeline</a>
 </div></div>`);
             post.prepend(stickyheader);
         });
