@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.12
+// @version      1.12.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -12,6 +12,9 @@
 // @include      https://*mathoverflow.net/*
 // @include      https://*stackapps.com/*
 // @include      https://*.stackexchange.com/*
+//
+// @exclude      *chat.*
+// @exclude      *blog.*
 //
 // @require      https://raw.githubusercontent.com/DmitryBaranovskiy/raphael/master/raphael.min.js
 // @require      https://raw.githubusercontent.com/adrai/flowchart.js/master/release/flowchart.min.js
