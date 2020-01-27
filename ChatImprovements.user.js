@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.12
+// @version      2.12.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -39,11 +39,14 @@
     jQuery.fn.reverse = [].reverse;
 
 
+    // Never unfreeze room 4 - old teacher's lounge
+    const doNotUnfreeze = [ 4 ];
     // Unfreeze room
     function unfreezeRoom(roomId) {
         roomId = Number(roomId);
         return new Promise(function(resolve, reject) {
             if(isNaN(roomId)) { reject(); return; }
+            if(doNotUnfreeze.includes(roomId)) { reject(); return; }
 
             $.post(`https://chat.stackoverflow.com/rooms/setfrozen/${roomId}`, {
                 freeze: false,
