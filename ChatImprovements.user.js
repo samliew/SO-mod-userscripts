@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.9
+// @version      2.12
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -37,6 +37,30 @@
 
     // Helper functions
     jQuery.fn.reverse = [].reverse;
+
+
+    // Unfreeze room
+    function unfreezeRoom(roomId) {
+        roomId = Number(roomId);
+        return new Promise(function(resolve, reject) {
+            if(isNaN(roomId)) { reject(); return; }
+
+            $.post(`https://chat.stackoverflow.com/rooms/setfrozen/${roomId}`, {
+                freeze: false,
+                fkey: fkey
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+    // Unfreeze current room
+    function unfreezeCurrentRoom() {
+        if(typeof CHAT !== 'undefined' && !isNaN(CHAT.CURRENT_ROOM_ID)) unfreezeRoom(CHAT.CURRENT_ROOM_ID);
+    }
+    // Unfreeze rooms displayed in sidebar
+    function unfreezeRooms() {
+        $('#my-rooms li').each((i, el) => unfreezeRoom(el.id.replace(/^\D+/, '')));
+    }
 
 
     // Get message info
@@ -1150,6 +1174,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
         const roomId = CHAT.CURRENT_ROOM_ID;
 
         initMessageParser();
+        setTimeout(unfreezeRooms, 5000); // not important, run after a delay
 
         // Rejoin favourite rooms on link click
         let rejoinFavsBtn = $(`<a href="#">rejoin starred</a><span class="divider"> / </span>`).prependTo($('#my-rooms').parent('.sidebar-widget').find('.msg-small').first());
@@ -1165,6 +1190,9 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
 
         // If on mobile chat
         if(document.body.classList.contains('mob')) {
+
+            // Rejoin favourite rooms if on mobile
+            rejoinFavsBtn.triggerHandler('click');
 
             // Improve room list toggle (click on empty space to close)
             const roomswitcher = $('.sidebar-middle').click(function(e) {
