@@ -399,7 +399,7 @@ Better comments layout for easier readability and moderation.
 - Auto-focus submit button when option selected in popup action dialogs (e.g.: so you can go "2 > 2 > space" to submit)
 - Automatically skips review audits
 - Esc goes back a previous dialog pane
-- More options available when SOMU-helper userscript is installed
+- More options available when SOMU Options userscript is installed
 
 
 ### [User Review Ban Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/UserReviewBanHelper.user.js) ♦
