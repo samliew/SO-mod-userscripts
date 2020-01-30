@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.12.1
+// @version      2.12.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -1173,6 +1173,15 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
     }
 
 
+    function rejoinFavRooms() {
+        $.post(`https://${location.hostname}/chats/join/favorite`, {
+            quiet: true,
+            immediate: true,
+            fkey: fkey
+        }, () => console.log('rejoined favourite rooms'));
+    }
+
+
     function initLiveChat() {
         const roomId = CHAT.CURRENT_ROOM_ID;
 
@@ -1183,19 +1192,15 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
         let rejoinFavsBtn = $(`<a href="#">rejoin starred</a><span class="divider"> / </span>`).prependTo($('#my-rooms').parent('.sidebar-widget').find('.msg-small').first());
         rejoinFavsBtn.click(function() {
             $(this).next('span.divider').addBack().remove();
-            $.post(`https://${location.hostname}/chats/join/favorite`, {
-                quiet: true,
-                immediate: true,
-                fkey: fkey
-            }, () => console.log('rejoined favourite rooms'));
+            rejoinFavRooms();
             return false;
         });
 
         // If on mobile chat
-        if(document.body.classList.contains('mob')) {
+        if(document.body.classList.contains('mob') || (CHAT && CHAT.IS_MOBILE)) {
 
             // Rejoin favourite rooms if on mobile
-            rejoinFavsBtn.triggerHandler('click');
+            rejoinFavRooms();
 
             // Improve room list toggle (click on empty space to close)
             const roomswitcher = $('.sidebar-middle').click(function(e) {
