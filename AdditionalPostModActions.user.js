@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.1
+// @version      2.3.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -483,6 +483,7 @@
             const isMigrated = postStatus.includes('migrated');
             const isLocked = isMigrated || postStatus.includes('locked');
             const isOldDupe = isQuestion && post.find('.post-text blockquote').first().find('strong').text().includes('Possible Duplicate');
+            const needsRedupe = postStatus.match(/This question already has answers here:(\s|\n|\r)+Closed/i) != null;
             const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
             const userbox = post.find('.post-layout .user-info:last .user-action-time').filter((i, el) => el.innerText.includes('answered') || el.innerText.includes('asked')).parent();
@@ -495,7 +496,7 @@
             // Create menu based on post type and state
             let menuitems = '';
 
-            if(isSO && isOldDupe && postStatus == '') { // Q-only
+            if(isSO && isOldDupe && needsRedupe) { // Q-only
                 const oldDupePid = isOldDupe ? post.find('.post-text > blockquote:first a').attr('href').match(/(\/\d+\/|\/\d+$)/)[0].replace(/\D/g, '') : null;
 
                 menuitems += `<a data-action="old-redupe" data-redupe-pid="${oldDupePid}">close as proper duplicate</a>`;
