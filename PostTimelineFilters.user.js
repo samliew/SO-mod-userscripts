@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.12.1
+// @version      1.12.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -56,12 +56,15 @@
 
 
     function drawReviewsFlowchart() {
-        if(typeof flowchart === 'undefined') return;
+        if(typeof flowchart === 'undefined') {
+            console.error('flowchart library undefined');
+            return;
+        }
 
         const pid = Number(location.pathname.match(/\d+/)[0]);
 
-        // do not process if pid < 10000000
-        if(location.hostname == 'stackoverflow.com' && pid < 10000000) return;
+        // do not process if pid < 1000000
+        if(location.hostname == 'stackoverflow.com' && pid < 1000000) return;
 
         // Get first history event from timeline
         const firstevt = $events.filter(function(i, el) {
