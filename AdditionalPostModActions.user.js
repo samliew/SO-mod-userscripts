@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -24,6 +24,9 @@
     // Moderator check
     if(!isModerator()) return;
 
+
+    const superusers = [ 584192 ];
+    const isSuperuser = () => superusers.includes(StackExchange.options.user.userId);
 
     const newlines = '\n\n';
     const fkey = StackExchange.options.user.fkey;
@@ -493,7 +496,7 @@
             let menuitems = '';
 
             if(isSO && isOldDupe) { // Q-only
-                const oldDupePid = isOldDupe ? post.find('.post-text > blockquote:first a').attr('href').match(/\/\d+\//)[0].replace(/\D/g, '') : null;
+                const oldDupePid = isOldDupe ? post.find('.post-text > blockquote:first a').attr('href').match(/(\/\d+\/|\/\d+$)/)[0].replace(/\D/g, '') : null;
 
                 menuitems += `<a data-action="old-redupe" data-redupe-pid="${oldDupePid}">close as proper duplicate</a>`;
                 menuitems += `<div class="separator"></div>`;
@@ -564,6 +567,12 @@
     ${menuitems}
   </div>
 </a>`);
+
+            // If we are testing auto-reduping of posts
+            // Seems like Community -1 user will auto remove the old post notices after we redupe
+            if(isOldDupe && isSuperuser()) {
+                $('.post-mod-menu a[data-action="old-redupe"]').click();
+            }
         });
     }
 
