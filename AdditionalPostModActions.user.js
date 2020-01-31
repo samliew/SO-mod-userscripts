@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -495,7 +495,7 @@
             // Create menu based on post type and state
             let menuitems = '';
 
-            if(isSO && isOldDupe) { // Q-only
+            if(isSO && isOldDupe && postStatus == '') { // Q-only
                 const oldDupePid = isOldDupe ? post.find('.post-text > blockquote:first a').attr('href').match(/(\/\d+\/|\/\d+$)/)[0].replace(/\D/g, '') : null;
 
                 menuitems += `<a data-action="old-redupe" data-redupe-pid="${oldDupePid}">close as proper duplicate</a>`;
