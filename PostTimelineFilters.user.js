@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.12.2
+// @version      1.12.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -336,11 +336,13 @@
             else {
                 $('a#newdefault').click();
             }
+
+            // Draw reviews flowchat on post timeline page
+            drawReviewsFlowchart();
         }
 
         // All other pages
         else {
-
             initTimelineLinkConvertor();
         }
 
@@ -447,6 +449,5 @@ tr.separator + tr {
     // On page load
     appendStyles();
     doPageLoad();
-    drawReviewsFlowchart();
 
 })();
