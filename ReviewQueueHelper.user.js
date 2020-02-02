@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.13.1
+// @version      1.14
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -39,8 +39,12 @@ async function waitForSOMU() {
     'use strict';
 
     const fkey = StackExchange.options.user.fkey;
-
     const scriptName = GM_info.script.name;
+    const isSO = location.hostname == 'stackoverflow.com';
+
+    const superusers = [ 584192 ];
+    const isSuperuser = () => superusers.includes(StackExchange.options.user.userId);
+
     const queueType = /^\/review/.test(location.pathname) ? location.href.replace(/\/\d+(\?.*)?$/, '').split('/').pop() : null;
     const filteredElem = document.querySelector('.review-filter-tags');
     const filteredTags = filteredElem ? (filteredElem.value || '').split(' ') : [''];
@@ -53,6 +57,8 @@ async function waitForSOMU() {
 
     function loadOptions() {
         waitForSOMU().then(function(SOMU) {
+
+            if(queueType == null) return;
 
             // Set option field in sidebar with current custom value; use default value if not set before
             SOMU.addOption(scriptName, 'Skip Accepted Questions', skipAccepted, 'bool');
@@ -110,6 +116,39 @@ async function waitForSOMU() {
         toastTimeout = setTimeout(function(div) {
             div.hide();
         }, duration * 1000, div);
+    }
+
+
+    // Close individual post
+    // closeReasonId: 'NeedMoreFocus', 'OffTopic', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
+    // if closeReasonId is 'OffTopic', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
+    function closeQuestionAsOfftopic(pid, closeReasonId = 'OffTopic', offtopicReasonId = 3, offTopicOtherText = '', duplicateOfQuestionId = null) {
+        return new Promise(function(resolve, reject) {
+            if(!isSO) { reject(); return; }
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+            if(typeof closeReasonId === 'undefined' || closeReasonId === null) { reject(); return; }
+            if(closeReasonId === 'OffTopic' && (typeof offtopicReasonId === 'undefined' || offtopicReasonId === null)) { reject(); return; }
+
+            if(closeReasonId === 'Duplicate') offtopicReasonId = null;
+
+            // Logging actual action
+            console.log(`%c Closing ${pid} as ${closeReasonId}, reason ${offtopicReasonId}.`, 'font-weight: bold');
+
+            $.post({
+                url: `https://${location.hostname}/flags/questions/${pid}/close/add`,
+                data: {
+                    'fkey': fkey,
+                    'closeReasonId': closeReasonId,
+                    'closeAsOffTopicReasonId': offtopicReasonId,
+                    'duplicateOfQuestionId': duplicateOfQuestionId,
+                    'offTopicOtherText': offtopicReasonId == 3 && isSO ? 'This question does not appear to be about programming within the scope defined in the [help]' : offTopicOtherText,
+                    //'offTopicOtherCommentId': '',
+                    'originalOffTopicOtherText': 'I\'m voting to close this question as off-topic because ',
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
     }
 
 
@@ -253,6 +292,59 @@ async function waitForSOMU() {
     }
 
 
+    function insertInstantCloseButtons() {
+
+        const actionsCont = $('.review-actions-container').first();
+        if(actionsCont.length == 0) return;
+        actionsCont.children('.instant-actions').remove();
+
+        const instantActions = $(`<span class="instant-actions">
+    <input type="button" data-instant="unclear" value="[6] Unclear" title="Needs details or clarity">
+    <input type="button" data-instant="broad" value="[7] Broad" title="Needs more focus">
+    <input type="button" data-instant="softrec" value="[8] SoftRec" title="It's seeking recommendations for books, software libraries, or other off-site resources">
+    <input type="button" data-instant="debug" value="[9] Debug" title="It's seeking debugging help but needs more information">
+    <input type="button" data-instant="opinion" value="[0] Opinion" title="Opinion-based">
+</span>`).appendTo(actionsCont);
+
+        instantActions.one('click', 'input[data-instant]', function() {
+            actionsCont.find('.instant-actions input').prop('disabled', true);
+            const pid = post.id;
+
+            // closeQuestionAsOfftopic() :
+            // closeReasonId: 'NeedMoreFocus', 'OffTopic', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
+            // if closeReasonId is 'OffTopic', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
+            let error = false;
+            switch(this.dataset.instant) {
+                case 'unclear':
+                    closeQuestionAsOfftopic(pid, 'NeedsDetailsOrClarity');
+                    break;
+                case 'broad':
+                    closeQuestionAsOfftopic(pid, 'NeedMoreFocus');
+                    break;
+                case 'softrec':
+                    closeQuestionAsOfftopic(pid, 'OffTopic', 16);
+                    break;
+                case 'debug':
+                    closeQuestionAsOfftopic(pid, 'OffTopic', 13);
+                    break;
+                case 'opinion':
+                    closeQuestionAsOfftopic(pid, 'OpinionBased');
+                    break;
+                default: {
+                    error = true;
+                    console.error('invalid option');
+                }
+            }
+
+            if(!error) {
+                // immediately skip to next review
+                instantActions.remove();
+                $('.review-actions input[value*="Skip"]').click();
+            }
+        });
+    }
+
+
     function insertVotingButtonsIfMissing() {
 
         const voteCont = $('.js-voting-container').first();
@@ -306,12 +398,14 @@ async function waitForSOMU() {
 
             // Get numeric key presses
             let index = evt.keyCode - 49; // 49 = number 1 = 0 (index)
-            if(index < 0 || index > 6) { // handle 1-7 number keys only (index 0-6)
+            if(index == -1) index = 9; // remap zero to last index
+            if(index < 0 || index > 9) { // handle 1-0 number keys only (index 0-9)
 
                 // Try keypad keycodes instead
                 let altIndex = evt.keyCode - 97; // 97 = number 1 = 0 (index)
-                if(altIndex >= 0 && altIndex <= 6) {
-                    index = altIndex; // handle 1-7 number keys only (index 0-6)
+                if(altIndex == -1) index = 9; // remap zero to last index
+                if(altIndex >= 0 && altIndex <= 9) {
+                    index = altIndex; // handle 1-0 number keys only (index 0-9)
                 }
                 else {
                     // Both are invalid
@@ -454,9 +548,11 @@ async function waitForSOMU() {
                 return;
             }
 
-            if(index != null) {
-                const btns = $('.review-actions input');
+            // Review action buttons
+            if(index != null && index <= 4) {
+                //console.log('review action', 'keyCode', evt.keyCode, 'index', index);
 
+                const btns = $('.review-actions input');
                 // If there is only one button and is "Next", click it
                 if(btns.length === 1) {
                     index = 0;
@@ -464,7 +560,14 @@ async function waitForSOMU() {
 
                 // Default to clicking review buttons based on index
                 btns.eq(index).click();
+                return false;
+            }
+            // Instant action buttons
+            else if(index != null && index >= 5) {
+                //console.log('instant action', 'keyCode', evt.keyCode, 'index', index);
 
+                const btns = $('.instant-actions input');
+                btns.eq(index - 5).click();
                 return false;
             }
         });
@@ -777,6 +880,9 @@ async function waitForSOMU() {
                     // Insert voting buttons
                     insertVotingButtonsIfMissing();
 
+                    // Insert instant buttons
+                    if(isSO && post.isQuestion && isSuperuser()) insertInstantCloseButtons();
+
                 }, 100);
             }
         });
@@ -812,6 +918,32 @@ pre {
 #popup-close-question:hover {
     opacity: 1;
 }
+
+
+/* Instant action buttons */
+.review-actions-container > input[type='button'][style*='visibility'] {
+    display: none;
+}
+.review-actions-container .review-actions,
+.review-actions-container .instant-actions {
+    display: block;
+    margin-right: 10px;
+}
+.review-bar-container .review-bar .review-actions-container .instant-actions input {
+    margin-left: 10px;
+    background-color: var(--green);
+    border-color: var(--green-600);
+    box-shadow: inset 0 1px 0 var(--green-200);
+}
+.review-bar-container .review-bar .review-actions-container .instant-actions input:hover {
+    background-color: var(--green-500);
+}
+.review-bar-container .review-bar .review-actions-container .instant-actions input[disabled] {
+    background-color: var(--green-100);
+    border-color: var(--green-200);
+    box-shadow: inset 0 1px 0 var(--green-100);
+}
+
 
 /* Edit reasons link to take up less space */
 .popup a.edit-link {
