@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.11
+// @version      3.12
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -560,8 +560,8 @@
 
                 // Duration radios
                 const firstRadio = $('#days-3').val('2').next('label').text('2 days').addBack();
-                $('#days-7').val('4').next('label').text('4 days');
-                $('#days-30').val('8').next('label').text('8 days');
+                const secondRadio = $('#days-7').val('4').next('label').text('4 days').addBack();
+                const thirdRadio = $('#days-30').val('8').next('label').text('8 days').addBack();
                 $('#days-other')
                     .before(`<input type="radio" value="16" name="reviewBanChoice" id="days-16"><label for="days-16"> 16 days</label><br>`)
                     .before(`<input type="radio" value="32" name="reviewBanChoice" id="days-32"><label for="days-32"> 32 days</label><br>`)
@@ -578,8 +578,9 @@
 
                 if(isSuperuser()) {
 
-                    // Minimum 4-day review ban to get their attention
-                    firstRadio.remove();
+                    // Minimum 8-day review ban to get their attention
+                    firstRadio.remove(); // 2
+                    secondRadio.remove(); // 4
 
                     // If triage review, select alternate by default
                     if(location.hash.includes('|/review/triage/')) {
@@ -803,7 +804,7 @@ a.reban:hover {
 
     // On page load
     appendStyles();
-    doPageload();
     listenForPageUpdates();
+    doPageload();
 
 })();
