@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.3
+// @version      2.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -70,6 +70,25 @@
     }
 
 
+    // Post comment on post
+    function addComment(pid, commentText) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+            if(typeof commentText !== 'string' || commentText.trim() === '') { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/posts/${pid}/comments`,
+                data: {
+                    'fkey': fkey,
+                    'comment': commentText,
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+
+
     // Close individual post
     // closeReasonId: 'NeedMoreFocus', 'OffTopic', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
     // if closeReasonId is 'OffTopic', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
@@ -113,6 +132,8 @@
             if(typeof pid === 'undefined' || pid === null) { reject(); return; }
             if(typeof closeReason === 'undefined' || closeReason === null) { reject(); return; }
             if(closeReason === 'OffTopic' && (typeof offtopicReasonId === 'undefined' || offtopicReasonId === null)) { reject(); return; }
+
+            addComment(pid, `You are on [Meta](/help/whats-meta). This question will not be answered here and you may want to go over the [Checklist](//meta.stackoverflow.com/q/260648) and [ask] before you repost on [main].`);
 
             $.post({
                 url: `https://${location.hostname}/flags/questions/${pid}/close/add`,
