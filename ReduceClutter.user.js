@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.12.1
+// @version      1.12.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -105,19 +105,6 @@ ul.comments-list .comment-up-on {
 /* Hide new contributor popover */
 .js-new-contributor-popover {
     display: none !important;
-}
-
-
-/*
-    Add back visited links purple colour
-    https://meta.stackoverflow.com/q/392188
-*/
-body .post-text a:not(.post-tag):not(.badge-tag):visited,
-body .comment-copy a:visited,
-body .wmd-preview a:not(.post-tag):not(.badge-tag):visited,
-body .question-hyperlink:visited,
-body .answer-hyperlink:visited {
-    color: #5c08c3;
 }
 
 `);
