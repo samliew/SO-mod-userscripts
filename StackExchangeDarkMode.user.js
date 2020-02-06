@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.15.5
+// @version      2.16
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -74,6 +74,22 @@
 /* Apply to all */
 body {
     background-image: none;
+
+    --black-025: #0c0d0e;
+    --black-050: #242729;
+    --black-075: #2f3337;
+    --black-100: #3c4146;
+    --black-150: #535a60;
+    --black-200: #6a737c;
+    --black-300: #848d95;
+    --black-350: #9199a1;
+    --black-400: #9fa6ad;
+    --black-500: #bbc0c4;
+    --black-600: #c8ccd0;
+    --black-700: #d6d9dc;
+    --black-750: #e4e6e8;
+    --black-800: #eff0f1;
+    --black-900: #fafafb;
 }
 *,
 *:before,
@@ -332,7 +348,7 @@ ul.comments-list .comment-up-on * {
     content: '';
     clear: both;
     display: block;
-    border-bottom: 1px solid #e4e6e8;
+    border-bottom: 1px solid var(--black-100);
 }
 #tabs a,
 #content .tabs a {
@@ -346,8 +362,8 @@ ul.comments-list .comment-up-on * {
 }
 #tabs a.youarehere,
 #content .tabs a.youarehere {
-    border-color: #e4e6e8;
-    border-bottom-color: ${bgcolor};
+    border-color: var(--black-300);
+    border-bottom-color: var(--black-300);
 }
 #tabs a:hover,
 #content .tabs a:hover,
