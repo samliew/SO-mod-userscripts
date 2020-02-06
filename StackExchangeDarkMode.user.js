@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.15.3
+// @version      2.15.4
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -563,6 +563,14 @@ body > div[style*="absolute"],
     bottom: 0;
     width: 3px;
     background: #bbbb00;
+}
+.post-timeline-v2 .post-timeline tr.deleted-event td,
+.post-timeline-v2 .post-timeline tr.deleted-event td span,
+.post-timeline-v2 .post-timeline tr.deleted-event td a,
+.post-timeline-v2 .post-timeline tr.deleted-event-details td,
+.post-timeline-v2 .post-timeline tr.deleted-event-details td span,
+.post-timeline-v2 .post-timeline tr.deleted-event-details td a {
+    background-color: #250202;
 }
 body .deleted-answer,
 body .deleted-comment .comment-actions,
