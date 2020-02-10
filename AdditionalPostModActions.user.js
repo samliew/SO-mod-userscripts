@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -271,23 +271,55 @@
     }
 
 
+    // Edit individual post to remove more than one @ symbols to be able to convert to comment without errors
+    function tryRemoveMultipleAtFromPost(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+
+            $.get(`https://${location.hostname}/posts/${pid}/edit`)
+            .done(function(data) {
+                const editUrl = $('#post-form-' + pid, data).attr('action');
+                let postText = $('#wmd-input-' + pid, data).val();
+
+                const matches = postText.match(/[@]/g);
+                if(matches && matches.length <= 1) { resolve(); return; }
+
+                postText = postText.replace(/ [@]([\w.-]+)\b/g, ' $1');
+                console.log(editUrl, postText);
+
+                $.post({
+                    url: `https://${location.hostname}${editUrl}`,
+                    data: {
+                        'is-current': true,
+                        'edit-comment': 'remove additional @ for converting to comment',
+                        'post-text': postText,
+                        'fkey': fkey
+                    }
+                })
+                .done(resolve)
+                .fail(reject);
+            });
+        });
+    }
     // Convert to comment
     function convertToComment(pid, targetId) {
         return new Promise(function(resolve, reject) {
             if(typeof pid === 'undefined' || pid === null) { reject(); return; }
             if(typeof targetId === 'undefined' || targetId === null) { reject(); return; }
 
-            $.post({
-                url: `https://${location.hostname}/admin/posts/${pid}/convert-to-comment`,
-                data: {
-                    'mod-actions': 'convert-to-comment',
-                    'duration': 1,
-                    'target-post-id': targetId,
-                    'fkey': fkey
-                }
-            })
-            .done(resolve)
-            .fail(reject);
+            tryRemoveMultipleAtFromPost(pid).then(v => {
+                $.post({
+                    url: `https://${location.hostname}/admin/posts/${pid}/convert-to-comment`,
+                    data: {
+                        'mod-actions': 'convert-to-comment',
+                        'duration': 1,
+                        'target-post-id': targetId,
+                        'fkey': fkey
+                    }
+                })
+                .done(resolve)
+                .fail(reject);
+            });
         });
     }
     // Convert to edit
