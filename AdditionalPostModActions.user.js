@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5
+// @version      2.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -399,6 +399,25 @@
     }
 
 
+    // Spam flag individual post
+    function spamFlagPost(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/flags/posts/${pid}/add/PostSpam`,
+                data: {
+                    'otherText': null,
+                    'overrideWarning': true,
+                    'fkey': fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+
+
     // Destroy spammer
     function destroySpammer(uid, destroyDetails = null) {
         return new Promise(function(resolve, reject) {
@@ -745,6 +764,7 @@
                 case 'destroy-spammer':
                     if(confirm(`Confirm DESTROY the spammer "${uName}" (id: ${uid}) irreversibly???`) &&
                        (underSpamAttackMode || confirm(`Are you VERY SURE you want to DESTROY the account "${uName}"???`))) {
+                        spamFlagPost(pid);
                         destroySpammer(uid).then(function() {
                             if(!underSpamAttackMode) window.open(`https://${location.hostname}/users/${uid}`);
                             removePostFromModQueue();
