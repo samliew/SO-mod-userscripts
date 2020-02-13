@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.12
+// @version      3.12.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -20,7 +20,7 @@
 // @include      */admin/review/audits*
 // @include      */admin/review/bans*
 //
-// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
 (function() {
@@ -289,7 +289,7 @@
                     $('#user-to-ban').val(uid);
 
                     // Submit lookup
-                    setTimeout(() => { $('#lookup').click() }, 500);
+                    setTimeout(() => { $('#lookup').click() }, 1000);
                 }
             }
 
@@ -578,9 +578,9 @@
 
                 if(isSuperuser()) {
 
-                    // Minimum 8-day review ban to get their attention
-                    firstRadio.remove(); // 2
-                    secondRadio.remove(); // 4
+                    // Modify minimum review ban to get their attention
+                    firstRadio.remove(); // remove option 2
+                    //secondRadio.remove(); // remove option 4
 
                     // If triage review, select alternate by default
                     if(location.hash.includes('|/review/triage/')) {
