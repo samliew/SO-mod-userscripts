@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.16
+// @version      2.17
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -32,16 +32,16 @@
     let $ = unsafeWindow.jQuery || null;
 
 
-    const darkgreen = '#296538';
-    const darkblue = '#035';
-    const bountyblue = '#0057a3';
-    const orange = '#f48024';
+    const darkgreen = '#367d4d';
+    const darkblue = '#033154';
+    const bountyblue = '#085691';
+    const orange = '#f2720c';
 
 
     let textcolor = '#bbb';
     let linkcolor = '#fff';
     let highlightcolor = '#eee';
-    let bgcolor = '#222';
+    let bgcolor = '#111';
     let btncolor = '#333';
     let bordercolor = '#555';
 
@@ -53,7 +53,7 @@
         textcolor = '#999';
         linkcolor = '#ccc';
         highlightcolor = '#ddd';
-        bgcolor = '#000';
+        bgcolor = '#050506';
         btncolor = '#333';
         bordercolor = '#333';
     }
@@ -75,6 +75,10 @@
 body {
     background-image: none;
 
+    /* Inverse of Stacks "L" (Luminosity) values */
+    --white: #0c0d0e;
+    --black: #fff;
+
     --black-025: #0c0d0e;
     --black-050: #242729;
     --black-075: #2f3337;
@@ -90,6 +94,99 @@ body {
     --black-750: #e4e6e8;
     --black-800: #eff0f1;
     --black-900: #fafafb;
+
+    --orange-050: #0f0600;
+    --orange-100: #321601;
+    --orange-200: #542703;
+    --orange-300: #914608;
+    --orange-400: #da680b;
+    --orange-500: #f2720c;
+    --orange-600: #f48225;
+    --orange-700: #ff9e42;
+    --orange-800: #ffad5c;
+    --orange-900: #ffbf7a;
+
+    --blue-050: #00080f;
+    --blue-100: #011d32;
+    --blue-200: #033154;
+    --blue-300: #085691;
+    --blue-400: #1077c6;
+    --blue-500: #0095ff;
+    --blue-600: #33aaff;
+    --blue-700: #42a7ff;
+    --blue-800: #5cb0ff;
+    --blue-900: #7abdff;
+
+    --powder-050: #04080b;
+    --powder-100: #0b161e;
+    --powder-200: #0e232f;
+    --powder-300: #15354c;
+    --powder-400: #1b425f;
+    --powder-500: #386585;
+    --powder-600: #4d7fa3;
+    --powder-700: #629cc6;
+    --powder-800: #88b2d3;
+    --powder-900: #adcbe1;
+
+    --green-025: #07120b;
+    --green-050: #0f2415;
+    --green-100: #cae8d4;
+    --green-200: #a6d9b7;
+    --green-300: #367d4d;
+    --green-400: #45a163;
+    --green-500: #57b777;
+    --green-600: #70c28b;
+    --green-700: #90d0a5;
+    --green-800: #9fd6b1;
+    --green-900: #b7e1c5;
+
+    --yellow-050: #1d1602;
+    --yellow-100: #2a2104;
+    --yellow-200: #43370e;
+    --yellow-300: #867219;
+    --yellow-400: #c09e16;
+    --yellow-500: #ddb422;
+    --yellow-600: #e4ba2f;
+    --yellow-700: #eac748;
+    --yellow-800: #efd161;
+    --yellow-900: #f4dc7c;
+
+    --red-050: #0d0203;
+    --red-100: #2d060a;
+    --red-200: #4b0b13;
+    --red-300: #821722;
+    --red-400: #ab212c;
+    --red-500: #c62f34;
+    --red-600: #d24141;
+    --red-700: #d95454;
+    --red-800: #df6d6d;
+    --red-900: #e78485;
+
+    --gold: #ffcc01;
+    --gold-lighter: #ffd138;
+    --gold-darker: #574100;
+
+    --silver: #b4b8bc;
+    --silver-lighter: #9c9c9c;
+    --silver-darker: #4d4f51;
+
+    --bronze: #caa789;
+    --bronze-lighter: #c59c77;
+    --bronze-darker: #493727;
+
+    --fc-dark: #f1f2f3;
+    --fc-medium: #babfc4;
+    --fc-light: #838c95;
+
+    --focus-ring: rgba(0, 149, 255, 0.15);
+    --focus-ring-success: rgba(38, 89, 55, 0.4);
+    --focus-ring-warning: rgba(192, 158, 22, 0.4);
+    --focus-ring-error: rgba(210, 65, 65, 0.15);
+    --focus-ring-muted: rgba(214, 217, 219, 0.1);
+    --bs-sm: 0 1px 2px rgba(255, 255, 255, 0.05),0 1px 4px rgba(255, 255, 255, 0.05),0 2px 8px rgba(255, 255, 255, 0.05);
+    --bs-md: 0 1px 3px rgba(255, 255, 255, 0.06),0 2px 6px rgba(255, 255, 255, 0.06),0 3px 8px rgba(255, 255, 255, 0.09);
+    --bs-lg: 0 1px 4px rgba(255, 255, 255, 0.09),0 3px 8px rgba(255, 255, 255, 0.09),0 4px 13px rgba(255, 255, 255, 0.13);
+    --scrollbar: rgba(255, 255, 255, 0.2);
 }
 *,
 *:before,
