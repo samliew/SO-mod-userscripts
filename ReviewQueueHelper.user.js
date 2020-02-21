@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.0.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -178,7 +178,7 @@ async function waitForSOMU() {
         }
 
         setTimeout(function() {
-            $('.js-review-actions').find('button[title="skip this question"], button[title="review next item"]').click();
+            $('.js-review-actions').find('button[title^="skip this"], button[title="review next item"]').click();
         }, 500);
     }
 
