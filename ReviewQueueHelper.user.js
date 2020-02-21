@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.14
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -178,7 +178,7 @@ async function waitForSOMU() {
         }
 
         setTimeout(function() {
-            $('.review-actions').find('input[value$="Skip"], input[value$="Next"]').click();
+            $('.js-review-actions').find('button[title="skip this question"], button[title="review next item"]').click();
         }, 500);
     }
 
@@ -260,7 +260,7 @@ async function waitForSOMU() {
         // Question body is short, try to close if enabled
         if(autoCloseShortQuestions && post.isQuestion && post.content.length < 500) {
             console.log('short question detected, length ' + post.content.length);
-            $('.review-actions input[value*="Close"]').click();
+            $('.js-review-actions button[title*="Close"]').click();
             return;
         }
     }
@@ -294,20 +294,20 @@ async function waitForSOMU() {
 
     function insertInstantCloseButtons() {
 
-        const actionsCont = $('.review-actions-container').first();
+        const actionsCont = $('.js-review-actions-error-target').first();
         if(actionsCont.length == 0) return;
         actionsCont.children('.instant-actions').remove();
 
-        const instantActions = $(`<span class="instant-actions">
-    <input type="button" data-instant="unclear" value="[6] Unclear" title="Needs details or clarity">
-    <input type="button" data-instant="broad" value="[7] Broad" title="Needs more focus">
-    <input type="button" data-instant="softrec" value="[8] SoftRec" title="It's seeking recommendations for books, software libraries, or other off-site resources">
-    <input type="button" data-instant="debug" value="[9] Debug" title="It's seeking debugging help but needs more information">
-    <input type="button" data-instant="opinion" value="[0] Opinion" title="Opinion-based">
-</span>`).appendTo(actionsCont);
+        const instantActions = $('<span class="instant-actions grid gs8 jc-end ff-row-wrap">'
++ '<button class="s-btn s-btn__outlined grid--cell" data-instant="unclear" title="Needs details or clarity">[6] Unclear</button>'
++ '<button class="s-btn s-btn__outlined grid--cell" data-instant="broad" title="Needs more focus">[7] Broad</button>'
++ '<button class="s-btn s-btn__outlined grid--cell" data-instant="softrec" title="It\'s seeking recommendations for books, software libraries, or other off-site resources">[8] SoftRec</button>'
++ '<button class="s-btn s-btn__outlined grid--cell" data-instant="debug" title="It\'s seeking debugging help but needs more information">[9] Debug</button>'
++ '<button class="s-btn s-btn__outlined grid--cell" data-instant="opinion" title="Opinion-based">[0] Opinion</button>'
++ '</span>').appendTo(actionsCont);
 
-        instantActions.one('click', 'input[data-instant]', function() {
-            actionsCont.find('.instant-actions input').prop('disabled', true);
+        instantActions.one('click', 'button[data-instant]', function() {
+            actionsCont.find('.instant-actions button').prop('disabled', true);
             const pid = post.id;
 
             // closeQuestionAsOfftopic() :
@@ -339,7 +339,7 @@ async function waitForSOMU() {
             if(!error) {
                 // immediately skip to next review
                 instantActions.remove();
-                $('.review-actions input[value*="Skip"]').click();
+                $('.js-review-actions button[title="skip this question"]').click();
             }
         });
     }
@@ -419,7 +419,7 @@ async function waitForSOMU() {
 
             // If edit mode, cancel if esc is pressed
             if(cancel && $('.editing-review-content').is(':visible')) {
-                $('.review-cancel-editing').click();
+                $('.js-review-cancel-button').click();
                 return;
             }
 
@@ -552,7 +552,7 @@ async function waitForSOMU() {
             if(index != null && index <= 4) {
                 //console.log('review action', 'keyCode', evt.keyCode, 'index', index);
 
-                const btns = $('.review-actions input');
+                const btns = $('.js-review-actions button');
                 // If there is only one button and is "Next", click it
                 if(btns.length === 1) {
                     index = 0;
@@ -566,7 +566,7 @@ async function waitForSOMU() {
             else if(index != null && index >= 5) {
                 //console.log('instant action', 'keyCode', evt.keyCode, 'index', index);
 
-                const btns = $('.instant-actions input');
+                const btns = $('.instant-actions button');
                 btns.eq(index - 5).click();
                 return false;
             }
@@ -707,7 +707,7 @@ async function waitForSOMU() {
 
             // Question was closed
             else if(settings.url.includes('/close/add')) {
-                $('.review-actions input[value*="Close"]').attr('disabled', true);
+                $('.js-review-actions button[title*="close"]').attr('disabled', true);
 
                 // If downvoteAfterClose option enabled, and score >= 0
                 if(downvoteAfterClose && post.isQuestion && post.votes >= 0) {
@@ -769,7 +769,7 @@ async function waitForSOMU() {
 
                         // If question, insert "Close" option
                         if(isQuestion) {
-                            const closeBtn = $(`<input type="button" value="Close" title="close question" />`).attr('disabled', isClosedOrDeleted);
+                            const closeBtn = $(`<button class="js-action-button s-btn s-btn__primary grid--cell" title="close question">Close</button>`).attr('disabled', isClosedOrDeleted);
                             closeBtn.click(function() {
                                 // If button not disabled
                                 if(!$(this).prop('disabled')) {
@@ -777,12 +777,12 @@ async function waitForSOMU() {
                                 }
                                 return false;
                             });
-                            $('.review-actions input').first().after(closeBtn);
+                            $('.js-review-actions button').first().after(closeBtn);
                         }
 
                         // Else if answer and user has delete privs, insert "Delete" option
                         else if(!isQuestion && (StackExchange.options.user.isModerator || StackExchange.options.user.rep >= 10000 && $('.post-menu a[title="vote to delete this post"]').length === 1)) {
-                            const delBtn = $(`<input type="button" value="Delete" title="delete answer" />`).attr('disabled', isClosedOrDeleted);
+                            const delBtn = $(`<button title="delete answer">Delete</button>`).attr('disabled', isClosedOrDeleted);
                             delBtn.click(function() {
                                 // If button not disabled
                                 if(!$(this).prop('disabled')) {
@@ -790,7 +790,7 @@ async function waitForSOMU() {
                                 }
                                 return false;
                             });
-                            $('.review-actions input').first().after(delBtn);
+                            $('.js-review-actions button').first().after(delBtn);
                         }
 
                         // Show post menu if in the H&I queue
@@ -804,7 +804,7 @@ async function waitForSOMU() {
                     if(queueType == 'helper' && responseJson.isUnavailable) {
 
                         // Remove edit button so only "Next" is displayed
-                        $('.review-actions input').first().remove();
+                        $('.js-review-actions button').first().remove();
 
                         // Load link to triage review
                         $.get(`https://${location.hostname}/posts/${responseJson.postId}/timeline`)
@@ -817,11 +817,11 @@ async function waitForSOMU() {
 
                     // Remove "Delete" option for suggested-edits queue, if not already reviewed (no Next button)
                     if(location.pathname.includes('/review/suggested-edits/') && !$('.review-status').text().includes('This item is no longer reviewable.')) {
-                        $('.review-actions input[value*="Delete"]').remove();
+                        $('.js-review-actions button[title*="delete"]').remove();
                     }
 
                     // Modify buttons
-                    $('.review-actions input').removeAttr('disabled').val(function(i, v) {
+                    $('.js-review-actions button').removeAttr('disabled').text(function(i, v) {
                         if(v.includes('] ')) return v; // do not modify twice
                         return '[' + (i+1) + '] ' + v;
                     });
@@ -904,7 +904,7 @@ pre {
 .suggested-edits-review-queue .review-bar .review-summary {
     flex-basis: 45%;
 }
-.suggested-edits-review-queue .review-bar .review-actions-container {
+.suggested-edits-review-queue .review-bar .js-review-actions-error-target {
     flex-basis: 55%;
 }
 
@@ -921,27 +921,16 @@ pre {
 
 
 /* Instant action buttons */
-.review-actions-container > input[type='button'][style*='visibility'] {
+.js-review-actions-error-target button[style*='visibility'] {
     display: none;
 }
-.review-actions-container .review-actions,
-.review-actions-container .instant-actions {
+.js-review-actions-error-target .js-review-actions,
+.js-review-actions-error-target .instant-actions {
     display: block;
-    margin-right: 10px;
+    text-align: right;
 }
-.review-bar-container .review-bar .review-actions-container .instant-actions input {
-    margin-left: 10px;
-    background-color: var(--green);
-    border-color: var(--green-600);
-    box-shadow: inset 0 1px 0 var(--green-200);
-}
-.review-bar-container .review-bar .review-actions-container .instant-actions input:hover {
-    background-color: var(--green-500);
-}
-.review-bar-container .review-bar .review-actions-container .instant-actions input[disabled] {
-    background-color: var(--green-100);
-    border-color: var(--green-200);
-    box-shadow: inset 0 1px 0 var(--green-100);
+.js-review-actions-error-target .instant-actions {
+    margin-top: 6px;
 }
 
 
