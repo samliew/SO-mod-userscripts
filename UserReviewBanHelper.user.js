@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.12.1
+// @version      3.12.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -43,7 +43,7 @@
     // Use {POSTLINK} and {QUEUENAME} placeholders
     const cannedMessages = {
         current: '',
-        triageQuestionReqEdits: `Your review on {POSTLINK} wasn't helpful. "Requires Editing" should only be used when other community users (*like you*) are able to edit/format the question into a better shape. If a question is unsalvagable and/or can only be improved by the author, please flag/vote to close or delete instead. For more information, see [meta.stackoverflow.com/q/389148](https://meta.stackoverflow.com/q/389148).`,
+        triageQuestionReqEdits: `Your review on {POSTLINK} wasn't helpful. "Requires Editing" should only be used when other community users (*like you*) are able to edit/format the question into a better shape. If a question is unsalvagable/unanswerable and/or can only be improved by the author, please flag/vote to close or delete instead. For more information, see [meta.stackoverflow.com/q/389148](https://meta.stackoverflow.com/q/389148).`,
         helperEditPoor: `Your review on {POSTLINK} wasn't helpful. If a question should be closed and you are unable to make the question on-topic in the "Help and Improvement" review, please use "Skip" instead of making trivial changes.`,
         postNaa: `You recently reviewed this post {POSTLINK}. Although it was posted as an answer, it clearly did not attempt to provide an answer to the question. You should have flagged it as "not an answer" so that it could be removed.`,
         postNaaEdited: `You recently edited this post {POSTLINK}. Please do not edit posts that should have been deleted. Use "edit" only when your edit salvages the post and makes it a valid answer.`,
@@ -289,7 +289,7 @@
                     $('#user-to-ban').val(uid);
 
                     // Submit lookup
-                    setTimeout(() => { $('#lookup').click() }, 1000);
+                    setTimeout(() => { $('#lookup').click() }, 2000);
                 }
             }
 
@@ -345,11 +345,13 @@
         if(location.pathname.includes('/review/triage/')) {
 
             // Sort by action
-            $('.review-instructions .review-results').detach().sort(function(a, b) {
+            $('.js-review-instructions .review-results').detach().sort(function(a, b) {
                 const ax = $(a).children('b').last().text();
                 const bx = $(b).children('b').last().text();
                 return ax < bx ? -1 : 1;
-            }).appendTo('.review-instructions');
+            }).appendTo('.js-review-instructions');
+
+            debugger;
 
             // Add review-ban button for users who selected "requires editing"
             $(`<button class="mt16">Review ban "Requires Editing"</button>`).appendTo('.reviewable-post-stats')
@@ -361,7 +363,7 @@
         }
 
         // Get users review history
-        $('.review-summary').find('a[href^="/users/"]').each(function() {
+        $('.js-review-instructions').find('a[href^="/users/"]').each(function() {
 
             // Ignore mods
             var modFlair = $(this).next('.mod-flair');
