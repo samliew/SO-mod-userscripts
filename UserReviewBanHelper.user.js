@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.13
+// @version      3.13.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -178,9 +178,18 @@
         // /admin/review/bans  &  /admin/review/bans/historical
         else if(location.pathname.includes('/admin/review/bans')) {
 
-            // If superuser, close tab/window if a user has just been banned
-            if(isSuperuser() && location.pathname == '/admin/review/bans' && history.length >= 2 && location.hash == '') {
-                window.top.close();
+            const table = $('.sorter').attr('id', 'banned-users-table');
+
+            // If superuser,
+            if(isSuperuser()) {
+                // close tab/window if a user has just been banned
+                if(location.pathname == '/admin/review/bans' && history.length >= 2 && location.hash == '') {
+                    window.top.close();
+                }
+                // remove ban table to save browser memory
+                if(location.hash != '') {
+                    table.remove();
+                }
             }
 
             // Load ban form for user if passed via querystring
@@ -225,7 +234,6 @@
 
 
             // Linkify ban counts to user review ban history page
-            const table = $('.sorter').attr('id', 'banned-users-table');
             table.find('tbody tr').each(function() {
                 const userlink = $(this).find('a').first();
                 const uid = userlink.attr('data-uid') || userlink.attr('href').match(/\/(\d+)\//)[1];
