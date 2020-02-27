@@ -3,7 +3,7 @@
 // @description  Display reputation in tooltip upon user link mouseover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.4
+// @version      1.3.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -86,6 +86,7 @@
         const uids = userlinks.map((i, el) => el.dataset.uid).get().filter((v, i, self) => v !== '' && v != ownId && self.indexOf(v) === i);
 
         if(uids.length == 0) return;
+        if(uids.length > 300) return; // hard limit
 
         getUserInfo(uids).then(function(users) {
             users.forEach(function(user) {
