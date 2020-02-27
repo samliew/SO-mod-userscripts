@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.1.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -757,7 +757,7 @@ async function waitForSOMU() {
 
                     // If no more reviews, refresh page every 10 seconds
                     // Can't use responseJson.isUnavailable here, as it can also refer to current completed review
-                    if($('.review-instructions').text().includes('This queue has been cleared!')) {
+                    if($('.js-review-instructions').text().includes('This queue has been cleared!')) {
                         setTimeout(() => location.reload(true), 10000);
                         return;
                     }
