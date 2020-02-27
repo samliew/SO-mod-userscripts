@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.12.3
+// @version      3.13
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -183,9 +183,49 @@
                 window.top.close();
             }
 
-            const table = $('.sorter').attr('id', 'banned-users-table');
+            // Load ban form for user if passed via querystring
+            params = location.hash.substr(1).split('|');
+            if(params) {
+                uid = Number(params[0]) || null;
+
+                if(params.length === 2) {
+                    posts = params[1].split(';').map(v => v.replace(/\/?review\//, ''));
+
+                    // Remove similar consecutive review types from urls
+                    // (possibly no longer needed as we can increase max length)
+                    //var prevType = null;
+                    //posts = posts.map(v => {
+                    //    if(v.includes(prevType + '/')) v = v.replace(/\D+/g, '');
+                    //    else prevType = v.split('/')[0];
+                    //    return v;
+                    //});
+                    //console.log(posts);
+
+                    // Fit as many URLs as possible into message
+                    var i = posts.length;
+                    do {
+                        posttext = posts.slice(0, i--).map(v => `\n[${v}](/review/${v})`).join(", ") + '\n';
+                    }
+                    while(i > 1 && 48 + location.hostname.length + posttext.length > messageCharLimit);
+
+                    // Save all posts for canned messages
+                    allposts = posts.map(v => `\n[${v}](/review/${v})`).join(", ") + '\n';
+                }
+
+                // Validation
+                if(!isNaN(uid)) {
+
+                    // Insert UID
+                    $('#user-to-ban').val(uid);
+
+                    // Submit lookup
+                    setTimeout(() => { $('#lookup').click() }, 2000);
+                }
+            }
+
 
             // Linkify ban counts to user review ban history page
+            const table = $('.sorter').attr('id', 'banned-users-table');
             table.find('tbody tr').each(function() {
                 const userlink = $(this).find('a').first();
                 const uid = userlink.attr('data-uid') || userlink.attr('href').match(/\/(\d+)\//)[1];
@@ -267,44 +307,23 @@
                 }
             });
 
-            // Load ban form for user if passed via querystring
-            params = location.hash.substr(1).split('|');
-            if(params) {
-                uid = Number(params[0]) || null;
 
-                if(params.length === 2) {
-                    posts = params[1].split(';').map(v => v.replace(/\/?review\//, ''));
+            // Add summary of currently review-banned users if we are not review banning users
+            if(location.hash == '' && location.search == '') {
+                const rows = table.find('tbody tr');
+                const reqEditing = rows.filter((i, el) => el.children[4].innerText.includes('Requires Editing')).length;
+                const auditFailures = rows.filter((i, el) => el.children[4].innerText.includes('You have made too many incorrect reviews.')).length;
+                const hundred = rows.filter((i, el) => el.children[3].innerText >= 100).length;
+                const firstTimers = rows.filter((i, el) => el.children[5].innerText == 1).length;
+                const fiveTimers = rows.filter((i, el) => el.children[5].innerText >= 5).length;
 
-                    // Remove similar consecutive review types from urls
-                    // (possibly no longer needed as we can increase max length)
-                    //var prevType = null;
-                    //posts = posts.map(v => {
-                    //    if(v.includes(prevType + '/')) v = v.replace(/\D+/g, '');
-                    //    else prevType = v.split('/')[0];
-                    //    return v;
-                    //});
-                    //console.log(posts);
-
-                    // Fit as many URLs as possible into message
-                    var i = posts.length;
-                    do {
-                        posttext = posts.slice(0, i--).map(v => `\n[${v}](/review/${v})`).join(", ") + '\n';
-                    }
-                    while(i > 1 && 48 + location.hostname.length + posttext.length > messageCharLimit);
-
-                    // Save all posts for canned messages
-                    allposts = posts.map(v => `\n[${v}](/review/${v})`).join(", ") + '\n';
-                }
-
-                // Validation
-                if(!isNaN(uid)) {
-
-                    // Insert UID
-                    $('#user-to-ban').val(uid);
-
-                    // Submit lookup
-                    setTimeout(() => { $('#lookup').click() }, 2000);
-                }
+                table.before(`<div id="banned-users-stats"><ul>` +
+(reqEditing > 0 ? `<li>${reqEditing} users are banned for selecting "Requires Editing" in Triage when the question was unsalvagable</li>` : '') + `
+<li>${auditFailures} users are automatically banned for failing multiple review audits</li>
+<li>${firstTimers} users are banned for the first time</li>
+<li>${fiveTimers} users have at least five review bans</li>
+<li>${hundred} users have a duration of at least 100 days</li>
+</ul></div>`);
             }
 
         }
