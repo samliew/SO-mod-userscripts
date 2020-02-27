@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.2
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -881,7 +881,7 @@ async function waitForSOMU() {
                     insertVotingButtonsIfMissing();
 
                     // Insert instant buttons
-                    if(isSO && post.isQuestion && isSuperuser()) insertInstantCloseButtons();
+                    if(isSO && post.isQuestion) insertInstantCloseButtons();
 
                 }, 100);
             }
