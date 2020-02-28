@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.13.1
+// @version      3.13.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -320,17 +320,19 @@
             if(location.hash == '' && location.search == '') {
                 const rows = table.find('tbody tr');
                 const reqEditing = rows.filter((i, el) => el.children[4].innerText.includes('Requires Editing')).length;
+                const forTriage = rows.filter((i, el) => el.children[4].innerText.toLowerCase().includes('triage')).length;
                 const auditFailures = rows.filter((i, el) => el.children[4].innerText.includes('You have made too many incorrect reviews.')).length;
                 const hundred = rows.filter((i, el) => el.children[3].innerText >= 100).length;
                 const firstTimers = rows.filter((i, el) => el.children[5].innerText == 1).length;
                 const fiveTimers = rows.filter((i, el) => el.children[5].innerText >= 5).length;
 
-                table.before(`<div id="banned-users-stats"><ul>` +
-(reqEditing > 0 ? `<li>${reqEditing} users are banned for selecting "Requires Editing" in Triage when the question was unsalvagable</li>` : '') + `
-<li>${auditFailures} users are automatically banned for failing multiple review audits</li>
-<li>${firstTimers} users are banned for the first time</li>
-<li>${fiveTimers} users have at least five review bans</li>
-<li>${hundred} users have a duration of at least 100 days</li>
+                table.before(`<div id="banned-users-stats"><ul>
+<li>${forTriage} (${(forTriage/rows.length*100).toFixed(1)}%) users are banned for Triage reviews in one way or another</li>` +
+(reqEditing > 0 ? `<li>${reqEditing} (${(reqEditing/rows.length*100).toFixed(1)}%) users are banned for selecting "Requires Editing" in Triage when the question was unsalvagable</li>` : '') + `
+<li>${auditFailures} (${(auditFailures/rows.length*100).toFixed(1)}%) users are automatically banned for failing multiple review audits</li>
+<li>${firstTimers} (${(firstTimers/rows.length*100).toFixed(1)}%) users are banned for the first time</li>
+<li>${fiveTimers} (${(fiveTimers/rows.length*100).toFixed(1)}%) users have at least five review bans</li>
+<li>${hundred} (${(hundred/rows.length*100).toFixed(1)}%) users have a duration of at least 100 days</li>
 </ul></div>`);
             }
 
