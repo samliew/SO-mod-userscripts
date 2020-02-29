@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.13.2
+// @version      3.13.3
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -393,8 +393,6 @@
                 const bx = $(b).children('b').last().text();
                 return ax < bx ? -1 : 1;
             }).appendTo('.js-review-instructions');
-
-            debugger;
 
             // Add review-ban button for users who selected "requires editing"
             $(`<button class="mt16">Review ban "Requires Editing"</button>`).appendTo('.reviewable-post-stats')
