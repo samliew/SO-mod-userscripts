@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.3
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -782,7 +782,7 @@ async function waitForSOMU() {
 
                         // Else if answer and user has delete privs, insert "Delete" option
                         else if(!isQuestion && (StackExchange.options.user.isModerator || StackExchange.options.user.rep >= 10000 && $('.post-menu a[title="vote to delete this post"]').length === 1)) {
-                            const delBtn = $(`<button title="delete answer">Delete</button>`).attr('disabled', isClosedOrDeleted);
+                            const delBtn = $(`<button class="js-action-button s-btn s-btn__primary grid--cell" title="delete answer">Delete</button>`).attr('disabled', isClosedOrDeleted);
                             delBtn.click(function() {
                                 // If button not disabled
                                 if(!$(this).prop('disabled')) {
