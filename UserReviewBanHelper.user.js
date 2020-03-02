@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.13.4
+// @version      3.13.5
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -273,7 +273,7 @@
             });
 
             // Option to renew permanent bans
-            $('.reason', table).filter((i, el) => el.innerText.includes('no longer welcome')).each(function() {
+            $('.reason', table).filter((i, el) => el.innerText.includes('no longer welcome') || el.innerText.includes('no signs') || el.innerText.includes('any longer')).each(function() {
                 const p = $(this).parent();
                 const l = p.find('a.unban').clone().appendTo(this);
                 l.removeClass('unban').addClass('reban').attr('title', (i, s) => s.replace('unban', 'reapply another yearly review ban to').replace(' from reviewing', '')).text((i, s) => s.replace('unban', 'reban'));
