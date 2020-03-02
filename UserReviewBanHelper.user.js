@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.13.5
+// @version      3.13.6
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -318,22 +318,32 @@
 
             // Add summary of currently review-banned users if we are not review banning users
             if(location.hash == '' && location.search == '') {
+                const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+
                 const rows = table.find('tbody tr');
                 const reqEditing = rows.filter((i, el) => el.children[4].innerText.includes('Requires Editing')).length;
                 const forTriage = rows.filter((i, el) => el.children[4].innerText.toLowerCase().includes('triage')).length;
                 const auditFailures = rows.filter((i, el) => el.children[4].innerText.includes('You have made too many incorrect reviews.')).length;
                 const hundred = rows.filter((i, el) => el.children[3].innerText >= 100).length;
+                const permaban = rows.filter((i, el) => el.children[4].innerText.match(/(no|any) (longer|signs)/)).length;
                 const firstTimers = rows.filter((i, el) => el.children[5].innerText == 1).length;
                 const fiveTimers = rows.filter((i, el) => el.children[5].innerText >= 5).length;
+                const pastDay = rows.filter((i, el) => el.children[1].innerText.match(/(just|min|hour)/)).length;
+                const pastWeek = rows.filter((i, el) => new Date(el.children[1].children[0].title) > weekAgo).length;
 
-                table.before(`<div id="banned-users-stats"><ul>
-<li>${forTriage} (${(forTriage/rows.length*100).toFixed(1)}%) users are banned for Triage reviews in one way or another</li>` +
-(reqEditing > 0 ? `<li>${reqEditing} (${(reqEditing/rows.length*100).toFixed(1)}%) users are banned for selecting "Requires Editing" in Triage when the question was unsalvagable</li>` : '') + `
-<li>${auditFailures} (${(auditFailures/rows.length*100).toFixed(1)}%) users are automatically banned for failing multiple review audits</li>
-<li>${firstTimers} (${(firstTimers/rows.length*100).toFixed(1)}%) users are banned for the first time</li>
-<li>${fiveTimers} (${(fiveTimers/rows.length*100).toFixed(1)}%) users have at least five review bans</li>
-<li>${hundred} (${(hundred/rows.length*100).toFixed(1)}%) users have a duration of at least 100 days</li>
+                const bannedStats = $(`<div id="banned-users-stats"><ul>` +
+(forTriage > 0 ? `<li><span class="copy-only">-&nbsp;</span>${forTriage} (${(forTriage/rows.length*100).toFixed(1)}%) users are banned for Triage reviews in one way or another</li>` : '') +
+(reqEditing > 0 ? `<li><span class="copy-only">-&nbsp;</span>${reqEditing} (${(reqEditing/rows.length*100).toFixed(1)}%) users are banned for selecting "Requires Editing" in Triage when the question was unsalvagable</li>` : '') + `
+<li><span class="copy-only">-&nbsp;</span>${auditFailures} (${(auditFailures/rows.length*100).toFixed(1)}%) users are automatically banned for failing multiple review audits</li>
+<li><span class="copy-only">-&nbsp;</span>${firstTimers} (${(firstTimers/rows.length*100).toFixed(1)}%) users are banned for the first time</li>
+<li><span class="copy-only">-&nbsp;</span>${fiveTimers} (${(fiveTimers/rows.length*100).toFixed(1)}%) users have at least five review bans</li>
+<li><span class="copy-only">-&nbsp;</span>${hundred} (${(hundred/rows.length*100).toFixed(1)}%) users have a duration of at least 100 days, of which ${permaban} users are perma-banned</li>
+<li><span class="copy-only">-&nbsp;</span>${pastDay} (${(pastDay/rows.length*100).toFixed(1)}%) users are banned within the past day</li>
+<li><span class="copy-only">-&nbsp;</span>${pastWeek} (${(pastWeek/rows.length*100).toFixed(1)}%) users are banned within the past week</li>
 </ul></div>`);
+
+                table.before(bannedStats);
+                bannedStats.parent().addClass('banned-reviewers-section').children('h3').text((i,v) => v.toLowerCase() + ', out of which:').prepend('<span>Currently, there are </span>');
             }
 
         }
@@ -808,6 +818,13 @@ a.reviewban-button {
     display: inline-block;
     float: left;
     clear: both;
+}
+
+.copy-only {
+    display: inline-block;
+    width: 0;
+    opacity: 0;
+    text-indent: -100vw;
 }
 
 table.sorter > tbody > tr:nth-child(odd) > td {
