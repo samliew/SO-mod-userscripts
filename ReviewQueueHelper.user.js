@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.3.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -403,7 +403,7 @@ async function waitForSOMU() {
 
                 // Try keypad keycodes instead
                 let altIndex = evt.keyCode - 97; // 97 = number 1 = 0 (index)
-                if(altIndex == -1) index = 9; // remap zero to last index
+                if(altIndex == -1) altIndex = 9; // remap zero to last index
                 if(altIndex >= 0 && altIndex <= 9) {
                     index = altIndex; // handle 1-0 number keys only (index 0-9)
                 }
