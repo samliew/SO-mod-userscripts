@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.2
+// @version      2.3.3
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -924,11 +924,18 @@ pre {
     flex-basis: 55%;
 }
 
+.review-content {
+    opacity: 1 !important;
+}
 #popup-close-question {
     opacity: 0.9;
 }
 #popup-close-question:hover {
     opacity: 1;
+}
+
+.post-menu > a {
+    display: inline-block !important;
 }
 
 
