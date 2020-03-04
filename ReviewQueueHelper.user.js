@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.1
+// @version      2.3.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -800,13 +800,16 @@ async function waitForSOMU() {
                         }
                     }
 
-                    // If we are in H&I and review is no longer available,
-                    if(queueType == 'helper' && responseJson.isUnavailable) {
+                    // If we are in H&I
+                    if(queueType == 'helper') {
 
-                        // Remove edit button so only "Next" is displayed
-                        $('.js-review-actions button').first().remove();
+                        // If H&I review has been completed
+                        if(responseJson.isUnavailable) {
+                            // Remove edit button so only "Next" is displayed
+                            $('.js-review-actions button').first().remove();
+                        }
 
-                        // Load link to triage review
+                        // Display link to triage review
                         $.get(`https://${location.hostname}/posts/${responseJson.postId}/timeline`)
                         .done(function(data) {
                             const triageLink = $('.event-verb a', data).filter((i, el) => el.href.includes('/triage/')).attr('href');
