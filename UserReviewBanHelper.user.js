@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.13.6
+// @version      3.13.7
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -247,13 +247,13 @@
                 $.tablesorter.destroy('.sorter', true, function() {
 
                     // Add classes to date column headers
-                    const headers = $('.sorter th');
+                    const headers = $('thead th', table);
                     headers.slice(1,3).addClass('sorter-miniDate').removeClass('headerSortDown');
                     headers.eq(3).addClass('sorter-false');
                     headers.last().addClass('sorter-false');
 
                     // Add duration column header
-                    headers.eq(2).after(`<th class="tablesorter-headerUnSorted">Duration</th>`);
+                    headers.eq(2).after(`<th class="tablesorter-header tablesorter-headerUnSorted">Duration</th>`);
 
                     // Reinit sorter
                     $('.sorter').tablesorter();
@@ -261,7 +261,7 @@
                     // Default sort header
                     headers.eq(1).addClass('tablesorter-headerDesc');
                 });
-            }, 1000);
+            }, 2000);
 
             // Add duration column to the other rows
             table.find('tbody tr').each(function() {
@@ -319,6 +319,7 @@
             // Add summary of currently review-banned users if we are not review banning users
             if(location.hash == '' && location.search == '') {
                 const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+                const weekAhead = Date.now() + (7 * 24 * 60 * 60 * 1000);
 
                 const rows = table.find('tbody tr');
                 const reqEditing = rows.filter((i, el) => el.children[4].innerText.includes('Requires Editing')).length;
@@ -330,6 +331,8 @@
                 const fiveTimers = rows.filter((i, el) => el.children[5].innerText >= 5).length;
                 const pastDay = rows.filter((i, el) => el.children[1].innerText.match(/(just|min|hour)/)).length;
                 const pastWeek = rows.filter((i, el) => new Date(el.children[1].children[0].title) > weekAgo).length;
+                const unbanDay = rows.filter((i, el) => el.children[2].innerText.match(/(just|min|hour)/)).length;
+                const unbanWeek = rows.filter((i, el) => new Date(el.children[2].children[0].title) < weekAhead).length;
 
                 const bannedStats = $(`<div id="banned-users-stats"><ul>` +
 (forTriage > 0 ? `<li><span class="copy-only">-&nbsp;</span>${forTriage} (${(forTriage/rows.length*100).toFixed(1)}%) users are banned for Triage reviews in one way or another</li>` : '') +
@@ -340,6 +343,8 @@
 <li><span class="copy-only">-&nbsp;</span>${hundred} (${(hundred/rows.length*100).toFixed(1)}%) users have a duration of at least 100 days, of which ${permaban} users are perma-banned</li>
 <li><span class="copy-only">-&nbsp;</span>${pastDay} (${(pastDay/rows.length*100).toFixed(1)}%) users are banned within the past day</li>
 <li><span class="copy-only">-&nbsp;</span>${pastWeek} (${(pastWeek/rows.length*100).toFixed(1)}%) users are banned within the past week</li>
+<li><span class="copy-only">-&nbsp;</span>${unbanDay} (${(unbanDay/rows.length*100).toFixed(1)}%) users will be unbanned by tomorrow</li>
+<li><span class="copy-only">-&nbsp;</span>${unbanWeek} (${(unbanWeek/rows.length*100).toFixed(1)}%) users will be unbanned in the next seven days</li>
 </ul></div>`);
 
                 table.before(bannedStats);
