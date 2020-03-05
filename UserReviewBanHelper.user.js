@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.13.7
+// @version      3.13.8
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -244,6 +244,7 @@
 
             // Fix table date sorting
             setTimeout(() => {
+                if($('#banned-users-table').length == 0) return;
                 $.tablesorter.destroy('.sorter', true, function() {
 
                     // Add classes to date column headers
