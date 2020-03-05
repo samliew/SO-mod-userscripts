@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.17
+// @version      2.18
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -1233,7 +1233,9 @@ span.mod-flair {
 #chat-body .mine .messages {
     background-color: #181818;
 }
-#chat-body .mine .messages *:not(code):not(.popup):not(.mspbar):not(.mention-others) {
+#chat-body .messages .message .full,
+#chat-body .mine .messages .message:not(.cmmt-deleted):not(.selected),
+#chat-body .mine .messages .message:not(.cmmt-deleted):not(.selected) *:not(full):not(code):not(.popup):not(.mspbar):not(.mention-others) {
     background-color: transparent;
 }
 #chat-body div.message .content,
@@ -1328,7 +1330,8 @@ body#conversation-body .messages .message.cmmt-deleted .content * {
     background-color: #dd6205;
 }
 .highlight .content,
-#main.select-mode .message.selected .content {
+#main.select-mode .message.selected .content,
+#main.select-mode .message.cmmt-deleted.selected .content {
     background-color: #135;
 }
 #starred-posts > div > ul > li {
