@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.3
+// @version      2.4
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -593,7 +593,42 @@ async function waitForSOMU() {
             $('#popup-close-question').find('input:submit').focus();
         });
 
-        // No queue detected, do nothing. Required for ajaxComplete function below
+        // If in queue history page
+        if(/\/history$/.test(location.pathname)) {
+
+            const filterTabs = $(`<div id="review-history-tabs" class="tabs">
+<a href="?skipped=true" class="${location.search.includes('skipped=true') ? 'youarehere' : ''}">Show All</a>
+<a href="?skipped=false" class="${location.search.includes('skipped=true') ? '' : 'youarehere'}">Default</a>
+</div>`);
+
+            const actions = $('.history-table tbody tr').map((i, el) => {
+                const actionName = el.children[2].innerText.trim();
+                el.dataset.actionType = actionName.toLowerCase().replace(/\W+/gi, '-');
+                return actionName;
+            }).get();
+            const historyTypes = [...new Set(actions)].sort();
+            historyTypes.forEach(function(actionName) {
+                const actionSlug = actionName.toLowerCase().replace(/\W+/gi, '-');
+                filterTabs.append(`<a data-filter="${actionSlug}">${actionName}</a>`);
+            });
+
+            $('.history-table').before(filterTabs);
+
+            // Filter options event
+            $('#review-history-tabs').on('click', 'a[data-filter]', function() {
+                if($(this).hasClass('youarehere')) return false;
+
+                // Filter posts based on selected filter
+                $('.history-table tbody tr').hide().filter(`[data-action-type="${this.dataset.filter}"]`).show();
+
+                // Update active tab highlight class
+                $(this).addClass('youarehere').siblings('[data-filter]').removeClass('youarehere');
+
+                return false;
+            });
+        }
+
+        // Not in a review queue, do nothing. Required for ajaxComplete function below
         if(queueType == null) return;
         console.log('Review queue:', queueType);
 
@@ -1010,6 +1045,21 @@ pre {
     padding: 20px 30px;
     background: rgba(255,255,255,0.7) !important;
     color: black !important;
+}
+
+#review-history-tabs {
+    position: relative;
+    float: none;
+    margin: 30px 0;
+}
+#review-history-tabs:before {
+    content: '';
+    display: block;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-bottom: 1px solid var(--black-075);
 }
 `);
     }
