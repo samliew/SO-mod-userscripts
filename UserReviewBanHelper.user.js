@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.14
+// @version      3.14.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -858,6 +858,10 @@ a.reviewban-button {
     text-indent: -100vw;
 }
 
+#banned-users-table td:first-child {
+    max-width: 140px;
+    overflow: hidden;
+}
 table.sorter > tbody > tr:nth-child(odd) > td {
     background-color: #eee !important;
 }
