@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.13.8
+// @version      3.14
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -335,6 +335,19 @@
                 const unbanDay = rows.filter((i, el) => el.children[2].innerText.match(/(just|min|hour)/)).length;
                 const unbanWeek = rows.filter((i, el) => new Date(el.children[2].children[0].title) < weekAhead).length;
 
+                const durations = rows.map((i, el) => Number(el.children[3].innerText)).get();
+                const tally = {
+                  'count4': durations.filter(v => v <= 4).length,
+                  'count8': durations.filter(v => v > 4 && v <= 8).length,
+                  'count16': durations.filter(v => v > 8 && v <= 16).length,
+                  'count32': durations.filter(v => v > 16 && v <= 32).length,
+                  'count64': durations.filter(v => v > 32 && v <= 64).length,
+                  'count128': durations.filter(v => v > 64 && v <= 128).length,
+                  'count365': durations.filter(v => v > 128 && v <= 365).length,
+                  'count366': durations.filter(v => v > 365).length
+                };
+                tally.other = durations.length - tally.count4 - tally.count8 - tally.count16 - tally.count32 - tally.count64 - tally.count100;
+
                 const bannedStats = $(`<div id="banned-users-stats"><ul>` +
 (forTriage > 0 ? `<li><span class="copy-only">-&nbsp;</span>${forTriage} (${(forTriage/rows.length*100).toFixed(1)}%) users are banned for Triage reviews in one way or another</li>` : '') +
 (reqEditing > 0 ? `<li><span class="copy-only">-&nbsp;</span>${reqEditing} (${(reqEditing/rows.length*100).toFixed(1)}%) users are banned for selecting "Requires Editing" in Triage when the question was unsalvagable</li>` : '') + `
@@ -346,7 +359,19 @@
 <li><span class="copy-only">-&nbsp;</span>${pastWeek} (${(pastWeek/rows.length*100).toFixed(1)}%) users are banned within the past week</li>
 <li><span class="copy-only">-&nbsp;</span>${unbanDay} (${(unbanDay/rows.length*100).toFixed(1)}%) users will be unbanned by tomorrow</li>
 <li><span class="copy-only">-&nbsp;</span>${unbanWeek} (${(unbanWeek/rows.length*100).toFixed(1)}%) users will be unbanned in the next seven days</li>
-</ul></div>`);
+</ul>
+Breakdown:<br>
+<ul>
+<li><span class="copy-only">-&nbsp;</span>&lt;=4 : ${tally.count4} users (${(tally.count4/rows.length*100).toFixed(1)}%)</li>
+<li><span class="copy-only">-&nbsp;</span>&gt;4 to &lt;=8 : ${tally.count8} users (${(tally.count8/rows.length*100).toFixed(1)}%)</li>
+<li><span class="copy-only">-&nbsp;</span>&gt;8 to &lt;=16 : ${tally.count16} users (${(tally.count16/rows.length*100).toFixed(1)}%)</li>
+<li><span class="copy-only">-&nbsp;</span>&gt;16 to &lt;=32 : ${tally.count32} users (${(tally.count32/rows.length*100).toFixed(1)}%)</li>
+<li><span class="copy-only">-&nbsp;</span>&gt;32 to &lt;=64 : ${tally.count64} users (${(tally.count64/rows.length*100).toFixed(1)}%)</li>
+<li><span class="copy-only">-&nbsp;</span>&gt;64 to &lt;=128 : ${tally.count128} users (${(tally.count128/rows.length*100).toFixed(1)}%)</li>
+<li><span class="copy-only">-&nbsp;</span>&gt;128 to &lt;=365 : ${tally.count365} users (${(tally.count365/rows.length*100).toFixed(1)}%)</li>
+<li><span class="copy-only">-&nbsp;</span>&gt;365 : ${tally.count366} users (${(tally.count366/rows.length*100).toFixed(1)}%)</li>
+</ul>
+</div>`);
 
                 table.before(bannedStats);
                 bannedStats.parent().addClass('banned-reviewers-section').children('h3').text((i,v) => v.toLowerCase() + ', out of which:').prepend('<span>Currently, there are </span>');
