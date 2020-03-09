@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.18.1
+// @version      2.18.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -1001,10 +1001,10 @@ pre * {
     background-color: #999;
 }
 .cmmt-chatty {
-    color: coral;
+    background-color: var(--orange-300);
 }
 .cmmt-rude {
-    color: red;
+    background-color: var(--orange-300);
 }
 a.comment-user.owner {
     background-color: #444;
