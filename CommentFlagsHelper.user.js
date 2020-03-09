@@ -763,10 +763,12 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
     background: #F48024 !important;
 }
 .cmmt-rude {
+    background-color: var(--orange-200);
+    border-bottom: var(--orange-700) solid 2px;
     font-weight: bold;
-    bottom-border: coral solid 2px;
 }
 .cmmt-chatty {
+    background-color: var(--orange-200);
     font-weight: bold;
 }
 
