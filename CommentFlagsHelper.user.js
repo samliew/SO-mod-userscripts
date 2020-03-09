@@ -75,8 +75,8 @@
 
     function replaceKeywords(jqElem) {
         let text = ' ' + this.innerHTML;
-        text = text.replace(/[*]+/g, ' * ').replace(rudeRegex, ' <span class="cmmt-rude">$1</span>');
-        text = text.replace(/[*]+/g, ' * ').replace(chattyRegex, ' <span class="cmmt-chatty">$1</span>');
+        text = text.replace(/[*]+/g, ' * ').replace(rudeRegex, ' <mark class="cmmt-rude">$1</mark>');
+        text = text.replace(/[*]+/g, ' * ').replace(chattyRegex, ' <mark class="cmmt-chatty">$1</mark>');
         this.innerHTML = text;
     }
 
@@ -763,12 +763,13 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
     background: #F48024 !important;
 }
 .cmmt-rude {
+    background-color: var(--orange-200);
+    border-bottom: var(--orange-700) solid 2px;
     font-weight: bold;
-    color: red;
 }
 .cmmt-chatty {
+    background-color: var(--orange-200);
     font-weight: bold;
-    color: coral;
 }
 
 #actionBtns {
