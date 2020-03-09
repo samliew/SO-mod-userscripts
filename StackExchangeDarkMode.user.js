@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.18
+// @version      2.18.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -39,10 +39,10 @@
 
 
     let textcolor = '#bbb';
-    let linkcolor = '#fff';
-    let highlightcolor = '#eee';
-    let bgcolor = '#111';
-    let btncolor = '#333';
+    let linkcolor = '#eee';
+    let highlightcolor = '#ddd';
+    let bgcolor = '#222';
+    let btncolor = '#444';
     let bordercolor = '#555';
 
 
