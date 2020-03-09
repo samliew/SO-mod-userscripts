@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -105,6 +105,11 @@
             // Also find same username in question close reasons
             $('.close-as-off-topic-status-list .js-reason-user').filter((i, el) => el.innerText == username).text(this.innerText);
         });
+
+        // Edge case: CW posts that have no revision history
+        $('.post-signature .community-wiki').closest('.user-info').find('a[href$="/revisions"]').filter(function() {
+            return $(this).siblings('a[href^="/users/"]').length == 0;
+        }).text('anon');
 
         // Remove @ replies from beginning of comments
         $('.comment-copy, .text-row > td > span').html((i,v) => v.replace(/^@[\wŒŠŽÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÑÒÓÔÕÖØÙÚÛÜÝÞßðÿ]+[,:]?\s/i, ''));
