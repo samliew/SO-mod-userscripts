@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.4.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -339,7 +339,13 @@ async function waitForSOMU() {
             if(!error) {
                 // immediately skip to next review
                 instantActions.remove();
-                $('.js-review-actions button[title="skip this question"]').click();
+
+                if(!isSuperuser()) {
+                    $('.js-review-actions button[title="skip this question"]').click();
+                }
+                else {
+                    location.reload(true);
+                }
             }
         });
     }
@@ -596,9 +602,12 @@ async function waitForSOMU() {
         // If in queue history page
         if(/\/history$/.test(location.pathname)) {
 
+            let userId = location.search.match(/userId=\d+/) || '';
+            if(userId) userId = '&' + userId;
+
             const filterTabs = $(`<div id="review-history-tabs" class="tabs">
-<a href="?skipped=true" class="${location.search.includes('skipped=true') ? 'youarehere' : ''}">Show All</a>
-<a href="?skipped=false" class="${location.search.includes('skipped=true') ? '' : 'youarehere'}">Default</a>
+<a href="?skipped=true${userId}" class="${location.search.includes('skipped=true') ? 'youarehere' : ''}">Show All</a>
+<a href="?skipped=false${userId}" class="${location.search.includes('skipped=true') ? '' : 'youarehere'}">Default</a>
 </div>`);
 
             const actions = $('.history-table tbody tr').map((i, el) => {
