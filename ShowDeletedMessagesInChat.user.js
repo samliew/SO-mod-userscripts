@@ -3,7 +3,7 @@
 // @description  Show Deleted Messages in Chat and Transcripts. Works with NoOneboxesInChat userscript
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.6
+// @version      1.2.7
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -85,7 +85,7 @@
         const styles = `
 <style>
 .message.cmmt-deleted {
-    background: #f4eaea;
+    background: var(--red-050);
     color: #990000;
 }
 .message.cmmt-deleted span.deleted {
