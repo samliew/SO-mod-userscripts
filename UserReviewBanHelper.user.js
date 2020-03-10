@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.14.1
+// @version      3.14.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -346,7 +346,6 @@
                   'count365': durations.filter(v => v > 128 && v <= 365).length,
                   'count366': durations.filter(v => v > 365).length
                 };
-                tally.other = durations.length - tally.count4 - tally.count8 - tally.count16 - tally.count32 - tally.count64 - tally.count100;
 
                 const bannedStats = $(`<div id="banned-users-stats"><ul>` +
 (forTriage > 0 ? `<li><span class="copy-only">-&nbsp;</span>${forTriage} (${(forTriage/rows.length*100).toFixed(1)}%) users are banned for Triage reviews in one way or another</li>` : '') +
@@ -372,6 +371,31 @@ Breakdown:<br>
 <li><span class="copy-only">-&nbsp;</span>&gt;365 : ${tally.count366} users (${(tally.count366/rows.length*100).toFixed(1)}%)</li>
 </ul>
 </div>`);
+                const copyTable = $(`<table><tr>
+<td>${rows.length}</td>
+<td>${forTriage}</td>
+<td>${reqEditing}</td>
+<td>${auditFailures}</td>
+<td>${firstTimers}</td>
+<td>${fiveTimers}</td>
+<td>${hundred}</td>
+<td>${permaban}</td>
+<td>${pastDay}</td>
+<td>${pastWeek}</td>
+<td>${unbanDay}</td>
+<td>${unbanWeek}</td>
+<td>${tally.count4}</td>
+<td>${tally.count8}</td>
+<td>${tally.count16}</td>
+<td>${tally.count32}</td>
+<td>${tally.count64}</td>
+<td>${tally.count128}</td>
+<td>${tally.count365}</td>
+<td>${tally.count366}</td>
+</tr></table>`);
+                if(isSuperuser()) {
+                    copyTable.appendTo(bannedStats);
+                }
 
                 table.before(bannedStats);
                 bannedStats.parent().addClass('banned-reviewers-section').children('h3').text((i,v) => v.toLowerCase() + ', out of which:').prepend('<span>Currently, there are </span>');
