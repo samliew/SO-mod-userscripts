@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.18.2
+// @version      2.18.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -214,6 +214,9 @@ em,
 strong,
 span {
     color: inherit;
+}
+blockquote:before {
+    background: var(--black-150);
 }
 .btn,
 .button,
