@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.3
+// @version      2.6.4
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -409,7 +409,7 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 }
 .deleted-answer .votecell .vote,
 .deleted-answer .votecell .js-voting-container {
-    background-color: rgba(244, 234, 234, 0.6);
+    background-color: rgba(253, 243, 244, 0.6);
 }
 .votecell .vote .message,
 .votecell .js-voting-container .message {
