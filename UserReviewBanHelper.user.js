@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.14.2
+// @version      3.15
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -63,7 +63,7 @@
 
     // For review ban message
     let textarea;
-    let params, uid, posts, allposts = '', posttext = '';
+    let params, uid, posts, reviewAction, allposts = '', posttext = '';
 
 
     // Review unban user
@@ -197,8 +197,9 @@
             if(params) {
                 uid = Number(params[0]) || null;
 
-                if(params.length === 2) {
+                if(params.length >= 2) {
                     posts = params[1].split(';').map(v => v.replace(/\/?review\//, ''));
+                    reviewAction = params[2] || null;
 
                     // Remove similar consecutive review types from urls
                     // (possibly no longer needed as we can increase max length)
@@ -208,7 +209,8 @@
                     //    else prevType = v.split('/')[0];
                     //    return v;
                     //});
-                    //console.log(posts);
+
+                    console.log(posts, reviewAction);
 
                     // Fit as many URLs as possible into message
                     var i = posts.length;
@@ -460,6 +462,13 @@ Breakdown:<br>
             }).appendTo('.js-review-instructions');
 
             // Add review-ban button for users who selected "requires editing"
+            $(`<button class="mt16">Review ban "Looks OK"</button>`).appendTo('.reviewable-post-stats')
+                .click(function() {
+                $('.review-results').filter((i, el) => el.innerText.includes('Looks OK')).find('.reviewban-link').each((i, el) => el.click());
+                $(this).remove();
+            });
+
+            // Add review-ban button for users who selected "requires editing"
             $(`<button class="mt16">Review ban "Requires Editing"</button>`).appendTo('.reviewable-post-stats')
                 .click(function() {
                 $('.review-results').filter((i, el) => el.innerText.includes('Requires Editing')).find('.reviewban-link').each((i, el) => el.click());
@@ -478,7 +487,8 @@ Breakdown:<br>
             var userlink = $(this);
             var uid = $(this).attr('href').match(/\d+/)[0];
             var url = '/users/history/' + uid + '?type=User+has+been+banned+from+review';
-            var banUrl = `/admin/review/bans#${uid}|${location.pathname}`;
+            var action = $(this).nextAll('b').last().text().toLowerCase().trim().replace(/\W+/g, '-');
+            var banUrl = `/admin/review/bans#${uid}|${location.pathname}|${action}`;
 
             // Add ban link
             $(`<a class="reviewban-link" href="${banUrl}" title="Ban user from reviews" target="_blank">X</a>`)
@@ -688,10 +698,10 @@ Breakdown:<br>
 
                     // Modify minimum review ban to get their attention
                     firstRadio.remove(); // remove option 2
-                    //secondRadio.remove(); // remove option 4
+                    secondRadio.remove(); // remove option 4
 
-                    // If triage review, select alternate by default
-                    if(location.hash.includes('|/review/triage/')) {
+                    // If triage review and reviewAction is "requires-editing", select alternate canned message
+                    if(location.hash.includes('|/review/triage/') && reviewAction == 'requires-editing') {
                         $('#canned-messages a[data-message*="Requires Editing"]').click();
                     }
                 }
