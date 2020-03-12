@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.15
+// @version      3.16
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -310,7 +310,13 @@
                     $.ajax({
                         type : 'POST',
                         url : this.action,
-                        data : $(this).serialize()
+                        data : $(this).serialize(),
+                        beforeSend: function() {
+                            // Max timeout before closing window
+                            setTimeout(function() {
+                                unsafeWindow.top.close();
+                            }, 5000);
+                        }
                     }).done(function() {
                         unsafeWindow.top.close();
                     });
@@ -461,17 +467,25 @@ Breakdown:<br>
                 return ax < bx ? -1 : 1;
             }).appendTo('.js-review-instructions');
 
-            // Add review-ban button for users who selected "requires editing"
+            // Add review-ban button for users who selected "Looks OK"
             $(`<button class="mt16">Review ban "Looks OK"</button>`).appendTo('.reviewable-post-stats')
                 .click(function() {
                 $('.review-results').filter((i, el) => el.innerText.includes('Looks OK')).find('.reviewban-link').each((i, el) => el.click());
                 $(this).remove();
             });
 
-            // Add review-ban button for users who selected "requires editing"
+            // Add review-ban button for users who selected "Requires Editing"
             $(`<button class="mt16">Review ban "Requires Editing"</button>`).appendTo('.reviewable-post-stats')
                 .click(function() {
                 $('.review-results').filter((i, el) => el.innerText.includes('Requires Editing')).find('.reviewban-link').each((i, el) => el.click());
+                $(this).remove();
+                unsafeWindow.top.close();
+            });
+
+            // Add review ban all button
+            $(`<button class="mt16">Review ban ALL</button>`).appendTo('.reviewable-post-stats')
+                .click(function() {
+                $(this).siblings('button').click();
                 $(this).remove();
                 unsafeWindow.top.close();
             });
