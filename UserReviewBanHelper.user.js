@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.16
+// @version      3.17
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -609,7 +609,7 @@ Breakdown:<br>
             // Add currently/recently banned indicator if history found
             let isCurrentlyBanned = false;
             let daysago = new Date();
-            daysago.setDate(daysago.getDate() - 28);
+            daysago.setDate(daysago.getDate() - 60);
             eventRows.eq(0).each(function() {
                 const datetime = new Date($(this).find('.relativetime').attr('title'));
                 const duration = Number(this.innerText.match(/\= \d+ days/)[0].replace(/\D+/g, ''));
@@ -706,7 +706,12 @@ Breakdown:<br>
 
                 // UI stuff
                 $('#days-3').parent().addClass('duration-radio-group').find('input').addClass('s-radio');
-                $('#lookup-result input:submit').addClass('s-btn s-btn__primary');
+                const banSubmit = $('#lookup-result input:submit').addClass('s-btn s-btn__primary').attr('id', 'ban-submit');
+
+                // Refocus submit button on duration change
+                $('.duration-radio-group').on('click', 'input', function() {
+                    banSubmit.focus();
+                });
 
                 if(isSuperuser()) {
 
