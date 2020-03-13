@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.1
+// @version      2.4.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -856,7 +856,7 @@ async function waitForSOMU() {
                         // Display link to triage review
                         $.get(`https://${location.hostname}/posts/${responseJson.postId}/timeline`)
                         .done(function(data) {
-                            const triageLink = $('.event-verb a', data).filter((i, el) => el.href.includes('/triage/')).attr('href');
+                            const triageLink = $('[data-eventtype="review"] a', data).filter((i, el) => el.href.includes('/triage/')).attr('href');
                             $('.reviewable-post-stats tr').eq(-2).children('td')
                                 .append(`<span class="lsep">| </span><a href="${triageLink}" class="s-btn s-btn__sm s-btn__primary" title="see who voted for requires editing" target="_blank">view triage</a>`);
                         });
