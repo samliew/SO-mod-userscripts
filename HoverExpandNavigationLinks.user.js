@@ -3,7 +3,7 @@
 // @description  On pagination dots "..." mouseover, adds more page links (max 30 per hover)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8
+// @version      1.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -33,7 +33,7 @@
             }
         });
 
-        $('#content').on('click mouseover', '.page-numbers.dots', function() {
+        $('#content').on('click mouseover', '.page-numbers.dots, .s-pagination--item__clear', function() {
 
             let queryparams = location.search.replace('?', '').replace(/&?page=\d+&?/, '');
             if(queryparams.length > 0) queryparams += '&';
@@ -48,7 +48,7 @@
             }
 
             for(let i = prevNum + 1; i < nextNum; i++) {
-                $(`<a href="${baseurl}?${queryparams}page=${i}" title="go to page ${i}"> <span class="page-numbers">${i}</span> </a>`).insertBefore(this);
+                $(`<a class="s-pagination--item" href="${baseurl}?${queryparams}page=${i}" title="go to page ${i}">${i}</a>`).insertBefore(this);
             }
 
             if(removeWhenDone) $(this).remove();
@@ -60,7 +60,8 @@
 
         var styles = `
 <style>
-.pager .page-numbers {
+.pager .page-numbers,
+.s-pagination .s-pagination--item {
     margin-bottom: 5px;
 }
 </style>
