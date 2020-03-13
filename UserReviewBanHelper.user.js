@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.17.3
+// @version      3.17.4
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -338,6 +338,7 @@
                 const permaban = rows.filter((i, el) => el.children[4].innerText.match(/(no|any) (longer|signs)/)).length;
                 const firstTimers = rows.filter((i, el) => el.children[5].innerText == 1).length;
                 const fiveTimers = rows.filter((i, el) => el.children[5].innerText >= 5).length;
+                const tenTimers = rows.filter((i, el) => el.children[5].innerText >= 10).length;
                 const pastDay = rows.filter((i, el) => el.children[1].innerText.match(/(just|min|hour)/)).length;
                 const pastWeek = rows.filter((i, el) => new Date(el.children[1].children[0].title) > weekAgo).length;
                 const unbanDay = rows.filter((i, el) => el.children[2].innerText.match(/(just|min|hour)/)).length;
@@ -361,6 +362,7 @@
 <li><span class="copy-only">-&nbsp;</span>${auditFailures} (${(auditFailures/rows.length*100).toFixed(1)}%) users are automatically banned for failing multiple review audits</li>
 <li><span class="copy-only">-&nbsp;</span>${firstTimers} (${(firstTimers/rows.length*100).toFixed(1)}%) users are banned for the first time</li>
 <li><span class="copy-only">-&nbsp;</span>${fiveTimers} (${(fiveTimers/rows.length*100).toFixed(1)}%) users have at least five review bans</li>
+<li><span class="copy-only">-&nbsp;</span>${tenTimers} (${(tenTimers/rows.length*100).toFixed(1)}%) users have at least ten review bans</li>
 <li><span class="copy-only">-&nbsp;</span>${hundred} (${(hundred/rows.length*100).toFixed(1)}%) users have a duration of at least 100 days, of which ${permaban} users are perma-banned</li>
 <li><span class="copy-only">-&nbsp;</span>${pastDay} (${(pastDay/rows.length*100).toFixed(1)}%) users are banned within the past day</li>
 <li><span class="copy-only">-&nbsp;</span>${pastWeek} (${(pastWeek/rows.length*100).toFixed(1)}%) users are banned within the past week</li>
@@ -386,6 +388,7 @@ Breakdown:<br>
 <td>${auditFailures}</td>
 <td>${firstTimers}</td>
 <td>${fiveTimers}</td>
+<td>${tenTimers}</td>
 <td>${hundred}</td>
 <td>${permaban}</td>
 <td>${pastDay}</td>
