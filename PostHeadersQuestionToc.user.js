@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.4
+// @version      2.7
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -289,8 +289,8 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
             let deletedCount = 0;
             answers.each(function() {
                 const isDel = $(this).hasClass('deleted-event');
-                const postuser = $(this).find('.created-by a, .created-by').first();
-                const isPostuserDeleted = $(this).find('.created-by a').length === 0;
+                const postuser = $(this).find('.js-created-by a, .js-created-by').first();
+                const isPostuserDeleted = $(this).find('.js-created-by a').length === 0;
                 const postusername = postuser.text().replace('♦', ' ♦');
                 const pid = $(this).find('.event-comment a.timeline').attr('href').match(/[0-9]+/)[0];
                 const votes = $(this).find('.event-comment span:not(.badge-earned-check)').last().text().match(/[-0-9]+$/)[0];
@@ -444,6 +444,9 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
     border-bottom: 1px solid #ccc;
     cursor: pointer;
 }
+.post-stickyheader a:not([href*="/users/"]) {
+    color: inherit;
+}
 .election-page .votecell .vote,
 .election-page .votecell .js-voting-container {
     top: 0px;
@@ -551,6 +554,11 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
 }
 #qtoc .deleted-user {
     margin: -3px 0;
+}
+#qtoc .deleted-answer {
+    margin-left: 0;
+    padding-left: 0;
+    border: 0;
 }
 
 /* Named anchors functionality */
