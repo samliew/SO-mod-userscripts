@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.17.2
+// @version      3.17.3
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -608,7 +608,7 @@ Breakdown:<br>
 
             // Add currently/recently banned indicator if history found
             let isCurrentlyBanned = false;
-            let recommendedDuration = 4;
+            let newDuration = null, recommendedDuration = null;
             let daysago = new Date();
             daysago.setDate(daysago.getDate() - 60);
             eventRows.eq(0).each(function() {
@@ -618,7 +618,8 @@ Breakdown:<br>
                 banEndDatetime.setDate(banEndDatetime.getDate() + duration);
                 const currtext = banEndDatetime > Date.now() ? 'Current' : 'Recent';
 
-                let newDuration = duration, recommendedDuration = duration;
+                newDuration = duration;
+                recommendedDuration = duration;
 
                 // Recent, double duration
                 if(banEndDatetime > daysago) {
@@ -653,7 +654,7 @@ Breakdown:<br>
             });
 
             // If recommended is less than 32, and is for Triage, auto submit form
-            if(recommendedDuration < 32 && location.hash.includes('triage') && isSuperuser()) {
+            if((recommendedDuration == null || recommendedDuration < 32) && location.hash.includes('triage') && isSuperuser()) {
                 $('#lookup-result form').submit();
             }
             // If is currently banned, add confirmation prompt when trying to ban user
