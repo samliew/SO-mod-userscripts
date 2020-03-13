@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.12.4
+// @version      1.13
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -70,7 +70,7 @@
         const firstevt = $events.filter(function(i, el) {
             return el.dataset.eventtype === 'history';
         }).last();
-        const firstevtVerb = firstevt.find('.event-verb span').text().trim();
+        const firstevtVerb = firstevt.find('.event-verb span, .wmn1 span').text().trim();
         const isQuestion = firstevtVerb == 'asked';
 
         // Get reviews from timeline
@@ -84,19 +84,25 @@
             r.id = Number($(el).attr('data-eventid'));
             r.created = $(el).find('.relativetime').attr('title').trim();
             r.evttype = $(el).find('span.event-type').text().trim();
-            r.verb = $(el).find('.event-verb span').text().trim();
-            r.link = $(el).find('.event-verb a').attr('href');
+            r.verb = $(el).find('.event-verb span, .wmn1 span').text().trim();
+            r.link = $(el).find('.event-verb a, .wmn1 a').attr('href');
+            r._datehash = $(el).attr('data-datehash'); // for filtering out current event below when getting result
+
+            // not a valid event - e.g.: review outcome
+            if(typeof r.link == 'undefined') return;
 
             // try get additional "deleted-event-details" if review has completed
-            const info = $events.filter('.deleted-event-details').filter((i, el) => el.dataset.eventid == r.id);
+            const info = $events.filter((i, el) => el.dataset.eventid == r.id && el.dataset.datehash !== r._datehash);
             if(info.length === 1) {
                 r.ended = info.find('.relativetime').attr('title').trim();
-                r.outcome = info.find('.event-verb span').text().trim();
+                r.outcome = info.find('.event-verb span, .wmn1 span').text().trim();
                 r.comment = info.find('.event-comment span').text().trim();
             }
 
             return r;
-        }).sort(function(a, b) { // asc
+        })
+        .filter(v => v != null)
+        .sort(function(a, b) { // asc
             return a.id - b.id;
         });
         console.table(reviews);
