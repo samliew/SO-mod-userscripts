@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7
+// @version      2.7.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -444,7 +444,7 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
     border-bottom: 1px solid #ccc;
     cursor: pointer;
 }
-.post-stickyheader a:not([href*="/users/"]) {
+.post-stickyheader > a:not([href*="/users/"]) {
     color: inherit;
 }
 .election-page .votecell .vote,
@@ -473,6 +473,10 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 .post-stickyheader .relativetime {
     color: darkred;
     border-bottom: 1px dashed darkred;
+}
+.post-stickyheader > span { /* CW user */
+    color: darkred;
+    font-style: italic;
 }
 .post-stickyheader .sticky-tools {
     float: right;
