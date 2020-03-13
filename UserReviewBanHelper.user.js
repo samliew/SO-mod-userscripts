@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.17
+// @version      3.17.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -652,7 +652,7 @@ Breakdown:<br>
             });
 
             // If is currently banned, add confirmation prompt when trying to ban user
-            if(isCurrentlyBanned) {
+            if(isCurrentlyBanned && !isSuperuser()) {
                 $('#lookup-result form').submit(function() {
                     return confirm('User is currently review banned!\n\nAre you sure you want to replace with a new ban?');
                 });
