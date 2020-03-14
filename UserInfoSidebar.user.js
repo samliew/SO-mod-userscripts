@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2.1
+// @version      2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -136,69 +136,83 @@
         }
         else {
 
-            // Get user's mod dashboard page
-            $.get('/users/account-info/' + uid, function(data) {
+            // Expand user info
+            $('.account-toggle:not(.active)').click();
 
-                // If deletion record not found, do nothing
-                if(data.includes('Could not find a user or deletion record')) return;
+            // Fix user profile tab/pills taking up too much space
+            $('.js-user-header .s-navigation--item[href^="/users/account-info/"]').text('Dashboard');
+            $('.js-user-header .s-navigation--item[href^="/users/edit/"]').text('Edit');
+            $(`.js-user-header a[href^="https://meta.${location.hostname}/users/"] .ml4`).text('Meta');
+            $(`.js-user-header a[href^="https://stackexchange.com/users/"]`).html((i,v) => v.replace(/\s+Network profile\s+/, 'Network'));
+            $('.js-user-header > div .fs-body3').addClass('fw-bold');
 
-                // Get username
-                const username = $('h1', data).first().get(0).childNodes[0].nodeValue.trim();
+            // If not already on user dashboard page,
+            if(!location.pathname.includes('/users/account-info/')) {
 
-                // Modify quicklinks and user details, then append to page
-                const $quicklinks = $('div.mod-links', data).attr('id', 'usersidebar');
-                const $modActions = $quicklinks.find('.mod-actions');
+                // Get user's mod dashboard page
+                $.get('/users/account-info/' + uid, function(data) {
 
-                // Move contact links
-                $modActions.find('li').slice(-4, -2).appendTo($quicklinks.find('ul:first'));
+                    // If deletion record not found, do nothing
+                    if(data.includes('Could not find a user or deletion record')) return;
 
-                // Remove other actions as they need additional work to get popup working
-                $modActions.last().remove();
+                    // Get username
+                    const username = $('h1', data).first().get(0).childNodes[0].nodeValue.trim();
 
-                // Headers
-                const $infoHeader = $quicklinks.find('h3').last().text(username).prependTo($quicklinks);
+                    // Modify quicklinks and user details, then append to page
+                    const $quicklinks = $('div.mod-links', data).attr('id', 'usersidebar');
+                    const $modActions = $quicklinks.find('.mod-actions');
 
-                // Insert user details
-                const $info = $('.mod-section .details', data).insertAfter($infoHeader);
-                $info.children('.row').each(function() {
-                    $(this).children().first().unwrap();
+                    // Move contact links
+                    $modActions.find('li').slice(-4, -2).appendTo($quicklinks.find('ul:first'));
+
+                    // Remove other actions as they need additional work to get popup working
+                    $modActions.last().remove();
+
+                    // Headers
+                    const $infoHeader = $quicklinks.find('h3').last().text(username).prependTo($quicklinks);
+
+                    // Insert user details
+                    const $info = $('.mod-section .details', data).insertAfter($infoHeader);
+                    $info.children('.row').each(function() {
+                        $(this).children().first().unwrap();
+                    });
+
+                    // Transform user details to list format
+                    $info.children('.col-2').removeClass('col-2').addClass('info-header');
+                    $info.children('.col-4').removeClass('col-4').addClass('info-value');
+
+                    // Change xref link to month to be more useful (default was week)
+                    $quicklinks.find('a[href*="xref-user-ips"]').attr('href', (i, v) => v += '?daysback=30&threshold=2');
+
+                    // Prepend Mod dashboard link
+                    $quicklinks.find('ul').prepend(`<li><a href="/users/account-info/${uid}">mod dashboard</a></li>`);
+
+                    // If on meta,
+                    if(StackExchange.options.site.isMetaSite) {
+                        // enable contact user link
+                        $('.mod-quick-links span.disabled', $quicklinks).replaceWith(`<a title="use to contact this user and optionally suspend them" href="/users/message/create/${uid}">contact user</a>`);
+
+                        // change links to main
+                        $('.mod-quick-links a', $quicklinks).attr('href', (i, v) => StackExchange.options.site.parentUrl + v);
+                    }
+
+                    // Check if user is currently suspended, highlight username
+                    const susMsg = $('.system-alert', data).first().text();
+                    if(susMsg.indexOf('suspended') >= 0) {
+                        const susDur = susMsg.split('ends')[1].replace(/(^\s|(\s|\.)+$)/g, '');
+                        $quicklinks.find('h3').first().attr({ style: 'color: red !important;' }).attr('title', `currently suspended (ends ${susDur})`);
+                    }
+
+                    // Append to page
+                    $('body').append($quicklinks);
                 });
 
-                // Transform user details to list format
-                $info.children('.col-2').removeClass('col-2').addClass('info-header');
-                $info.children('.col-4').removeClass('col-4').addClass('info-value');
-
-                // Change xref link to month to be more useful (default was week)
-                $quicklinks.find('a[href*="xref-user-ips"]').attr('href', (i, v) => v += '?daysback=30&threshold=2');
-
-                // Prepend Mod dashboard link
-                $quicklinks.find('ul').prepend(`<li><a href="/users/account-info/${uid}">mod dashboard</a></li>`);
-
-                // If on meta,
-                if(StackExchange.options.site.isMetaSite) {
-                    // enable contact user link
-                    $('.mod-quick-links span.disabled', $quicklinks).replaceWith(`<a title="use to contact this user and optionally suspend them" href="/users/message/create/${uid}">contact user</a>`);
-
-                    // change links to main
-                    $('.mod-quick-links a', $quicklinks).attr('href', (i, v) => StackExchange.options.site.parentUrl + v);
-                }
-
-                // Check if user is currently suspended, highlight username
-                const susMsg = $('.system-alert', data).first().text();
-                if(susMsg.indexOf('suspended') >= 0) {
-                    const susDur = susMsg.split('ends')[1].replace(/(^\s|(\s|\.)+$)/g, '');
-                    $quicklinks.find('h3').first().attr({ style: 'color: red !important;' }).attr('title', `currently suspended (ends ${susDur})`);
-                }
-
-                // Append to page
-                $('body').append($quicklinks);
-            });
-
-            // Handle resize
-            $(window).on('load resize', function() {
-                $('body').toggleClass('usersidebar-open', $(document).width() >= 1660);
-                $('body').toggleClass('usersidebar-compact', $(window).height() <= 680);
-            });
+                // Handle resize
+                $(window).on('load resize', function() {
+                    $('body').toggleClass('usersidebar-open', $(document).width() >= 1660);
+                    $('body').toggleClass('usersidebar-compact', $(window).height() <= 680);
+                });
+            }
         }
     }
 
@@ -207,6 +221,13 @@
 
         const styles = `
 <style>
+.s-table th, .s-table td {
+    padding: 3px;
+}
+.js-profile-mod-info table td.mod-label {
+    font-weight: bold;
+}
+
 /* copied from main site as chat doesn't have this style */
 .mod-links li {
     margin-bottom: 5px;
