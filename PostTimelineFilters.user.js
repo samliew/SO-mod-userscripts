@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.13
+// @version      1.13.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -398,6 +398,9 @@
     display: none;
 }
 
+table.post-timeline {
+    border-bottom: 1px solid var(--black-100);
+}
 tr.separator {
     display: none !important;
 }
