@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.17.5
+// @version      3.17.6
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -43,7 +43,7 @@
     // Use {POSTLINK} and {QUEUENAME} placeholders
     const cannedMessages = {
         current: '',
-        triageQuestionReqEdits: `Your review on {POSTLINK} wasn't helpful. The "Requires Editing" option should only be used when other community users (*like you*) are able to edit/format an already **answerable question** into a better shape. If a question can be closed or can only be improved/clarified by the question asker, please use the "Unsalvageable" option instead. If in doubt always use the "Skip" option. For more information, see *[Getting banned from Triage reviews](https://meta.stackoverflow.com/q/389148)* and *[How does the Triage queue work?](https://meta.stackoverflow.com/q/295650)*.`,
+        triageQuestionReqEdits: `Your review on {POSTLINK} wasn't helpful. The "Requires Editing" option should only be used when other community users (*like you*) are able to edit/format an *already answerable question* into a better shape. If a question can be closed or can only be improved/clarified by the question asker, please use the "Unsalvageable" option instead. If in doubt always use the "Skip" option. For more information, see *[Getting banned from Triage reviews](https://meta.stackoverflow.com/q/389148)* and *[How does the Triage queue work?](https://meta.stackoverflow.com/q/295650)*.`,
         helperEditPoor: `Your review on {POSTLINK} wasn't helpful. If a question should be closed and you are unable to make the question on-topic in the "Help and Improvement" review, please use "Skip" instead of making trivial changes.`,
         postNaa: `You recently reviewed this post {POSTLINK}. Although it was posted as an answer, it clearly did not attempt to provide an answer to the question. You should have flagged it as "not an answer" so that it could be removed.`,
         postNaaEdited: `You recently edited this post {POSTLINK}. Please do not edit posts that should have been deleted. Use "edit" only when your edit salvages the post and makes it a valid answer.`,
