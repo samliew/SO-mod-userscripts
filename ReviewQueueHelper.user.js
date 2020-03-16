@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.2
+// @version      2.5.3
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -56,14 +56,9 @@ async function waitForSOMU() {
     let skipAccepted = false, skipUpvoted = false, skipMultipleAnswers = false, skipMediumQuestions = false, skipLongQuestions = false, autoCloseShortQuestions = false, downvoteAfterClose = false;
 
 
-    function getCloseVotesQuota() {
-
-        // attempt to get current post ID on the page
-        // this is because we cannot use "1" if user do not have 10k rep
-        const pid = post.postId || 1;
-
+    function getCloseVotesQuota(viewablePostId = 1) {
         return new Promise(function(resolve, reject) {
-            $.get(`https://${location.hostname}/flags/questions/${pid}/close/popup`)
+            $.get(`https://${location.hostname}/flags/questions/${viewablePostId}/close/popup`)
                 .done(function(data) {
                     const num = Number($('.bounty-indicator-tab', data).last().text());
                     console.log(num, 'votes');
@@ -72,14 +67,9 @@ async function waitForSOMU() {
                 .fail(reject);
         });
     }
-    function getFlagsQuota() {
-
-        // attempt to get current post ID on the page
-        // this is because we cannot use "1" if user do not have 10k rep
-        const pid = post.postId || 1;
-
+    function getFlagsQuota(viewablePostId = 1) {
         return new Promise(function(resolve, reject) {
-            $.get(`https://${location.hostname}/flags/posts/${pid}/popup`)
+            $.get(`https://${location.hostname}/flags/posts/${viewablePostId}/popup`)
                 .done(function(data) {
                     const num = Number($('.bounty-indicator-tab', data).last().text());
                     console.log(num, 'flags');
@@ -91,12 +81,14 @@ async function waitForSOMU() {
     function displayRemainingQuota() {
 
         // Ignore mods, since we have unlimited power
-        if(StackExchange.options.user.isModerator) return;
+        //if(StackExchange.options.user.isModerator) return;
+
+        const viewableQuestionId = post.postId || 11227809; // an open question on stack overflow
 
         // Oops, we don't have values yet, callback when done fetching
         if(remainingCloseVotes == null || remainingPostFlags == null) {
 
-            Promise.all([getCloseVotesQuota(), getFlagsQuota()]).then(v => {
+            Promise.all([getCloseVotesQuota(viewableQuestionId), getFlagsQuota(viewableQuestionId)]).then(v => {
                 remainingCloseVotes = v[0];
                 remainingPostFlags = v[1];
                 displayRemainingQuota();
@@ -713,9 +705,7 @@ async function waitForSOMU() {
         addReviewQueueStyles();
 
         // Display remaining CV and flag quota for non-mods
-        if(!StackExchange.options.user.isModerator) {
-            displayRemainingQuota();
-        }
+        setTimeout(displayRemainingQuota, 3000);
 
         // Detect queue type and set appropriate process function
         switch(queueType) {
@@ -764,6 +754,13 @@ async function waitForSOMU() {
 
             // Do nothing with saving preferences
             if(settings.url.includes('/users/save-preference')) return;
+
+            if(settings.url.includes('/close/add')) {
+                !isNaN(remainingCloseVotes) ? remainingCloseVotes-- : null;
+            }
+            if(settings.url.includes('/add/PostOther')) {
+                !isNaN(remainingPostFlags) ? remainingPostFlags-- : null;
+            }
 
             // Close dialog loaded
             if(settings.url.includes('/close/popup')) {
@@ -850,15 +847,14 @@ async function waitForSOMU() {
                     console.error('error parsing JSON', xhr.responseText);
                 }
 
+                // Display remaining CV and flag quota
+                displayRemainingQuota();
+
                 // If action was taken (post was refreshed), don't do anything else
                 if(responseJson.isRefreshing) return;
 
                 // If not review queue, do nothing (e.g.: viewing suggested edit from Q&A)
                 if(queueType == null) return;
-
-                // Display remaining CV and flag quota
-                post = { postId: responseJson.postId }; // temp so we can get this done earlier
-                displayRemainingQuota();
 
                 // Parse flagged reason (to select as default if no popular vote)
                 flaggedReason = (responseJson.instructions.match(/(too broad|unclear what you&#39;re asking|primarily opinion-based)/i) || ['']).pop().replace('&#39;', "'");
