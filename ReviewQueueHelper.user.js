@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.3
+// @version      2.5
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -51,8 +51,58 @@ async function waitForSOMU() {
     let processReview, post = {}, flaggedReason = null;
     let isLinkOnlyAnswer = false, isCodeOnlyAnswer = false;
     let numOfReviews = 0;
+    let remainingCloseVotes = null, remainingPostFlags = null;
 
     let skipAccepted = false, skipUpvoted = false, skipMultipleAnswers = false, skipMediumQuestions = false, skipLongQuestions = false, autoCloseShortQuestions = false, downvoteAfterClose = false;
+
+
+    function getCloseVotesQuota() {
+        return new Promise(function(resolve, reject) {
+            $.get(`https://${location.hostname}/flags/questions/1/close/popup`)
+                .done(function(data) {
+                    const num = Number($('.bounty-indicator-tab', data).last().text());
+                    console.log(num, 'votes');
+                    resolve(num);
+                })
+                .fail(reject);
+        });
+    }
+    function getFlagsQuota() {
+        return new Promise(function(resolve, reject) {
+            $.get(`https://${location.hostname}/flags/posts/1/popup`)
+                .done(function(data) {
+                    const num = Number($('.bounty-indicator-tab', data).last().text());
+                    console.log(num, 'flags');
+                    resolve(num);
+                })
+                .fail(reject);
+        });
+    }
+    function displayRemainingQuota() {
+
+        if(remainingCloseVotes == null || remainingPostFlags == null) {
+
+            Promise.all([getCloseVotesQuota(), getFlagsQuota()]).then(v => {
+                remainingCloseVotes = v[0];
+                remainingPostFlags = v[1];
+                displayRemainingQuota();
+            })
+            .catch(error => console.log(`Error in promises ${error}`));
+            return;
+        }
+
+        $('#remaining-quota').remove();
+
+        // Display number of CVs and flags remaining
+        const quota = $(`<tfoot id="remaining-quota"><tr><td colspan="2">
+                  <span class="remaining-votes"><span class="bounty-indicator-tab">${remainingCloseVotes}</span> <span>close votes left</span></span>
+                </td></tr>
+                <tr><td colspan="2">
+                  <span class="flag-remaining-inform" style="padding-right:20px"><span class="bounty-indicator-tab supernovabg">${remainingPostFlags}</span> flags left</span>
+                </td></tr></tfoot>`);
+
+        $('.reviewable-post-stats table').append(quota);
+    }
 
 
     function loadOptions() {
@@ -770,6 +820,8 @@ async function waitForSOMU() {
                 isLinkOnlyAnswer = false;
                 isCodeOnlyAnswer = false;
 
+                displayRemainingQuota();
+
                 // Get additional info about review from JSON response
                 let responseJson = {};
                 try {
@@ -982,6 +1034,11 @@ pre {
     display: inline-block !important;
 }
 
+/* CV and flag counts in sidebar */
+#remaining-quota tr:first-child td {
+    padding-top: 15px;
+}
+
 
 /* Instant action buttons */
 .js-review-actions-error-target button[style*='visibility'] {
@@ -1073,7 +1130,7 @@ pre {
 
 /* Visited links on review history page need to be in a different colour so we can see which reviews have been handled */
 .history-table a[href^="/review/"]:visited {
-    color: var(--black-700);
+    color: var(--orange-700);
 }
 .history-table a[href^="/review/"]:visited:hover {
     color: var(--blue-500);
