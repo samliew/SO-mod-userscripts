@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5
+// @version      2.5.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -820,7 +820,10 @@ async function waitForSOMU() {
                 isLinkOnlyAnswer = false;
                 isCodeOnlyAnswer = false;
 
-                displayRemainingQuota();
+                // Display remaining CV and flag quota for non-mods
+                if(!StackExchange.options.user.isModerator) {
+                    displayRemainingQuota();
+                }
 
                 // Get additional info about review from JSON response
                 let responseJson = {};
