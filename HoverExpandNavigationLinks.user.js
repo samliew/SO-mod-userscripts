@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Hover Expand Navigation Links
-// @description  On pagination dots "..." mouseover, adds more page links (max 30 per hover)
+// @description  On pagination dots "..." mouseover, adds more page links (max 30 per hover), keyboard shortcuts for jumping to prev/next pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9
+// @version      1.10
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -18,6 +18,44 @@
 
 (function() {
     'use strict';
+
+
+    function listenToKeyboardEvents() {
+
+        const pager = $('.s-pagination, .pager').first();
+        const pagerItems = pager.children('.s-pagination--item');
+        //const currentPagerItem = pagerItems.filter('.is-selected');
+
+        // Keyboard shortcuts event handler
+        $(document).on('keydown', null, function(evt) {
+
+            const LEFTKEY  = evt.keyCode == 37 || evt.key == 'ArrowLeft';
+            const RIGHTKEY = evt.keyCode == 39 || evt.key == 'ArrowRight';
+            const UPKEY    = evt.keyCode == 38 || evt.key == 'ArrowUp';
+            const DOWNKEY  = evt.keyCode == 40 || evt.key == 'ArrowDown';
+
+            //console.trace('HENL', 'keyup', evt);
+
+            let newLocation = null;
+            if(LEFTKEY) {
+                newLocation = pagerItems.first().attr('href');
+            }
+            else if(RIGHTKEY) {
+                newLocation = pagerItems.last().attr('href');
+            }
+            else if(UPKEY) {
+                newLocation = pagerItems.filter('[rel="prev"]').next().attr('href') || pagerItems.first().attr('href');
+            }
+            else if(DOWNKEY) {
+                newLocation = pagerItems.filter('[rel="next"]').prev().attr('href') || pagerItems.last().attr('href');
+            }
+
+            if(newLocation) {
+                location.href = newLocation;
+                return false;
+            }
+        });
+    }
 
 
     function doPageload() {
@@ -73,5 +111,6 @@
     // On page load
     appendStyles();
     doPageload();
+    listenToKeyboardEvents();
 
 })();
