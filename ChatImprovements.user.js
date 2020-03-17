@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.14
+// @version      2.14.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -27,6 +27,10 @@
 
     const store = window.localStorage;
     const fkey = document.getElementById('fkey') ? document.getElementById('fkey').value : '';
+
+    const superusers = [ 584192 ];
+    const isSuperuser = () => superusers.includes(CHAT.CURRENT_USER_ID);
+
     const newuserlist = $(`<div id="present-users-list"><span class="users-count"></span></div>`);
     const tzOffset = new Date().getTimezoneOffset();
     const now = new Date();
@@ -1375,6 +1379,15 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             if(location.search.includes('tab=recent')) {
                 initUserRecentPagination();
             }
+        }
+
+        // For Sam only
+        if(isSuperuser()) {
+            $('body').append($(`<style>
+a[href*='/triage/']:visited {
+    color: navy !important;
+}
+</style>`));
         }
 
     }
