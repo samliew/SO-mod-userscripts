@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.19.1
+// @version      2.19.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -1138,12 +1138,16 @@ span.mod-flair {
     background: indianred;
     color: white;
 }
-.history-table a[href^="/review/"]:visited {
+
+#chat-body .message .content a[href*="/review/"]:visited,
+.history-table a[href*="/review/"]:visited {
     color: var(--black-300) !important;
 }
-.history-table a[href^="/review/"]:visited:hover {
+#chat-body .message .content a[href*="/review/"]:visited:hover,
+.history-table a[href*="/review/"]:visited:hover {
     color: ${linkcolor} !important;
 }
+
 #chat-body .topbar .network-chat-links > a.current-site {
     background: #3667af;
 }
