@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.17.6
+// @version      3.17.7
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -656,8 +656,8 @@ Breakdown:<br>
                 console.log('Closest ban duration option:', recommendedDuration);
             });
 
-            // If recommended is less than 32, and is for Triage, auto submit form
-            if((recommendedDuration == null || recommendedDuration < 32) && location.hash.includes('triage') && isSuperuser()) {
+            // If recommended is up to 32 and is for Triage, auto submit form
+            if((recommendedDuration == null || recommendedDuration <= 32) && location.hash.includes('triage') && isSuperuser()) {
                 $('#lookup-result form').submit();
             }
             // If is currently banned, add confirmation prompt when trying to ban user
