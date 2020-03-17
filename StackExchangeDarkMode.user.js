@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.18.4
+// @version      2.19
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -38,10 +38,10 @@
     const orange = '#f2720c';
 
 
-    let textcolor = '#bbb';
-    let linkcolor = '#eee';
+    let textcolor = '#ddd';
+    let linkcolor = '#fff';
     let highlightcolor = '#ddd';
-    let bgcolor = '#222';
+    let bgcolor = '#1c1c1c';
     let btncolor = '#444';
     let bordercolor = '#555';
 
@@ -345,11 +345,13 @@ body #content .share-tip,
     opacity: 0.4;
     transition: opacity 0.2s ease;
 }
+/*
 ul.comments-list .comment-up-off,
 ul.comments-list .js-comment-flag,
 ul.comments-list .comment-flag {
-    opacity: 0.25;
+    opacity: 0.6;
 }
+*/
 #left-sidebar:hover,
 #sidebar > *:hover,
 .deleted-answer:hover,
@@ -365,7 +367,7 @@ ul.comments-list .comment:hover .comment-up-off:hover {
 ul.comments-list .comment:hover .comment-up-off,
 ul.comments-list .comment:hover .js-comment-flag,
 ul.comments-list .comment:hover .comment-flag {
-    opacity: 0.5;
+    opacity: 0.8;
 }
 .wmd-button-row {
     background-color: white;
@@ -376,13 +378,21 @@ ul.comments-list .comment:hover .comment-flag {
     height: 43px;
 }
 .wmd-button > span {
-    filter: invert(1) brightness(1.2);
+    filter: invert(1) brightness(1);
     background-color: transparent;
 }
 ul.comments-list .comment-up-on,
 ul.comments-list .comment-up-on * {
     color: white;
     fill: white;
+}
+.js-image-upload-label,
+.js-show-url-input,
+.js-image-upload-label:hover,
+.js-show-url-input:hover {
+    color: white;
+    text-decoration: underline;
+    background: transparent;
 }
 
 
@@ -1461,6 +1471,11 @@ body .js-flagged-post .bc-black-3 {
         else if(location.hostname === "stackoverflow.blog") {
             $('.site-header .so-icon-logo').replaceWith(blogLogo);
         }
+
+        // Replace imgur class
+        $('#post-editor').on('click', '#wmd-image-button', function() {
+            $('.icon-imgur-black').removeClass('icon-imgur-black').addClass('icon-imgur-white');
+        });
 
         // need to be additionally processed
         $(document).ajaxStop(function() {
