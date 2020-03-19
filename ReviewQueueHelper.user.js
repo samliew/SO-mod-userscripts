@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.4
+// @version      2.6
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -272,6 +272,46 @@ async function waitForSOMU() {
     }
 
 
+    function displayPostKeywords() {
+
+        // Questions only
+        if(!post.isQuestion) return;
+
+
+        // Display post keywords
+        post.issues = [];
+        const header = $('.reviewable-post .subheader');
+        const resultsDiv = $(`<div id="review-keywords"></div>`).appendTo(header);
+
+        const keywords = ['suggest', 'software', 'tool', 'library', 'plugin', 'didn\'t work', 'doesn\'t work', 'I want', 'I am new', 'I\'m new', 'give me', 'an example', 'reference', 'advice', 'some example', 'imgur'];
+        const text = (post.title + post.contentHtml).toLowerCase();
+        const results = keywords.filter(v => text.includes(v.toLowerCase()));
+        results.forEach(v => {
+            $('<span>' + v + '</span>').appendTo(resultsDiv);
+            post.issues.push(v);
+        });
+
+        const postLinks = text.match(/href="http/g);
+        if(postLinks && postLinks.length > 1) {
+            $('<span>' + postLinks.length + ' links</span>').prependTo(resultsDiv);
+            post.issues.unshift(postLinks.length + ' links');
+        }
+
+        const questionMarks = text.match(/\?+/g);
+        if(questionMarks && questionMarks.length > 1) {
+            $('<span>' + questionMarks.length + '?</span>').prependTo(resultsDiv);
+            post.issues.unshift(questionMarks.length + '?');
+        }
+
+        if(post.content.length <= 320) {
+            $('<span>short</span>').prependTo(resultsDiv);
+            post.issues.unshift('short');
+        }
+
+        //console.log(post.issues);
+    }
+
+
     function processCloseReview() {
 
         // Question has an accepted answer, skip if enabled
@@ -453,6 +493,8 @@ async function waitForSOMU() {
 
         // Keyboard shortcuts event handler
         $(document).on('keyup', function(evt) {
+
+            //console.trace('RQH', 'keyup', evt);
 
             // Back buttons: escape (27)
             // Unable to use tilde (192) as on the UK keyboard it is swapped the single quote keycode
@@ -954,6 +996,7 @@ async function waitForSOMU() {
                         permalink: `https://${location.hostname}/${isQuestion ? 'q':'a'}/${responseJson.postId}`,
                         title: $('h1[itemprop="name"] a').text(),
                         content: $('.post-text').first().text(),
+                        contentHtml: $('.post-text').first().html(),
                         votes: parseInt($('.js-vote-count').first().text(), 10),
                         tags: $('.post-taglist .post-tag').get().map(v => v.innerText),
                         isQuestion: isQuestion,
@@ -996,6 +1039,9 @@ async function waitForSOMU() {
                     //    return;
                     //}
 
+                    // Display post keywords
+                    displayPostKeywords();
+
                     // Process post based on queue type
                     if(typeof processReview === 'function') processReview();
 
@@ -1026,6 +1072,9 @@ pre {
 .js-review-bar-container {
     position: relative;
     z-index: 1;
+}
+.js-review-bar {
+    min-height: 150px;
 }
 .reviewable-post .question {
     position: relative;
@@ -1144,6 +1193,19 @@ pre {
     left: 0;
     right: 0;
     border-bottom: 1px solid var(--black-075);
+}
+
+/* Review keywords */
+#review-keywords {
+    float: right;
+    margin: 7px 20px 0 0;
+    font-style: italic;
+}
+#review-keywords > span:after {
+    content: ', ';
+}
+#review-keywords > span:last-child:after {
+    content: '';
 }
 
 /* Visited links on review history page need to be in a different colour so we can see which reviews have been handled */
