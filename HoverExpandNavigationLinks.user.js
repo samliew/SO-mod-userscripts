@@ -30,7 +30,7 @@
         $(document).on('keydown', null, function(evt) {
 
             // Do nothing if key modifiers were pressed
-            if(evt.shiftKey || evt.ctrlKey || evt.altKey) return;
+            if(evt.shiftKey || evt.ctrlKey || evt.altKey || evt.metaKey) return;
 
             const LEFTKEY  = evt.keyCode == 37 || evt.key == 'ArrowLeft';
             const RIGHTKEY = evt.keyCode == 39 || evt.key == 'ArrowRight';
