@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.2
+// @version      2.6.3
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -761,6 +761,11 @@ async function waitForSOMU() {
 
                 return false;
             });
+
+            // Triage, filter by "Requires Editing" by default
+            if(/\/triage\/history$/.test(location.pathname)) {
+                $('a[data-filter="requires-editing"]').click();
+            }
         }
 
         // Not in a review queue, do nothing. Required for ajaxComplete function below
