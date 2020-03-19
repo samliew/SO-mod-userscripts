@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6
+// @version      2.6.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -283,8 +283,16 @@ async function waitForSOMU() {
         const header = $('.reviewable-post .subheader');
         const resultsDiv = $(`<div id="review-keywords"></div>`).appendTo(header);
 
-        const keywords = ['suggest', 'software', 'tool', 'library', 'plugin', 'didn\'t work', 'doesn\'t work', 'I want', 'I am new', 'I\'m new', 'give me', 'an example', 'reference', 'advice', 'some example', 'imgur'];
-        const text = (post.title + post.contentHtml).toLowerCase();
+        const keywords = [
+            'suggest', 'software', 'tool', 'library', 'plugin', 'didn\'t work', 'doesn\'t work', 'want', 'help',
+            'I am new', 'I\'m new', 'explain', 'understand', 'give', 'example', 'reference', 'advice', 'imgur'
+        ];
+        const foreignKeywords = [
+            ' se ', ' de ', ' que ',
+        ];
+
+        const paras = $('p', post.contentHtml).text();
+        const text = (post.title + paras).toLowerCase();
         const results = keywords.filter(v => text.includes(v.toLowerCase()));
         results.forEach(v => {
             $('<span>' + v + '</span>').appendTo(resultsDiv);
@@ -297,15 +305,28 @@ async function waitForSOMU() {
             post.issues.unshift(postLinks.length + ' links');
         }
 
-        const questionMarks = text.match(/\?+/g);
+        const questionMarks = paras.match(/\?+/g);
         if(questionMarks && questionMarks.length > 1) {
             $('<span>' + questionMarks.length + '?</span>').prependTo(resultsDiv);
             post.issues.unshift(questionMarks.length + '?');
         }
 
-        if(post.content.length <= 320) {
+        if(foreignKeywords.some(v => text.includes(v.toLowerCase()))) {
+            $('<span>non-english</span>').prependTo(resultsDiv);
+            post.issues.unshift('non-english');
+        };
+
+        if(post.content.length <= 500) {
             $('<span>short</span>').prependTo(resultsDiv);
             post.issues.unshift('short');
+        }
+        else if(post.content.length >= 8000) {
+            $('<span>excessive</span>').prependTo(resultsDiv);
+            post.issues.unshift('excessive');
+        }
+        else if(post.content.length >= 5000) {
+            $('<span>long</span>').prependTo(resultsDiv);
+            post.issues.unshift('long');
         }
 
         //console.log(post.issues);
