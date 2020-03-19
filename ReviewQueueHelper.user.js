@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.3
+// @version      2.6.4
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -284,11 +284,12 @@ async function waitForSOMU() {
         const resultsDiv = $(`<div id="review-keywords"></div>`).appendTo(header);
 
         const keywords = [
-            'suggest', 'software', 'tool', 'library', 'plugin', 'didn\'t work', 'doesn\'t work', 'want', 'help',
-            'I am new', 'I\'m new', 'explain', 'understand', 'give', 'example', 'reference', 'advice', 'imgur'
+            'suggest', 'software', 'tool', 'library', 'tutorial', 'guide', 'blog', 'resource', 'plugin',
+            'didn\'t work', 'doesn\'t work', 'want', 'help', 'advice', 'give',
+            'I am new', 'I\'m new', 'explain', 'understand', 'example', 'reference', 'imgur'
         ];
         const foreignKeywords = [
-            ' se ', ' de ', ' que ',
+            ' se ', ' de ', ' que ', ' untuk ',
         ];
 
         const paras = $(post.contentHtml).filter('p').text();
