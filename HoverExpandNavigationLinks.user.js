@@ -3,7 +3,7 @@
 // @description  On pagination dots "..." mouseover, adds more page links (max 30 per hover), keyboard shortcuts for jumping to prev/next pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.10
+// @version      1.10.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -28,6 +28,9 @@
 
         // Keyboard shortcuts event handler
         $(document).on('keydown', null, function(evt) {
+
+            // Do nothing if key modifiers were pressed
+            if(evt.shiftKey || evt.ctrlKey || evt.altKey) return;
 
             const LEFTKEY  = evt.keyCode == 37 || evt.key == 'ArrowLeft';
             const RIGHTKEY = evt.keyCode == 39 || evt.key == 'ArrowRight';
