@@ -638,7 +638,7 @@ Works with [No Oneboxes In Chat](https://github.com/samliew/SO-mod-userscripts#n
 
 - Collapses oneboxes from live chat, chat transcripts, bookmarked conversations
 - Click to display onebox
-- Has exposed function to work together with [Show Deleted Messages in Chat](#show-deleted-messages-in-chat) userscript
+- Has exposed function to work together with [Show Deleted Messages in Chat](#show-deleted-messages-in-chat-) userscript
 
 
 ### [No Oneboxes in Chat Transcripts](https://github.com/samliew/SO-mod-userscripts/blob/master/NoOneboxesInChatTranscripts.user.js)

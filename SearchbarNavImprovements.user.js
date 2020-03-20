@@ -11,6 +11,7 @@
 // @include      https://*askubuntu.com/*
 // @include      https://*mathoverflow.net/*
 // @include      https://*.stackexchange.com/*
+// @include      https://stackapps.com/*
 //
 // @exclude      https://data.stackexchange.com/*
 // @exclude      https://contests.stackoverflow.com/*
