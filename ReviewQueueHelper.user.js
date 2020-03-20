@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.4
+// @version      2.6.5
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -752,13 +752,23 @@ async function waitForSOMU() {
 
             // Filter options event
             $('#review-history-tabs').on('click', 'a[data-filter]', function() {
-                if($(this).hasClass('youarehere')) return false;
 
-                // Filter posts based on selected filter
-                $('.history-table tbody tr').hide().filter(`[data-action-type="${this.dataset.filter}"]`).show();
+                // Unset if set, and show all
+                if($(this).hasClass('youarehere')) {
 
-                // Update active tab highlight class
-                $(this).addClass('youarehere').siblings('[data-filter]').removeClass('youarehere');
+                    $('.history-table tbody tr').show();
+
+                    // Update active tab highlight class
+                    $(this).removeClass('youarehere')
+                }
+                else {
+
+                    // Filter posts based on selected filter
+                    $('.history-table tbody tr').hide().filter(`[data-action-type="${this.dataset.filter}"]`).show();
+
+                    // Update active tab highlight class
+                    $(this).addClass('youarehere').siblings('[data-filter]').removeClass('youarehere');
+                }
 
                 return false;
             });
@@ -1111,6 +1121,9 @@ pre {
 }
 .reviewable-post .question {
     position: relative;
+}
+.reviewable-post-stats table {
+    min-height: 150px;
 }
 
 .suggested-edits-review-queue .review-bar .review-summary {
