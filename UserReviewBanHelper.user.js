@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.17.7
+// @version      3.18
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -611,6 +611,7 @@ Breakdown:<br>
 
             // Add currently/recently banned indicator if history found
             let isCurrentlyBanned = false;
+            let isRecentlyBanned = false;
             let newDuration = null, recommendedDuration = null;
             let daysago = new Date();
             daysago.setDate(daysago.getDate() - 60);
@@ -626,6 +627,8 @@ Breakdown:<br>
 
                 // Recent, double duration
                 if(banEndDatetime > daysago) {
+                    isRecentlyBanned = true;
+
                     $(`<span class="reviewban-ending ${currtext == 'current' ? 'current' : 'recent'}"><span class="type" title="recommended to double the previous ban duration">${currtext}ly</span> review banned for <b>${duration} days</b> until <span class="relativetime" title="${dateToSeDateFormat(banEndDatetime)}">${banEndDatetime}</span>.</span>`)
                         .appendTo(banCountDisplay);
                     newDuration *= 2;
@@ -656,16 +659,26 @@ Breakdown:<br>
                 console.log('Closest ban duration option:', recommendedDuration);
             });
 
-            // If recommended is up to 32 and is for Triage, auto submit form
-            if((recommendedDuration == null || recommendedDuration <= 32) && location.hash.includes('triage') && isSuperuser()) {
-                $('#lookup-result form').submit();
+            // If sam is review banning users in Triage
+            if(isSuperuser() && location.hash.includes('/triage')) {
+
+                // If reviewAction is "looks-ok", and user is currently banned for >= 32, ignore (close tab)
+                if(reviewAction == 'looks-ok' && isCurrentlyBanned && recommendedDuration >= 32) {
+                    unsafeWindow.top.close();
+                }
+                // If recommended is up to 32, auto submit form
+                else if(recommendedDuration == null || recommendedDuration <= 32) {
+                    $('#lookup-result form').submit();
+                }
             }
+
             // If is currently banned, add confirmation prompt when trying to ban user
-            else if(isCurrentlyBanned && !isSuperuser()) {
+            if(!isSuperuser() && isCurrentlyBanned) {
                 $('#lookup-result form').submit(function() {
                     return confirm('User is currently review banned!\n\nAre you sure you want to replace with a new ban?');
                 });
             }
+
         });
     }
 
@@ -728,9 +741,13 @@ Breakdown:<br>
                     firstRadio.remove(); // remove option 2
                     secondRadio.remove(); // remove option 4
 
-                    // If triage review and reviewAction is "requires-editing", select alternate canned message
-                    if(location.hash.includes('|/review/triage/') && reviewAction == 'requires-editing') {
-                        $('#canned-messages a[data-message*="Requires Editing"]').click();
+                    // If triage reviews
+                    if(location.hash.includes('|/review/triage/')) {
+
+                        // If reviewAction is "requires-editing", select alternate canned message
+                        if(reviewAction == 'requires-editing') {
+                            $('#canned-messages a[data-message*="Requires Editing"]').click();
+                        }
                     }
                 }
 
