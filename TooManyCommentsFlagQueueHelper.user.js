@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.6.1
+// @version      4.7
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
@@ -26,6 +26,29 @@
     let ajaxTimeout;
 
     const pluralize = n => n && Number(n) !== 1 ? 's' : '';
+
+
+    // Locks individual post
+    // Type: 20 - content dispute
+    //       21 - offtopic comments
+    function lockPost(pid, type, hours = 24) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+            if(typeof type === 'undefined' || type === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/posts/${pid}/lock`,
+                data: {
+                    'mod-actions': 'lock',
+                    'noticetype': type,
+                    'duration': hours,
+                    'fkey': fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
 
 
     // Undelete individual comment
@@ -159,6 +182,7 @@
 
             moveCommentsOnPostToChat(pid)
                 .then(function(v) {
+                    lockPost(pid, 21);
                     undeleteComments(pid, possibleDupeCommentIds);
                     flaggedPost.addClass('comments-handled');
                 });
