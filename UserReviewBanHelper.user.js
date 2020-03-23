@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.18
+// @version      3.19
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -662,12 +662,12 @@ Breakdown:<br>
             // If sam is review banning users in Triage
             if(isSuperuser() && location.hash.includes('/triage')) {
 
-                // If reviewAction is "looks-ok", and user is currently banned for >= 32, ignore (close tab)
-                if(reviewAction == 'looks-ok' && isCurrentlyBanned && recommendedDuration >= 32) {
+                // If reviewAction is "looks-ok", and user is currently banned for >= 64, ignore (close tab)
+                if(reviewAction == 'looks-ok' && isCurrentlyBanned && recommendedDuration >= 64) {
                     unsafeWindow.top.close();
                 }
-                // If recommended is up to 32, auto submit form
-                else if(recommendedDuration == null || recommendedDuration <= 32) {
+                // If recommended is up to 64, auto submit form
+                else if(recommendedDuration == null || recommendedDuration <= 64) {
                     $('#lookup-result form').submit();
                 }
             }
@@ -740,6 +740,7 @@ Breakdown:<br>
                     // Modify minimum review ban to get their attention
                     firstRadio.remove(); // remove option 2
                     secondRadio.remove(); // remove option 4
+                    thirdRadio.remove(); // remove option 8
 
                     // If triage reviews
                     if(location.hash.includes('|/review/triage/')) {
