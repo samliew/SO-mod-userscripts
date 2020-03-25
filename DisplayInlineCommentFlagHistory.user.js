@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.2
+// @version      2.7
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -51,38 +51,6 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
     const postsUrl = baseUrl + '/posts';
 
 
-    function getCommentFlagRaisers(cid, uid) {
-        const keyroot = 'CommentFlags';
-        const fullkey = `${keyroot}:${cid}`;
-        let v = JSON.parse(store.getItem(fullkey));
-
-        return new Promise(function(resolve, reject) {
-            if(v != null) { resolve(v); return; }
-
-            $.ajax(`${baseUrl}/admin/users/${uid}/post-comments?state=flagged`)
-                .done(function(data) {
-                    const cmmtFlags = [];
-                    const cmmtEvents = $(`.text-row[data-id="${cid}"] .deleted-info`, data);
-                    //console.log(uid, cid, cmmtEvents);
-                    cmmtEvents.each(function() {
-                        const len = this.childNodes.length;
-                        if(this.innerText.indexOf('Deleted:') >= 0) return;
-                        cmmtFlags.push([
-                            this.childNodes[len-3] ? this.childNodes[len-3].nodeValue.trim().replace(' by:', '') : "",
-                            this.childNodes[len-2] ? this.childNodes[len-2].outerHTML : "",
-                            this.childNodes[len-1] ? this.childNodes[len-1].nodeValue.trim().replace('- ', '') : ""
-                        ]);
-                    });
-                    //console.log(cmmtFlags);
-                    v = cmmtFlags.reverse();
-                    store.setItem(fullkey, JSON.stringify(v));
-                    resolve(v);
-                })
-                .fail(reject);
-        });
-    }
-
-
     const loadCommentsFlagsFromTimeline = function() {
 
         // So we only load each post's timeline once
@@ -100,12 +68,12 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
             const cmmtFlags = eventRows.find('tr[data-eventtype="flag"]').filter((i, el) => $(el).find('.event-type.flag').text() === 'comment flag');
 
             // Each comment with flags
-            eventRows.find('tr[data-eventtype="comment"]').filter((i, el) => $(el).find('.toggle-comment-flags').length == 1).each(function() {
+            eventRows.find('tr[data-eventtype="comment"]').filter((i, el) => $(el).find('.js-toggle-comment-flags').length == 1).each(function() {
                 const cmmt = $(this);
                 const cmmtId = this.dataset.eventid;
                 const cmmtUser = $(this).find('.comment-user').first().get(0);
                 const cmmtUserId = cmmtUser ? (cmmtUser.href || cmmtUser.innerText).match(/\d+/)[0] || -1 : -1;
-                const cmmtFlagIds = $(this).find('.toggle-comment-flags').attr('data-flag-ids').split(';');
+                const cmmtFlagIds = $(this).find('.js-toggle-comment-flags').attr('data-flag-ids').split(';');
                 const cmmtFlagsDiv = $('<div class="comment-flags"></div>').appendTo(`#comment-${cmmtId} .comment-text`);
                 const cmmtFlagcountDiv = $(`<a class="comment-flagcount supernovabg" title="comment flags" href="${postsUrl}/${postId}/timeline#comment_${cmmtId}" target="_blank">${cmmtFlagIds.length}</a>`)
                 .appendTo(`#comment-${cmmtId} .comment-actions`);
@@ -122,16 +90,7 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
                     //console.log(postId, cmmtId, v, fType, fEvent);
                 });
 
-                // Get flag raisers
-                getCommentFlagRaisers(cmmtId, cmmtUserId).then(function(v) {
-                    if(v == null) return;
-                    $(`#comment-${cmmtId} .comment-flags > tr`).each(function(i) {
-                        if(v[i] == null || v[i].length != 3) return;
-                        let status = v[i][2].toLowerCase().trim();
-                        status = status != 'active' ? '- ' + status : '';
-                        $(this).find('.event-comment').append(`<span> - ${v[i][1]} ${status}</span>`);
-                    });
-                });
+                // TODO: Get flag raisers
 
                 // Trim timeline username link text that is causing an autocomplete bug on deleted posts
                 //  - https://meta.stackoverflow.com/q/371539
@@ -159,7 +118,7 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
                 // Timeout to allow other userscripts to complete first
                 setTimeout(function() {
                     const cmmtRow = $(`a[href="${location.hash}"]`).first().closest('tr');
-                    cmmtRow.find('.toggle-comment-flags').click();
+                    cmmtRow.find('.js-toggle-comment-flags').click();
                 }, 500);
             }
         }
@@ -192,7 +151,7 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
                 const cmmtId = this.dataset.eventid;
                 const cmmtUser = $(this).find('.comment-user').first().get(0);
                 const cmmtUserId = cmmtUser ? (cmmtUser.href || cmmtUser.innerText).match(/\d+/)[0] || -1 : -1;
-                const cmmtFlagIds = $(this).find('.toggle-comment-flags').attr('data-flag-ids').split(';');
+                const cmmtFlagIds = $(this).find('.js-toggle-comment-flags').attr('data-flag-ids').split(';');
 
                 const comment = $(`#comment-${cmmtId}`);
                 if(comment.hasClass('hasflags')) return;
@@ -209,14 +168,7 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
                     //console.log(postId, cmmtId, cmmtId);
                 });
 
-                // Get flag raisers
-                getCommentFlagRaisers(cmmtId, cmmtUserId).then(function(v) {
-                    if(v == null) return;
-                    $(`#comment-${cmmtId} .comment-flags > tr`).each(function(i) {
-                        if(v[i] == null || v[i].length != 3) return;
-                        $(this).find('.event-comment').append(`<span> - ${v[i][1]} - ${v[i][2]}</span>`);
-                    });
-                });
+                // TODO: Get flag raisers
             });
         });
 
