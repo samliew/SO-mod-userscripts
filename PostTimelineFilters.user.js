@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.13.1
+// @version      1.14
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -152,6 +152,10 @@
     function filterPosts(filter) {
         console.log(`Filter by: ${filter}`);
 
+        function getCommentIdFromFlagId(fid) {
+            return Number($('.js-toggle-comment-flags').filter((i, el) => el.dataset.flagIds.split(';').includes(fid)).closest('tr').attr('data-eventid')) || null;
+        }
+
         // Get sort function based on selected filter
         let filterFn;
         switch(filter) {
@@ -159,14 +163,16 @@
             case 'hide-votes':
                 filterFn = function(i, el) {
                     const eType = $(el).find('span.event-type').text();
-                    return eType !== 'votes' && eType !== 'comment flag';
+                    return eType && eType !== 'votes' && eType !== 'comment flag'
+                        //&& !((eType !== 'flag' || eType !== '') && getCommentIdFromFlagId(el.dataset.eventid));
                 };
                 break;
 
             case 'hide-votes-comments':
                 filterFn = function(i, el) {
                     const eType = $(el).find('span.event-type').text();
-                    return eType !== 'votes' && eType !== 'comment' && eType !== 'comment flag' && el.dataset.eventtype !== 'comment';
+                    return eType && eType !== 'votes' && eType !== 'comment' && eType !== 'comment flag' && el.dataset.eventtype !== 'comment'
+                        //&& !((eType !== 'flag' || eType !== '') && getCommentIdFromFlagId(el.dataset.eventid));
                 };
                 break;
 
@@ -238,11 +244,12 @@
 
         // Once filtered, match related rows
         // e.g.: Hide that comment flags were cleared if the comment flag is currently hidden
-        $('.deleted-event.dno').filter((i, el) => el.dataset.eventtype == 'flag').each(function(i, el) {
-            const eid = el.dataset.eventid;
-            const related = $events.filter('.deleted-event-details').filter((i, el) => el.dataset.eventid === eid);
-            console.log(related, eid);
-            related.addClass('dno');
+        $('td.event-type').filter((i, el) => el.innerText == '').each(function(i, el) {
+            const eventRow = $(this).closest('tr');
+            const eid = eventRow.attr('data-eventid');
+            const relatedVisible = $events.not(this).filter((i, el) => el.dataset.eventid === eid).first().is(':visible');
+            //console.log('d2', relatedVisible, eid);
+            eventRow.toggleClass('dno', !relatedVisible);
         });
     }
 
@@ -291,6 +298,8 @@
             // Pre-trim certain elements once on page load to make filtering less complicated
             $('span.event-type, td.event-verb span a').text((i, v) => '' + v.trim());
             $('td.event-type, td.event-verb span').filter((i, el) => el.children.length === 0).text((i, v) => '' + v.trim());
+            $('td.event-comment span').filter((i, el) => el.innerText.trim() == '').remove();
+            $('td.event-comment span div.mt6').each(function(i, el) { $(this).appendTo(el.parentNode.parentNode); });
 
             // Rename "CommentNoLongerNeeded" event-verb to take up less space
             $('.event-verb span').filter((i, el) => el.innerText.indexOf('Comment') === 0).text((i, v) => v.replace(/^Comment/, ''));
@@ -426,14 +435,33 @@ tr.separator + tr {
     display: none;
 }
 
+/* I hate the light blue bg for aggregate and deletion votes */
+.post-timeline-v2 .post-timeline tr[data-eventtype="voteaggregate"] .event-type>span.vote {
+    background-color: var(--black-800);
+}
+.post-timeline-v2 .post-timeline tr[data-eventtype="vote"] .event-type > span.vote {
+    background-color: var(--red-700);
+}
+.post-timeline-v2 .post-timeline .event-type > span.history {
+    color: var(--black-800);
+}
+
 
 /* Increase cell min-widths to avoid jumping when comment flags are expanded */
-.post-timeline .event-type {
-    min-width: 90px !important;
+table.post-timeline td.event-type {
+    min-width: 94px !important;
 }
-.post-timeline .event-verb,
-.post-timeline-v2 .post-timeline .event-verb {
-    min-width: 115px;
+table.post-timeline .event-type + .wmn1 {
+    min-width: 108px;
+    width: 108px;
+}
+table.post-timeline .event-type + .wmn1 span {
+    display: block;
+    width: 87px;
+    overflow: hidden;
+}
+td.event-type span.event-type {
+    font-size: 12px;
 }
 
 /* Review flowchart */
@@ -448,6 +476,18 @@ tr.separator + tr {
 /* Hide new event filter */
 .post-timeline-v2 > fieldset {
     display: none;
+}
+
+/* Add visual quotes to comments text */
+tr[data-eventtype="comment"] td.event-comment span:before {
+    content: '"';
+    display: inline-block;
+    margin-right: -0.2em;
+}
+tr[data-eventtype="comment"] td.event-comment span:after {
+    content: '"';
+    display: inline-block;
+    margin-left: -0.2em;
 }
 </style>
 `;
