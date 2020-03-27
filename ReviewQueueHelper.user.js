@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.5
+// @version      2.7
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -286,7 +286,7 @@ async function waitForSOMU() {
         const keywords = [
             'suggest', 'software', 'tool', 'library', 'tutorial', 'guide', 'blog', 'resource', 'plugin',
             'didn\'t work', 'doesn\'t work', 'want', 'help', 'advice', 'give',
-            'I am new', 'I\'m new', 'explain', 'understand', 'example', 'reference', 'imgur'
+            'I am new', 'I\'m new', 'Im new', 'beginner', 'newbie', 'explain', 'understand', 'example', 'reference', 'imgur'
         ];
         const foreignKeywords = [
             ' se ', ' de ', ' que ', ' untuk ',
@@ -1008,13 +1008,15 @@ async function waitForSOMU() {
                             $('.js-review-actions button').first().remove();
                         }
 
-                        // Display link to triage review
-                        $.get(`https://${location.hostname}/posts/${responseJson.postId}/timeline`)
-                        .done(function(data) {
-                            const triageLink = $('[data-eventtype="review"] a', data).filter((i, el) => el.href.includes('/triage/')).attr('href');
-                            $('.reviewable-post-stats tr').eq(-2).children('td')
-                                .append(`<span class="lsep">| </span><a href="${triageLink}" class="s-btn s-btn__sm s-btn__primary" title="see who voted for requires editing" target="_blank">view triage</a>`);
-                        });
+                        // Display link to triage review if not already shown
+                        if($('.reviewable-post-stats .js-triage-link').length === 0) {
+                            $.get(`https://${location.hostname}/posts/${responseJson.postId}/timeline`)
+                                .done(function(data) {
+                                const triageLink = $('[data-eventtype="review"] a', data).filter((i, el) => el.href.includes('/triage/')).attr('href');
+                                $('.reviewable-post-stats')
+                                    .append(`<a href="${triageLink}" class="s-btn s-btn__sm s-btn__primary mt16 js-triage-link" title="see who voted for requires editing" target="_blank">view triage</a>`);
+                            });
+                        }
                     }
 
                     // Remove "Delete" option for suggested-edits queue, if not already reviewed (no Next button)
