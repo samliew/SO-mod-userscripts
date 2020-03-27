@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6
+// @version      2.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -654,7 +654,8 @@
     function initPostModMenuLinkActions() {
 
         // Handle mod actions menu link click
-        $('#content').on('click', '.post-mod-menu a', function() {
+        // have to use tag "main" for mobile web doesn't contain wrapping elem "#content"
+        $('#content, main').on('click', '.post-mod-menu a', function() {
 
             if($(this).hasClass('disabled')) return false;
 
