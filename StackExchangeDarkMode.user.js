@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.19.2
+// @version      2.19.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -709,7 +709,8 @@ body .deleted-answer,
 body .deleted-comment .comment-actions,
 body .deleted-comment .comment-text,
 body .deleted-comment .comment-flags,
-body td.deleted-answer {
+body td.deleted-answer,
+.search-result.bg-red-050 {
     box-shadow: inset 0 0 0 9999px #220000;
 }
 .tagged-interesting *,
@@ -733,7 +734,8 @@ body td.deleted-answer {
 .deleted-comment .comment-text *:not(.popup),
 .question-status *,
 #revisions .vote-revision *,
-.js-admin-dashboard .deleted-answer * {
+.js-admin-dashboard .deleted-answer *,
+.search-result.bg-red-050 * {
     background-color: transparent;
 }
 #question .question-status,
