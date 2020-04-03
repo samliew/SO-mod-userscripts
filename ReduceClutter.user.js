@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.13.1
+// @version      1.13.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -186,11 +186,11 @@ ul.comments-list .comment-up-on {
         // Strip unnecessary query params from Q&A links
         let trackedQaCount = 0;
         $('[data-searchsession]').each(function(i, el) {
-            $(this).off('click');
             el.dataset.searchsession = '';
             el.href ? el.href = el.href.replace(/\?.*/, '') : 0;
             trackedQaCount++;
         });
+        $('.js-search-results').off('mousedown touchstart');
         console.log('Removed tracking data from ' + trackedQaCount + ' Q&A links');
     }
 
