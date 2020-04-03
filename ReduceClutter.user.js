@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.13.4
+// @version      1.13.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -177,7 +177,7 @@ ul.comments-list .comment-up-on {
             this.classList.remove('js-gps-track');
             el.dataset.ga = '';
             el.dataset.gpsTrack = '';
-            el.search ? el.href = el.pathname.replace(/\?.*/, '') : 0;
+            el.search ? el.href = el.getAttribute('href').replace(/\?.*/, '') : 0;
             trackedElemCount++;
         });
         console.log('Removed tracking data from ' + trackedElemCount + ' elements');
@@ -189,7 +189,7 @@ ul.comments-list .comment-up-on {
                 el.dataset.searchsession = '';
                 trackedQaCount++;
             }
-            el.search ? el.href = el.pathname.replace(/[?&]((cb|lq|rq)=1|ref=.*)/i, '') : 0;
+            el.search ? el.href = el.getAttribute('href').replace(/[?&]((cb|lq|rq)=1|ref=.*)/i, '') : 0;
         });
         $('.js-search-results').off('mousedown touchstart');
         console.log('Removed tracking data from ' + trackedQaCount + ' Q&A links');
