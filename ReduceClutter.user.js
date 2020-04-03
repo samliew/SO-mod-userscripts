@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.12.4
+// @version      1.13
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -96,7 +96,7 @@ ul.comments-list .comment-up-on {
 }
 
 
-/* Hide post reactions */
+/* Hide post reactions (Teams) */
 .votecell [data-controller="reactions"] {
     display: none !important;
 }
@@ -119,11 +119,22 @@ ul.comments-list .comment-up-on {
             if(repCount > -5 && repCount < 5) repBadge.parentNode.removeChild(repBadge);
         }
 
-        // Show announcement bar when active and doesn't contain blacklisted keywords
+        showAnnouncementIfNotBlacklisted();
+        hideClickbaityBlogPosts();
+        setTimeout(stripUnnecessaryTracking, 2000);
+
+    });
+
+
+    function showAnnouncementIfNotBlacklisted() {
+
         const annBar = document.getElementById('announcement-banner');
         if(annBar) {
+
             const annText = annBar.innerText.trim().toLowerCase();
             const isBlacklisted = blacklistedAnnouncementWords && blacklistedAnnouncementWords.some(v => annText.includes(v));
+
+            // Show announcement bar when it doesn't contain blacklisted keywords
             if(!isBlacklisted) {
                 annBar.style.setProperty('display', 'block', 'important');
             }
@@ -131,6 +142,10 @@ ul.comments-list .comment-up-on {
                 console.log('Announcement bar has been blocked.', annText);
             }
         }
+    }
+
+
+    function hideClickbaityBlogPosts() {
 
         // Hide clickbaity featured blog post titles from sidebar
         const blogheader = $('.s-sidebarwidget__yellow .s-sidebarwidget--header').filter((i, el) => el.innerText.includes('Blog'));
@@ -151,6 +166,10 @@ ul.comments-list .comment-up-on {
                 blogheader.remove();
             }
         }
+    }
+
+
+    function stripUnnecessaryTracking() {
 
         // Strip unnecessary tracking
         let trackedElemCount = 0;
@@ -159,11 +178,21 @@ ul.comments-list .comment-up-on {
             this.classList.remove('js-gps-track');
             el.dataset.ga = '';
             el.dataset.gpsTrack = '';
+            el.href = el.href.replace(/\?.+/, '');
             trackedElemCount++;
         });
         console.log('Removed tracking data from ' + trackedElemCount + ' elements');
 
-    });
+        // Strip unnecessary tracking from Q&A links
+        let trackedQaCount = 0;
+        $('[data-searchsession]').each(function(i, el) {
+            $(this).off('click');
+            el.dataset.searchsession = '';
+            el.href = el.href.replace(/\?.+/, '');
+            trackedQaCount++;
+        });
+        console.log('Removed tracking data from ' + trackedQaCount + ' Q&A links');
+    }
 
 
 })();
