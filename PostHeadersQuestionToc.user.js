@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7.1
+// @version      2.7.2
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -196,7 +196,7 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 
         const postsOnPage = $('#answers > .answer');
         const qid = $('#question').attr('data-questionid');
-        const sortby = $('#answers-header #tabs .youarehere').text().trim();
+        const sortby = $('#answers-header .js-filter-btn .youarehere, #answers-header #tabs .youarehere').text().toLowerCase().trim();
 
         if(isElectionPage) {
 
