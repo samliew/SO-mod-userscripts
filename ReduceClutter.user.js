@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.13.2
+// @version      1.13.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -174,7 +174,6 @@ ul.comments-list .comment-up-on {
         // Strip unnecessary tracking
         let trackedElemCount = 0;
         $('.js-gps-track, [data-ga], [data-gps-track]').each(function(i, el) {
-            $(this).off('click');
             this.classList.remove('js-gps-track');
             el.dataset.ga = '';
             el.dataset.gpsTrack = '';
@@ -185,10 +184,12 @@ ul.comments-list .comment-up-on {
 
         // Strip unnecessary query params from Q&A links
         let trackedQaCount = 0;
-        $('[data-searchsession]').each(function(i, el) {
-            el.dataset.searchsession = '';
-            el.href ? el.href = el.href.replace(/\?.*/, '') : 0;
-            trackedQaCount++;
+        $('#content a').each(function(i, el) {
+            if(el.dataset.searchsession) {
+                el.dataset.searchsession = '';
+                trackedQaCount++;
+            }
+            el.href ? el.href = el.href.replace(/[?&]((cb|lq|rq)=1|ref=.*)/i, '') : 0;
         });
         $('.js-search-results').off('mousedown touchstart');
         console.log('Removed tracking data from ' + trackedQaCount + ' Q&A links');
