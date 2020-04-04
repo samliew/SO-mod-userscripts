@@ -155,7 +155,7 @@ Recommended chat userscripts:
 - The items in the menu are disabled/hidden depending on context, and also slightly different options based on whether it's a Q or A
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2020-04-04_edited.png)
 - Able to quickly dispute or comment lock a post with custom number of days, as well as unlock
-- Quickly destroy users with <500 rep if they are posting spammy content (requires confirmation, 5-second throttle)
+- Quickly destroy users (with <200 rep) if they are posting spammy content (post age <30 days) (requires confirmation, 5-second throttle)
 - Post dissociation link quickly composes a post dissociation request for post user with link of post inserted into dissociation message template
 
 
