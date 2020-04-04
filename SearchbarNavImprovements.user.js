@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.13.3
+// @version      4.13.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -131,6 +131,7 @@
                 const field = $(this).parent().prevAll('input').first();
                 field.removeClass('js-aclookup-complete');
                 field.val((i,v) => ((multiple ? (' ' + v).replace(/\s\S+$/, '') : '') + ' ' + evt.target.dataset.val).trim() + ' ');
+                field.triggerHandler('keyup');
             });
 
         field.after(resultslist)
