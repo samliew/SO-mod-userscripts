@@ -153,7 +153,9 @@ Recommended chat userscripts:
 - Adds a menu of quick mod-actions instead of having to wait for mod menu to load and having to select items in the mod menu
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/additional-post-mod-options.gif)
 - The items in the menu are disabled/hidden depending on context, and also slightly different options based on whether it's a Q or A
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-10-12_101048-combined.png)
+<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2020-04-04_edited.png)
+- Able to quickly dispute or comment lock a post with custom number of days, as well as unlock
+- Quickly destroy users with <500 rep if they are posting spammy content (requires confirmation, 5-second throttle)
 - Post dissociation link quickly composes a post dissociation request for post user with link of post inserted into dissociation message template
 
 
