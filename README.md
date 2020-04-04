@@ -157,6 +157,9 @@ Recommended chat userscripts:
 - Able to quickly dispute or comment lock a post with custom number of days, as well as unlock
 - Quickly destroy users (with <200 rep) if they are posting spammy content (post age <30 days) (requires confirmation, 5-second throttle)
 - Post dissociation link quickly composes a post dissociation request for post user with link of post inserted into dissociation message template
+- (Stack Overflow) assists with re-duping of old questions closed with the old duplicate notice
+- (Meta Stack Overflow) one-click closing, deleting questions as off-topic, and posting canned comment
+
 
 
 ### [Chat Transcripts By Default](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatTranscriptsByDefault.user.js)
