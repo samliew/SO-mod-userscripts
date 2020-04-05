@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.13.5
+// @version      1.14
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -107,6 +107,22 @@ ul.comments-list .comment-up-on {
     display: none !important;
 }
 
+
+/* Better duplicates edited list in revisions */
+.revision-page .revision-comment.duplicates-edited {
+    display: block;
+    padding-top: 5px;
+}
+.revision-page .revision-comment.duplicates-edited ul {
+    margin-bottom: 0;
+}
+.revision-page .revision-comment.duplicates-edited li {
+    padding-top: 0;
+}
+.revision-page .originals-of-duplicate li {
+    cursor: initial;
+}
+
 `);
 
 
@@ -122,6 +138,8 @@ ul.comments-list .comment-up-on {
         showAnnouncementIfNotBlacklisted();
         hideClickbaityBlogPosts();
         setTimeout(stripUnnecessaryTracking, 2000);
+
+        betterDuplicatesEditedList();
 
     });
 
@@ -193,6 +211,22 @@ ul.comments-list .comment-up-on {
         });
         $('.js-search-results').off('mousedown touchstart');
         console.log('Removed tracking data from ' + trackedQaCount + ' Q&A links');
+    }
+
+
+    function betterDuplicatesEditedList() {
+
+        $('#revisions .revcell3 .revision-comment').each(function(i, el) {
+            if(el.innerText.includes('duplicates list edited from')) {
+                $(this).addClass('duplicates-edited');
+                let replacedHtml = el.innerHTML
+                  .replace('duplicates list edited from', '<span>duplicates list edited from</span> <ul class="originals-of-duplicate">')
+                  .replace(/<\/a>\s+to\s+<a/, '</a></ul><span>to</span><ul class="originals-of-duplicate"><a')
+                  .replace(/\s*<\/a>,\s*/g, '</a>');
+                el.innerHTML = replacedHtml + '</ul>';
+                $(this).find('a').wrap('<li>');
+            }
+        });
     }
 
 
