@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.19
+// @version      3.19.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -404,9 +404,9 @@ Breakdown:<br>
 <td>${tally.count365}</td>
 <td>${tally.count366}</td>
 </tr></table>`);
-                if(isSuperuser()) {
+                //if(isSuperuser()) {
                     copyTable.appendTo(bannedStats);
-                }
+                //}
 
                 table.before(bannedStats);
                 bannedStats.parent().addClass('banned-reviewers-section').children('h3').text((i,v) => v.toLowerCase() + ', out of which:').prepend('<span>Currently, there are </span>');
@@ -737,13 +737,14 @@ Breakdown:<br>
 
                 if(isSuperuser()) {
 
-                    // Modify minimum review ban to get their attention
                     firstRadio.remove(); // remove option 2
-                    secondRadio.remove(); // remove option 4
-                    thirdRadio.remove(); // remove option 8
 
                     // If triage reviews
                     if(location.hash.includes('|/review/triage/')) {
+
+                        // Modify minimum review ban to get their attention
+                        secondRadio.remove(); // remove option 4
+                        thirdRadio.remove(); // remove option 8
 
                         // If reviewAction is "requires-editing", select alternate canned message
                         if(reviewAction == 'requires-editing') {
