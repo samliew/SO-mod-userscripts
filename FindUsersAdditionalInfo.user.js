@@ -3,7 +3,7 @@
 // @description  Loads more user details on the find users page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.3.1
+// @version      0.1.4
 //
 // @include      https://stackoverflow.com/admin/find-users?*
 // @include      https://serverfault.com/admin/find-users?*
@@ -49,7 +49,7 @@
         return new Promise(function(resolve, reject) {
             if(typeof arrUids === 'undefined' || arrUids === null || arrUids.length == 0) { reject(); return; }
 
-            $.get(`http://api.stackexchange.com/2.2/users/${arrUids.join(';')}?pagesize=100&sort=reputation&site=${location.hostname}&filter=!BTeL)VYJZTHLffEZa-Pp0vhpUAyDVM&key=${apikey}`)
+            $.get(`https://api.stackexchange.com/2.2/users/${arrUids.join(';')}?pagesize=100&sort=reputation&site=${location.hostname}&filter=!BTeL)VYJZTHLffEZa-Pp0vhpUAyDVM&key=${apikey}`)
                 .done(function(data) {
                     resolve(data.items);
                     return;
