@@ -3,7 +3,7 @@
 // @description  Display number of comments on each post in question lists. For mod queues, additional info (recent revision history) is also retrieved.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.3
+// @version      1.3.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -33,7 +33,7 @@
         return new Promise(function(resolve, reject) {
             if(typeof arrPids === 'undefined' || arrPids === null || arrPids.length == 0) { reject(); return; }
 
-            $.get(`http://api.stackexchange.com/2.2/posts/${arrPids.join(';')}/comments?pagesize=100&fromdate=${timestampAt(daysago)}&order=desc&sort=creation&site=${location.hostname}&filter=!*JxbCg3rl-(BR7.w&key=${apikey}`)
+            $.get(`https://api.stackexchange.com/2.2/posts/${arrPids.join(';')}/comments?pagesize=100&fromdate=${timestampAt(daysago)}&order=desc&sort=creation&site=${location.hostname}&filter=!*JxbCg3rl-(BR7.w&key=${apikey}`)
                 .done(function(data) {
                     resolve(data.items);
                     return;
@@ -48,7 +48,7 @@
         return new Promise(function(resolve, reject) {
             if(typeof arrPids === 'undefined' || arrPids === null || arrPids.length == 0) { reject(); return; }
 
-            $.get(`http://api.stackexchange.com/2.2/posts/${arrPids.join(';')}/revisions?pagesize=100&fromdate=${timestampAt(daysago)}&site=${location.hostname}&filter=!SWJaJDLw60c6cEGmKi&key=${apikey2}`)
+            $.get(`https://api.stackexchange.com/2.2/posts/${arrPids.join(';')}/revisions?pagesize=100&fromdate=${timestampAt(daysago)}&site=${location.hostname}&filter=!SWJaJDLw60c6cEGmKi&key=${apikey2}`)
                 .done(function(data) {
                     resolve(data.items);
                     return;
@@ -63,7 +63,7 @@
         return new Promise(function(resolve, reject) {
             if(typeof arrPids === 'undefined' || arrPids === null || arrPids.length == 0) { reject(); return; }
 
-            $.get(`http://api.stackexchange.com/2.2/answers/${arrPids.join(';')}?pagesize=50&site=${location.hostname}&filter=!9eVtBsbS*&key=${apikey3}`)
+            $.get(`https://api.stackexchange.com/2.2/answers/${arrPids.join(';')}?pagesize=50&site=${location.hostname}&filter=!9eVtBsbS*&key=${apikey3}`)
                 .done(function(data) {
                     resolve(data.items);
                     return;
