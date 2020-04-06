@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7
+// @version      2.7.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1114,10 +1114,6 @@ pre {
     padding-bottom: 120px !important;
 }
 
-.js-review-bar-container {
-    position: relative;
-    z-index: 1;
-}
 .js-review-bar {
     min-height: 150px;
 }
