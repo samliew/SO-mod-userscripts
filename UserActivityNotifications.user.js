@@ -3,7 +3,7 @@
 // @description  Display notifications on user profile when new activity is detected since page load
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.2
+// @version      0.2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -88,7 +88,13 @@ if(!notifyperm) {
         }
 
         // Auto-dismiss notification
-        if(dismissAfter > 0) setTimeout(n.close.bind(n), dismissAfter * 1000);
+        if(dismissAfter > 0) setTimeout(n.close.bind(n), dismissAfter * 1000, n);
+
+        // Dismiss notification on page unload
+        window.addEventListener('beforeunload', function(evt) {
+            try { n.close(); }
+            catch (e) {}
+        });
     }
 
 
