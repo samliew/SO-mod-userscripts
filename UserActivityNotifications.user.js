@@ -3,7 +3,7 @@
 // @description  Display notifications on user profile when new activity is detected since page load
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2
+// @version      0.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -93,7 +93,7 @@ if(!notifyperm) {
         return new Promise(function(resolve, reject) {
             if(hasBackoff()) { reject(); return; }
             if(typeof uid === 'undefined' || uid === null) { reject(); return; }
-            $.get(`http://api.stackexchange.com/2.2/users/${uid}/timeline?pagesize=${Math.ceil(pollInterval/2)}&fromdate=${lastCheckedDate}&site=${location.hostname}&filter=!))yem8S&key=${apikey}`)
+            $.get(`https://api.stackexchange.com/2.2/users/${uid}/timeline?pagesize=${Math.ceil(pollInterval/2)}&fromdate=${lastCheckedDate}&site=${location.hostname}&filter=!))yem8S&key=${apikey}`)
                 .done(function(data) {
                     lastCheckedDate = Math.floor(Date.now() / 1000);
                     if(data.backoff) backoff = addBackoff(data.backoff);
