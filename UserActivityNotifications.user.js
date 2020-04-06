@@ -3,7 +3,7 @@
 // @description  Display notifications on user profile when new activity is detected since page load
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.1
+// @version      0.2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -31,8 +31,8 @@ if(!notifyperm) {
 
 
     const apikey = 'dhFaTnM59qx5gK807L7dNw((';
-    const pollInterval = 30;
-    let lastCheckedDate = Math.floor(Date.now() / 1000) - 30 * 60; // Start from x minutes ago
+    const pollInterval = 60;
+    let lastCheckedDate = Math.floor(Date.now() / 1000) - 60 * 60; // Start from x minutes ago
     let interval;
     let userId, username, shortname;
 
@@ -41,10 +41,8 @@ if(!notifyperm) {
     let siteIcon = (function() {
         let ico = undefined;
         const nodeList = document.getElementsByTagName("link");
-        for (var i = 0; i < nodeList.length; i++)
-        {
-            if(nodeList[i].getAttribute("rel") == "icon" || nodeList[i].getAttribute("rel") == "shortcut icon")
-            {
+        for (var i = 0; i < nodeList.length; i++) {
+            if(nodeList[i].getAttribute("rel") == "icon" || nodeList[i].getAttribute("rel") == "shortcut icon") {
                 ico = nodeList[i].getAttribute("href");
                 break;
             }
@@ -58,7 +56,7 @@ if(!notifyperm) {
 
         // User has not enabled notifications yet
         if(Notification.permission !== 'granted') {
-            console.log('Notifications permission not granted.');
+            console.error('Notifications permission not granted.');
             return false;
         }
 
@@ -72,6 +70,7 @@ if(!notifyperm) {
             icon: siteIcon,
             badge: siteIcon,
         });
+        //console.log(title, options);
 
         let n = new Notification(title, options);
 
@@ -80,7 +79,12 @@ if(!notifyperm) {
             n.onclick = function(evt) {
                 evt.preventDefault(); // prevent the browser from focusing the triggering Notification's tab
                 window.open(link, '_blank');
-            }
+            };
+        }
+        else {
+            n.onclick = function(evt) {
+                evt.preventDefault(); // prevent the browser from focusing the triggering Notification's tab
+            };
         }
 
         // Auto-dismiss notification
@@ -110,7 +114,7 @@ if(!notifyperm) {
 
     function scheduledTask() {
         getUserInfo(userId).then(function(v) {
-            // Take last(latest) three
+            // Take latest three
             v.slice(-3).forEach(function(w) {
                 let action = w.timeline_type;
                 let text = w.title;
@@ -187,7 +191,7 @@ if(!notifyperm) {
 
 
     // On page load
-    appendStyles();
+    //appendStyles();
     doPageLoad();
 
 })();
