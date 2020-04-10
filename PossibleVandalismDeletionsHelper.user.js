@@ -3,7 +3,7 @@
 // @description  Display post score and number of undeleted answers, Recommend action based on post info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2.1
+// @version      2.2.2
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismDeletionsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismDeletionsHelper.user.js
@@ -40,7 +40,7 @@
         $('.post-list a').attr('target', '_blank');
 
         // For answers, get post info
-        $('.post-list .deleted-answer a.answer-hyperlink').each(function() {
+        $('.post-list .bg-red-050 a.answer-hyperlink').each(function() {
 
             const isQuestion = !$(this).hasClass('answer-hyperlink');
             const total = $(this).parents('.post-list').children().length;
