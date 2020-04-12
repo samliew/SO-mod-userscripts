@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.14
+// @version      1.14.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -121,6 +121,12 @@ ul.comments-list .comment-up-on {
 }
 .revision-page .originals-of-duplicate li {
     cursor: initial;
+}
+
+
+/* Hide follow post tooltip popup */
+.js-follow-post ~ .s-popover {
+    display: none !important;
 }
 
 `);
