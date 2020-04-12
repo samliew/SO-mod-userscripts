@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every minute.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8
+// @version      1.8.1
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
