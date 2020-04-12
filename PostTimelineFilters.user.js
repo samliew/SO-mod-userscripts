@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.15
+// @version      1.15.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -35,11 +35,26 @@
         'element-color': 'black',
         'fill': '#d6d9dc',
         'flowstate' : {
-            'pending' : { 'fill': 'var(--black-150)' },
+            'pending' : { 'fill': '#333' },
             'completed' : { 'fill': '#8DB98D', 'font-color': '#fff', },
-            'invalidated' : { 'fill': '#f4eaea', 'font-color': '#B65454', 'font-style': 'italic' },
+            'invalidated' : { 'fill': '#ffcccc', 'font-color': '#572f32', 'font-style': 'italic' },
         }
     };
+
+    // Dark theme
+    if(document.body.classList.contains('theme-dark')) {
+
+        flowchartOpts.fontColor = '#ccc';
+        flowchartOpts.lineColor = '#ccc';
+        flowchartOpts.elementColor = '#ccc';
+        flowchartOpts.fill = '#111';
+        flowchartOpts.flowstate = {
+            'pending' : { 'fill': '#666' },
+            'completed' : { 'fill': '#344b3a', 'font-color': '#ccc', },
+            'invalidated' : { 'fill': '#572f32', 'font-color': '#de7176', 'font-style': 'italic' },
+        };
+    }
+
     let $eventsContainer, $events;
 
 
@@ -399,7 +414,8 @@
     transition: all .15s ease-in-out;
 }
 #post-timeline-tabs a.youarehere {
-    background: var(--orange-200);
+    background: var(--orange-050);
+    color: var(--black-900);
 }
 
 .posttype-answer .q-only,
@@ -444,6 +460,9 @@ tr.separator + tr {
 }
 .post-timeline-v2 .post-timeline .event-type > span.history {
     color: var(--black-800);
+}
+.post-timeline-v2 .post-timeline .fc-red-400 {
+    color: var(--red-700) !important;
 }
 
 
