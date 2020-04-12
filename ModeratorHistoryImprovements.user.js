@@ -239,7 +239,7 @@
     background: var(--black-050);
 }
 .mod-page #mod-user-history li.mod-destroys {
-    color: var(--red-500);
+    color: var(--red-700);
 }
 .mod-page #mod-user-history li.type-cmnt:before {
     content: 'Comment deleted: ';
@@ -249,7 +249,7 @@
     padding: 1px 8px;
     font-style: normal;
     color: var(--black-600);
-    background: var(--black-900);
+    background: var(--red-050);
 }
 .mod-page #mod-user-history li.type-toomanycmnts ~ li {
     display: none;
