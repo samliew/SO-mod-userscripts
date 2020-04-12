@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8
+// @version      2.8.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -549,12 +549,8 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
     padding-top: 2px;
     width: calc(100% - 48px);
     margin-bottom: 0;
-    color: #0C0D0E;
     line-height: 1.3;
     font-size: 13px;
-}
-#qtoc .post-hyperlink:hover {
-    color: #9c1724;
 }
 #qtoc .deleted-user {
     margin: -3px 0;
