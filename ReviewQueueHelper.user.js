@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8
+// @version      2.8.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1254,10 +1254,10 @@ pre {
 
 /* Visited links on review history page need to be in a different colour so we can see which reviews have been handled */
 .history-table a[href^="/review/"]:visited {
-    color: var(--orange-700);
+    color: var(--black-300);
 }
 .history-table a[href^="/review/"]:visited:hover {
-    color: var(--blue-500);
+    color: var(--black-400);
 }
 
 `);

@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.20
+// @version      3.20.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -787,7 +787,7 @@ a.reviewban-count.warning {
 a.reviewban-link {
     border: 1px solid var(--red-500);
     background: var(--red-500);
-    color: var(--white);
+    color: #fff;
 }
 a.reviewban-button {
     float: right;
