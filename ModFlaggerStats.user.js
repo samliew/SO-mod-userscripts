@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4
+// @version      3.4.1
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/ModFlaggerStats.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/ModFlaggerStats.user.js
@@ -257,7 +257,7 @@ unsafeWindow.purgeUserFlagStats = function() {
 .flag-badge.elite {
     width: 12px;
     height: 12px;
-    background: #3cb371 !important;
+    background: var(--green-500) !important;
 }
 .flag-badge.gold {
     background: var(--gold) !important;

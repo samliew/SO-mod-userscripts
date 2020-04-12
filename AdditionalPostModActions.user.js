@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8
+// @version      2.8.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -914,11 +914,11 @@
     display: none;
 }
 .post-mod-menu a:hover {
-    background-color: var(--fc-light);
+    background-color: var(--black-100);
 }
 .post-mod-menu a.disabled {
-    background-color: var(--fc-medium) !important;
-    color: var(--fc-dark) !important;
+    background-color: var(--black-050) !important;
+    color: var(--black-200) !important;
     cursor: not-allowed;
 }
 .post-mod-menu a.danger:hover {
@@ -927,7 +927,7 @@
 }
 .post-mod-menu .separator {
     display: block;
-    border-top: 1px solid var(--black-700);
+    border-top: 1px solid var(--black-100);
     margin: 5px 0;
 }
 
