@@ -36,7 +36,7 @@
 }
 .comment-body .comment-date,
 .comment-body .comment-date > a {
-    color: #bbb;
+    color: var(--black-350);
 }
 .comment-body > button {
     font-size: 0.9rem;
@@ -86,7 +86,7 @@ ul.comments-list .comment .comment-text {
 }
 ul.comments-list .comment:not(.deleted-comment):hover .comment-actions,
 ul.comments-list .comment:not(.deleted-comment):hover .comment-text {
-    background-color: #fafaf9;
+    background-color: var(--yellow-050);
 }
 
 `);
