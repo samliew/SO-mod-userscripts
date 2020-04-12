@@ -3,7 +3,7 @@
 // @description  For questions and answers, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11
+// @version      2.12
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
@@ -127,8 +127,8 @@
     height: 38px;
     margin: 0 0 15px;
     padding: 10px 12px;
-    background: #FFF8DC;
-    border: 1px solid #E0DCBF;
+    background: var(--yellow-050);
+    border: 1px solid var(--yellow-200);
     box-sizing: border-box;
     z-index: 1;
 }
@@ -157,7 +157,7 @@
     right: 0;
     bottom: 4px;
     left: 0;
-    background: #ddd;
+    background: var(--black-100);
     border-radius: 3px;
 }
 .meta-mentions-toggle:after {
@@ -170,13 +170,13 @@
     height: 0;
     border-style: solid;
     border-width: 8px 6.5px 0 6.5px;
-    border-color: #666666 transparent transparent transparent;
+    border-color: var(--black-500) transparent transparent transparent;
 }
 .meta-mentions-toggle:hover:before {
-    background: #888;
+    background: var(--black-400);
 }
 .meta-mentions-toggle:hover:after {
-    border-color: #FFF transparent transparent transparent;
+    border-color: var(--white) transparent transparent transparent;
 }
 .meta-mentions-toggle:hover + .meta-mentions,
 .meta-mentions:hover {
@@ -191,8 +191,8 @@
     min-height: 40px;
     margin-left: -13px;
     padding: 12px;
-    background: #fff;
-    border: 1px solid #ccc;
+    background: var(--white);
+    border: 1px solid var(--black-150);
     box-shadow: 5px 5px 5px -3px rgba(0,0,0,0.10);
     z-index: 1;
 }

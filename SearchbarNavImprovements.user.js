@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.13.4
+// @version      4.14
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1148,7 +1148,7 @@
     z-index: 1;
 
     padding: 10px;
-    background: #f9f9fa;
+    background: var(--black-025);
     box-shadow: 2px 2px 7px -2px hsla(0, 0%, 0%, 0.5);
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
@@ -1204,13 +1204,13 @@
     content: '';
     position: relative;
     top: -1px;
-    border-bottom: 1px solid #e4e6e8;
+    border-bottom: 1px solid var(--black-075);
 }
 #search-helper-tabs > a {
     transition: none;
 }
 #search-helper-tabcontent {
-    border: 1px solid #e4e6e8;
+    border: 1px solid var(--black-075);
     border-top: none;
     clear: both;
 }
@@ -1218,7 +1218,7 @@
     display: none;
     min-height: 250px;
     padding: 15px 20px 25px;
-    background: white;
+    background: var(--white);
 }
 #search-helper-tabcontent > div.active {
     display: block;
@@ -1247,7 +1247,7 @@
     width: 500px;
     max-width: 100%;
     padding: 4px 10px;
-    border: 1px solid #c8ccd0;
+    border: 1px solid var(--black-150);
     font-size: 14px;
     line-height: 1.6;
 }
@@ -1263,7 +1263,7 @@
     height: 22px;
     margin: 5px 0;
     padding: 4px 10px;
-    border: 1px solid #c8ccd0;
+    border: 1px solid var(--black-150);
     font-size: 14px;
 }
 #search-helper input[data-clearbtn] {
@@ -1278,14 +1278,14 @@
     height: 32px;
     padding: 10px 0;
     text-align: center;
-    color: #aaa;
+    color: var(--black-300);
     cursor: pointer;
 }
 .clearbtn:after {
     content: 'X';
 }
 .clearbtn:hover {
-    color: red;
+    color: var(--red-500);
 }
 #search-helper .checkbox-right {
     display: inline-block;
@@ -1317,7 +1317,7 @@
     margin-right: 5px;
     padding-top: 2px;
     border-radius: 50%;
-    border: 1px solid #888;
+    border: 1px solid var(--black-400);
     text-align: center;
     line-height: 16px;
     font-size: 16px;
@@ -1330,7 +1330,7 @@
 }
 #search-helper input[type="radio"]:checked + label:before,
 #search-helper input[type="checkbox"]:checked + label:before {
-    color: #F44336;
+    color: var(--red-400);
 }
 #search-helper input[type="radio"] + label:before {
     content: '●';
@@ -1370,14 +1370,14 @@
     max-width: 100%;
     margin: 0;
     padding: 4px 2px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--black-150);
     border-radius: 3px;
     overflow-y: auto;
     overflow-x: hidden;
     white-space: nowrap;
     list-style: none;
-    background: #f6f6f6;
-    box-shadow: 0 1px 15px #9c9c9c;
+    background: var(--black-025);
+    box-shadow: 0 1px 15px var(--black-350);
 }
 .aclookup_results li {
     padding: 2px 4px;
@@ -1385,15 +1385,15 @@
     cursor: pointer;
 }
 .aclookup_results li:not(.disabled):hover {
-    background-color: #f7e7b7;
-    border-color: #222;
+    background-color: var(--yellow-050);
+    border-color: var(--black-800);
 }
 .aclookup_results li img {
     position: relative;
     top: 2px;
     width: 16px;
     height: 16px;
-    background: white;
+    background: var(--white);
 }
 
 /* Saved Search & Auto Refresh UI */
@@ -1405,9 +1405,9 @@
     height: 28px;
     padding: 5px;
     font-size: 0px;
-    background: #fff center/14px no-repeat;
+    background: var(--white) center/14px no-repeat;
     border-radius: 3px;
-    border: 1px solid #aaa;
+    border: 1px solid var(--black-300);
     outline: none;
     box-sizing: border-box;
 }
@@ -1422,8 +1422,8 @@
 #search-helper a[data-svg]:hover,
 #btn-bookmark-search:hover,
 #btn-auto-refresh:hover {
-    border-color: #666;
-    background: #f3f3f3;
+    border-color: var(--black-500);
+    background: var(--black-025);
 }
 #search-helper [data-svg] svg,
 #btn-bookmark-search svg,
@@ -1442,7 +1442,7 @@
     padding: 6px;
 }
 #btn-saved-search.active {
-    background: #ddd !important;
+    background: var(--black-100) !important;
     border-right: none;
     border-bottom: none;
 }
@@ -1450,7 +1450,7 @@
 #btn-auto-refresh.active {
     padding: 6px;
     border: none;
-    background: #9E9E9E;
+    background: var(--black-350);
     fill: gold;
 }
 #btn-saved-search.active ~ #saved-search {
@@ -1478,13 +1478,13 @@
     line-height: 1.2;
     padding-left: 30px;
     padding-right: 50px;
-    border-bottom: 1px solid #ddd;
-    background: white;
+    border-bottom: 1px solid var(--black-100);
+    background: var(--white);
     font-size: 14px;
 }
 #saved-search .sortable-ghost {
-    background: #eee;
-    border: 1px dashed #aaa;
+    background: var(--black-050);
+    border: 1px dashed var(--black-300);
 }
 #saved-search .sortable-drag {
     cursor: ns-resize;
@@ -1513,7 +1513,7 @@
     top: 4px;
     width: 100%;
     height: 2px;
-    background: #666;
+    background: var(--black-500);
 }
 #saved-search .handle:after {
     top: initial;
@@ -1531,7 +1531,7 @@
   left: 0;
   width: 28px;
   height: 28px;
-  background-color: #9E9E9E;
+  background-color: var(--black-350);
   border-radius: 50%;
   pointer-events: none;
 }
@@ -1555,7 +1555,7 @@
 }
 .radial-progress .circle .mask .fill {
   clip: rect(0px, 14px, 28px, 0px);
-  background-color: #ffd700 !important;
+  background-color: var(--yellow-400) !important;
 }
 .radial-progress .inset {
   width: 24px;
@@ -1563,7 +1563,7 @@
   position: absolute;
   margin-left: 2px;
   margin-top: 2px;
-  background-color: #9e9e9e;
+  background-color: var(--black-350);
   border-radius: 50%;
 }
 .radial-progress[data-progress="0"] .circle .mask.full,
@@ -2029,7 +2029,7 @@ button, .button,
     max-width: 140px;
 }
 .channels-page .search-channel-switcher-select {
-    color: white;
+    color: var(--white);
 }
 .search-channel-switcher {
     height: 36px;
@@ -2037,7 +2037,7 @@ button, .button,
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
     border-right: none !important;
-    background-color: #eff0f1;
+    background-color: var(--black-050);
 }
 .search-channel-switcher-field {
     border-top-left-radius: 0 !important;

@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.5
+// @version      2.10
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -81,22 +81,22 @@
 .mod-userlinks.show-on-hover {
     position: absolute !important;
     display: none;
-    background: white;
+    background: var(--white);
 }
 .mod-userlinks,
 .mod-userlinks a {
-    color: #666;
+    color: var(--black-500);
 }
 .mod-userlinks a {
     display: inline-block;
 }
 .mod-userlinks a:hover {
-    color: #000;
+    color: var(--black);
 }
 .mod-flair + .mod-userlinks {
     display: none;
     position: absolute;
-    background: white;
+    background: var(--white);
 }
 .post-user-info:hover .mod-userlinks,
 .user-info:hover .mod-userlinks {

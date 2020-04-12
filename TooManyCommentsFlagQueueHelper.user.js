@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.7
+// @version      4.8
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
@@ -358,11 +358,11 @@
     text-align: right;
 }
 .post-comment-stats .red {
-    color: red;
+    color: var(--red-500);
     font-weight: bold;
 }
 .red-mod-link {
-    color: red;
+    color: var(--red-500);
 }
 
 #actionBtns {

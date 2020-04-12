@@ -3,7 +3,7 @@
 // @description  Display post score and number of undeleted answers, Recommend action based on post info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2.2
+// @version      2.3
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismDeletionsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismDeletionsHelper.user.js
@@ -123,7 +123,7 @@
     font-size: 1.1em;
 }
 .info-num.red {
-    color: red;
+    color: var(--red-500);
 }
 .post-recommendation {
     display: block;

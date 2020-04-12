@@ -3,7 +3,7 @@
 // @description  Dropdown list of migration targets displaying site icon/logo/header images and links to the selected site's on-topic page and mod list. Displays additional information for custom flagger for selected network site.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.1
+// @version      2.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -292,12 +292,12 @@ Q&A for ${site.audience}<br><a href="${site.site_url}/help/on-topic" target="_bl
     width: calc(100% - 20px);
     margin-bottom: 5px;
     overflow: hidden;
-    background-color: white;
+    background-color: var(--white);
 }
 #site-desc .site-icon {
     max-width: 58px;
     max-height: 58px;
-    background-color: white;
+    background-color: var(--white);
 }
 #site-desc .site-header {
     display: flex;
@@ -305,7 +305,7 @@ Q&A for ${site.audience}<br><a href="${site.site_url}/help/on-topic" target="_bl
     align-items: center;
     height: 80px;
     padding: 11px;
-    background-color: #E0EAF1 !important;
+    background-color: var(--black-075) !important;
     background-position: bottom -10px center !important;
 }
 #site-desc .site-logo {
@@ -320,7 +320,7 @@ Q&A for ${site.audience}<br><a href="${site.site_url}/help/on-topic" target="_bl
     top: 0;
     right: 0;
     padding: 5px 10px;
-    background: #ccc;
+    background: var(--black-150);
 }
 #migflagger-stats span {
     font-weight: bold;

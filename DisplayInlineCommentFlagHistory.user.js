@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7
+// @version      2.8
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -214,8 +214,8 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
 }
 .comment.hasflags:hover .comment-actions,
 .comment.hasflags:hover .comment-text {
-    border-color: #ddd;
-    background: #ffffe8;
+    border-color: var(--black-100);
+    background: var(--yellow-050);
 }
 
 .comment:hover .comment-flags {
@@ -229,8 +229,8 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
     padding: 0px 10px 10px;
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
-    background: #ffffe8;
-    border: 1px solid #ddd;
+    background: var(--yellow-050);
+    border: 1px solid var(--black-100);
     border-top: none;
     box-shadow: 2px 2px 6px -2px rgba(0,0,0,0.2);
     z-index: 1;
@@ -253,10 +253,10 @@ unsafeWindow.purgeDisplayInlineCommentFlagHistory = function() {
     border-radius: 3px;
     text-align: center;
     font-size: 0.85em;
-    color: white !important;
+    color: var(--white) !important;
 }
 .rude-abusive > span:first-child {
-    color: red;
+    color: var(--red-500);
 }
 </style>
 `;

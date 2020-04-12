@@ -3,7 +3,7 @@
 // @description  Adds right sidebar to modify options of installed userscripts from the repo https://github.com/samliew/SO-mod-userscripts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.3
+// @version      1.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -155,9 +155,9 @@ SOMU = unsafeWindow.SOMU || {
     height: calc(100vh - 43px);
     max-width: 420px;
     padding: 10px 5px 40px;
-    background: white;
+    background: var(--white);
     opacity: 0.7;
-    border: 1px solid #ccc;
+    border: 1px solid var(--black-150);
     box-shadow: -2px 2px 14px -3px rgba(0,0,0,0.25);
 }
 #somusidebar:after {
@@ -168,8 +168,8 @@ SOMU = unsafeWindow.SOMU || {
     width: auto;
     height: 30px;
     padding: 5px 8px;
-    background: white;
-    border: 1px solid #ccc;
+    background: var(--white);
+    border: 1px solid var(--black-150);
     border-right: none;
     box-shadow: -3px 2px 10px -2px rgba(0,0,0,0.25);
 }
@@ -215,7 +215,7 @@ SOMU = unsafeWindow.SOMU || {
     margin: 0;
     padding: 5px 7px;
     padding-right: 45px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--black-150);
 }
 #somusidebar .info-value .input[type="checkbox"] {
     width: auto;
@@ -230,8 +230,8 @@ SOMU = unsafeWindow.SOMU || {
     padding: 16px 5px;
     font-size: 0.85em;
     text-transform: uppercase;
-    background: #666;
-    color: white;
+    background: var(--black-500);
+    color: var(--white);
     cursor: pointer;
 }
 #somusidebar .info-value .input[type="checkbox"] ~ span {
@@ -240,10 +240,10 @@ SOMU = unsafeWindow.SOMU || {
     padding: 5px 5px;
 }
 #somusidebar .info-value .somu-save:hover {
-    background: green;
+    background :var(--green-400);
 }
 #somusidebar .info-value .somu-delete:hover {
-    background: red;
+    background: var(--red-500);
 }
 #somusidebar .info-value .input.js-notdefault:not(.js-changed) ~ .somu-delete,
 #somusidebar .info-value .input.js-changed ~ .somu-save {
@@ -256,7 +256,7 @@ SOMU = unsafeWindow.SOMU || {
     padding: 5px;
     font-size: 0.85em;
     font-style: italic;
-    color: indianred;
+    color: var(--red-600);
 }
 #somusidebar-content {
     clear: both;

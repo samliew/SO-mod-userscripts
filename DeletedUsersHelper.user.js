@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.20.1
+// @version      1.21
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -431,15 +431,15 @@
     display: inline-block;
     margin-bottom: 2px;
     padding: 3px 5px;
-    background: indianred;
-    color: white !important;
+    background: var(--red-600);
+    color: var(--white) !important;
 }
 .deleted-user:hover {
     color: #ffffdd !important;
 }
 .comment-user .deleted-user {
     background: none !important;
-    color: indianred !important;
+    color: var(--red-600) !important;
     padding: 0;
 }
 .orig-username:before {
@@ -462,17 +462,17 @@ table#posts td {
 .del-user-info {
     margin: 15px 0;
     padding: 12px 14px;
-    background: #eff0f1;
+    background: var(--black-050);
     font-family: monospace;
 }
 .del-user-info input {
     margin: 0;
     padding: 0;
     border: none;
-    border-bottom: 1px dashed darkred;
+    border-bottom: 1px dashed var(--red-700);
     font-family: monospace;
     background: transparent;
-    color: darkred;
+    color: var(--red-700);
 }
 .del-user-info .del-reason {
     white-space: pre-wrap;
@@ -521,7 +521,7 @@ table#posts td {
 #del-user-networkaccs.js-no-accounts:after {
     content: '(none)';
     font-style: italic;
-    color: #999;
+    color: var(--black-400);
 }
 .account-container {
     float: left;
@@ -530,7 +530,7 @@ table#posts td {
     padding: 10px;
     text-align: left;
     font-size: 0.9em;
-    border-bottom: 1px solid #F0F0F0;
+    border-bottom: 1px solid var(--black-050);
     clear: both;
 }
 .account-container .account-icon {
@@ -539,30 +539,30 @@ table#posts td {
     float: left;
     margin-right: 15px;
     text-align: center;
-    border-bottom: 1px solid #e0e0e0;
-    border-left: 1px solid #f2f2f2;
-    border-right: 1px solid #f2f2f2;
-    border-top: 1px solid #f4f4f4
+    border-bottom: 1px solid var(--black-075);
+    border-left: 1px solid var(--black-025);
+    border-right: 1px solid var(--black-025);
+    border-top: 1px solid var(--black-025);
 }
 .account-container .account-icon img {
     width: 48px;
     height: 48px;
     display: block;
     -ms-interpolation-mode: bicubic;
-    image-rendering: optimizeQuality
+    image-rendering: optimizeQuality;
 }
 .account-container .account-site {
     float: left;
-    width: 424px
+    width: 424px;
 }
 .account-container .account-site h2 {
     font-size: 16px;
     line-height: 16px;
     margin-bottom: 4px;
-    margin-top: 0 !important
+    margin-top: 0 !important;
 }
 .account-container .account-site p {
-    margin-bottom: 2px
+    margin-bottom: 2px;
 }
 .account-container .account-stat {
     width: 80px;
@@ -571,46 +571,46 @@ table#posts td {
     color: #A1A1A1;
     font-size: 12px;
     float: left;
-    margin-left: 15px
+    margin-left: 15px;
 }
 .account-container .account-stat .account-number {
-    color: #555;
+    color: var(--black-600);
     display: inline-block;
     width: 100%;
     font-size: 20px;
     font-family: Arial,Helvetica,sans-serif;
     line-height: 1.6;
-    background: #FDFDFD
+    background: var(--black-025);
 }
 .account-container .account-stat .account-number,
 .account-container .account-stat .account-badges {
-    height: 32px
+    height: 32px;
 }
 .account-container .account-stat .account-badges {
     font-size: 15px;
     line-height: 31px;
     height: 31px !important;
-    color: #555
+    color: var(--black-600);
 }
 .account-container .account-stat .account-badges .badgecount {
-    font-size: 15px
+    font-size: 15px;
 }
 .account-container .account-stat .account-badges .badge1,
 .account-container .account-stat .account-badges .badge2,
 .account-container .account-stat .account-badges .badge3 {
-    margin-top: -5px
+    margin-top: -5px;
 }
 .account-container .account-stat.account-stat-wide {
-    width: 138px
+    width: 138px;
 }
 .account-container.hidden {
-    background: #E0E0E0
+    background: var(--black-075);
 }
 .account-container.hidden .account-number {
-    background: #E0E0E0
+    background: var(--black-075);
 }
 .account-container.hidden .account-icon {
-    border: 1px solid #E0E0E0
+    border: 1px solid var(--black-075);
 }
 </style>
 `;

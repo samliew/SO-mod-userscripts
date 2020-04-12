@@ -3,7 +3,7 @@
 // @description  Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.4
 //
 // @include      https://*stackoverflow.com/admin/deleter
 // @include      https://*serverfault.com/admin/deleter
@@ -214,7 +214,7 @@
     line-height: 16px;
     margin: 0;
     padding: 4px;
-    border-right: 1px solid silver;
+    border-right: 1px solid var(--silver);
     border-left: 0;
     border-top: 0;
     border-bottom: 0;
@@ -250,7 +250,7 @@
     height: 100%;
 }
 .slick-sortable-placeholder {
-    background: silver;
+    background: var(--silver);
 }
 .grid-canvas {
     position: relative;
@@ -264,8 +264,8 @@
 .slick-cell,.slick-headerrow-column {
     position: absolute;
     border: 1px solid transparent;
-    border-right: 1px dotted silver;
-    border-bottom-color: silver;
+    border-right: 1px dotted var(--silver);
+    border-bottom-color: var(--silver);
     overflow: hidden;
     -o-text-overflow: ellipsis;
     text-overflow: ellipsis;
@@ -290,13 +290,13 @@
     transition: all .5s;
 }
 .slick-cell.flashing {
-    border: 1px solid red!important;
+    border: 1px solid var(--red-500) !important;
 }
 .slick-cell.editable {
     z-index: 11;
     overflow: visible;
-    background: #fff;
-    border-color: #000;
+    background: var(--white);
+    border-color: var(--black);
     border-style: solid;
 }
 .slick-cell:focus {
@@ -304,7 +304,7 @@
 }
 .slick-reorder-proxy {
     display: inline-block;
-    background: blue;
+    background: var(--blue-500);
     opacity: .15;
     filter: alpha(opacity=15);
     cursor: move;
@@ -312,7 +312,7 @@
 .slick-reorder-guide {
     display: inline-block;
     height: 2px;
-    background: blue;
+    background: var(--blue-500);
     opacity: .7;
     filter: alpha(opacity=70);
 }
@@ -327,7 +327,7 @@
     margin-left: 4px;
 }
 .youarehere .tab-counter:hover {
-    color: #07c;
+    color: var(--blue-400);
 }
 #resultSets {
     position: relative;
@@ -338,16 +338,16 @@
     min-height: 500px;
 }
 .slick-header .slick-header-column {
-    background-color: #f7f7f7;
-    color: #606060;
-    border-bottom: 1px dotted #ccc;
+    background-color: var(--black-025);
+    color: var(--black-500);
+    border-bottom: 1px dotted var(--black-150);
     display: block;
     font-weight: bold;
     padding: 6px 8px 5px 8px;
     text-align: center;
 }
 .slick-header .slick-header-column-sorted {
-    color: #0c57a0;
+    color: var(--blue-500);
     font-style: normal;
 }
 .slick-sort-indicator {
@@ -362,12 +362,12 @@
     background-image: url(/Content/slickgrid/images/sort-desc.gif);
 }
 .slick-row.odd {
-    background-color: #fdfdfd;
+    background-color: var(--black-025);
 }
 .slick-cell {
     padding: 6px 8px 5px 8px;
-    border-bottom: 1px dotted #ccc;
-    border-right: 1px dotted #ccc;
+    border-bottom: 1px dotted var(--black-150);
+    border-right: 1px dotted var(--black-150);
 }
 .slick-cell.number {
     text-align: right;
@@ -414,7 +414,7 @@ input.inline {
     width: 100px;
     padding: 4px 7px !important;
     border: none !important;
-    border-bottom: 1px dotted #333 !important;
+    border-bottom: 1px dotted var(--black-700) !important;
 }
 
 </style>

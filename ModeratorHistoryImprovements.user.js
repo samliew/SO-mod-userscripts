@@ -3,7 +3,7 @@
 // @description  Better UI for mod action history page. Auto-refresh every minute.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.8
 //
 // @include      https://stackoverflow.com/admin/history/*
 //
@@ -212,7 +212,7 @@
     grid-column: 1;
     padding-right: 10px;
     text-align: right;
-    color: #999;
+    color: var(--black-400);
     white-space: nowrap;
 }
 .mod-page #mod-user-history > li > .relativetime + ul > li:first-child {
@@ -226,30 +226,30 @@
 }
 .mod-page #mod-user-history li.mod-helpful:before {
     content: 'Helpful: ';
-    color: #393;
+    color: var(--green-500);
 }
 .mod-page #mod-user-history li.mod-declined:before {
     content: 'Declined: ';
-    color: #E33;
+    color: var(--red-500);
 }
 .mod-page #mod-user-history li.mod-actions {
     display: inline-block;
     margin-top: 5px;
     padding: 3px 10px 3px 8px !important;
-    background: #eee;
+    background: var(--black-050);
 }
 .mod-page #mod-user-history li.mod-destroys {
-    color: #E33;
+    color: var(--red-500);
 }
 .mod-page #mod-user-history li.type-cmnt:before {
     content: 'Comment deleted: ';
-    color: #393;
+    color: var(--green-500);
 }
 .mod-page #mod-user-history li.type-cmnt em {
     padding: 1px 8px;
     font-style: normal;
-    color: #555;
-    background: #fee;
+    color: var(--black-600);
+    background: var(--black-900);
 }
 .mod-page #mod-user-history li.type-toomanycmnts ~ li {
     display: none;

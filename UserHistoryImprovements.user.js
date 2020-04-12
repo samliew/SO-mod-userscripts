@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.9
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -65,7 +65,7 @@
 }
 #annotations th {
     font-weight: bold;
-    border-bottom: 1px solid #aaa;
+    border-bottom: 1px solid var(--black-300);
 }
 #annotations th,
 #annotations td {
@@ -94,10 +94,10 @@
     display: none;
 }
 #annotations tbody tr:nth-child(odd) {
-    background-color: #f3f3f3;
+    background-color: var(--black-100);
 }
 #annotations table.annotation {
-    border: 1px solid #ddd;
+    border: 1px solid var(--black-100);
 }
 #annotations tr.user-message td:nth-child(4) {
     padding-left: 25px;

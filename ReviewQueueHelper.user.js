@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7.1
+// @version      2.8
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1188,7 +1188,7 @@ pre {
     top: 10px;
     left: -18px;
     font-weight: bold;
-    color: #333;
+    color: var(--black-700);
 }
 .popup .action-list li:nth-of-type(1):before {
     content: '[1]';
@@ -1221,7 +1221,7 @@ pre {
     z-index: 999999;
     padding: 20px 30px;
     background: rgba(255,255,255,0.7) !important;
-    color: black !important;
+    color: var(--black) !important;
 }
 
 #review-history-tabs {

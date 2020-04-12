@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9
+// @version      1.10
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -118,7 +118,7 @@
     font-family: monospace;
     font-weight: 600;
     text-align: right;
-    color: #222;
+    color: var(--black-800);
     background: rgba(255,255,255,0.8);
     border: none;
     outline: none !important;

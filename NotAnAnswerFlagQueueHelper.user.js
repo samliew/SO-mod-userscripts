@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.12
+// @version      3.13
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -463,13 +463,13 @@
 #flag-queue-tabs:after {
     position: relative;
     top: -1px;
-    border-bottom: 1px solid #e4e6e8;
+    border-bottom: 1px solid var(--black-075);
 }
 #flag-queue-tabs a {
     float: left;
     margin-right: 8px;
     padding: 12px 8px 14px;
-    color: #848d95;
+    color: var(--black-400);
     line-height: 1;
     text-decoration: none;
     border-bottom: 2px solid transparent;
@@ -488,7 +488,7 @@
 }
 
 input.js-helpful-purge {
-    border-color: red !important;
+    border-color: var(--red-500) !important;
 }
 .star-off, .star-on {
     display: none;
@@ -500,13 +500,13 @@ input.js-helpful-purge {
     margin-left: 20px;
     padding: 5px 8px;
     font-size: 1rem;
-    background: #eee;
+    background: var(--black-050);
     white-space: nowrap;
     opacity: 0.3;
 }
 .js-skip-post:hover {
-    background: #07C;
-    color: white;
+    background: var(--blue-400);
+    color: var(--white);
     opacity: 1;
 }
 
@@ -517,7 +517,7 @@ input.js-helpful-purge {
 }
 .js-mod-history-container {
     margin: 10px 8px 15px !important;
-    background: #f6f6f6;
+    background: var(--black-025);
 }
 .js-flagged-post {
     margin-top: 10px !important;
@@ -527,7 +527,7 @@ input.js-helpful-purge {
     opacity: 0.7;
 }
 .js-flagged-post .bc-black-3 {
-    border-color: #eee !important;
+    border-color: var(--black-050) !important;
 }
 .js-post-flag-group > .grid--cell {
     padding: 8px 0;
@@ -544,8 +544,8 @@ input.js-helpful-purge {
 
 /* Specific to this userscript */
 .s-badge.post-modified {
-    color: red;
-    border-color: red;
+    color: var(--red-500);
+    border-color: var(--red-500);
 }
 </style>
 `;

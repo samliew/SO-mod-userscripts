@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.14
+// @version      1.15
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -35,7 +35,7 @@
         'element-color': 'black',
         'fill': '#d6d9dc',
         'flowstate' : {
-            'pending' : { 'fill': '#ccc' },
+            'pending' : { 'fill': 'var(--black-150)' },
             'completed' : { 'fill': '#8DB98D', 'font-color': '#fff', },
             'invalidated' : { 'fill': '#f4eaea', 'font-color': '#B65454', 'font-style': 'italic' },
         }
@@ -386,7 +386,7 @@
 #post-timeline-tabs:after {
     position: relative;
     top: -1px;
-    border-bottom: 1px solid #e4e6e8;
+    border-bottom: 1px solid var(--black-075);
 }
 #post-timeline-tabs a {
     float: left;
@@ -399,7 +399,7 @@
     transition: all .15s ease-in-out;
 }
 #post-timeline-tabs a.youarehere {
-    background: #f3f3f3;
+    background: var(--orange-200);
 }
 
 .posttype-answer .q-only,
@@ -414,7 +414,7 @@ tr.separator {
     display: none !important;
 }
 tr.separator + tr {
-    border-top: 1px solid #e4e6e8;
+    border-top: 1px solid var(--black-075);
 }
 
 .subheader h1 .posttype-indicator {

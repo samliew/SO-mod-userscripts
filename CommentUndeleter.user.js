@@ -3,7 +3,7 @@
 // @description  Allows moderators to undelete user-deleted comments
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -157,7 +157,7 @@
     margin-left: 10px;
     padding: 5px 8px;
     font-size: 1rem;
-    background: #eee;
+    background: var(--black-050);
 }
 
 .meta-row.deleted-row .mod-undelete-comment,
@@ -166,11 +166,11 @@
     margin-top: -5px;
     padding: 5px 8px;
     font-size: 1rem;
-    background: #eee;
+    background: var(--black-050);
 }
 .meta-row.deleted-row .mod-undelete-comment {
     margin-left: 35px;
-    color: red;
+    color: var(--red-500);
 }
 .meta-row .mod-redelete-comment {
     margin-left: 57px;

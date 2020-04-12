@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7.1
+// @version      2.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -876,7 +876,7 @@
     z-index: 3;
     cursor: auto;
 
-    background: white;
+    background: var(--white);
     border-radius: 2px;
     border: 1px solid transparent;
     box-shadow: 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.2);
@@ -896,9 +896,9 @@
     padding: 8px 0;
     padding-left: 26px;
     padding-right: 48px;
-    background-color: #fbf2d4;
-    border-bottom: 1px solid #f1e5bc;
-    color: black;
+    background-color: var(--yellow-050);
+    border-bottom: 1px solid var(--yellow-100);
+    color: var(--black);
     font-weight: bold;
 }
 .post-mod-menu a {
@@ -908,26 +908,26 @@
     padding-left: 26px;
     padding-right: 48px;
     cursor: pointer;
-    color: #202124;
+    color: var(--black-900);
 }
 .post-mod-menu a.dno {
     display: none;
 }
 .post-mod-menu a:hover {
-    background-color: #e6e6e6;
+    background-color: var(--fc-light);
 }
 .post-mod-menu a.disabled {
-    background-color: #f6f6f6 !important;
-    color: #bbb !important;
+    background-color: var(--fc-medium) !important;
+    color: var(--fc-dark) !important;
     cursor: not-allowed;
 }
 .post-mod-menu a.danger:hover {
-    background-color: red;
-    color: white;
+    background-color: var(--red-500);
+    color: var(--white);
 }
 .post-mod-menu .separator {
     display: block;
-    border-top: 1px solid #ddd;
+    border-top: 1px solid var(--black-700);
     margin: 5px 0;
 }
 
@@ -939,7 +939,7 @@
     .post-mod-menu-link svg {
         max-width: 17px;
         max-height: 16px;
-        color: #666;
+        color: var(--black-500);
     }
 }
 

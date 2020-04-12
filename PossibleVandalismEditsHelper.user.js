@@ -3,7 +3,7 @@
 // @description  Display revision count and post age
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=postvandalismeditsauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=postvandalismeditsauto*
@@ -85,7 +85,7 @@ p[title="question originally asked"],
     font-size: 1.1em;
 }
 .info-num.red {
-    color: red;
+    color: var(--red-500);
 }
 .post-recommendation {
     display: block;

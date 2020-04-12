@@ -3,7 +3,7 @@
 // @description  New page to review rejected suggested edits
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.6
 //
 // @include      https://*stackoverflow.com/review/suggested-edits*
 // @include      https://*serverfault.com/review/suggested-edits*
@@ -279,7 +279,7 @@ was rejected <span title="${toDateFormat(rejectionDate)}" class="relativetime">$
     font-size: 14px;
 }
 .review:nth-child(even) {
-    background: #f6f6f6;
+    background: var(--black-025);
 }
 .review .toggle {
     content: '';
@@ -288,7 +288,7 @@ was rejected <span title="${toDateFormat(rejectionDate)}" class="relativetime">$
     height: 0;
     border-style: solid;
     border-width: 6px 0 6px 9px;
-    border-color: transparent transparent transparent #999;
+    border-color: transparent transparent transparent var(--black-400);
     transform-origin: center;
 }
 .review .review-info {

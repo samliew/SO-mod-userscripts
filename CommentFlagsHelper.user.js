@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.1
+// @version      5.2
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -564,7 +564,7 @@ table.admin-user-comments {
     width: 100%;
 }
 table.sorter > tbody > tr.odd > td {
-    background-color: #f9f9f9;
+    background-color: var(--black-025);
 }
 .admin-user-comments .meta-row {
     border-top: 1px dashed rgba(0,0,0,0.1);
@@ -608,13 +608,13 @@ table.comments {
     word-break: break-word;
 }
 table.comments {
-    border: 1px solid #ddd;
+    border: 1px solid var(--black-100);
 }
 table.comments > tr:last-child > td {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--black-100);
 }
 table.comments > tr:nth-child(even) {
-    background: #f8f8f8;
+    background: var(--black-025);
 }
 table.comments tr.roa-comment > td {
     height: auto;
@@ -655,7 +655,7 @@ table.comments tr.roa-comment > td {
     max-height: 150px;
     margin: 10px 8px 15px !important;
     overflow-y: auto;
-    background: #fafafa;
+    background: var(--black-025);
     z-index: 1;
 }
 .js-mod-history-container:after {
@@ -665,7 +665,7 @@ table.comments tr.roa-comment > td {
     bottom: 2px;
     right: 3px;
     font-style: italic;
-    color: #888;
+    color: var(--black-400);
     opacity: 0.5;
 }
 .js-flagged-comment > .js-comment > .comment-form > .js-comment-edit-hide {
@@ -691,7 +691,7 @@ table.comments tr.roa-comment > td {
     margin-left: 20px;
     padding: 5px 8px;
     font-size: 1rem;
-    background: #eee;
+    background: var(--black-050);
 }
 .meta-row .delete-comment,
 .meta-row .edit-comment,
@@ -701,7 +701,7 @@ table.comments tr.roa-comment > td {
     margin-left: 10px;
     padding: 5px 8px;
     font-size: 1rem;
-    background: #eee;
+    background: var(--black-050);
 }
 .skip-post {
     position: absolute !important;
@@ -711,18 +711,18 @@ table.comments tr.roa-comment > td {
     opacity: 0.3;
 }
 .skip-post:hover {
-    background: #07C;
-    color: white;
+    background: var(--blue-400);
+    color: var(--white);
     opacity: 1;
 }
 .text-row .comment-flag-on .dismiss-comment:hover,
 .cancel-comment-flag:hover {
-    color: white;
-    background: red;
+    color: var(--white);
+    background: var(--red-500);
     z-index: 1;
 }
 .js-del-all-comments {
-    color: red !important;
+    color: var(--red-500) !important;
     font-weight: bold;
 }
 .js-comment-deleted {
@@ -742,9 +742,9 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
     width: auto;
     height: 100%;
     padding: 5px 8px;
-    color: white;
-    background: red;
-    border-left: 1px solid #eee;
+    color: var(--white);
+    background: var(--red-500);
+    border-left: 1px solid var(--black-050);
 }
 .js-dismiss-flags:hover .js-cancel-delete-comment-flag {
     display: block;
@@ -760,7 +760,7 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
     left: -3px;
     bottom: 0;
     width: 3px;
-    background: #F48024 !important;
+    background: var(--orange-400) !important;
 }
 .cmmt-rude {
     background-color: var(--orange-200);
@@ -789,7 +789,7 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
     opacity: 0.7;
 }
 .js-flagged-post .bc-black-3 {
-    border-color: #e3e3e3 !important;
+    border-color: var(--black-075) !important;
 }
 .js-admin-dashboard span[title]:hover {
     cursor: help !important;
@@ -804,11 +804,11 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
     text-transform: lowercase;
 }
 .js-comment-flag-options button:hover {
-    background: #ccc;
+    background: var(--black-150);
 }
 .js-comment-flag-options .js-dismiss-flags:hover {
-    background: red;
-    color: white;
+    background: var(--red-500);
+    color: var(--white);
 }
 </style>
 `;

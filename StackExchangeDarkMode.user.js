@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.19.3
+// @version      2.20
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -68,7 +68,7 @@
 
 
     GM_addStyle(`
-/* ===== Stack Exhchange Dark Mode ===== */
+/* ===== Stack Exchange Dark Mode ===== */
 
 
 /* Apply to all */
@@ -285,10 +285,10 @@ input[type="submit"]:hover,
     color: inherit;
 }
 body .fc-dark {
-    color: #ddd;
+    color: var(--black-100);
 }
 body .fc-medium {
-    color: #888;
+    color: var(--black-400);
 }
 #user-menu,
 body .bc-black-1,
@@ -307,7 +307,7 @@ body #content .s-modal {
 body #content .popup,
 body #content .share-tip,
 .s-modal--dialog {
-    border: 2px solid #888;
+    border: 2px solid var(--black-400);
     border-radius: 7px;
     background-color: ${bgcolor};
 }
@@ -370,7 +370,7 @@ ul.comments-list .comment:hover .comment-flag {
     opacity: 0.8;
 }
 .wmd-button-row {
-    background-color: white;
+    background-color: var(--white);
     filter: invert(1) brightness(5) contrast(0.8);
 }
 .wmd-button,
@@ -383,14 +383,14 @@ ul.comments-list .comment:hover .comment-flag {
 }
 ul.comments-list .comment-up-on,
 ul.comments-list .comment-up-on * {
-    color: white;
-    fill: white;
+    color: var(--white);
+    fill: var(--white);
 }
 .js-image-upload-label,
 .js-show-url-input,
 .js-image-upload-label:hover,
 .js-show-url-input:hover {
-    color: white;
+    color: var(--white);
     text-decoration: underline;
     background: transparent;
 }
@@ -405,7 +405,7 @@ ul.comments-list .comment-up-on * {
 /* black or navy blu-ish icons */
 .favicon-anime, .favicon-mathoverflow, .favicon-patents, .favicon-softwarerecs, .favicon-wordpress {
     filter: invert(1);
-    background-color: #e3e3e3;
+    background-color: var(--black-075);
 }
 /* others that just need a slight boost */
 .favicon-codereview, .favicon-salesforce, .favicon-unix, .favicon-ux {
@@ -424,7 +424,7 @@ ul.comments-list .comment-up-on * {
 /* black or navy blu-ish icons */
 .site-header--link img[src*="/mathoverflow"] {
     filter: invert(1);
-    background-color: #e3e3e3;
+    background-color: var(--black-075);
 }
 /* others that just need a slight boost */
 .site-header--link img[src*="/anime"],
@@ -491,7 +491,7 @@ ul.comments-list .comment-up-on * {
 }
 #content span[class*="badge"] a {
     background-color: transparent;
-    color: white;
+    color: var(--white);
 }
 #sidebar a,
 #content #sidebar .community-bulletin .bulletin-item-content a,
@@ -569,7 +569,7 @@ header > div > div,
 }
 .s-btn__filled[disabled] {
     background-color: #222;
-    color: #666;
+    color: var(--black-500);
 }
 .temp-popover--arrow:before,
 .temp-popover--arrow:after {
@@ -579,7 +579,7 @@ header > div > div,
 .top-bar .indicator-badge,
 .bounty-award {
     background-color: ${bountyblue};
-    color: #eee;
+    color: var(--black-050);
 }
 .top-bar .indicator-badge {
     border: none;
@@ -609,7 +609,7 @@ ul.comments-list .comment > * {
     border: 1px solid ${bordercolor};
 }
 .wmd-button-row {
-    background-color: white;
+    background-color: var(--white);
 }
 .wmd-button-row * {
     background-color: inherit;
@@ -658,14 +658,14 @@ body > div[style*="absolute"],
 .summary .bounty-indicator {
     z-index: 2;
     position: relative;
-    color: white;
+    color: var(--white);
     background-color: ${bountyblue};
 }
 .s-badge__bounty,
 .bounty-indicator,
 .bounty-indicator-tab,
 .tabs .bounty-indicator-tab {
-    color: #eee;
+    color: var(--black-050);
     background-color: ${bountyblue};
 }
 #post-filters,
@@ -674,15 +674,15 @@ body > div[style*="absolute"],
     background-color: transparent;
 }
 .supernovabg {
-    color: white;
-    background-color: #F48024;
+    color: var(--white);
+    background-color: var(--orange-400);
 }
 .hotbg {
-    color: white;
+    color: var(--white);
     background-color: #CF7721;
 }
 .coolbg {
-    color: white;
+    color: var(--white);
     background-color: ${bountyblue};
 }
 .tagged-interesting {
@@ -801,14 +801,14 @@ body .bg-green-400,
 }
 .new-post-activity,
 .new-answer-activity {
-    background-color: #888;
+    background-color: var(--black-400);
 }
 .new-post-activity a,
 .new-answer-activity a {
     background-color: transparent;
 }
 .answer-votes.answered-accepted {
-    color: white;
+    color: var(--white);
     background-color: #5fba7d;
 }
 .profile-cards--graph {
@@ -904,7 +904,7 @@ span.diff-add .pln {
     color: ${bgcolor};
 }
 img.diff-delete {
-    border-color: red;
+    border-color: var(--red-500);
 }
 img.diff-add {
     border-color: #d1e1ad;
@@ -999,21 +999,21 @@ pre * {
     font-size: 10px;
     font-style: normal;
     border-radius: 2px;
-    color: white;
+    color: var(--white);
 }
 .ctype-custom {
     background-color: #330;
-    color: #ccc;
+    color: var(--black-150);
     letter-spacing: 0.03em;
 }
 .ctype-bad {
-    background-color: #ff2600;
+    background-color: var(--red-500);
 }
 .ctype-poor {
-    background-color: #ff9300;
+    background-color: var(--orange-600);
 }
 .ctype-meh {
-    background-color: #999;
+    background-color: var(--black-400);
 }
 .cmmt-chatty {
     background-color: var(--orange-300);
@@ -1031,7 +1031,7 @@ a.comment-user.owner {
     background: #444;
 }
 .cancel-comment-flag .cancel-delete-comment-flag {
-    background-color: red;
+    background-color: var(--red-500);
 }
 .post-mod-menu-link .post-mod-menu {
     background-color: ${bgcolor};
@@ -1039,7 +1039,7 @@ a.comment-user.owner {
 }
 .mod-userlinks,
 .mod-userlinks a {
-    color: #666;
+    color: var(--black-500);
 }
 .deleted-answer .mod-userlinks,
 .deleted-answer .post-mod-menu-link .post-mod-menu {
@@ -1048,10 +1048,10 @@ a.comment-user.owner {
 .post-mod-menu-link .post-mod-menu a.disabled,
 .post-mod-menu-link .post-mod-menu a.disabled:hover {
     background-color: #222;
-    color: #888;
+    color: var(--black-400);
 }
 .post-mod-menu-link .post-mod-menu a:hover {
-    background-color: #666;
+    background-color: var(--black-500);
     color: ${textcolor};
 }
 #search-helper {
@@ -1067,10 +1067,10 @@ a.comment-user.owner {
 #btn-bookmark-search svg,
 #btn-auto-refresh svg {
     background-color: transparent;
-    fill: #ccc;
+    fill: var(--black-150);
 }
 #search-helper .active svg {
-    fill: #888;
+    fill: var(--black-400);
 }
 #btn-bookmark-search.active svg,
 #btn-auto-refresh.active svg {
@@ -1137,8 +1137,8 @@ span.mod-flair {
 .deleted-user,
 #answers .deleted-answer .deleted-user,
 #question.deleted-answer .deleted-user {
-    background: indianred;
-    color: white;
+    background: var(--red-600);
+    color: var(--white);
 }
 
 #chat-body .message .content a[href*="/review/"]:visited,
@@ -1166,7 +1166,7 @@ span.mod-flair {
 #chat-body .signature.js-user-highlight .username.moderator,
 #chat-body .signature.js-user-highlight .username.moderator:after {
     background-color: #d2d200;
-    color: black;
+    color: var(--black);
 }
 .highlight,
 .chat-search-highlight {
@@ -1192,7 +1192,7 @@ span.mod-flair {
 #chat-body .topbar,
 #transcript-body .topbar,
 #conversation-body .topbar {
-    background-color: black;
+    background-color: var(--black);
 }
 .topbar .topbar-wrapper,
 .topbar .topbar-wrapper *,
@@ -1207,7 +1207,7 @@ span.mod-flair {
     background-color: transparent;
 }
 .topbar .topbar-wrapper .topbar-dialog {
-    background: black;
+    background: var(--black);
 }
 .topbar .icon-inbox .unread-count {
     background-color: #F00;
@@ -1217,13 +1217,13 @@ span.mod-flair {
 }
 .topbar .topbar-icon-on,
 .topbar .topbar-icon-on:hover {
-    background-color: #eff0f1;
+    background-color: var(--black-050);
 }
 .topbar .js-topbar-dialog-corral > * {
-    background-color: black;
+    background-color: var(--black);
 }
 #header-logo img {
-    background-color: white;
+    background-color: var(--white);
 }
 #transcript-logo img {
     filter: none;
@@ -1241,7 +1241,7 @@ span.mod-flair {
 /* Transparent images in chat should have a white BG so we can read black text */
 .message img.user-image[src*="png"],
 .message img.user-image[src*="png"]:hover {
-    background-color: white;
+    background-color: var(--white);
 }
 .pager .page-numbers.current,
 #chat-body .button,
@@ -1337,7 +1337,7 @@ body#conversation-body .messages .message.cmmt-deleted .content * {
 #transcript-body .message .content a:hover,
 #conversation-body .message .content a:hover,
 #chat-body #sidebar a:hover {
-    color: #fff;
+    color: var(--white);
 }
 .mspark .msplab {
     background-color: transparent;
@@ -1360,29 +1360,29 @@ body#conversation-body .messages .message.cmmt-deleted .content * {
     background-color: #135;
 }
 #starred-posts > div > ul > li {
-    border-bottom-color: #666;
+    border-bottom-color: var(--black-500);
 }
 #sidebar #info #sound {
     filter: brightness(6.5);
     background-color: transparent;
 }
 #sidebar .sprite-sec-private {
-    background-color: white;
+    background-color: var(--white);
     filter: invert(0.9);
 }
 #sidebar .sprite-sec-gallery {
-    background-color: white;
+    background-color: var(--white);
     filter: invert(0.9) brightness(2);
 }
 button#sayit-button {
-    background: #f48024 url('') 60% 50% no-repeat;
+    background: var(--orange-400) url('') 60% 50% no-repeat;
     opacity: 0.8;
 }
 body.mob button#sayit-button {
     background-image: url('https://cdn-chat.sstatic.net/chat/Img/mobile/skin/dark/ico-send.svg');
 }
 #header .first-trigger[data-for="sidebar-left"] .ico-hamburger em {
-    background: white;
+    background: var(--white);
 }
 #header [data-for="search"] {
     background: url('https://cdn-chat.sstatic.net/chat/Img/mobile/skin/light/ico-search.svg') 50% 50% no-repeat;
@@ -1410,16 +1410,16 @@ div.message .meta {
 #room-tags .tag,
 .ob-post-tag,
 .ob-user-tag {
-    color: #ccc;
+    color: var(--black-150);
     background-color: #444;
-    border: 1px solid #666;
+    border: 1px solid var(--black-500);
     font-style: normal;
 }
 
 
 /* New mod interface only */
 body .js-flagged-post .bc-black-3 {
-    border: 1px dotted #666;
+    border: 1px dotted var(--black-500);
 }
 .js-post-flag-options {
     background-color: transparent;
@@ -1434,7 +1434,7 @@ body .js-flagged-post .bc-black-3 {
 .top-bar .-logo[href*="es.stackoverflow.com"] .-img._glyph,
 .top-bar .-logo[href*="ru.stackoverflow.com"] .-img._glyph,
 .top-bar .-logo[href*="pt.stackoverflow.com"] .-img._glyph {
-    background-color: #666;
+    background-color: var(--black-500);
 }
 
 

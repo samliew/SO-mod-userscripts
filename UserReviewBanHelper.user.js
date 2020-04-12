@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.19.1
+// @version      3.20
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -776,18 +776,18 @@ a.reviewban-link {
     font-size: 0.8em;
     line-height: 14px;
     border-radius: 50%;
-    border: 1px solid #666;
-    color: #666;
+    border: 1px solid var(--black-500);
+    color: var(--black-500);
 }
 a.reviewban-count.warning {
-    background: #FF9;
-    border-color: red;
-    color: red;
+    background: var(--yellow-100);
+    border-color: var(--red-500);
+    color: var(--red-500);
 }
 a.reviewban-link {
-    border: 1px solid red;
-    background: red;
-    color: white;
+    border: 1px solid var(--red-500);
+    background: var(--red-500);
+    color: var(--white);
 }
 a.reviewban-button {
     float: right;
@@ -825,7 +825,7 @@ a.reviewban-button {
 #lookup-result .duration-error {
     display: none;
     margin: 0;
-    color: red;
+    color: var(--red-500);
 }
 #lookup-result form.validation-error .duration-error {
     display: block;
@@ -839,11 +839,11 @@ a.reviewban-button {
 }
 .reviewban-history-summary .reviewban-ending.current span.type,
 .reviewban-history-summary .reviewban-ending.recent span.type {
-    color: red;
+    color: var(--red-500);
 }
 .reviewban-history {
     max-height: 500px;
-    border-left: 1px solid #ccc;
+    border-left: 1px solid var(--black-150);
     padding-left: 20px;
     padding-bottom: 10px;
     padding-right: 18px;
@@ -856,7 +856,7 @@ a.reviewban-button {
     display: block;
     margin-bottom: 5px;
     padding-bottom: 5px;
-    background: white;
+    background: var(--white);
 }
 .reviewban-history > .item {
     margin: 10px 0 20px;
@@ -872,7 +872,7 @@ a.reviewban-button {
 .reviewban-history .item-reason {
     margin-top: 5px;
     padding: 7px 12px;
-    background: #f6f6f6;
+    background: var(--black-025);
     clear: both;
 }
 .reviewban-history .item-meta > div {
@@ -917,7 +917,7 @@ a.reviewban-button {
     bottom: 0;
     width: 20%;
     padding: 12px 15px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--black-150);
     border-left: none;
 }
 #canned-messages:before {
@@ -944,15 +944,15 @@ a.reviewban-button {
     overflow: hidden;
 }
 table.sorter > tbody > tr:nth-child(odd) > td {
-    background-color: #eee !important;
+    background-color: var(--black-050) !important;
 }
 table.sorter > tbody > tr:nth-child(even) > td {
-    background-color: white !important;
+    background-color: var(--white) !important;
 }
 table.sorter > thead > tr .tablesorter-headerAsc,
 table.sorter > thead > tr .tablesorter-headerDesc {
-    background-color: #f90;
-    color: #FFF;
+    background-color: var(--orange-300);
+    color: var(--white);
 }
 table.sorter > thead > tr .tablesorter-headerAsc span::after {
     content: "▲";
@@ -965,12 +965,12 @@ a.reban {
     float: right;
     margin: 5px;
     padding: 3px 7px;
-    background: #e8e8e8;
-    color: red;
+    background: var(--black-050);
+    color: var(--red-500);
 }
 a.reban:hover {
-    color: white;
-    background: red;
+    color: var(--white);
+    background: var(--red-500);
 }
 </style>
 `;

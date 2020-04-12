@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7.2
+// @version      2.8
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -440,8 +440,8 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
     padding: 12px 16px;
     z-index: 5;
 
-    background: #eee;
-    border-bottom: 1px solid #ccc;
+    background: var(--black-050);
+    border-bottom: 1px solid var(--black-150);
     cursor: pointer;
 }
 .post-stickyheader > a:not([href*="/users/"]) {
@@ -471,11 +471,11 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 }
 
 .post-stickyheader .relativetime {
-    color: darkred;
-    border-bottom: 1px dashed darkred;
+    color: var(--red-700);
+    border-bottom: 1px dashed var(--red-700);
 }
 .post-stickyheader > span { /* CW user */
-    color: darkred;
+    color: var(--red-700);
     font-style: italic;
 }
 .post-stickyheader .sticky-tools {
@@ -529,7 +529,7 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
     margin-bottom: 10px;
     font-size: 12px;
     font-weight: normal;
-    color: #999;
+    color: var(--black-400);
 }
 #qtoc .answer-votes {
     white-space: nowrap;

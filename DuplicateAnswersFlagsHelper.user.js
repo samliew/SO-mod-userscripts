@@ -3,7 +3,7 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.4
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
@@ -120,11 +120,11 @@ async function waitForSOMU() {
 
 .rec-button {
     padding: 3px 5px;
-    border: 1px solid red !important;
-    color: red !important;
+    border: 1px solid var(--red-500) !important;
+    color: var(--red-500) !important;
 }
 .rec-button:hover {
-    background-color: #eee;
+    background-color: var(--black-050);
 }
 </style>
 `;

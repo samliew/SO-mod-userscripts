@@ -3,7 +3,7 @@
 // @description  Converts mod pages to mobile-friendly UI
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.4
+// @version      0.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -95,7 +95,7 @@ input.post-id[readonly] {
     z-index: 1;
 }
 #tabs:after, .tabs:after {
-    border-bottom: 2px solid #e4e6e8;
+    border-bottom: 2px solid var(--black-075);
     position: absolute;
     bottom: 1px;
     width: 100%;
@@ -177,7 +177,7 @@ table.flagged-posts .mod-audit {
     padding-left: 10px;
 }
 .mod-audit-user-info:not(.owner) {
-    background: #f3f3f3;
+    background: var(--black-025);
 }
 .badge1, .badge2, .badge3 {
     width: 6px !important;

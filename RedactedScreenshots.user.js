@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.1
+// @version      1.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -171,7 +171,7 @@ body.js-redactfull .js-usercolor:after {
 }
 body.js-redactfull .user-details a,
 body.js-redactfull a.comment-user {
-    color: #999;
+    color: var(--black-400);
 }
 
 body.js-redactsemi.question-page #answers .answer,

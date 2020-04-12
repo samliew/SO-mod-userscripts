@@ -3,7 +3,7 @@
 // @description  Display deleted comments and user who deleted the comments
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=commentvandalismdeletionsauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=commentvandalismdeletionsauto*
@@ -190,13 +190,13 @@ table.mod-message .flagcell {
 .comments-list {
     width: 100%;
     padding: 0;
-    border: 1px solid #ddd;
+    border: 1px solid var(--black-100);
 }
 .comments-list > li {
-    border-bottom: 1px solid #ddd;
+    border-bottom: 1px solid var(--black-100);
 }
 .comments-list > li:nth-child(even) {
-    background: #f8f8f8;
+    background: var(--black-025);
 }
 .roa-comment .relativetime {
     float: right;

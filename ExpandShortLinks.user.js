@@ -3,7 +3,7 @@
 // @description  Appends more characters to short link texts in posts and comments so they can be easily seen and clicked on
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.3
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -28,11 +28,11 @@
 <style>
 a.shortlink {
     font-weight: bold;
-    color: red !important;
+    color: var(--red-500) !important;
 }
 a.shortlink:after {
     content: '_link';
-    color: green;
+    color :var(--green-400);
     font-style: italic;
     font-weight: normal;
 }

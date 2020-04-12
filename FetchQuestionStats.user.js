@@ -3,7 +3,7 @@
 // @description  Display number of comments on each post in question lists. For mod queues, additional info (recent revision history) is also retrieved.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.4
+// @version      1.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -153,7 +153,7 @@
     min-width: 100%;
     margin: 10px 0 -10px;
     padding: 8px 10px;
-    border: 1px solid #eee;
+    border: 1px solid var(--black-050);
     font-size: inherit;
 }
 .flagged-post-row .statscontainer > div {
@@ -173,7 +173,7 @@
     font-size: inherit;
 }
 .flagged-post-row .statscontainer .warning {
-    color: #f00;
+    color: var(--red-500);
 }
 .flagged-post-row .statscontainer .warning a {
     font-weight: bold;

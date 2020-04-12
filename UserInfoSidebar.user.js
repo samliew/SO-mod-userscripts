@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -121,7 +121,7 @@
                 const susMsg = $('.system-alert', data).first().text();
                 if(susMsg.indexOf('suspended') >= 0) {
                     const susDur = susMsg.split('ends')[1].replace(/(^\s|(\s|\.)+$)/g, '');
-                    $quicklinks.find('h3').first().attr({ style: 'color: red !important;' }).attr('title', `currently suspended (ends ${susDur})`);
+                    $quicklinks.find('h3').first().attr({ style: 'color: var(--red-500) !important;' }).attr('title', `currently suspended (ends ${susDur})`);
                 }
 
                 // Append to page
@@ -200,7 +200,7 @@
                     const susMsg = $('.system-alert', data).first().text();
                     if(susMsg.indexOf('suspended') >= 0) {
                         const susDur = susMsg.split('ends')[1].replace(/(^\s|(\s|\.)+$)/g, '');
-                        $quicklinks.find('h3').first().attr({ style: 'color: red !important;' }).attr('title', `currently suspended (ends ${susDur})`);
+                        $quicklinks.find('h3').first().attr({ style: 'color: var(--red-500) !important;' }).attr('title', `currently suspended (ends ${susDur})`);
                     }
 
                     // Append to page
@@ -233,9 +233,9 @@
     margin-bottom: 5px;
 }
 .bounty-indicator-tab {
-    color: #FFF !important;
+    color: var(--white) !important;
     display: inline;
-    background-color: #0077dd;
+    background-color: var(--blue-500);
     padding: .2em .5em .25em;
     margin-right: 5px;
     font-size: 10px;
@@ -255,9 +255,9 @@
     width: 190px;
     max-height: calc(100vh - 50px);
     padding: 10px 5px 0;
-    background: white;
+    background: var(--white);
     opacity: 0.7;
-    border: 1px solid #ccc;
+    border: 1px solid var(--black-150);
     box-shadow: 2px 2px 14px -3px rgba(0,0,0,0.25);
 }
 #usersidebar:after {
@@ -268,8 +268,8 @@
     width: 40px;
     height: 30px;
     padding: 5px 8px;
-    background: white;
-    border: 1px solid #ccc;
+    background: var(--white);
+    border: 1px solid var(--black-150);
     border-left: none;
     box-shadow: 3px 2px 10px -2px rgba(0,0,0,0.25);
     box-sizing: border-box;
@@ -303,7 +303,7 @@
 #usersidebar .details .info-header {
     font-size: 0.95em;
     font-style: italic;
-    color: #777;
+    color: var(--black-500);
 }
 #usersidebar .details .info-value {
     margin-bottom: 10px;

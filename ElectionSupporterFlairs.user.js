@@ -3,7 +3,7 @@
 // @description  Flair users who voted in the elections when you were elected, or if non-mod, for the latest election
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.8
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -180,7 +180,7 @@
     margin-left: 3px;
     font-size: 12px;
     line-height: 1;
-    color: #5A5;
+    color: var(--green-300);
 }
 .election-supporter.large:after {
     top: -4px;

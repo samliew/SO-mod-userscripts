@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3
+// @version      3.4
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/ModFlaggerStats.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/ModFlaggerStats.user.js
@@ -248,7 +248,7 @@ unsafeWindow.purgeUserFlagStats = function() {
     width: 10px;
     height: 10px;
     margin-left: 3px;
-    background: white;
+    background: var(--white);
     border-radius: 100%;
 }
 .flag-badge + .flag-badge {
@@ -260,26 +260,26 @@ unsafeWindow.purgeUserFlagStats = function() {
     background: #3cb371 !important;
 }
 .flag-badge.gold {
-    background: #ffcc01 !important;
+    background: var(--gold) !important;
 }
 .flag-badge.silver {
-    background: #b4b8bc !important;
+    background: var(--silver) !important;
 }
 .flag-badge.bronze {
-    background: #d1a684 !important;
+    background: var(--bronze) !important;
 }
 .flag-badge.wtf {
-    background: #ff0000 !important;
+    background: var(--red-500) !important;
 }
 .flag-badge.horrible {
-    background: #ff7777 !important;
+    background: var(--red-400) !important;
 }
 .flag-badge.hmmm {
-    background: #ffbbbb !important;
+    background: var(--red-300) !important;
 }
 .flag-badge.default {
     background: none;
-    border: 1px solid #aaa !important;
+    border: 1px solid var(--black-300) !important;
 }
 .flag-badge.large {
     width: 20px;
@@ -293,7 +293,7 @@ unsafeWindow.purgeUserFlagStats = function() {
     display: block;
     width: 8px;
     height: 0px;
-    border-top: 1px solid #aaa !important;
+    border-top: 1px solid var(--black-300) !important;
     transform: rotateZ(-45deg);
 }
 .flag-badge.large:after {
