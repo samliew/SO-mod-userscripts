@@ -3,7 +3,7 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.4.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -145,7 +145,8 @@
     font-size: 10px;
     font-style: normal;
     border-radius: 2px;
-    color: var(--white);
+    color: white;
+    text-shadow: 0px 0px 1px #666;
 }
 .ctype-custom {
     font-size: 1em;
@@ -156,10 +157,10 @@
     background-color: var(--red-500);
 }
 .ctype-poor {
-    background-color: var(--orange-600);
+    background-color: var(--orange-500);
 }
 .ctype-meh {
-    background-color: var(--black-400);
+    background-color: var(--black-300);
 }
 .comment-flag-off {
     color: var(--black-500);
