@@ -90,27 +90,30 @@
 
 
     // Close individual post
-    // closeReasonId: 'NeedMoreFocus', 'OffTopic', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
+    // closeReasonId: 'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
     // if closeReasonId is 'OffTopic', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
-    function closeQuestionAsOfftopic(pid, closeReasonId = 'OffTopic', offtopicReasonId = 3, offTopicOtherText = '', duplicateOfQuestionId = null) {
+    function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', offtopicReasonId = 3, offTopicOtherText = 'I’m voting to close this question because ', duplicateOfQuestionId = null) {
         return new Promise(function(resolve, reject) {
             if(!isSO) { reject(); return; }
             if(typeof pid === 'undefined' || pid === null) { reject(); return; }
             if(typeof closeReasonId === 'undefined' || closeReasonId === null) { reject(); return; }
-            if(closeReasonId === 'OffTopic' && (typeof offtopicReasonId === 'undefined' || offtopicReasonId === null)) { reject(); return; }
+            if(closeReasonId === 'SiteSpecific' && (typeof offtopicReasonId === 'undefined' || offtopicReasonId === null)) { reject(); return; }
 
             if(closeReasonId === 'Duplicate') offtopicReasonId = null;
+
+            // Logging actual action
+            console.log(`%c Closing ${pid} as ${closeReasonId}, reason ${offtopicReasonId}.`, 'font-weight: bold');
 
             $.post({
                 url: `https://${location.hostname}/flags/questions/${pid}/close/add`,
                 data: {
                     'fkey': fkey,
                     'closeReasonId': closeReasonId,
-                    'closeAsOffTopicReasonId': offtopicReasonId,
                     'duplicateOfQuestionId': duplicateOfQuestionId,
-                    'offTopicOtherText': offtopicReasonId == 3 && isSO ? 'This question does not appear to be about programming within the scope defined in the [help]' : offTopicOtherText,
+                    'siteSpecificCloseReasonId': offtopicReasonId,
+                    'siteSpecificOtherText': offtopicReasonId == 3 && isSO ? 'This question does not appear to be about programming within the scope defined in the [help]' : offTopicOtherText,
                     //'offTopicOtherCommentId': '',
-                    'originalOffTopicOtherText': 'I\'m voting to close this question as off-topic because ',
+                    'originalOffTopicOtherText': 'I’m voting to close this question because ',
                 }
             })
             .done(resolve)
