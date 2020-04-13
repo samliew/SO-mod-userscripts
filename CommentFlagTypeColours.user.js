@@ -3,7 +3,7 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.1
+// @version      2.4.2
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -157,7 +157,7 @@
     background-color: var(--red-500);
 }
 .ctype-poor {
-    background-color: var(--orange-500);
+    background-color: var(--orange-400);
 }
 .ctype-meh {
     background-color: var(--black-300);
