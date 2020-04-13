@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.1
+// @version      2.8.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1168,8 +1168,8 @@ pre {
 /* Edit reasons link to take up less space */
 .popup a.edit-link {
     position: absolute;
-    bottom: 25px;
-    left: 25px;
+    bottom: 21px;
+    right: 25px;
 }
 
 /* Number options in popups */
