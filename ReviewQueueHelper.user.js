@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.3
+// @version      2.8.4
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -178,7 +178,7 @@ async function waitForSOMU() {
 
     // Close individual post
     // closeReasonId: 'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
-    // if closeReasonId is 'OffTopic', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
+    // if closeReasonId is 'SiteSpecific', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
     function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', offtopicReasonId = 3, offTopicOtherText = 'I’m voting to close this question because ', duplicateOfQuestionId = null) {
         return new Promise(function(resolve, reject) {
             if(!isSO) { reject(); return; }
@@ -436,8 +436,8 @@ async function waitForSOMU() {
             const pid = post.id;
 
             // closeQuestionAsOfftopic() :
-            // closeReasonId: 'NeedMoreFocus', 'OffTopic', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
-            // if closeReasonId is 'OffTopic', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
+            // closeReasonId: 'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
+            // if closeReasonId is 'SiteSpecific', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
             let error = false;
             switch(this.dataset.instant) {
                 case 'unclear':
@@ -447,10 +447,10 @@ async function waitForSOMU() {
                     closeQuestionAsOfftopic(pid, 'NeedMoreFocus');
                     break;
                 case 'softrec':
-                    closeQuestionAsOfftopic(pid, 'OffTopic', 16);
+                    closeQuestionAsOfftopic(pid, 'SiteSpecific', 16);
                     break;
                 case 'debug':
-                    closeQuestionAsOfftopic(pid, 'OffTopic', 13);
+                    closeQuestionAsOfftopic(pid, 'SiteSpecific', 13);
                     break;
                 case 'opinion':
                     closeQuestionAsOfftopic(pid, 'OpinionBased');
