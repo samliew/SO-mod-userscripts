@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.3
+// @version      2.8.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -129,12 +129,12 @@
                .catch(reject);
         });
     }
-    function closeSOMetaQuestionAsOfftopic(pid, closeReason = 'OffTopic', offtopicReasonId = 6) {
+    function closeSOMetaQuestionAsOfftopic(pid, closeReason = 'SiteSpecific', offtopicReasonId = 6) {
         return new Promise(function(resolve, reject) {
             if(!isSOMeta) { reject(); return; }
             if(typeof pid === 'undefined' || pid === null) { reject(); return; }
             if(typeof closeReason === 'undefined' || closeReason === null) { reject(); return; }
-            if(closeReason === 'OffTopic' && (typeof offtopicReasonId === 'undefined' || offtopicReasonId === null)) { reject(); return; }
+            if(closeReason === 'SiteSpecific' && (typeof offtopicReasonId === 'undefined' || offtopicReasonId === null)) { reject(); return; }
 
             addComment(pid, `You are on [Meta](/help/whats-meta). This question will not be answered here and you may want to go over the [Checklist](//meta.stackoverflow.com/q/260648) and [ask] before you repost on [main].`);
 
@@ -143,7 +143,7 @@
                 data: {
                     'fkey': fkey,
                     'closeReasonId': closeReason,
-                    'closeAsOffTopicReasonId': offtopicReasonId
+                    'siteSpecificCloseReasonId': offtopicReasonId
                 }
             })
             .done(resolve)
