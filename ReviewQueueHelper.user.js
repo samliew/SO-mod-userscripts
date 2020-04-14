@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10
+// @version      2.10.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -778,7 +778,7 @@ async function waitForSOMU() {
             if(settings.url.includes('/close/popup')) {
                 setTimeout(function() {
 
-                    repositionReviewDialogs(true);
+                    //repositionReviewDialogs(true);
 
                     // Find and add class to off-topic badge count so we can avoid it
                     $('#popup-close-question input[value="SiteSpecific"]').closest('li').find('.s-badge__mini').addClass('offtopic-indicator');
@@ -1193,6 +1193,9 @@ pre {
     justify-content: center;
     align-items: center;
     pointer-events: none;
+}
+.popup .action-list li:not(.py12) label:before {
+    top: 14px;
 }
 .popup .migration-pane .action-list li:before {
     top: 29px;
