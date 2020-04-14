@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9
+// @version      2.10
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -599,7 +599,7 @@ async function waitForSOMU() {
                 // If valid index, click it
                 else if(index != null) {
                     // Get active (visible) pane
-                    const pane = currPopup.find('.popup-active-pane');
+                    const pane = currPopup.find('.popup-active-pane, form .action-list').first();
                     // Get options
                     const opts = pane.find('input:radio');
                     // Click option
@@ -716,9 +716,6 @@ async function waitForSOMU() {
         // Add additional class to body based on review queue
         document.body.classList.add(queueType + '-review-queue');
 
-        // Append review queue styles
-        addReviewQueueStyles();
-
         // Display remaining CV and flag quota for non-mods
         setTimeout(displayRemainingQuota, 3000);
 
@@ -831,7 +828,9 @@ async function waitForSOMU() {
 
             // Flag dialog loaded
             else if(settings.url.includes('/flags/posts/') && settings.url.includes('/popup')) {
-                // Do nothing by default
+
+                // Convert radio buttons to new stacks radio
+                $('#popup-flag-post input:radio').addClass('s-radio');
             }
 
             // Question was closed
@@ -1178,7 +1177,8 @@ pre {
     margin-top: 2px;
     margin-right: -1px;
 }
-.popup .action-list li:before {
+.popup .action-list li.py12:before,
+.popup .action-list li:not(.py12) label:before {
     content: '';
     position: absolute;
     top: 16px;
@@ -1200,25 +1200,32 @@ pre {
 .popup .migration-pane .action-list li:last-child:before {
     top: 14px;
 }
-.popup .action-list li:nth-of-type(1):before {
+.popup .action-list li.py12:nth-of-type(1):before,
+.popup .action-list li:not(.py12):nth-of-type(1) label:before {
     content: '1';
 }
-.popup .action-list li:nth-of-type(2):before {
+.popup .action-list li.py12:nth-of-type(2):before,
+.popup .action-list li:not(.py12):nth-of-type(2) label:before {
     content: '2';
 }
-.popup .action-list li:nth-of-type(3):before {
+.popup .action-list li.py12:nth-of-type(3):before,
+.popup .action-list li:not(.py12):nth-of-type(3) label:before {
     content: '3';
 }
-.popup .action-list li:nth-of-type(4):before {
+.popup .action-list li.py12:nth-of-type(4):before,
+.popup .action-list li:not(.py12):nth-of-type(4) label:before {
     content: '4';
 }
-.popup .action-list li:nth-of-type(5):before {
+.popup .action-list li.py12:nth-of-type(5):before,
+.popup .action-list li:not(.py12):nth-of-type(5) label:before {
     content: '5';
 }
-.popup .action-list li:nth-of-type(6):before {
+.popup .action-list li.py12:nth-of-type(6):before,
+.popup .action-list li:not(.py12):nth-of-type(6) label:before {
     content: '6';
 }
-.popup .action-list li:nth-of-type(7):before {
+.popup .action-list li.py12:nth-of-type(7):before,
+.popup .action-list li:not(.py12):nth-of-type(7) label:before {
     content: '7';
 }
 
@@ -1275,6 +1282,7 @@ pre {
 
 
     // On page load
+    addReviewQueueStyles();
     loadOptions();
     doPageLoad();
     listenToPageUpdates();
