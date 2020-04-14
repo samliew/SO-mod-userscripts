@@ -3,7 +3,7 @@
 // @description  Display post score and number of undeleted answers, Recommend action based on post info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.3.1
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismDeletionsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismDeletionsHelper.user.js
@@ -32,7 +32,7 @@
 
             // Sort questions to end of list
             postlist.append(`<li class="title-divider">Questions</li>`);
-            postlist.append( postlist.find('a.question-hyperlink').closest('.deleted-answer') );
+            postlist.append( postlist.find('a.question-hyperlink').closest('.bg-red-050') );
             postlist.prepend(`<li class="title-divider">Answers</li>`);
         });
 
