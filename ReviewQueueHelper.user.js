@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.1
+// @version      2.10.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -558,7 +558,7 @@ async function waitForSOMU() {
             }
 
             // Get current popup
-            const currPopup = $('#popup-close-question, #delete-question-popup, #popup-flag-post, #rejection-popup').filter(':visible').last();
+            const currPopup = $('#delete-question-popup, #rejection-popup, #popup-flag-post, #popup-close-question').filter(':visible').last();
             console.log('active popup', currPopup.attr('id'));
 
             // If there's an active popup
@@ -598,8 +598,9 @@ async function waitForSOMU() {
 
                 // If valid index, click it
                 else if(index != null) {
+                    const currPopup = $('.popup:visible').last();
                     // Get active (visible) pane
-                    const pane = currPopup.find('.popup-active-pane, form .action-list').first();
+                    const pane = currPopup.find('form .action-list, .popup-active-pane').filter(':visible').last();
                     // Get options
                     const opts = pane.find('input:radio');
                     // Click option
@@ -1165,6 +1166,34 @@ pre {
 }
 
 
+/* Standardise radio buttons
+   - some dialogs are using stacks, others default...
+*/
+.popup .action-list input[type='radio'] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+    width: 1em;
+    height: 1em;
+    border: 1px solid var(--black-200);
+    background-color: var(--white);
+    outline: 0;
+    font-size: inherit;
+    vertical-align: middle;
+    cursor: pointer;
+    border-radius: 50%;
+}
+.popup .action-list input[type='radio']:focus {
+    box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.popup .action-list input[type='radio']:checked {
+    border-color: var(--blue-500);
+    border-width: .30769231em;
+    background-color: #fff;
+}
+
+
 /* Number options in popups */
 .popup .action-list li {
     position: relative;
@@ -1177,8 +1206,7 @@ pre {
     margin-top: 2px;
     margin-right: -1px;
 }
-.popup .action-list li.py12:before,
-.popup .action-list li:not(.py12) label:before {
+.popup .action-list li:before {
     content: '';
     position: absolute;
     top: 16px;
@@ -1194,41 +1222,31 @@ pre {
     align-items: center;
     pointer-events: none;
 }
-.popup .action-list li:not(.py12) label:before {
-    top: 14px;
-}
 .popup .migration-pane .action-list li:before {
     top: 29px;
 }
 .popup .migration-pane .action-list li:last-child:before {
-    top: 14px;
+    top: 17px;
 }
-.popup .action-list li.py12:nth-of-type(1):before,
-.popup .action-list li:not(.py12):nth-of-type(1) label:before {
+.popup .action-list li:nth-of-type(1):before {
     content: '1';
 }
-.popup .action-list li.py12:nth-of-type(2):before,
-.popup .action-list li:not(.py12):nth-of-type(2) label:before {
+.popup .action-list li:nth-of-type(2):before {
     content: '2';
 }
-.popup .action-list li.py12:nth-of-type(3):before,
-.popup .action-list li:not(.py12):nth-of-type(3) label:before {
+.popup .action-list li:nth-of-type(3):before {
     content: '3';
 }
-.popup .action-list li.py12:nth-of-type(4):before,
-.popup .action-list li:not(.py12):nth-of-type(4) label:before {
+.popup .action-list li:nth-of-type(4):before {
     content: '4';
 }
-.popup .action-list li.py12:nth-of-type(5):before,
-.popup .action-list li:not(.py12):nth-of-type(5) label:before {
+.popup .action-list li:nth-of-type(5):before {
     content: '5';
 }
-.popup .action-list li.py12:nth-of-type(6):before,
-.popup .action-list li:not(.py12):nth-of-type(6) label:before {
+.popup .action-list li:nth-of-type(6):before {
     content: '6';
 }
-.popup .action-list li.py12:nth-of-type(7):before,
-.popup .action-list li:not(.py12):nth-of-type(7) label:before {
+.popup .action-list li:nth-of-type(7):before {
     content: '7';
 }
 
