@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.5
+// @version      2.10.6
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -60,7 +60,7 @@ async function waitForSOMU() {
         return new Promise(function(resolve, reject) {
             $.get(`https://${location.hostname}/flags/questions/${viewablePostId}/close/popup`)
                 .done(function(data) {
-                    const num = Number($('.bounty-indicator-tab', data).last().text());
+                    const num = Number($('.bounty-indicator-tab, .popup-actions .ml-auto.fc-light', data).last().text().replace(/\D+/g, ''));
                     console.log(num, 'votes');
                     resolve(num);
                 })
@@ -71,7 +71,7 @@ async function waitForSOMU() {
         return new Promise(function(resolve, reject) {
             $.get(`https://${location.hostname}/flags/posts/${viewablePostId}/popup`)
                 .done(function(data) {
-                    const num = Number($('.bounty-indicator-tab', data).last().text());
+                    const num = Number($('.bounty-indicator-tab, .popup-actions .ml-auto.fc-light', data).last().text().replace(/\D+/g, ''));
                     console.log(num, 'flags');
                     resolve(num);
                 })
