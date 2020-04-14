@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.4
+// @version      2.10.5
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -499,7 +499,7 @@ async function waitForSOMU() {
 
         // Focus Delete button when radio button in delete dialog popup is selected
         $(document).on('click', '#delete-question-popup input:radio', function() {
-            $('#delete-question-popup').find('input:submit').focus();
+            $('#delete-question-popup').find('input:submit, .js-popup-submit').focus();
         });
 
         // Focus Flag button when radio button in flag dialog popup is selected, UNLESS it's the custom reason option
@@ -508,12 +508,12 @@ async function waitForSOMU() {
             // If custom reason option, do nothing
             if(this.value == 'PostOther') return;
 
-            $('#popup-flag-post').find('input:submit').focus();
+            $('#popup-flag-post').find('input:submit, .js-popup-submit').focus();
         });
 
         // Focus Reject button when radio button in edit reject dialog popup is selected
         $(document).on('click', '#rejection-popup input:radio', function() {
-            $('#rejection-popup').find('input:submit').focus();
+            $('#rejection-popup').find('input:submit, .js-popup-submit').focus();
         });
 
         // Cancel existing handlers and implement our own keyboard shortcuts
@@ -654,7 +654,7 @@ async function waitForSOMU() {
             // If migrate anywhere radio, do nothing
             if(this.id === 'migrate-anywhere') return;
 
-            $('#popup-close-question').find('input:submit').focus();
+            $('#popup-close-question').find('input:submit, .js-popup-submit').focus();
         });
 
         // If in queue history page
@@ -809,7 +809,7 @@ async function waitForSOMU() {
                     }
 
                     // Focus Close button
-                    $('#popup-close-question').find('input:submit').focus();
+                    $('#popup-close-question').find('input:submit, .js-popup-submit').focus();
                 }, 50);
             }
 
@@ -823,7 +823,7 @@ async function waitForSOMU() {
                     }
 
                     // Focus Delete button
-                    $('#delete-question-popup').find('input:submit').focus();
+                    $('#delete-question-popup').find('input:submit, .js-popup-submit').focus();
                 }, 50);
             }
 
