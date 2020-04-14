@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.2
+// @version      2.10.3
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1128,6 +1128,11 @@ pre {
     pointer-events: none;
     background: var(--blue-900);
     color: var(--white);
+}
+.js-review-actions button.js-temporary-action-button:before,
+.js-review-actions button.js-review-cancel-button:before {
+    content: none;
+    display: none;
 }
 .instant-actions button:before {
     background: var(--white);
