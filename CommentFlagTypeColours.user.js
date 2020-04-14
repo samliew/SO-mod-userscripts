@@ -3,7 +3,7 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.3
+// @version      2.4.4
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -152,6 +152,7 @@
     font-size: 1em;
     background-color: var(--yellow-100);
     color: var(--black);
+    text-shadow: none;
 }
 .ctype-bad {
     background-color: var(--red-500);
