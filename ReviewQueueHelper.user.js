@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.4
+// @version      2.9
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -81,7 +81,7 @@ async function waitForSOMU() {
     function displayRemainingQuota() {
 
         // Ignore mods, since we have unlimited power
-        if(StackExchange.options.user.isModerator) return;
+        //if(StackExchange.options.user.isModerator) return;
 
         const viewableQuestionId = post.postId || 11227809; // an open question on stack overflow
 
@@ -424,11 +424,11 @@ async function waitForSOMU() {
         actionsCont.children('.instant-actions').remove();
 
         const instantActions = $('<span class="instant-actions grid gs8 jc-end ff-row-wrap">'
-+ '<button class="s-btn s-btn__outlined grid--cell" data-instant="unclear" title="Needs details or clarity">[6] Unclear</button>'
-+ '<button class="s-btn s-btn__outlined grid--cell" data-instant="broad" title="Needs more focus">[7] Broad</button>'
-+ '<button class="s-btn s-btn__outlined grid--cell" data-instant="softrec" title="It\'s seeking recommendations for books, software libraries, or other off-site resources">[8] SoftRec</button>'
-+ '<button class="s-btn s-btn__outlined grid--cell" data-instant="debug" title="It\'s seeking debugging help but needs more information">[9] Debug</button>'
-+ '<button class="s-btn s-btn__outlined grid--cell" data-instant="opinion" title="Opinion-based">[0] Opinion</button>'
++ '<button class="s-btn s-btn__outlined grid--cell" data-instant="unclear" title="Needs details or clarity">Unclear</button>'
++ '<button class="s-btn s-btn__outlined grid--cell" data-instant="broad" title="Needs more focus">Broad</button>'
++ '<button class="s-btn s-btn__outlined grid--cell" data-instant="softrec" title="It\'s seeking recommendations for books, software libraries, or other off-site resources">SoftRec</button>'
++ '<button class="s-btn s-btn__outlined grid--cell" data-instant="debug" title="It\'s seeking debugging help but needs more information">Debug</button>'
++ '<button class="s-btn s-btn__outlined grid--cell" data-instant="opinion" title="Opinion-based">Opinion</button>'
 + '</span>').appendTo(actionsCont);
 
         instantActions.one('click', 'button[data-instant]', function() {
@@ -528,6 +528,7 @@ async function waitForSOMU() {
             // Unable to use tilde (192) as on the UK keyboard it is swapped the single quote keycode
             const cancel = evt.keyCode === 27;
             const goback = evt.keyCode === 27;
+            //console.log("cancel", cancel, "goback", goback);
 
             // Get numeric key presses
             let index = evt.keyCode - 49; // 49 = number 1 = 0 (index)
@@ -556,34 +557,49 @@ async function waitForSOMU() {
                 return;
             }
 
-            // Do nothing if a textbox or textarea is focused
-            if($('input:text:focus, textarea:focus').length > 0) return;
+            // Get current popup
+            const currPopup = $('#popup-close-question, #delete-question-popup, #popup-flag-post, #rejection-popup').filter(':visible').last();
+            console.log('active popup', currPopup.attr('id'));
 
-            // Is close menu open?
-            const closeMenu = $('#popup-close-question:visible');
-            if(closeMenu.length > 0) {
+            // If there's an active popup
+            if(currPopup.length) {
 
                 // If escape key pressed, go back to previous pane, or dismiss popup if on main pane
                 if(goback) {
-                    // Get link in breadcrumbs
-                    const link = closeMenu.find('.popup-breadcrumbs a').last();
-                    // Go back to previous pane if possible
+
+                    // If displaying a single duplicate post, go back to duplicates search
+                    const dupeBack = currPopup.find('.original-display .navi a').filter(':visible');
+                    if(dupeBack.length) {
+                        dupeBack.click();
+                        return false;
+                    }
+
+                    // If an input field has a value and is currently focused
+                    const focusedField = currPopup.find('input:text, textarea').filter(':focus').filter((i, el) => $(el).val() !== '');
+                    if(focusedField.length && confirm('Confirm clear currently focused field?')) {
+                        // Try clear currently focused field
+                        $(focusedField).last().val('');
+                        return false;
+                    }
+
+                    // Go back to previous pane if possible,
+                    // otherwise default to dismiss popup
+                    const link = currPopup.find('.popup-close a, .popup-breadcrumbs a, .js-popup-back').filter(':visible');
                     if(link.length) {
-                        link.click();
+                        link.last().click();
+                        // Always clear dupe closure search box on back action
+                        $('#search-text').val('');
+                        return false;
                     }
-                    // Dismiss popup if on main pane
-                    else {
-                        closeMenu.find('.popup-close a').click();
-                    }
-                    // Clear dupe closure search box
-                    $('#search-text').val('');
-                    return false;
                 }
+
+                // Do nothing else if a textbox or textarea is focused
+                else if($('input:text:focus, textarea:focus').length > 0) return;
 
                 // If valid index, click it
                 else if(index != null) {
                     // Get active (visible) pane
-                    const pane = closeMenu.find('.popup-active-pane');
+                    const pane = currPopup.find('.popup-active-pane');
                     // Get options
                     const opts = pane.find('input:radio');
                     // Click option
@@ -592,94 +608,8 @@ async function waitForSOMU() {
                     return opt.length !== 1;
                 }
 
-                return;
-            }
+            } // end popup is active
 
-            // Is delete menu open?
-            const deleteMenu = $('#delete-question-popup:visible');
-            if(deleteMenu.length > 0) {
-
-                // Dismiss popup on escape key
-                if(goback) {
-                    deleteMenu.find('.popup-close a').click();
-                    return false;
-                }
-
-                // If valid index, click it
-                else if(index != null) {
-                    // Get active (visible) pane
-                    const pane = deleteMenu.find('.popup-active-pane');
-                    // Get options
-                    const opts = pane.find('input:radio');
-                    // Click option
-                    const opt = opts.eq(index).click();
-                    // Job is done here. Do not bubble if an option was clicked
-                    return opt.length !== 1;
-                }
-
-                return;
-            }
-
-            // Is flag menu open?
-            const flagMenu = $('#popup-flag-post:visible');
-            if(flagMenu.length > 0) {
-
-                // Dismiss popup on escape key
-                if(goback) {
-                    flagMenu.find('.popup-close a').click();
-                    return false;
-                }
-
-                // If custom mod flag box is focused, do nothing
-                else if($('.mod-attention-subform textarea:focus').length == 1) {
-                    return false;
-                }
-
-                // If valid index, click it
-                else if(index != null) {
-                    // Get options
-                    const opts = flagMenu.find('input:radio');
-                    // Click option
-                    const opt = opts.eq(index).click();
-                    // Job is done here. Do not bubble if an option was clicked
-                    return opt.length !== 1;
-                }
-
-                return;
-            }
-
-            // Is reject menu open?
-            const rejectMenu = $('#rejection-popup:visible');
-            if(rejectMenu.length > 0) {
-
-                // Dismiss popup on escape key
-                if(goback) {
-                    rejectMenu.find('.popup-close a').click();
-                    return false;
-                }
-
-                // If custom mod flag box is focused, do nothing
-                else if($('textarea.custom-reason-text:focus').length == 1) {
-                    return false;
-                }
-
-                // If valid index, click it
-                else if(index != null) {
-                    // Get options
-                    const opts = rejectMenu.find('input:radio');
-                    // Click option
-                    const opt = opts.eq(index).click();
-                    // Job is done here. Do not bubble if an option was clicked
-                    return opt.length !== 1;
-                }
-
-                return;
-            }
-
-            // If escape key pressed and close popup dialog not open, do nothing
-            if(goback) {
-                return;
-            }
 
             // Review action buttons
             if(index != null && index <= 4) {
@@ -853,12 +783,12 @@ async function waitForSOMU() {
 
                     repositionReviewDialogs(true);
 
-                    // Find and add class to off-topic bounty indicator so we can avoid it
-                    $('#popup-close-question input[value="OffTopic"]').nextAll('.bounty-indicator-tab').addClass('offtopic-indicator');
+                    // Find and add class to off-topic badge count so we can avoid it
+                    $('#popup-close-question input[value="SiteSpecific"]').closest('li').find('.s-badge__mini').addClass('offtopic-indicator');
 
                     // Select default radio based on previous votes, ignoring the off-topic reason
-                    let opts = $('#popup-close-question .bounty-indicator-tab').not('.offtopic-indicator').slice(0, -1).get().sort((a, b) => Number(a.innerText) - Number(b.innerText));
-                    const selOpt = $(opts).last().closest('label').find('input').click();
+                    let opts = $('#popup-close-question .s-badge__mini').not('.offtopic-indicator').get().sort((a, b) => Number(a.innerText) - Number(b.innerText));
+                    const selOpt = $(opts).last().closest('li').find('input:radio').click();
                     //console.log(opts, selOpt);
 
                     // If selected option is in a subpane, display off-topic subpane instead
@@ -879,6 +809,9 @@ async function waitForSOMU() {
                     if(selOpt.length == 0 && ['too broad', 'unclear what you\'re asking', 'primarily opinion-based'].includes(flaggedReason)) {
                         $('#popup-close-question .action-name').filter((i, el) => el.textContent == flaggedReason).prev().click();
                     }
+
+                    // Focus Close button
+                    $('#popup-close-question').find('input:submit').focus();
                 }, 50);
             }
 
@@ -1029,11 +962,11 @@ async function waitForSOMU() {
                         $('.js-review-actions button[data-result-type="20"]').remove();
                     }
 
-                    // Modify buttons
-                    $('.js-review-actions button').removeAttr('disabled').text(function(i, v) {
-                        if(v.includes('] ')) return v; // do not modify twice
-                        return '[' + (i+1) + '] ' + v;
-                    });
+                    // Modify buttons to insert numeric labels
+                    //$('.js-review-actions button').removeAttr('disabled').text(function(i, v) {
+                    //    if(v.includes('] ')) return v; // do not modify twice
+                    //    return '{' + (i+1) + '} ' + v;
+                    //});
 
                     // Get review vars
                     post = {
@@ -1172,44 +1105,121 @@ pre {
     right: 25px;
 }
 
-/* Number options in popups */
-.popup-pane,
-.popup-subpane:not(.close-as-duplicate-pane) {
-    padding-left: 14px;
+
+/* Numeric icons for review buttons shortcuts */
+.js-review-actions button,
+.instant-actions button {
+    position: relative;
 }
+.js-review-actions button:before,
+.instant-actions button:before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    font-size: 0.85em;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    background: var(--blue-900);
+    color: var(--white);
+}
+.instant-actions button:before {
+    background: var(--white);
+    color: inherit;
+    border: 1px solid var(--blue-900);
+}
+.js-review-actions button:nth-of-type(1):before {
+    content: '1';
+}
+.js-review-actions button:nth-of-type(2):before {
+    content: '2';
+}
+.js-review-actions button:nth-of-type(3):before {
+    content: '3';
+}
+.js-review-actions button:nth-of-type(4):before {
+    content: '4';
+}
+.js-review-actions button:nth-of-type(5):before {
+    content: '5';
+}
+.instant-actions button:nth-of-type(1):before {
+    content: '6';
+}
+.instant-actions button:nth-of-type(2):before {
+    content: '7';
+}
+.instant-actions button:nth-of-type(3):before {
+    content: '8';
+}
+.instant-actions button:nth-of-type(4):before {
+    content: '9';
+}
+.instant-actions button:nth-of-type(5):before {
+    content: '0';
+}
+
+
+/* Number options in popups */
 .popup .action-list li {
     position: relative;
 }
-.popup .action-list .action-name {
-    margin-left: 0px;
+.popup .action-list input[type='radio']:not(:checked) {
+    background-color: transparent;
+    width: 16px;
+    height: 16px;
+    margin-left: -1px;
+    margin-top: 2px;
+    margin-right: -1px;
 }
 .popup .action-list li:before {
+    content: '';
     position: absolute;
-    top: 10px;
-    left: -18px;
-    font-weight: bold;
-    color: var(--black-700);
+    top: 16px;
+    left: 6px;
+    z-index: -1;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    font-size: 0.85em;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+}
+.popup .migration-pane .action-list li:before {
+    top: 29px;
+}
+.popup .migration-pane .action-list li:last-child:before {
+    top: 14px;
 }
 .popup .action-list li:nth-of-type(1):before {
-    content: '[1]';
+    content: '1';
 }
 .popup .action-list li:nth-of-type(2):before {
-    content: '[2]';
+    content: '2';
 }
 .popup .action-list li:nth-of-type(3):before {
-    content: '[3]';
+    content: '3';
 }
 .popup .action-list li:nth-of-type(4):before {
-    content: '[4]';
+    content: '4';
 }
 .popup .action-list li:nth-of-type(5):before {
-    content: '[5]';
+    content: '5';
 }
 .popup .action-list li:nth-of-type(6):before {
-    content: '[6]';
+    content: '6';
 }
 .popup .action-list li:nth-of-type(7):before {
-    content: '[7]';
+    content: '7';
 }
 
 #toasty {
