@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.4
+// @version      2.8.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -113,7 +113,7 @@
                     'siteSpecificCloseReasonId': offtopicReasonId,
                     'siteSpecificOtherText': offtopicReasonId == 3 && isSO ? 'This question does not appear to be about programming within the scope defined in the [help]' : offTopicOtherText,
                     //'offTopicOtherCommentId': '',
-                    'originalOffTopicOtherText': 'I’m voting to close this question because ',
+                    'originalSiteSpecificOtherText': 'I’m voting to close this question because ',
                 }
             })
             .done(resolve)

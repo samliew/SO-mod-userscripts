@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.7
+// @version      2.10.8
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -200,7 +200,7 @@ async function waitForSOMU() {
                     'siteSpecificCloseReasonId': offtopicReasonId,
                     'siteSpecificOtherText': offtopicReasonId == 3 && isSO ? 'This question does not appear to be about programming within the scope defined in the [help]' : offTopicOtherText,
                     //'offTopicOtherCommentId': '',
-                    'originalOffTopicOtherText': 'I’m voting to close this question because ',
+                    'originalSiteSpecificOtherText': 'I’m voting to close this question because ',
                 }
             })
             .done(resolve)
