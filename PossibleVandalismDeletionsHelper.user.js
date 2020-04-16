@@ -3,8 +3,8 @@
 // @description  Display post score and number of undeleted answers, Recommend action based on post info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.1
-// 
+// @version      2.3.2
+//
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismDeletionsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/PossibleVandalismDeletionsHelper.user.js
 //
@@ -58,7 +58,7 @@
                     let html = $('#mainbar', data);
                     let answerCount = $('.answer', html).not('.deleted-answer').length;
                     let post = $(isQuestion ? '#question' : '#answer-' + pid, html);
-                    let score = Number($('.vote-count-post', post).text());
+                    let score = Number($('.js-vote-count', post).text());
                     let dateDiff = Date.now() - new Date($('.user-action-time:last .relativetime', post).attr('title'));
                     let age = Math.floor(dateDiff / 86400000);
                     //console.log(html, post, score, dateDiff, age);
