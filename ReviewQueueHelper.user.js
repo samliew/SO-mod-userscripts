@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.8
+// @version      2.10.9
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -292,36 +292,42 @@ async function waitForSOMU() {
             ' se ', ' de ', ' que ', ' untuk ',
         ];
 
-        const paras = $(post.contentHtml).filter('p').text();
-        const text = (post.title + paras).toLowerCase();
-        const results = keywords.filter(v => text.includes(v.toLowerCase()));
-        results.forEach(v => {
-            $('<span>' + v + '</span>').appendTo(resultsDiv);
-            post.issues.push(v);
-        });
+        try {
+            const paras = $(post.contentHtml).filter('p').text();
+            const text = (post.title + paras).toLowerCase();
+            const results = keywords.filter(v => text.includes(v.toLowerCase()));
+            results.forEach(v => {
+                $('<span>' + v + '</span>').appendTo(resultsDiv);
+                post.issues.push(v);
+            });
 
-        const code = $('code', post.contentHtml).text();
-        if(code.length < 60) {
-            $('<span>no-code</span>').prependTo(resultsDiv);
-            post.issues.unshift('no-code');
-        };
+            const code = $('code', post.contentHtml).text();
+            if(code.length < 60) {
+                $('<span>no-code</span>').prependTo(resultsDiv);
+                post.issues.unshift('no-code');
+            };
 
-        const postLinks = text.match(/href="http/g);
-        if(postLinks && postLinks.length > 1) {
-            $('<span>' + postLinks.length + ' links</span>').prependTo(resultsDiv);
-            post.issues.unshift(postLinks.length + ' links');
+            const postLinks = text.match(/href="http/g);
+            if(postLinks && postLinks.length > 1) {
+                $('<span>' + postLinks.length + ' links</span>').prependTo(resultsDiv);
+                post.issues.unshift(postLinks.length + ' links');
+            }
+
+            const questionMarks = paras.match(/\?+/g);
+            if(questionMarks && questionMarks.length > 1) {
+                $('<span>' + questionMarks.length + '?</span>').prependTo(resultsDiv);
+                post.issues.unshift(questionMarks.length + '?');
+            }
+
+            if(foreignKeywords.some(v => text.includes(v.toLowerCase()))) {
+                $('<span>non-english</span>').prependTo(resultsDiv);
+                post.issues.unshift('non-english');
+            };
         }
-
-        const questionMarks = paras.match(/\?+/g);
-        if(questionMarks && questionMarks.length > 1) {
-            $('<span>' + questionMarks.length + '?</span>').prependTo(resultsDiv);
-            post.issues.unshift(questionMarks.length + '?');
+        catch(e) {
+            $('<span>bad-formatting</span>').appendTo(resultsDiv);
+            post.issues.push('bad-formatting code-only');
         }
-
-        if(foreignKeywords.some(v => text.includes(v.toLowerCase()))) {
-            $('<span>non-english</span>').prependTo(resultsDiv);
-            post.issues.unshift('non-english');
-        };
 
         if(post.content.length <= 500) {
             $('<span>short</span>').prependTo(resultsDiv);
@@ -336,7 +342,7 @@ async function waitForSOMU() {
             post.issues.unshift('long');
         }
 
-        //console.log(post.issues);
+        //console.log('post issues:', post.issues);
     }
 
 
