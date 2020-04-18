@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.20.1
+// @version      3.20.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -293,8 +293,10 @@
             $('#user-to-ban').addClass('s-input');
             $('#lookup').addClass('s-btn');
 
-            // If attempt to submit ban form without selecting duration, alert and prevent
+            // Ban user form submission
             $('#lookup-result').on('submit', 'form', function() {
+
+                // No duration selected, alert and prevent
                 if($('input[name="reviewBanChoice"]:checked').length == 0) {
                     $(this).addClass('validation-error');
                     return false;
@@ -305,6 +307,9 @@
 
                 // If Samuel
                 if(isSuperuser()) {
+
+                    // Change window/tab title so we can visually see which has been auto-processed
+                    document.title = '>> AUTOBAN';
 
                     // Perform an ajax submit instead and then immediately close the window for efficiency
                     $.ajax({
