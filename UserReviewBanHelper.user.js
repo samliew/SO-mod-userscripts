@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.20.2
+// @version      3.20.3
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -198,6 +198,10 @@
                 uid = Number(params[0]) || null;
 
                 if(params.length >= 2) {
+
+                    // Change window/tab title so we can visually see the progress
+                    document.title = '1.INIT';
+
                     posts = params[1].split(';').map(v => v.replace(/\/?review\//, ''));
                     reviewAction = params[2] || null;
 
@@ -230,7 +234,13 @@
                     $('#user-to-ban').val(uid);
 
                     // Submit lookup
-                    setTimeout(() => { $('#lookup').click() }, 2000);
+                    setTimeout(() => {
+
+                        // Change window/tab title so we can visually see the progress
+                        document.title = '2.LOOKUP';
+
+                        $('#lookup').click();
+                    }, 1500);
                 }
             }
 
@@ -308,9 +318,6 @@
                 // If Samuel
                 if(isSuperuser()) {
 
-                    // Change window/tab title so we can visually see which has been auto-processed
-                    document.title = '>> AUTOBAN';
-
                     // Perform an ajax submit instead and then immediately close the window for efficiency
                     $.ajax({
                         type : 'POST',
@@ -326,6 +333,12 @@
                         unsafeWindow.top.close();
                     });
                     return false;
+                }
+
+                if(document.title.includes('BAN')) {
+
+                    // Change window/tab title so we can visually see the progress
+                    document.title = '>> BANNING';
                 }
             });
 
@@ -550,8 +563,14 @@ Breakdown:<br>
 
         const url = `https://${location.hostname}/users/history/${uid}?type=User+has+been+banned+from+review`;
 
+        // Change window/tab title so we can visually see the progress
+        document.title = '3.HISTORY';
+
         // Grab user's history page
         $.get(url).then(function(data) {
+
+            // Change window/tab title so we can visually see the progress
+            document.title = '4.READY';
 
             // Parse user history page
             let numBans = 0;
@@ -673,6 +692,10 @@ Breakdown:<br>
                 }
                 // If recommended is up to 64, auto submit form
                 else if(recommendedDuration == null || recommendedDuration <= 64) {
+
+                    // Change window/tab title so we can visually see which has been auto-processed
+                    document.title = '5.AUTOBAN';
+
                     $('#lookup-result form').submit();
                 }
             }
