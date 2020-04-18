@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.20.3
+// @version      3.20.4
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -228,7 +228,7 @@
                 }
 
                 // Validation
-                if(!isNaN(uid)) {
+                if(uid && !isNaN(uid)) {
 
                     // Insert UID
                     $('#user-to-ban').val(uid);
