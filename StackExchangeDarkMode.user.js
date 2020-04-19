@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.20.2
+// @version      2.20.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -380,16 +380,12 @@ ul.comments-list .comment:hover .js-comment-flag,
 ul.comments-list .comment:hover .comment-flag {
     opacity: 0.8;
 }
-.wmd-button-row {
-    background-color: var(--white);
-    filter: invert(1) brightness(5) contrast(0.8);
-}
 .wmd-button,
 .wmd-spacer {
     height: 43px;
 }
 .wmd-button > span {
-    filter: invert(1) brightness(1);
+    filter: invert(1) brightness(9);
     background-color: transparent;
 }
 ul.comments-list .comment-up-on,
@@ -618,12 +614,6 @@ ul.comments-list .comment > * {
 }
 .message {
     border: 1px solid ${bordercolor};
-}
-.wmd-button-row {
-    background-color: var(--white);
-}
-.wmd-button-row * {
-    background-color: inherit;
 }
 .js-post-issues .s-btn {
     border-color: transparent;
