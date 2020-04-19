@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.9
+// @version      2.10.10
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -663,6 +663,11 @@ async function waitForSOMU() {
             $('#popup-close-question').find('input:submit, .js-popup-submit').focus();
         });
 
+        // Review queues styles
+        if(/\/review\//.test(location.pathname)) {
+            addReviewQueueStyles();
+        }
+
         // If in queue history page
         if(/\/history$/.test(location.pathname)) {
 
@@ -1041,69 +1046,8 @@ async function waitForSOMU() {
     }
 
 
-    function addReviewQueueStyles() {
+    function appendStyles() {
         GM_addStyle(`
-#footer {
-    display: none !important;
-}
-pre {
-    max-height: 320px;
-}
-#content {
-    padding-bottom: 120px !important;
-}
-
-.js-review-bar {
-    min-height: 150px;
-}
-.reviewable-post .question {
-    position: relative;
-}
-.reviewable-post-stats table {
-    min-height: 150px;
-}
-
-.suggested-edits-review-queue .review-bar .review-summary {
-    flex-basis: 45%;
-}
-.suggested-edits-review-queue .review-bar .js-review-actions-error-target {
-    flex-basis: 55%;
-}
-
-.review-content {
-    opacity: 1 !important;
-}
-#popup-close-question {
-    opacity: 0.9;
-}
-#popup-close-question:hover {
-    opacity: 1;
-}
-
-.post-menu > a {
-    display: inline-block !important;
-}
-
-/* CV and flag counts in sidebar */
-#remaining-quota tr:first-child td {
-    padding-top: 15px;
-}
-
-
-/* Instant action buttons */
-.js-review-actions-error-target button[style*='visibility'] {
-    display: none;
-}
-.js-review-actions-error-target .js-review-actions,
-.js-review-actions-error-target .instant-actions {
-    display: block;
-    text-align: right;
-}
-.js-review-actions-error-target .instant-actions {
-    margin-top: 6px;
-}
-
-
 /* Edit reasons link to take up less space */
 .popup a.edit-link {
     position: absolute;
@@ -1178,34 +1122,6 @@ pre {
 }
 
 
-/* Standardise radio buttons
-   - some dialogs are using stacks, others default...
-*/
-.popup .action-list input[type='radio'] {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    margin: 0;
-    width: 1em;
-    height: 1em;
-    border: 1px solid var(--black-200);
-    background-color: var(--white);
-    outline: 0;
-    font-size: inherit;
-    vertical-align: middle;
-    cursor: pointer;
-    border-radius: 50%;
-}
-.popup .action-list input[type='radio']:focus {
-    box-shadow: 0 0 0 4px var(--focus-ring);
-}
-.popup .action-list input[type='radio']:checked {
-    border-color: var(--blue-500);
-    border-width: .30769231em;
-    background-color: #fff;
-}
-
-
 /* Number options in popups */
 .popup .action-list li {
     position: relative;
@@ -1262,6 +1178,100 @@ pre {
     content: '7';
 }
 
+`);
+    }
+
+
+    function addReviewQueueStyles() {
+        GM_addStyle(`
+#footer {
+    display: none !important;
+}
+pre {
+    max-height: 320px;
+}
+#content {
+    padding-bottom: 120px !important;
+}
+
+.js-review-bar {
+    min-height: 150px;
+}
+.reviewable-post .question {
+    position: relative;
+}
+.reviewable-post-stats table {
+    min-height: 150px;
+}
+
+.suggested-edits-review-queue .review-bar .review-summary {
+    flex-basis: 45%;
+}
+.suggested-edits-review-queue .review-bar .js-review-actions-error-target {
+    flex-basis: 55%;
+}
+
+.review-content {
+    opacity: 1 !important;
+}
+#popup-close-question {
+    opacity: 0.9;
+}
+#popup-close-question:hover {
+    opacity: 1;
+}
+
+.post-menu > a {
+    display: inline-block !important;
+}
+
+/* CV and flag counts in sidebar */
+#remaining-quota tr:first-child td {
+    padding-top: 15px;
+}
+
+
+/* Instant action buttons */
+.js-review-actions-error-target button[style*='visibility'] {
+    display: none;
+}
+.js-review-actions-error-target .js-review-actions,
+.js-review-actions-error-target .instant-actions {
+    display: block;
+    text-align: right;
+}
+.js-review-actions-error-target .instant-actions {
+    margin-top: 6px;
+}
+
+
+/* Standardise radio buttons
+   - some dialogs are using stacks, others default...
+*/
+.popup .action-list input[type='radio'] {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0;
+    width: 1em;
+    height: 1em;
+    border: 1px solid var(--black-200);
+    background-color: var(--white);
+    outline: 0;
+    font-size: inherit;
+    vertical-align: middle;
+    cursor: pointer;
+    border-radius: 50%;
+}
+.popup .action-list input[type='radio']:focus {
+    box-shadow: 0 0 0 4px var(--focus-ring);
+}
+.popup .action-list input[type='radio']:checked {
+    border-color: var(--blue-500);
+    border-width: .30769231em;
+    background-color: #fff;
+}
+
 #toasty {
     display: block;
     position: fixed;
@@ -1315,7 +1325,7 @@ pre {
 
 
     // On page load
-    addReviewQueueStyles();
+    appendStyles();
     loadOptions();
     doPageLoad();
     listenToPageUpdates();
