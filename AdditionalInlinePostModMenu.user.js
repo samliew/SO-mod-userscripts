@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.0.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -555,14 +555,10 @@
                 menuitems += '<span class="inline-label comments-label">comments: </span>';
                 menuitems += `<a data-action="move-comments" class="inline-link ${isDeleted || !hasComments ? 'disabled' : ''}" title="${hasComments ? '' : 'no comments to move!'}">move</a>`;
                 menuitems += `<a data-action="purge-comments" class="inline-link ${!hasComments ? 'disabled' : ''}" title="${hasComments ? '' : 'no comments to purge!'}">purge</a>`;
+                menuitems += '<div class="block-clear"></div>';
             }
 
-            if(!isQuestion) { // A-only
-                menuitems += '<span class="inline-label post-label">convert: </span>';
-                menuitems += `<a data-action="convert-comment" class="inline-link" title="convert only the post to a comment on the question">to comment</a>, `;
-                menuitems += `<a data-action="convert-edit" class="inline-link" title="append the post as an edit to the question">to edit</a>`;
-            }
-            else { // Q-only
+            if(isQuestion) { // Q-only
                 menuitems += '<div class="block-clear"></div>';
                 menuitems += '<span class="inline-label post-label">instant: </span>';
 
@@ -572,28 +568,34 @@
                 else {
                     menuitems += `<a data-action="protect" class="inline-link ${isDeleted ? 'disabled' : ''}" title="${isDeleted ? 'question is deleted!' : ''}">protect</a>`;
                 }
-            }
 
-            if(isSO && isQuestion && !isClosed && !isDeleted) {
-                menuitems += `<a data-action="close-offtopic" class="inline-link" title="close with default off-topic reason">close</a>`;
-            }
+                if(isSO && !isClosed && !isDeleted) {
+                    menuitems += `<a data-action="close-offtopic" class="inline-link" title="close with default off-topic reason">close</a>`;
+                }
 
-            // Incorrectly posted question on SO Meta
-            if(isSOMeta && isQuestion && !isDeleted) {
-                menuitems += `<a data-action="meta-incorrect" class="inline-link">close + delete</a>`;
+                // Incorrectly posted question on SO Meta
+                if(isSOMeta && !isDeleted) {
+                    menuitems += `<a data-action="meta-incorrect" class="inline-link">close + delete</a>`;
+                }
             }
-            else {
+            else { // A-only
+                menuitems += '<span class="inline-label post-label">convert: </span>';
+                menuitems += `<a data-action="convert-comment" class="inline-link" title="convert only the post to a comment on the question">to-comment</a>`;
+                menuitems += `<a data-action="convert-edit" class="inline-link" title="append the post as an edit to the question">to-edit</a>`;
+
+                menuitems += '<div class="block-clear"></div>';
+                menuitems += '<span class="inline-label post-label">instant: </span>';
                 menuitems += `<a data-action="mod-delete" class="inline-link" title="redelete post as moderator to prevent undeletion">delete</a>`;
             }
 
             menuitems += '<div class="block-clear"></div>';
             menuitems += '<span class="inline-label lock-label">lock: </span>';
-            if(!isLocked) {
-                menuitems += `<a data-action="lock-dispute" class="inline-link ${isLocked ? 'dno' : ''}" title="prompts for number of days to dispute lock">dispute</a>`; // unlocked-only
-                menuitems += `<a data-action="lock-comments" class="inline-link ${isLocked ? 'dno' : ''}" title="prompts for number of days to comment lock">comments</a>`; // unlocked-only
+            if(!isLocked) { // unlocked-only
+                menuitems += `<a data-action="lock-dispute" class="inline-link ${isLocked ? 'dno' : ''}" title="prompts for number of days to dispute lock">dispute</a>`;
+                menuitems += `<a data-action="lock-comments" class="inline-link ${isLocked ? 'dno' : ''}" title="prompts for number of days to comment lock">comments</a>`;
 
                 if(isQuestion) { // Q-only
-                    // menuitems += `<a data-action="lock-historical" class="${isLocked ? 'dno' : ''}">lock - historical (perm)</a>`; // unlocked-only
+                    //menuitems += `<a data-action="lock-historical" class="inline-link ${isLocked ? 'dno' : ''}" title="historical perma-lock">historical</a>`;
                 }
             }
             else {
@@ -726,7 +728,9 @@
                     break;
                 }
                 case 'lock-historical':
-                    lockPost(pid, 22, -1).then(reloadPage);
+                    if(confirm(`Confirm apply a permanent historical lock on this question and answers?`)) {
+                        lockPost(pid, 22, -1).then(reloadPage);
+                    }
                     break;
                 case 'unlock':
                     unlockPost(pid).then(reloadPage);
