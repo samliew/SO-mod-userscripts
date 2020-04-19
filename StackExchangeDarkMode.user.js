@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.20.1
+// @version      2.20.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -239,12 +239,20 @@ table td {
     border-width: 1px;
 }
 #sidebar .module,
-#sidebar .s-sidebarwidget:not(:last-child),
+#sidebar .s-sidebarwidget,
 #sidebar .s-sidebarwidget__yellow {
     margin-bottom: 25px;
     padding-bottom: 20px;
     border: none;
     border-bottom: 1px dashed ${bordercolor};
+}
+#sidebar .module:last-child,
+#sidebar .s-sidebarwidget:last-child {
+    border-bottom: none;
+}
+#sidebar .s-sidebarwidget__yellow,
+#sidebar .s-sidebarwidget__yellow * {
+    background-color: var(--white);
 }
 .s-sidebarwidget,
 .s-sidebarwidget--header,
@@ -253,8 +261,11 @@ table td {
     border: none;
 }
 #sidebar .community-bulletin .bulletin-item-content a,
-a:not(.s-btn) {
+a:not(.s-btn),
+.post-menu button,
+.post-menu button:hover {
     color: ${linkcolor};
+    background-color: transparent;
 }
 #sidebar .community-bulletin .bulletin-item-content a:hover,
 a:hover {
@@ -733,6 +744,10 @@ body td.deleted-answer,
 .deleted-answer .answercell *:not(.popup):not(.comment-flags):not(.comment-flagcount),
 .deleted-comment .comment-text *:not(.popup),
 .question-status *,
+.s-notice__info *,
+.s-banner__info *,
+.s-notice__info .fc-black-600,
+.s-banner__info .fc-black-600,
 #revisions .vote-revision *,
 .js-admin-dashboard .deleted-answer *,
 .search-result.bg-red-050 * {
@@ -740,7 +755,10 @@ body td.deleted-answer,
 }
 #question .question-status,
 .question .question-status,
-#revisions .vote-revision {
+#revisions .vote-revision,
+.s-notice__info,
+.s-banner__info {
+    border-color: var(--powder-400);
     background-color: #111;
 }
 .vote-up-off,
