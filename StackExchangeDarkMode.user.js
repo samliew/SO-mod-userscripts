@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.20
+// @version      2.20.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -579,7 +579,7 @@ header > div > div,
 .top-bar .indicator-badge,
 .bounty-award {
     background-color: ${bountyblue};
-    color: var(--black-050);
+    color: var(--black-900);
 }
 .top-bar .indicator-badge {
     border: none;
@@ -665,8 +665,8 @@ body > div[style*="absolute"],
 .bounty-indicator,
 .bounty-indicator-tab,
 .tabs .bounty-indicator-tab {
-    color: var(--black-050);
     background-color: ${bountyblue};
+    color: var(--black);
 }
 #post-filters,
 .post-tag *,
@@ -674,16 +674,16 @@ body > div[style*="absolute"],
     background-color: transparent;
 }
 .supernovabg {
-    color: var(--white);
     background-color: var(--orange-400);
+    color: var(--black);
 }
 .hotbg {
-    color: var(--white);
     background-color: #CF7721;
+    color: var(--black);
 }
 .coolbg {
-    color: var(--white);
     background-color: ${bountyblue};
+    color: var(--black);
 }
 .tagged-interesting {
     position: relative;
@@ -1192,7 +1192,7 @@ span.mod-flair {
 #chat-body .topbar,
 #transcript-body .topbar,
 #conversation-body .topbar {
-    background-color: var(--black);
+    background-color: var(--white);
 }
 .topbar .topbar-wrapper,
 .topbar .topbar-wrapper *,
