@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -560,7 +560,7 @@
                 menuitems += `<a data-action="convert-edit" class="inline-link" title="append the post as an edit to the question">to edit</a>`;
             }
             else { // Q-only
-                menuitems += '<div></div>'; // block separator
+                menuitems += '<div class="block-clear"></div>';
                 menuitems += '<span class="inline-label post-label">instant: </span>';
 
                 if(isProtected) {
@@ -583,7 +583,7 @@
                 menuitems += `<a data-action="mod-delete" class="inline-link" title="redelete post as moderator to prevent undeletion">delete</a>`;
             }
 
-            menuitems += '<div></div>'; // block separator
+            menuitems += '<div class="block-clear"></div>';
             menuitems += '<span class="inline-label lock-label">lock: </span>';
             if(!isLocked) {
                 menuitems += `<a data-action="lock-dispute" class="inline-link ${isLocked ? 'dno' : ''}" title="prompts for number of days to dispute lock">dispute</a>`; // unlocked-only
@@ -601,9 +601,7 @@
             if(userlink && /.*\/\d+\/.*/.test(userlink) && !isMeta) {
                 const uid = Number(userlink.match(/\/\d+\//)[0].replace(/\D+/g, ''));
 
-                menuitems += `<div class="separator"></div>`;
-
-                menuitems += '<div></div>'; // block separator
+                menuitems += '<div class="block-clear"></div>';
                 menuitems += '<span class="inline-label user-label">user: </span>';
 
                 menuitems += `<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" target="_blank" class="inline-link" title="compose CM dissociation message in a new window">dissociate</a>`; // non-deleted user only
@@ -618,7 +616,7 @@
                 }
             }
 
-            $(this).append(`<div class="js-better-inline-menu" data-pid="${pid}">${menuitems}</div>`);
+            $(this).append(`<div class="block-clear"></div><div class="js-better-inline-menu" data-pid="${pid}">${menuitems}</div>`);
         });
     }
 
@@ -797,6 +795,9 @@
 .post-menu > a {
     margin: 2px 3px 2px 0;
 }
+.block-clear {
+    display: block !important;
+}
 
 .js-better-inline-menu {
     display: block;
@@ -805,12 +806,13 @@
     min-width: 190px;
     margin: 5px 0 10px;
     padding-top: 5px;
-    border-top: 1px solid var(--black-100);
+    border-top: 1px solid var(--black-075);
 }
 
 .js-better-inline-menu .inline-label {
     display: inline-block;
     padding: 4px 4px;
+    color: var(--black-700);
 }
 .js-better-inline-menu a {
     padding: 4px 4px;
@@ -839,7 +841,7 @@
 }
 .js-better-inline-menu .separator {
     display: block;
-    border-top: 1px solid var(--black-100);
+    border-top: 1px solid var(--black-075);
     margin: 5px 0;
 }
 </style>
