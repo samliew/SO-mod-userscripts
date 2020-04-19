@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -544,6 +544,9 @@
             const username = userbox.find('.user-details a').first().text();
             const postdate = userbox.find('.relativetime').attr('title');
             const postage = (Date.now() - new Date(postdate)) / 86400000;
+
+            // Validation, since .post-menu is also found on post revisions page, which we do not want to touch
+            if(typeof pid === 'undefined') return;
 
             // Create menu based on post type and state
             let menuitems = '';
