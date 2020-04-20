@@ -802,6 +802,13 @@
 .post-menu > a {
     margin: 2px 3px 2px 0;
 }
+.post-menu .lsep {
+    display: none !important;
+}
+.post-signature {
+    min-width: 180px;
+    width: auto;
+}
 .block-clear {
     display: block !important;
 }
@@ -810,7 +817,7 @@
     display: block;
     clear: both;
     float: left;
-    min-width: 190px;
+    min-width: 200px;
     margin: 5px 0 10px;
     padding-top: 5px;
     border-top: 1px solid var(--black-075);
@@ -818,11 +825,12 @@
 
 .js-better-inline-menu .inline-label {
     display: inline-block;
-    padding: 4px 4px;
+    padding: 3px 4px;
     color: var(--black-700);
 }
 .js-better-inline-menu a {
-    padding: 4px 4px;
+    margin: 2px 2px;
+    padding: 0px 2px;
     display: block;
     color: var(--black-400);
     text-decoration: none;
