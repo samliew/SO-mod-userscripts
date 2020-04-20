@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.4
+// @version      1.0.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -577,6 +577,9 @@
                 if(isSOMeta && !isDeleted) {
                     menuitems += `<a data-action="meta-incorrect" class="inline-link">close + delete</a>`;
                 }
+                else {
+                    menuitems += `<a data-action="mod-delete" class="inline-link" title="redelete post as moderator to prevent undeletion">redelete</a>`;
+                }
             }
             else { // A-only
                 menuitems += '<span class="inline-label post-label">convert: </span>';
@@ -585,14 +588,14 @@
 
                 menuitems += '<div class="block-clear"></div>';
                 menuitems += '<span class="inline-label post-label">instant: </span>';
-                menuitems += `<a data-action="mod-delete" class="inline-link" title="redelete post as moderator to prevent undeletion">re-delete</a>`;
+                menuitems += `<a data-action="mod-delete" class="inline-link" title="redelete post as moderator to prevent undeletion">redelete</a>`;
             }
 
             menuitems += '<div class="block-clear"></div>';
             menuitems += '<span class="inline-label lock-label">lock: </span>';
             if(!isLocked) { // unlocked-only
-                menuitems += `<a data-action="lock-dispute" class="inline-link ${isLocked ? 'dno' : ''}" title="prompts for number of days to dispute lock">dispute</a>`;
-                menuitems += `<a data-action="lock-comments" class="inline-link ${isLocked ? 'dno' : ''}" title="prompts for number of days to comment lock">comments</a>`;
+                menuitems += `<a data-action="lock-dispute" class="inline-link ${isLocked ? 'dno' : ''}" title="prompts for number of days to dispute lock">dispute...</a>`;
+                menuitems += `<a data-action="lock-comments" class="inline-link ${isLocked ? 'dno' : ''}" title="prompts for number of days to comment lock">comments...</a>`;
 
                 if(isQuestion) { // Q-only
                     //menuitems += `<a data-action="lock-historical" class="inline-link ${isLocked ? 'dno' : ''}" title="historical perma-lock">historical</a>`;
@@ -609,14 +612,14 @@
                 menuitems += '<div class="block-clear"></div>';
                 menuitems += '<span class="inline-label user-label">user: </span>';
 
-                menuitems += `<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" target="_blank" class="inline-link" title="compose CM dissociation message in a new window">dissociate</a>`; // non-deleted user only
+                menuitems += `<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" target="_blank" class="inline-link" title="compose CM dissociation message in a new window">dissociate...</a>`; // non-deleted user only
 
                 // Allow destroy option only if < 30 days
                 if(postage < 30) {
 
                     // Allow destroy option only if user < 200 rep
                     if(/^\d+$/.test(userrep) && Number(userrep) < 200) {
-                        menuitems += `<a data-action="destroy-spammer" data-uid="${uid}" data-username="${username}" class="inline-link danger" title="confirms whether you want to destroy the account for spamming">destroy</a>`; // non-deleted user only
+                        menuitems += `<a data-action="destroy-spammer" data-uid="${uid}" data-username="${username}" class="inline-link danger" title="confirms whether you want to destroy the account for spamming">destroy...</a>`; // non-deleted user only
                     }
                 }
             }
