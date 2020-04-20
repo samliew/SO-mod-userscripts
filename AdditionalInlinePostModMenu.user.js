@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.3
+// @version      1.0.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -585,7 +585,7 @@
 
                 menuitems += '<div class="block-clear"></div>';
                 menuitems += '<span class="inline-label post-label">instant: </span>';
-                menuitems += `<a data-action="mod-delete" class="inline-link" title="redelete post as moderator to prevent undeletion">delete</a>`;
+                menuitems += `<a data-action="mod-delete" class="inline-link" title="redelete post as moderator to prevent undeletion">re-delete</a>`;
             }
 
             menuitems += '<div class="block-clear"></div>';
