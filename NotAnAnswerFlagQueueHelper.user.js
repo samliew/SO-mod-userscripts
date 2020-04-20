@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.13
+// @version      3.13.1
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -121,7 +121,7 @@
         const filterFunction = function() {
             if(filter === 'magisch') return $(this).find('.js-post-flag-group:not(.js-cleared) a[href^="/users/5389107/"]').length > 0; // Magisch's userid on SO
             if(filter === 'ekad')    return $(this).find('.js-post-flag-group:not(.js-cleared) a[href^="/users/1905949/"]').length > 0; // ekad's userid on SO
-            if(filter === 'deleted') return $(this).find('.deleted-answer').length > 0;
+            if(filter === 'deleted') return $(this).find('.bg-red-050').length > 0;
 
             if(filter === 'self-answer') {
                 const postOwners = $(this).find('.post-owner');
