@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.10
+// @version      2.10.11
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1176,6 +1176,11 @@ async function waitForSOMU() {
 }
 .popup .action-list li:nth-of-type(7):before {
     content: '7';
+}
+
+/* No numbers/kb shortcuts for auto-review-comments userscript */
+.auto-review-comments.popup .action-list li:before {
+    content: '';
 }
 
 `);
