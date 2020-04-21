@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.5
+// @version      1.0.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -545,6 +545,9 @@
             const postdate = userbox.find('.relativetime').attr('title');
             const postage = (Date.now() - new Date(postdate)) / 86400000;
 
+            // Wrap both post signatures into a single div, if it stacks due to lack of horizontal space, we can avoid having a large vertical space too due to the added post menu size (height)
+            //$(this).closest('.grid').find('.post-signature').wrapAll('<div class="js-post-signatures"></div>');
+
             // Validation, since .post-menu is also found on post revisions page, which we do not want to touch
             if(typeof pid === 'undefined') return;
 
@@ -624,7 +627,7 @@
                 }
             }
 
-            $(this).append(`<div class="block-clear"></div><div class="js-better-inline-menu" data-pid="${pid}">${menuitems}</div>`);
+            $(this).append(`<div class="block-clear"></div><div class="js-better-inline-menu smaller" data-pid="${pid}">${menuitems}</div>`);
         });
     }
 
@@ -824,6 +827,13 @@
     margin: 5px 0 10px;
     padding-top: 5px;
     border-top: 1px solid var(--black-075);
+}
+.js-better-inline-menu.smaller {
+    margin: 5px 0 5px;
+    padding: 8px 6px 8px;
+    font-size: 0.88em;
+    line-height: 1;
+    background-color: var(--white);
 }
 
 .js-better-inline-menu .inline-label {
