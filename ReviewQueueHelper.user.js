@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.11
+// @version      2.10.12
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -293,7 +293,7 @@ async function waitForSOMU() {
         ];
 
         try {
-            const paras = $(post.contentHtml).filter('p').text();
+            const paras = $(post.contentHtml).filter('p, ol, ul').text();
             const text = (post.title + paras).toLowerCase();
             const results = keywords.filter(v => text.includes(v.toLowerCase()));
             results.forEach(v => {
