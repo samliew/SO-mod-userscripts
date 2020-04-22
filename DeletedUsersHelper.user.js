@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.21
+// @version      1.21.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -309,7 +309,7 @@
         const d = new Date();
         const year = d.getFullYear().toString().slice(2);
         const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()];
-        const piidiv = $('#allPII');
+        const piidiv = $('#mod-content .mod-credentials').parent();
         const piisection = piidiv.closest('.mod-section');
 
         const networkAccounts = '\n\nNetwork Account: ' + $('.details a').first().attr('href');
