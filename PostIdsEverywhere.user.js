@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.10.1
+// @version      1.11
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -150,9 +150,8 @@
 .question:not(#question) > .post-id {
     top: -20px;
 }
-.js-loaded-body .post-id {
-    top: -8px !important;
-    right: -5px;
+.js-admin-dashboard .js-flagged-post .post-id {
+    transform: translate(0, -90%);
 }
 #question .post-id,
 #answers .post-id,
