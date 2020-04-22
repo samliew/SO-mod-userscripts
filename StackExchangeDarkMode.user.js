@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.20.4
+// @version      2.20.5
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -1053,7 +1053,7 @@ a.comment-user.owner {
 }
 .post-mod-menu-link .post-mod-menu a:hover {
     background-color: var(--black-500);
-    color: ${textcolor};
+    color: var(--black-100);
 }
 #search-helper {
     padding-bottom: 20px;
