@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8
+// @version      1.8.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -42,7 +42,7 @@
         // Remove/Reset other SOMU items
         $('body').removeClass('usersidebar-open');
         $('.old-comment, .cmmt-rude, .cmmt-chatty').removeClass('old-comment cmmt-rude cmmt-chatty');
-        $('#usersidebar, #qtoc, .meta-mentioned, .post-stickyheader, .dissociate-post-link, .post-id').remove();
+        $('#usersidebar, #qtoc, .meta-mentioned, .post-stickyheader, .dissociate-post-link, .post-id, .js-better-inline-menu, .print-comment-buttons').remove();
 
         // Remove other userscript items
         $('#roombaTableDiv').remove();
@@ -51,7 +51,7 @@
         $('.my-profile, .user-gravatar32, .user-info .-flair').remove();
 
         // Remove admin stuff from page
-        $('.js-post-issues, .js-mod-inbox-button, .flag-count-item, .delete-comment').remove();
+        $('.js-post-issue, .js-post-issues, .js-mod-inbox-button, .flag-count-item, .delete-comment, .js-post-flag-bar').remove();
 
         // Redact IP and email addresses in content div
         const content = $('#content');
