@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.13
+// @version      2.10.14
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -18,6 +18,13 @@
 // @include      https://*askubuntu.com/questions/*
 // @include      https://*mathoverflow.net/questions/*
 // @include      https://*.stackexchange.com/questions/*
+//
+// @include      https://*stackoverflow.com/admin/dashboard?flagtype=*
+// @include      https://*serverfault.com/admin/dashboard?flagtype=*
+// @include      https://*superuser.com/admin/dashboard?flagtype=*
+// @include      https://*askubuntu.com/admin/dashboard?flagtype=*
+// @include      https://*mathoverflow.net/admin/dashboard?flagtype=*
+// @include      https://*.stackexchange.com/admin/dashboard?flagtype=*
 //
 // @exclude      *chat.*
 // @exclude      https://stackoverflow.com/c/*
