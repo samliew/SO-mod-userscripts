@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.2.1
+// @version      5.2.2
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -648,25 +648,6 @@ table.comments tr.roa-comment > td {
 }
 .js-admin-dashboard {
     position: relative;
-}
-.js-mod-history-container {
-    position: relative;
-    display: block !important;
-    max-height: 150px;
-    margin: 10px 8px 15px !important;
-    overflow-y: auto;
-    background: var(--black-025);
-    z-index: 1;
-}
-.js-mod-history-container:after {
-    content: 'flag action history';
-    font-size: 10px;
-    position: absolute;
-    bottom: 2px;
-    right: 3px;
-    font-style: italic;
-    color: var(--black-400);
-    opacity: 0.5;
 }
 .js-flagged-comment > .js-comment > .comment-form > .js-comment-edit-hide {
     min-height: 6em;

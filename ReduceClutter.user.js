@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.14.1
+// @version      1.14.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -127,6 +127,15 @@ ul.comments-list .comment-up-on {
 /* Hide follow post tooltip popup */
 .js-follow-post ~ .s-popover {
     display: none !important;
+}
+
+
+/* Fix some z-indexes to prevent them from being in front of (close) dialogs */
+.s-btn-group .s-btn.is-selected {
+    z-index: unset !important;
+}
+#content {
+    z-index: 2002;
 }
 
 `);
