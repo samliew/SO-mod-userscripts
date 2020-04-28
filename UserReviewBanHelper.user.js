@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.20.4
+// @version      3.21
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -431,6 +431,7 @@ Breakdown:<br>
             }
 
         }
+
         // Mod user history - review bans filter
         else if(location.pathname.includes('/users/history') && location.search == "?type=User+has+been+banned+from+review") {
 
@@ -460,6 +461,13 @@ Breakdown:<br>
 
             // Not currently banned, show review ban button
             $(`<a class="button reviewban-button" href="/admin/review/bans#${uid2}">Review Ban</a>`).insertAfter('.subheader h1');
+        }
+
+        // Review queue history pages
+        else if(/\/review\/.+\/history/.test(location.pathname)) {
+
+            // Add textbox so we can filter by userId (just like our own)
+            $('#mainbar-full .pager').last().append(`<span> | </span><form class="js-user-review-history-form d-inline"><input placeholder="by user id" name="userId" class="s-input s-input__sm w30" /><button type="submit" class="d-none"></button></form>`);
         }
 
         // Review queues
