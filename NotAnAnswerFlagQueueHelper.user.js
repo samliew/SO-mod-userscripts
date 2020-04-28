@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.15
+// @version      3.15.1
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -91,6 +91,7 @@
     // closeReasonId: 'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
     // if closeReasonId is 'SiteSpecific', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
     function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', offtopicReasonId = 3, offTopicOtherText = 'I’m voting to close this question because ', duplicateOfQuestionId = null) {
+        const isSO = location.hostname == 'stackoverflow.com';
         return new Promise(function(resolve, reject) {
             if(!isSO) { reject(); return; }
             if(typeof pid === 'undefined' || pid === null) { reject(); return; }
@@ -345,14 +346,14 @@
             // Close all questions left on page button
             $('<button class="btn-warning">Offtopic ALL</button>')
                 .click(function() {
-                    if(!confirm('Confirm Close ALL as Offtopic?')) return false;
+                    if(!confirm('Confirm Close ALL as Unclear?')) return false;
 
                     $(this).remove();
                     const visiblePosts = $('.js-flagged-post:visible');
                     $('body').showAjaxProgress(visiblePosts.length, { position: 'fixed' });
 
                     visiblePosts.hide().each(function() {
-                        closeQuestionAsOfftopic(this.dataset.postId);
+                        closeQuestionAsOfftopic(this.dataset.postId, 'NeedsDetailsOrClarity');
                     });
                 })
                 .appendTo(actionBtns);
