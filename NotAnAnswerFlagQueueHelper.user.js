@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.14
+// @version      3.15
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -82,6 +82,39 @@
             .done(function(data) {
                 resolve();
             })
+            .fail(reject);
+        });
+    }
+
+
+    // Close individual post
+    // closeReasonId: 'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
+    // if closeReasonId is 'SiteSpecific', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
+    function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', offtopicReasonId = 3, offTopicOtherText = 'I’m voting to close this question because ', duplicateOfQuestionId = null) {
+        return new Promise(function(resolve, reject) {
+            if(!isSO) { reject(); return; }
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+            if(typeof closeReasonId === 'undefined' || closeReasonId === null) { reject(); return; }
+            if(closeReasonId === 'SiteSpecific' && (typeof offtopicReasonId === 'undefined' || offtopicReasonId === null)) { reject(); return; }
+
+            if(closeReasonId === 'Duplicate') offtopicReasonId = null;
+
+            // Logging actual action
+            console.log(`%c Closing ${pid} as ${closeReasonId}, reason ${offtopicReasonId}.`, 'font-weight: bold');
+
+            $.post({
+                url: `https://${location.hostname}/flags/questions/${pid}/close/add`,
+                data: {
+                    'fkey': fkey,
+                    'closeReasonId': closeReasonId,
+                    'duplicateOfQuestionId': duplicateOfQuestionId,
+                    'siteSpecificCloseReasonId': offtopicReasonId,
+                    'siteSpecificOtherText': offtopicReasonId == 3 && isSO ? 'This question does not appear to be about programming within the scope defined in the [help]' : offTopicOtherText,
+                    //'offTopicOtherCommentId': '',
+                    'originalSiteSpecificOtherText': 'I’m voting to close this question because ',
+                }
+            })
+            .done(resolve)
             .fail(reject);
         });
     }
@@ -305,6 +338,21 @@
 
                     visiblePosts.hide().each(function() {
                         declinePostFlags(this.dataset.postId);
+                    });
+                })
+                .appendTo(actionBtns);
+
+            // Close all questions left on page button
+            $('<button class="btn-warning">Offtopic ALL</button>')
+                .click(function() {
+                    if(!confirm('Confirm Close ALL as Offtopic?')) return false;
+
+                    $(this).remove();
+                    const visiblePosts = $('.js-flagged-post:visible');
+                    $('body').showAjaxProgress(visiblePosts.length, { position: 'fixed' });
+
+                    visiblePosts.hide().each(function() {
+                        closeQuestionAsOfftopic(this.dataset.postId);
                     });
                 })
                 .appendTo(actionBtns);
