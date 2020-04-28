@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.0
+// @version      4.0.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -215,10 +215,10 @@
             cont.append(`<h3 class="s-subheader mt32 py8 bb bc-black-5">${q[0]}</h3>`);
 
             let numPages = 3;
-            if(q[0] === 'First Posts') numPages = 6;
+            if(q[1] === 'first-posts') numPages = 6;
 
             for(let i = 1; i <= numPages; i++) {
-                $(`<div id="${q[1]}-review-1"></div>`).appendTo(cont).load(`https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=True&page=${i} #content .history-table`);
+                $(`<div id="${q[1]}-review-${i}"></div>`).appendTo(cont).load(`https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=True&page=${i} #content .history-table`);
             }
         });
     }
