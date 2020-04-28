@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.21
+// @version      4.0
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -17,8 +17,10 @@
 // @include      */users/history/*?type=User+has+been+banned+from+review
 // @include      */users/*?tab=activity&sort=reviews*
 //
+// @include      */admin/review/failed-audits*
 // @include      */admin/review/audits*
 // @include      */admin/review/bans*
+// @include      */admin/links
 //
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
@@ -154,6 +156,70 @@
             }
 
             cans.append(`<a data-message="${msg}">${v}</a>`);
+        });
+    }
+
+
+    // Completely new page
+    function initFailedAuditsByUserPage() {
+
+        document.title = 'Failed Review Audits - ' + StackExchange.options.site.name;
+
+        const queues = [
+          ['Close Review', 'close'],
+          ['First Posts',  'first-posts'],
+          ['Late Answers', 'late-answers'],
+          ['Low Quality Posts', 'low-quality-posts'],
+          ['Reopen Votes', 'reopen'],
+          ['Suggested Edits', 'suggested-edits'],
+          ['Triage', 'triage'],
+        ];
+
+        // Valid values: last30days, last14days, last7days, last2days, today
+        const dateRange = 'last30days';
+
+        const cont = $('#content').addClass('failed-audits-page')
+            .empty().prepend(`<h1 class="bb bc-black-5 py8 s-subheader">Failed Audits (${dateRange.replace(/(\d+)/, ' $1 ')})</h1>`);
+
+        cont.append(`
+<table class="history-table-filter"><tr>
+  <td><label class="d-block pt6"><input type="checkbox" id="js-toggle-date-format" /> toggle format</label></td>
+  <td><input type="text" id="js-filter-user" class="s-input s-input__sm w100" placeholder="username or userid" /></td>
+  <td></td>
+  <td></td>
+</tr></table>
+`)
+        .on('change', '#js-toggle-date-format', function() {
+            cont.toggleClass('js-absolute-dates');
+        })
+        .on('change', '#js-filter-user', function() {
+            const rows = $('.history-table tr');
+            const val = this.value.toLowerCase().trim();
+            const userid = Number(val);
+            if(!isNaN(userid)) {
+                rows.hide().filter(function() {
+                    return $(this).find('a').attr('href').includes(userid);
+                }).show();
+            }
+            else if(val.length > 0) {
+                rows.hide().filter(function() {
+                    return $(this).find('a').text().toLowerCase().includes(val);
+                }).show();
+            }
+            else {
+                rows.show();
+            }
+        });
+
+        queues.forEach(q => {
+            cont.append(`<h3 class="s-subheader mt32 py8 bb bc-black-5">${q[0]}</h3>`);
+
+            let numPages = 3;
+            if(q[0] === 'First Posts') numPages = 6;
+
+            for(let i = 1; i <= numPages; i++) {
+                $(`<div id="${q[1]}-review-1"></div>`).appendTo(cont).load(`https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=True&page=${i} #content .history-table`);
+            }
         });
     }
 
@@ -468,6 +534,22 @@ Breakdown:<br>
 
             // Add textbox so we can filter by userId (just like our own)
             $('#mainbar-full .pager').last().append(`<span> | </span><form class="js-user-review-history-form d-inline"><input placeholder="by user id" name="userId" class="s-input s-input__sm w30" /><button type="submit" class="d-none"></button></form>`);
+        }
+
+        // Failed audits by user
+        else if(location.pathname.includes('/admin/review/failed-audits')) {
+
+            initFailedAuditsByUserPage();
+        }
+
+        // Add additional links to new pages
+        else if(location.pathname === '/admin/links') {
+            $('.content-page ul').first().append('<li><a href="/admin/review/failed-audits" title="view all recently failed audits from all queues on a single page">All failed review audits</a></li>');
+        }
+
+        // Add additional links to new pages
+        else if(location.pathname === '/admin/review/audits') {
+            $('#content .subheader').first().append('<a class="fr d-inline-block p12" title="view all recently failed audits from all queues on a single page">all failed audits</a>');
         }
 
         // Review queues
@@ -1007,6 +1089,45 @@ a.reban {
 a.reban:hover {
     color: var(--white);
     background: var(--red-500);
+}
+
+.failed-audits-page .history-table,
+.failed-audits-page .history-table-filter {
+    width: 100%;
+}
+.failed-audits-page .history-table tr,
+.failed-audits-page .history-table-filter tr {
+    display: flex;
+}
+.failed-audits-page .history-table td,
+.failed-audits-page .history-table-filter td {
+    display: inline-block;
+    width: 120px;
+    margin-right: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.failed-audits-page .history-table td:nth-child(2) {
+    width: 500px;
+}
+.failed-audits-page .history-table td:nth-child(4),
+.failed-audits-page .history-table td:nth-child(6) {
+    width: 70px;
+}
+.failed-audits-page .history-table td:nth-child(5) {
+    height: 22px;
+    order: -1;
+}
+.failed-audits-page .history-table-filter td:nth-child(2) {
+    width: 124px;
+}
+.failed-audits-page.js-absolute-dates .history-table td:nth-child(5) {
+    font-size: 0;
+}
+.failed-audits-page.js-absolute-dates .history-table span.history-date:before {
+    content: attr(title);
+    font-size: 0.9rem;
 }
 </style>
 `;
