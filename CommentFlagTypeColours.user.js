@@ -3,7 +3,7 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.4
+// @version      2.4.5
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -57,7 +57,7 @@
         if(document.body.classList.contains('unified-theme')) {
 
             // wrap comment type text with .revision-comment span
-            $('.js-flagged-comment .js-flag-text').html((i, html) => html.replace(/^(.*) - /i, `<span class="revision-comment">$1</span> - `));
+            $('.js-flagged-comment .js-flag-text').html((i, html) => html.replace(/^(.*) - </i, `<span class="revision-comment">$1</span> - <`));
         }
 
         // On Post Timelines, highlight differently
