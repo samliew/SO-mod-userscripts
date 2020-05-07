@@ -257,7 +257,7 @@
                 if (tagName === 'PRE') {
                     // pre-formatted text, just remove leading spaces
                     const text = data.replace(/(^|\n)[ ]{4}/g, '$1');
-                    full = $('<pre class="full"></pre>').text(text);
+                    full = $('<pre class="full"></pre>').html(text);
                 } else {
                     // normal text or a quote
                     const isQuote = /^&gt;\s/.test(data);
