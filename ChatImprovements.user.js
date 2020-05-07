@@ -252,9 +252,18 @@
         $('.content .more-data').each(function(i, el) {
             const parent = $(this).parent('.content');
             $.get(el.href).done(function(data) {
-                const isQuote = /^&gt;\s/.test(data);
-                const html = data.replace(/^(:\d+|&gt;) /, '').replace(/\r\n?|\n/g, ' <br> ').replace(/(https?:\/\/(\S+))/gi, '<a href="$1">$2</a>');
-                const full = $(`<div class="full ${isQuote ? 'quote' : 'text'}"></div>`).append(html);
+                const tagName = parent.find(".partial").prop("tagName");
+                let full;
+                if (tagName === 'PRE') {
+                    // pre-formatted text, just remove leading spaces
+                    const text = data.replace(/(^|\n)[ ]{4}/g, '$1');
+                    full = $('<pre class="full"></pre>').text(text);
+                } else {
+                    // normal text or a quote
+                    const isQuote = /^&gt;\s/.test(data);
+                    const html = data.replace(/^(:\d+|&gt;) /, '').replace(/\r\n?|\n/g, ' <br> ').replace(/(https?:\/\/(\S+))/gi, '<a href="$1">$2</a>');
+                    full = $(`<div class="full {isQuote ? 'quote' : 'text'}"></div>`).append(html); 
+                });
                 parent.empty().append(full);
             });
         });
