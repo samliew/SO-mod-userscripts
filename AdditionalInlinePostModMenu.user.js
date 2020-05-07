@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.7
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -416,6 +416,53 @@
     }
 
 
+    // Send mod message + optional suspension
+    function modMessage(uid, message = '', sendEmail = true, suspendDays = 0) {
+        return new Promise(function(resolve, reject) {
+            if(typeof uid === 'undefined' || uid === null) { reject(); return; }
+            if(suspendDays < 0 || suspendDays > 365) { reject(); return; }
+
+            // Message cannot be empty
+            if(message == null || message.trim().length == 0) {
+                alert('Mod message cannot be empty.'); reject(); return;
+            }
+
+            let suspendUser = false;
+            let suspendChoice = 0;
+            if(suspendDays > 0) {
+                suspendUser = true;
+                suspendChoice = suspendDays;
+            }
+
+            let templateName = 'something else...';
+            let suspendReason = 'for rule violations';
+            if(message == 'goodbye') {
+                templateName = 'a farewell';
+            }
+
+            $.post({
+                url: `https://${location.hostname}/users/message/save`,
+                data: {
+                    'userId': uid,
+                    'lastMessageDate': 0,
+                    'email': sendEmail,
+                    'suspendUser': suspendUser,
+                    'suspend-choice': suspendChoice,
+                    'suspendDays': suspendDays,
+                    'templateName': templateName,
+                    'suspendReason': suspendReason,
+                    'templateEdited': false,
+                    'post-text': message,
+                    'fkey': fkey,
+                    'author': null,
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+
+
     // Destroy spammer
     function destroySpammer(uid, destroyDetails = null) {
         return new Promise(function(resolve, reject) {
@@ -429,6 +476,12 @@
 
                 // If still null, reject promise and return early
                 if(destroyDetails == null) { alert('Destroy cancelled. User was not destroyed.'); reject(); return; }
+            }
+
+            // apply max suspension before deletion
+            if(!isSuperuser()) {
+                modMessage(uid, 'goodbye', false, 365);
+                debugger;
             }
 
             $.post({
