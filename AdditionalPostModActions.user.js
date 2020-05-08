@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9
+// @version      2.9.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -36,7 +36,7 @@
     const isMeta = typeof StackExchange.options.site.parentUrl !== 'undefined';
 
     // Manually switch this variable to true when site under spam attack so you can delete accounts as fast as possible without distractions and multiple confirmations
-    const underSpamAttackMode = false;
+    const underSpamAttackMode = isSuperuser() || false;
 
 
     function goToPost(pid) {
