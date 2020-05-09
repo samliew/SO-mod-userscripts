@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.21.1
+// @version      1.21.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -15,6 +15,7 @@
 // @exclude      https://stackoverflow.com/c/*
 // @exclude      https://stackoverflow.blog*
 // @exclude      *chat.*
+// @exclude      */tour
 //
 // @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
 //
@@ -255,7 +256,7 @@
         const modid = details[1].match(/\((\d+)\)/g)[1].replace(/[^\d]+/g, '');
         const lastip = details[details.length - 2].split(': ')[1];
         const reason = details.slice(2, details.length - 2).join('\n').replace('Reason: ', '<b>Reason</b><br>').replace('Detail: ', '<br><b>Additional Details</b><br>').replace(/(https?:\/\/[^\s\)]+)\b/gi, '<a href="$1" target="_blank">$1</a>');
-        const delInfo = username != modname ? `deleted on <input value="${deldate}"> by <a href="/users/${modid}" target="_blank">${modname} ♦</a>` : `SELF-deleted on <input value="${deldate}">`;
+        const delInfo = username != modname ? `deleted on <input value="${deldate}"> by <a href="/users/${modid}" target="_blank">${modname}♦</a>` : `SELF-deleted on <input value="${deldate}">`;
 
         const $html = $(`
 <div class="del-user-info">
