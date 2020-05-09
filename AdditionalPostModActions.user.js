@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.1
+// @version      2.9.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -485,7 +485,7 @@
             }
 
             // Apply max suspension before deletion
-            if(!isSuperuser()) {
+            if(isSuperuser()) {
                 modMessage(uid, 'goodbye', false, 365);
                 debugger;
             }
