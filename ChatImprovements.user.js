@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.16.2
+// @version      2.16.3
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -654,10 +654,7 @@
   <div class="content">${msg.html}</div>
   <span class="meta"><span class="newreply" data-mid="${msg.id}" title="link my next chat message as a reply to this"></span></span>
   <span class="flash"><span class="stars vote-count-container"><span class="img vote" title="star this message as useful / interesting for the transcript"></span><span class="times">${msg.stars > 0 ? msg.stars : ''}</span></span></span>
-</div>`)
-                    .click(function() {
-                        $(this).remove();
-                    });
+</div>`);
                     message.addClass('show-parent-dialog').prepend(parentDialog);
                 });
                 return false;
@@ -694,6 +691,9 @@
             const input = document.getElementById('input');
             input.value = ':' + this.dataset.mid + ' ' + input.value.replace(/^:\d+\s*/, '');
             return false;
+        }).on('click', 'a', function(evt) {
+            evt.stopPropagation();
+            return true;
         });
     }
 
