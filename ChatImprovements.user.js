@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.16.1
+// @version      2.16.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -262,7 +262,7 @@
                     // normal text or a quote
                     const isQuote = /^&gt;\s/.test(data);
                     const html = data.replace(/^(:\d+|&gt;) /, '').replace(/\r\n?|\n/g, ' <br> ').replace(/(https?:\/\/(\S+))/gi, '<a href="$1">$2</a>');
-                    full = $(`<div class="full {isQuote ? 'quote' : 'text'}"></div>`).append(html); 
+                    full = $(`<div class="full {isQuote ? 'quote' : 'text'}"></div>`).append(html);
                 };
                 parent.empty().append(full);
             });
@@ -2094,6 +2094,9 @@ body.outside .access-section h2 {
 }
 .dialog-message.highlight {
     background: #222 !important;
+}
+.dialog-message .mention {
+    color: var(--black);
 }
 .dialog-message > .action-link {
     left: -12px !important;
