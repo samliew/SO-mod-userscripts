@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.2
+// @version      2.9.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -673,8 +673,8 @@
                 menuitems += `<div class="separator"></div>`;
                 menuitems += `<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" target="_blank" title="compose CM dissociation message in a new window">request dissociation</a>`; // non-deleted user only
 
-                // Allow destroy option only if < 30 days
-                if(postage < 30) {
+                // Allow destroy option only if < 60 days
+                if(postage < 60 || isSuperuser()) {
 
                     // Allow destroy option only if user < 200 rep
                     if(/^\d+$/.test(userrep) && Number(userrep) < 200) {
