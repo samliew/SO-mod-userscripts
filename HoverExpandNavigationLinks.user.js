@@ -3,7 +3,7 @@
 // @description  On pagination dots "..." mouseover, adds more page links (max 30 per hover), keyboard shortcuts for jumping to prev/next pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.10.1
+// @version      1.10.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -11,7 +11,6 @@
 // @include      https://*askubuntu.com/*
 // @include      https://*mathoverflow.net/*
 // @include      https://*stackexchange.com/*
-// @include      https://stackapps.com/*
 //
 // @exclude      *chat.*
 // @exclude      https://stackoverflow.com/c/*
@@ -23,7 +22,7 @@
 
     function listenToKeyboardEvents() {
 
-        const pager = $('.s-pagination, .pager').first();
+        const pager = $('.s-pagination, .pager').not('.page-sizer').first();
         const pagerItems = pager.children('.s-pagination--item');
         //const currentPagerItem = pagerItems.filter('.is-selected');
 
@@ -31,7 +30,10 @@
         $(document).on('keydown', null, function(evt) {
 
             // Do nothing if key modifiers were pressed
-            if(evt.shiftKey || evt.ctrlKey || evt.altKey || evt.metaKey) return;
+            if(evt.shiftKey || evt.ctrlKey || evt.altKey) return;
+
+            // Do nothing if a textbox or textarea is focused
+            if($('input:text:focus, textarea:focus').length > 0) return;
 
             const LEFTKEY  = evt.keyCode == 37 || evt.key == 'ArrowLeft';
             const RIGHTKEY = evt.keyCode == 39 || evt.key == 'ArrowRight';
