@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.3
+// @version      2.10
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -13,6 +13,7 @@
 // @include      https://*.stackexchange.com/*
 //
 // @exclude      *chat.*
+// @exclude      *blog.*
 // @exclude      https://stackoverflow.com/c/*
 //
 // @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
@@ -603,11 +604,13 @@
         // Append link to post sidebar if it doesn't exist yet
         $('.js-voting-container').not('.js-post-mod-menu').addClass('js-post-mod-menu').each(function() {
             const post = $(this).closest('.question, .answer');
+            const postScore = Number($(this).find('.js-vote-count').text());
             const postStatus = post.find('.js-post-notice, .special-status, .question-status').text().toLowerCase();
             const isQuestion = post.hasClass('question');
             const isDeleted = post.hasClass('deleted-answer');
             const isModDeleted = post.find('.deleted-answer-info').text().includes('♦') || (postStatus.includes('deleted') && postStatus.includes('♦'));
             const isClosed = postStatus.includes('closed') || postStatus.includes('on hold') || postStatus.includes('duplicate') || postStatus.includes('already has');
+            const isProtected = post.find('.js-post-notice b').text().includes('Highly active question');
             const isMigrated = postStatus.includes('migrated to');
             const isLocked = isMigrated || postStatus.includes('locked');
             const isOldDupe = isQuestion && post.find('.post-text blockquote').first().find('strong').text().includes('Possible Duplicate');
@@ -632,39 +635,47 @@
                 menuitems += `<div class="separator"></div>`;
             }
 
-            menuitems += `<a data-action="move-comments" class="${isDeleted || !hasComments ? 'disabled' : ''}" title="${hasComments ? '' : 'no comments to move!'}">move comments to chat</a>`; // when there are comments only?
-            menuitems += `<a data-action="purge-comments" class="${!hasComments ? 'disabled' : ''}" title="${hasComments ? '' : 'no comments to purge!'}">purge comments</a>`; // when there are comments only?
+            if(hasComments) { // when there are comments only?
+                menuitems += `<a data-action="move-comments" class="${isDeleted || !hasComments ? 'disabled' : ''}">move comments to chat</a>`;
+                menuitems += `<a data-action="purge-comments" class="${!hasComments ? 'disabled' : ''}">purge comments</a>`;
+            }
 
-            if(!isQuestion) { // A-only
+            if(isQuestion) { // Q-only
+                menuitems += `<a data-action="toggle-protect" class="${isDeleted ? 'disabled' : ''}" title="${isDeleted ? 'question is deleted!' : ''}">toggle protect</a>`;
+
+                if(isSO && !isClosed && !isDeleted) {
+                    menuitems += `<a data-action="close-offtopic" title="close with default off-topic reason">close (offtopic)</a>`;
+                }
+
+                // Incorrectly posted question on SO Meta
+                if(isSOMeta && !isDeleted) {
+                    menuitems += `<a data-action="meta-incorrect">close + delete (incorrectly posted)</a>`;
+                }
+                else {
+                    menuitems += `<a data-action="mod-delete" title="redelete post as moderator to prevent undeletion">mod-delete post</a>`;
+                }
+                
+            }
+            else { // A-only
                 menuitems += `<a data-action="convert-comment" title="convert only the post to a comment on the question">convert post to comment</a>`;
                 menuitems += `<a data-action="convert-edit" title="append the post as an edit to the question">convert post to edit</a>`;
-            }
-            else { // Q-only
-                menuitems += `<a data-action="toggle-protect" class="${isDeleted ? 'disabled' : ''}" title="${isDeleted ? 'question is deleted!' : ''}">toggle protect</a>`;
-            }
-
-            if(isSO && isQuestion && !isClosed && !isDeleted) {
-                menuitems += `<a data-action="close-offtopic" title="close with default off-topic reason">close (offtopic)</a>`;
+                menuitems += `<a data-action="mod-delete" title="redelete post as moderator to prevent undeletion">mod-delete post</a>`;
             }
 
             menuitems += `<div class="separator"></div>`;
 
-            // Incorrectly posted question on SO Meta
-            if(isSOMeta && isQuestion && !isDeleted) {
-                menuitems += `<a data-action="meta-incorrect">close + delete (incorrectly posted)</a>`;
-            }
-            else {
-                menuitems += `<a data-action="mod-delete" title="redelete post as moderator to prevent undeletion">mod-delete post</a>`;
-            }
+            if(!isLocked) { // unlocked-only
+                menuitems += `<a data-action="lock-dispute" title="prompts for number of days to dispute lock">lock - dispute (custom days)</a>`;
+                menuitems += `<a data-action="lock-comments" title="prompts for number of days to comment lock">lock - comments (custom days)</a>`;
 
-            menuitems += `<a data-action="lock-dispute" class="${isLocked ? 'dno' : ''}" title="prompts for number of days to dispute lock">lock - dispute (custom days)</a>`; // unlocked-only
-            menuitems += `<a data-action="lock-comments" class="${isLocked ? 'dno' : ''}" title="prompts for number of days to comment lock">lock - comments (custom days)</a>`; // unlocked-only
-
-            if(isQuestion) { // Q-only
-                // menuitems += `<a data-action="lock-historical" class="${isLocked ? 'dno' : ''}">lock - historical (perm)</a>`; // unlocked-only
+                // Old good questions only
+                if(isQuestion && postage > 60 && postScore > 20) {
+                    menuitems += `<a data-action="lock-historical">lock - historical (perm)</a>`;
+                }
             }
-
-            menuitems += `<a data-action="unlock" class="${!isLocked || isMigrated ? 'dno' : ''}">unlock</a>`; // L-only
+            else { // locked-only
+                menuitems += `<a data-action="unlock">unlock</a>`;
+            }
 
             // CM message and destroy options won't work on Meta
             if(userlink && /.*\/\d+\/.*/.test(userlink) && !isMeta) {
@@ -813,7 +824,9 @@
                     break;
                 }
                 case 'lock-historical':
-                    lockPost(pid, 22, -1).then(reloadPage);
+                    if(confirm(`Confirm apply a permanent historical lock on this question and answers?`)) {
+                        lockPost(pid, 22, -1).then(reloadPage);
+                    }
                     break;
                 case 'unlock':
                     unlockPost(pid).then(reloadPage);

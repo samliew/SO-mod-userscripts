@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.2
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -21,6 +21,9 @@
 
 (function() {
     'use strict';
+
+    // Moderator check
+    if(!isModerator()) return;
 
 
     const superusers = [ 584192 ];
@@ -478,7 +481,7 @@
                 if(destroyDetails == null) { alert('Destroy cancelled. User was not destroyed.'); reject(); return; }
             }
 
-            // apply max suspension before deletion
+            // Apply max suspension before deletion
             if(isSuperuser()) {
                 modMessage(uid, 'goodbye', false, 365);
                 debugger;
@@ -589,6 +592,8 @@
             const isProtected = post.find('.js-post-notice b').text().includes('Highly active question');
             const isMigrated = postStatus.includes('migrated to');
             const isLocked = isMigrated || postStatus.includes('locked');
+            const isOldDupe = isQuestion && post.find('.post-text blockquote').first().find('strong').text().includes('Possible Duplicate');
+            const needsRedupe = postStatus.match(/This question already has( an)? answers? here:(\s|\n|\r)+Closed/i) != null;
             const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
             const userbox = post.find('.post-layout .user-info:last .user-action-time').filter((i, el) => el.innerText.includes('answered') || el.innerText.includes('asked')).parent();
@@ -609,8 +614,8 @@
 
             if(hasComments) { // when there are comments only?
                 menuitems += '<span class="inline-label comments-label">comments: </span>';
-                menuitems += `<a data-action="move-comments" class="inline-link ${isDeleted || !hasComments ? 'disabled' : ''}" title="${hasComments ? '' : 'no comments to move!'}">move</a>`;
-                menuitems += `<a data-action="purge-comments" class="inline-link ${!hasComments ? 'disabled' : ''}" title="${hasComments ? '' : 'no comments to purge!'}">purge</a>`;
+                menuitems += `<a data-action="move-comments" class="inline-link ${isDeleted || !hasComments ? 'disabled' : ''}">move</a>`;
+                menuitems += `<a data-action="purge-comments" class="inline-link ${!hasComments ? 'disabled' : ''}">purge</a>`;
                 menuitems += '<div class="block-clear"></div>';
             }
 
@@ -650,15 +655,16 @@
             menuitems += '<div class="block-clear"></div>';
             menuitems += '<span class="inline-label lock-label">lock: </span>';
             if(!isLocked) { // unlocked-only
-                menuitems += `<a data-action="lock-dispute" class="inline-link ${isLocked ? 'dno' : ''}" title="prompts for number of days to dispute lock">dispute...</a>`;
-                menuitems += `<a data-action="lock-comments" class="inline-link ${isLocked ? 'dno' : ''}" title="prompts for number of days to comment lock">comments...</a>`;
+                menuitems += `<a data-action="lock-dispute" class="inline-link" title="prompts for number of days to dispute lock">dispute...</a>`;
+                menuitems += `<a data-action="lock-comments" class="inline-link" title="prompts for number of days to comment lock">comments...</a>`;
 
-                if(isQuestion) { // Q-only
-                    //menuitems += `<a data-action="lock-historical" class="inline-link ${isLocked ? 'dno' : ''}" title="historical perma-lock">historical</a>`;
+                // Old good questions only
+                if(isQuestion && postage > 60 && postScore > 20) {
+                    menuitems += `<a data-action="lock-historical" class="inline-link" title="historical perma-lock">historical</a>`;
                 }
             }
-            else {
-                menuitems += `<a data-action="unlock" class="inline-link ${!isLocked || isMigrated ? 'dno' : ''}">unlock</a>`; // L-only
+            else { // locked-only
+                menuitems += `<a data-action="unlock" class="inline-link">unlock</a>`;
             }
 
             // CM message and destroy options won't work on Meta
