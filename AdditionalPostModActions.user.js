@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10
+// @version      2.10.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -669,7 +669,7 @@
                 menuitems += `<a data-action="lock-comments" title="prompts for number of days to comment lock">lock - comments (custom days)</a>`;
 
                 // Old good questions only
-                if(isQuestion && postage > 60 && postScore > 20) {
+                if(isQuestion && postage >= 60 && postScore >= 20) {
                     menuitems += `<a data-action="lock-historical">lock - historical (perm)</a>`;
                 }
             }
