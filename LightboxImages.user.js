@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat. Lightbox images that are displayed smaller than it's original size.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.2
+// @version      1.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -79,8 +79,12 @@
 
         // Occasionally
         setInterval(() => {
+
             // For text links to images, also visually display an indicator
-            $(lbSelector).addClass('image-lightbox');
+            $(lbSelector).addClass('image-lightbox')
+            // Handle dynamically loaded elements
+                .not('.js-lightbox-init').addClass('js-lightbox-init').fancybox();
+
         }, 3000);
     }
 
