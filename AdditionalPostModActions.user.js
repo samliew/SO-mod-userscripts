@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.2
+// @version      2.10.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -521,8 +521,7 @@
         // Insert to template
         template.val(
             template.val()
-            .replace(/:\n/, ':<br>') // remove newline after :
-            .replace(/{todo}/, addstr) // replace todo with additional information
+                .replace(/:\s+{todo}/, ':<br>\n' + addstr + '**Requested via custom flag.**' + newlines) // replace todo with additional information
         ).click();
 
         $('.popup-submit').click();
