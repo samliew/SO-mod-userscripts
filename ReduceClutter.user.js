@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.15
+// @version      1.16
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -104,6 +104,10 @@ ul.comments-list .comment-up-on {
 
 /* Hide new contributor popover */
 .js-new-contributor-popover {
+    display: none !important;
+}
+/* Hide new contributor displaying twice on a post */
+.comments .new-contributor-indicator {
     display: none !important;
 }
 
