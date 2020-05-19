@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.14
+// @version      2.10.15
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -589,9 +589,13 @@ async function waitForSOMU() {
 
                     // If an input field has a value and is currently focused
                     const focusedField = currPopup.find('input:text, textarea').filter(':focus').filter((i, el) => $(el).val() !== '');
-                    if(focusedField.length && confirm('Confirm clear currently focused field?')) {
-                        // Try clear currently focused field
-                        $(focusedField).last().val('');
+                    if(focusedField.length) {
+                        if(confirm('Confirm clear currently focused field?')) {
+                            // Try clear currently focused field
+                            $(focusedField).last().val('');
+                        }
+
+                        // Do not go back if a field is focused and not empty
                         return false;
                     }
 
