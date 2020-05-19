@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.4
+// @version      2.8.5
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -324,7 +324,9 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
             });
 
             // Insert after linked or related posts module
-            $('.sidebar-linked, .sidebar-related').first().before(qtoc);
+            const linkedRelated = $('.sidebar-linked, .sidebar-related').first().before(qtoc);
+            // If no linked or related posts, insert after featured community posts
+            if(linkedRelated.length === 0) $('#sidebar .s-sidebarwidget__yellow').first().after(qtoc);
 
             // Remove chat and hot network questions as they take up a lot of sidebar real-estate
             $('#chat-feature, #hot-network-questions').hide();
