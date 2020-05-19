@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.15
+// @version      2.10.16
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -574,6 +574,11 @@ async function waitForSOMU() {
             const currPopup = $('#delete-question-popup, #rejection-popup, #popup-flag-post, #popup-close-question').filter(':visible').last();
             console.log('active popup', currPopup.attr('id'));
 
+
+            // #69 - Do nothing else if a textbox or textarea is focused, e.g.: comment box
+            if($('input:text:focus, textarea:focus').length > 0) return;
+
+
             // If there's an active popup
             if(currPopup.length) {
 
@@ -609,9 +614,6 @@ async function waitForSOMU() {
                         return false;
                     }
                 }
-
-                // Do nothing else if a textbox or textarea is focused
-                else if($('input:text:focus, textarea:focus').length > 0) return;
 
                 // If valid index, click it
                 else if(index != null) {
