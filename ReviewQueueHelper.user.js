@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.17
+// @version      2.10.18
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -115,7 +115,7 @@ async function waitForSOMU() {
                   <span class="flag-remaining-inform" style="padding-right:20px"><span class="bounty-indicator-tab supernovabg">${remainingPostFlags}</span> flags left</span>
                 </td></tr></tfoot>`);
 
-        $('.reviewable-post-stats table').append(quota);
+        $('.reviewable-post-stats table').first().append(quota);
     }
 
 
@@ -287,7 +287,7 @@ async function waitForSOMU() {
 
         // Display post keywords
         post.issues = [];
-        const header = $('.reviewable-post .subheader');
+        const header = $('.reviewable-post .subheader').first();
         const resultsDiv = $(`<div id="review-keywords"></div>`).appendTo(header);
 
         const keywords = [
