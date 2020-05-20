@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.16
+// @version      2.10.17
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -565,7 +565,7 @@ async function waitForSOMU() {
             if(evt.shiftKey || evt.ctrlKey || evt.altKey) return;
 
             // If edit mode, cancel if esc is pressed
-            if(cancel && $('.editing-review-content').is(':visible')) {
+            if(cancel && $('.editing-review-content').length > 0) {
                 $('.js-review-cancel-button').click();
                 return;
             }
@@ -576,7 +576,8 @@ async function waitForSOMU() {
 
 
             // #69 - Do nothing else if a textbox or textarea is focused, e.g.: comment box
-            if($('input:text:focus, textarea:focus').length > 0) return;
+            // Do nothing else also if post is being edited
+            if($('input:text:focus, textarea:focus, .editing-review-content').length > 0) return;
 
 
             // If there's an active popup
