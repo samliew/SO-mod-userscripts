@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.5
+// @version      2.8.6
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -564,10 +564,19 @@ a.js-named-anchor {
     color: inherit !important;
 }
 
-/* Move share link to header to save space now that we have the follow button */
+/* Move share link to header to save space now that we have the follow button
+   Reduce font size slightly
+   This makes the six links stay in the same row
+*/
+.post-menu .lsep,
 .post-menu .js-share-link {
     display: none;
 }
+.post-menu > a,
+.post-menu > button {
+    font-size: 0.95em;
+}
+
 </style>
 `;
         $('body').append(styles);
