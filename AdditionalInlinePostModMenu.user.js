@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.3
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -577,6 +577,68 @@
     }
 
 
+    function addPostCommentsModLinks() {
+
+        $('div[id^="comments-link-"]').addClass('js-comments-menu');
+
+        // Append link to post sidebar if it doesn't exist yet
+        const allCommentMenus = $('.js-comments-menu');
+
+        // Init those that are not processed yet
+        allCommentMenus.not('.js-comments-menu-init').addClass('js-comments-menu-init').each(function() {
+
+            const post = $(this).closest('.answer, .question');
+            const pid = Number(post.attr('data-answerid') || post.attr('data-questionid')) || null;
+            this.dataset.postId = pid;
+
+            // If there are deleted comments, move from sidebar to bottom
+            const delCommentsBtn = post.find('.js-fetch-deleted-comments');
+            if(delCommentsBtn.length == 1) {
+                const numDeletedComments = delCommentsBtn.attr('title').match(/\d+/)[0];
+                $(this).append(`<span class="js-link-separator">&nbsp;|&nbsp;</span> <a class="js-show-link comments-link js-show-deleted-comments-link fc-red-600" title="expand to show all comments on this post (including deleted)" href="#" onclick="" role="button">load <b>${numDeletedComments}</b> deleted comment${numDeletedComments > 1 ? 's' : ''}</a>`);
+                delCommentsBtn.hide();
+            }
+
+            // Add move to chat and purge links
+            $(this).children('.mod-action-links').remove(); // in case added by another US
+            $(this).append(`<div class="mod-action-links dno" style="float:right; padding-right:10px">
+<a data-post-id="${pid}" class="js-move-comments-link comments-link fc-red-600" title="move all comments to chat + delete all">move to chat</a>
+<a data-post-id="${pid}" class="js-purge-comments-link comments-link fc-red-600" title="delete all comments">purge all</a>
+</div>`);
+
+        });
+
+        // Show move/purge links depending on comments
+        allCommentMenus.each(function() {
+            const hasComments = $(this).prev().find('.comment').length > 0;
+            $(this).find('.mod-action-links').toggle(hasComments);
+        });
+    }
+
+
+    function initPostCommentsModLinksEvents() {
+
+        const d = $('body').not('.js-comments-menu-events').addClass('js-comments-menu-events');
+
+        d.on('click', 'a.js-show-deleted-comments-link', function() {
+            const post = $(this).closest('.answer, .question');
+            post.find('.js-fetch-deleted-comments').click();
+        });
+
+        d.on('click', 'a.js-move-comments-link', function() {
+            const post = $(this).closest('.answer, .question');
+            const pid = Number(this.dataset.postId) || null;
+            moveCommentsOnPostToChat(pid);
+        });
+
+        d.on('click', 'a.js-purge-comments-link', function() {
+            const post = $(this).closest('.answer, .question');
+            const pid = Number(this.dataset.postId) || null;
+            deleteCommentsOnPost(pid);
+        });
+    }
+
+
     function appendInlinePostModMenus() {
 
         // Append link to post sidebar if it doesn't exist yet
@@ -611,12 +673,13 @@
             // Create menu based on post type and state
             let menuitems = '';
 
-            if(hasComments) { // when there are comments only?
-                menuitems += '<span class="inline-label comments-label">comments: </span>';
-                menuitems += `<a data-action="move-comments" class="inline-link ${isDeleted || !hasComments ? 'disabled' : ''}">move</a>`;
-                menuitems += `<a data-action="purge-comments" class="inline-link ${!hasComments ? 'disabled' : ''}">purge</a>`;
-                menuitems += '<div class="block-clear"></div>';
-            }
+            // Comment mod links are now added below the comments section
+            //if(hasComments) { // when there are comments only?
+            //    menuitems += '<span class="inline-label comments-label">comments: </span>';
+            //    menuitems += `<a data-action="move-comments" class="inline-link ${isDeleted || !hasComments ? 'disabled' : ''}">move</a>`;
+            //    menuitems += `<a data-action="purge-comments" class="inline-link ${!hasComments ? 'disabled' : ''}">purge</a>`;
+            //    menuitems += '<div class="block-clear"></div>';
+            //}
 
             if(isQuestion) { // Q-only
                 menuitems += '<div class="block-clear"></div>';
@@ -816,9 +879,6 @@
 
             return false;
         });
-
-        // Once on page load
-        appendInlinePostModMenus();
     }
 
 
@@ -849,11 +909,18 @@
             return false;
         }
 
+        // Once on page load
+        initPostCommentsModLinksEvents();
+        addPostCommentsModLinks();
+
         initPostModMenuLinkActions();
+        appendInlinePostModMenus();
+
         initPostDissociationHelper();
 
         // After requests have completed
         $(document).ajaxStop(function() {
+            addPostCommentsModLinks();
             appendInlinePostModMenus();
         });
     }
