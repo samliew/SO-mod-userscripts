@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11
+// @version      2.11.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1269,7 +1269,7 @@ pre {
 }
 
 /* CV and flag counts in sidebar */
-#remaining-quota tr:first-child td {
+.remaining-quota tr:first-child td {
     padding-top: 15px;
 }
 
