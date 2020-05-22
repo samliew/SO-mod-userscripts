@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10.18
+// @version      2.11
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -105,17 +105,17 @@ async function waitForSOMU() {
         }
 
         // Clear old values
-        $('#remaining-quota').remove();
+        $('.remaining-quota').remove();
 
         // Display number of CVs and flags remaining
-        const quota = $(`<tfoot id="remaining-quota"><tr><td colspan="2">
+        const quota = $(`<tfoot class="remaining-quota"><tr><td colspan="2">
                   <span class="remaining-votes"><span class="bounty-indicator-tab">${remainingCloseVotes}</span> <span>close votes left</span></span>
                 </td></tr>
                 <tr><td colspan="2">
                   <span class="flag-remaining-inform" style="padding-right:20px"><span class="bounty-indicator-tab supernovabg">${remainingPostFlags}</span> flags left</span>
                 </td></tr></tfoot>`);
 
-        $('.reviewable-post-stats table').first().append(quota);
+        $('.reviewable-post-stats table').append(quota);
     }
 
 
@@ -873,6 +873,23 @@ async function waitForSOMU() {
             // Next review loaded, transform UI and pre-process review
             else if(settings.url.includes('/review/next-task') || settings.url.includes('/review/task-reviewed/')) {
 
+
+                // If reviewing a suggested edit from Q&A (outside of review queues)
+                if(location.href.includes('/questions/')) {
+
+                    // Remove delete button
+                    $('.js-review-actions button[title="delete this post and the pending suggested edit"]').remove();
+
+                    // If reject is clicked, restyle popups to new stacks theme
+                    $('.post-menu').on('click', '.popup .js-action-button[title="reject this suggested edit"]', function() {
+
+                        // Convert radio buttons to new stacks radio
+                        $('#rejection-popup input:radio').addClass('s-radio');
+                    });
+
+                    return;
+                }
+
                 // Keep track of how many reviews were viewed in this session
                 numOfReviews++;
 
@@ -1225,6 +1242,9 @@ pre {
 }
 .reviewable-post-stats table {
     min-height: 150px;
+}
+.reviewable-post-stats .remaining-quota tr:first-child td {
+    padding-top: 10px;
 }
 
 .suggested-edits-review-queue .review-bar .review-summary {
