@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11
+// @version      2.11.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -972,6 +972,17 @@
 
         const styles = `
 <style>
+/* Better post menu links */
+.post-menu .lsep {
+    display: none;
+}
+.post-menu > a,
+.post-menu > button {
+    font-size: 0.95em;
+    padding: 2px 0px;
+    margin-right: 5px;
+}
+
 /* Disable transitions so z-index will work instantly */
 .downvoted-answer .comment-body,
 .downvoted-answer .post-signature,

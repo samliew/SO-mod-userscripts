@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -930,12 +930,17 @@
 
         const styles = `
 <style>
-.post-menu > a {
-    margin: 2px 3px 2px 0;
-}
+/* Better post menu links */
 .post-menu .lsep {
-    display: none !important;
+    display: none;
 }
+.post-menu > a,
+.post-menu > button {
+    font-size: 0.95em;
+    padding: 2px 0px;
+    margin-right: 5px;
+}
+
 .post-signature {
     min-width: 180px;
     width: auto;
