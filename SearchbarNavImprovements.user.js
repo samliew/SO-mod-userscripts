@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.14.2
+// @version      4.14.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -472,6 +472,13 @@
 
       // Sortable bookmarks
       $.getScript('https://cdn.rawgit.com/RubaXa/Sortable/master/Sortable.js', function() {
+
+          // Script validation
+          if(typeof Sortable === 'undefined') {
+              console.error('Searchbar & Nav Improvements - Sortable not loaded');
+              return;
+          }
+
           Sortable.create(ss.get(0), {
               ghostClass: 'sortable-ghost',
               onUpdate: function(evt) {
