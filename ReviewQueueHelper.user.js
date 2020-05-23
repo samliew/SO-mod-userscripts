@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.2
+// @version      2.11.3
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -915,6 +915,9 @@ async function waitForSOMU() {
 
                 // If not review queue, do nothing (e.g.: viewing suggested edit from Q&A)
                 if(queueType == null) return;
+
+                // Load more comments
+                $('.js-show-link.comments-link').click();
 
                 // Parse flagged reason (to select as default if no popular vote)
                 flaggedReason = (responseJson.instructions.match(/(too broad|unclear what you&#39;re asking|primarily opinion-based)/i) || ['']).pop().replace('&#39;', "'");
