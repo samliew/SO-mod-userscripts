@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0.1
+// @version      3.0.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -398,7 +398,7 @@ async function waitForSOMU() {
         // Question body is short, try to close if enabled
         if(autoCloseShortQuestions && post.isQuestion && post.content.length < 500) {
             console.log('short question detected, length ' + post.content.length);
-            $('.js-review-actions button[title*="Close"]').click();
+            $('.js-review-actions button[title*="Close"], .close-question-link').first().click();
             return;
         }
     }
