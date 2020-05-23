@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.12
+// @version      3.0
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1003,6 +1003,7 @@ async function waitForSOMU() {
                         }
                     }
 
+
                     // Show post menu links
                     const postmenu = reviewablePost.find('.post-menu');
                     $('.post-menu a[id^="delete-post-"]').text(isDeleted ? 'undelete' : 'delete').show();
@@ -1037,6 +1038,18 @@ async function waitForSOMU() {
                     // mod
                     if(StackExchange.options.user.isModerator) {
                         postmenu.prepend(`<a class="js-mod-menu-button" href="#" role="button" data-controller="se-mod-button" data-se-mod-button-type="post" data-se-mod-button-id="${pid}">mod</a>`);
+                    }
+
+                    // finally remove sidebar table links
+                    const reviewablePostStats = $('.reviewable-post-stats');
+                    reviewablePostStats.find('tbody td[colspan="2"]').parent().remove();
+
+                    // add padding text for cells that do not have content
+                    reviewablePostStats.find('.label-key').filter((i, v) => v.textContent.trim() == '').html('&nbsp;');
+                    // if less than six rows, add more
+                    const tableRows = reviewablePostStats.find('.label-key').length;
+                    for(let i = tableRows; i < 6; i++) {
+                        reviewablePostStats.find('tbody').append('<tr><td class="label-key">&nbsp;</td><td class="label-value"></td></tr>');
                     }
 
 
