@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.3
+// @version      2.12
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -491,7 +491,10 @@ async function waitForSOMU() {
 
     function insertVotingButtonsIfMissing() {
 
-        const voteCont = $('.js-voting-container').first();
+        const reviewablePost = $('.reviewable-post');
+        const isQuestion = reviewablePost.find('.question').length == 1;
+
+        const voteCont = reviewablePost.find('.js-voting-container').first();
         if(voteCont.length == 0) return;
 
         const upvoteBtn = `<button class="js-vote-up-btn grid--cell s-btn s-btn__unset c-pointer" title="This question shows research effort; it is useful and clear" aria-pressed="false" aria-label="up vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowUpLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 26h32L18 10 2 26z"></path></svg></button>`;
@@ -502,8 +505,7 @@ async function waitForSOMU() {
             voteCont.find('.fc-black-500').removeClass('fc-black-500');
             voteCont.find('.js-vote-count').removeClass('mb8').addClass('fc-black-500').before(upvoteBtn).after(dnvoteBtn);
 
-            StackExchange.question.fullInit('.question');
-            StackExchange.question.fullInit('.answer');
+            StackExchange.question.fullInit( isQuestion ? '.question' : '.answer' );
         }
     }
 
@@ -926,10 +928,14 @@ async function waitForSOMU() {
                 setTimeout(function() {
 
                     // Get post type
-                    const isQuestion = $('.reviewable-post:first .answers-subheader').text().includes('Question');
+                    const reviewablePost = $('.reviewable-post').first();
+                    const postElem = $('.reviewable-post').find('.question, .answer').first();
+                    const pid = postElem[0].dataset.postid || postElem[0].dataset.answerid || postElem[0].dataset.questionid;
+                    const isQuestion = reviewablePost.find('.answers-subheader').text().includes('Question');
 
                     // Get post status
-                    const isClosedOrDeleted = $('.reviewable-post').first().find('.question-status, .deleted-answer').length > 0;
+                    const isDeleted = reviewablePost.find('.deleted-answer').length > 0;
+                    const isClosedOrDeleted = reviewablePost.find('.question-status, .deleted-answer').length > 0;
                     console.log('isClosedOrDeleted', isClosedOrDeleted);
 
                     // If no more reviews, refresh page every 10 seconds
@@ -996,6 +1002,43 @@ async function waitForSOMU() {
                             });
                         }
                     }
+
+                    // Show post menu links
+                    const postmenu = reviewablePost.find('.post-menu');
+                    $('.post-menu a[id^="delete-post-"]').text(isDeleted ? 'undelete' : 'delete').show();
+                    $('.flag-post-link').each(function() {
+                        this.dataset.postid = this.dataset.questionid || this.dataset.answerid;
+                    }).text('flag').show();
+
+                    if(isQuestion) {
+                        const closeLink = $('.close-question-link').show();
+                        const siteApiSlug = StackExchange.options.site.name.toLowerCase().replace(/\s/g, '');
+                        $.get(`https://api.stackexchange.com/2.2/questions/${pid}?order=desc&sort=activity&site=${siteApiSlug}&filter=!)5IW-1CBJh-k0T7yaaeIcKxo)Nsr`, results => {
+                            const cvCount = Number(results.items[0].close_vote_count);
+                            if(cvCount > 0) {
+                                closeLink.text((i, v) => v + ' (' + cvCount + ')');
+                            }
+                        });
+                    }
+
+                    // follow
+                    postmenu.prepend(`<div id="--stacks-s-tooltip-${pid}" class="s-popover s-popover__tooltip pe-none" aria-hidden="true" role="tooltip" style="margin: 0px;">Follow this question to receive notifications<div class="s-popover--arrow"></div></div>`);
+                    postmenu.prepend(`<button id="btnFollowPost-${pid}" class="s-btn s-btn__link fc-black-400 h:fc-black-700 pb2 js-follow-post js-follow-question" role="button" data-gps-track="" data-controller="s-popover s-tooltip" data-s-tooltip-placement="bottom" data-s-popover-placement="bottom" aria-controls="divFollowingConfirm-${pid}" aria-describedby="--stacks-s-tooltip-${pid}" aria-pressed="false">follow</button>`);
+                    StackExchange.question.initQuestionFollowFeaturePopover();
+
+                    // edit
+                    postmenu.prepend(`<a href="/posts/${pid}/edit" class="edit-post" title="revise and improve this post">edit</a>`);
+                    StackExchange.inlineEditing.init();
+
+                    // share
+                    postmenu.prepend(`<a href="/q/61971119/${pid}" rel="nofollow" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this ${isQuestion ? 'question' : 'answer'}" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this ${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-subtitle="(includes your user id)" data-se-share-sheet-post-type="${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-social="facebook twitter devto" data-se-share-sheet-location="1" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-0" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show->se-share-sheet#willShow s-popover:shown->se-share-sheet#didShow">share</a>`);
+                    StackExchange.question.initShareLinks();
+
+                    // mod
+                    if(StackExchange.options.user.isModerator) {
+                        postmenu.prepend(`<a class="js-mod-menu-button" href="#" role="button" data-controller="se-mod-button" data-se-mod-button-type="post" data-se-mod-button-id="${pid}">mod</a>`);
+                    }
+
 
                     // Remove "Delete" option for suggested-edits queue, if not already reviewed (no Next button)
                     if(location.pathname.includes('/review/suggested-edits/') && !$('.review-status').text().includes('This item is no longer reviewable.')) {
@@ -1270,8 +1313,10 @@ pre {
     opacity: 1;
 }
 
-.post-menu > a {
-    display: inline-block !important;
+.review-task-page .post-menu > a,
+.review-task-page .post-menu > button {
+    float: left;
+    margin-right: 9px;
 }
 
 /* CV and flag counts in sidebar */
