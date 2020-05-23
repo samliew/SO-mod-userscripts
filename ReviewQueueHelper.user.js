@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.0.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1004,40 +1004,44 @@ async function waitForSOMU() {
                     }
 
 
-                    // Show post menu links
-                    const postmenu = reviewablePost.find('.post-menu');
-                    $('.post-menu a[id^="delete-post-"]').text(isDeleted ? 'undelete' : 'delete').show();
-                    $('.flag-post-link').each(function() {
-                        this.dataset.postid = this.dataset.questionid || this.dataset.answerid;
-                    }).text('flag').show();
+                    // Show post menu links, if not in queues that don't already show full menus
+                    if(queueType !== 'first-posts' && queueType !== 'late-answers' && queueType !== 'suggested-edits') {
 
-                    if(isQuestion) {
-                        const closeLink = $('.close-question-link').show();
-                        const siteApiSlug = StackExchange.options.site.name.toLowerCase().replace(/\s/g, '');
-                        $.get(`https://api.stackexchange.com/2.2/questions/${pid}?order=desc&sort=activity&site=${siteApiSlug}&filter=!)5IW-1CBJh-k0T7yaaeIcKxo)Nsr`, results => {
-                            const cvCount = Number(results.items[0].close_vote_count);
-                            if(cvCount > 0) {
-                                closeLink.text((i, v) => v + ' (' + cvCount + ')');
-                            }
-                        });
-                    }
+                        const postmenu = reviewablePost.find('.post-menu');
 
-                    // follow
-                    postmenu.prepend(`<div id="--stacks-s-tooltip-${pid}" class="s-popover s-popover__tooltip pe-none" aria-hidden="true" role="tooltip" style="margin: 0px;">Follow this question to receive notifications<div class="s-popover--arrow"></div></div>`);
-                    postmenu.prepend(`<button id="btnFollowPost-${pid}" class="s-btn s-btn__link fc-black-400 h:fc-black-700 pb2 js-follow-post js-follow-question" role="button" data-gps-track="" data-controller="s-popover s-tooltip" data-s-tooltip-placement="bottom" data-s-popover-placement="bottom" aria-controls="divFollowingConfirm-${pid}" aria-describedby="--stacks-s-tooltip-${pid}" aria-pressed="false">follow</button>`);
-                    StackExchange.question.initQuestionFollowFeaturePopover();
+                        $('.post-menu a[id^="delete-post-"]').text(isDeleted ? 'undelete' : 'delete').show();
+                        $('.flag-post-link').each(function() {
+                            this.dataset.postid = this.dataset.questionid || this.dataset.answerid;
+                        }).text('flag').show();
 
-                    // edit
-                    postmenu.prepend(`<a href="/posts/${pid}/edit" class="edit-post" title="revise and improve this post">edit</a>`);
-                    StackExchange.inlineEditing.init();
+                        if(isQuestion) {
+                            const closeLink = $('.close-question-link').show();
+                            const siteApiSlug = StackExchange.options.site.name.toLowerCase().replace(/\s/g, '');
+                            $.get(`https://api.stackexchange.com/2.2/questions/${pid}?order=desc&sort=activity&site=${siteApiSlug}&filter=!)5IW-1CBJh-k0T7yaaeIcKxo)Nsr`, results => {
+                                const cvCount = Number(results.items[0].close_vote_count);
+                                if(cvCount > 0) {
+                                    closeLink.text((i, v) => v + ' (' + cvCount + ')');
+                                }
+                            });
+                        }
 
-                    // share
-                    postmenu.prepend(`<a href="/q/61971119/${pid}" rel="nofollow" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this ${isQuestion ? 'question' : 'answer'}" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this ${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-subtitle="(includes your user id)" data-se-share-sheet-post-type="${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-social="facebook twitter devto" data-se-share-sheet-location="1" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-0" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show->se-share-sheet#willShow s-popover:shown->se-share-sheet#didShow">share</a>`);
-                    StackExchange.question.initShareLinks();
+                        // follow
+                        postmenu.prepend(`<div id="--stacks-s-tooltip-${pid}" class="s-popover s-popover__tooltip pe-none" aria-hidden="true" role="tooltip" style="margin: 0px;">Follow this question to receive notifications<div class="s-popover--arrow"></div></div>`);
+                        postmenu.prepend(`<button id="btnFollowPost-${pid}" class="s-btn s-btn__link fc-black-400 h:fc-black-700 pb2 js-follow-post js-follow-question" role="button" data-gps-track="" data-controller="s-popover s-tooltip" data-s-tooltip-placement="bottom" data-s-popover-placement="bottom" aria-controls="divFollowingConfirm-${pid}" aria-describedby="--stacks-s-tooltip-${pid}" aria-pressed="false">follow</button>`);
+                        StackExchange.question.initQuestionFollowFeaturePopover();
 
-                    // mod
-                    if(StackExchange.options.user.isModerator) {
-                        postmenu.prepend(`<a class="js-mod-menu-button" href="#" role="button" data-controller="se-mod-button" data-se-mod-button-type="post" data-se-mod-button-id="${pid}">mod</a>`);
+                        // edit
+                        postmenu.prepend(`<a href="/posts/${pid}/edit" class="edit-post" title="revise and improve this post">edit</a>`);
+                        StackExchange.inlineEditing.init();
+
+                        // share
+                        postmenu.prepend(`<a href="/q/61971119/${pid}" rel="nofollow" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this ${isQuestion ? 'question' : 'answer'}" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this ${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-subtitle="(includes your user id)" data-se-share-sheet-post-type="${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-social="facebook twitter devto" data-se-share-sheet-location="1" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-0" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show->se-share-sheet#willShow s-popover:shown->se-share-sheet#didShow">share</a>`);
+                        StackExchange.question.initShareLinks();
+
+                        // mod
+                        if(StackExchange.options.user.isModerator) {
+                            postmenu.prepend(`<a class="js-mod-menu-button" href="#" role="button" data-controller="se-mod-button" data-se-mod-button-type="post" data-se-mod-button-id="${pid}">mod</a>`);
+                        }
                     }
 
                     // finally remove sidebar table links
