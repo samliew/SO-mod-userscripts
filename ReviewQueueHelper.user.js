@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.1
+// @version      3.1.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -90,7 +90,7 @@ async function waitForSOMU() {
     function displayRemainingQuota() {
 
         // Ignore mods, since we have unlimited power
-        if(StackExchange.options.user.isModerator) return;
+        //if(StackExchange.options.user.isModerator) return;
 
         const viewableQuestionId = post.postId || 11227809; // an open question on stack overflow
 
@@ -1032,15 +1032,18 @@ async function waitForSOMU() {
 
                             // If close link is not there for any reason, add back (e.g.: suggested-edit)
                             if(closeLink.length === 0) {
-                                closeLink = $(`<a href="#" class="close-question-link js-close-question-link" title="vote to close this question (when closed, no new answers can be added)" data-questionid="61970565" data-show-interstitial="" data-isclosed="false">close</a>`).prependTo(postmenu);
+                                closeLink = $(`<a href="#" class="close-question-link js-close-question-link" title="vote to close this question (when closed, no new answers can be added)" data-questionid="${pid}" data-show-interstitial="" data-isclosed="false">close</a>`).prependTo(postmenu);
                             }
 
-                            $.get(`https://api.stackexchange.com/2.2/questions/${pid}?order=desc&sort=activity&site=${siteApiSlug}&filter=!)5IW-1CBJh-k0T7yaaeIcKxo)Nsr`, results => {
-                                const cvCount = Number(results.items[0].close_vote_count);
-                                if(cvCount > 0) {
-                                    closeLink.text((i, v) => v + ' (' + cvCount + ')');
-                                }
-                            });
+                            // If close link does not have a close count yet
+                            if(!closeLink.text().includes('(')) {
+                                $.get(`https://api.stackexchange.com/2.2/questions/${pid}?order=desc&sort=activity&site=${siteApiSlug}&filter=!)5IW-1CBJh-k0T7yaaeIcKxo)Nsr`, results => {
+                                    const cvCount = Number(results.items[0].close_vote_count);
+                                    if(cvCount > 0 && !closeLink.text().includes('(')) {
+                                        closeLink.text((i, v) => v + ' (' + cvCount + ')');
+                                    }
+                                });
+                            }
                         }
 
                         // follow
@@ -1062,6 +1065,9 @@ async function waitForSOMU() {
                         if(StackExchange.options.user.isModerator) {
                             postmenu.prepend(`<a class="js-mod-menu-button" href="#" role="button" data-controller="se-mod-button" data-se-mod-button-type="post" data-se-mod-button-id="${pid}">mod</a>`);
                         }
+
+                        // needs full init here for reopen to work after closing
+                        StackExchange.question.fullInit( isQuestion ? '.question' : '.answer' );
                     }
 
                     // finally remove sidebar table links
@@ -1306,6 +1312,7 @@ async function waitForSOMU() {
 
     function addReviewQueueStyles() {
         GM_addStyle(`
+.sidebar .ajax-loader,
 #footer {
     display: none !important;
 }
