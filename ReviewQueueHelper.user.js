@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0.3
+// @version      3.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -47,7 +47,9 @@ async function waitForSOMU() {
 
     const fkey = StackExchange.options.user.fkey;
     const scriptName = GM_info.script.name;
-    const isSO = location.hostname == 'stackoverflow.com';
+    const site = location.hostname;
+    const siteApiSlug = site.toLowerCase().replace(/\.(com|net)$/, '').replace(/\s/g, '');
+    const isSO = site === 'stackoverflow.com';
 
     const superusers = [ 584192 ];
     const isSuperuser = () => superusers.includes(StackExchange.options.user.userId);
@@ -1009,14 +1011,19 @@ async function waitForSOMU() {
 
                         const postmenu = reviewablePost.find('.post-menu');
 
-                        $('.post-menu a[id^="delete-post-"]').text(isDeleted ? 'undelete' : 'delete').show();
+                        // delete
+                        if(StackExchange.options.user.canSeeDeletedPosts) {
+                            $('.post-menu a[id^="delete-post-"]').text(isDeleted ? 'undelete' : 'delete').show();
+                        }
+
+                        // flag
                         $('.flag-post-link').each(function() {
                             this.dataset.postid = this.dataset.questionid || this.dataset.answerid;
                         }).text('flag').show();
 
+                        // close
                         if(isQuestion) {
                             const closeLink = $('.close-question-link').show();
-                            const siteApiSlug = StackExchange.options.site.name.toLowerCase().replace(/\s/g, '');
                             $.get(`https://api.stackexchange.com/2.2/questions/${pid}?order=desc&sort=activity&site=${siteApiSlug}&filter=!)5IW-1CBJh-k0T7yaaeIcKxo)Nsr`, results => {
                                 const cvCount = Number(results.items[0].close_vote_count);
                                 if(cvCount > 0) {
