@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1
+// @version      3.1.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -54,7 +54,7 @@ async function waitForSOMU() {
     const superusers = [ 584192 ];
     const isSuperuser = () => superusers.includes(StackExchange.options.user.userId);
 
-    const queueType = /^\/review/.test(location.pathname) ? location.href.replace(/\/\d+(\?.*)?$/, '').split('/').pop() : null;
+    const queueType = /^\/review/.test(location.pathname) ? location.pathname.replace(/\/\d+$/, '').split('/').pop() : null;
     const filteredElem = document.querySelector('.review-filter-tags');
     const filteredTags = filteredElem ? (filteredElem.value || '').split(' ') : [''];
     let processReview, post = {}, flaggedReason = null;
@@ -930,10 +930,9 @@ async function waitForSOMU() {
                 setTimeout(function() {
 
                     // Get post type
-                    const reviewablePost = $('.reviewable-post').first();
-                    const postElem = $('.reviewable-post').find('.question, .answer').first();
-                    const pid = postElem[0].dataset.postid || postElem[0].dataset.answerid || postElem[0].dataset.questionid;
-                    const isQuestion = reviewablePost.find('.answers-subheader').text().includes('Question');
+                    const reviewablePost = $('.reviewable-post, .suggested-edit').first();
+                    const pid = responseJson.postId;
+                    const isQuestion = reviewablePost.find('.answers-subheader').text().includes('Question') || reviewablePost.find('.question-hyperlink').length > 0;
 
                     // Get post status
                     const isDeleted = reviewablePost.find('.deleted-answer').length > 0;
@@ -1006,7 +1005,13 @@ async function waitForSOMU() {
                     }
 
 
-                    // Show post menu links, if not in queues that don't already show full menus
+                    // For suggested edits, insert post menu
+                    //if(queueType === 'suggested-edits' && reviewablePost.find('.post-menu').length == 0) {
+                    //    reviewablePost.find('.user-info-actions').first().before('<div class="post-menu"></div>');
+                    //}
+
+
+                    // Show post menu links, if not in queues that don't already show full menus or doesn't support it
                     if(queueType !== 'first-posts' && queueType !== 'late-answers' && queueType !== 'suggested-edits') {
 
                         const postmenu = reviewablePost.find('.post-menu');
@@ -1023,7 +1028,13 @@ async function waitForSOMU() {
 
                         // close
                         if(isQuestion) {
-                            const closeLink = $('.close-question-link').show();
+                            let closeLink = $('.close-question-link').show();
+
+                            // If close link is not there for any reason, add back (e.g.: suggested-edit)
+                            if(closeLink.length === 0) {
+                                closeLink = $(`<a href="#" class="close-question-link js-close-question-link" title="vote to close this question (when closed, no new answers can be added)" data-questionid="61970565" data-show-interstitial="" data-isclosed="false">close</a>`).prependTo(postmenu);
+                            }
+
                             $.get(`https://api.stackexchange.com/2.2/questions/${pid}?order=desc&sort=activity&site=${siteApiSlug}&filter=!)5IW-1CBJh-k0T7yaaeIcKxo)Nsr`, results => {
                                 const cvCount = Number(results.items[0].close_vote_count);
                                 if(cvCount > 0) {
@@ -1038,8 +1049,10 @@ async function waitForSOMU() {
                         StackExchange.question.initQuestionFollowFeaturePopover();
 
                         // edit
-                        postmenu.prepend(`<a href="/posts/${pid}/edit" class="edit-post" title="revise and improve this post">edit</a>`);
-                        StackExchange.inlineEditing.init();
+                        if(queueType !== 'suggested-edits') {
+                            postmenu.prepend(`<a href="/posts/${pid}/edit" class="edit-post" title="revise and improve this post">edit</a>`);
+                            StackExchange.inlineEditing.init();
+                        }
 
                         // share
                         postmenu.prepend(`<a href="/q/${pid}" rel="nofollow" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this ${isQuestion ? 'question' : 'answer'}" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this ${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-subtitle="(includes your user id)" data-se-share-sheet-post-type="${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-social="facebook twitter devto" data-se-share-sheet-location="1" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-0" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show->se-share-sheet#willShow s-popover:shown->se-share-sheet#didShow">share</a>`);
@@ -1062,7 +1075,6 @@ async function waitForSOMU() {
                     for(let i = tableRows; i < 6; i++) {
                         reviewablePostStats.find('tbody').append('<tr><td class="label-key">&nbsp;</td><td class="label-value"></td></tr>');
                     }
-
 
                     // Remove "Delete" option for suggested-edits queue, if not already reviewed (no Next button)
                     if(location.pathname.includes('/review/suggested-edits/') && !$('.review-status').text().includes('This item is no longer reviewable.')) {
@@ -1325,6 +1337,13 @@ pre {
 }
 .suggested-edits-review-queue .review-bar .js-review-actions-error-target {
     flex-basis: 55%;
+}
+.suggested-edits-review-queue .suggested-edit .post-menu {
+    margin-top: 20px;
+    margin-left: 62px;
+}
+.suggested-edits-review-queue .suggested-edit .body-diffs + div {
+    margin: 10px 0;
 }
 
 .review-content {
