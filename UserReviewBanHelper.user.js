@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.0.2
+// @version      4.0.3
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -16,6 +16,7 @@
 //
 // @include      */users/history/*?type=User+has+been+banned+from+review
 // @include      */users/*?tab=activity&sort=reviews*
+// @include      */users/*?tab=activity&sort=suggestions*
 //
 // @include      */admin/review/failed-audits*
 // @include      */admin/review/audits*
@@ -220,6 +221,242 @@
             for(let i = 1; i <= numPages; i++) {
                 $(`<div id="${q[1]}-review-${i}"></div>`).appendTo(cont).load(`https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=True&page=${i} #content .history-table`);
             }
+        });
+    }
+
+
+    /* For review pages */
+    function getUsersInfo() {
+
+        // If triage queue
+        if(location.pathname.includes('/review/triage/')) {
+
+            // Sort by action
+            $('.js-review-instructions .review-results').detach().sort(function(a, b) {
+                const ax = $(a).children('b').last().text();
+                const bx = $(b).children('b').last().text();
+                return ax < bx ? -1 : 1;
+            }).appendTo('.js-review-instructions');
+
+            // Add review-ban button for users who selected "Looks OK"
+            $(`<button class="mt16">Review ban "Looks OK"</button>`).appendTo('.reviewable-post-stats')
+                .click(function() {
+                $('.review-results').filter((i, el) => el.innerText.includes('Looks OK')).find('.reviewban-link').each((i, el) => el.click());
+                $(this).remove();
+            });
+
+            // Add review-ban button for users who selected "Requires Editing"
+            $(`<button class="mt16">Review ban "Requires Editing"</button>`).appendTo('.reviewable-post-stats')
+                .click(function() {
+                $('.review-results').filter((i, el) => el.innerText.includes('Requires Editing')).find('.reviewban-link').each((i, el) => el.click());
+                $(this).remove();
+                unsafeWindow.top.close();
+            });
+
+            // Add review ban all button
+            $(`<button class="mt16">Review ban ALL</button>`).appendTo('.reviewable-post-stats')
+                .click(function() {
+                $(this).siblings('button').click();
+                $(this).remove();
+                unsafeWindow.top.close();
+            });
+        }
+
+        // Get users review history
+        $('.js-review-instructions').find('a[href^="/users/"]').each(function() {
+
+            // Ignore mods
+            var modFlair = $(this).next('.mod-flair');
+            if(modFlair.length) return;
+
+            var userlink = $(this);
+            var uid = $(this).attr('href').match(/\d+/)[0];
+            var url = '/users/history/' + uid + '?type=User+has+been+banned+from+review';
+            var action = $(this).nextAll('b').last().text().toLowerCase().trim().replace(/\W+/g, '-');
+            var banUrl = `/admin/review/bans#${uid}|${location.pathname}|${action}`;
+
+            // Add ban link
+            $(`<a class="reviewban-link" href="${banUrl}" title="Ban user from reviews" target="_blank">X</a>`)
+                .insertBefore(userlink);
+
+            // Skip fetching history for supermods since we will already be fetching that while attempting to ban
+            if(!isSuperuser()) {
+
+                // Grab user's history
+                $.ajax({
+                    url: url,
+                    xhr: jQueryXhrOverride,
+                    success: function(data) {
+
+                        // Parse user history page
+                        var numBans = 0;
+                        var summary = $('#summary', data);
+                        var numBansLink = summary.find('a[href="?type=User+has+been+banned+from+review"]').get(0);
+                        if(typeof numBansLink !== 'undefined') {
+                            numBans = Number(numBansLink.nextSibling.nodeValue.match(/\d+/)[0]);
+                        }
+
+                        console.log("Review bans for " + uid, numBans);
+
+                        // Add annotation count
+                        $(`<a class="reviewban-count ${numBans > 2 ? 'warning' : ''}" href="${url}" title="${numBans} prior review bans" target="_blank">${numBans}</a>`)
+                            .insertBefore(userlink);
+                    }
+                });
+            }
+        });
+    }
+
+
+    /* For review ban page */
+    function getUserReviewBanHistory(uid) {
+
+        const url = `https://${location.hostname}/users/history/${uid}?type=User+has+been+banned+from+review`;
+
+        // Change window/tab title so we can visually see the progress
+        document.title = '3.HISTORY';
+
+        // Grab user's history page
+        $.get(url).then(function(data) {
+
+            // Change window/tab title so we can visually see the progress
+            document.title = '4.READY';
+
+            // Parse user history page
+            let numBans = 0;
+            const summary = $('#summary', data);
+            const eventRows = $('#user-history tbody tr', data);
+
+            // Get number from filter menu, because user might have been banned more times and events will overflow to next page
+            const numBansLink = summary.find('a[href="?type=User+has+been+banned+from+review"]').get(0);
+            if(typeof numBansLink !== 'undefined') {
+                numBans = Number(numBansLink.nextSibling.nodeValue.match(/\d+/)[0]);
+            }
+
+            // Add annotation count
+            const banCountDisplay = $(`<div class="reviewban-history-summary">User was previously review banned <b><a href="${url}" title="view history" target="_blank">${numBans} time${pluralize(numBans)}</a></b>. </div>`)
+                .insertAfter('.message-wrapper');
+            banCountDisplay.nextAll().wrapAll('<div class="grid history-duration-wrapper"><div class="grid--cell4 duration-wrapper"></div></div>');
+
+            const pastReviewMessages = $('<div class="grid--cell12 reviewban-history"></div>').appendTo('.history-duration-wrapper');
+
+            // Change user profile link to directly link to user reviews tab page
+            $('.duration-wrapper a').first().attr('href', (i, v) => v + '?tab=activity&sort=reviews').attr('title', 'view other recent reviews by user');
+
+            // Default to first radio button
+            $('.duration-radio-group input').first().click();
+
+            // Get hist items from filtered page
+            const histItems = eventRows.map(function(i, el) {
+                const event = Object.assign({}, null); // plain object
+                let startDate = new Date($(el).find('.relativetime').attr('title'));
+                let endDate = new Date(startDate);
+                event.begin = startDate;
+                event.reason = el.children[2].innerHTML.split('duration =')[0];
+                event.mod = el.children[2].innerHTML.split(/duration = \d+ days?/)[1].replace(/\s*by\s*/, '');
+                event.duration = Number(el.children[2].innerText.match(/\= (\d+) day/m)[1]);
+                // calculate end datetime
+                endDate.setDate(endDate.getDate() + event.duration);
+                event.end = endDate;
+                return event;
+            }).get();
+
+            // Append hist items to pastReviewMessages
+            histItems.forEach(function(event) {
+                pastReviewMessages.append(`<div class="item">
+  <div class="item-meta">
+    <div><span class="relativetime" title="${dateToSeDateFormat(event.begin)}">${event.begin.toDateString() + ' ' + event.begin.toLocaleTimeString()}</span></div>
+    <div>${event.duration} days</div>
+    <div><span class="relativetime" title="${dateToSeDateFormat(event.end)}">${event.end.toDateString() + ' ' + event.end.toLocaleTimeString()}</span></div>
+    <div>${event.mod}</div>
+  </div>
+  <div class="item-reason">${event.reason}</div>
+</div>`);
+            });
+
+            // No items
+            if(histItems.length == 0) {
+                pastReviewMessages.append('<em>(none)</em>');
+            }
+            else {
+                pastReviewMessages.find('a').attr('target', '_blank'); // links open in new tab/window
+                StackExchange.realtime.updateRelativeDates();
+            }
+
+            // Add currently/recently banned indicator if history found
+            let isCurrentlyBanned = false;
+            let isRecentlyBanned = false;
+            let newDuration = null, recommendedDuration = null;
+            let daysago = new Date();
+            daysago.setDate(daysago.getDate() - 60);
+            eventRows.eq(0).each(function() {
+                const datetime = new Date($(this).find('.relativetime').attr('title'));
+                const duration = Number(this.innerText.match(/\= \d+ days/)[0].replace(/\D+/g, ''));
+                let banEndDatetime = new Date(datetime);
+                banEndDatetime.setDate(banEndDatetime.getDate() + duration);
+                const currtext = banEndDatetime > Date.now() ? 'Current' : 'Recent';
+
+                newDuration = duration;
+                recommendedDuration = duration;
+
+                // Recent, double duration
+                if(banEndDatetime > daysago) {
+                    isRecentlyBanned = true;
+
+                    $(`<span class="reviewban-ending ${currtext == 'current' ? 'current' : 'recent'}"><span class="type" title="recommended to double the previous ban duration">${currtext}ly</span> review banned for <b>${duration} days</b> until <span class="relativetime" title="${dateToSeDateFormat(banEndDatetime)}">${banEndDatetime}</span>.</span>`)
+                        .appendTo(banCountDisplay);
+                    newDuration *= 2;
+
+                    // Also add warning to the submit button if currently banned
+                    if(currtext == 'Current') {
+                        isCurrentlyBanned = true;
+                        $('#lookup-result input:submit').addClass('s-btn__danger s-btn__filled js-ban-again').val((i, v) => v + ' again');
+                    }
+                }
+                // Halve duration
+                else {
+                    $(`<span class="reviewban-ending">Last review banned for <b>${duration} days</b> until <span class="relativetime" title="${dateToSeDateFormat(banEndDatetime)}">${banEndDatetime}</span>.</span>`)
+                        .appendTo(banCountDisplay);
+                    newDuration = Math.ceil(duration / 2);
+                }
+                console.log('Calculated ban duration:', newDuration);
+
+                // Select recommended duration radio from available options
+                if(newDuration < 2) newDuration = 2; // min duration
+                if(newDuration > 365) newDuration = 365; // max duration
+                $('.duration-radio-group input').each(function() {
+                    if(Number(this.value) <= newDuration + (newDuration/7)) {
+                        this.click();
+                        recommendedDuration = Number(this.value);
+                    }
+                });
+                console.log('Closest ban duration option:', recommendedDuration);
+            });
+
+            // If sam is review banning users in Triage
+            if(isSuperuser() && location.hash.includes('/triage')) {
+
+                // If reviewAction is "looks-ok", and user is currently banned for >= 64, ignore (close tab)
+                if(reviewAction == 'looks-ok' && isCurrentlyBanned && recommendedDuration >= 64) {
+                    unsafeWindow.top.close();
+                }
+                // If recommended is up to 32, auto submit form
+                else if(recommendedDuration == null || recommendedDuration <= 32) {
+
+                    // Change window/tab title so we can visually see which has been auto-processed
+                    document.title = '5.AUTOBAN';
+
+                    $('#lookup-result form').submit();
+                }
+            }
+
+            // If is currently banned, add confirmation prompt when trying to ban user
+            if(!isSuperuser() && isCurrentlyBanned) {
+                $('#lookup-result form').submit(function() {
+                    return confirm('User is currently review banned!\n\nAre you sure you want to replace with a new ban?');
+                });
+            }
+
         });
     }
 
@@ -465,6 +702,8 @@ Breakdown:<br>
 <li><span class="copy-only">-&nbsp;</span>&gt;365 : ${tally.count366} users (${(tally.count366/rows.length*100).toFixed(1)}%)</li>
 </ul>
 </div>`);
+
+                // For easier copying data to a spreadsheet
                 const copyTable = $(`<table><tr>
 <td>${rows.length}</td>
 <td>${forTriage}</td>
@@ -488,9 +727,10 @@ Breakdown:<br>
 <td>${tally.count365}</td>
 <td>${tally.count366}</td>
 </tr></table>`);
-                //if(isSuperuser()) {
+
+                if(isSuperuser()) {
                     copyTable.appendTo(bannedStats);
-                //}
+                }
 
                 table.before(bannedStats);
                 bannedStats.parent().addClass('banned-reviewers-section').children('h3').text((i,v) => v.toLowerCase() + ', out of which:').prepend('<span>Currently, there are </span>');
@@ -565,242 +805,6 @@ Breakdown:<br>
     }
 
 
-    /* For review pages */
-    function getUsersInfo() {
-
-        // If triage queue
-        if(location.pathname.includes('/review/triage/')) {
-
-            // Sort by action
-            $('.js-review-instructions .review-results').detach().sort(function(a, b) {
-                const ax = $(a).children('b').last().text();
-                const bx = $(b).children('b').last().text();
-                return ax < bx ? -1 : 1;
-            }).appendTo('.js-review-instructions');
-
-            // Add review-ban button for users who selected "Looks OK"
-            $(`<button class="mt16">Review ban "Looks OK"</button>`).appendTo('.reviewable-post-stats')
-                .click(function() {
-                $('.review-results').filter((i, el) => el.innerText.includes('Looks OK')).find('.reviewban-link').each((i, el) => el.click());
-                $(this).remove();
-            });
-
-            // Add review-ban button for users who selected "Requires Editing"
-            $(`<button class="mt16">Review ban "Requires Editing"</button>`).appendTo('.reviewable-post-stats')
-                .click(function() {
-                $('.review-results').filter((i, el) => el.innerText.includes('Requires Editing')).find('.reviewban-link').each((i, el) => el.click());
-                $(this).remove();
-                unsafeWindow.top.close();
-            });
-
-            // Add review ban all button
-            $(`<button class="mt16">Review ban ALL</button>`).appendTo('.reviewable-post-stats')
-                .click(function() {
-                $(this).siblings('button').click();
-                $(this).remove();
-                unsafeWindow.top.close();
-            });
-        }
-
-        // Get users review history
-        $('.js-review-instructions').find('a[href^="/users/"]').each(function() {
-
-            // Ignore mods
-            var modFlair = $(this).next('.mod-flair');
-            if(modFlair.length) return;
-
-            var userlink = $(this);
-            var uid = $(this).attr('href').match(/\d+/)[0];
-            var url = '/users/history/' + uid + '?type=User+has+been+banned+from+review';
-            var action = $(this).nextAll('b').last().text().toLowerCase().trim().replace(/\W+/g, '-');
-            var banUrl = `/admin/review/bans#${uid}|${location.pathname}|${action}`;
-
-            // Add ban link
-            $(`<a class="reviewban-link" href="${banUrl}" title="Ban user from reviews" target="_blank">X</a>`)
-                .insertBefore(userlink);
-
-            // Skip fetching history for supermods since we will already be fetching that while attempting to ban
-            if(!isSuperuser()) {
-
-                // Grab user's history
-                $.ajax({
-                    url: url,
-                    xhr: jQueryXhrOverride,
-                    success: function(data) {
-
-                        // Parse user history page
-                        var numBans = 0;
-                        var summary = $('#summary', data);
-                        var numBansLink = summary.find('a[href="?type=User+has+been+banned+from+review"]').get(0);
-                        if(typeof numBansLink !== 'undefined') {
-                            numBans = Number(numBansLink.nextSibling.nodeValue.match(/\d+/)[0]);
-                        }
-
-                        console.log("Review bans for " + uid, numBans);
-
-                        // Add annotation count
-                        $(`<a class="reviewban-count ${numBans > 2 ? 'warning' : ''}" href="${url}" title="${numBans} prior review bans" target="_blank">${numBans}</a>`)
-                            .insertBefore(userlink);
-                    }
-                });
-            }
-        });
-    }
-
-
-    /* For review ban page */
-    function getUserReviewBanHistory(uid) {
-
-        const url = `https://${location.hostname}/users/history/${uid}?type=User+has+been+banned+from+review`;
-
-        // Change window/tab title so we can visually see the progress
-        document.title = '3.HISTORY';
-
-        // Grab user's history page
-        $.get(url).then(function(data) {
-
-            // Change window/tab title so we can visually see the progress
-            document.title = '4.READY';
-
-            // Parse user history page
-            let numBans = 0;
-            const summary = $('#summary', data);
-            const eventRows = $('#user-history tbody tr', data);
-
-            // Get number from filter menu, because user might have been banned more times and events will overflow to next page
-            const numBansLink = summary.find('a[href="?type=User+has+been+banned+from+review"]').get(0);
-            if(typeof numBansLink !== 'undefined') {
-                numBans = Number(numBansLink.nextSibling.nodeValue.match(/\d+/)[0]);
-            }
-
-            // Add annotation count
-            const banCountDisplay = $(`<div class="reviewban-history-summary">User was previously review banned <b><a href="${url}" title="view history" target="_blank">${numBans} time${pluralize(numBans)}</a></b>. </div>`)
-                .insertAfter('.message-wrapper');
-            banCountDisplay.nextAll().wrapAll('<div class="grid history-duration-wrapper"><div class="grid--cell4 duration-wrapper"></div></div>');
-
-            const pastReviewMessages = $('<div class="grid--cell12 reviewban-history"></div>').appendTo('.history-duration-wrapper');
-
-            // Change user profile link to directly link to user reviews tab page
-            $('.duration-wrapper a').first().attr('href', (i, v) => v + '?tab=activity&sort=reviews').attr('title', 'view other recent reviews by user');
-
-            // Default to first radio button
-            $('.duration-radio-group input').first().click();
-
-            // Get hist items from filtered page
-            const histItems = eventRows.map(function(i, el) {
-                const event = Object.assign({}, null); // plain object
-                let startDate = new Date($(el).find('.relativetime').attr('title'));
-                let endDate = new Date(startDate);
-                event.begin = startDate;
-                event.reason = el.children[2].innerHTML.split('duration =')[0];
-                event.mod = el.children[2].innerHTML.split(/duration = \d+ days?/)[1].replace(/\s*by\s*/, '');
-                event.duration = Number(el.children[2].innerText.match(/\= (\d+) day/m)[1]);
-                // calculate end datetime
-                endDate.setDate(endDate.getDate() + event.duration);
-                event.end = endDate;
-                return event;
-            }).get();
-
-            // Append hist items to pastReviewMessages
-            histItems.forEach(function(event) {
-                pastReviewMessages.append(`<div class="item">
-  <div class="item-meta">
-    <div><span class="relativetime" title="${dateToSeDateFormat(event.begin)}">${event.begin.toDateString() + ' ' + event.begin.toLocaleTimeString()}</span></div>
-    <div>${event.duration} days</div>
-    <div><span class="relativetime" title="${dateToSeDateFormat(event.end)}">${event.end.toDateString() + ' ' + event.end.toLocaleTimeString()}</span></div>
-    <div>${event.mod}</div>
-  </div>
-  <div class="item-reason">${event.reason}</div>
-</div>`);
-            });
-
-            // No items
-            if(histItems.length == 0) {
-                pastReviewMessages.append('<em>(none)</em>');
-            }
-            else {
-                pastReviewMessages.find('a').attr('target', '_blank'); // links open in new tab/window
-                StackExchange.realtime.updateRelativeDates();
-            }
-
-            // Add currently/recently banned indicator if history found
-            let isCurrentlyBanned = false;
-            let isRecentlyBanned = false;
-            let newDuration = null, recommendedDuration = null;
-            let daysago = new Date();
-            daysago.setDate(daysago.getDate() - 60);
-            eventRows.eq(0).each(function() {
-                const datetime = new Date($(this).find('.relativetime').attr('title'));
-                const duration = Number(this.innerText.match(/\= \d+ days/)[0].replace(/\D+/g, ''));
-                let banEndDatetime = new Date(datetime);
-                banEndDatetime.setDate(banEndDatetime.getDate() + duration);
-                const currtext = banEndDatetime > Date.now() ? 'Current' : 'Recent';
-
-                newDuration = duration;
-                recommendedDuration = duration;
-
-                // Recent, double duration
-                if(banEndDatetime > daysago) {
-                    isRecentlyBanned = true;
-
-                    $(`<span class="reviewban-ending ${currtext == 'current' ? 'current' : 'recent'}"><span class="type" title="recommended to double the previous ban duration">${currtext}ly</span> review banned for <b>${duration} days</b> until <span class="relativetime" title="${dateToSeDateFormat(banEndDatetime)}">${banEndDatetime}</span>.</span>`)
-                        .appendTo(banCountDisplay);
-                    newDuration *= 2;
-
-                    // Also add warning to the submit button if currently banned
-                    if(currtext == 'Current') {
-                        isCurrentlyBanned = true;
-                        $('#lookup-result input:submit').addClass('s-btn__danger s-btn__filled js-ban-again').val((i, v) => v + ' again');
-                    }
-                }
-                // Halve duration
-                else {
-                    $(`<span class="reviewban-ending">Last review banned for <b>${duration} days</b> until <span class="relativetime" title="${dateToSeDateFormat(banEndDatetime)}">${banEndDatetime}</span>.</span>`)
-                        .appendTo(banCountDisplay);
-                    newDuration = Math.ceil(duration / 2);
-                }
-                console.log('Calculated ban duration:', newDuration);
-
-                // Select recommended duration radio from available options
-                if(newDuration < 2) newDuration = 2; // min duration
-                if(newDuration > 365) newDuration = 365; // max duration
-                $('.duration-radio-group input').each(function() {
-                    if(Number(this.value) <= newDuration + (newDuration/7)) {
-                        this.click();
-                        recommendedDuration = Number(this.value);
-                    }
-                });
-                console.log('Closest ban duration option:', recommendedDuration);
-            });
-
-            // If sam is review banning users in Triage
-            if(isSuperuser() && location.hash.includes('/triage')) {
-
-                // If reviewAction is "looks-ok", and user is currently banned for >= 64, ignore (close tab)
-                if(reviewAction == 'looks-ok' && isCurrentlyBanned && recommendedDuration >= 64) {
-                    unsafeWindow.top.close();
-                }
-                // If recommended is up to 64, auto submit form
-                else if(recommendedDuration == null || recommendedDuration <= 64) {
-
-                    // Change window/tab title so we can visually see which has been auto-processed
-                    document.title = '5.AUTOBAN';
-
-                    $('#lookup-result form').submit();
-                }
-            }
-
-            // If is currently banned, add confirmation prompt when trying to ban user
-            if(!isSuperuser() && isCurrentlyBanned) {
-                $('#lookup-result form').submit(function() {
-                    return confirm('User is currently review banned!\n\nAre you sure you want to replace with a new ban?');
-                });
-            }
-
-        });
-    }
-
-
     function listenForPageUpdates() {
 
         // Completed loading lookup
@@ -862,7 +866,7 @@ Breakdown:<br>
 
                         // Modify minimum review ban to get their attention
                         secondRadio.remove(); // remove option 4
-                        thirdRadio.remove(); // remove option 8
+                        //thirdRadio.remove(); // remove option 8
 
                         // If reviewAction is "requires-editing", select alternate canned message
                         if(reviewAction == 'requires-editing') {
