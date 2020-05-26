@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.2
+// @version      3.1.3
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -90,9 +90,12 @@ async function waitForSOMU() {
     function displayRemainingQuota() {
 
         // Ignore mods, since we have unlimited power
-        //if(StackExchange.options.user.isModerator) return;
+        if(StackExchange.options.user.isModerator) {
+            remainingCloseVotes = 0;
+            remainingPostFlags = 0;
+        }
 
-        const viewableQuestionId = post.postId || 11227809; // an open question on stack overflow
+        const viewableQuestionId = post.postId || 11227809; // an open question on SO
 
         // Oops, we don't have values yet, callback when done fetching
         if(remainingCloseVotes == null || remainingPostFlags == null) {
