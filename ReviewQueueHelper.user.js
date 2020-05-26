@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.4
+// @version      3.1.5
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1090,12 +1090,12 @@ async function waitForSOMU() {
                     }
 
                     // Remove "Delete" option for suggested-edits queue, if not already reviewed (no Next button)
-                    if(location.pathname.includes('/review/suggested-edits/') && !$('.review-status').text().includes('This item is no longer reviewable.')) {
+                    if(queueType == 'suggested-edits' && !$('.review-status').text().includes('This item is no longer reviewable.')) {
                         $('.js-review-actions button[title*="delete"]').remove();
                     }
 
                     // Remove "Requires Editing" option for Triage queue
-                    if(location.pathname.includes('/review/triage/')) {
+                    if(queueType == 'triage') {
                         $('.js-review-actions button[data-result-type="20"]').remove();
                     }
 
@@ -1164,7 +1164,7 @@ async function waitForSOMU() {
                     insertVotingButtonsIfMissing();
 
                     // Insert instant buttons
-                    if(isSO && post.isQuestion) insertInstantCloseButtons();
+                    if(isSO && post.isQuestion && queueType !== 'suggested-edits') insertInstantCloseButtons();
 
                 }, 100);
             }
