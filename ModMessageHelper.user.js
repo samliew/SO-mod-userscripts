@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      0.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -128,20 +128,24 @@
 
     function initModMessageHelper() {
 
+        if(location.pathname.includes('/users/message/')) {
+
+            // We do not need chat in the sidebar, thanks.
+            $('.js-chat-ad-rooms').closest('.s-sidebarwidget').remove();
+
+            // Move generic warning to sidebar
+            $('#mainbar > .module.system-alert').prependTo($('#sidebar'));
+
+            // Show hidden email field
+            $('#send-email').attr('type', 'checkbox').prop('checked', true).change(function() {
+                $('#to_warning').toggleClass('hidden', !this.checked);
+            }).wrap('<label>send email: </label>');
+        }
+
+        // The rest of this function is for creating new messages
         if(!location.pathname.includes('/users/message/create/')) return;
 
         const template = getQueryParam('action');
-
-        // We do not need chat in the sidebar, thanks.
-        $('.js-chat-ad-rooms').closest('.s-sidebarwidget').remove();
-
-        // Move generic warning to sidebar
-        $('#mainbar > .module.system-alert').prependTo($('#sidebar'));
-
-        // Show hidden email field
-        $('#send-email').attr('type', 'checkbox').prop('checked', true).change(function() {
-            $('#to_warning').toggleClass('hidden', !this.checked);
-        }).wrap('<label>send email: </label>');
 
         // Restrict max suspension days to 365, otherwise it fails rudely
         $('#suspendDays').attr('type', 'number').attr('max', '365');
