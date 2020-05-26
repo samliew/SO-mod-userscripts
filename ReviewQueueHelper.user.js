@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.3
+// @version      3.1.4
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1050,9 +1050,12 @@ async function waitForSOMU() {
                         }
 
                         // follow
-                        postmenu.prepend(`<div id="--stacks-s-tooltip-${pid}" class="s-popover s-popover__tooltip pe-none" aria-hidden="true" role="tooltip" style="margin: 0px;">Follow this question to receive notifications<div class="s-popover--arrow"></div></div>`);
-                        postmenu.prepend(`<button id="btnFollowPost-${pid}" class="s-btn s-btn__link fc-black-400 h:fc-black-700 pb2 js-follow-post js-follow-question" role="button" data-gps-track="" data-controller="s-popover s-tooltip" data-s-tooltip-placement="bottom" data-s-popover-placement="bottom" aria-controls="divFollowingConfirm-${pid}" aria-describedby="--stacks-s-tooltip-${pid}" aria-pressed="false">follow</button>`);
-                        StackExchange.question.initQuestionFollowFeaturePopover();
+                        postmenu.prepend(`<button id="btnFollowPost-${pid}" class="s-btn s-btn__link fc-black-400 h:fc-black-700 pb2 js-follow-post js-follow-question js-gps-track" role="button"
+                            data-gps-track="post.click({ item: 14, priv: 17, post_type: 1 })"
+                            data-controller="s-tooltip " data-s-tooltip-placement="bottom"
+                            data-s-popover-placement="bottom" aria-controls=""
+                            title="Follow this ${isQuestion ? 'question' : 'answer'} to receive notifications">follow</button>`);
+                        //StackExchange.question.initQuestionFollowFeaturePopover();
 
                         // edit
                         if(queueType !== 'suggested-edits') {
@@ -1069,8 +1072,9 @@ async function waitForSOMU() {
                             postmenu.prepend(`<a class="js-mod-menu-button" href="#" role="button" data-controller="se-mod-button" data-se-mod-button-type="post" data-se-mod-button-id="${pid}">mod</a>`);
                         }
 
-                        // needs full init here for reopen to work after closing
-                        StackExchange.question.fullInit( isQuestion ? '.question' : '.answer' );
+                        // needs fullInit here for reopen to work after closing
+                        // however, fullInit conflicts with the follow link, making it trigger twice on click
+                        //StackExchange.question.fullInit( isQuestion ? '.question' : '.answer' );
                     }
 
                     // finally remove sidebar table links
