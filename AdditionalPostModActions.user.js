@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.1
+// @version      2.11.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -599,7 +599,7 @@
             const delCommentsBtn = post.find('.js-fetch-deleted-comments');
             if(delCommentsBtn.length == 1) {
                 const numDeletedComments = delCommentsBtn.attr('title').match(/\d+/)[0];
-                $(this).append(`<span class="js-link-separator">&nbsp;|&nbsp;</span> <a class="js-show-link comments-link js-show-deleted-comments-link fc-red-600" title="expand to show all comments on this post (including deleted)" href="#" onclick="" role="button">load <b>${numDeletedComments}</b> deleted comment${numDeletedComments > 1 ? 's' : ''}</a>`);
+                $(this).append(`<span class="js-link-separator">&nbsp;|&nbsp;</span> <a class="comments-link js-show-deleted-comments-link fc-red-600" title="expand to show all comments on this post (including deleted)" href="#" onclick="" role="button">load <b>${numDeletedComments}</b> deleted comment${numDeletedComments > 1 ? 's' : ''}</a>`);
                 delCommentsBtn.hide();
             }
 
@@ -627,17 +627,20 @@
         d.on('click', 'a.js-show-deleted-comments-link', function() {
             const post = $(this).closest('.answer, .question');
             post.find('.js-fetch-deleted-comments').click();
+            $(this).prev('.js-link-separator').addBack().remove();
         });
 
         d.on('click', 'a.js-move-comments-link', function() {
             const post = $(this).closest('.answer, .question');
             const pid = Number(this.dataset.postId) || null;
+            $(this).remove();
             moveCommentsOnPostToChat(pid);
         });
 
         d.on('click', 'a.js-purge-comments-link', function() {
             const post = $(this).closest('.answer, .question');
             const pid = Number(this.dataset.postId) || null;
+            $(this).remove();
             deleteCommentsOnPost(pid);
         });
     }
@@ -715,7 +718,7 @@
                 else {
                     menuitems += `<a data-action="mod-delete" title="redelete post as moderator to prevent undeletion">mod-delete post</a>`;
                 }
-                
+
             }
             else { // A-only
                 menuitems += `<a data-action="convert-comment" title="convert only the post to a comment on the question">convert post to comment</a>`;
