@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11
+// @version      2.11.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -39,9 +39,9 @@
                 const modFlair = $(this).next('.mod-flair');
                 const userlinks = $(`<div class="mod-userlinks grid--cell ${showOnHover ? 'show-on-hover' : ''}">[
 <a href="${parentUrl}/users/account-info/${uid}" target="_blank">mod</a>
-<a href="${parentUrl}/admin/show-user-votes/${uid}" target="_blank">votes</a>
+<a href="${parentUrl}/admin/show-user-votes/${uid}" target="_blank">vote</a>
 <a href="${parentUrl}/admin/xref-user-ips/${uid}?daysback=30&threshold=2" target="_blank">xref</a>
-<a href="/admin/users/${uid}/post-comments" target="_blank">cmmts</a>
+<a href="/admin/users/${uid}/post-comments" target="_blank">cmmt</a>
 ]</div>`);
 
                 if(modFlair.length !== 0) {
@@ -73,6 +73,7 @@
     display: block;
     width: 100%;
     font-size: 0.9em;
+    white-space: nowrap;
 }
 .mod-userlinks:hover {
     opacity: 1 !important;
