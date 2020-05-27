@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.6
+// @version      3.1.7
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1008,10 +1008,13 @@ async function waitForSOMU() {
                     }
 
 
-                    // For suggested edits, insert post menu
-                    //if(queueType === 'suggested-edits' && reviewablePost.find('.post-menu').length == 0) {
-                    //    reviewablePost.find('.user-info-actions').first().before('<div class="post-menu"></div>');
-                    //}
+                    // For suggested edits
+                    if(queueType === 'suggested-edits') {
+
+                        // Add post timeline link to post
+                        reviewablePost.find('.votecell').addClass('grid fd-column ai-stretch gs4')
+                            .append(`<a class="js-post-issue grid--cell s-btn s-btn__unset c-pointer py8 mx-auto mt16 fc-black-200" href="/posts/${pid}/timeline?filter=WithVoteSummaries" data-shortcut="T" title="Timeline"><svg aria-hidden="true" class="mln2 mr0 svg-icon iconHistory" width="19" height="18" viewBox="0 0 19 18"><path d="M3 9a8 8 0 113.73 6.77L8.2 14.3A6 6 0 105 9l3.01-.01-4 4-4-4h3L3 9zm7-4h1.01L11 9.36l3.22 2.1-.6.93L10 10V5z"></path></svg></a>`);
+                    }
 
 
                     // Show post menu links, if not in queues that don't already show full menus or doesn't support it
@@ -1064,7 +1067,7 @@ async function waitForSOMU() {
                         }
 
                         // share
-                        postmenu.prepend(`<a href="/q/${pid}" rel="nofollow" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this ${isQuestion ? 'question' : 'answer'}" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this ${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-subtitle="(includes your user id)" data-se-share-sheet-post-type="${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-social="facebook twitter devto" data-se-share-sheet-location="1" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-0" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show->se-share-sheet#willShow s-popover:shown->se-share-sheet#didShow">share</a>`);
+                        postmenu.prepend(`<a href="/${isQuestion ? 'q' : 'a'}/${pid}" rel="nofollow" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this ${isQuestion ? 'question' : 'answer'}" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this ${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-subtitle="(includes your user id)" data-se-share-sheet-post-type="${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-social="facebook twitter devto" data-se-share-sheet-location="1" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-0" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show->se-share-sheet#willShow s-popover:shown->se-share-sheet#didShow">share</a>`);
                         StackExchange.question.initShareLinks();
 
                         // mod
