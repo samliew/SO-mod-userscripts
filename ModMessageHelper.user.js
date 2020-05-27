@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.3
+// @version      0.1.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -249,24 +249,23 @@
 
             menuitems += `<a target="_blank" href="${modMessageLink}?action=low-quality-questions">low quality questions</a>`;
             menuitems += `<a target="_blank" href="${modMessageLink}?action=question-repetition">question repetition</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=promotion">excessive self-promotion</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=signatures-taglines">using signatures</a>`;
+
+            menuitems += `<div class="separator"></div>`;
             menuitems += `<a target="_blank" href="${modMessageLink}?action=excessive-discussion">excessive comments</a>`;
             menuitems += `<a target="_blank" href="${modMessageLink}?action=abusive">abusive to others</a>`;
 
             menuitems += `<div class="separator"></div>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=vandalism">vandalism</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=plagiarism">plagiarism</a>`;
 
+            menuitems += `<div class="separator"></div>`;
             menuitems += `<a target="_blank" href="${modMessageLink}?action=sockpuppet-upvoting">sockpuppet upvoting</a>`;
             menuitems += `<a target="_blank" href="${modMessageLink}?action=targeted-votes">targeted votes</a>`;
             menuitems += `<a target="_blank" href="${modMessageLink}?action=revenge-downvoting">revenge downvoting</a>`;
 
             menuitems += `<div class="separator"></div>`;
-
-            menuitems += `<a target="_blank" href="${modMessageLink}?action=promotion">excessive self-promotion</a>`;
-            menuitems += `<a target="_blank" href="${modMessageLink}?action=signatures-taglines">using signatures</a>`;
-
-            menuitems += `<div class="separator"></div>`;
-
-            menuitems += `<a target="_blank" href="${modMessageLink}?action=vandalism">vandalism</a>`;
-            menuitems += `<a target="_blank" href="${modMessageLink}?action=plagiarism">plagiarism</a>`;
             menuitems += `<a target="_blank" href="${modMessageLink}?action=other">other...</a>`;
 
 
@@ -365,7 +364,7 @@
 .somu-mod-message-menu a {
     display: block;
     min-width: 120px;
-    padding: 5px 0;
+    padding: 2px 0;
     padding-left: 26px;
     padding-right: 48px;
     cursor: pointer;
