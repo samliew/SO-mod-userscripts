@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.16
+// @version      1.16.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -12,6 +12,9 @@
 // @include      https://*mathoverflow.net/*
 // @include      https://*stackapps.com/*
 // @include      https://*.stackexchange.com/*
+//
+// @exclude      *chat.*
+// @exclude      *blog.*
 //
 // @grant        GM_addStyle
 // @run-at       document-start
