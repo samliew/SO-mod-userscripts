@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.4
+// @version      0.1.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -222,7 +222,7 @@
     function appendModMessageMenu() {
 
         // Append link to post sidebar if it doesn't exist yet
-        $('.post-signature').not('.js-mod-message-menu').addClass('js-mod-message-menu').each(function() {
+        $('.user-info').not('.js-mod-message-menu').addClass('js-mod-message-menu').each(function() {
 
             let uid = 0;
             try {
@@ -302,7 +302,7 @@
 
         const styles = `
 <style>
-.post-signature {
+.user-info {
     position: relative;
 }
 .somu-mod-message-link {
@@ -310,15 +310,15 @@
     top: 0;
     right: 0;
     display: inline-block;
-    padding: 6px !important;
+    padding: 5px 6px !important;
+    line-height: 0;
     color: inherit;
     cursor: pointer;
 }
 .somu-mod-message-link svg {
-    max-width: 15px;
-    max-height: 14px;
-    width: 15px;
+    width: 13px;
     height: 14px;
+    color: var(--black-500);
 }
 .somu-mod-message-link:hover .somu-mod-message-menu,
 .somu-mod-message-link .somu-mod-message-menu:hover {
@@ -368,7 +368,7 @@
     padding-left: 26px;
     padding-right: 48px;
     cursor: pointer;
-    color: var(--black-900);
+    color: var(--black-900) !important;
 }
 .somu-mod-message-menu a.dno {
     display: none;
@@ -389,6 +389,11 @@
     display: block;
     border-top: 1px solid var(--black-100);
     margin: 5px 0;
+}
+
+/* Some elements hide overflow, need to undo */
+.suggested-edit .summary {
+    overflow: unset;
 }
 
 
