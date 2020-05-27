@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.1
+// @version      0.1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -139,7 +139,9 @@
             // Show hidden email field
             $('#send-email').attr('type', 'checkbox').prop('checked', true).change(function() {
                 $('#to_warning').toggleClass('hidden', !this.checked);
-            }).wrap('<label>send email: </label>');
+            }).wrap('<label for="send-email" class="dblock">send email: </label>');
+            // Show alternate message if no email
+            $('#to_warning').after(`<div id="to_warning_2" class="system-alert">The user will only receive this message on Stack Overflow.</div>`);
         }
 
         // The rest of this function is for creating new messages
@@ -162,7 +164,7 @@
                     // Run once only. Unbind ajaxComplete event
                     $(event.currentTarget).unbind('ajaxComplete');
 
-                    // Update CM mod templates
+                    // Update mod message templates
                     setTimeout(selectModMessage, 500, template);
                 }
             });
@@ -220,31 +222,18 @@
     function appendModMessageMenu() {
 
         // Append link to post sidebar if it doesn't exist yet
-        $('.post-signature.owner').not('.js-mod-message-menu').addClass('js-mod-message-menu').each(function() {
+        $('.post-signature').not('.js-mod-message-menu').addClass('js-mod-message-menu').each(function() {
 
             const uid = ($(this).find('a[href^="/users/"]').attr('href') || '').match(/\/(\d+)\//)[1];
             this.dataset.uid = uid;
 
             const post = $(this).closest('.question, .answer');
-            const postScore = Number($(this).find('.js-vote-count').text());
-            const postStatus = post.find('.js-post-notice, .special-status, .question-status').text().toLowerCase();
-            const isQuestion = post.hasClass('question');
-            const isDeleted = post.hasClass('deleted-answer');
-            const isModDeleted = post.find('.deleted-answer-info').text().includes('♦') || (postStatus.includes('deleted') && postStatus.includes('♦'));
-            const isClosed = postStatus.includes('closed') || postStatus.includes('on hold') || postStatus.includes('duplicate') || postStatus.includes('already has');
-            const isProtected = post.find('.js-post-notice b').text().includes('Highly active question');
-            const isMigrated = postStatus.includes('migrated to');
-            const isLocked = isMigrated || postStatus.includes('locked');
-            const isOldDupe = isQuestion && post.find('.post-text blockquote').first().find('strong').text().includes('Possible Duplicate');
-            const needsRedupe = postStatus.match(/This question already has( an)? answers? here:(\s|\n|\r)+Closed/i) != null;
-            const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
-            const userbox = post.find('.post-layout .user-info:last .user-action-time').filter((i, el) => el.innerText.includes('answered') || el.innerText.includes('asked')).parent();
+
+            const userbox = $(this);
             const userlink = userbox.find('a').attr('href');
             const userrep = userbox.find('.reputation-score').text();
             const username = userbox.find('.user-details a').first().text();
-            const postdate = userbox.find('.relativetime').attr('title');
-            const postage = (Date.now() - new Date(postdate)) / 86400000;
 
             const modMessageLink = '/users/message/create/' + uid;
 
@@ -277,8 +266,8 @@
 
             $(this).append(`
 <div class="js-mod-message-link grid--cell s-btn s-btn__unset ta-center py8 somu-mod-message-link" data-shortcut="O" title="Other mod actions">
-  <svg aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 512" class="svg-icon mln1 mr0"><path fill="currentColor"
-       d="M64 208c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48zM16 104c0 26.5 21.5 48 48 48s48-21.5 48-48-21.5-48-48-48-48 21.5-48 48zm0 304c0 26.5 21.5 48 48 48s48-21.5 48-48-21.5-48-48-48-48 21.5-48 48z"></path>
+  <svg aria-hidden="true" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-icon mln1 mr0">
+    <path fill="currentColor" d="M464 64H48C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h416c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zM48 96h416c8.8 0 16 7.2 16 16v41.4c-21.9 18.5-53.2 44-150.6 121.3-16.9 13.4-50.2 45.7-73.4 45.3-23.2.4-56.6-31.9-73.4-45.3C85.2 197.4 53.9 171.9 32 153.4V112c0-8.8 7.2-16 16-16zm416 320H48c-8.8 0-16-7.2-16-16V195c22.8 18.7 58.8 47.6 130.7 104.7 20.5 16.4 56.7 52.5 93.3 52.3 36.4.3 72.3-35.5 93.3-52.3 71.9-57.1 107.9-86 130.7-104.7v205c0 8.8-7.2 16-16 16z" class="" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path>
   </svg>
   <div class="somu-mod-message-menu" title="" data-pid="${pid}" role="dialog">
     <div class="somu-mod-message-header">Message (${username}):</div>
@@ -313,10 +302,10 @@
 }
 .somu-mod-message-link {
     position: absolute !important;
-    bottom: 0;
-    left: 0;
+    top: 0;
+    right: 0;
     display: inline-block;
-    padding: 5px !important;
+    padding: 6px !important;
     color: inherit;
     cursor: pointer;
 }
@@ -400,8 +389,19 @@
 
 
 /* Mod message page */
+.dbl, .dblock {
+    display: block;
+}
 #msg-form #addressing {
     margin-bottom: 15px;
+}
+#msg-form #to_warning + #to_warning_2 {
+    display: none;
+    line-height: 100%;
+}
+#msg-form #to_warning,
+#msg-form #to_warning.hidden + #to_warning_2 {
+    display: inline-block;
 }
 #msg-form #copyPanel > span + table > tbody > tr:first-child td:first-child {
     width: 170px;
@@ -421,6 +421,10 @@
 }
 #sidebar .module {
     margin-bottom: 30px;
+}
+#sidebar .module #confirm-new {
+    white-space: break-spaces;
+    line-height: 1.2;
 }
 
 </style>
