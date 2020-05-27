@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.2
+// @version      0.1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -224,7 +224,13 @@
         // Append link to post sidebar if it doesn't exist yet
         $('.post-signature').not('.js-mod-message-menu').addClass('js-mod-message-menu').each(function() {
 
-            const uid = ($(this).find('a[href^="/users/"]').attr('href') || '').match(/\/(\d+)\//)[1];
+            let uid = 0;
+            try {
+                uid = ($(this).find('a[href^="/users/"]').attr('href') || '/0/').match(/\/(\d+)\//)[1];
+            }
+            catch(ex) {} // can't put return statements in catch blocks?
+            if(typeof uid === 'undefined' || uid == 0) return; // e.g.: deleted user
+
             this.dataset.uid = uid;
 
             const post = $(this).closest('.question, .answer');
