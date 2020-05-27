@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.17
+// @version      2.18
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -1291,6 +1291,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             return;
         }
 
+
         /* ===== DESKTOP ONLY ===== */
 
         // Move stuff around
@@ -1326,6 +1327,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
         // Highlight elements with same username on hover
         initUserHighlighter();
 
+
         // Sidebar starred messages, show full content on hover
         function loadFullStarredMessage() {
             const el = $(this);
@@ -1360,6 +1362,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
         const info = $('#info');
         const starred = $('#starred-posts ul');
         const inputArea = $('#input-area');
+        const input = $('#input');
         function resizeStarredWidget(evt) {
             const visibleWidgetsHeight = $('#widgets .sidebar-widget:visible').filter((i, el) => $(el).find('#starred-posts').length == 0).map((i, el) => $(el).height()).get().reduce((a, c) => a + c);
             const h = sidebar.height() - info.height() - visibleWidgetsHeight - topbar.height() - inputArea.height() - 80;
@@ -1369,6 +1372,28 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
         $(window).on('resize', resizeStarredWidget);
 
         initBetterMessageLinks();
+
+
+        // Show reply to own messages, as well as links to reply to starred popups in sidebar
+        $('#chat').on('click', '.mine .newreply', function() {
+            const mid = $(this).closest('.message').attr('id').replace(/\D+/g, '');
+            input.val((i, v) => ':' + mid + ' ' + v.replace(/^:\d+\s/, ''));
+        });
+        $('#starred-posts').on('click', '.reply', function() {
+            const mid = $(this).closest('li').attr('id').replace(/\D+/g, '');
+            input.val((i, v) => ':' + mid + ' ' + v.replace(/^:\d+\s/, ''));
+        });
+        function allowReplyToAll() {
+
+            $('.mine .message .meta').not('.js-newreply').addClass('js-newreply').each(function() {
+                $(this).append(`<span class="newreply" title="link my next chat message as a reply to this"></span>`);
+            });
+            $('#starred-posts .quick-unstar').next('.popup').not('.js-newreply').addClass('js-newreply')
+                .children('.btn-close').next()
+                .after(`<span class="reply"><span class="newreply"> </span> reply to this message</span>`);
+        }
+        // Occasionally check for new sidebar starred messages and load full expanded content
+        setInterval(initReplyToAll, 1000);
     }
 
 
@@ -1933,6 +1958,18 @@ ul#my-rooms > li > a span {
     max-height: 400px;
 }
 
+div.message .meta {
+    min-width: 40px;
+    text-align: right;
+}
+#chat-body .monologue.mine:hover .message:hover .meta {
+    display: inline-block !important;
+}
+#chat-body .monologue.mine .message .meta .flags,
+#chat-body .monologue.mine .message .meta .stars {
+    display: none;
+}
+
 @media screen and (max-width: 700px) {
     #present-users {
         height: auto;
@@ -2242,6 +2279,23 @@ body.dragging #dropTarget {
     color: white;
     font-size: 24px;
     text-shadow: 1px 1px black;
+}
+
+/* Reply to starred messages */
+#sidebar .reply {
+    display: block;
+    margin-bottom: 10px;
+    line-height: 18px;
+}
+#sidebar .newreply {
+    display: inline-block;
+    background-image: url('https://cdn-chat.sstatic.net/chat/Img/sprites.png');
+    background-repeat: no-repeat;
+    background-position: top left;
+    background-position: 0 -44px;
+    width: 10px;
+    height: 10px;
+    cursor: pointer;
 }
 
 @media screen and (min-width: 768px) {
