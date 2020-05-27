@@ -3,7 +3,7 @@
 // @description  Adds option to remove your user ID from post share links
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2
+// @version      0.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -17,13 +17,25 @@
     'use strict';
 
 
-    function doPageload() {
+    function stripUserIds() {
 
         // Strip user ids from the link itself
-        const sharelinks = $('.js-share-link').attr('href', (i, v) => v.replace(/(\/\d+)\/\d+/, '$1'));
+        const sharelinks = $('.js-share-link').not('.js-no-userid').addClass('js-no-userid').attr('href', (i, v) => v.replace(/(\/\d+)\/\d+/, '$1'));
 
         // Strip user ids from the popups
         sharelinks.next().find('input').val((i, v) => v.replace(/(\/\d+)\/\d+/, '$1'));
+    }
+
+
+    function doPageload() {
+
+        // Once on page load
+        stripUserIds();
+
+        // When new stuff is loaded
+        $(document).ajaxComplete(function(event, xhr, settings) {
+            stripUserIds();
+        });
     }
 
 
