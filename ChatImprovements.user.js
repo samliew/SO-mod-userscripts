@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.16.4
+// @version      2.17
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -102,6 +102,23 @@
                     stars: Number(msg.find('.stars .times').text()) || 0,
                     isPinned: msg.find('.owner-star').length == 1,
                 });
+            })
+            .fail(reject);
+        });
+    }
+
+
+    // Send new message in current room
+    function sendMessage(message) {
+        return new Promise(function(resolve, reject) {
+            if(typeof message === 'undefined' || message == null) { reject(); return; }
+
+            $.post(`https://${location.hostname}/chats/${CHAT.CURRENT_ROOM_ID}/messages/new`, {
+                text: message,
+                fkey: fkey
+            })
+            .done(function(v) {
+                resolve(v);
             })
             .fail(reject);
         });
@@ -1201,6 +1218,37 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
     }
 
 
+    // Our own drag-drop uploader
+    function initDragDropUploader() {
+
+        const uploadFrame = $(`<iframe name="SOMU-dropUploadFrame" style="display:none;" src="about:blank"></iframe>`).appendTo('body');
+        const uploadForm = $(`<form action="/upload/image" method="post" enctype="multipart/form-data" target="SOMU-dropUploadFrame" style="display:none;"></form>`).appendTo('body');
+        const uploadField = $(`<input type="file" name="filename" id="filename-input" value="browse" />`).appendTo(uploadForm);
+
+        unsafeWindow.closeDialog = function(imageUrl) {
+            sendMessage(imageUrl);
+            $('body').children('.wmd-prompt-background, .wmd-prompt-dialog').remove();
+        };
+        unsafeWindow.displayUploadError = function(error) {
+            console.error(error);
+        };
+
+        // Drop handler
+        const inputField = $('#input').attr('placeholder', 'drop images here to upload');
+        $('body').on('keydown', ev => {
+            // remove placeholder info
+            inputField.attr('placeholder', '');
+        });
+        inputField.get(0).addEventListener('drop', ev => {
+            if(ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files.length > 0) {
+                ev.preventDefault();
+                uploadField[0].files = ev.dataTransfer.files;
+                uploadForm.submit();
+            }
+        });
+    }
+
+
     function initLiveChat() {
         const roomId = CHAT.CURRENT_ROOM_ID;
 
@@ -1243,6 +1291,8 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             return;
         }
 
+        /* ===== DESKTOP ONLY ===== */
+
         // Move stuff around
         initTopBar();
         $('#footer-legal').prepend('<span> | </span>').prepend($('#toggle-notify'));
@@ -1250,6 +1300,8 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
         $('#roomtitle + div').not('#roomdesc').appendTo('#roomdesc');
         $('#sidebar-menu').append(`<span> | <a id="room-transcript" title="view room transcript" href="/transcript/${roomId}">transcript</a> | <a id="room-owners" title="view room owners" href="/rooms/info/${roomId}/?tab=access#access-section-owner">owners</a></span>`);
         addLinksToOtherChatDomains();
+
+        initDragDropUploader();
 
         // Occasionally reapply changes
         setInterval(reapplyPersistentChanges, 3000);
@@ -1637,6 +1689,7 @@ html.fixed-header body.with-footer main {
 }
 #input {
     height: 88px;
+    padding: 3px 4px;
     padding-right: 26px;
 }
 #tabcomplete-container {
@@ -2163,6 +2216,32 @@ div.dialog-message > .meta {
 }
 .room-mini {
     min-height: 110px;
+}
+
+/* Drag-drop uploader */
+body.dragging #dropTarget {
+    display: block;
+}
+#dropTarget {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 999999;
+}
+#dropTarget span {
+    display: block;
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 24px;
+    text-shadow: 1px 1px black;
 }
 
 @media screen and (min-width: 768px) {
