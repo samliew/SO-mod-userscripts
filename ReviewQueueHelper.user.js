@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2
+// @version      3.2.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -532,8 +532,7 @@ async function waitForSOMU() {
 
         if(voteCont.find('.js-vote-up-btn, .js-vote-down-btn').length != 2) {
             voteCont.find('.fs-caption').remove();
-            voteCont.find('.fc-black-500').removeClass('fc-black-500');
-            voteCont.find('.js-vote-count').removeClass('mb8').addClass('fc-black-500').before(upvoteBtn).after(dnvoteBtn);
+            voteCont.find('.js-vote-count').removeClass('mb8').addClass('fc-black-500 fd-column ai-center grid--cell grid').unwrap().before(upvoteBtn).after(dnvoteBtn);
 
             StackExchange.vote.init(pid);
         }
@@ -1095,7 +1094,7 @@ async function waitForSOMU() {
                         //    data-s-popover-placement="bottom" aria-controls=""
                         //    title="Follow this ${isQuestion ? 'question' : 'answer'} to receive notifications">follow</button>`);
                         //StackExchange.question.initQuestionFollowFeaturePopover();
-                        
+
                         // edit
                         if(queueType !== 'suggested-edits') {
                             postmenu.prepend(`<a href="/posts/${pid}/edit" class="edit-post" title="revise and improve this post">edit</a>`);
