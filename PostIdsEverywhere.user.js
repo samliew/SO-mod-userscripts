@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.11
+// @version      1.11.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -170,6 +170,11 @@
 .post-list .revision-comment {
     position: relative;
     display: block;
+}
+
+/* Compatibility */
+.post-stickyheader ~ .post-id {
+    z-index: unset;
 }
 </style>
 `;
