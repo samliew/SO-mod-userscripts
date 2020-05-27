@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.5
+// @version      3.1.6
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1031,7 +1031,7 @@ async function waitForSOMU() {
 
                         // close
                         if(isQuestion) {
-                            let closeLink = $('.close-question-link').show();
+                            let closeLink = postmenu.find('.close-question-link').show();
 
                             // If close link is not there for any reason, add back (e.g.: suggested-edit)
                             if(closeLink.length === 0) {
@@ -1165,6 +1165,9 @@ async function waitForSOMU() {
 
                     // Insert instant buttons
                     if(isSO && post.isQuestion && queueType !== 'suggested-edits') insertInstantCloseButtons();
+                    else if(!post.isQuestion) {
+                        $('.instant-actions').remove();
+                    }
 
                 }, 100);
             }
@@ -1333,6 +1336,7 @@ pre {
 .js-review-bar {
     min-height: 115px;
 }
+.low-quality-posts-review-queue .js-review-bar,
 .suggested-edits-review-queue .js-review-bar {
     min-height: unset;
 }
