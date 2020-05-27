@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.8
+// @version      3.1.9
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -510,7 +510,7 @@ async function waitForSOMU() {
             voteCont.find('.fc-black-500').removeClass('fc-black-500');
             voteCont.find('.js-vote-count').removeClass('mb8').addClass('fc-black-500').before(upvoteBtn).after(dnvoteBtn);
 
-            StackExchange.question.fullInit( isQuestion ? '.question' : '.answer' );
+            StackExchange.question.init( isQuestion ? '.question' : '.answer' );
         }
     }
 
@@ -982,7 +982,7 @@ async function waitForSOMU() {
 
                         // Show post menu if in the H&I queue
                         if(location.pathname.includes('/review/helper/')) {
-                            StackExchange.question.fullInit('.question');
+                            StackExchange.question.init('.question');
                             $('.close-question-link').show();
                         }
                     }
@@ -1075,9 +1075,8 @@ async function waitForSOMU() {
                             postmenu.prepend(`<a class="js-mod-menu-button" href="#" role="button" data-controller="se-mod-button" data-se-mod-button-type="post" data-se-mod-button-id="${pid}">mod</a>`);
                         }
 
-                        // needs fullInit here for reopen to work after closing
-                        // however, fullInit conflicts with the follow link, making it trigger twice on click
-                        //StackExchange.question.fullInit( isQuestion ? '.question' : '.answer' );
+                        // needs init here for reopen to work after closing
+                        StackExchange.question.init( isQuestion ? '.question' : '.answer' );
                     }
 
                     // finally remove sidebar table links
