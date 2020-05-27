@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1.9
+// @version      3.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -221,13 +221,37 @@ async function waitForSOMU() {
     }
 
 
-    // Downvote individual post
-    function downvotePost(pid) {
+    // Vote for post
+    // type: 2 - up, 3 - down, omitted = unupdownvote
+    function votePost(pid, type = 0) {
         return new Promise(function(resolve, reject) {
             if(typeof pid === 'undefined' || pid === null) { reject(); return; }
 
             $.post({
-                url: `https://${location.hostname}/posts/${pid}/vote/3`,
+                url: `https://${location.hostname}/posts/${pid}/vote/${type}`,
+                data: {
+                    fkey: fkey
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+    function upvotePost(pid) {
+        return votePost(pid, 2);
+    }
+    function downvotePost(pid) {
+        return votePost(pid, 3);
+    }
+
+
+    // Follow/Unfollow post
+    function followPost(pid, undo = false) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/posts/${pid}/vote/21?undo=${undo}`,
                 data: {
                     fkey: fkey
                 }
@@ -497,6 +521,7 @@ async function waitForSOMU() {
     function insertVotingButtonsIfMissing() {
 
         const reviewablePost = $('.reviewable-post');
+        const pid = Number(reviewablePost[0].className.replace(/\D+/g, ''));
         const isQuestion = reviewablePost.find('.question').length == 1;
 
         const voteCont = reviewablePost.find('.js-voting-container').first();
@@ -510,7 +535,7 @@ async function waitForSOMU() {
             voteCont.find('.fc-black-500').removeClass('fc-black-500');
             voteCont.find('.js-vote-count').removeClass('mb8').addClass('fc-black-500').before(upvoteBtn).after(dnvoteBtn);
 
-            StackExchange.question.init( isQuestion ? '.question' : '.answer' );
+            StackExchange.vote.init(pid);
         }
     }
 
@@ -773,6 +798,17 @@ async function waitForSOMU() {
             default:
                 break;
         }
+
+        // Handle follow/unfollow feature ourselves
+        $('#content').on('click', '.js-somu-follow-post', function() {
+            const link = this;
+            const postType = this.dataset.postType;
+            const undo = this.innerText === 'unfollow';
+            followPost(this.dataset.pid, undo).then(v => {
+                link.innerText = undo ? 'follow' : 'unfollow';
+                if(undo) StackExchange.helpers.showToast('You’re no longer following this ' + postType);
+            });
+        });
     }
 
 
@@ -982,7 +1018,6 @@ async function waitForSOMU() {
 
                         // Show post menu if in the H&I queue
                         if(location.pathname.includes('/review/helper/')) {
-                            StackExchange.question.init('.question');
                             $('.close-question-link').show();
                         }
                     }
@@ -1053,13 +1088,14 @@ async function waitForSOMU() {
                         }
 
                         // follow
-                        postmenu.prepend(`<button id="btnFollowPost-${pid}" class="s-btn s-btn__link fc-black-400 h:fc-black-700 pb2 js-follow-post js-follow-question js-gps-track" role="button"
-                            data-gps-track="post.click({ item: 14, priv: 17, post_type: 1 })"
-                            data-controller="s-tooltip " data-s-tooltip-placement="bottom"
-                            data-s-popover-placement="bottom" aria-controls=""
-                            title="Follow this ${isQuestion ? 'question' : 'answer'} to receive notifications">follow</button>`);
+                        postmenu.prepend(`<button data-pid="${pid}" data-post-type="${isQuestion ? 'question' : 'answer'}" class="js-somu-follow-post s-btn s-btn__link fc-black-400 h:fc-black-700 pb2" role="button">follow</button>`);
+                        //postmenu.prepend(`<button id="btnFollowPost-${pid}" class="s-btn s-btn__link fc-black-400 h:fc-black-700 pb2 js-follow-post js-follow-question js-gps-track" role="button"
+                        //    data-gps-track="post.click({ item: 14, priv: 17, post_type: 1 })"
+                        //    data-controller="s-tooltip " data-s-tooltip-placement="bottom"
+                        //    data-s-popover-placement="bottom" aria-controls=""
+                        //    title="Follow this ${isQuestion ? 'question' : 'answer'} to receive notifications">follow</button>`);
                         //StackExchange.question.initQuestionFollowFeaturePopover();
-
+                        
                         // edit
                         if(queueType !== 'suggested-edits') {
                             postmenu.prepend(`<a href="/posts/${pid}/edit" class="edit-post" title="revise and improve this post">edit</a>`);
@@ -1074,9 +1110,6 @@ async function waitForSOMU() {
                         if(StackExchange.options.user.isModerator) {
                             postmenu.prepend(`<a class="js-mod-menu-button" href="#" role="button" data-controller="se-mod-button" data-se-mod-button-type="post" data-se-mod-button-id="${pid}">mod</a>`);
                         }
-
-                        // needs init here for reopen to work after closing
-                        StackExchange.question.init( isQuestion ? '.question' : '.answer' );
                     }
 
                     // finally remove sidebar table links
