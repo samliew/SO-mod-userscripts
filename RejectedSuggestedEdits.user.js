@@ -3,7 +3,7 @@
 // @description  New page to review rejected suggested edits
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @include      https://*stackoverflow.com/review/suggested-edits*
 // @include      https://*serverfault.com/review/suggested-edits*
@@ -38,7 +38,7 @@
     const pad = str => ('0' + str).slice(-2);
 
     const resultsDiv = $(`<div id="reviews"></div>`);
-    const pagerDiv = $(`<div class="pager fl"></div>`);
+    const pagerDiv = $(`<div class="s-pagination pager fl"></div>`);
 
 
     const getQueryParam = key => new URLSearchParams(location.search).get(key);
@@ -82,31 +82,31 @@
         if(to > max) to = max;
 
         if(page - 1 >= 1) {
-            str += `<a href="${baseUrl}?page=${page - 1}" rel="next"><span class="page-numbers prev">prev</span></a> `;
+            str += `<a href="${baseUrl}?page=${page - 1}" class="s-pagination--item" rel="prev">Prev</a> `;
         }
 
         if(from > 1) {
-            str += `<a href="${baseUrl}?page=1"><span class="page-numbers">1</span></a> `;
+            str += `<a href="${baseUrl}?page=1" class="s-pagination--item">1</a> `;
             if(from > 2) {
-                str += `<span class="page-numbers dots">…</span> `;
+                str += `<div class="s-pagination--item s-pagination--item__clear">…</span> `;
             }
         }
 
         for(let i = from; i <= to; i++) {
             i == page ?
-              str += `<span class="page-numbers current">${i}</span> ` :
-              str += `<a href="${baseUrl}?page=${i}"><span class="page-numbers">${i}</span></a> `;
+              str += `<div class="s-pagination--item is-selected">${i}</div> ` :
+              str += `<a href="${baseUrl}?page=${i}" class="s-pagination--item">${i}</a> `;
         }
 
         if(to < max) {
             if(to < max - 1) {
-                str += `<span class="page-numbers dots">…</span> `;
+                str += `<div class="s-pagination--item s-pagination--item__clear">…</div> `;
             }
-            str += `<a href="${baseUrl}?page=${max}"><span class="page-numbers">${max}</span></a> `;
+            str += `<a href="${baseUrl}?page=${max}" class="s-pagination--item">${max}</a> `;
         }
 
         if(page + 1 <= max) {
-            str += `<a href="${baseUrl}?page=${page + 1}" rel="next"><span class="page-numbers next">next</span></a> `;
+            str += `<a href="${baseUrl}?page=${page + 1}" class="s-pagination--item" rel="next">Next</a> `;
         }
 
         pagerDiv.html(str);
