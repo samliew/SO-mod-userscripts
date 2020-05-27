@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10
+// @version      2.11
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -37,12 +37,11 @@
                 // Add Votes and IP-xref links after mod-flair if mod, or after the user link
                 const uid = this.href.match(/\d+/);
                 const modFlair = $(this).next('.mod-flair');
-                const cmTemplate = !isChildMeta ? '?action=suspicious-voting' : '';
                 const userlinks = $(`<div class="mod-userlinks grid--cell ${showOnHover ? 'show-on-hover' : ''}">[
 <a href="${parentUrl}/users/account-info/${uid}" target="_blank">mod</a>
 <a href="${parentUrl}/admin/show-user-votes/${uid}" target="_blank">votes</a>
 <a href="${parentUrl}/admin/xref-user-ips/${uid}?daysback=30&threshold=2" target="_blank">xref</a>
-<a href="${parentUrl}/admin/cm-message/create/${uid}${cmTemplate}" target="_blank">cm</a>
+<a href="/admin/users/${uid}/post-comments" target="_blank">cmmts</a>
 ]</div>`);
 
                 if(modFlair.length !== 0) {
