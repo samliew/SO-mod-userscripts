@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.18
+// @version      2.18.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -1224,10 +1224,12 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
         const uploadFrame = $(`<iframe name="SOMU-dropUploadFrame" style="display:none;" src="about:blank"></iframe>`).appendTo('body');
         const uploadForm = $(`<form action="/upload/image" method="post" enctype="multipart/form-data" target="SOMU-dropUploadFrame" style="display:none;"></form>`).appendTo('body');
         const uploadField = $(`<input type="file" name="filename" id="filename-input" value="browse" />`).appendTo(uploadForm);
+        const uploadSpinner = $(`<div id="uploadSpinner"></div>`).insertAfter($('#input'));
 
         unsafeWindow.closeDialog = function(imageUrl) {
             sendMessage(imageUrl);
             $('body').children('.wmd-prompt-background, .wmd-prompt-dialog').remove();
+            uploadSpinner.hide();
         };
         unsafeWindow.displayUploadError = function(error) {
             console.error(error);
@@ -1235,6 +1237,10 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
 
         // Drop handler
         const inputField = $('#input').attr('placeholder', 'drop images here to upload');
+        inputField.on('mousedown keydown', ev => {
+            // remove placeholder info
+            inputField.attr('placeholder', '');
+        });
         $('body').on('keydown', ev => {
             // remove placeholder info
             inputField.attr('placeholder', '');
@@ -1243,6 +1249,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
             if(ev.dataTransfer && ev.dataTransfer.files && ev.dataTransfer.files.length > 0) {
                 ev.preventDefault();
                 uploadField[0].files = ev.dataTransfer.files;
+                uploadSpinner.show();
                 uploadForm.submit();
             }
         });
@@ -1393,7 +1400,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
                 .after(`<span class="reply"><span class="newreply"> </span> reply to this message</span>`);
         }
         // Occasionally check for new sidebar starred messages and load full expanded content
-        setInterval(initReplyToAll, 1000);
+        setInterval(allowReplyToAll, 1000);
     }
 
 
@@ -2279,6 +2286,15 @@ body.dragging #dropTarget {
     color: white;
     font-size: 24px;
     text-shadow: 1px 1px black;
+}
+#uploadSpinner {
+    display: none;
+    background: transparent url(//cdn.sstatic.net/Img/progress-dots.gif) center no-repeat;
+    width: 18px;
+    height: 18px;
+    position: absolute;
+    top: 7px;
+    left: 14px;
 }
 
 /* Reply to starred messages */
