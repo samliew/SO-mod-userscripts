@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2.1
+// @version      3.2.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1075,12 +1075,16 @@ async function waitForSOMU() {
                                 closeLink = $(`<a href="#" class="close-question-link js-close-question-link" title="vote to close this question (when closed, no new answers can be added)" data-questionid="${pid}" data-show-interstitial="" data-isclosed="false">close</a>`).prependTo(postmenu);
                             }
 
-                            // If close link does not have a close count yet
-                            if(!closeLink.text().includes('(')) {
-                                $.get(`https://api.stackexchange.com/2.2/questions/${pid}?order=desc&sort=activity&site=${siteApiSlug}&filter=!)5IW-1CBJh-k0T7yaaeIcKxo)Nsr`, results => {
-                                    const cvCount = Number(results.items[0].close_vote_count);
-                                    if(cvCount > 0 && !closeLink.text().includes('(')) {
-                                        closeLink.text((i, v) => v + ' (' + cvCount + ')');
+                            // If close link has not been processed for CV count
+                            if(closeLink.not('.js-close-count') && !closeLink.text().includes('(') && !closeLink.text().includes('reopen')) {
+                                closeLink.addClass('js-close-count');
+
+                                $.get(`https://api.stackexchange.com/2.2/questions/${pid}?order=desc&sort=activity&site=${siteApiSlug}&filter=!)5IW-1CBJh-k0T7yaaeIcKxo)Nsr&key=ViEjavpQX)kK3lob1h2Nxw((`, results => {
+                                    if(results && results.items && results.items.length > 0) {
+                                        const cvCount = Number(results.items[0].close_vote_count);
+                                        if(cvCount > 0 && /\d/.test(closeLink.text()) === false) {
+                                            closeLink.text((i, v) => v + ' (' + cvCount + ')');
+                                        }
                                     }
                                 });
                             }
