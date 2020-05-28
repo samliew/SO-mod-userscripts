@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.15.1
+// @version      1.16
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -426,28 +426,39 @@
 table.post-timeline {
     border-bottom: 1px solid var(--black-100);
 }
-tr.separator {
+.timeline-page tr.separator {
     display: none !important;
 }
-tr.separator + tr {
+.timeline-page tr.separator + tr {
     border-top: 1px solid var(--black-075);
 }
 
-.subheader h1 .posttype-indicator {
+.timeline-page .subheader h1 {
+    position: relative;
 }
-.subheader h1 .posttype-indicator:after {
+.timeline-page .subheader h1 .posttype-indicator {
+}
+.timeline-page .subheader h1 .posttype-indicator:after {
     content: ': ';
 }
-.subheader h1 .timeline-linked-question {
+.timeline-page .subheader h1 a.answer-hyperlink {
+    display: inline-block;
+    margin: 0;
+}
+.timeline-page .subheader h1 .timeline-linked-question {
+    position: absolute;
+    right: 0;
+    bottom: -1em;
     margin-left: 20px;
     font-size: 0.9em;
+    line-height: 1;
     white-space: nowrap;
 }
-.subheader h1 .timeline-linked-question a {
+.timeline-page .subheader h1 .timeline-linked-question a {
     font-size: 0.7em;
     text-transform: uppercase;
 }
-.subheader h1 .timeline-linked-question .post-id {
+.timeline-page .subheader h1 .timeline-linked-question .post-id {
     display: none;
 }
 
@@ -498,12 +509,12 @@ td.event-type span.event-type {
 }
 
 /* Add visual quotes to comments text */
-tr[data-eventtype="comment"] td.event-comment span:before {
+.timeline-page tr[data-eventtype="comment"] td.event-comment span:before {
     content: '"';
     display: inline-block;
     margin-right: -0.2em;
 }
-tr[data-eventtype="comment"] td.event-comment span:after {
+.timeline-page tr[data-eventtype="comment"] td.event-comment span:after {
     content: '"';
     display: inline-block;
     margin-left: -0.2em;
