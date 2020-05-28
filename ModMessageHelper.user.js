@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.5
+// @version      0.1.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -88,44 +88,6 @@
     }
 
 
-    // Destroy spammer
-    function destroySpammer(uid, destroyDetails = null) {
-        return new Promise(function(resolve, reject) {
-            if(typeof uid === 'undefined' || uid === null) { reject(); return; }
-
-            // If details is null or whitespace, get optional details
-            if(destroyDetails == null || destroyDetails.trim().length == 0) {
-
-                // Prompt for additional details if userscript is not under spam attack mode
-                if(underSpamAttackMode) destroyDetails = '';
-                else destroyDetails = prompt('Additional details for destroying user (if any). Cancel button terminates destroy action.');
-
-                // If still null, reject promise and return early
-                if(destroyDetails == null) { alert('Destroy cancelled. User was not destroyed.'); reject(); return; }
-            }
-
-            // Apply max suspension before deletion
-            if(isSuperuser()) {
-                modMessage(uid, 'goodbye', false, 365);
-            }
-
-            $.post({
-                url: `https://${location.hostname}/admin/users/${uid}/destroy`,
-                data: {
-                    'annotation': '',
-                    'deleteReasonDetails': '',
-                    'mod-actions': 'destroy',
-                    'destroyReason': 'This user was created to post spam or nonsense and has no other positive participation',
-                    'destroyReasonDetails': destroyDetails.trim(),
-                    'fkey': fkey
-                }
-            })
-            .done(resolve)
-            .fail(reject);
-        });
-    }
-
-
     function initModMessageHelper() {
 
         if(location.pathname.includes('/users/message/')) {
@@ -142,6 +104,20 @@
             }).wrap('<label for="send-email" class="dblock">send email: </label>');
             // Show alternate message if no email
             $('#to_warning').after(`<div id="to_warning_2" class="system-alert">The user will only receive this message on Stack Overflow.</div>`);
+
+            $('#copyPanel > table').first().addClass('mb12');
+
+            if(isSuperuser()) {
+
+                // Show hidden template name field
+                $('#templateName').attr('type', 'text').wrap('<label for="templateName" class="dblock">template name: </label>');
+
+                // Show hidden template name field
+                $('#suspendReason').attr('type', 'text').wrap('<label for="suspendReason" class="dblock">suspend reason: </label>');
+
+                // Show hidden email field
+                $('#templateEdited').attr('type', 'text').wrap('<label for="templateEdited" class="dblock">template edited: </label>');
+            }
         }
 
         // The rest of this function is for creating new messages
@@ -227,11 +203,14 @@
             let uid = 0;
             try {
                 uid = ($(this).find('a[href^="/users/"]').attr('href') || '/0/').match(/\/(\d+)\//)[1];
+                uid = Number(uid);
+                this.dataset.uid = uid;
             }
             catch(ex) {} // can't put return statements in catch blocks?
             if(typeof uid === 'undefined' || uid == 0) return; // e.g.: deleted user
 
-            this.dataset.uid = uid;
+            // if user is self, ignore
+            if(uid == StackExchange.options.user.userId) return;
 
             const post = $(this).closest('.question, .answer');
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
