@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.8
+// @version      2.8.9
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -435,7 +435,7 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
     display: block;
     margin-bottom: 10px;
     padding: 12px 16px;
-    z-index: 5;
+    z-index: 2;
 
     background: var(--black-050);
     border-bottom: 1px solid var(--black-150);
@@ -451,17 +451,21 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 .post-stickyheader ~ .post-layout .votecell .vote,
 .post-stickyheader ~ .post-layout .votecell .js-voting-container {
     top: 51px;
-    z-index: 2;
+    z-index: 1;
 }
-.question:hover .post-stickyheader,
-.answer:hover .post-stickyheader {
-    z-index: 7;
+.question:hover,
+.answer:hover {
+    z-index: 10;
 }
 .question:hover .votecell .vote,
 .question:hover .votecell .js-voting-container,
 .answer:hover .votecell .vote,
 .answer:hover .votecell .js-voting-container {
-    z-index: 6;
+    z-index: 3;
+}
+.question:hover .post-stickyheader,
+.answer:hover .post-stickyheader {
+    z-index: 4;
 }
 #postflag-bar {
     z-index: 1000;
