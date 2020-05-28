@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2.2
+// @version      3.2.3
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -113,14 +113,14 @@ async function waitForSOMU() {
         $('.remaining-quota').remove();
 
         // Display number of CVs and flags remaining
-        const quota = $(`<tfoot class="remaining-quota"><tr><td colspan="2">
+        const quota = $(`<table class="remaining-quota"><tr><td colspan="2">
                   <span class="remaining-votes"><span class="bounty-indicator-tab">${remainingCloseVotes}</span> <span>close votes left</span></span>
                 </td></tr>
                 <tr><td colspan="2">
                   <span class="flag-remaining-inform" style="padding-right:20px"><span class="bounty-indicator-tab supernovabg">${remainingPostFlags}</span> flags left</span>
-                </td></tr></tfoot>`);
+                </td></tr></table>`);
 
-        $('.reviewable-post-stats table').append(quota);
+        $('.reviewable-post-stats > table').after(quota);
     }
 
 
@@ -1092,12 +1092,6 @@ async function waitForSOMU() {
 
                         // follow
                         postmenu.prepend(`<button data-pid="${pid}" data-post-type="${isQuestion ? 'question' : 'answer'}" class="js-somu-follow-post s-btn s-btn__link fc-black-400 h:fc-black-700 pb2" role="button">follow</button>`);
-                        //postmenu.prepend(`<button id="btnFollowPost-${pid}" class="s-btn s-btn__link fc-black-400 h:fc-black-700 pb2 js-follow-post js-follow-question js-gps-track" role="button"
-                        //    data-gps-track="post.click({ item: 14, priv: 17, post_type: 1 })"
-                        //    data-controller="s-tooltip " data-s-tooltip-placement="bottom"
-                        //    data-s-popover-placement="bottom" aria-controls=""
-                        //    title="Follow this ${isQuestion ? 'question' : 'answer'} to receive notifications">follow</button>`);
-                        //StackExchange.question.initQuestionFollowFeaturePopover();
 
                         // edit
                         if(queueType !== 'suggested-edits') {
@@ -1116,16 +1110,17 @@ async function waitForSOMU() {
                     }
 
                     // finally remove sidebar table links
-                    const reviewablePostStats = $('.reviewable-post-stats');
-                    reviewablePostStats.find('tbody td[colspan="2"]').parent().remove();
+                    $('.reviewable-post-stats').each(function() {
+                        $(this).find('tbody td[colspan="2"]').parent().remove();
 
-                    // add padding text for cells that do not have content
-                    reviewablePostStats.find('.label-key').filter((i, v) => v.textContent.trim() == '').html('&nbsp;');
-                    // if less than six rows, add more
-                    const tableRows = reviewablePostStats.find('.label-key').length;
-                    for(let i = tableRows; i < 6; i++) {
-                        reviewablePostStats.find('tbody').append('<tr><td class="label-key">&nbsp;</td><td class="label-value"></td></tr>');
-                    }
+                        // add padding text for cells that do not have content
+                        $(this).find('.label-key').filter((i, v) => v.textContent.trim() == '').html('&nbsp;');
+                        // if less than six rows, add more
+                        const tableRows = $(this).find('.label-key').length;
+                        for(let i = tableRows; i < 6; i++) {
+                            $(this).find('tbody').append('<tr><td class="label-key">&nbsp;</td><td class="label-value"></td></tr>');
+                        }
+                    });
 
                     // Remove "Delete" option for suggested-edits queue, if not already reviewed (no Next button)
                     if(queueType == 'suggested-edits' && !$('.review-status').text().includes('This item is no longer reviewable.')) {
@@ -1381,11 +1376,8 @@ pre {
 .reviewable-post .question {
     position: relative;
 }
-.reviewable-post-stats table {
+.reviewable-post-stats > table:first-child {
     min-height: 150px;
-}
-.reviewable-post-stats .remaining-quota tr:first-child td {
-    padding-top: 10px;
 }
 
 .suggested-edits-review-queue .review-bar .review-summary {
