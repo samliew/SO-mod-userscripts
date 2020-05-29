@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2.3
+// @version      3.2.4
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1111,14 +1111,16 @@ async function waitForSOMU() {
 
                     // finally remove sidebar table links
                     $('.reviewable-post-stats').each(function() {
-                        $(this).find('tbody td[colspan="2"]').parent().remove();
+                        const table = $(this).children('table').first();
+
+                        table.find('tbody td[colspan="2"]').parent().remove();
 
                         // add padding text for cells that do not have content
-                        $(this).find('.label-key').filter((i, v) => v.textContent.trim() == '').html('&nbsp;');
+                        table.find('.label-key').filter((i, v) => v.textContent.trim() == '').html('&nbsp;');
                         // if less than six rows, add more
-                        const tableRows = $(this).find('.label-key').length;
+                        const tableRows = table.find('.label-key').length;
                         for(let i = tableRows; i < 6; i++) {
-                            $(this).find('tbody').append('<tr><td class="label-key">&nbsp;</td><td class="label-value"></td></tr>');
+                            table.children('tbody').append('<tr><td class="label-key">&nbsp;</td><td class="label-value"></td></tr>');
                         }
                     });
 
