@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.3.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -91,6 +91,10 @@
     // closeReasonId: 'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
     // if closeReasonId is 'SiteSpecific', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
     function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', offtopicReasonId = 3, offTopicOtherText = 'I’m voting to close this question because ', duplicateOfQuestionId = null) {
+
+        // OffTopic has been replaced with SiteSpecific
+        if(closeReasonId === 'OffTopic') closeReasonId = 'SiteSpecific';
+
         return new Promise(function(resolve, reject) {
             if(!isSO) { reject(); return; }
             if(typeof pid === 'undefined' || pid === null) { reject(); return; }
