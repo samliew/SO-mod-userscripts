@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.7
+// @version      0.1.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -35,10 +35,7 @@
     const isSO = location.hostname == 'stackoverflow.com';
     const isSOMeta = location.hostname == 'meta.stackoverflow.com';
     const isMeta = typeof StackExchange.options.site.parentUrl !== 'undefined';
-
-
-    // Only on main sites
-    if(isMeta) return;
+    const parentUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
 
 
     // Send mod message + optional suspension
@@ -220,7 +217,7 @@
             const userrep = userbox.find('.reputation-score').text();
             const username = userbox.find('.user-details a').first().text();
 
-            const modMessageLink = '/users/message/create/' + uid;
+            const modMessageLink = parentUrl + '/users/message/create/' + uid;
 
             // Create menu based on post type and state
             let menuitems = '';
