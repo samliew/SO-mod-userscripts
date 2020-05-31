@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.3
+// @version      2.11.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -26,7 +26,7 @@
     if(!isModerator()) return;
 
 
-    const superusers = [ 584192 ];
+    const superusers = [ 584192, 366904, 6451573 ];
     const isSuperuser = () => superusers.includes(StackExchange.options.user.userId);
 
     const newlines = '\n\n';
