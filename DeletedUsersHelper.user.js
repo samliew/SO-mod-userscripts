@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.21.2
+// @version      1.22
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -142,6 +142,56 @@
     function undeletePosts(pids) {
         if(typeof pids === 'undefined' || pids.length === 0) return;
         pids.forEach(v => undeletePost(v));
+    }
+
+
+    function getUserPii(uid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof uid === 'undefined' || uid === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/all-pii`,
+                data: {
+                    'id': uid,
+                    'fkey': fkey,
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+
+
+    function initDeleteUserHelper() {
+
+        $(document).ajaxComplete(function(event, xhr, settings) {
+
+            if(settings.url.includes('/moderator-menu?initialAction=delete') || settings.url.includes('/moderator-menu?initialAction=destroy')) {
+                const uid = Number(settings.url.match(/\/admin\/users\/(\d+)\//)[1]);
+
+                getUserPii(uid).then(v => {
+                    const data = $(v);
+
+                    // Format PII for deletion reason textarea
+                    const d = new Date();
+                    const year = d.getFullYear().toString().slice(2);
+                    const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()];
+
+                    const networkAccounts = '\n\nNetwork Account: ' + $('.details a').first().attr('href');
+                    const regdate = '\n' + $('.details .row').first().text().trim().replace(/\s+/g, ' ').replace('Joined network:', 'Joined network: ').replace('Joined site:', '\nJoined site:    ').split(/\s*\n\s*/).map(function(v) {
+                        if(v.contains('ago')) v = v.split(':')[0] + ':  ' + month + " " + d.getDate() + " '" + year;
+                        else if(v.contains('yesterday')) v = v.split(':')[0] + ':  ' + month + ' ' + d.getDate() + " '" + year;
+                        else if(!v.contains("'")) v = v + " '" + year;
+                        return v;
+                    }).join('\n');
+
+                    const str = data.text().replace(/Credentials(.|\s)+$/, '').trim().replace(/\s+/g, ' ').replace('Email:', 'Email:     ').replace(' Real Name:', '\nReal Name: ').replace(' IP Address:', '\nIP Address:');
+                    const reason = str + networkAccounts + regdate;
+
+                    $('#deleteReasonDetails, #destroyReasonDetails').val('\n\n' + reason);
+                });
+            }
+        });
     }
 
 
@@ -376,6 +426,8 @@
                 location.href = location.pathname.replace('/account-info/', '/');
                 return;
             }
+
+            initDeleteUserHelper();
         }
 
         // If on user profile page
@@ -492,7 +544,9 @@ table#posts td {
 #del-user-links li {
     margin-bottom: 4px;
 }
-#pii-info {
+#pii-info,
+#deleteReasonDetails,
+#destroyReasonDetails {
     width: 100%;
     height: calc(8.4em + 20px);
     line-height: 1.2em;
