@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.4
+// @version      5.5
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -277,7 +277,7 @@
             }
 
             // Hide recent comments button (day)
-            $('<button>Ignore 2h</button>')
+            $('<button class="s-btn s-btn__xs s-btn__filled">Ignore 2h</button>')
                 .click(function() {
                     $(this).remove();
                     let now = Date.now();
@@ -291,7 +291,7 @@
                 .appendTo(actionBtns);
 
             // Hide recent comments button (day)
-            $('<button>Ignore 12h</button>')
+            $('<button class="s-btn s-btn__xs s-btn__filled">Ignore 12h</button>')
                 .click(function() {
                     $(this).prev().remove();
                     $(this).remove();
@@ -306,7 +306,7 @@
                 .appendTo(actionBtns);
 
             // Hide recent comments button (week)
-            $('<button>Ignore 1w</button>')
+            $('<button class="s-btn s-btn__xs s-btn__filled">Ignore 1w</button>')
                 .click(function() {
                     $(this).prev().remove();
                     $(this).prev().remove();
@@ -323,8 +323,24 @@
 
             if(superusers.includes(StackExchange.options.user.userId)) {
 
+                // Decline flags on mod comments
+                if(location.search.includes('commentrobotsaysunfriendly') || location.search.includes('commentunwelcoming')) {
+
+                    $('<button class="s-btn s-btn__xs s-btn__filled s-btn__danger" title="Decline flags on mod comments">Decline Mod</button>')
+                        .click(function() {
+                            $(this).remove();
+                            const modComments = $('.comment-user').filter(function() {
+                                return $(this).parent('span').text().includes('♦');
+                            }).filter(':visible').parents('.js-flagged-comment').find('.js-dismiss-flags');
+                            $('body').showAjaxProgress(modComments.length, { position: 'fixed' });
+                            modComments.click();
+                        })
+                        .appendTo(actionBtns)
+                        .click(); // auto
+                }
+
                 // Delete chatty comments on page
-                $('<button class="btn-warning" title="Delete comments with chatty keywords">Chatty Only</button>')
+                $('<button class="s-btn s-btn__xs s-btn__filled s-btn__danger" title="Delete comments with chatty keywords">Chatty</button>')
                     .click(function() {
                         $(this).remove();
                         const chattyComments = $('.cmmt-chatty, .cmmt-rude').filter(':visible').parents('.js-flagged-comment').find('.js-comment-delete');
@@ -334,7 +350,7 @@
                     .appendTo(actionBtns);
 
                 // Delete all comments left on page
-                $('<button class="btn-warning" title="Delete all comments left on page">Delete</button>')
+                $('<button class="s-btn s-btn__xs s-btn__filled s-btn__danger" title="Delete all comments left on page">Delete</button>')
                     .click(function() {
                         if(!confirm('Confirm Delete ALL?')) return false;
 
@@ -346,7 +362,7 @@
                     .appendTo(actionBtns);
 
                 // Decline all comments left on page
-                $('<button class="btn-warning" title="Decline all comments left on page">Decline</button>')
+                $('<button class="s-btn s-btn__xs s-btn__filled s-btn__danger" title="Decline all comments left on page">Decline</button>')
                     .click(function() {
                         if(!confirm('Confirm Decline ALL?')) return false;
 
@@ -358,7 +374,7 @@
                     .appendTo(actionBtns);
 
                 // Decline + Delete all comments left on page
-                $('<button class="btn-warning" title="Decline + Delete all comments left on page">DD ALL</button>')
+                $('<button class="s-btn s-btn__xs s-btn__filled s-btn__danger" title="Decline + Delete all comments left on page">DD</button>')
                     .click(function() {
                         if(!confirm('Confirm Decline + Delete ALL?')) return false;
 
@@ -372,7 +388,7 @@
             else {
 
                 // Start from bottom link (only when more than 3 posts present on page)
-                $('<button>Review from bottom</button>')
+                $('<button class="s-btn s-btn__xs s-btn__filled">Review from bottom</button>')
                     .click(function() {
                         reviewFromBottom = true;
                         $(this).remove();
