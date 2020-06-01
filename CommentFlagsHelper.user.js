@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.5
+// @version      5.5.1
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -324,7 +324,7 @@
             if(superusers.includes(StackExchange.options.user.userId)) {
 
                 // Decline flags on mod comments
-                if(location.search.includes('commentrobotsaysunfriendly') || location.search.includes('commentunwelcoming')) {
+                if(location.search.includes('commentrobotsaysunfriendly') || location.search.includes('commentunwelcoming') || location.search.includes('commentrudeoroffensive')) {
 
                     $('<button class="s-btn s-btn__xs s-btn__filled s-btn__danger" title="Decline flags on mod comments">Decline Mod</button>')
                         .click(function() {
