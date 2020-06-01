@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -104,7 +104,9 @@
             // formatting
             const firstText = comment.childNodes[0];
             if(firstText.nodeType === 3) {
-                const html = firstText.textContent.trim().replace('Scheduled: old rep = ', '').replace(', new rep = ', ' &gt; ').replace(/\s*by\s*/, '<span class="user-by"> by </span>') + ' ';
+                const html = firstText.textContent.trim()
+                    .replace('Scheduled: old rep = ', 'Scheduled: ').replace('InvalidateVotes old rep = ', 'InvalidateVotes: ').replace(', new rep = ', ' &gt; ')
+                    .replace(/\s*by\s*/, '<span class="user-by"> by </span>') + ' ';
                 comment.removeChild(firstText);
                 $(comment).prepend(`<span>${html}</span>`);
             }
