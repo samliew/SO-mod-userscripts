@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.5
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -86,6 +86,35 @@
 
         // Move history filters to sidebar
         moveHistoryFilters();
+
+        // Fix history
+        $('#user-history thead td').first().attr('width', '130');
+        $('#user-history tbody tr').each(function() {
+
+            const comment = this.children[2];
+            const link = $(comment).children('a').last();
+            comment.classList.add('history-comment');
+
+            // remove community
+            if(link.length && link.attr('href').includes('-1')) {
+                comment.classList.add('hide-by');
+                link.remove();
+            }
+
+            // formatting
+            const firstText = comment.childNodes[0];
+            if(firstText.nodeType === 3) {
+                const html = firstText.textContent.trim().replace('Scheduled: old rep = ', '').replace(', new rep = ', ' &gt; ').replace(/\s*by\s*/, '<span class="user-by"> by </span>') + ' ';
+                comment.removeChild(firstText);
+                $(comment).prepend(`<span>${html}</span>`);
+            }
+
+            // count number of newlines
+            const newlines = comment.textContent.match(/\n/g);
+            if(newlines && newlines.length > 2) {
+                comment.classList.add('pre');
+            }
+        });
     }
 
 
@@ -170,6 +199,25 @@ body.SOMU-SEDM #annotations tr.user-message td:nth-child(4) {
 #newHistoryFilters li > .count {
     padding-right: 5px;
 }
+
+#user-history td.pre {
+    font-family: monospace;
+    white-space: pre-line;
+}
+#user-history tr th:last-child,
+#user-history tr td:last-child,
+#user-history td.hide-by .user-by {
+    display: none;
+}
+#user-history th:nth-child(1) {
+    width: auto !important;
+    min-width: 80px;
+}
+#user-history th:nth-child(2) {
+    width: auto !important;
+    min-width: 150px;
+}
+
 </style>
 `;
         $('body').append(styles);
