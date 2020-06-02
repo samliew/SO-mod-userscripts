@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.4
+// @version      2.11.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -904,7 +904,7 @@
                        (underSpamAttackMode || confirm(`Are you VERY SURE you want to DESTROY the account "${uName}"???`))) {
                         spamFlagPost(pid);
                         destroySpammer(uid).then(function() {
-                            if(!underSpamAttackMode) window.open(`https://${location.hostname}/users/${uid}`);
+                            if(!isSuperuser() && !underSpamAttackMode) window.open(`https://${location.hostname}/users/${uid}`);
                             removePostFromModQueue();
                             reloadPage();
                         });
