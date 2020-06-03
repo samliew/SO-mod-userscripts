@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      2.0
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -18,6 +18,10 @@
     if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
 
 
+    const superusers = [ 584192 ];
+    const isSuperuser = () => superusers.includes(StackExchange.options.user.userId);
+
+    const fkey = StackExchange.options.user.fkey;
     const mainDomain = location.hostname.replace('meta.', '');
     const mainName = StackExchange.options.site.name.replace('Meta ', '');
 
@@ -41,6 +45,25 @@
                 reject();
             };
             GM_xmlhttpRequest(options);
+        });
+    }
+
+
+    // Post comment on post
+    function addComment(pid, commentText) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+            if(typeof commentText !== 'string' || commentText.trim() === '') { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/posts/${pid}/comments`,
+                data: {
+                    'fkey': fkey,
+                    'comment': commentText,
+                }
+            })
+            .done(resolve)
+            .fail(reject);
         });
     }
 
@@ -69,6 +92,7 @@
     function doPageload() {
 
         const post = $('#question');
+        const pid = Number(post.attr('data-questionid'));
         const postOwner = $('.post-signature:last .user-details a[href*="/users/"]', post).first();
         const postText = $('h1 .question-hyperlink').text() + $('.post-text', post).text();
 
@@ -85,46 +109,108 @@
         // Definitely not a post ban question, ignore post
         if((!hasDupeLink && !hasTags && !hasKeywords) || userRep == null || userRep.indexOf('k') > 0 || Number(userRep) >= 1000) return;
 
+        // Get user ban stats on main
+        ajaxPromise(`https://${mainDomain}/users/account-info/${uid}`).then(function(data) {
+            const blocked = $('.blocked-no, .blocked-yes', data);
+            const qBan = blocked[0].innerText === 'yes';
+            const aBan = blocked[1].innerText === 'yes';
+            const eBan = blocked[2].innerText === 'yes';
+            const rBan = blocked[3].innerText === 'yes';
+
+            const banStats = $(`
+              <div class="main-banned">
+                <b>User "${username}" - bans on main: </b>
+                <span>${qBan ? 'question' : ''}</span>
+                <span>${aBan ? 'answer' : ''}</span>
+                <span>${eBan ? 'suggested-edit' : ''}</span>
+                <span>${rBan ? 'review' : ''}</span>
+                <span>${!qBan && !aBan && !eBan && !rBan ? 'none!' : ''}</span>
+              </div>`);
+
+            post.find('.postcell').after(banStats);
+        });
+
+        // Get deleted posts on main
         const qnsUrl = `https://${mainDomain}/search?q=user%3a${uid}%20is%3aquestion%20deleted%3a1%20score%3a..0&tab=newest`;
         const ansUrl = `https://${mainDomain}/search?q=user%3a${uid}%20is%3aanswer%20deleted%3a1%20score%3a..0&tab=newest`;
 
-        ajaxPromise(qnsUrl)
-            .then(function(data) {
-                const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
-                const stats = $(`
-                    <div class="meta-mentioned" target="_blank">
-                        ${username} has <a href="${qnsUrl}" target="_blank">${count} deleted questions</a> on ${mainName}
-                        <span class="meta-mentions-toggle"></span>
-                        <div class="meta-mentions"></div>
-                    </div>`).insertAfter(post);
+        ajaxPromise(qnsUrl).then(function(data) {
+            const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
+            const stats = $(`
+                <div class="meta-mentioned">
+                    ${username} has <a href="${qnsUrl}" target="_blank">${count} deleted questions</a> on ${mainName}
+                    <span class="meta-mentions-toggle"></span>
+                    <div class="meta-mentions"></div>
+                </div>`).insertAfter(post);
 
-                if(count > 0) {
-                    const results = $('.search-results .search-result, .js-search-results .search-result', data);
-                    const hyperlinks = results.find('a').attr('href', (i,v) => 'https://' + mainDomain + v).attr('target', '_blank');
-                    stats.find('.meta-mentions').append(results);
-                    const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
-                    const comment = $(`<textarea readonly="readonly">Deleted questions, score <= 0: (${hyperlinks2.join(' ')})</textarea>`).appendTo(stats);
+            if(count > 0) {
+                const results = $('.search-results .search-result, .js-search-results .search-result', data);
+                const hyperlinks = results.find('a').attr('href', (i,v) => 'https://' + mainDomain + v).attr('target', '_blank');
+                stats.find('.meta-mentions').append(results);
+                const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
+                const comment = `Deleted questions, score <= 0: (${hyperlinks2.join(' ')})`;
+                const commentArea = $(`<textarea readonly="readonly"></textarea>`).val(comment).appendTo(stats);
+
+                // If superuser, automate
+                if(isSuperuser()) {
+
+                    // Check if no comments on post starting with "Deleted questions"
+                    if(post.find('.comment-copy').filter((i, el) => /^Deleted questions/.test(el.innerText)).length === 0) {
+
+                        if(comment.length <= 600) {
+                            addComment(pid, comment);
+                        }
+                        else {
+                            const spl = comment.split(' [11]');
+                            addComment(pid, spl[0] + '...');
+
+                            setTimeout(() => {
+                                addComment(pid, '... [11]' + spl[1]);
+                            }, 500);
+                        }
+                    }
                 }
-            });
+            }
+        });
 
-        ajaxPromise(ansUrl)
-            .then(function(data) {
-                const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
-                const stats = $(`
-                    <div class="meta-mentioned" target="_blank">
-                        ${username} has <a href="${ansUrl}" target="_blank">${count} deleted answers</a> on ${mainName}
-                        <span class="meta-mentions-toggle"></span>
-                        <div class="meta-mentions"></div>
-                    </div>`).insertAfter(post);
+        ajaxPromise(ansUrl).then(function(data) {
+            const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
+            const stats = $(`
+                <div class="meta-mentioned">
+                    ${username} has <a href="${ansUrl}" target="_blank">${count} deleted answers</a> on ${mainName}
+                    <span class="meta-mentions-toggle"></span>
+                    <div class="meta-mentions"></div>
+                </div>`).insertAfter(post);
 
-                if(count > 0) {
-                    const results = $('.search-results .search-result, .js-search-results .search-result', data);
-                    const hyperlinks = results.find('a').attr('href', (i,v) => 'https://' + mainDomain + v).attr('target', '_blank');
-                    stats.find('.meta-mentions').append(results);
-                    const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
-                    const comment = $(`<textarea readonly="readonly">Deleted answers, score <= 0: (${hyperlinks2.join(' ')})</textarea>`).appendTo(stats);
+            if(count > 0) {
+                const results = $('.search-results .search-result, .js-search-results .search-result', data);
+                const hyperlinks = results.find('a').attr('href', (i,v) => 'https://' + mainDomain + v).attr('target', '_blank');
+                stats.find('.meta-mentions').append(results);
+                const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
+                const comment = `Deleted answers, score <= 0: (${hyperlinks2.join(' ')})`;
+                const commentArea = $(`<textarea readonly="readonly"></textarea>`).val(comment).appendTo(stats);
+
+                // If superuser, automate
+                if(isSuperuser()) {
+
+                    // Check if no comments on post starting with "Deleted answers"
+                    if(post.find('.comment-copy').filter((i, el) => /^Deleted answers/.test(el.innerText)).length === 0) {
+
+                        if(comment.length <= 600) {
+                            addComment(pid, comment);
+                        }
+                        else {
+                            const spl = comment.split(' [11]');
+                            addComment(pid, spl[0] + '...');
+
+                            setTimeout(() => {
+                                addComment(pid, '... [11]' + spl[1]);
+                            }, 500);
+                        }
+                    }
                 }
-            });
+            }
+        });
     }
 
 
@@ -265,6 +351,9 @@
     width: calc(100% - 28px);
     height: 4.2em;
     margin-top: 10px;
+}
+.main-banned {
+    margin: 15px 0;
 }
 </style>
 `;
