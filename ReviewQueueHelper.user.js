@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2.4
+// @version      3.2.5
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -557,7 +557,8 @@ async function waitForSOMU() {
 
         // Focus Reject button when radio button in edit reject dialog popup is selected
         $(document).on('click', '#rejection-popup input:radio', function() {
-            $('#rejection-popup').find('input:submit, .js-popup-submit').focus();
+            if ($(this).hasClass('custom-reason')) $('textarea.custom-reason-text').focus();
+            else $('#rejection-popup').find('input:submit, .js-popup-submit').focus();
         });
 
         // Cancel existing handlers and implement our own keyboard shortcuts
