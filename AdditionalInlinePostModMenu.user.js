@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.4
+// @version      1.3.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -287,7 +287,7 @@
                 let postText = $('#wmd-input-' + pid, data).val();
 
                 const matches = postText.match(/[@]/g);
-                if(matches && matches.length <= 1) { resolve(); return; }
+                if(matches === null || matches && matches.length <= 1) { resolve(); return; }
 
                 postText = postText.replace(/ [@]([\w.-]+)\b/g, ' $1');
                 console.log(editUrl, postText);
