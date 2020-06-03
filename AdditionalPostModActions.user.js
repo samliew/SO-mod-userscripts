@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.5
+// @version      2.11.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -290,7 +290,7 @@
                 let postText = $('#wmd-input-' + pid, data).val();
 
                 const matches = postText.match(/[@]/g);
-                if(matches && matches.length <= 1) { resolve(); return; }
+                if(matches === null || matches && matches.length <= 1) { resolve(); return; }
 
                 postText = postText.replace(/ [@]([\w.-]+)\b/g, ' $1');
                 console.log(editUrl, postText);
