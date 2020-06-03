@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.3
+// @version      2.11.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -50,6 +50,8 @@
 
                 $(this).closest('.user-info, .js-mod-quicklinks').append($(userlinks));
             });
+
+        $('.user-info').addClass('js-mod-quicklinks');
     }
 
 
