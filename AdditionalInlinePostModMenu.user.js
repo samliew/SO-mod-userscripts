@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.6
+// @version      1.3.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -528,6 +528,8 @@
             addstr += `${metaUrl}/a/${v}` + newlines;
         });
 
+        if(addstr === '') addstr = newlines;
+
         // Insert to template
         template.val(template.val()
           .replace(/:\s+{todo}/, ':<br>\n' + addstr + '**Requested via custom flag.**' + newlines) // replace todo with additional information
@@ -755,8 +757,8 @@
                 menuitems += '<div class="block-clear"></div>';
                 menuitems += '<span class="inline-label user-label">user: </span>';
 
-                const postIdParam = !isMeta ? `pid=${pid}` : `metapid=${pid}`;
-                menuitems += `<a href="${parentUrl}/admin/cm-message/create/${uid}?action=post-dissociation&${postIdParam}" target="_blank" class="inline-link" title="compose CM dissociation message in a new window">dissociate...</a>`; // non-deleted user only
+                const postIdParam = pid ? '&' + (!isMeta ? `pid=${pid}` : `metapid=${pid}`) : '';
+                menuitems += `<a href="${parentUrl}/admin/cm-message/create/${uid}?action=post-dissociation${postIdParam}" target="_blank" class="inline-link" title="compose CM dissociation message in a new window">dissociate...</a>`; // non-deleted user only
 
                 // Allow destroy option only if < 60 days and not on Meta site
                 if(!isMeta && (postage < 60 || isSuperuser())) {
