@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.4
+// @version      0.2.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -374,6 +374,9 @@
 .user-info.js-mod-message-menu:not(.js-mod-quicklinks) {
     padding-bottom: 25px;
 }
+.user-action-time {
+    min-height: 15px;
+}
 .somu-mod-message-link {
     position: absolute !important;
     bottom: 2px;
@@ -420,7 +423,7 @@
     white-space: nowrap;
 }
 .somu-mod-message-link .somu-mod-message-menu > div {
-    min-width: 180px;
+    min-width: 170px;
     padding: 0 0 6px;
 }
 .somu-mod-message-header {
@@ -442,8 +445,8 @@
     display: block;
     min-width: 120px;
     padding: 2px 0;
-    padding-left: 26px;
-    padding-right: 26px;
+    padding-left: 22px;
+    padding-right: 22px;
     cursor: pointer;
     color: var(--black-900) !important;
 }
