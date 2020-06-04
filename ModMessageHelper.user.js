@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.5
+// @version      0.2.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -365,7 +365,7 @@
 <style>
 .user-info {
     position: relative;
-    min-height: 72px;
+    min-height: 88px;
     border: 1px solid transparent;
 }
 .user-info:hover {
