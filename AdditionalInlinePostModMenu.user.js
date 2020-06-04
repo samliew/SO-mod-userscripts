@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.5
+// @version      1.3.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -31,10 +31,12 @@
 
     const newlines = '\n\n';
     const fkey = StackExchange.options.user.fkey;
-    const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
+    const getQueryParam = key => new URLSearchParams(window.location.search).get(key) || '';
     const isSO = location.hostname == 'stackoverflow.com';
     const isSOMeta = location.hostname == 'meta.stackoverflow.com';
     const isMeta = typeof StackExchange.options.site.parentUrl !== 'undefined';
+    const parentUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
+    const metaUrl = StackExchange.options.site.childUrl;
 
 
     function goToPost(pid) {
@@ -510,18 +512,25 @@
     function updateModTemplates() {
 
         const template = $('.popup input[name=mod-template]').filter((i,el) => $(el).next().text().includes('post disassociation'));
-        const pids = getQueryParam('pid').split('|');
         let addstr = '';
 
         // Build list of posts
+        const pids = getQueryParam('pid').split('|');
         pids.forEach(function(v) {
+            if(v.length === 0) return;
             addstr += `https://${location.hostname}/a/${v}` + newlines;
         });
 
+        // Build list of meta posts
+        const metapids = getQueryParam('metapid').split('|');
+        metapids.forEach(function(v) {
+            if(v.length === 0) return;
+            addstr += `${metaUrl}/a/${v}` + newlines;
+        });
+
         // Insert to template
-        template.val(
-            template.val()
-                .replace(/:\s+{todo}/, ':<br>\n' + addstr + '**Requested via custom flag.**' + newlines) // replace todo with additional information
+        template.val(template.val()
+          .replace(/:\s+{todo}/, ':<br>\n' + addstr + '**Requested via custom flag.**' + newlines) // replace todo with additional information
         ).click();
 
         $('.popup-submit').click();
@@ -536,8 +545,12 @@
         // Only on main sites
         if(isMeta) return;
 
+        // Run once, whether on AdditionalPostModActions or AdditionalInlinePostModMenu
+        if(document.body.classList.contains('SOMU-PostDissociationHelper')) return;
+        else document.body.classList.add('SOMU-PostDissociationHelper');
+
         // If on contact CM page and action = dissocciate
-        if(location.pathname.includes('/admin/cm-message/create/') && getQueryParam('action') == 'dissociate') {
+        if(location.pathname.includes('/admin/cm-message/create/') && getQueryParam('action') == 'post-dissociation') {
 
             // On any page update
             $(document).ajaxComplete(function(event, xhr, settings) {
@@ -572,7 +585,7 @@
 
                 const uid = Number(userlink.match(/\/(\d+)\//)[0].replace(/\//g, ''));
                 const pid = post.attr('data-post-id') || post.attr('data-questionid') || post.attr('data-answerid');
-                $('.js-post-flag-options', this).prepend(`<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" class="btn" target="_blank">dissociate</a>`);
+                $('.js-post-flag-options', this).prepend(`<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=post-dissociation&pid=${pid}" class="btn" target="_blank">dissociate</a>`);
 
                 $('.close-question-button, .js-convert-to-comment', this).hide();
             });
@@ -599,7 +612,7 @@
             const delCommentsBtn = post.find('.js-fetch-deleted-comments');
             if(delCommentsBtn.length == 1) {
                 const numDeletedComments = delCommentsBtn.attr('title').match(/\d+/)[0];
-                $(this).append(`<span class="js-link-separator">&nbsp;|&nbsp;</span> <a class="js-show-link comments-link js-show-deleted-comments-link fc-red-600" title="expand to show all comments on this post (including deleted)" href="#" onclick="" role="button">load <b>${numDeletedComments}</b> deleted comment${numDeletedComments > 1 ? 's' : ''}</a>`);
+                $(this).append(`<span class="js-link-separator">&nbsp;|&nbsp;</span> <a class="comments-link js-show-deleted-comments-link fc-red-600" title="expand to show all comments on this post (including deleted)" href="#" onclick="" role="button">load <b>${numDeletedComments}</b> deleted comment${numDeletedComments > 1 ? 's' : ''}</a>`);
                 delCommentsBtn.hide();
             }
 
@@ -627,11 +640,13 @@
         d.on('click', 'a.js-show-deleted-comments-link', function() {
             const post = $(this).closest('.answer, .question');
             post.find('.js-fetch-deleted-comments').click();
+            $(this).prev('.js-link-separator').addBack().remove();
         });
 
         d.on('click', 'a.js-move-comments-link', function() {
             const post = $(this).closest('.answer, .question');
             const pid = Number(this.dataset.postId) || null;
+            $(this).remove();
             moveCommentsOnPostToChat(pid);
         });
 
@@ -734,16 +749,17 @@
             }
 
             // CM message and destroy options won't work on Meta
-            if(userlink && /.*\/\d+\/.*/.test(userlink) && !isMeta) {
+            if(userlink && /.*\/\d+\/.*/.test(userlink)) {
                 const uid = Number(userlink.match(/\/\d+\//)[0].replace(/\D+/g, ''));
 
                 menuitems += '<div class="block-clear"></div>';
                 menuitems += '<span class="inline-label user-label">user: </span>';
 
-                menuitems += `<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=dissociate&pid=${pid}" target="_blank" class="inline-link" title="compose CM dissociation message in a new window">dissociate...</a>`; // non-deleted user only
+                const postIdParam = !isMeta ? `pid=${pid}` : `metapid=${pid}`;
+                menuitems += `<a href="${parentUrl}/admin/cm-message/create/${uid}?action=post-dissociation&${postIdParam}" target="_blank" class="inline-link" title="compose CM dissociation message in a new window">dissociate...</a>`; // non-deleted user only
 
-                // Allow destroy option only if < 60 days
-                if(postage < 60 || isSuperuser()) {
+                // Allow destroy option only if < 60 days and not on Meta site
+                if(!isMeta && (postage < 60 || isSuperuser())) {
 
                     // Allow destroy option only if user < 200 rep
                     if(/^\d+$/.test(userrep) && Number(userrep) < 200) {
