@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.2
+// @version      0.2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -274,6 +274,9 @@
             const userlink = userbox.find('a').attr('href');
             const userrep = userbox.find('.reputation-score').text();
             const username = userbox.find('.user-details a').first().text();
+            const modFlair = $(this).find('.mod-flair');
+
+            if(uid == -1 || modFlair.length == 1) return;
 
             const postIdParam = pid ? '&' + (!isMeta ? `pid=${pid}` : `metapid=${pid}`) : '';
 
