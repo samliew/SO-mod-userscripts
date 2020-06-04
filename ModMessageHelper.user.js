@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.3
+// @version      0.2.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -93,7 +93,7 @@
             $('.js-chat-ad-rooms').closest('.s-sidebarwidget').remove();
 
             // Move generic warning to sidebar
-            $('#mainbar > .module.system-alert').prependTo($('#sidebar'));
+            $('#mainbar > .module.system-alert').prependTo($('#sidebar')).find('#confirm-new').text((i, v) => v.trim());
 
             // Show hidden email field
             $('#send-email').attr('type', 'checkbox').prop('checked', true).change(function() {
@@ -365,6 +365,7 @@
 <style>
 .user-info {
     position: relative;
+    min-height: 72px;
     border: 1px solid transparent;
 }
 .user-info:hover {
