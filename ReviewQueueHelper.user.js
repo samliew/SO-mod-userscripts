@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2.5
+// @version      3.2.7
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1200,7 +1200,7 @@ async function waitForSOMU() {
                     insertVotingButtonsIfMissing();
 
                     // Insert instant buttons
-                    if(isSO && post.isQuestion && queueType !== 'suggested-edits') insertInstantCloseButtons();
+                    if(isSO && post.isQuestion && queueType !== 'suggested-edits' && queueType !== 'reopen') insertInstantCloseButtons();
                     else if(!post.isQuestion) {
                         $('.instant-actions').remove();
                     }
@@ -1345,6 +1345,10 @@ async function waitForSOMU() {
 }
 .popup .action-list li:nth-of-type(7):before {
     content: '7';
+}
+
+.popup .action-list .chosen-container li:before {
+    content: unset;
 }
 
 /* No numbers/kb shortcuts for auto-review-comments userscript */
