@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.0.1
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -155,7 +155,7 @@
                 if(isSuperuser()) {
 
                     // Check if no comments on post starting with "Deleted questions"
-                    if(post.find('.comment-copy').filter((i, el) => /^Deleted questions/.test(el.innerText)).length === 0) {
+                    if(post.find('.js-show-link:visible').length === 0 && post.find('.comment-copy').filter((i, el) => /^Deleted questions/.test(el.innerText)).length === 0) {
 
                         if(comment.length <= 600) {
                             addComment(pid, comment);
@@ -194,7 +194,7 @@
                 if(isSuperuser()) {
 
                     // Check if no comments on post starting with "Deleted answers"
-                    if(post.find('.comment-copy').filter((i, el) => /^Deleted answers/.test(el.innerText)).length === 0) {
+                    if(post.find('.js-show-link:visible').length === 0 && post.find('.comment-copy').filter((i, el) => /^Deleted answers/.test(el.innerText)).length === 0) {
 
                         if(comment.length <= 600) {
                             addComment(pid, comment);
