@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2
+// @version      0.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -275,6 +275,8 @@
             const userrep = userbox.find('.reputation-score').text();
             const username = userbox.find('.user-details a').first().text();
 
+            const postIdParam = !isMeta ? `pid=${pid}` : `metapid=${pid}`;
+
             const modMessageLink = parentUrl + '/users/message/create/' + uid;
             const cmMessageLink = parentUrl + '/admin/cm-message/create/' + uid;
 
@@ -307,7 +309,7 @@
             // Create CM menu
             let cmMenuitems = '';
 
-            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=post-dissociation&pid=${pid}">post dissociation</a>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=post-dissociation&${postIdParam}">post dissociation</a>`;
             cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suspicious-voting">suspicious voting</a>`;
             cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suicidal-user">suicidal user</a>`;
             cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=underage-user">underage user</a>`;
