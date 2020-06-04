@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat. Lightbox images that are displayed smaller than it's original size.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -58,6 +58,8 @@
         $(window).on('load resize', function() {
             $('.unlinked-image').each(function() {
                 const img = this.children[0];
+                if(typeof img === 'undefined') return;
+
                 if(img.width >= 100 && img.width < img.naturalWidth) {
                     this.href = this.dataset.src;
                     this.classList.add('image-lightbox');
