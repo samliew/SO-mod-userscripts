@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.2
+// @version      2.1
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -94,7 +94,7 @@
         const post = $('#question');
         const pid = Number(post.attr('data-questionid'));
         const postOwner = $('.post-signature:last .user-details a[href*="/users/"]', post).first();
-        const postText = $('h1 .question-hyperlink').text() + $('.post-text p', post).text();
+        const postText = ($('h1 .question-hyperlink').text() + $('.post-text p', post).text()).toLowerCase();
 
         // Is a deleted user, do nothing
         if(postOwner.length === 0) return;
@@ -104,7 +104,7 @@
         const userRep = postOwner.parent().find('.reputation-score').text().replace(',', '') || null;
         const hasDupeLink = $('.js-post-notice a, .comments-list a', post).filter((i, el) => /(https:\/\/meta\.stackoverflow\.com)?\/q(uestions)?\/255583\/?.*/.test(el.href)).length > 0;
         const hasTags = $('a.post-tag', post).filter((i, el) => ['post-ban', 'banning', 'deleted-'].some(v => el.innerText.contains(v))).length > 0;
-        const hasKeywords = ['unable', 'cannot', 'ban', 'block', 'well received', 'no longer', 'accepting'].some(v => postText.contains(v)) && ['question', 'answer', 'post', 'restricted', 'account'].some(v => postText.contains(v));
+        const hasKeywords = ['unable', 'cannot', 'block', 'no longer accepting'].some(v => postText.contains(v)) && ['question', 'answer', 'post', 'restricted', 'account'].some(v => postText.contains(v));
 
         // Definitely not a post ban question, ignore post
         if((!hasDupeLink && !hasTags && !hasKeywords) || userRep == null || userRep.indexOf('k') > 0 || Number(userRep) >= 1000) return;
