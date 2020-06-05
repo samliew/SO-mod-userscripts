@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.1
+// @version      2.0.2
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -94,7 +94,7 @@
         const post = $('#question');
         const pid = Number(post.attr('data-questionid'));
         const postOwner = $('.post-signature:last .user-details a[href*="/users/"]', post).first();
-        const postText = $('h1 .question-hyperlink').text() + $('.post-text', post).text();
+        const postText = $('h1 .question-hyperlink').text() + $('.post-text p', post).text();
 
         // Is a deleted user, do nothing
         if(postOwner.length === 0) return;
