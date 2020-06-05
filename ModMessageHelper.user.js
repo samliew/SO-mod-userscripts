@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.7
+// @version      0.2.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -377,10 +377,15 @@
 .user-action-time {
     min-height: 15px;
 }
+
 .mod-summary .user-info,
-.mod-summary .user-action-time {
+.mod-summary .user-action-time,
+.single-badge-user .user-info,
+.single-badge-user .user-action-time,
+.js-vote-row .user-info {
     min-height: 0;
 }
+
 .somu-mod-message-link {
     position: absolute !important;
     bottom: 2px;
