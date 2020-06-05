@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.6
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -19,6 +19,9 @@
 
     // Moderator check
     if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+
+
+    const uid = Number(location.pathname.match(/\/(\d+)/)[1]);
 
 
     function moveHistoryFilters() {
@@ -53,6 +56,21 @@
 
     function doPageLoad() {
 
+        // Show user links on history page
+        const userheader = $(`<div class="SOMU-userheader"></div>`).prependTo($('#mainbar-full'));
+        userheader.load(`https://${location.hostname}/users/account-info/${uid} .js-user-header`, function() {
+            userheader.addClass('loaded');
+
+            // Fix user profile tab/pills taking up too much space
+            userheader.find('.js-user-header .s-navigation--item[href^="/users/account-info/"]').text('Dashboard');
+            userheader.find('.js-user-header .s-navigation--item[href^="/users/edit/"]').text('Edit');
+            userheader.find(`.js-user-header a[href^="https://meta.${location.hostname}/users/"] .ml4`).text('Meta');
+            userheader.find(`.js-user-header a[href^="https://stackexchange.com/users/"]`).html((i,v) => v.replace(/\s+Network profile\s+/, 'Network'));
+            userheader.find('.js-user-header > div .fs-body3').addClass('fw-bold');
+        });
+
+
+        // Prettify annotations table
         $('#annotations tr').each(function() {
             const td = $(this).children('td, th').eq(3);
 
@@ -81,8 +99,9 @@
             td.html(str);
         });
 
-        // Links open in new window
+        // Links in annotations open in new window
         $('#annotations a').attr('target', '_blank');
+
 
         // Move history filters to sidebar
         moveHistoryFilters();
@@ -124,6 +143,22 @@
 
         const styles = `
 <style>
+.SOMU-userheader {
+    min-height: 33px;
+    margin-bottom: 16px;
+    opacity: 0;
+    transition: opacity 0.2s linear;
+}
+.SOMU-userheader.loaded {
+    opacity: 1;
+}
+.SOMU-userheader > div {
+    margin-bottom: 0;
+}
+#content .subheader {
+    display: none;
+}
+
 #annotations span.mod-flair {
     display: none;
 }
