@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -85,6 +85,14 @@
                 $(this).addClass('user-message');
                 return;
             }
+
+            // count number of newlines
+            td.each(function() {
+                const newlines = this.textContent.match(/\n/g);
+                if(newlines && newlines.length > 2) {
+                    this.classList.add('pre');
+                }
+            });
 
             // Fix broken links
             const str = td.html()
@@ -237,6 +245,7 @@ body.SOMU-SEDM #annotations tr.user-message td:nth-child(4) {
     padding-right: 5px;
 }
 
+#annotations td.pre,
 #user-history td.pre {
     font-family: monospace;
     white-space: pre-line;
