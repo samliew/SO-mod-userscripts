@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.3.1
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -95,6 +95,7 @@
         const pid = Number(post.attr('data-questionid'));
         const postOwner = $('.post-signature:last .user-details a[href*="/users/"]', post).first();
         const postText = ($('h1 .question-hyperlink').text() + $('.post-text p', post).text()).toLowerCase();
+        const isDeleted = post.find('.js-post-notice a[href="/help/deleted-questions"]').length > 0;
 
         // Is a deleted user, do nothing
         if(postOwner.length === 0) return;
@@ -106,8 +107,11 @@
         const hasTags = $('a.post-tag', post).filter((i, el) => ['post-ban', 'banning', 'deleted-'].some(v => el.innerText.contains(v))).length > 0;
         const hasKeywords = ['unable', 'cannot', 'can\'t', 'cant', 'create', 'block', 'no longer accepting'].some(v => postText.contains(v)) && ['question', 'answer', 'post', 'restrict', 'account'].some(v => postText.contains(v));
 
+        // User rep too high, don't bother checking
+        if(userRep == null || userRep.indexOf('k') > 0 || Number(userRep) >= 1000) return;
+
         // Definitely not a post ban question, ignore post
-        if((!hasDupeLink && !hasTags && !hasKeywords) || userRep == null || userRep.indexOf('k') > 0 || Number(userRep) >= 1000) return;
+        if(!isDeleted && (!hasDupeLink && !hasTags && !hasKeywords)) return;
 
         // Get user ban stats on main
         ajaxPromise(`https://${mainDomain}/users/account-info/${uid}`).then(function(data) {
@@ -137,11 +141,12 @@
 
         function getDeletedPosts(uid, type) {
 
-            ajaxPromise(`https://${mainDomain}/search?q=user%3a${uid}%20is%3a${type}%20deleted%3a1%20score%3a..0&tab=newest`).then(function(data) {
+            const url = `https://${mainDomain}/search?q=user%3a${uid}%20is%3a${type}%20deleted%3a1%20score%3a..0&tab=newest`;
+            ajaxPromise(url).then(function(data) {
                 const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
                 const stats = $(`
                     <div class="meta-mentioned">
-                        ${username} has <a href="${qnsUrl}" target="_blank">${count} deleted ${type}s</a> on ${mainName}
+                        ${username} has <a href="${url}" target="_blank">${count} deleted ${type}s</a> on ${mainName}
                         <span class="meta-mentions-toggle"></span>
                         <div class="meta-mentions"></div>
                     </div>`).insertAfter(post);
@@ -159,14 +164,29 @@
                 const comment = `Deleted ${type}, score <= 0: (${hyperlinks2.join(' ')})`;
                 const commentArea = $(`<textarea readonly="readonly"></textarea>`).val(comment).appendTo(stats);
 
+
                 // Rest of the function is for Sam
                 if(!isSuperuser()) return;
 
+                // If there are more comments or comments by myself, ignore
+                const hasMyComments = post.find(`.comment-user[href*="/users/${StackExchange.options.user.userId}/"]`).length > 0;
+                if(post.find('.js-show-link:visible').length !== 0 || hasMyComments) return;
+
+                debugger;
+
+                // Check if no comments on post containing the post ban meta post
+                const hasPostBanComment = post.find('.comment-copy').filter((i, el) => el.innerHTML.includes('/255583')).length > 0;
+                if(!hasPostBanComment) {
+                    addComment(pid, `Please read this if you can't ask new ${type}s: **[What can I do when getting “We are no longer accepting ${type}s from this account”?](//meta.stackoverflow.com/q/255583)**`);
+                }
+
                 // Check if no comments on post starting with "Deleted questions"
-                if(post.find('.js-show-link:visible').length === 0 && post.find('.comment-copy').filter((i, el) => el.innerText.includes('Deleted ' + type))) {
+                const hasDeletedComment = post.find('.comment-copy').filter((i, el) => el.innerText.toLowerCase().includes('deleted ' + type)).length > 0;
+                if(!hasDeletedComment) {
 
                     if(comment.length <= 600) {
                         addComment(pid, comment);
+                        location.reload(true);
                     }
                     else {
                         const spl = comment.split(' [11]');
@@ -174,6 +194,7 @@
 
                         setTimeout(() => {
                             addComment(pid, '... [11]' + spl[1]);
+                            location.reload(true);
                         }, 500);
                     }
                 }
