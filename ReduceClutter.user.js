@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.16.1
+// @version      1.17
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -167,8 +167,8 @@ ul.comments-list .comment-up-on {
         hideClickbaityBlogPosts();
         setTimeout(stripUnnecessaryTracking, 2000);
 
+        initShortUsernames();
         betterDuplicatesEditedList();
-
     });
 
 
@@ -255,6 +255,19 @@ ul.comments-list .comment-up-on {
                 $(this).find('a').wrap('<li>');
             }
         });
+    }
+
+
+    function initShortUsernames() {
+
+        function findAndShortenUsernames() {
+            $('a[href^="/users/"], #qtoc a.post-hyperlink').not('.my-profile').not('.js-shortusernames').addClass('js-shortusernames').text((i, v) => {
+                return v.trim().replace(/\s?(-|says)\s?.*$/i, '');
+            });
+        }
+
+        findAndShortenUsernames();
+        $(document).ajaxStop(findAndShortenUsernames);
     }
 
 
