@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.17
+// @version      1.18
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -168,6 +168,8 @@ ul.comments-list .comment-up-on {
         setTimeout(stripUnnecessaryTracking, 2000);
 
         initShortUsernames();
+        initShortenBadgeCounts();
+
         betterDuplicatesEditedList();
     });
 
@@ -268,6 +270,17 @@ ul.comments-list .comment-up-on {
 
         findAndShortenUsernames();
         $(document).ajaxStop(findAndShortenUsernames);
+    }
+
+
+    function initShortenBadgeCounts() {
+
+        function findAndShortenBadgeCounts() {
+            $('.badgecount').not('.js-shortbadgecounts').addClass('js-shortbadgecounts').text((i, v) => v.length <= 3 ? v : v.replace(/\d{3}$/, 'k'));
+        }
+
+        findAndShortenBadgeCounts();
+        $(document).ajaxStop(findAndShortenBadgeCounts);
     }
 
 
