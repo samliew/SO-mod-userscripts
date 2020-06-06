@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.3
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -146,32 +146,35 @@
                         <div class="meta-mentions"></div>
                     </div>`).insertAfter(post);
 
-                if(count > 0) {
-                    const results = $('.search-results .search-result, .js-search-results .search-result', data);
-                    const hyperlinks = results.find('a').attr('href', (i,v) => 'https://' + mainDomain + v).attr('target', '_blank');
-                    stats.find('.meta-mentions').append(results);
-                    const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
-                    const comment = `Deleted ${type}, score <= 0: (${hyperlinks2.join(' ')})`;
-                    const commentArea = $(`<textarea readonly="readonly"></textarea>`).val(comment).appendTo(stats);
+                // If no deleted posts, do nothing
+                if(isNaN(count) || count <= 0) return;
 
-                    // If superuser, automate
-                    if(isSuperuser()) {
+                // Add deleted posts to the stats element
+                const results = $('.search-results .search-result, .js-search-results .search-result', data);
+                stats.find('.meta-mentions').append(results);
 
-                        // Check if no comments on post starting with "Deleted questions"
-                        if(post.find('.js-show-link:visible').length === 0 && post.find('.comment-copy').filter((i, el) => el.innerText.includes('Deleted ' + type))) {
+                // Add copyable element to the results
+                const hyperlinks = results.find('a').attr('href', (i,v) => 'https://' + mainDomain + v).attr('target', '_blank');
+                const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
+                const comment = `Deleted ${type}, score <= 0: (${hyperlinks2.join(' ')})`;
+                const commentArea = $(`<textarea readonly="readonly"></textarea>`).val(comment).appendTo(stats);
 
-                            if(comment.length <= 600) {
-                                addComment(pid, comment);
-                            }
-                            else {
-                                const spl = comment.split(' [11]');
-                                addComment(pid, spl[0] + '...');
+                // Rest of the function is for Sam
+                if(!isSuperuser()) return;
 
-                                setTimeout(() => {
-                                    addComment(pid, '... [11]' + spl[1]);
-                                }, 500);
-                            }
-                        }
+                // Check if no comments on post starting with "Deleted questions"
+                if(post.find('.js-show-link:visible').length === 0 && post.find('.comment-copy').filter((i, el) => el.innerText.includes('Deleted ' + type))) {
+
+                    if(comment.length <= 600) {
+                        addComment(pid, comment);
+                    }
+                    else {
+                        const spl = comment.split(' [11]');
+                        addComment(pid, spl[0] + '...');
+
+                        setTimeout(() => {
+                            addComment(pid, '... [11]' + spl[1]);
+                        }, 500);
                     }
                 }
             });
