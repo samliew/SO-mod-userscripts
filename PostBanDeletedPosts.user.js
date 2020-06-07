@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.1
+// @version      2.3.2
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -185,17 +185,13 @@
                 if(!hasDeletedComment) {
 
                     if(comment.length <= 600) {
-                        addComment(pid, comment);
-                        location.reload(true);
+                        addComment(pid, comment).then(() => location.reload());
                     }
                     else {
                         const spl = comment.split(' [11]');
-                        addComment(pid, spl[0] + '...');
-
-                        setTimeout(() => {
-                            addComment(pid, '... [11]' + spl[1]);
-                            location.reload(true);
-                        }, 500);
+                        addComment(pid, spl[0] + '...').then(() => {
+                            addComment(pid, '... [11]' + spl[1]).then(() => location.reload());
+                        });
                     }
                 }
             });
