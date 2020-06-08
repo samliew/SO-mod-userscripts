@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.18.1
+// @version      2.18.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -585,6 +585,11 @@
             // Parse user-popups, if it's a room link, convert to transcript link
             const userpopup = $('.user-popup');
             userpopup.find('a').filter(function() {
+                return this.pathname.indexOf('/rooms/') == 0 && $(this).attr('href') != '#';
+            }).each(parseMessageLink);
+
+            // Parse notifications (room invites)
+            const notificationLinks = $('.notification-message a').filter(function() {
                 return this.pathname.indexOf('/rooms/') == 0 && $(this).attr('href') != '#';
             }).each(parseMessageLink);
 
