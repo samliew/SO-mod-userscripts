@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.18.1
+// @version      1.18.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -266,7 +266,8 @@ ul.comments-list .comment-up-on {
             $('a[href^="/users/"], #qtoc a.post-hyperlink').not('.my-profile').not('.js-shortusernames')
                 .filter((i, el) => el.children.length === 0)
                 .addClass('js-shortusernames').text((i, v) => {
-                    return v.trim().replace(/\s+(-|says)\s?.*$/i, '');
+                    return v.trim()
+                        .replace(/[\s-_]+(-|_|says|likes|loves|supports|is.at)[\s-_]*.+$/i, '');
                 });
         }
 
