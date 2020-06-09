@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.16
+// @version      1.16.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -294,6 +294,7 @@
             // Redirect to version with post summaries
             if(!location.search.includes('filter=WithVoteSummaries')) {
                 history.replaceState(null, document.title, "?filter=WithVoteSummaries");
+                location.reload();
             }
 
             // Display whether this is a question or answer, and link to question if it's an answer...
@@ -464,7 +465,7 @@ table.post-timeline {
 
 /* I hate the light blue bg for aggregate and deletion votes */
 .post-timeline-v2 .post-timeline tr[data-eventtype="voteaggregate"] .event-type>span.vote {
-    background-color: var(--black-800);
+    background-color: var(--black-600);
 }
 .post-timeline-v2 .post-timeline tr[data-eventtype="vote"] .event-type > span.vote {
     background-color: var(--red-700);
