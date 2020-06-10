@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8.9
+// @version      2.9
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -332,22 +332,18 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
             $('#chat-feature, #hot-network-questions').hide();
             $('.js-chat-ad-link').closest('.module').hide();
 
-            const deletedAnswersListitems = $('#qtoc-header').next().find('.deleted-answer');
-            const deletedAnswers = postsOnPage.filter('.deleted-answer');
-
             // Toggle checkbox event for deleted answers
             const showDelBtn = $('#qtoc-toggle-del').click(function() {
                 const isChecked = $(this).is(':checked');
                 saveShowDeleted(isChecked);
-                deletedAnswersListitems.toggle(isChecked);
-                deletedAnswers.toggle(isChecked);
+                $(document.body).toggleClass('SOMU-PHQT-hide-deleted', !isChecked);
             });
 
             // If user previously selected do not show deleted posts, hide them
             if(!getShowDeleted()) showDelBtn.trigger('click');
 
             // Put count of deleted answers next to total
-            $('#answers-header h2').append(`<span class="deleted-count">(${deletedCount} deleted)</span>`);
+            $('#answers-header h2').append(`<span class="deleted-count fs-body1">(${deletedCount} deleted)</span>`);
         });
     }
 
@@ -560,6 +556,12 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
     margin-left: 0;
     padding-left: 0;
     border: 0;
+}
+
+/* Toggle deleted posts */
+.SOMU-PHQT-hide-deleted #answers .answer.deleted-answer,
+.SOMU-PHQT-hide-deleted #sidebar #qtoc .deleted-answer {
+    display: none !important;
 }
 
 /* Named anchors functionality */
