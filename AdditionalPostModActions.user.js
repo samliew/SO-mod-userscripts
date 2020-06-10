@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.8
+// @version      2.11.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -683,7 +683,7 @@
         });
 
         // Append link to post sidebar if it doesn't exist yet
-        $('.js-voting-container').not('.js-post-mod-menu').addClass('js-post-mod-menu').each(function() {
+        $('.question, .answer').find('.js-voting-container').not('.js-post-mod-menu').addClass('js-post-mod-menu').each(function() {
             const post = $(this).closest('.question, .answer');
             const postScore = Number($(this).find('.js-vote-count').text());
             const postStatus = post.find('.js-post-notice, .special-status, .question-status').text().toLowerCase();
