@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9
+// @version      2.9.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -147,13 +147,14 @@
 
             const postismod = postuser.length != 0 ? postuser.next().hasClass('mod-flair') : false;
             const postdate = $(this).find('.user-info .user-action-time').last().html() || '';
+            const postdateReversed = postdate.trim().replace(/<span title="([^"]+)".*>([^<]+)<\/span>/, '<span title="$2" class="absolutetime">$1</span>');
 
             if(post.find('.post-layout--left').length == 0) {
                 post.find('.post-layout--right').before(`<div class="votecell post-layout--left"></div>`);
             }
 
             const stickyheader = $(`<div class="post-stickyheader">
-${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair : ''} ${postdate}
+${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair : ''} ${postdateReversed}
 <div class="sticky-tools">
   <a href="${routePrefix}/${isQuestion ? 'q' : 'a'}/${pid}">permalink</a> | <a href="${routePrefix}/posts/${pid}/revisions">revs</a> | <a href="${routePrefix}/posts/${pid}/timeline?filter=WithVoteSummaries">timeline</a>
 </div></div>`);
@@ -467,9 +468,13 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
     z-index: 1000;
 }
 
-.post-stickyheader .relativetime {
+.post-stickyheader .relativetime,
+.post-stickyheader .absolutetime {
     color: var(--red-700);
     border-bottom: 1px dashed var(--red-700);
+}
+.post-stickyheader .absolutetime {
+    font-size: 0.95em;
 }
 .post-stickyheader > span { /* CW user */
     color: var(--red-700);
