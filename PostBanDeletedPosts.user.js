@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.4.1
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -19,7 +19,7 @@
 
 
     const superusers = [ 584192 ];
-    const isSuperuser = () => superusers.includes(StackExchange.options.user.userId);
+    const isSuperuser = superusers.includes(StackExchange.options.user.userId);
 
     const fkey = StackExchange.options.user.fkey;
     const mainDomain = location.hostname.replace('meta.', '');
@@ -97,8 +97,8 @@
         const postText = ($('h1 .question-hyperlink').text() + $('.post-text p', post).text()).toLowerCase();
         const isDeleted = post.find('.js-post-notice a[href="/help/deleted-questions"]').length > 0;
 
-        const postDate = new Date(post.find('.post-signature.owner .relativetime').attr('title'));
-        const isRelativelyNew = Date.now() - postDate.getTime() < 3 * 86400000; // 86400000 = 1 day
+        const postDate = new Date(post.find('.post-signature').last().find('.relativetime').attr('title'));
+        const isRelativelyNew = postDate.getTime() - Date.now() < 3 * 86400000; // 86400000 = 1 day
 
         // Is a deleted user, do nothing
         if(postOwner.length === 0) return;
@@ -169,7 +169,7 @@
 
 
                 // If post is not within past three days, or has more than 20 links, do not auto-post anything!
-                if(!isSuperuser() || !isRelativelyNew || hyperlinks.length > 20) return;
+                if(!isSuperuser || !isRelativelyNew || hyperlinks2.length > 20) return;
 
                 // If there are more comments or comments by myself, ignore
                 const hasMyComments = post.find(`.comment-user[href*="/users/${StackExchange.options.user.userId}/"]`).length > 0;
