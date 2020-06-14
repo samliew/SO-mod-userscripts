@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat. Lightbox images that are displayed smaller than it's original size.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.1
+// @version      1.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -31,7 +31,6 @@
         'gravatar-wrapper-48',
         'gravatar-wrapper-64',
         'gravatar-wrapper-128',
-        'gravatar-wrapper-164',
     ];
 
 
@@ -48,6 +47,9 @@
 
         // Imgur album link to direct image
         $('a[href^="https://imgur.com/"], a[href^="https://i.stack.imgur.com/"]').attr('href', (i,v) => v.match(/\.(jpg|png|gif)/) != null ? v : v + '.jpg');
+
+        // Large user profile image - remove params
+        $('#avatar-card img').attr('src', (i, v) => v.replace(/\?.+$/, ''));
 
         // If unlinked images' width is greater than displayed width of at least 100px, also lightbox the image
         $('img').filter(function() {
