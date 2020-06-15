@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.20.5
+// @version      2.20.6
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -1338,7 +1338,7 @@ body#conversation-body .messages .message.cmmt-deleted .content * {
 #transcript-body .message .content a:hover,
 #conversation-body .message .content a:hover,
 #chat-body #sidebar a:hover {
-    color: var(--white);
+    color: var(--black-700);
 }
 .mspark .msplab {
     background-color: transparent;
