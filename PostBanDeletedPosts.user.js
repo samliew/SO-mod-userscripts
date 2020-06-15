@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.1
+// @version      2.4.2
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -171,9 +171,10 @@
                 // If post is not within past three days, or has more than 20 links, do not auto-post anything!
                 if(!isSuperuser || !isRelativelyNew || hyperlinks2.length > 20) return;
 
-                // If there are more comments or comments by myself, ignore
+                // If there are more comments or comments by myself, or deleted comments, ignore
                 const hasMyComments = post.find(`.comment-user[href*="/users/${StackExchange.options.user.userId}/"]`).length > 0;
-                if(post.find('.js-show-link:visible').length !== 0 || hasMyComments) return;
+                const hasDeletedComments = post.find('.js-fetch-deleted-comments, .js-show-deleted-comments-link').length > 0;
+                if(post.find('.js-show-link:visible').length !== 0 || hasMyComments || hasDeletedComments) return;
 
                 debugger;
 
@@ -189,12 +190,6 @@
 
                     if(comment.length <= 600) {
                         addComment(pid, comment).then(() => location.reload());
-                    }
-                    else {
-                        const spl = comment.split(' [11]');
-                        addComment(pid, spl[0] + '...').then(() => {
-                            addComment(pid, '... [11]' + spl[1]).then(() => location.reload());
-                        });
                     }
                 }
             });
