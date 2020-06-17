@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.18.2
+// @version      1.18.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -149,6 +149,12 @@ ul.comments-list .comment-up-on {
 */
 .post-text pre, .wmd-preview pre {
     max-height: 80vh;
+}
+
+
+/* Remove new edit button from question closed notice */
+.js-post-notice .mt24:last-child {
+    display: none;
 }
 
 `);
