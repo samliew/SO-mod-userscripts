@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.5.1
+// @version      5.6
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -39,6 +39,7 @@
     };
 
 
+    const store = window.localStorage;
     const fkey = StackExchange.options.user.fkey;
     const twohours = 2 * 60 * 60000;
     const oneday = 24 * 60 * 60000;
@@ -47,6 +48,32 @@
     let reviewFromBottom = false;
     let $eventsTable, $eventsContainer, $events;
     let ajaxTimeout;
+
+
+    let siteModerators; // auto-populated later
+    function getSiteModerators() {
+        const storekey = 'CFH:moderators';
+        let v = JSON.parse(store.getItem(storekey));
+
+        return new Promise(function(resolve, reject) {
+            if(v != null) { siteModerators = v; resolve(v); return; }
+
+            $.ajax(`https://${location.hostname}/users?tab=moderators`)
+                .done(function(data) {
+                    const users = $('#user-browser .user-info', data).find('a:first').get().map(el => Number(el.href.match(/\d+/)[0]));
+                    store.setItem(storekey, JSON.stringify(users));
+                    siteModerators = users;
+                    resolve(users);
+                })
+                .fail(reject);
+        });
+    }
+    $.fn.moderatorsOnly = function() {
+        return this.filter(function(i, el) {
+            return el.href.includes('/users/') && siteModerators.includes(Number(el.dataset.uid || el.href.match(/\d+/)));
+        });
+    };
+
 
     // Special characters must be escaped with \\
     const rudeKeywords = [
@@ -328,10 +355,10 @@
 
                     $('<button class="s-btn s-btn__xs s-btn__filled s-btn__danger" title="Decline flags on mod comments">Decline Mod</button>')
                         .click(function() {
+                            console.log('declining R/A flags on mod comments (if any)');
+
                             $(this).remove();
-                            const modComments = $('.comment-user').filter(function() {
-                                return $(this).parent('span').text().includes('♦');
-                            }).filter(':visible').parents('.js-flagged-comment').find('.js-dismiss-flags');
+                            const modComments = $('.comment-user:visible').moderatorsOnly().parents('.js-flagged-comment').find('.js-dismiss-flags');
                             $('body').showAjaxProgress(modComments.length, { position: 'fixed' });
                             modComments.click();
                         })
@@ -869,7 +896,9 @@ mark {
 
     // On page load
     appendStyles();
-    doPageload();
+    getSiteModerators().then(() => {
+        doPageload();
+    });
     listenToPageUpdates();
 
 })();
