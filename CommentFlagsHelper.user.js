@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.6
+// @version      6.0
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -38,13 +38,14 @@
         return this.first().text().trim().toLowerCase();
     };
 
+    const superusers = [ 584192 ];
+    const isSuperuser = superusers.includes(StackExchange.options.user.userId);
 
     const store = window.localStorage;
     const fkey = StackExchange.options.user.fkey;
     const twohours = 2 * 60 * 60000;
     const oneday = 24 * 60 * 60000;
     const oneweek = 7 * oneday;
-    const superusers = [ 584192 ];
     let reviewFromBottom = false;
     let $eventsTable, $eventsContainer, $events;
     let ajaxTimeout;
@@ -176,41 +177,6 @@
         }
 
         $events.addClass('dno').filter(filterFn).removeClass('dno');
-    }
-
-
-    function initCommentFilters() {
-
-        appendUserCommentsFilterstyles();
-
-        $eventsTable = $('table.admin-user-comments');
-        $eventsContainer = $eventsTable.find('tbody');
-        $events = $eventsContainer.find('.meta-row');
-
-        // Insert sort options
-        const $filterOpts = $(`<div id="user-comments-tabs" class="tabs">
-                <a data-filter="all" class="youarehere">Show All</a>
-                <a data-filter="rude">Rude or Offensive</a>
-                <a data-filter="unwelcoming">Unwelcoming</a>
-                <a data-filter="nln">No Longer Needed</a>
-                <a data-filter="normal">Unflagged</a>
-                <a data-filter="deleted">Deleted</a>
-                <a data-filter="notdeleted">Active</a>
-            </div>`)
-            .insertBefore($eventsTable);
-
-        // Filter options event
-        $('#user-comments-tabs').on('click', 'a[data-filter]', function() {
-            if($(this).hasClass('youarehere')) return false;
-
-            // Filter posts based on selected filter
-            filterPosts(this.dataset.filter);
-
-            // Update active tab highlight class
-            $(this).addClass('youarehere').siblings().removeClass('youarehere');
-
-            return false;
-        });
     }
 
 
@@ -348,7 +314,7 @@
                 })
                 .appendTo(actionBtns);
 
-            if(superusers.includes(StackExchange.options.user.userId)) {
+            if(isSuperuser) {
 
                 // Decline flags on mod comments
                 if(location.search.includes('commentrobotsaysunfriendly') || location.search.includes('commentunwelcoming') || location.search.includes('commentrudeoroffensive')) {
@@ -526,18 +492,60 @@
         // On user comments history page
         if(location.pathname.includes('/admin/users/') && location.pathname.includes('/post-comments')) {
 
-            initCommentFilters();
-
-            // Init decline buttons (clear-flags) on user comments page for active flags
-            $('.comment-flag-on').append(`<a class="dismiss-comment" href="#" title="decline flags on comment">decline</a>`);
-            $('.admin-user-comments').on('click', '.dismiss-comment', function() {
-                const cid = Number($(this).closest('tr.text-row').attr('data-id'));
-                if(isNaN(cid)) return;
-                $(this).remove();
-                dismissCommentFlags(cid);
-                return false;
+            // Fix search bug not allowing batch select
+            $('.js-comment-search-form, #comments-filter').off();
+            $('#comments-filter').on('change', function() {
+                location.search = '?search=' + this.value + '&state=active';
             });
+
+            if(!isSuperuser) return;
+
+            // Init batch comments deleter
+            const delAllComments = $(`<button class="grid--cell mb12 ml12 s-btn s-btn__filled s-btn__danger js-delete-all" role="button">Delete ALL</button>`);
+            delAllComments.click(function() {
+                if(!confirm('Delete ALL searched comments starting from last page?')) return;
+
+                $(this).remove();
+
+                const searchUrl = location.search.slice(1).replace(/[&?]page=\d+/, '');
+                const lastPageLink = $('.js-comments-table-container .s-pagination--item').not('[rel="next"]').last();
+                const lastPageNum = Number(lastPageLink.text());
+
+                $('body').showAjaxProgress(lastPageNum * 2, { position: 'fixed' });
+                recurseDeleteUserComments(searchUrl, lastPageNum);
+            });
+            $('.js-comment-search-form').parent().after(delAllComments);
         }
+    }
+    function fetchUserCommentsPage(filter, pageNum) {
+        return new Promise(function(resolve, reject) {
+            if(typeof url === 'undefined' || url === null) { reject(); return; }
+            if(isNaN(pageNum) || pageNum <= 0) { reject(); return; }
+
+            $.get(`https://${location.hostname}/${location.pathname}?${filter}&page=${pageNum}`)
+                .done(resolve)
+                .fail(reject);
+        });
+    }
+    function bulkDeleteComments(commentIds) {
+        return new Promise(function(resolve, reject) {
+            if(typeof commentIds === 'undefined' || commentIds.length === 0) { reject(); return; }
+
+            const datastring = 'commentIds%5B%5D=' + commentIds.join('&commentIds%5B%5D=') + '&action=delete&fkey=' + fkey;
+            $.post(`https://${location.hostname}/admin/comment/bulk-comment-change`, datastring)
+                .done(resolve)
+                .fail(reject);
+        });
+    }
+    function recurseDeleteUserComments(filter, pageNum) {
+        if(pageNum <= 0) return;
+
+        fetchUserCommentsPage(filter, pageNum).then(data => {
+            const commentIds = $('.js-bulk-select', data).get().map(v => v.dataset.id);
+            bulkDeleteComments(commentIds).then(v => {
+                recurseDeleteCommentsPage(filter, pageNum - 1);
+            });
+        });
     }
 
 
@@ -643,31 +651,6 @@
             const pid = Number(this.dataset.postId) || null;
             deleteCommentsOnPost(pid);
         });
-    }
-
-
-    function appendUserCommentsFilterstyles() {
-
-        const styles = `
-<style>
-table.admin-user-comments {
-    width: 100%;
-}
-#user-comments-tabs {
-    width: 100%;
-}
-table.sorter > tbody > tr.odd > td {
-    background-color: var(--black-025);
-}
-.admin-user-comments .meta-row {
-    border-top: 1px dashed rgba(0,0,0,0.1);
-}
-.admin-user-comments .meta-row.dno + .text-row {
-    display: none;
-}
-</style>
-`;
-        $('body').append(styles);
     }
 
 
