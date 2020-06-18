@@ -3,7 +3,7 @@
 // @description  Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/admin/deleter
 // @include      https://*serverfault.com/admin/deleter
@@ -19,7 +19,7 @@
 
     const fkey = StackExchange.options.user.fkey;
     const params = {
-        itemsPerBatch: 20,
+        itemsPerBatch: 50,
         delayPerBatch: 5000,
     };
     let content, button, preview, textarea;
@@ -46,16 +46,35 @@
         });
     }
 
+    function bulkDeleteComments(commentIds) {
+        return new Promise(function(resolve, reject) {
+            if(typeof commentIds === 'undefined' || commentIds.length === 0) { reject(); return; }
+
+            const datastring = 'commentIds%5B%5D=' + commentIds.join('&commentIds%5B%5D=') + '&action=delete&fkey=' + fkey;
+            $.post(`https://${location.hostname}/admin/comment/bulk-comment-change`, datastring)
+                .done(function(response) {
+                    if(response.includes('ok') === false) {
+                        failures++;
+                    }
+                }).fail(function() {
+                    failures++;
+                });
+        });
+    }
+
 
     let doDeleteAll = function() {
         const startTime = new Date();
         let linkElems = preview.find('a').hide();
-        let links = linkElems.get().map(el => {
-            if(!el.href.includes('/vote/10')) { return el.href + '/vote/10' }
-            return el.href;
-        });
-        let total = links.length;
+        //let links = linkElems.get().map(el => {
+        //    if(!el.href.includes('/vote/10')) { return el.href + '/vote/10' }
+        //    return el.href;
+        //});
+        let commentIds = linkElems.get().map(el => el.href.match(/\/(\d+)/)[1]);
+        let total = typeof links !== 'undefined' ? links.length : commentIds.length;
         let currentNum = 0;
+
+        linkElems.remove(); // Save memory?
 
         // Calculate and update progress
         function updateProgress() {
@@ -68,7 +87,8 @@
         // Callback
         function processNextBatch() {
             if(currentNum >= total) cleanup();
-            links.slice(currentNum, currentNum + params.itemsPerBatch).forEach(v => { deleteOne(v); });
+            //links.slice(currentNum, currentNum + params.itemsPerBatch).forEach(v => { deleteOne(v); });
+            bulkDeleteComments( commentIds.slice(currentNum, currentNum + params.itemsPerBatch) );
             currentNum += params.itemsPerBatch;
             if(currentNum > total) currentNum = total;
         }
