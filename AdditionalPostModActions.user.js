@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.9
+// @version      2.11.10
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -618,7 +618,7 @@
             const delCommentsBtn = post.find('.js-fetch-deleted-comments');
             if(delCommentsBtn.length == 1) {
                 const numDeletedComments = delCommentsBtn.attr('title').match(/\d+/)[0];
-                $(this).append(`<span class="js-link-separator">&nbsp;|&nbsp;</span> <a class="comments-link js-show-deleted-comments-link fc-red-600" title="expand to show all comments on this post (including deleted)" href="#" onclick="" role="button">load <b>${numDeletedComments}</b> deleted comment${numDeletedComments > 1 ? 's' : ''}</a>`);
+                $(this).append(`<span class="js-link-separator2">&nbsp;|&nbsp;</span> <a class="comments-link js-show-deleted-comments-link fc-red-600" title="expand to show all comments on this post (including deleted)" href="#" onclick="" role="button">load <b>${numDeletedComments}</b> deleted comment${numDeletedComments > 1 ? 's' : ''}</a>`);
                 delCommentsBtn.hide();
             }
 
@@ -646,7 +646,7 @@
         d.on('click', 'a.js-show-deleted-comments-link', function() {
             const post = $(this).closest('.answer, .question');
             post.find('.js-fetch-deleted-comments').click();
-            $(this).prev('.js-link-separator').addBack().remove();
+            $(this).prev('.js-link-separator2').addBack().remove();
         });
 
         d.on('click', 'a.js-move-comments-link', function() {
