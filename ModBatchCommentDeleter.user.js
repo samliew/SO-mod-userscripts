@@ -3,7 +3,7 @@
 // @description  Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       @samliew
-// @version      2.0.1
+// @version      2.0.2
 //
 // @include      https://*stackoverflow.com/admin/deleter
 // @include      https://*serverfault.com/admin/deleter
@@ -19,8 +19,8 @@
 
     const fkey = StackExchange.options.user.fkey;
     const params = {
-        itemsPerBatch: 500,
-        delayPerBatch: 4000,
+        itemsPerBatch: 1000,
+        delayPerBatch: 5000,
     };
     let content, button, preview, textarea;
     let isRunning = false;
