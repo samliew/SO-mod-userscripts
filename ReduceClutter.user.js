@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.18.3
+// @version      1.19
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -100,7 +100,8 @@ ul.comments-list .comment-up-on {
 
 
 /* Hide post reactions (Teams) */
-.votecell [data-controller="reactions"] {
+.votecell [data-controller="reactions"],
+.votecell .js-reactions {
     display: none !important;
 }
 
@@ -173,6 +174,7 @@ ul.comments-list .comment-up-on {
         hideClickbaityBlogPosts();
         setTimeout(stripUnnecessaryTracking, 2000);
 
+        revertVotecellTooltips();
         initShortUsernames();
         initShortenBadgeCounts();
 
@@ -263,6 +265,24 @@ ul.comments-list .comment-up-on {
                 $(this).find('a').wrap('<li>');
             }
         });
+    }
+
+
+    function revertVotecellTooltips() {
+
+        function findAndRevertTooltips() {
+            $('.js-voting-container, .post-menu').find('[aria-describedby^="--stacks-s-tooltip"]').each(function() {
+                const tooltipId = $(this).attr('aria-describedby');
+                const tooltip = $('#' + $(this).attr('aria-describedby'));
+                this.title = tooltip.text();
+
+                $(this).attr('aria-describedby', '');
+                tooltip.remove();
+            });
+        }
+
+        findAndRevertTooltips();
+        $(document).ajaxStop(findAndRevertTooltips);
     }
 
 
