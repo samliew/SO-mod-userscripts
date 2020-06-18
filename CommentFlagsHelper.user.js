@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      6.0
+// @version      6.0.1
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -501,16 +501,17 @@
             if(!isSuperuser) return;
 
             // Init batch comments deleter
-            const delAllComments = $(`<button class="grid--cell mb12 ml12 s-btn s-btn__filled s-btn__danger js-delete-all" role="button">Delete ALL</button>`);
+            const delAllComments = $(`<button id="delete-all-btn" class="grid--cell mb12 ml12 s-btn s-btn__filled s-btn__danger js-delete-all" role="button">Delete ALL</button>`);
             delAllComments.click(function() {
-                if(!confirm('Delete ALL searched comments starting from last page?')) return;
-
-                $(this).remove();
-
                 const searchUrl = location.search.slice(1).replace(/[&?]page=\d+/, '');
                 const lastPageLink = $('.js-comments-table-container .s-pagination--item').not('[rel="next"]').last();
-                const lastPageNum = Number(lastPageLink.text());
+                const lastPageNum = Number(lastPageLink.text()) || 1; // no pagination, one/current page only
+                const commentCount = Number($('.js-comment-count').text().match(/of (\d+)/)[1]);
 
+                // Prompt
+                if(!confirm(`Delete ALL ${commentCount} filtered comments starting from last page?`)) return;
+
+                const button = $(this).prop('disabled', true);
                 $('body').showAjaxProgress(lastPageNum * 2, { position: 'fixed' });
                 recurseDeleteUserComments(searchUrl, lastPageNum);
             });
@@ -538,12 +539,17 @@
         });
     }
     function recurseDeleteUserComments(filter, pageNum) {
-        if(pageNum <= 0) return;
+        const button = $('#delete-all-btn').text('Deleting page: ' + pageNum);
+
+        if(pageNum <= 0) {
+            button.remove();
+            return;
+        }
 
         fetchUserCommentsPage(filter, pageNum).then(data => {
             const commentIds = $('.js-bulk-select', data).get().map(v => v.dataset.id);
             bulkDeleteComments(commentIds).then(v => {
-                recurseDeleteCommentsPage(filter, pageNum - 1);
+                recurseDeleteUserComments(filter, pageNum - 1);
             });
         });
     }
