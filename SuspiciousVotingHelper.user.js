@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -332,7 +332,7 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
         }
 
         // If on user votes page
-        if(location.pathname.includes('/show-user-votes/')) {
+        else if(location.pathname.includes('/show-user-votes/')) {
 
             // Sort invalidated votes table by date of invalidation instead, but still allow sorting by other columns
             const activeVotesTables = $('.cast-votes:first table');
@@ -439,7 +439,7 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
         }
 
         // CM message page
-        if(location.pathname.includes('/admin/cm-message/')) {
+        else if(location.pathname.includes('/admin/cm-message/')) {
 
             // Linkify user ids in preformatted elements
             const uidRegex = /\b(\d{4,})\b/g;
@@ -451,6 +451,23 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
             if(getQueryParam('action') == 'suspicious-voting') {
                 $('#show-templates').click();
             }
+        }
+
+        // User dashboard
+        else if(location.pathname.includes('/users/account-info/')) {
+
+            const uid = location.pathname.match(/\/(\d+)/)[1];
+
+            // Fetch timestamp of first "Add Credential"
+            const dateRegContainer = $(` <span class="d-inline-block ml12"></span>`);
+            $('#mod-content .details .col-4').eq(1).append(dateRegContainer);
+
+            $.get(`https://stackoverflow.com/users/history/${uid}?type=Add+Credential`)
+            .done(function(data) {
+                const eventDate = $('#user-history .relativetime', data).last();
+                const timestamp = eventDate.attr('title') || '(legal not shown)';
+                dateRegContainer.text(timestamp);
+            });
         }
     }
 
