@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9.2
+// @version      2.10
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -236,7 +236,7 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
             });
 
             const qtoc = $(`
-<div class="module sidebar-linked" id="qtoc">
+<div class="module sidebar-linked mt24" id="qtoc">
   <h4 id="qtoc-header">${nominations.length} Candidate${pluralize(nominations.length)}</h4>
   <div class="linked">${answerlist}</div>
 </div>`);
@@ -248,7 +248,7 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
             });
 
             // Insert after featured module
-            $('#sidebar .module.newuser').after(qtoc);
+            $('#sidebar .s-sidebarwidget__yellow').after(qtoc);
 
             return;
         }
