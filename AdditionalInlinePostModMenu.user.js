@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.8
+// @version      1.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -909,7 +909,7 @@
         // Election page - allow loading of comments under nominations
         if(document.body.classList.contains('election-page')) {
 
-            const posts = $('#mainbar table').find('div[id^="post-"]');
+            const posts = $('#mainbar').find('.candidate-row');
 
             posts.each(function() {
                 const pid = this.id.match(/\d+$/)[0];
@@ -923,7 +923,7 @@
                 const elems = $(this).prevAll('.comments-link, .js-link-separator').addBack().not('.js-add-link');
                 const commentsUrl = `/posts/${pid}/comments?includeDeleted=true&_=${Date.now()}`;
                 $('#comments-' + pid).children('ul.comments-list').load(commentsUrl, function() {
-                    elems.remove();
+                    //elems.remove();
                 });
             });
 
