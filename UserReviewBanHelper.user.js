@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.0.3
+// @version      4.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -857,9 +857,9 @@ Breakdown:<br>
                     banSubmit.focus();
                 });
 
-                if(isSuperuser()) {
+                firstRadio.remove(); // remove option 2
 
-                    firstRadio.remove(); // remove option 2
+                if(true || isSuperuser()) {
 
                     // If triage reviews
                     if(location.hash.includes('|/review/triage/')) {
@@ -871,6 +871,15 @@ Breakdown:<br>
                         // If reviewAction is "requires-editing", select alternate canned message
                         if(reviewAction == 'requires-editing') {
                             $('#canned-messages a[data-message*="Requires Editing"]').click();
+                        }
+                    }
+
+                    // If suggested-edits reviews
+                    else if(location.hash.includes('|/review/suggested-edits/')) {
+
+                        // If reviewAction is "approve", select alternate canned message
+                        if(reviewAction == 'approve') {
+                            $('#canned-messages a[data-message^="You approved poor edits"]').click();
                         }
                     }
                 }
