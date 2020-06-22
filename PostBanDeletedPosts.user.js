@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.2
+// @version      2.5
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -164,7 +164,7 @@
                 // Add copyable element to the results
                 const hyperlinks = results.find('a').attr('href', (i,v) => 'https://' + mainDomain + v).attr('target', '_blank');
                 const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
-                const comment = `Deleted ${type}, score <= 0: (${hyperlinks2.join(' ')})`;
+                const comment = `Deleted ${type}${hyperlinks2.length == 1 ? '' : 's'}, score <= 0, that are contributing to the [${type} ban](https://${location.hostname}/help/${type}-bans): (${hyperlinks2.join(' ')})`;
                 const commentArea = $(`<textarea readonly="readonly"></textarea>`).val(comment).appendTo(stats);
 
 
