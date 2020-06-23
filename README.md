@@ -10,30 +10,30 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 
 ## Recommended
 
-These are highly recommended for moderators. Minor changes to the UI/defaults makes your mod life easier by a *huge* amount (saving clicks, or having to hunt for a particular link/mod feature, or displaying more info upfront). Click these to jump to their descriptions below:
+These are highly recommended for moderators. Minor changes to the UI/defaults makes your mod life easier by a *huge* amount (saving clicks, or having to hunt for a particular link/mod feature, or displaying more info upfront). Click these to jump to their descriptions:
 
-- [Mod User Quicklinks Everywhere](https://github.com/samliew/SO-mod-userscripts#mod-user-quicklinks-everywhere-) ♦
-- [User Info Sidebar](https://github.com/samliew/SO-mod-userscripts#user-info-sidebar-) ♦
-- [User Review Ban Helper](https://github.com/samliew/SO-mod-userscripts#user-review-ban-helper-) ♦
-- [Comment Flags Helper](https://github.com/samliew/SO-mod-userscripts#comment-flags-helper-) ♦
-- [Not An Answer Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts#not-an-answer-flag-queue-helper-) ♦
-- [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts#display-inline-comment-flag-history-) ♦
-- [Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts#deleted-users-helper-) ♦
-- [User History Improvements](https://github.com/samliew/SO-mod-userscripts#user-history-improvements-) ♦
-- [Additional Post Mod Actions](https://github.com/samliew/SO-mod-userscripts#additional-post-mod-actions-) ♦
+- [Mod User Quicklinks Everywhere](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#mod-user-quicklinks-everywhere-) ♦
+- [User Info Sidebar](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#user-info-sidebar-) ♦
+- [User Review Ban Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#user-review-ban-helper-) ♦
+- [Comment Flags Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#comment-flags-helper-) ♦
+- [Not An Answer Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#not-an-answer-flag-queue-helper-) ♦
+- [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#display-inline-comment-flag-history-) ♦
+- [Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#deleted-users-helper-) ♦
+- [User History Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#user-history-improvements-) ♦
+- [Additional Post Mod Actions](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#additional-post-mod-actions-) ♦
 
 
 These are highly recommended for everyone because they are too awesome:
 
-- [Searchbar & Nav Improvements](https://github.com/samliew/SO-mod-userscripts#searchbar--nav-improvements)
-- [Post Headers & Question TOC](https://github.com/samliew/SO-mod-userscripts#post-headers--question-toc)
-- [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts#post-timeline-filters)
+- [Searchbar & Nav Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#searchbar--nav-improvements)
+- [Post Headers & Question TOC](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#post-headers--question-toc)
+- [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#post-timeline-filters)
 
 
 Recommended chat userscripts:
 
-- [Chat Improvements](https://github.com/samliew/SO-mod-userscripts#chat-improvements)
-- [No Oneboxes in Chat](https://github.com/samliew/SO-mod-userscripts#no-oneboxes-in-chat)
+- [Chat Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#chat-improvements)
+- [No Oneboxes in Chat](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#no-oneboxes-in-chat)
 
 
 
@@ -248,6 +248,12 @@ Recommended chat userscripts:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-01_110648.png)
 
 
+### [Revert Tooltips](https://github.com/samliew/SO-mod-userscripts/blob/master/RevertTooltips.user.js)
+
+- Reverts the new instant stacks tooltips used in the post voting containers into native browser tooltips that appear after a short delay
+- Also changes the follow/unfollow stacks tooltip to native tooltips
+
+
 
 <br>
 
@@ -330,6 +336,13 @@ Better comments layout for easier readability and moderation.
 ### [Find Users Additional Info](https://github.com/samliew/SO-mod-userscripts/blob/master/FindUsersAdditionalInfo.user.js) ♦
 
 - Improvements for /admin/find-users
+
+
+### [Mod Message Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/ModMessageHelper.user.js) ♦
+
+- Adds a message menu to userinfo boxes
+- Select from usual mod message or CM message templates
+- Selected templates are automatically selected on landing on the new message page
 
 
 ### [Mod User Quicklinks Everywhere](https://github.com/samliew/SO-mod-userscripts/blob/master/ModUserQuicklinksEverywhere.user.js) ♦
@@ -571,7 +584,7 @@ Better comments layout for easier readability and moderation.
 
 ### [Chat Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/ChatImprovements.user.js)
 
-Works with [No Oneboxes In Chat](https://github.com/samliew/SO-mod-userscripts#no-oneboxes-in-chat) and [Stack Exchange Dark Mode](https://github.com/samliew/SO-mod-userscripts#stack-exchange-dark-mode).
+Works with "No Oneboxes In Chat" and "Stack Exchange Dark Mode".
 
 - **New responsive user list** displaying usernames and total count
 - **Timestamps on every message** in live chat
