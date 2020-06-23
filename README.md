@@ -12,28 +12,28 @@ _by [Samuel Liew](https://stackoverflow.com/users/584192/samuel-liew)_
 
 These are highly recommended for moderators. Minor changes to the UI/defaults makes your mod life easier by a *huge* amount (saving clicks, or having to hunt for a particular link/mod feature, or displaying more info upfront). Click these to jump to their descriptions:
 
-- [Mod User Quicklinks Everywhere](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#mod-user-quicklinks-everywhere-) ♦
-- [User Info Sidebar](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#user-info-sidebar-) ♦
-- [User Review Ban Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#user-review-ban-helper-) ♦
-- [Comment Flags Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#comment-flags-helper-) ♦
-- [Not An Answer Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#not-an-answer-flag-queue-helper-) ♦
-- [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#display-inline-comment-flag-history-) ♦
-- [Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#deleted-users-helper-) ♦
-- [User History Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#user-history-improvements-) ♦
-- [Additional Post Mod Actions](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#additional-post-mod-actions-) ♦
+- [Mod User Quicklinks Everywhere](https://github.com/samliew/SO-mod-userscripts/blob/master/README.md#mod-user-quicklinks-everywhere-) ♦
+- [User Info Sidebar](https://github.com/samliew/SO-mod-userscripts/blob/master/README.md#user-info-sidebar-) ♦
+- [User Review Ban Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/README.md#user-review-ban-helper-) ♦
+- [Comment Flags Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/README.md#comment-flags-helper-) ♦
+- [Not An Answer Flag Queue Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/README.md#not-an-answer-flag-queue-helper-) ♦
+- [Display Inline Comment Flag History](https://github.com/samliew/SO-mod-userscripts/blob/master/README.md#display-inline-comment-flag-history-) ♦
+- [Deleted Users Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/README.md#deleted-users-helper-) ♦
+- [User History Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/README.md#user-history-improvements-) ♦
+- [Additional Post Mod Actions](https://github.com/samliew/SO-mod-userscripts/blob/master/README.md#additional-post-mod-actions-) ♦
 
 
 These are highly recommended for everyone because they are too awesome:
 
-- [Searchbar & Nav Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#searchbar--nav-improvements)
-- [Post Headers & Question TOC](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#post-headers--question-toc)
-- [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#post-timeline-filters)
+- [Searchbar & Nav Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/README.md#searchbar--nav-improvements)
+- [Post Headers & Question TOC](https://github.com/samliew/SO-mod-userscripts/blob/master/README.md#post-headers--question-toc)
+- [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/blob/master/README.md#post-timeline-filters)
 
 
 Recommended chat userscripts:
 
-- [Chat Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#chat-improvements)
-- [No Oneboxes in Chat](https://github.com/samliew/SO-mod-userscripts/blob/master/readme.md#no-oneboxes-in-chat)
+- [Chat Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/README.md#chat-improvements)
+- [No Oneboxes in Chat](https://github.com/samliew/SO-mod-userscripts/blob/master/README.md#no-oneboxes-in-chat)
 
 
 
