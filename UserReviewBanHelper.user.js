@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.1
+// @version      4.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -61,6 +61,7 @@
 
 
     const reloadPage = () => location.reload(true);
+    const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
     const pluralize = s => s.length != 1 ? 's' : '';
     const dateToSeDateFormat = d => d.toISOString().replace('T', ' ').replace(/\.\d+Z$/, 'Z');
 
@@ -212,6 +213,8 @@
             }
         });
 
+        const filterField = $('#js-filter-user');
+
         queues.forEach(q => {
             cont.append(`<h3 class="s-subheader mt32 py8 bb bc-black-5"><a href="https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=True" target="_blank">${q[0]}</a></h3>`);
 
@@ -219,9 +222,15 @@
             if(q[1] === 'first-posts') numPages = 6;
 
             for(let i = 1; i <= numPages; i++) {
-                $(`<div id="${q[1]}-review-${i}"></div>`).appendTo(cont).load(`https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=True&page=${i} #content .history-table`);
+                $(`<div id="${q[1]}-review-${i}"><i>loading...</i></div>`).appendTo(cont).load(`https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=True&page=${i} #content .history-table`, function() {
+                    filterField.trigger('change');
+                });
             }
         });
+
+        // Once on page load, read user querystring to filter results
+        const uid = Number(getQueryParam('uid'));
+        filterField.val(uid);
     }
 
 
@@ -741,7 +750,12 @@ Breakdown:<br>
         // Mod user history - review bans filter
         else if(location.pathname.includes('/users/history') && location.search == "?type=User+has+been+banned+from+review") {
 
-            var uid2 = location.pathname.match(/\d+/)[0];
+            const uid2 = location.pathname.match(/\d+/)[0];
+
+            const heading = $('#mainbar h2').first();
+
+            // Add additional links to new pages
+            heading.after(`<a href="/admin/review/failed-audits?uid=${uid2}" class="fr s-btn s-btn__sm mr12" title="view all recently failed audits from all queues on a single page">see all failed audits</a>`);
 
             // Get last review ban date and duration
             const hist = $('#user-history tbody tr:first td');
@@ -753,20 +767,20 @@ Breakdown:<br>
 
                 if(bannedDiff > 0) {
                     // Currently banned, show unban button
-                    $(`<a class="button reviewban-button">Review Unban</a>`)
+                    $(`<a class="fr s-btn s-btn__sm s-btn__filled s-btn__danger reviewban-button">Review Unban</a>`)
                         .click(function() {
                             if(confirm('Unban user from reviewing?')) {
                                 $(this).remove();
                                 reviewUnban(uid2);
                             }
                         })
-                        .insertAfter('.subheader h1');
+                        .insertAfter(heading);
                     return;
                 }
             }
 
             // Not currently banned, show review ban button
-            $(`<a class="button reviewban-button" href="/admin/review/bans#${uid2}">Review Ban</a>`).insertAfter('.subheader h1');
+            $(`<a class="fr s-btn s-btn__sm s-btn__filled s-btn__primary reviewban-button" href="/admin/review/bans#${uid2}">Review Ban</a>`).insertAfter(heading);
         }
 
         // Review queue history pages
@@ -789,7 +803,7 @@ Breakdown:<br>
 
         // Add additional links to new pages
         else if(location.pathname === '/admin/review/audits') {
-            $('#content .subheader').first().append('<a class="fr d-inline-block p12" title="view all recently failed audits from all queues on a single page">all failed audits</a>');
+            $('#content .subheader').first().append('<a href="/admin/review/failed-audits" class="fr s-btn s-btn__sm" title="view all recently failed audits from all queues on a single page">all failed audits</a>');
         }
 
         // Review queues
