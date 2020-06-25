@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.6
+// @version      0.2.7
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -463,7 +463,7 @@
             return new Promise(function(resolve, reject) {
 
                 // Get other pages, if no other pages resolve immediately
-                const pages = $('.pager-answers').first().children('a').not('[rel]');
+                const pages = $('.pager-answers').first().children('a').not('[rel="prev"]').not('[rel="next"]');
                 if(pages.length == 0) {
                     console.log('only one page of answers');
                     resolve();
@@ -490,7 +490,7 @@
                     console.log('loaded all answer pages');
 
                     // short delay to allow comments to be added to page
-                    setTimeout(() => { resolve(); }, 1000);
+                    setTimeout(() => { resolve(); }, 2000);
                 }, reject);
 
             });
