@@ -3,7 +3,7 @@
 // @description  Some magic links are not parsed in Stack Overflow Chat. This script parses and submit expanded magic links via an edit to your latest message.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.1
+// @version      1.4.2
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // ==/UserScript==
@@ -40,7 +40,7 @@
 
 
     function convertMagicLinksInMessage(msg) {
-        msg = msg.replace(/\[mcve\](?!\()/gi, `[Minimal, Complete, and Verifiable example](${mainDomain}/help/mcve)`);
+        msg = msg.replace(/\[(mcve|mre)\](?!\()/gi, `[Minimal, Reproducible Example](${mainDomain}/help/mcve)`);
         msg = msg.replace(/\[help\](?!\()/gi, `[help center](${mainDomain}/help)`);
         msg = msg.replace(/\[help\/on-topic\](?!\()/gi, `[help center](${mainDomain}/help/on-topic)`);
         msg = msg.replace(/\[help\/dont-ask\](?!\()/gi, `[help center](${mainDomain}/help/dont-ask)`);
