@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2.7
+// @version      3.3
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -603,70 +603,62 @@ async function waitForSOMU() {
             }
 
 
-            // #69 - Do nothing else if a textbox or textarea is focused, e.g.: comment box
-			// Do nothing else also if post is being edited
-			if(document.activeElement.tagName == 'TEXTAREA' ||
-				(document.activeElement.tagName == 'INPUT' && document.activeElement.type == 'text') ||
-				document.getElementsByClassName('editing-review-content').length > 0 ) {
-					return;
-			}
+            // Get current popup
+            const currPopup = $('#delete-question-popup, #rejection-popup, #popup-flag-post, #popup-close-question').filter(':visible').last();
+
+            // #69 - If a textbox or textarea is focused, e.g.: comment box
+            // E.g.: if post is being edited or being commented on
+            if(document.activeElement.tagName == 'TEXTAREA' ||
+                (document.activeElement.tagName == 'INPUT' && document.activeElement.type == 'text') ||
+                document.getElementsByClassName('editing-review-content').length > 0) {
+
+                // Just unfocus the element if esc was pressed
+                if(currPopup.length && goback) document.activeElement.blur();
+                return;
+            }
 
 
-			if(goback || index != null) {
-				// Get current popup
-				const currPopup = $('#delete-question-popup, #rejection-popup, #popup-flag-post, #popup-close-question').filter(':visible').last();
+            if(goback || index != null) {
 
-				// If there's an active popup
-				if(currPopup.length) {
+                // If there's an active popup
+                if(currPopup.length) {
 
-					// If escape key pressed, go back to previous pane, or dismiss popup if on main pane
-					if(goback) {
+                    // If escape key pressed, go back to previous pane, or dismiss popup if on main pane
+                    if(goback) {
 
-						// If displaying a single duplicate post, go back to duplicates search
-						const dupeBack = currPopup.find('.original-display .navi a').filter(':visible');
-						if(dupeBack.length) {
-							dupeBack.click();
-							return false;
-						}
+                        // If displaying a single duplicate post, go back to duplicates search
+                        const dupeBack = currPopup.find('.original-display .navi a').filter(':visible');
+                        if(dupeBack.length) {
+                            dupeBack.click();
+                            return false;
+                        }
 
-						// If an input field has a value and is currently focused
-						const focusedField = currPopup.find('input:text, textarea').filter(':focus').filter((i, el) => $(el).val() !== '');
-						if(focusedField.length) {
-							if(confirm('Confirm clear currently focused field?')) {
-								// Try clear currently focused field
-								$(focusedField).last().val('');
-							}
+                        // Go back to previous pane if possible,
+                        // otherwise default to dismiss popup
+                        const link = currPopup.find('.popup-close a, .popup-breadcrumbs a, .js-popup-back').filter(':visible');
+                        if(link.length) {
+                            link.last().click();
+                            // Always clear dupe closure search box on back action
+                            $('#search-text').val('');
+                            return false;
+                        }
+                    }
 
-							// Do not go back if a field is focused and not empty
-							return false;
-						}
+                    // If valid index, click it
+                    else if(index != null) {
+                        const currPopup = $('.popup:visible').last();
+                        // Get active (visible) pane
+                        const pane = currPopup.find('form .action-list, .popup-active-pane').filter(':visible').last();
+                        // Get options
+                        const opts = pane.find('input:radio');
+                        // Click option
+                        const opt = opts.eq(index).click();
+                        // Job is done here. Do not bubble if an option was clicked
+                        return opt.length !== 1;
+                    }
 
-						// Go back to previous pane if possible,
-						// otherwise default to dismiss popup
-						const link = currPopup.find('.popup-close a, .popup-breadcrumbs a, .js-popup-back').filter(':visible');
-						if(link.length) {
-							link.last().click();
-							// Always clear dupe closure search box on back action
-							$('#search-text').val('');
-							return false;
-						}
-					}
-
-					// If valid index, click it
-					else if(index != null) {
-						const currPopup = $('.popup:visible').last();
-						// Get active (visible) pane
-						const pane = currPopup.find('form .action-list, .popup-active-pane').filter(':visible').last();
-						// Get options
-						const opts = pane.find('input:radio');
-						// Click option
-						const opt = opts.eq(index).click();
-						// Job is done here. Do not bubble if an option was clicked
-						return opt.length !== 1;
-					}
-
-				} // end popup is active
-			}
+                } // end popup is active
+            }
 
 
             // Review action buttons
