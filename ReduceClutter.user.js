@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.21
+// @version      1.21.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -29,7 +29,7 @@
     const blacklistedAnnouncementWords = [ 'podcast', 'listen', 'tune' ];
 
     // Hide ads/clickbaity blog posts titles if they contain these keywords
-    const blacklistedBlogWords = [ 'podcast', 'worst', 'bad', 'surprise', 'trick', 'terrible', 'will change', 'actually', 'team', 'try', 'free', 'easy', 'easier', 'scrum' ];
+    const blacklistedBlogWords = [ 'podcast', 'worst', 'bad', 'surprise', 'trick', 'terrible', 'will change', 'actually', 'team', 'try', 'free', 'easy', 'easier' ];
 
 
         GM_addStyle(`
