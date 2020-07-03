@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.1
+// @version      1.8.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -48,7 +48,7 @@
         $('#roombaTableDiv').remove();
 
         // Remove unnecessary stuff from page
-        $('.my-profile, .user-gravatar32, .user-info .-flair').remove();
+        $('.my-profile, .user-gravatar32 a, .user-info .-flair').remove();
 
         // Remove admin stuff from page
         $('.js-post-issue, .js-post-issues, .js-mod-inbox-button, .flag-count-item, .delete-comment, .js-post-flag-bar').remove();
