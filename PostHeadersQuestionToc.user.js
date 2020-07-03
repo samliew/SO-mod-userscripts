@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.1
+// @version      2.12
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -118,7 +118,7 @@
         const postBaseUrl = $('#question-header h1 a').attr('href');
         let elem = $('#' + aid);
         let isQuestion = elem.closest('.answer').length == 0;
-        let post = elem.closest('.question, .answer').get(0);
+        let post = elem.closest('.question, .answer, .candidate-row').get(0);
         let pid = post ? Number(post.dataset.questionid || post.dataset.answerid) : 0;
 
         if(pid && elem.length === 1) {
@@ -249,13 +249,14 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
                 return !gotoPost(pid);
             });
 
-            // Insert after featured module
+            // Prepend to scroller, or insert after featured module
             $('#sidebar .s-sidebarwidget__yellow').after(qtoc);
+            $('#sidebar #scroller #vote-picks').before(qtoc);
 
             return;
         }
 
-        // If no answers, do nothing
+        // If no answers, do nothing else
         if(postsOnPage.length == 0) return;
 
         getPostAnswers(qid).then(function(v) {
@@ -326,10 +327,15 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
                 return !gotoPost(pid);
             });
 
+            /*
             // Insert after linked or related posts module
             const linkedRelated = $('.sidebar-linked, .sidebar-related').first().before(qtoc);
             // If no linked or related posts, insert after featured community posts
             if(linkedRelated.length === 0) $('#sidebar .s-sidebarwidget__yellow').first().after(qtoc);
+            */
+
+            // Init sticky sidebar
+            const stickySidebar = $('<div id="sticky-sidebar-content"></div>').append(qtoc).appendTo('#sidebar');
 
             // Remove chat and hot network questions as they take up a lot of sidebar real-estate
             $('#chat-feature, #hot-network-questions').hide();
@@ -382,6 +388,8 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 
         const styles = `
 <style>
+/* ===== Post Headers & Question ToC ===== */
+
 /* Right sidebar */
 #qinfo {
     margin-bottom: 6px;
@@ -395,6 +403,7 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 #newsletter-ad {
     display: none !important;
 }
+
 
 /* Sticky post votes/sidebar */
 .post-layout {
@@ -420,6 +429,7 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 .downvoted-answer .vote > * {
     transform: translateZ(0);
 }
+
 
 /* Sticky post header */
 .question-page #answers .answer {
@@ -486,7 +496,6 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 #postflag-bar {
     z-index: 1000;
 }
-
 .post-stickyheader .relativetime,
 .post-stickyheader .absolutetime {
     color: var(--red-700);
@@ -508,6 +517,33 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 .election-page .post-stickyheader .sticky-tools {
     display: none;
 }
+
+
+/* Sticky Sidebar ToC */
+body.question-page #content .inner-content,
+body.election-page #content {
+    display: flex;
+    flex-wrap: wrap;
+}
+.subheader,
+#question-header,
+#question-header + div.grid {
+    flex-basis: 100%;
+}
+body.election-page #sidebar > #qtoc,
+#sidebar #sticky-sidebar-content {
+    position: sticky;
+    top: 50px;
+    margin-top: 15px;
+    padding-top: 20px;
+}
+#sidebar #sticky-sidebar-content #qtoc > .linked {
+    max-height: calc(100vh - 150px);
+    overflow-y: auto;
+    margin-right: -8px;
+    padding-right: 8px;
+}
+
 
 /* Remove timeline button in post sidebar as we have a link in the header now */
 .js-post-issue[title="Timeline"] {
@@ -547,7 +583,7 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
     padding-right: 10px;
 }
 #sidebar #qtoc .spacer {
-    margin-bottom: 10px;
+    margin-bottom: 7px;
     font-size: 12px;
     font-weight: normal;
     color: var(--black-400);
@@ -564,6 +600,8 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
 }
 #qtoc .answer-votes.large {
     min-width: 16px;
+    min-height: 20px;
+    font-size: 11px;
 }
 #qtoc .post-hyperlink {
     display: inline-block;
@@ -571,7 +609,7 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
     width: calc(100% - 48px);
     margin-bottom: 0;
     line-height: 1.3;
-    font-size: 13px;
+    font-size: 12px;
 }
 #qtoc .deleted-user {
     margin: -3px 0;
@@ -588,11 +626,13 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
     display: none !important;
 }
 
+
 /* Named anchors functionality */
 a.js-named-anchor {
     text-decoration: none !important;
     color: inherit !important;
 }
+
 
 /* Move share link to header to save space now that we have the follow button
    Reduce font size slightly
