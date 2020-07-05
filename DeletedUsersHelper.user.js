@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.22.1
+// @version      1.22.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
