@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -613,7 +613,7 @@
             // If there are deleted comments, move from sidebar to bottom
             const delCommentsBtn = post.find('.js-fetch-deleted-comments');
             if(delCommentsBtn.length == 1) {
-                const numDeletedComments = delCommentsBtn.attr('title').match(/\d+/)[0];
+                const numDeletedComments = (delCommentsBtn.attr('title') || delCommentsBtn.attr('aria-label')).match(/\d+/)[0];
                 $(this).append(`<span class="js-link-separator2">&nbsp;|&nbsp;</span> <a class="comments-link js-show-deleted-comments-link fc-red-600" title="expand to show all comments on this post (including deleted)" href="#" onclick="" role="button">load <b>${numDeletedComments}</b> deleted comment${numDeletedComments > 1 ? 's' : ''}</a>`);
                 delCommentsBtn.hide();
             }
