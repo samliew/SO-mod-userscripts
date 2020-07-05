@@ -515,14 +515,14 @@ table#posts td {
     margin: 15px 0;
     padding: 12px 14px;
     background: var(--black-050);
-    font-family: monospace;
+    font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif;
 }
 .del-user-info input {
     margin: 0;
     padding: 0;
     border: none;
     border-bottom: 1px dashed var(--red-700);
-    font-family: monospace;
+    font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif;
     background: transparent;
     color: var(--red-700);
 }
@@ -549,7 +549,7 @@ table#posts td {
     width: 100%;
     height: calc(8.4em + 20px);
     line-height: 1.2em;
-    font-family: monospace;
+    font-family: Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,sans-serif;
 }
 
 /* Network Account container */
