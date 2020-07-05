@@ -985,7 +985,6 @@
     padding: 8px 6px 8px;
     font-size: 0.88em;
     line-height: 1;
-    background-color: var(--white);
 }
 
 .js-better-inline-menu .inline-label {
