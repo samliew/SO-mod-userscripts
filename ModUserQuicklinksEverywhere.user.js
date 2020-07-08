@@ -74,44 +74,35 @@
     display: block;
     clear: both;
     width: 100%;
-    padding-top: 1px;
-    font-size: 0.9em;
     white-space: nowrap;
-}
-.js-mod-quicklinks:hover .mod-userlinks,
-.mod-userlinks:hover {
-    opacity: 1 !important;
+    font-size: 0.95em;
 }
 .mod-userlinks.show-on-hover {
     display: none;
 }
 .mod-userlinks,
-.mod-userlinks a {
-    color: var(--black-500);
+.mod-userlinks a,
+.started .mod-userlinks a {
+    color: var(--black-400);
 }
 .mod-userlinks > a {
     display: inline-block;
     margin-right: 3px;
 }
-.mod-userlinks a:hover {
+.mod-userlinks a:hover,
+.started .mod-userlinks a:hover {
     color: var(--black);
 }
 .post-user-info:hover .mod-userlinks,
 .user-info:hover .mod-userlinks {
     display: block;
 }
-.deleted-answer .mod-userlinks {
-    background-color: var(--red-050);
-}
-.deleted-answer .owner .mod-userlinks {
-    background-color: transparent;
-}
 .grid--cell + .mod-userlinks {
     position: initial !important;
     display: inline-block;
     width: auto;
-    opacity: 0.6;
     background: none;
+    margin-top: 1px;
 }
 /* review stats/leaderboard */
 .stats-mainbar .task-stat-leaderboard .user-details {
