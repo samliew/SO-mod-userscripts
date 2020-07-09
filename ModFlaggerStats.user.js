@@ -143,7 +143,7 @@ unsafeWindow.purgeUserFlagStats = function() {
 
         getUserFlagStats(uid).then(function(v) {
             const tier = calculateFlagTier(v[1], v[3]);
-            const badge = `<a href="/users/flag-summary/${uid}" class="flag-badge ${tier.name}" title="${v[1]} flags, ${v[2]} declined (accuracy ${(100 - v[3]).toFixed(2)}%)" target="_blank"></a>`;
+            const badge = `<a href="/users/flag-summary/${uid}" class="flag-badge ${tier.name}" title="${tier.name} flagger: ${v[1]} flags, ${v[2]} declined (accuracy ${(100 - v[3]).toFixed(2)}%)" target="_blank"><svg aria-hidden="true" class="svg-icon iconFlag" width="17" height="17" viewBox="0 0 17 17"><path d="M3 2v14h2v-6h3.6l.4 1h6V3H9.5L9 2H3z"></path></svg></a>`;
 
             // Apply to all instances of same user on page
             sameUserLinks.not('js-userflagstats-loaded').addClass('js-userflagstats-loaded').after(badge);
@@ -176,7 +176,7 @@ unsafeWindow.purgeUserFlagStats = function() {
 
             getUserFlagStats(currUid).then(function(v) {
                 const tier = calculateFlagTier(v[1], v[3]);
-                const badge = `<a href="/users/flag-summary/${currUid}" class="flag-badge large ${tier.name}" title="${tier.name} flagger: ${v[1]} flags, ${v[2]} declined (accuracy ${(100 - v[3]).toFixed(2)}%)" target="_blank"></a>`;
+                const badge = `<a href="/users/flag-summary/${currUid}" class="flag-badge large ${tier.name}" title="${tier.name} flagger\n${v[1]} flags, ${v[2]} declined (accuracy ${(100 - v[3]).toFixed(2)}%)" target="_blank"><svg aria-hidden="true" class="svg-icon iconFlag" width="17" height="17" viewBox="0 0 17 17"><path d="M3 2v14h2v-6h3.6l.4 1h6V3H9.5L9 2H3z"></path></svg></a>`;
                 $('.profile-user--name, .user-card-name').append(badge);
             });
         }
@@ -243,63 +243,46 @@ unsafeWindow.purgeUserFlagStats = function() {
     margin-left: 10px;
 }
 .flag-badge {
-    font-size: 0;
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    margin-left: 3px;
-    background: var(--white);
-    border-radius: 100%;
+    margin-left: 4px;
+    color: var(--black) !important;
 }
 .flag-badge + .flag-badge {
     display: none;
 }
 .flag-badge.elite {
-    width: 12px;
-    height: 12px;
-    background: var(--green-500) !important;
+    color: var(--green-500) !important;
 }
 .flag-badge.gold {
-    background: var(--gold) !important;
+    color: var(--gold) !important;
 }
 .flag-badge.silver {
-    background: var(--silver) !important;
+    color: var(--silver) !important;
 }
 .flag-badge.bronze {
-    background: var(--bronze) !important;
+    color: var(--bronze) !important;
 }
 .flag-badge.wtf {
-    background: var(--red-500) !important;
+    color: var(--red-500) !important;
 }
 .flag-badge.horrible {
-    background: var(--red-400) !important;
+    color: var(--red-400) !important;
 }
 .flag-badge.hmmm {
-    background: var(--red-300) !important;
+    color: var(--red-300) !important;
 }
-.flag-badge.default {
-    background: none;
-    border: 1px solid var(--black-300) !important;
+.flag-badge.default path {
+    fill: none;
+    stroke: var(--black);
+    stroke-width: 0.8px;
+    stroke-dasharray: 1,1;
+    stroke-linejoin: round;
 }
 .flag-badge.large {
-    width: 20px;
-    height: 20px;
+    display: inherit;
+    scale: 150%;
 }
-.flag-badge.default:after {
-    content: '';
-    position: relative;
-    top: 4px;
-    left: 0px;
-    display: block;
-    width: 8px;
-    height: 0px;
-    border-top: 1px solid var(--black-300) !important;
-    transform: rotateZ(-45deg);
-}
-.flag-badge.large:after {
-    top: 8px;
-    left: -1px;
-    width: 20px;
+.flag-badge.default.large path {
+   stroke-dasharray: 2,1;
 }
 </style>
 `;
