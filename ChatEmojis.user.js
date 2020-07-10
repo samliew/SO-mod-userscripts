@@ -3,7 +3,7 @@
 // @description  Allows users to insert emojis into chat. If chat message contains just an emoji, increase display size
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -181,11 +181,12 @@
 
         findEmojiMessages();
         $(document).ajaxStop(findEmojiMessages);
+
+        appendStyles();
     }
 
 
     // On page load
-    appendStyles();
     doPageload();
 
 })(jQuery);
