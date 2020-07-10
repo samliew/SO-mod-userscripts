@@ -202,7 +202,7 @@ unsafeWindow.purgeUserFlagStats = function() {
 
         // Load all flagger stats button
         if(isModPage()) {
-            $('<button id="load-flagger-stats" class="fs-body1">Load flagger stats</button>')
+            $('<button id="load-flagger-stats" class="fs-body1 s-btn s-btn__filled">Load flagger stats</button>')
                 .appendTo('#mainbar-full .fs-body3:first')
                 .click(function() {
                     $(this).remove();
