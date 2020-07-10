@@ -3,7 +3,7 @@
 // @description  Allows users to insert emojis into chat. If chat message contains just an emoji, increase display size
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.6
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -16,6 +16,14 @@
 // @include      https://chat.stackoverflow.com/rooms/*/conversation/*
 // @include      https://chat.stackexchange.com/rooms/*/conversation/*
 // @include      https://chat.meta.stackexchange.com/rooms/*/conversation/*
+//
+// @include      https://chat.stackoverflow.com/users/*?tab=recent*
+// @include      https://chat.stackexchange.com/users/*?tab=recent*
+// @include      https://chat.meta.stackexchange.com/users/*?tab=recent*
+//
+// @include      https://chat.stackoverflow.com/users/*?tab=replies*
+// @include      https://chat.stackexchange.com/users/*?tab=replies*
+// @include      https://chat.meta.stackexchange.com/users/*?tab=replies*
 // ==/UserScript==
 
 (function($) {
@@ -35,54 +43,19 @@
 
     // Emoji regex - https://stackoverflow.com/a/41164587
     const emojiRegex = /^(?:[\u2700-\u27bf]|(?:\ud83c[\udde6-\uddff]){2}|[\ud800-\udbff][\udc00-\udfff]|[\u0023-\u0039]\ufe0f?\u20e3|\u3299|\u3297|\u303d|\u3030|\u24c2|\ud83c[\udd70-\udd71]|\ud83c[\udd7e-\udd7f]|\ud83c\udd8e|\ud83c[\udd91-\udd9a]|\ud83c[\udde6-\uddff]|[\ud83c[\ude01-\ude02]|\ud83c\ude1a|\ud83c\ude2f|[\ud83c[\ude32-\ude3a]|[\ud83c[\ude50-\ude51]|\u203c|\u2049|[\u25aa-\u25ab]|\u25b6|\u25c0|[\u25fb-\u25fe]|\u00a9|\u00ae|\u2122|\u2139|\ud83c\udc04|[\u2600-\u26FF]|\u2b05|\u2b06|\u2b07|\u2b1b|\u2b1c|\u2b50|\u2b55|\u231a|\u231b|\u2328|\u23cf|[\u23e9-\u23f3]|[\u23f8-\u23fa]|\ud83c\udccf|\u2934|\u2935|[\u2190-\u21ff])$/;
-    const findEmojiMessages = () => $('.message .content').not('.js-emoji-parsed').addClass('js-emoji-parsed').filter((i,v) => v.textContent.length <= 2 && emojiRegex.test(v.textContent || '')).addClass('msg-emoji');
+    const findEmojiMessages = function() {
+        $('.message .content').not('.js-emoji-parsed').addClass('js-emoji-parsed').filter(function(i,v) {
+            const text = v.textContent.trim() || '';
+            return text && text.length <= 2 && emojiRegex.test(text);
+        }).addClass('msg-emoji');
+    }
 
 
-    function initEmojiPicker() {
-
-        // Load emojionearea - https://github.com/mervick/emojionearea/tree/version2
-        const liburl = 'https://cdn.jsdelivr.net/gh/mervick/emojionearea@2';
-        $(document.body).append(`<link rel="stylesheet" href="${liburl}/css/emojionearea.min.css" />`);
-
-        $.getCachedScript(`${liburl}/js/emojionearea.min.js`, function() {
-
-            const chatfield = document.getElementById('input');
-            const el = $(chatfield).emojioneArea({
-                template: "<editor/><filters/><tabs/>",
-                standalone: true,
-                hideSource: false,
-                autoHideFilters: true,
-                events: {
-                    filter_click: function (filter, event) {
-                        // Add labels to emojis
-                        $('.emojionearea-tab:visible i.emojibtn').each(function(i, el) {
-                            $(this).attr('title', el.children[0].dataset.name.replace(/(^:|:$)/g, ''));
-                        });
-                    },
-                    'emojibtn_click': function(button, event) {
-                        // Add emoji to chat field
-                        const emoji = el.get(0).emojioneArea.getText();
-                        chatfield.value += emoji;
-                        chatfield.focus();
-                    },
-                },
-            });
-
-            // Close events when open
-            $(document).on('keyup', function(evt) {
-                if (evt.keyCode === 27 && !$('.emojionearea-filters').hasClass('ea-hidden')) { // esc
-                    $('.emojionearea-button').click();
-                }
-            }).on('keydown click focus', '#input, #chat, #sidebar', function(evt) {
-                if (!$('.emojionearea-filters').hasClass('ea-hidden')) {
-                    $('.emojionearea-button').click();
-                }
-            });
-
-        });
+    function appendStyles() {
 
         const overrideStyles = `
 <style>
+/* ===== SOMU - Chat Emojis ===== */
 #bubble {
     /* Relative to position emoji picker */
     position: relative;
@@ -149,6 +122,51 @@
     }
 
 
+    function initEmojiPicker() {
+
+        // Load emojionearea - https://github.com/mervick/emojionearea/tree/version2
+        const liburl = 'https://cdn.jsdelivr.net/gh/mervick/emojionearea@2';
+        $(document.body).append(`<link rel="stylesheet" href="${liburl}/css/emojionearea.min.css" />`);
+
+        $.getCachedScript(`${liburl}/js/emojionearea.min.js`, function() {
+
+            const chatfield = document.getElementById('input');
+            const el = $(chatfield).emojioneArea({
+                template: "<editor/><filters/><tabs/>",
+                standalone: true,
+                hideSource: false,
+                autoHideFilters: true,
+                events: {
+                    filter_click: function (filter, event) {
+                        // Add labels to emojis
+                        $('.emojionearea-tab:visible i.emojibtn').each(function(i, el) {
+                            $(this).attr('title', el.children[0].dataset.name.replace(/(^:|:$)/g, ''));
+                        });
+                    },
+                    'emojibtn_click': function(button, event) {
+                        // Add emoji to chat field
+                        const emoji = el.get(0).emojioneArea.getText();
+                        chatfield.value += emoji;
+                        chatfield.focus();
+                    },
+                },
+            });
+
+            // Close events when open
+            $(document).on('keyup', function(evt) {
+                if (evt.keyCode === 27 && !$('.emojionearea-filters').hasClass('ea-hidden')) { // esc
+                    $('.emojionearea-button').click();
+                }
+            }).on('keydown click focus', '#input, #chat, #sidebar', function(evt) {
+                if (!$('.emojionearea-filters').hasClass('ea-hidden')) {
+                    $('.emojionearea-button').click();
+                }
+            });
+
+        });
+    }
+
+
     function doPageload() {
 
         // If live chat and not mobile chat UI
@@ -162,10 +180,12 @@
         }
 
         findEmojiMessages();
+        $(document).ajaxStop(findEmojiMessages);
     }
 
 
     // On page load
+    appendStyles();
     doPageload();
 
 })(jQuery);
