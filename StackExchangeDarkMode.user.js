@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.20.6
+// @version      2.21
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -1166,7 +1166,7 @@ span.mod-flair {
 #chat-body #sidebar #starred-posts a.js-user-highlight,
 #chat-body .signature.js-user-highlight .username.moderator,
 #chat-body .signature.js-user-highlight .username.moderator:after {
-    background-color: #d2d200;
+    background-color: var(--yellow-300);
     color: var(--black);
 }
 .highlight,
@@ -1411,7 +1411,7 @@ div.message .meta {
 #room-tags .tag,
 .ob-post-tag,
 .ob-user-tag {
-    color: var(--black-150);
+    color: var(--black-700);
     background-color: #444;
     border: 1px solid var(--black-500);
     font-style: normal;
