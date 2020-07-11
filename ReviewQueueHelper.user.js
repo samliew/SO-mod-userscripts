@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3.1
+// @version      3.3.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1108,7 +1108,8 @@ async function waitForSOMU() {
                     $('.reviewable-post-stats').each(function() {
                         const table = $(this).children('table').first();
 
-                        table.find('tbody td[colspan="2"]').parent().remove();
+                        const links = table.find('tbody td[colspan="2"]').parent();
+                        const tfooter = $('<tfoot></tfoot>').append(links).appendTo(table);
 
                         // add padding text for cells that do not have content
                         table.find('.label-key').filter((i, v) => v.textContent.trim() == '').html('&nbsp;');
