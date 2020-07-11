@@ -107,10 +107,12 @@
                 case 'harrassment, bigotry, or abuse':
                     cls = 'ctype-bad';
                     break;
-                case 'unfriendly or unkind':
                 case 'unfriendly or unkind (auto)':
-                case 'unwelcoming':
                 case 'robot says unfriendly':
+                    cls = 'ctype-poor-bot';
+                    break;
+                case 'unfriendly or unkind':
+                case 'unwelcoming':
                     cls = 'ctype-poor';
                     break;
                 case 'no longer needed':
@@ -135,9 +137,9 @@
 
         const styles = `
 <style>
-.ctype-custom,
 .ctype-bad,
 .ctype-poor,
+.ctype-poor-bot,
 .ctype-meh {
     display: inline;
     padding: 2px 5px 3px !important;
@@ -148,20 +150,23 @@
     color: white;
     text-shadow: 0px 0px 1px #666;
 }
-.ctype-custom {
-    font-size: 1em;
-    background-color: var(--yellow-100);
-    color: var(--black);
-    text-shadow: none;
-}
 .ctype-bad {
     background-color: var(--red-500);
 }
 .ctype-poor {
     background-color: var(--orange-400);
 }
+.ctype-poor-bot {
+    background-color: var(--orange-300);
+}
 .ctype-meh {
     background-color: var(--black-300);
+}
+.ctype-custom {
+    padding: 2px 0 !important;
+    background-color: var(--yellow-100);
+    line-height: inherit;
+    color: var(--black);
 }
 .comment-flag-off {
     color: var(--black-500);
