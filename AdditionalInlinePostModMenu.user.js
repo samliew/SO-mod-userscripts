@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -27,7 +27,7 @@
 
 
     const superusers = [ 584192, 366904, 6451573 ];
-    const isSuperuser = () => superusers.includes(StackExchange.options.user.userId);
+    const isSuperuser = superusers.includes(StackExchange.options.user.userId);
 
     const newlines = '\n\n';
     const fkey = StackExchange.options.user.fkey;
@@ -37,6 +37,9 @@
     const isMeta = typeof StackExchange.options.site.parentUrl !== 'undefined';
     const parentUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
     const metaUrl = StackExchange.options.site.childUrl;
+
+    // Manually switch this variable to true when site under spam attack so you can delete accounts as fast as possible without distractions and multiple confirmations
+    const underSpamAttackMode = isSuperuser || false;
 
 
     function goToPost(pid) {
@@ -425,6 +428,23 @@
     }
 
 
+    function getUserPii(uid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof uid === 'undefined' || uid === null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/all-pii`,
+                data: {
+                    'id': uid,
+                    'fkey': fkey,
+                }
+            })
+            .done(resolve)
+            .fail(reject);
+        });
+    }
+
+
     // Send mod message + optional suspension
     function modMessage(uid, message = '', sendEmail = true, suspendDays = 0) {
         return new Promise(function(resolve, reject) {
@@ -472,6 +492,64 @@
     }
 
 
+    // Delete user (no longer welcome)
+    function deleteUser(uid, deleteDetails = null) {
+        return new Promise(function(resolve, reject) {
+            if(typeof uid === 'undefined' || uid === null) { reject(); return; }
+
+            // If details is null or whitespace, get optional details
+            if(deleteDetails == null || deleteDetails.trim().length == 0) {
+
+                // Prompt for additional details if userscript is not under spam attack mode
+                if(underSpamAttackMode) deleteDetails = '';
+                else deleteDetails = prompt('Additional details for deleting user (if any). Cancel button terminates delete action.');
+
+                // If still null, reject promise and return early
+                if(deleteDetails == null) { alert('Delete cancelled. User was not deleted.'); reject(); return; }
+            }
+
+            // Apply max suspension before deletion
+            modMessage(uid, 'goodbye', false, 365);
+
+            getUserPii(uid).then(v => {
+                const data = $(v);
+
+                // Format PII for deletion reason textarea
+                const d = new Date();
+                const year = d.getFullYear().toString().slice(2);
+                const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()];
+
+                const regdate = '\n' + $('.details .row').first().text().trim().replace(/\s+/g, ' ').replace('Joined network:', 'Joined network:').replace('Joined site:', '\nJoined site:   ').split(/\s*\n\s*/).map(function(v) {
+                    if(v.contains('ago')) v = v.split(':')[0] + ':  ' + month + " " + d.getDate() + " '" + year;
+                    else if(v.contains('yesterday')) v = v.split(':')[0] + ':  ' + month + ' ' + d.getDate() + " '" + year;
+                    else if(!v.contains("'")) v = v + " '" + year;
+                    return v;
+                }).join('\n');
+
+                const str = data.text().replace(/Credentials(.|\s)+$/, '').trim().replace(/\s+/g, ' ').replace('Email:', 'Email:    ').replace(' Real Name:', '\nReal Name:').replace(/ IP Address:.+/, '');
+                const reason = str + regdate;
+
+                const deleteReasonDetails = deleteDetails.trim() + reason;
+
+                // Delete user
+                $.post({
+                    url: `https://${location.hostname}/admin/users/${uid}/delete`,
+                    data: {
+                        'annotation': '',
+                        'deleteReasonDetails': '',
+                        'mod-actions': 'delete',
+                        'deleteReason': 'This user is no longer welcome to participate on the site',
+                        'deleteReasonDetails': deleteReasonDetails,
+                        'fkey': fkey
+                    }
+                })
+                .done(resolve)
+                .fail(reject);
+            });
+        });
+    }
+
+
     // Destroy spammer
     function destroySpammer(uid, destroyDetails = null) {
         return new Promise(function(resolve, reject) {
@@ -481,30 +559,51 @@
             if(destroyDetails == null || destroyDetails.trim().length == 0) {
 
                 // Prompt for additional details if userscript is not under spam attack mode
-                destroyDetails = prompt('Additional details for destroying user (if any). Cancel button terminates destroy action.');
+                if(underSpamAttackMode) destroyDetails = '';
+                else destroyDetails = prompt('Additional details for destroying user (if any). Cancel button terminates destroy action.');
 
                 // If still null, reject promise and return early
                 if(destroyDetails == null) { alert('Destroy cancelled. User was not destroyed.'); reject(); return; }
             }
 
             // Apply max suspension before deletion
-            if(isSuperuser()) {
-                modMessage(uid, 'goodbye', false, 365);
-            }
+            modMessage(uid, 'goodbye', false, 365);
 
-            $.post({
-                url: `https://${location.hostname}/admin/users/${uid}/destroy`,
-                data: {
-                    'annotation': '',
-                    'deleteReasonDetails': '',
-                    'mod-actions': 'destroy',
-                    'destroyReason': 'This user was created to post spam or nonsense and has no other positive participation',
-                    'destroyReasonDetails': destroyDetails.trim(),
-                    'fkey': fkey
-                }
-            })
-            .done(resolve)
-            .fail(reject);
+            getUserPii(uid).then(v => {
+                const data = $(v);
+
+                // Format PII for deletion reason textarea
+                const d = new Date();
+                const year = d.getFullYear().toString().slice(2);
+                const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()];
+
+                const regdate = '\n' + $('.details .row').first().text().trim().replace(/\s+/g, ' ').replace('Joined network:', 'Joined network:').replace('Joined site:', '\nJoined site:   ').split(/\s*\n\s*/).map(function(v) {
+                    if(v.contains('ago')) v = v.split(':')[0] + ':  ' + month + " " + d.getDate() + " '" + year;
+                    else if(v.contains('yesterday')) v = v.split(':')[0] + ':  ' + month + ' ' + d.getDate() + " '" + year;
+                    else if(!v.contains("'")) v = v + " '" + year;
+                    return v;
+                }).join('\n');
+
+                const str = data.text().replace(/Credentials(.|\s)+$/, '').trim().replace(/\s+/g, ' ').replace('Email:', 'Email:    ').replace(' Real Name:', '\nReal Name:').replace(/ IP Address:.+/, '');
+                const reason = str + regdate;
+
+                const deleteReasonDetails = destroyDetails.trim() + reason;
+
+                // Destroy user
+                $.post({
+                    url: `https://${location.hostname}/admin/users/${uid}/destroy`,
+                    data: {
+                        'annotation': '',
+                        'deleteReasonDetails': '',
+                        'mod-actions': 'destroy',
+                        'destroyReason': 'This user was created to post spam or nonsense and has no other positive participation',
+                        'destroyReasonDetails': deleteReasonDetails,
+                        'fkey': fkey
+                    }
+                })
+                .done(resolve)
+                .fail(reject);
+            });
         });
     }
 
@@ -761,11 +860,12 @@
                 menuitems += `<a href="${parentUrl}/admin/cm-message/create/${uid}?action=post-dissociation${postIdParam}" target="_blank" class="inline-link" title="compose CM dissociation message in a new window">dissociate...</a>`; // non-deleted user only
 
                 // Allow destroy option only if < 60 days and not on Meta site
-                if(!isMeta && (postage < 60 || isSuperuser())) {
+                if(!isMeta && (postage < 60 || isSuperuser)) {
 
                     // Allow destroy option only if user < 200 rep
                     if(/^\d+$/.test(userrep) && Number(userrep) < 200) {
-                        menuitems += `<a data-action="destroy-spammer" data-uid="${uid}" data-username="${username}" class="inline-link danger" title="confirms whether you want to destroy the account for spamming">destroy...</a>`; // non-deleted user only
+                        menuitems += `<a data-action="suspend-delete" data-uid="${uid}" data-username="${username}" class="inline-link danger" title="confirms whether you want to suspend-delete the account">delete...</a>`; // non-deleted user only
+                        menuitems += `<a data-action="destroy-spammer" data-uid="${uid}" data-username="${username}" class="inline-link danger" title="confirms whether you want to suspend-destroy the spammer">destroy...</a>`; // non-deleted user only
                     }
                 }
             }
@@ -884,12 +984,23 @@
                 case 'unlock':
                     unlockPost(pid).then(reloadPage);
                     break;
+                case 'suspend-delete':
+                    if(confirm(`Suspend for 365, and DELETE the user "${uName}" (id: ${uid})???`) &&
+                       (underSpamAttackMode || confirm(`Are you VERY SURE you want to DELETE the account "${uName}"???`))) {
+                        deletePost(pid);
+                        deleteUser(uid).then(function() {
+                            if(!isSuperuser && !underSpamAttackMode) window.open(`https://${location.hostname}/users/${uid}`);
+                            removePostFromModQueue();
+                            reloadPage();
+                        });
+                    }
+                    break;
                 case 'destroy-spammer':
-                    if(confirm(`Confirm DESTROY the spammer "${uName}" (id: ${uid}) irreversibly???`) &&
-                       confirm(`Are you VERY SURE you want to DESTROY the account "${uName}"???`)) {
+                    if(confirm(`Spam-nuke the post, suspend for 365, and DESTROY the spammer "${uName}" (id: ${uid})???`) &&
+                       (underSpamAttackMode || confirm(`Are you VERY SURE you want to DESTROY the account "${uName}"???`))) {
                         spamFlagPost(pid);
                         destroySpammer(uid).then(function() {
-                            if(!isSuperuser() && !underSpamAttackMode) window.open(`https://${location.hostname}/users/${uid}`);
+                            if(!isSuperuser && !underSpamAttackMode) window.open(`https://${location.hostname}/users/${uid}`);
                             removePostFromModQueue();
                             reloadPage();
                         });
