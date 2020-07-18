@@ -3,7 +3,7 @@
 // @description  Implements retract flag button on own flag history page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://*stackoverflow.com/users/flag-summary/*
 // @include      https://*serverfault.com/users/flag-summary/*
@@ -61,6 +61,9 @@
 
         // Work only on OWN flag history page (e.g.: mods can't retract another user's flags)
         if(location.pathname !== '/users/flag-summary/' + StackExchange.options.user.userId) return;
+
+        // Cannot work on comment flags
+        if(location.search.includes('group=4')) return;
 
         $('.user-flag-history').on('click', '[data-retractflagtype]', function() {
             retractFlag(this.dataset.postid, this.dataset.retractflagtype);
