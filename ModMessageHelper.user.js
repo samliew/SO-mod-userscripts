@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.9
+// @version      1.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -26,8 +26,8 @@
     if(!isModerator()) return;
 
 
-    const superusers = [ 584192 ];
-    const isSuperuser = () => superusers.includes(StackExchange.options.user.userId);
+    const superusers = [ 584192, 366904 ];
+    const isSuperuser = superusers.includes(StackExchange.options.user.userId);
 
     const newlines = '\n\n';
     const fkey = StackExchange.options.user.fkey;
@@ -36,6 +36,30 @@
     const isSOMeta = location.hostname == 'meta.stackoverflow.com';
     const isMeta = typeof StackExchange.options.site.parentUrl !== 'undefined';
     const parentUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
+
+
+    // CUSTOM MOD MESSAGE TEMPLATES
+    // This may be edited to add more custom templates to mod messages
+    const customModMessages = [
+        {
+            templateName: "tag-wiki plagiarism",
+            suspensionReason: "for plagiarism",
+            suspensionDefaultDays: 0,
+            templateBody: `It has come to our attention that your recent suggested tag wiki edits consisted primarily or entirely of text copied from other websites. We prefer not to simply copy content already available elsewhere in lieu of creating something that adds value to this site, and where possible we prefer that content be your own original work.
+
+Please note that we require full attribution with a link to the original author, and please be sure you are not copying content without permission.
+
+Thank you, and we look forward to your contributions in the future.`,
+        },
+        {
+            templateName: "a farewell",
+            suspensionReason: "for rule violations",
+            suspensionDefaultDays: 365,
+            templateBody: `goodbye`,
+            addPrefix: false,
+            addSuffix: false,
+        },
+    ];
 
 
     // Send mod message + optional suspension
@@ -104,16 +128,14 @@
 
             $('#copyPanel > table').first().addClass('mb12');
 
-            if(isSuperuser()) {
+            if(1 || isSuperuser) {
 
-                // Show hidden template name field
-                $('#templateName').attr('type', 'text').wrap('<label for="templateName" class="dblock">template name: </label>');
+                // Show hidden fields
+                $('#templateName, #suspendReason, #templateEdited').attr('type', 'text').addClass('d-inline-block s-input s-input__sm w70');
 
-                // Show hidden template name field
-                $('#suspendReason').attr('type', 'text').wrap('<label for="suspendReason" class="dblock">suspend reason: </label>');
-
-                // Show hidden email field
-                $('#templateEdited').attr('type', 'text').wrap('<label for="templateEdited" class="dblock">template edited: </label>');
+                $('#templateName').wrap('<label for="templateName" class="dblock"></label>').before(`<span class="inline-label">template name:</span>`);
+                $('#suspendReason').wrap('<label for="suspendReason" class="dblock"></label>').before(`<span class="inline-label">suspend reason:</span>`);
+                $('#templateEdited').wrap('<label for="templateEdited" class="dblock"></label>').before(`<span class="inline-label">template edited:</span>`);
             }
         }
 
@@ -125,28 +147,34 @@
         // Restrict max suspension days to 365, otherwise it fails rudely
         $('#suspendDays').attr('type', 'number').attr('max', '365');
 
-        // If template selected via querystring
-        if(template != null) {
+        // On any page update
+        let hasRun = false;
+        $(document).ajaxComplete(function(event, xhr, settings) {
 
-            // On any page update
-            $(document).ajaxComplete(function(event, xhr, settings) {
+            // Once templates loaded, update templates
+            if(settings.url.includes('/admin/contact-user/template-popup/')) {
 
-                // Once templates loaded , update templates
-                if(settings.url.includes('/admin/contact-user/template-popup/')) {
+                // Add our own canned templates
+                addCustomModMessageTemplates();
 
-                    // Run once only. Unbind ajaxComplete event
-                    $(event.currentTarget).unbind('ajaxComplete');
+                // If template selected via querystring
+                if(template != null && !hasRun) {
+                    hasRun = true;
 
-                    // Update mod message templates
+                    // Try to select selected template from parameter
                     setTimeout(selectModMessage, 500, template);
                 }
-            });
+            }
+        });
 
-            // click template link
-            $('#show-templates').click();
-        }
+        // click select template link on page load
+        $('#show-templates').click();
+
 
         function selectModMessage(template) {
+            const actionList = $('#show-templates').next('.popup').find('.action-list');
+            const hr = actionList.children('hr').index();
+            const numberOfItems = hr > 0 ? hr : actionList.children('li').length;
 
             switch(template) {
                 case 'low-quality-questions':
@@ -185,10 +213,83 @@
                 case 'other':
                     $('#template-11').click().triggerHandler('click');
                     break;
+                default: {
+                    // Try to match a custom template
+                    template = template.replace(/\W/g, '').toLowerCase();
+                    customModMessages.forEach(function(v, i) {
+                        const match = v.templateName.replace(/\W/g, '').toLowerCase().includes(template);
+                        if(match) {
+                            actionList.children('li').eq(numberOfItems + i).click().triggerHandler('click');
+                        }
+                    });
+                }
             }
 
-            $('#show-templates').next('.popup').find('.popup-submit').click();
+            const popupSubmit = $('#show-templates').next('.popup').find('.popup-submit');
+            if(!popupSubmit.prop('disabled')) popupSubmit.click();
         }
+
+
+        function addCustomModMessageTemplates() {
+
+            // Make the popup draggable!
+            const popup = $('#show-templates').next('.popup');
+            popup.attr('data-controller', 'se-draggable');
+            popup.find('h2').first().attr('data-target', 'se-draggable.handle');
+
+
+            const actionList = $('#show-templates').next('.popup').find('.action-list');
+            if(actionList.length === 0) return;
+            if(customModMessages.length === 0) return;
+
+            actionList.append('<hr />').on('click', '.js-custom-template', function() {
+                $(this).addClass('action-selected').find('.action-desc').slideDown(200);
+                $(this).find('input:radio').prop('checked', true);
+                $(this).siblings().removeClass('action-selected').find('.action-desc').slideUp(200);
+                $('.popup-submit').prop('disabled', false);
+            });
+
+            // Message vars (should not be edited here)
+            const numberOfItems = actionList.children('li').length;
+            const sitename = StackExchange.options.site.name;
+            const userId = $('#aboutUserId').val();
+            const userLink = 'https://' + location.hostname + $('#msg-form .user-details a').first().attr('href');
+
+            const messagePrefix = `Hello,
+
+We're writing in reference to your ${sitename} account:
+
+${userLink}
+
+`;
+            const messageSuffix = `
+
+{optionalSuspensionAutoMessage}
+
+Regards,
+${sitename} Moderation Team`;
+
+
+            customModMessages.forEach(function(item, i) {
+                const templateNumber = numberOfItems + i;
+                const templateBodyText = (item.addPrefix !== false ? messagePrefix : '') + item.templateBody + (item.addSuffix !== false ? messageSuffix : '');
+                const templateBodyProcessed = templateBodyText.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+                    return '&#'+i.charCodeAt(0)+';';
+                }).replace('Regards,', 'Regards,  '); // always needs two spaces after for a line break
+                const templateShortText = item.templateBody.length > 400 ? item.templateBody.replace(/(\n|\r)+/g, ' ').substr(0, 397) + '...' : item.templateBody;
+
+                const messageTemplate = `
+<li style="width: auto" class="js-custom-template"><label>
+<input type="radio" id="template-${templateNumber}" name="mod-template" value="${templateBodyProcessed}">
+<input type="hidden" id="template-${templateNumber}-reason" value="${item.suspensionReason || ''}" data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}">
+<span class="action-name">${item.templateName}</span>
+<span class="action-desc" style="display: none;"><div style="margin-left: 18px; line-height: 130%; margin-bottom: 5px;">${templateShortText}</div></span>
+</label></li>`;
+
+                actionList.append(messageTemplate);
+            });
+        }
+
     }
 
 
@@ -198,26 +299,31 @@
 
         const template = getQueryParam('action');
 
-        // If template selected via querystring
-        if(template != null) {
+        // On any page update
+        let hasRun = false;
+        $(document).ajaxComplete(function(event, xhr, settings) {
 
-            // On any page update
-            $(document).ajaxComplete(function(event, xhr, settings) {
+            // Once templates loaded , update templates
+            if(settings.url.includes('/admin/contact-cm/template-popup/')) {
 
-                // Once templates loaded , update templates
-                if(settings.url.includes('/admin/contact-cm/template-popup/')) {
+                // If template selected via querystring
+                if(template != null && !hasRun) {
+                    hasRun = true;
 
-                    // Run once only. Unbind ajaxComplete event
-                    $(event.currentTarget).unbind('ajaxComplete');
-
-                    // Update mod message templates
+                    // Try to select selected template from parameter
                     setTimeout(selectCmMessage, 500, template);
                 }
-            });
 
-            // click template link
-            $('#show-templates').click();
-        }
+                // Make the popup draggable!
+                const popup = $('#show-templates').next('.popup');
+                popup.attr('data-controller', 'se-draggable');
+                popup.find('h2').first().attr('data-target', 'se-draggable.handle');
+            }
+        });
+
+        // click template link
+        $('#show-templates').click();
+
 
         function selectCmMessage(template) {
 
@@ -245,7 +351,8 @@
                     break;
             }
 
-            $('#show-templates').next('.popup').find('.popup-submit').click();
+            const popupSubmit = $('#show-templates').next('.popup').find('.popup-submit');
+            if(!popupSubmit.prop('disabled')) popupSubmit.click();
         }
     }
 
@@ -485,11 +592,21 @@
     overflow: unset;
 }
 
-
+/* Mod/CM message template popup */
+#show-templates + .popup .action-list > li > label {
+    margin: 0;
+}
+#show-templates + .popup .action-list > hr {
+    margin: 5px 0;
+}
 
 /* Mod message page */
 .dbl, .dblock {
     display: block;
+}
+#msg-form label .inline-label {
+    display: inline-block;
+    width: 110px;
 }
 #msg-form #addressing {
     margin-bottom: 15px;
