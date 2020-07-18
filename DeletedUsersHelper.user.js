@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.22.3
+// @version      1.22.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -177,7 +177,7 @@
                     const year = d.getFullYear().toString().slice(2);
                     const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()];
 
-                    const regdate = '\n' + $('.details .row').first().text().trim().replace(/\s+/g, ' ').replace('Joined network:', 'Joined network:').replace('Joined site:', '\nJoined site:   ').split(/\s*\n\s*/).map(function(v) {
+                    const regdate = '\n' + $('.details .row').first().find('span').remove().end().text().trim().replace(/\s+/g, ' ').replace('Joined network:', 'Joined network:').replace('Joined site:', '\nJoined site:   ').split(/\s*\n\s*/).map(function(v) {
                         if(v.contains('ago')) v = v.split(':')[0] + ':  ' + month + " " + d.getDate() + " '" + year;
                         else if(v.contains('yesterday')) v = v.split(':')[0] + ':  ' + month + ' ' + d.getDate() + " '" + year;
                         else if(!v.contains("'")) v = v + " '" + year;
