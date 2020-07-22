@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.13.1
+// @version      2.14
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -195,6 +195,15 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
         }
         window.addEventListener("hashchange", hashChange, false);
         window.addEventListener("load", function() { setTimeout(hashChange, 400); }, false);
+
+        // Move sticky headers before MonicasFlagToC userscript if present
+        function updatePostHeaders() {
+            $('.mod-tools-post').next('.post-stickyheader').each(function() {
+                $(this).prependTo(this.parentNode);
+            });
+        }
+        setTimeout(updatePostHeaders, 3000);
+        $(document).ajaxStop(updatePostHeaders);
     }
 
 
@@ -563,6 +572,11 @@ body.election-page #sidebar > #qtoc,
 .top-bar._fixed ~ .container .post-stickyheader ~ .post-layout .votecell .vote,
 .top-bar._fixed ~ .container .post-stickyheader ~ .post-layout .votecell .js-voting-container {
     top: 101px;
+}
+
+/* Compat with MonicasFlagToC */
+.mod-tools.mod-tools-post {
+   position: static;
 }
 
 /* Table of Contents Sidebar */
