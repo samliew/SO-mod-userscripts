@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.0
+// @version      5.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -76,7 +76,7 @@
             if(typeof uid === 'undefined' || uid === null) { reject(); return; }
 
             $.post({
-                url: `https://${location.hostname}/admin/review/unban-user`,
+                url: `https://${location.hostname}/admin/review/unsuspend-user`,
                 data: {
                     'userId': uid,
                     'fkey': fkey
@@ -92,12 +92,12 @@
             if(typeof uid === 'undefined' || uid === null) { reject(); return; }
 
             $.post({
-                url: `https://${location.hostname}/admin/review/ban-user`,
+                url: `https://${location.hostname}/admin/review/suspend-user`,
                 data: {
                     'userId': uid,
                     'explanation': message,
-                    'reviewBanChoice': 'on',
-                    'reviewBanDays': duration,
+                    'reviewSuspensionChoice': 'on',
+                    'reviewSuspensionDays': duration,
                     'fkey': fkey
                 }
             })
@@ -300,15 +300,15 @@
                         // Parse user history page
                         var numBans = 0;
                         var summary = $('#summary', data);
-                        var numBansLink = summary.find('a[href="?type=User+has+been+banned+from+review"]').get(0);
+                        var numBansLink = summary.find('a[href="?type=User+has+been+suspended+from+reviewing"]').get(0);
                         if(typeof numBansLink !== 'undefined') {
                             numBans = Number(numBansLink.nextSibling.nodeValue.match(/\d+/)[0]);
                         }
 
-                        console.log("Review bans for " + uid, numBans);
+                        console.log("Review suspensions for " + uid, numBans);
 
                         // Add annotation count
-                        $(`<a class="reviewban-count ${numBans > 2 ? 'warning' : ''}" href="${url}" title="${numBans} prior review bans" target="_blank">${numBans}</a>`)
+                        $(`<a class="reviewban-count ${numBans > 2 ? 'warning' : ''}" href="${url}" title="${numBans} prior review suspensions" target="_blank">${numBans}</a>`)
                             .insertBefore(userlink);
                     }
                 });
@@ -320,7 +320,7 @@
     /* For review ban page */
     function getUserReviewBanHistory(uid) {
 
-        const url = `https://${location.hostname}/users/history/${uid}?type=User+has+been+banned+from+review`;
+        const url = `https://${location.hostname}/users/history/${uid}?type=User+has+been+suspended+from+reviewing`;
 
         // Change window/tab title so we can visually see the progress
         document.title = '3.HISTORY';
@@ -337,13 +337,13 @@
             const eventRows = $('#user-history tbody tr', data);
 
             // Get number from filter menu, because user might have been banned more times and events will overflow to next page
-            const numBansLink = summary.find('a[href="?type=User+has+been+banned+from+review"]').get(0);
+            const numBansLink = summary.find('a[href="?type=User+has+been+suspended+from+reviewing"]').get(0);
             if(typeof numBansLink !== 'undefined') {
                 numBans = Number(numBansLink.nextSibling.nodeValue.match(/\d+/)[0]);
             }
 
             // Add annotation count
-            const banCountDisplay = $(`<div class="reviewban-history-summary">User was previously review banned <b><a href="${url}" title="view history" target="_blank">${numBans} time${pluralize(numBans)}</a></b>. </div>`)
+            const banCountDisplay = $(`<div class="reviewban-history-summary">User was previously review suspended <b><a href="${url}" title="view history" target="_blank">${numBans} time${pluralize(numBans)}</a></b>. </div>`)
                 .insertAfter('.message-wrapper');
             banCountDisplay.nextAll().wrapAll('<div class="grid history-duration-wrapper"><div class="grid--cell4 duration-wrapper"></div></div>');
 
@@ -412,7 +412,7 @@
                 if(banEndDatetime > daysago) {
                     isRecentlyBanned = true;
 
-                    $(`<span class="reviewban-ending ${currtext == 'current' ? 'current' : 'recent'}"><span class="type" title="recommended to double the previous ban duration">${currtext}ly</span> review banned for <b>${duration} days</b> until <span class="relativetime" title="${dateToSeDateFormat(banEndDatetime)}">${banEndDatetime}</span>.</span>`)
+                    $(`<span class="reviewban-ending ${currtext == 'current' ? 'current' : 'recent'}"><span class="type" title="recommended to double the previous ban duration">${currtext}ly</span> review suspended for <b>${duration} days</b> until <span class="relativetime" title="${dateToSeDateFormat(banEndDatetime)}">${banEndDatetime}</span>.</span>`)
                         .appendTo(banCountDisplay);
                     newDuration *= 2;
 
@@ -424,7 +424,7 @@
                 }
                 // Halve duration
                 else {
-                    $(`<span class="reviewban-ending">Last review banned for <b>${duration} days</b> until <span class="relativetime" title="${dateToSeDateFormat(banEndDatetime)}">${banEndDatetime}</span>.</span>`)
+                    $(`<span class="reviewban-ending">Last review suspended for <b>${duration} days</b> until <span class="relativetime" title="${dateToSeDateFormat(banEndDatetime)}">${banEndDatetime}</span>.</span>`)
                         .appendTo(banCountDisplay);
                     newDuration = Math.ceil(duration / 2);
                 }
@@ -462,7 +462,7 @@
             // If is currently banned, add confirmation prompt when trying to ban user
             if(!isSuperuser() && isCurrentlyBanned) {
                 $('.js-lookup-result form').submit(function() {
-                    return confirm('User is currently review banned!\n\nAre you sure you want to replace with a new ban?');
+                    return confirm('User is currently review suspended!\n\nAre you sure you want to replace with a new ban?');
                 });
             }
 
@@ -481,7 +481,7 @@
                 const userlink = $(this).find('td a').first();
                 const uid = userlink.attr('href').match(/\/(\d+)\//)[1];
                 $(this).children('td').last().html(function(i, v) {
-                    return `<a href="/users/history/${uid}?type=User+has+been+banned+from+review" target="_blank" title="see review ban history">${v}</a>`;
+                    return `<a href="/users/history/${uid}?type=User+has+been+suspended+from+reviewing" target="_blank" title="see review ban history">${v}</a>`;
                 });
             });
         }
@@ -562,7 +562,7 @@
                 const userlink = $(this).find('a').first();
                 const uid = userlink.attr('data-uid') || userlink.attr('href').match(/\/(\d+)\//)[1];
                 $(this).children('td').eq(4).html(function(i, v) {
-                    return `<a href="/users/history/${uid}?type=User+has+been+banned+from+review" target="_blank" title="see review ban history">${v}</a>`;
+                    return `<a href="/users/history/${uid}?type=User+has+been+banned+from+review" target="_blank" title="see review suspension history">${v}</a>`;
                 });
             });
 
@@ -600,11 +600,11 @@
             // Option to renew permanent bans
             $('.reason', table).filter((i, el) => el.innerText.includes('no longer welcome') || el.innerText.includes('no signs') || el.innerText.includes('any longer')).each(function() {
                 const p = $(this).parent();
-                const l = p.find('a.unban').clone().appendTo(this);
-                l.removeClass('unban').addClass('reban').attr('title', (i, s) => s.replace('unban', 'reapply another yearly review ban to').replace(' from reviewing', '')).text((i, s) => s.replace('unban', 'reban'));
+                const l = p.find('a.js-unsuspend').clone().appendTo(this);
+                l.removeClass('js-unsuspend').addClass('js-suspend-again').attr('title', (i, s) => s.replace('Unsuspend', 'reapply another yearly review suspension to').replace(' from reviewing', '')).text((i, s) => s.replace('js-unsuspend', 'js-suspend-again'));
             });
-            table.on('click', '.reban', function() {
-                if(confirm("Apply another year's ban to this user?")) {
+            table.on('click', '.js-suspend-again', function() {
+                if(confirm("Apply another year's suspension to this user?")) {
                     const uid = this.dataset.userid;
                     reviewUnban(uid).then(() => reviewPermaBan(uid).then(reloadPage));
                 }
@@ -619,7 +619,7 @@
             $('.js-lookup-result').on('submit', 'form', function() {
 
                 // No duration selected, alert and prevent
-                if($('input[name="reviewBanChoice"]:checked').length == 0) {
+                if($('input[name="reviewSuspensionChoice"]:checked').length == 0) {
                     $(this).addClass('validation-error');
                     return false;
                 }
@@ -853,12 +853,12 @@ Breakdown:<br>
                 const secondRadio = $('#days-7').val('4').next('label').text('4 days').addBack();
                 const thirdRadio = $('#days-30').val('8').next('label').text('8 days').addBack();
                 $('#days-other')
-                    .before(`<input type="radio" value="16" name="reviewBanChoice" id="days-16"><label for="days-16"> 16 days</label><br>`)
-                    .before(`<input type="radio" value="32" name="reviewBanChoice" id="days-32"><label for="days-32"> 32 days</label><br>`)
-                    .before(`<input type="radio" value="64" name="reviewBanChoice" id="days-64"><label for="days-64"> 64 days </label><br>`)
-                    .before(`<input type="radio" value="128" name="reviewBanChoice" id="days-128"><label for="days-128"> 128 days</label><br>`)
-                    .before(`<input type="radio" value="256" name="reviewBanChoice" id="days-256"><label for="days-256"> 256 days</label><br>`)
-                    .before(`<input type="radio" value="365" name="reviewBanChoice" id="days-365"><label for="days-365"> 365 days</label><br>`)
+                    .before(`<input type="radio" value="16" name="reviewSuspensionChoice" id="days-16"><label for="days-16"> 16 days</label><br>`)
+                    .before(`<input type="radio" value="32" name="reviewSuspensionChoice" id="days-32"><label for="days-32"> 32 days</label><br>`)
+                    .before(`<input type="radio" value="64" name="reviewSuspensionChoice" id="days-64"><label for="days-64"> 64 days </label><br>`)
+                    .before(`<input type="radio" value="128" name="reviewSuspensionChoice" id="days-128"><label for="days-128"> 128 days</label><br>`)
+                    .before(`<input type="radio" value="256" name="reviewSuspensionChoice" id="days-256"><label for="days-256"> 256 days</label><br>`)
+                    .before(`<input type="radio" value="365" name="reviewSuspensionChoice" id="days-365"><label for="days-365"> 365 days</label><br>`)
                     .before(`<div class="duration-error">Please select ban duration!</div>`)
                     .next().addBack().remove();
 
@@ -1106,14 +1106,14 @@ table.sorter > thead > tr .tablesorter-headerDesc span::after {
     content: "▼";
 }
 
-a.reban {
+a.js-suspend-again {
     float: right;
     margin: 5px;
     padding: 3px 7px;
     background: var(--black-050);
     color: var(--red-500);
 }
-a.reban:hover {
+a.js-suspend-again:hover {
     color: var(--white);
     background: var(--red-500);
 }
