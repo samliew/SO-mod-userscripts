@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.1.1
+// @version      5.1.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -285,7 +285,7 @@
             var banUrl = `/admin/review/bans#${uid}|${location.pathname}|${action}`;
 
             // Add ban link
-            $(`<a class="reviewban-link" href="${banUrl}" title="Ban user from reviews" target="_blank">X</a>`)
+            $(`<a class="reviewban-link" href="${banUrl}" title="Suspend user from reviews" target="_blank">X</a>`)
                 .insertBefore(userlink);
 
             // Skip fetching history for supermods since we will already be fetching that while attempting to ban
@@ -428,7 +428,7 @@
                         .appendTo(banCountDisplay);
                     newDuration = Math.ceil(duration / 2);
                 }
-                console.log('Calculated ban duration:', newDuration);
+                console.log('Calculated suspension duration:', newDuration);
 
                 // Select recommended duration radio from available options
                 if(newDuration < 2) newDuration = 2; // min duration
@@ -439,7 +439,7 @@
                         recommendedDuration = Number(this.value);
                     }
                 });
-                console.log('Closest ban duration option:', recommendedDuration);
+                console.log('Closest suspension duration option:', recommendedDuration);
             });
 
             // If sam is review banning users in Triage
@@ -836,7 +836,7 @@ Breakdown:<br>
                 // Wrap text nodes in the lookup result ban form with spans so we can select them later if needed
                 $($('.js-lookup-result form').prop('childNodes')).filter(function() {
                     return this.nodeType === 3
-                }).wrap('<span>').parent().text((i, v) => v.replace(/^\s*ban\s*$/, 'Ban '));
+                }).wrap('<span>').parent().text((i, v) => v.replace(/^\s*suspend\s*$/, 'Review suspend '));
 
                 // Update message label
                 $('label[for="explanation"]').html(`Explain why this person is being review suspended. Comment markdown supported.<div>Example:</div>`)
@@ -951,7 +951,7 @@ a.reviewban-button {
 .js-lookup-result .duration-radio-group {
     display: block;
     width: 300px;
-    margin: 10px 0 0;
+    margin: 10px 0 10px;
 }
 .js-lookup-result .duration-radio-group label {
     margin-left: 2px;
