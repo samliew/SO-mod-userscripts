@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.1
+// @version      5.1.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -14,7 +14,7 @@
 // @include      */review/first-posts*
 // @include      */review/late-answers*
 //
-// @include      */users/history/*?type=User+has+been+banned+from+review
+// @include      */users/history/*?type=User+has+been+suspended+from+reviewing
 // @include      */users/*?tab=activity&sort=reviews*
 // @include      */users/*?tab=activity&sort=suggestions*
 //
@@ -280,7 +280,7 @@
 
             var userlink = $(this);
             var uid = $(this).attr('href').match(/\d+/)[0];
-            var url = '/users/history/' + uid + '?type=User+has+been+banned+from+review';
+            var url = '/users/history/' + uid + '?type=User+has+been+suspended+from+reviewing';
             var action = $(this).nextAll('b').last().text().toLowerCase().trim().replace(/\W+/g, '-');
             var banUrl = `/admin/review/bans#${uid}|${location.pathname}|${action}`;
 
@@ -562,7 +562,7 @@
                 const userlink = $(this).find('a').first();
                 const uid = userlink.attr('data-uid') || userlink.attr('href').match(/\/(\d+)\//)[1];
                 $(this).children('td').eq(4).html(function(i, v) {
-                    return `<a href="/users/history/${uid}?type=User+has+been+banned+from+review" target="_blank" title="see review suspension history">${v}</a>`;
+                    return `<a href="/users/history/${uid}?type=User+has+been+suspended+from+reviewing" target="_blank" title="see review suspension history">${v}</a>`;
                 });
             });
 
@@ -748,7 +748,7 @@ Breakdown:<br>
         }
 
         // Mod user history - review bans filter
-        else if(location.pathname.includes('/users/history') && location.search == "?type=User+has+been+banned+from+review") {
+        else if(location.pathname.includes('/users/history') && location.search == "?type=User+has+been+suspended+from+reviewing") {
 
             const uid2 = location.pathname.match(/\d+/)[0];
 
@@ -839,7 +839,7 @@ Breakdown:<br>
                 }).wrap('<span>').parent().text((i, v) => v.replace(/^\s*ban\s*$/, 'Ban '));
 
                 // Update message label
-                $('label[for="explanation"]').html(`Explain why this person is being banned; it will be shown to them when they try to review. Comment markdown supported.<div>Example:</div>`)
+                $('label[for="explanation"]').html(`Explain why this person is being review suspended. Comment markdown supported.<div>Example:</div>`)
                     .after(`<div class="examples"><pre>You approved edits on [blatant spam](&lt;link to review task&gt;)</pre></div>`);
 
                 // Update message max length
