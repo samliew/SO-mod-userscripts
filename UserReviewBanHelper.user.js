@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.2
+// @version      5.0
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -139,7 +139,7 @@
 
         const cans = $(`<div id="canned-messages"></div>`).on('click', 'a', function(evt) {
             textarea.val(this.dataset.message);
-            $('#lookup-result input:submit').focus(); // focus submit button
+            $('.js-lookup-result input:submit').focus(); // focus submit button
             return false;
         }).appendTo('.message-wrapper');
 
@@ -419,7 +419,7 @@
                     // Also add warning to the submit button if currently banned
                     if(currtext == 'Current') {
                         isCurrentlyBanned = true;
-                        $('#lookup-result input:submit').addClass('s-btn__danger s-btn__filled js-ban-again').val((i, v) => v + ' again');
+                        $('.js-lookup-result input:submit').addClass('s-btn__danger s-btn__filled js-ban-again').val((i, v) => v + ' again');
                     }
                 }
                 // Halve duration
@@ -455,13 +455,13 @@
                     // Change window/tab title so we can visually see which has been auto-processed
                     document.title = '5.AUTOBAN';
 
-                    $('#lookup-result form').submit();
+                    $('.js-lookup-result form').submit();
                 }
             }
 
             // If is currently banned, add confirmation prompt when trying to ban user
             if(!isSuperuser() && isCurrentlyBanned) {
-                $('#lookup-result form').submit(function() {
+                $('.js-lookup-result form').submit(function() {
                     return confirm('User is currently review banned!\n\nAre you sure you want to replace with a new ban?');
                 });
             }
@@ -543,7 +543,7 @@
                 if(uid && !isNaN(uid)) {
 
                     // Insert UID
-                    $('#user-to-ban').val(uid);
+                    $('.js-user-to-suspend').val(uid);
 
                     // Submit lookup
                     setTimeout(() => {
@@ -551,7 +551,7 @@
                         // Change window/tab title so we can visually see the progress
                         document.title = '2.LOOKUP';
 
-                        $('#lookup').click();
+                        $('.js-lookup').click();
                     }, 1500);
                 }
             }
@@ -612,11 +612,11 @@
             });
 
             // UI classes
-            $('#user-to-ban').addClass('s-input');
-            $('#lookup').addClass('s-btn');
+            $('.js-user-to-suspend').addClass('s-input');
+            $('.js-lookup').addClass('s-btn');
 
             // Ban user form submission
-            $('#lookup-result').on('submit', 'form', function() {
+            $('.js-lookup-result').on('submit', 'form', function() {
 
                 // No duration selected, alert and prevent
                 if($('input[name="reviewBanChoice"]:checked').length == 0) {
@@ -625,7 +625,7 @@
                 }
 
                 // Disable button to prevent double submission
-                $('#lookup-result input:submit').prop('disabled', true);
+                $('.js-lookup-result input:submit').prop('disabled', true);
 
                 // If Samuel
                 if(isSuperuser()) {
@@ -823,7 +823,7 @@ Breakdown:<br>
 
         // Completed loading lookup
         $(document).ajaxComplete(function(event, xhr, settings) {
-            if(settings.url.includes('/admin/review/lookup-bannable-user')) {
+            if(settings.url.includes('/admin/review/lookup-suspendable-user')) {
 
                 // Insert ban message if review link found
                 if(typeof posts !== 'undefined') {
@@ -834,7 +834,7 @@ Breakdown:<br>
                 }
 
                 // Wrap text nodes in the lookup result ban form with spans so we can select them later if needed
-                $($('#lookup-result form').prop('childNodes')).filter(function() {
+                $($('.js-lookup-result form').prop('childNodes')).filter(function() {
                     return this.nodeType === 3
                 }).wrap('<span>').parent().text((i, v) => v.replace(/^\s*ban\s*$/, 'Ban '));
 
@@ -864,7 +864,7 @@ Breakdown:<br>
 
                 // UI stuff
                 $('#days-3').parent().addClass('duration-radio-group').find('input').addClass('s-radio');
-                const banSubmit = $('#lookup-result input:submit').addClass('s-btn s-btn__primary').attr('id', 'ban-submit');
+                const banSubmit = $('.js-lookup-result input:submit').addClass('s-btn s-btn__primary').attr('id', 'ban-submit');
 
                 // Refocus submit button on duration change
                 $('.duration-radio-group').on('click', 'input', function() {
@@ -938,48 +938,48 @@ a.reviewban-button {
     float: right;
 }
 
-#lookup-result {
+.js-lookup-result {
     margin-top: 20px !important;
 }
-#lookup-result .examples pre {
+.js-lookup-result .examples pre {
     margin-bottom: 0;
     padding: 5px 10px;
 }
-#lookup-result br {
+.js-lookup-result br {
     display: none;
 }
-#lookup-result .duration-radio-group {
+.js-lookup-result .duration-radio-group {
     display: block;
     width: 300px;
     margin: 10px 0 0;
 }
-#lookup-result .duration-radio-group label {
+.js-lookup-result .duration-radio-group label {
     margin-left: 2px;
     cursor: pointer;
 }
-#lookup-result .duration-radio-group label:after {
+.js-lookup-result .duration-radio-group label:after {
     content: '';
     display: block;
     margin-bottom: 4px;
 }
-#lookup-result .duration-radio-group input[name="reviewBanDays"] {
+.js-lookup-result .duration-radio-group input[name="reviewBanDays"] {
     position: absolute;
     margin-left: 10px;
     margin-top: -6px;
 }
-#lookup-result .duration-error {
+.js-lookup-result .duration-error {
     display: none;
     margin: 0;
     color: var(--red-500);
 }
-#lookup-result form.validation-error .duration-error {
+.js-lookup-result form.validation-error .duration-error {
     display: block;
 }
-#lookup-result form > div {
+.js-lookup-result form > div {
     margin: 5px 0;
 }
 
-#lookup-result form > .reviewban-history-summary {
+.js-lookup-result form > .reviewban-history-summary {
     margin: 10px 0 15px;
 }
 .reviewban-history-summary .reviewban-ending.current span.type,
@@ -1049,7 +1049,7 @@ a.reviewban-button {
 }
 .message-wrapper textarea {
     display: block;
-    min-height: 240px;
+    min-height: 250px;
     max-width: none !important;
     width: 80% !important;
     margin-bottom: 20px;
