@@ -3,8 +3,8 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      6.1
-// 
+// @version      6.2
+//
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 //
@@ -121,6 +121,50 @@
                 }
             })
             .done(resolve)
+            .fail(reject);
+        });
+    }
+
+
+    // Delete all comments on post
+    function deleteCommentsOnPost(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid == null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/posts/${pid}/delete-comments`,
+                data: {
+                    'fkey': fkey,
+                    'mod-actions': 'delete-comments'
+                }
+            })
+            .done(function(data) {
+                $('#comments-' + pid).remove();
+                $('#comments-link-' + pid).html('<b>Comments deleted.</b>');
+                resolve();
+            })
+            .fail(reject);
+        });
+    }
+
+
+    // Move all comments on post to chat
+    function moveCommentsOnPostToChat(pid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof pid === 'undefined' || pid == null) { reject(); return; }
+
+            $.post({
+                url: `https://${location.hostname}/admin/posts/${pid}/move-comments-to-chat`,
+                data: {
+                    'fkey': fkey,
+                    'deleteMovedComments': 'true'
+                }
+            })
+            .done(function(data) {
+                $('#comments-' + pid).remove();
+                $('#comments-link-' + pid).html(`<span>${data.info}</span>`);
+                resolve();
+            })
             .fail(reject);
         });
     }
