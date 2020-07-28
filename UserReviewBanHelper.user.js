@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.1.2
+// @version      5.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -20,7 +20,7 @@
 //
 // @include      */admin/review/failed-audits*
 // @include      */admin/review/audits*
-// @include      */admin/review/bans*
+// @include      */admin/review/suspensions*
 // @include      */admin/links
 //
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
@@ -282,7 +282,7 @@
             var uid = $(this).attr('href').match(/\d+/)[0];
             var url = '/users/history/' + uid + '?type=User+has+been+suspended+from+reviewing';
             var action = $(this).nextAll('b').last().text().toLowerCase().trim().replace(/\W+/g, '-');
-            var banUrl = `/admin/review/bans#${uid}|${location.pathname}|${action}`;
+            var banUrl = `/admin/review/suspensions#${uid}|${location.pathname}|${action}`;
 
             // Add ban link
             $(`<a class="reviewban-link" href="${banUrl}" title="Suspend user from reviews" target="_blank">X</a>`)
@@ -472,8 +472,8 @@
 
     function doPageload() {
 
-        // If on /admin/review/bans/historical, linkify ban count
-        if(location.pathname.includes('/admin/review/bans/historical')) {
+        // If on /admin/review/suspensions/historical, linkify ban count
+        if(location.pathname.includes('/admin/review/suspensions/historical')) {
 
             // Linkify historical ban counts to user review ban history page
             const table = $('.sorter').attr('id', 'banned-users-table');
@@ -487,15 +487,15 @@
         }
 
         // Linkify ban counts on ban page and historical page tables
-        // /admin/review/bans  &  /admin/review/bans/historical
-        else if(location.pathname.includes('/admin/review/bans')) {
+        // /admin/review/suspensions  &  /admin/review/suspensions/historical
+        else if(location.pathname.includes('/admin/review/suspensions')) {
 
             const table = $('.sorter').attr('id', 'banned-users-table');
 
             // If superuser,
             if(isSuperuser()) {
                 // close tab/window if a user has just been banned
-                if(location.pathname == '/admin/review/bans' && history.length >= 2 && location.hash == '') {
+                if(location.pathname == '/admin/review/suspensions' && history.length >= 2 && location.hash == '') {
                     window.top.close();
                 }
                 // remove ban table to save browser memory
@@ -780,7 +780,7 @@ Breakdown:<br>
             }
 
             // Not currently banned, show review ban button
-            $(`<a class="fr s-btn s-btn__sm s-btn__filled s-btn__primary reviewban-button" href="/admin/review/bans#${uid2}">Review Ban</a>`).insertAfter(heading);
+            $(`<a class="fr s-btn s-btn__sm s-btn__filled s-btn__primary reviewban-button" href="/admin/review/suspensions#${uid2}">Review Ban</a>`).insertAfter(heading);
         }
 
         // Review queue history pages
