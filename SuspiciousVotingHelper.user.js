@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -114,14 +114,16 @@
 
             // Load votes
             $.get(`https://${location.hostname}/admin/show-user-votes/${uid}`).then(function(data) {
-                const tables = $('.cast-votes:first > td', data);
-                votesFrom = tables.first().find('.voters tbody tr').map(mapVotePatternItemsToObject).get();
-                votesTo = tables.last().find('.voters tbody tr').map(mapVotePatternItemsToObject).get();
+                const sections = $('#mainbar-full [class*="md:fd-column"]', data);
 
-                if($('.cast-votes', data).length > 1) {
-                    const tablesInv = $('.cast-votes:last > td', data);
-                    votesFromInv = tablesInv.first().find('.voters tbody tr').map(mapInvVotePatternItemsToObject).get();
-                    votesToInv = tablesInv.last().find('.voters tbody tr').map(mapInvVotePatternItemsToObject).get();
+                const tables = sections.first().find('table');
+                votesFrom = tables.first().find('tbody tr').map(mapVotePatternItemsToObject).get();
+                votesTo = tables.last().find('tbody tr').map(mapVotePatternItemsToObject).get();
+
+                if(sections.length > 1) {
+                    const tablesInv = sections.last().find('table');
+                    votesFromInv = tablesInv.first().find('tbody tr').map(mapInvVotePatternItemsToObject).get();
+                    votesToInv = tablesInv.last().find('tbody tr').map(mapInvVotePatternItemsToObject).get();
                 }
             })
 
