@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8
+// @version      1.8.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -37,7 +37,7 @@
         const vtype = $(this).children('td').eq(1).text().trim();
         const vtypeText = vtype === 'dn' ? 'down' : (vtype === 'up' ? 'up' : 'acc');
         const vPct = Math.round(vNum / vTotal * 100);
-        return {
+        return link.length == 0 ? null : {
             uid: link.attr('href').match(/\/(\d+)\//)[0],
             userlink: link.attr('href'),
             username: link.text(),
@@ -56,8 +56,7 @@
         const link = $('.user-details a', this);
         const uRep = $('.reputation-score', this);
         const vNum = Number($(this).children('td').eq(1).text());
-        console.log($(this));
-        return {
+        return link.length == 0 ? null : {
             uid: link.attr('href').match(/\/(\d+)\//)[0],
             userlink: link.attr('href'),
             username: link.text(),
