@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.2
+// @version      5.2.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -446,11 +446,11 @@
             if(isSuperuser() && location.hash.includes('/triage')) {
 
                 // If reviewAction is "looks-ok", and user is currently banned for >= 64, ignore (close tab)
-                if(reviewAction == 'looks-ok' && isCurrentlyBanned && recommendedDuration >= 64) {
+                if(reviewAction == 'looks-ok' && isCurrentlyBanned && recommendedDuration >= 16) {
                     unsafeWindow.top.close();
                 }
-                // If recommended is up to 32, auto submit form
-                else if(recommendedDuration == null || recommendedDuration <= 32) {
+                // If recommended is up to 16, auto submit form
+                else if(recommendedDuration == null || recommendedDuration <= 16) {
 
                     // Change window/tab title so we can visually see which has been auto-processed
                     document.title = '5.AUTOBAN';
@@ -873,14 +873,10 @@ Breakdown:<br>
 
                 firstRadio.remove(); // remove option 2
 
-                if(true || isSuperuser()) {
+                if(isSuperuser()) {
 
                     // If triage reviews
                     if(location.hash.includes('|/review/triage/')) {
-
-                        // Modify minimum review ban to get their attention
-                        secondRadio.remove(); // remove option 4
-                        //thirdRadio.remove(); // remove option 8
 
                         // If reviewAction is "requires-editing", select alternate canned message
                         if(reviewAction == 'requires-editing') {
