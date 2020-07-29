@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.2.1
+// @version      5.3
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -40,23 +40,43 @@
     const fkey = StackExchange.options.user.fkey;
     const messageCharLimit = 2000;
 
-    const defaultBanMessage = `Your recent [reviews](https://${location.hostname}/users/current?tab=activity&sort=reviews) wasn't helpful. Please review the history of the posts and consider how choosing a different action would help achieve those outcomes more quickly.`;
+    const defaultBanMessage = `A number of your [recent reviews](https://${location.hostname}/users/current?tab=activity&sort=reviews) were incorrect. We suspect that you are not giving each task adequate attention. Please pay more attention to each review in future.`;
     const permaBanMessage = `Due to your [poor review history](https://${location.hostname}/users/current?tab=activity&sort=reviews) as well as no signs of improvement after many review bans, you won't be able to use any of the review queues on the site any longer.`;
 
     // Use {POSTLINK} and {QUEUENAME} placeholders
     const cannedMessages = {
         current: '',
-        triageQuestionReqEdits: `Your review on {POSTLINK} wasn't helpful. The "Requires Editing" option should only be used when other community users (*like you*) are able to edit/format an *already answerable question* into a better shape. If a question can be closed or can only be improved/clarified by the question asker, please use the "Unsalvageable" option instead. If in doubt always use the "Skip" option. For more information, see *[Getting banned from Triage reviews](https://meta.stackoverflow.com/q/389148)* and *[How does the Triage queue work?](https://meta.stackoverflow.com/q/295650)*.`,
+        triageQuestionReqEdits: `You took incorrect action on the following task: {POSTLINK}. Choose the "Unsalvageable" action for questions that should be closed or can only be improved or clarified by the question-asker. The "Requires Editing" action should only be used when other community users (like yourself) are able to improve an answerable question with editing or formatting. When in doubt, use the Skip action.`,
         helperEditPoor: `Your review on {POSTLINK} wasn't helpful. If a question should be closed and you are unable to make the question on-topic in the "Help and Improvement" review, please use "Skip" instead of making trivial changes.`,
         postNaa: `You recently reviewed this post {POSTLINK}. Although it was posted as an answer, it clearly did not attempt to provide an answer to the question. You should have flagged it as "not an answer" so that it could be removed.`,
         postNaaEdited: `You recently edited this post {POSTLINK}. Please do not edit posts that should have been deleted. Use "edit" only when your edit salvages the post and makes it a valid answer.`,
         postNaaCommentOnly: `You recently reviewed this post {POSTLINK}. Although you correctly identified it as not being an answer, you chose to leave a comment. That did not help to solve the problem. You should have flagged it as "not an answer" so that it could be removed.`,
-        postLinkOnly: `You recently reviewed this post {POSTLINK}. It contained nothing more than a link to an off-site resource, which does not meet our minimum standards for an answer (https://${location.hostname}/help/how-to-answer). You should have flagged it as "not an answer" or "very low quality" so that it could be removed. Please read [How should I get started reviewing Late Answers and First Posts?](https://meta.stackoverflow.com/q/288505)`,
+        postLinkOnly: `You recently reviewed this post {POSTLINK}. It contained nothing more than a link to an off-site resource, which does not meet our minimum standards for an answer (https://${location.hostname}/help/how-to-answer). You should have flagged it as "not an answer" or "very low quality" so that it could be removed.`,
         postEditPoor: `You approved poor edits to this post {POSTLINK}, which should have been rejected. Please pay more attention to each review in future.`,
         postEditPlagiarism: `You reviewed this post {POSTLINK} incorrectly. The suggested edit was for the most part, plagiarism, and should have been rejected. Please pay more attention to each review in future.`,
         postSpam: `You recently reviewed this spam post {POSTLINK} without flagging it as spam. Please pay more attention to each review in future.`,
+        failedAudit: `You have made too many incorrect reviews. For an example of a task you should have reviewed differently, see: {POSTLINK}.`,
         recentGeneral: defaultBanMessage,
         noLongerWelcome: permaBanMessage,
+    };
+
+    // Use {QUEUEHELPLINK} placeholders
+    const cannedMessageSuffix = `\n\nBeing suspended can be a frustrating experience, but your help in moderation is still important. In the meantime, you can refer to {QUEUEHELPLINK} for more information, and revisit your [recent reviews](https://${location.hostname}/users/current?tab=activity&sort=reviews) to see if you could have taken a different action instead.`;
+    const defaultCannedMessageHelpLink = `*[What are the review queues, and how do they work?](https://meta.stackexchange.com/q/161390)*`;
+    const cannedMessagesHelpLinks = {
+        current: defaultCannedMessageHelpLink,
+        triageQuestionReqEdits: `*[Getting banned from Triage reviews](https://meta.stackoverflow.com/q/389148)* and *[How does the Triage queue work?](https://meta.stackoverflow.com/q/295650)*`,
+        helperEditPoor: `*[The Help & Improvement Queue FAQ](https://meta.stackoverflow.com/q/287466)*`,
+        postNaa: `*[How should I get started reviewing Late Answers and First Posts?](https://meta.stackoverflow.com/q/288505)*`,
+        postNaaEdited: `*[How should I get started reviewing Late Answers and First Posts?](https://meta.stackoverflow.com/q/288505)*`,
+        postNaaCommentOnly: `*[How should I get started reviewing Late Answers and First Posts?](https://meta.stackoverflow.com/q/288505)*`,
+        postLinkOnly: `*[How should I get started reviewing Late Answers and First Posts?](https://meta.stackoverflow.com/q/288505)*`,
+        postEditPoor: defaultCannedMessageHelpLink,
+        postEditPlagiarism: defaultCannedMessageHelpLink,
+        postSpam: defaultCannedMessageHelpLink,
+        failedAudit: defaultCannedMessageHelpLink,
+        recentGeneral: defaultCannedMessageHelpLink,
+        noLongerWelcome: null, // do not show suffix
     };
 
 
@@ -151,13 +171,14 @@
                 allposts = allposts.replace(/(\n|\r)+/g, '');
             }
 
+            let suffix = cannedMessagesHelpLinks[v] !== null ? cannedMessageSuffix.replace(/{QUEUEHELPLINK}/g, cannedMessagesHelpLinks[v]) : '';
             let msg = cannedMessages[v].replace(/"/g, '&quot;').replace(/{POSTLINK}/g, allposts).replace(/{QUEUENAME}\s?/g, queuename);
 
             if(posts && posts.length == 1) {
                 msg = msg.replace(/(\(\n|\n\))/g, '');
             }
 
-            cans.append(`<a data-message="${msg}">${v}</a>`);
+            cans.append(`<a data-message="${msg}${suffix}">${v}</a>`);
         });
     }
 
@@ -601,7 +622,7 @@
             $('.reason', table).filter((i, el) => el.innerText.includes('no longer welcome') || el.innerText.includes('no signs') || el.innerText.includes('any longer')).each(function() {
                 const p = $(this).parent();
                 const l = p.find('a.js-unsuspend').clone().appendTo(this);
-                l.removeClass('js-unsuspend').addClass('js-suspend-again').attr('title', (i, s) => s.replace('Unsuspend', 'reapply another yearly review suspension to').replace(' from reviewing', '')).text((i, s) => s.replace('js-unsuspend', 'js-suspend-again'));
+                l.removeClass('js-unsuspend').addClass('js-suspend-again').attr('title', (i, s) => s.replace('Unsuspend', 'reapply another yearly review suspension to').replace(' from reviewing', '')).text((i, s) => s.replace('Unsuspend', 'Re-suspend'));
             });
             table.on('click', '.js-suspend-again', function() {
                 if(confirm("Apply another year's suspension to this user?")) {
@@ -1045,7 +1066,7 @@ a.reviewban-button {
 }
 .message-wrapper textarea {
     display: block;
-    min-height: 250px;
+    min-height: 270px;
     max-width: none !important;
     width: 80% !important;
     margin-bottom: 20px;
@@ -1106,7 +1127,7 @@ a.js-suspend-again {
     float: right;
     margin: 5px;
     padding: 3px 7px;
-    background: var(--black-050);
+    background: var(--black-100);
     color: var(--red-500);
 }
 a.js-suspend-again:hover {
