@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.17
+// @version      1.17.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -298,7 +298,7 @@
 
             // Add link to post timeline
             const pid = location.pathname.match(/\/\d+\//)[0].replace(/\//g, '');
-            $('#mainbar-full .s-table').after(`<div class="mt12"><a href="/posts/${pid}/timeline?filter=flags" class="s-btn s-btn__primary">View flags in post timeline</a></div>`);
+            $('#mainbar-full .s-table').after(`<div class="mt12"><a href="/posts/${pid}/timeline?filter=WithVoteSummaries&filter=flags" class="s-btn s-btn__primary">View flags in post timeline</a></div>`);
 
             return;
         }
