@@ -466,12 +466,12 @@
             // If sam is review banning users in Triage
             if(isSuperuser() && location.hash.includes('/triage')) {
 
-                // If reviewAction is "looks-ok", and user is currently banned for >= 64, ignore (close tab)
-                if(reviewAction == 'looks-ok' && isCurrentlyBanned && recommendedDuration >= 16) {
+                // If reviewAction is "looks-ok", and user is currently banned for >= 16, ignore (close tab)
+                if(reviewAction == 'looks-ok' && isCurrentlyBanned && recommendedDuration >= 8) {
                     unsafeWindow.top.close();
                 }
-                // If recommended is up to 16, auto submit form
-                else if(recommendedDuration == null || recommendedDuration <= 16) {
+                // If recommended is up to 8, auto submit form
+                else if(recommendedDuration == null || recommendedDuration <= 8) {
 
                     // Change window/tab title so we can visually see which has been auto-processed
                     document.title = '5.AUTOBAN';
