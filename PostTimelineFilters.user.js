@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.16.2
+// @version      1.17
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -275,15 +275,30 @@
         if(location.pathname.includes('/show-flags')) {
 
             // Show decline reason
-            $('#flags td[title]').each(function() {
-                if(this.title.length)
-                $(this).html( this.innerHTML + ' - ' + this.title );
-                this.removeAttribute('title');
+            $('#mainbar-full .s-table td[title]').each(function() {
+
+                // Colour-coded result
+                let outcome = this.innerHTML.trim();
+                if(outcome.toLowerCase().includes('declined')) {
+                    outcome = `<span class="fc-red-500 fw-bold">${outcome}</span>`;
+                }
+                else {
+                    outcome = `<span class="fc-green-500 fw-bold">${outcome}</span>`;
+                }
+
+                // Replace reason with inline text
+                if(this.title.length > 0) {
+                    this.innerHTML = outcome + ':<br>' + this.title;
+                    this.removeAttribute('title');
+                }
+                else {
+                    this.innerHTML = outcome;
+                }
             });
 
             // Add link to post timeline
             const pid = location.pathname.match(/\/\d+\//)[0].replace(/\//g, '');
-            $('#flags').after(`<a href="/posts/${pid}/timeline?filter=flags" class="btn btn-primary">View flags in post timeline</a>`);
+            $('#mainbar-full .s-table').after(`<div class="mt12"><a href="/posts/${pid}/timeline?filter=flags" class="s-btn s-btn__primary">View flags in post timeline</a></div>`);
 
             return;
         }
