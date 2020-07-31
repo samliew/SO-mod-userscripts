@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.13
+// @version      2.13.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1161,8 +1161,6 @@
     font-family: Roboto,RobotoDraft,Helvetica,Arial,sans-serif;
     letter-spacing: .2px;
     line-height: 20px;
-
-    user-select: none;
     white-space: nowrap;
 }
 .post-mod-menu-header {
@@ -1184,6 +1182,8 @@
     padding-right: 48px;
     cursor: pointer;
     color: var(--black-900);
+
+    user-select: none;
 }
 .post-mod-menu a.dno {
     display: none;
