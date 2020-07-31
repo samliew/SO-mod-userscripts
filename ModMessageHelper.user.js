@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -45,7 +45,7 @@
     // This may be edited to add more custom templates to mod messages
     const customModMessages = [
         {
-            templateName: "unnecessary edits to bump question",
+            templateName: "minor edits to post",
             suspensionReason: "for rule violations",
             suspensionDefaultDays: 0,
             templateBody: `You appear to be editing your post to attract attention, rather than to improve it. Periodic cosmetic edits are not constructive and needlessly bump your post, displacing actually active posts that require more community attention.
@@ -434,6 +434,14 @@ ${sitename} Moderation Team`;
             menuitems += `<a target="_blank" href="${modMessageLink}?action=sockpuppet-upvoting">sockpuppet upvoting</a>`;
             menuitems += `<a target="_blank" href="${modMessageLink}?action=targeted-votes">targeted votes</a>`;
             menuitems += `<a target="_blank" href="${modMessageLink}?action=revenge-downvoting">revenge downvoting</a>`;
+
+            // Add custom reasons
+            if(customModMessages.length > 0) {
+                menuitems += `<div class="separator"></div>`;
+                customModMessages.forEach(v => {
+                    menuitems += `<a target="_blank" href="${modMessageLink}?action=${v.templateName.replace(/\W/g, '').toLowerCase()}">${v.templateName}</a>`;
+                });
+            }
 
             menuitems += `<div class="separator"></div>`;
             menuitems += `<a target="_blank" href="${modMessageLink}?action=other">other...</a>`;
