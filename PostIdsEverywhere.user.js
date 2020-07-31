@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.11.1
+// @version      1.11.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -47,7 +47,7 @@
 
         // Lists
         const modQueuePostLinks = $('.js-body-loader').find('a:first');
-        $('a.question-hyperlink, a.answer-hyperlink, .js-post-title-link').add(modQueuePostLinks)
+        $('a.question-hyperlink, a.answer-hyperlink, .js-post-title-link, .originals-of-duplicate a').add(modQueuePostLinks)
             .not('.js-somu-post-ids').addClass('js-somu-post-ids')
             .each((i,el) => {
                 if(el.href.includes('/election')) return;
@@ -96,7 +96,8 @@
 .top-posts .post-container,
 .mod-section table.table td,
 .post-container,
-.reviewable-post h1 {
+.reviewable-post h1,
+.originals-of-duplicate li {
     position: relative;
 }
 .popup[data-questionid],
@@ -158,7 +159,8 @@
 #user-tab-questions .post-id:hover,
 #user-tab-answers .post-id:hover,
 #user-tab-activity .post-id:hover,
-*:hover > .post-id {
+*:hover > .post-id,
+.originals-of-duplicate .post-id {
     display: inline-block;
     opacity: 1;
 }
