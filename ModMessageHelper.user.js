@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -38,9 +38,20 @@
     const parentUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
 
 
+    const modMenuOnClick = true;
+
+
     // CUSTOM MOD MESSAGE TEMPLATES
     // This may be edited to add more custom templates to mod messages
     const customModMessages = [
+        {
+            templateName: "unnecessary edits to bump question",
+            suspensionReason: "for rule violations",
+            suspensionDefaultDays: 0,
+            templateBody: `You appear to be editing your post to attract attention, rather than to improve it. Periodic cosmetic edits are not constructive and needlessly bump your post, displacing actually active posts that require more community attention.
+
+Please only edit your post to correct errors, to include additional insights, or to update the question for changing circumstances. If you continue to only edit it for cosmetic reasons only, we'll have to lock your post from all further edits.`,
+        },
         {
             templateName: "tag-wiki plagiarism",
             suspensionReason: "for plagiarism",
@@ -52,6 +63,17 @@ Please note that we require full attribution with a link to the original author,
 Thank you, and we look forward to your contributions in the future.`,
         },
         {
+            templateName: "self tag burnination",
+            suspensionReason: "for rule violations",
+            suspensionDefaultDays: 0,
+            templateBody: `As you should be aware, there is [a process for mass tag removal](https://meta.stackoverflow.com/questions/324070), also known as burnination. The [policy from Stack Exchange](https://meta.stackoverflow.com/questions/356963) is that the process **must** be followed and that burninations of tags which are used on more than 50 questions **must** be discussed on Meta Stack Overflow *prior* to beginning to edit to remove the tag.
+
+You have recently removed many tags from questions without following the burnination process. Do not do that. This message is a warning. If you do this again, with this or any other tag, then there will be further consequences.
+
+The edits you made will be reverted. Some of the edits have other beneficial changes, which you are welcome to reapply. However, you are not permitted to systematically remove tags from questions without following the burnination process.`,
+        },
+        /* EXAMPLE
+        {
             templateName: "a farewell",
             suspensionReason: "for rule violations",
             suspensionDefaultDays: 365,
@@ -59,6 +81,7 @@ Thank you, and we look forward to your contributions in the future.`,
             addPrefix: false,
             addSuffix: false,
         },
+        */
     ];
 
 
@@ -431,7 +454,7 @@ ${sitename} Moderation Team`;
 
 
             $(this).append(`
-<div class="js-mod-message-link grid--cell s-btn ta-center py8 somu-mod-message-link" data-shortcut="O" title="Contact...">
+<div class="js-mod-message-link grid--cell s-btn ta-center py8 somu-mod-message-link ${modMenuOnClick ? 'click-only' : ''}" data-shortcut="O" title="Contact...">
   <svg aria-hidden="true" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-icon mln1 mr0">
     <path fill="currentColor" d="M464 64H48C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h416c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zM48 96h416c8.8 0 16 7.2 16 16v41.4c-21.9 18.5-53.2 44-150.6 121.3-16.9 13.4-50.2 45.7-73.4 45.3-23.2.4-56.6-31.9-73.4-45.3C85.2 197.4 53.9 171.9 32 153.4V112c0-8.8 7.2-16 16-16zm416 320H48c-8.8 0-16-7.2-16-16V195c22.8 18.7 58.8 47.6 130.7 104.7 20.5 16.4 56.7 52.5 93.3 52.3 36.4.3 72.3-35.5 93.3-52.3 71.9-57.1 107.9-86 130.7-104.7v205c0 8.8-7.2 16-16 16z" class="" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path>
   </svg>
@@ -448,6 +471,17 @@ ${sitename} Moderation Team`;
 </a>`);
 
         });
+
+        // Show menu on click only
+        if(modMenuOnClick) {
+            $(document).on('click', null, function() {
+                $('.somu-mod-message-link.active').removeClass('active');
+            });
+            $('.js-mod-message-menu').on('click', '.somu-mod-message-link', function(evt) {
+                $(this).addClass('active');
+                evt.stopPropagation();
+            });
+        }
 
     }
 
@@ -508,8 +542,9 @@ ${sitename} Moderation Team`;
     height: 14px;
     color: var(--black-500);
 }
-.somu-mod-message-link:hover .somu-mod-message-menu,
-.somu-mod-message-link .somu-mod-message-menu:hover {
+.somu-mod-message-link:not(.click-only):hover .somu-mod-message-menu,
+.somu-mod-message-link:not(.click-only) .somu-mod-message-menu:hover,
+.somu-mod-message-link.click-only.active .somu-mod-message-menu {
     display: flex;
 }
 .somu-mod-message-link:hover svg {
