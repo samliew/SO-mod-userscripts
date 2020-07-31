@@ -3,7 +3,7 @@
 // @description  Revert annoying instant popup tooltips
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2
+// @version      0.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -33,6 +33,7 @@
     }
 
     findAndRevertTooltips();
+    setTimeout(findAndRevertTooltips, 200);
     $(document).ajaxStop(() => setTimeout(findAndRevertTooltips, 200));
 
 })();

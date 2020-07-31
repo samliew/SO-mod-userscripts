@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.21.1
+// @version      1.21.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -282,6 +282,7 @@ ul.comments-list .comment-up-on {
         }
 
         findAndRevertTooltips();
+        setTimeout(findAndRevertTooltips, 200);
         $(document).ajaxStop(() => setTimeout(findAndRevertTooltips, 200));
     }
 
