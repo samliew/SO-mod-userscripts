@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.22
+// @version      2.23
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -151,7 +151,7 @@ body {
     --yellow-800: #efd161;
     --yellow-900: #f4dc7c;
 
-    --red-050: #0d0203;
+    --red-050: #2d060a;
     --red-100: #2d060a;
     --red-200: #4b0b13;
     --red-300: #821722;
@@ -740,7 +740,8 @@ body td.deleted-answer,
 .s-banner__info .fc-black-600,
 #revisions .vote-revision *,
 .js-admin-dashboard .deleted-answer *,
-.search-result.bg-red-050 * {
+.search-result.bg-red-050 *,
+tr.bg-red-050 td {
     background-color: transparent;
 }
 #question .question-status,
