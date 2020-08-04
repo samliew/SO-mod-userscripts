@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.17.1
+// @version      1.17.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -500,12 +500,6 @@ table.post-timeline td.event-type {
 table.post-timeline .event-type + .wmn1 {
     min-width: 108px;
     width: 108px;
-}
-table.post-timeline .event-type + .wmn1 span {
-    display: block;
-    width: 87px;
-    height: 1.1em;
-    overflow: hidden;
 }
 td.event-type span.event-type {
     font-size: 12px;
