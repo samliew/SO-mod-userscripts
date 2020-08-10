@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.23
+// @version      1.24
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -156,7 +156,14 @@
                     'fkey': fkey,
                 }
             })
-            .done(resolve)
+            .done(function(data) {
+                const html = $(data).get();
+                resolve({
+                    email: html[1].children[1].innerText.trim(),
+                    name: html[1].children[3].innerText.trim(),
+                    ip: html[3].children[1].innerText.trim()
+                });
+            })
             .fail(reject);
         });
     }
@@ -170,24 +177,12 @@
                 const uid = Number(settings.url.match(/\/admin\/users\/(\d+)\//)[1]);
 
                 getUserPii(uid).then(v => {
-                    const data = $(v);
 
-                    // Format PII for deletion reason textarea
-                    const d = new Date();
-                    const year = d.getFullYear().toString().slice(2);
-                    const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()];
+                    const userDetails = `\n\nEmail:     ${v.email}\nReal Name: ${v.name}`;
+                    const deleteReasonDetails = userDetails;
+                    debugger;
 
-                    const regdate = '\n' + $('.details .row').first().find('span').remove().end().text().trim().replace(/\s+/g, ' ').replace('Joined network:', 'Joined network:').replace('Joined site:', '\nJoined site:   ').split(/\s*\n\s*/).map(function(v) {
-                        if(v.contains('ago')) v = v.split(':')[0] + ':  ' + month + " " + d.getDate() + " '" + year;
-                        else if(v.contains('yesterday')) v = v.split(':')[0] + ':  ' + month + ' ' + d.getDate() + " '" + year;
-                        else if(!v.contains("'")) v = v + " '" + year;
-                        return v;
-                    }).join('\n');
-
-                    const str = data.text().replace(/Credentials(.|\s)+$/, '').trim().replace(/\s+/g, ' ').replace('Email:', 'Email:    ').replace(' Real Name:', '\nReal Name:').replace(/ IP Address:.+/, '');
-                    const reason = str + regdate;
-
-                    $('#deleteReasonDetails, #destroyReasonDetails').val('\n\n' + reason);
+                    $('#deleteReasonDetails, #destroyReasonDetails').val('\n\n' + userDetails);
                 });
             }
         });
