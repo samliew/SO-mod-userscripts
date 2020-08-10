@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.3
+// @version      5.4
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -684,7 +684,10 @@
                 const rows = table.find('tbody tr');
                 const reqEditing = rows.filter((i, el) => el.children[4].innerText.includes('Requires Editing')).length;
                 const forTriage = rows.filter((i, el) => el.children[4].innerText.toLowerCase().includes('triage')).length;
-                const auditFailures = rows.filter((i, el) => el.children[4].innerText.includes('You have made too many incorrect reviews.')).length;
+                const auditFailures = rows.filter((i, el) => {
+                    const t = el.children[4].innerText;
+                    return t.includes('You have made too many incorrect reviews.') || t.includes('A number of your recent reviews were incorrect.');
+                }).length;
                 const hundred = rows.filter((i, el) => el.children[3].innerText >= 100).length;
                 const permaban = rows.filter((i, el) => el.children[4].innerText.match(/(no|any) (longer|signs)/)).length;
                 const firstTimers = rows.filter((i, el) => el.children[5].innerText == 1).length;
