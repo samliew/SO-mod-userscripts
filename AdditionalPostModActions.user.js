@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.14
+// @version      2.14.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -453,10 +453,11 @@
                 }
             })
             .done(function(data) {
+                const html = $(data).get();
                 resolve({
-                    email: data[1].children[1].innerText.trim(),
-                    name: data[1].children[3].innerText.trim(),
-                    ip: data[3].children[1].innerText.trim()
+                    email: html[1].children[1].innerText.trim(),
+                    name: html[1].children[3].innerText.trim(),
+                    ip: html[3].children[1].innerText.trim()
                 });
             })
             .fail(reject);
@@ -534,6 +535,7 @@
 
                 const userDetails = `\n\nEmail:     ${v.email}\nReal Name: ${v.name}`;
                 const deleteReasonDetails = deleteDetails.trim() + userDetails;
+                debugger;
 
                 // Delete user
                 $.post({
@@ -577,6 +579,7 @@
 
                 const userDetails = `\n\nEmail:     ${v.email}\nReal Name: ${v.name}`;
                 const destroyReasonDetails = destroyDetails.trim() + userDetails;
+                debugger;
 
                 // Destroy user
                 $.post({
