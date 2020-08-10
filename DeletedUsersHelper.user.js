@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.24
+// @version      1.24.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -142,6 +142,19 @@
     function undeletePosts(pids) {
         if(typeof pids === 'undefined' || pids.length === 0) return;
         pids.forEach(v => undeletePost(v));
+    }
+
+
+    function getUserDetails(uid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof uid === 'undefined' || uid === null) { reject(); return; }
+
+            $.post(`https://api.stackexchange.com/2.2/users/${uid}?order=desc&sort=reputation&site=${location.hostname.replace(/(\.stackexchange)?\.com$/,'')}&filter=!--1nZv)deGu1&key=lSrVEbQTXrJ4eb4c3NEMXQ((`)
+            .done(function(data) {
+                resolve(data);
+            })
+            .fail(reject);
+        });
     }
 
 
