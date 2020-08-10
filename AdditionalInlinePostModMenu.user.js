@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -428,6 +428,19 @@
     }
 
 
+    function getUserDetails(uid) {
+        return new Promise(function(resolve, reject) {
+            if(typeof uid === 'undefined' || uid === null) { reject(); return; }
+
+            $.post(`https://api.stackexchange.com/2.2/users/${uid}?order=desc&sort=reputation&site=${location.hostname.replace(/(\.stackexchange)?\.com$/, '')}&filter=!--1nZv)deGu1&key=`)
+            .done(function(data) {
+                resolve(data);
+            })
+            .fail(reject);
+        });
+    }
+
+
     function getUserPii(uid) {
         return new Promise(function(resolve, reject) {
             if(typeof uid === 'undefined' || uid === null) { reject(); return; }
@@ -439,7 +452,13 @@
                     'fkey': fkey,
                 }
             })
-            .done(resolve)
+            .done(function(data) {
+                resolve({
+                    email: data[1].children[1].innerText.trim(),
+                    name: data[1].children[3].innerText.trim(),
+                    ip: data[3].children[1].innerText.trim()
+                });
+            })
             .fail(reject);
         });
     }
@@ -512,24 +531,9 @@
             modMessage(uid, 'goodbye', false, 365);
 
             getUserPii(uid).then(v => {
-                const data = $(v);
 
-                // Format PII for deletion reason textarea
-                const d = new Date();
-                const year = d.getFullYear().toString().slice(2);
-                const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()];
-
-                const regdate = '\n' + $('.details .row').first().text().trim().replace(/\s+/g, ' ').replace('Joined network:', 'Joined network:').replace('Joined site:', '\nJoined site:   ').split(/\s*\n\s*/).map(function(v) {
-                    if(v.contains('ago')) v = v.split(':')[0] + ':  ' + month + " " + d.getDate() + " '" + year;
-                    else if(v.contains('yesterday')) v = v.split(':')[0] + ':  ' + month + ' ' + d.getDate() + " '" + year;
-                    else if(!v.contains("'")) v = v + " '" + year;
-                    return v;
-                }).join('\n');
-
-                const str = data.text().replace(/Credentials(.|\s)+$/, '').trim().replace(/\s+/g, ' ').replace('Email:', 'Email:    ').replace(' Real Name:', '\nReal Name:').replace(/ IP Address:.+/, '');
-                const reason = str + regdate;
-
-                const deleteReasonDetails = deleteDetails.trim() + reason;
+                const userDetails = `\n\nEmail:     ${v.email}\nReal Name: ${v.name}`;
+                const deleteReasonDetails = deleteDetails.trim() + userDetails;
 
                 // Delete user
                 $.post({
@@ -570,24 +574,9 @@
             modMessage(uid, 'goodbye', false, 365);
 
             getUserPii(uid).then(v => {
-                const data = $(v);
 
-                // Format PII for deletion reason textarea
-                const d = new Date();
-                const year = d.getFullYear().toString().slice(2);
-                const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()];
-
-                const regdate = '\n' + $('.details .row').first().text().trim().replace(/\s+/g, ' ').replace('Joined network:', 'Joined network:').replace('Joined site:', '\nJoined site:   ').split(/\s*\n\s*/).map(function(v) {
-                    if(v.contains('ago')) v = v.split(':')[0] + ':  ' + month + " " + d.getDate() + " '" + year;
-                    else if(v.contains('yesterday')) v = v.split(':')[0] + ':  ' + month + ' ' + d.getDate() + " '" + year;
-                    else if(!v.contains("'")) v = v + " '" + year;
-                    return v;
-                }).join('\n');
-
-                const str = data.text().replace(/Credentials(.|\s)+$/, '').trim().replace(/\s+/g, ' ').replace('Email:', 'Email:    ').replace(' Real Name:', '\nReal Name:').replace(/ IP Address:.+/, '');
-                const reason = str + regdate;
-
-                const deleteReasonDetails = destroyDetails.trim() + reason;
+                const userDetails = `\n\nEmail:     ${v.email}\nReal Name: ${v.name}`;
+                const destroyReasonDetails = destroyDetails.trim() + userDetails;
 
                 // Destroy user
                 $.post({
@@ -597,7 +586,7 @@
                         'deleteReasonDetails': '',
                         'mod-actions': 'destroy',
                         'destroyReason': 'This user was created to post spam or nonsense and has no other positive participation',
-                        'destroyReasonDetails': deleteReasonDetails,
+                        'destroyReasonDetails': destroyReasonDetails,
                         'fkey': fkey
                     }
                 })
