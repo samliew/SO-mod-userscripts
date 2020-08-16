@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.2
+// @version      1.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -705,15 +705,15 @@
             const delCommentsBtn = post.find('.js-fetch-deleted-comments');
             if(delCommentsBtn.length == 1) {
                 const numDeletedComments = (delCommentsBtn.attr('title') || delCommentsBtn.attr('aria-label')).match(/\d+/)[0];
-                $(this).append(`<span class="js-link-separator2">&nbsp;|&nbsp;</span> <a class="comments-link js-show-deleted-comments-link fc-red-600" title="expand to show all comments on this post (including deleted)" href="#" onclick="" role="button">load <b>${numDeletedComments}</b> deleted comment${numDeletedComments > 1 ? 's' : ''}</a>`);
+                $(this).append(`<span class="js-link-separator2">&nbsp;|&nbsp;</span> <a class="js-show-deleted-comments-link fc-red-600" title="expand to show all comments on this post (including deleted)" href="#" onclick="" role="button">load <b>${numDeletedComments}</b> deleted comment${numDeletedComments > 1 ? 's' : ''}</a>`);
                 delCommentsBtn.hide();
             }
 
             // Add move to chat and purge links
             $(this).children('.mod-action-links').remove(); // in case added by another US
             $(this).append(`<div class="mod-action-links dno" style="float:right; padding-right:10px">
-<a data-post-id="${pid}" class="js-move-comments-link comments-link fc-red-600" title="move all comments to chat + delete all">move to chat</a>
-<a data-post-id="${pid}" class="js-purge-comments-link comments-link fc-red-600" title="delete all comments">purge all</a>
+<a data-post-id="${pid}" class="js-move-comments-link fc-red-600" title="move all comments to chat + delete all">move to chat</a>
+<a data-post-id="${pid}" class="js-purge-comments-link fc-red-600" title="delete all comments">purge all</a>
 </div>`);
 
         });
@@ -1125,6 +1125,29 @@
     display: block;
     border-top: 1px solid var(--black-075);
     margin: 5px 0;
+}
+
+
+/* Comments form and links */
+.js-comment-form-layout > div:nth-child(2),
+.js-comments-menu {
+    display: block !important;
+}
+.js-comment-form-layout > div:nth-child(2) br {
+    display: none;
+}
+.js-edit-comment-cancel {
+    display: block;
+    margin-bottom: 5px;
+}
+.js-show-deleted-comments-link,
+.js-move-comments-link,
+.js-purge-comments-link {
+    padding: 0 3px 2px 3px;
+    text-decoration: none;
+}
+.comment-help {
+    max-width: none;
 }
 </style>
 `;
