@@ -3,7 +3,7 @@
 // @description  For questions and answers, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.12
+// @version      2.13
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
@@ -69,7 +69,7 @@
             if(pid <= 99999) return;
 
             const query = encodeURIComponent(`url://${location.hostname}/*/${pid}`);
-            const searchUrl = `https://${metaDomain}/search?tab=newest&q=${query}`;
+            const searchUrl = `https://${metaDomain}/search?tab=newest&q=${query}&deleted=any`;
 
             ajaxPromise(searchUrl)
                 .then(function(data) {
@@ -93,7 +93,7 @@
             if(location.hostname === 'stackoverflow.com') {
 
                 const query = encodeURIComponent(`url://${location.hostname}/*/${pid}`);
-                const searchUrl = `https://${mseDomain}/search?tab=newest&q=${query}`;
+                const searchUrl = `https://${mseDomain}/search?tab=newest&q=${query}&deleted=any`;
 
                 ajaxPromise(searchUrl)
                     .then(function(data) {
