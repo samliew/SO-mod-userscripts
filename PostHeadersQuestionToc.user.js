@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.15
+// @version      2.15.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -39,7 +39,7 @@
     const isElectionPage = document.body.classList.contains('election-page');
     const modflair = '<span class="mod-flair" title="moderator">♦</span>';
     const hasFixedHeader = $('.top-bar').hasClass('_fixed');
-    const postBaseUrl = StackExchange.options.site.routePrefix || $('#question-header h1 a').attr('href');
+    const postBaseUrl = $('#question-header h1 a').attr('href');
 
 
     const pluralize = num => num != 1 ? 's' : '';
@@ -314,10 +314,10 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 
                 answerlist += `
 <div class="spacer ${isDel ? 'deleted-answer':''}" data-answerid="${pid}" data-votes="${votes}" data-datetime="${votes}">
-  <a href="${postBaseUrl}/a/${pid}" title="Vote score (upvotes - downvotes)">
+  <a href="${postBaseUrl}/${pid}#${pid}" title="Vote score (upvotes - downvotes)">
     <div class="answer-votes large ${isAccepted ? 'answered-accepted':''}">${votes}</div>
   </a>
-  <a href="${postBaseUrl}/a/${pid}" class="post-hyperlink">${isPostuserDeleted ? '<span class="deleted-user">':''}${postusername}</a>
+  <a href="${postBaseUrl}/${pid}#${pid}" class="post-hyperlink">${isPostuserDeleted ? '<span class="deleted-user">':''}${postusername}</a>
   ${datetime}
 </div>`;
                 if(isDel) deletedCount++;
