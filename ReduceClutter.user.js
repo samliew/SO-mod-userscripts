@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.21.2
+// @version      1.22
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -117,18 +117,40 @@ ul.comments-list .comment-up-on {
 
 
 /* Better duplicates edited list in revisions */
-.revision-page .revision-comment.duplicates-edited {
+.revision-page .revision-comment.somu-duplicates-edited {
     display: block;
     padding-top: 5px;
 }
-.revision-page .revision-comment.duplicates-edited ul {
+.revision-page .revision-comment.somu-duplicates-edited ul {
     margin-bottom: 0;
 }
-.revision-page .revision-comment.duplicates-edited li {
+.revision-page .revision-comment.somu-duplicates-edited li {
     padding-top: 0;
 }
 .revision-page .originals-of-duplicate li {
     cursor: initial;
+}
+.revision-page .revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-added,
+.revision-page .revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-removed {
+    list-style-type: none;
+}
+.revision-page .revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-added:before,
+.revision-page .revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-removed:before {
+    display: block;
+    position: absolute;
+    top: 0;
+    left: -18px;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+.revision-page .revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-added:before {
+    content: '+';
+    color: var(--green-600);
+}
+.revision-page .revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-removed:before {
+    content: '-';
+    color: var(--red-600);
+    left: -16px;
 }
 
 
@@ -254,15 +276,35 @@ ul.comments-list .comment-up-on {
 
     function betterDuplicatesEditedList() {
 
-        $('#revisions .revcell3 .revision-comment').each(function(i, el) {
+        $('#revisions .revcell3 .revision-comment').not('.somu-duplicates-edited').each(function(i, el) {
+
+            // Duplicates list edit revisions
             if(el.innerText.includes('duplicates list edited from')) {
-                $(this).addClass('duplicates-edited');
                 let replacedHtml = el.innerHTML
                   .replace('duplicates list edited from', '<span>duplicates list edited from</span> <ul class="originals-of-duplicate">')
                   .replace(/<\/a>\s+to\s+<a/, '</a></ul><span>to</span><ul class="originals-of-duplicate"><a')
                   .replace(/\s*<\/a>,\s*/g, '</a>');
                 el.innerHTML = replacedHtml + '</ul>';
-                $(this).find('a').wrap('<li>');
+                $(this).addClass('somu-duplicates-edited').find('a').wrap('<li>');
+
+                // Highlight changes
+                $(this).find('li').each(function() {
+                    this.dataset.linkedpostid = $(this).children('a').attr('href').match(/\/(\d+)\//)[1];
+                });
+                const firstList = $(this).children('.originals-of-duplicate').first();
+                const secondList = $(this).children('.originals-of-duplicate').last();
+
+                // Find removals
+                firstList.children('li').each(function(i, el) {
+                    const removed = !secondList.children('li').get().map(v => v.dataset.linkedpostid).some(id => el.dataset.linkedpostid === id);
+                    $(this).toggleClass('somu-dupe-removed', removed);
+                });
+
+                // Find additions
+                secondList.children('li').each(function(i, el) {
+                    const added = !firstList.children('li').get().map(v => v.dataset.linkedpostid).some(id => el.dataset.linkedpostid === id);
+                    $(this).toggleClass('somu-dupe-added', added);
+                });
             }
         });
     }
