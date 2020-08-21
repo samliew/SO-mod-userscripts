@@ -3,7 +3,7 @@
 // @description  Implements retract flag button on own flag history page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/users/flag-summary/*
 // @include      https://*serverfault.com/users/flag-summary/*
@@ -35,7 +35,7 @@
         AnswerNotAnAnswer: 'not an answer',
     };
     const mapFlagTypeToName = flagtype => flagTypes[flagtype] || 'PostOther';
-    const mapFlagNameToType = flagname => Object.keys(flagTypes).find(key => flagTypes[key] === flagname) || 'PostOther';
+    const mapFlagNameToType = flagname => Object.keys(flagTypes).find(key => flagTypes[key] === flagname.toLowerCase()) || 'PostOther';
 
 
     // Retract post flag
@@ -74,7 +74,7 @@
         $('.user-flag-history .mod-flag-indicator').parent('.mod-flag').each(function() {
             const link = $(this).closest('.flagged-post').find('.answer-hyperlink').attr('href');
             const pid = getPostId(link);
-            const flagname = $(this).children('.revision-comment').text().toLowerCase();
+            const flagname = $(this).children('.revision-comment, .bounty-indicator-tab').first().text().toLowerCase(); // spam flags still use class ".bounty-indicator-tab"
             const flagtype = mapFlagNameToType(flagname);
             $(this).append(`<button class="s-btn s-btn__xs s-btn__github" data-retractflagtype="${flagtype}" data-postid="${pid}">Retract ${flagtype} flag</button>`);
         });
