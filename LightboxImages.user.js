@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat. Lightbox images that are displayed smaller than it's original size.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -43,6 +43,35 @@
     };
 
 
+    // Function that finds and link images that does not have a parent link element
+    // Then lightbox the image if the actual size is larger than the displayed size
+    function linkUnlinkedImages() {
+
+        // Process unprocessed images
+        // If image does not have a parent link, wrap a link around it
+        $('img').not('.js-checked-link').addClass('js-checked-link').filter(function() {
+            return typeof this.parentNode.href === 'undefined' && !this.parentNode.classList.value.split(' ').some(v => ignoredParentClasses.includes(v));
+        }).wrap(function() {
+            return `<a class="js-was-unlinked" data-src="${this.src}"></a>`;
+        });
+
+        // If unlinked images' width is greater than displayed width and at least 100px, also lightbox the image
+        $('.js-was-unlinked').each(function() {
+            const img = this.children[0];
+            if(typeof img === 'undefined') return;
+
+            if(img.width >= 100 && img.width < img.naturalWidth) {
+                this.href = this.dataset.src;
+                this.classList.add('image-lightbox');
+            }
+            else {
+                this.removeAttribute('href');
+                this.classList.remove('image-lightbox');
+            }
+        });
+    }
+
+
     function doPageload() {
 
         // Imgur album link to direct image
@@ -51,26 +80,9 @@
         // Large user profile image - remove params
         $('#avatar-card img').attr('src', (i, v) => v.replace(/\?.+$/, ''));
 
-        // If unlinked images' width is greater than displayed width of at least 100px, also lightbox the image
-        $('img').filter(function() {
-            return typeof this.parentNode.href === 'undefined' && !this.parentNode.classList.value.split(' ').some(v => ignoredParentClasses.includes(v));
-        }).wrap(function() {
-            return `<a class="unlinked-image" data-src="${this.src}"></a>`;
-        });
+        // Once on page load, and recalculate if each image needs to be lightboxed when window is resized
         $(window).on('load resize', function() {
-            $('.unlinked-image').each(function() {
-                const img = this.children[0];
-                if(typeof img === 'undefined') return;
-
-                if(img.width >= 100 && img.width < img.naturalWidth) {
-                    this.href = this.dataset.src;
-                    this.classList.add('image-lightbox');
-                }
-                else {
-                    this.removeAttribute('href');
-                    this.classList.remove('image-lightbox');
-                }
-            });
+            linkUnlinkedImages();
         });
 
         // Load fancybox 3 - https://fancyapps.com/fancybox/3/docs/#options
@@ -83,13 +95,14 @@
 
         // Occasionally
         setInterval(() => {
+            linkUnlinkedImages();
 
-            // For text links to images, also visually display an indicator
+            // Visually display a zoom-in cursor so we can identify which text links are lightboxes
             $(lbSelector).addClass('image-lightbox')
-            // Handle dynamically loaded elements
+                // Init lightboxes on dynamically loaded elements which have not been init previously
                 .not('.js-lightbox-init').addClass('js-lightbox-init').fancybox();
 
-        }, 3000);
+        }, 2000);
     }
 
 
@@ -97,7 +110,7 @@
 
         const styles = `
 <style>
-.unlinked-image {
+.js-was-unlinked {
     cursor: default;
 }
 .image-lightbox {
