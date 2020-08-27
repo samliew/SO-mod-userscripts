@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.4
+// @version      5.5
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -46,7 +46,7 @@
     // Use {POSTLINK} and {QUEUENAME} placeholders
     const cannedMessages = {
         current: '',
-        triageQuestionReqEdits: `You took incorrect action on the following task: {POSTLINK}. Choose the "Unsalvageable" action for questions that should be closed or can only be improved or clarified by the question-asker. The "Requires Editing" action should only be used when other community users (like yourself) are able to improve an answerable question with editing or formatting. When in doubt, use the Skip action.`,
+        triageQuestionReqEdits: `You took incorrect action on the following task(s):\n{POSTLINK}. Choose the "Unsalvageable" action for questions that should be closed or can only be improved or clarified by the question-asker. The "Requires Editing" action should only be used when other community users (like yourself) are able to improve an answerable question with editing or formatting. When in doubt, use the Skip action.`,
         helperEditPoor: `Your review on {POSTLINK} wasn't helpful. If a question should be closed and you are unable to make the question on-topic in the "Help and Improvement" review, please use "Skip" instead of making trivial changes.`,
         postNaa: `You recently reviewed this post {POSTLINK}. Although it was posted as an answer, it clearly did not attempt to provide an answer to the question. You should have flagged it as "not an answer" so that it could be removed.`,
         postNaaEdited: `You recently edited this post {POSTLINK}. Please do not edit posts that should have been deleted. Use "edit" only when your edit salvages the post and makes it a valid answer.`,
@@ -412,6 +412,21 @@
                 pastReviewMessages.find('a').attr('target', '_blank'); // links open in new tab/window
                 StackExchange.realtime.updateRelativeDates();
             }
+
+            // Add copyable CommonMark review link
+            pastReviewMessages.find('.item-reason').each(function() {
+                const reviewLinks = $(this).children('a[href*="/review/"]');
+                if(reviewLinks.length == 0) return;
+
+                const links = reviewLinks.get().map(v => {
+                    const b = v.href.split('/review/')[1];
+                    return `[${b}](/review/${b})`;
+                });
+                $(`<input value="${links.join(', ')}" class="js-review-textlinks s-input s-input__sm" />`).insertAfter(this);
+            });
+            pastReviewMessages.on('focus', '.js-review-textlinks', function() {
+                this.select();
+            });
 
             // Add currently/recently banned indicator if history found
             let isCurrentlyBanned = false;
@@ -781,9 +796,11 @@ Breakdown:<br>
             // Add additional links to new pages
             heading.after(`<a href="/admin/review/failed-audits?uid=${uid2}" class="fr s-btn s-btn__sm mr12" title="view all recently failed audits from all queues on a single page">see all failed audits</a>`);
 
-            // Get last review ban date and duration
-            const hist = $('#user-history tbody tr:first td');
+            // Hide action and ip columns
+            const histTable = $('#user-history').addClass('hide-col-action').addClass('hide-col-ip');
 
+            // Get last review ban date and duration
+            const hist = histTable.children('tbody tr:first td');
             if(hist.length == 4) {
                 const lastBannedDate = hist.find('.relativetime').attr('title');
                 const lastBannedDur = Number(hist.eq(2).text().match(/\d+ days/)[0].replace(/\D+/g, ''));
@@ -805,6 +822,21 @@ Breakdown:<br>
 
             // Not currently banned, show review ban button
             $(`<a class="fr s-btn s-btn__sm s-btn__filled s-btn__primary reviewban-button" href="/admin/review/suspensions#${uid2}">Review Ban</a>`).insertAfter(heading);
+
+            // Add copyable CommonMark review link
+            histTable.find('.history-comment').each(function() {
+                const reviewLinks = $(this).children('a[href*="/review/"]');
+                if(reviewLinks.length == 0) return;
+
+                const links = reviewLinks.get().map(v => {
+                    const b = v.href.split('/review/')[1];
+                    return `[${b}](/review/${b})`;
+                });
+                $(`<input value="${links.join(', ')}" class="js-review-textlinks s-input s-input__sm mt4 mb12" />`).appendTo(this);
+            });
+            histTable.on('focus', '.js-review-textlinks', function() {
+                this.select();
+            });
         }
 
         // Review queue history pages
@@ -1124,6 +1156,13 @@ table.sorter > thead > tr .tablesorter-headerAsc span::after {
 }
 table.sorter > thead > tr .tablesorter-headerDesc span::after {
     content: "▼";
+}
+
+#user-history.hide-col-ip th:nth-child(4),
+#user-history.hide-col-ip td:nth-child(4),
+#user-history.hide-col-action th:nth-child(2),
+#user-history.hide-col-action td:nth-child(2) {
+    display: none;
 }
 
 a.js-suspend-again {
