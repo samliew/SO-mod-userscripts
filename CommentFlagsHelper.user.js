@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      6.2
+// @version      6.3
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -535,12 +535,6 @@
 
         // On user comments history page
         if(location.pathname.includes('/admin/users/') && location.pathname.includes('/post-comments')) {
-
-            // Fix search bug not allowing batch select
-            $('.js-comment-search-form, #comments-filter').off();
-            $('#comments-filter').on('change', function() {
-                location.search = '?search=' + this.value + '&state=active';
-            });
 
             if(!isSuperuser) return;
 
