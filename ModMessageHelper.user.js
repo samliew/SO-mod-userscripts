@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -185,7 +185,7 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
                     hasRun = true;
 
                     // Try to select selected template from parameter
-                    setTimeout(selectModMessage, 500, template);
+                    setTimeout(selectModMessage, 800, template);
                 }
             }
         });
@@ -535,6 +535,9 @@ ${sitename} Moderation Team`;
     min-height: 0;
 }
 
+#questions .somu-mod-message-link {
+    display: none;
+}
 .somu-mod-message-link {
     position: absolute !important;
     bottom: 2px;
