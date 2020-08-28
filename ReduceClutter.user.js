@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.23.1
+// @version      1.23.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -185,6 +185,7 @@ ul.comments-list .comment-up-on {
 /* Revert large margins on .s-prose */
 .s-prose {
     margin-bottom: 1.4em;
+    line-height: 1.4em;
 }
 .s-prose blockquote {
     margin-left: 0px;
