@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -185,7 +185,7 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
                     hasRun = true;
 
                     // Try to select selected template from parameter
-                    setTimeout(selectModMessage, 800, template);
+                    setTimeout(selectModMessage, 600, template);
                 }
             }
         });
@@ -256,7 +256,7 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
         function addCustomModMessageTemplates() {
 
             // Make the popup draggable!
-            const popup = $('#show-templates').next('.popup');
+            const popup = $('#show-templates').siblings('.popup').first();
             popup.attr('data-controller', 'se-draggable');
             popup.find('h2').first().attr('data-target', 'se-draggable.handle');
 
