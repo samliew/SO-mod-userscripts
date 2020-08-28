@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.22
+// @version      1.23
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -170,7 +170,8 @@ ul.comments-list .comment-up-on {
    Set a variable max-height for code blocks
    https://meta.stackoverflow.com/q/397012
 */
-.post-text pre, .wmd-preview pre {
+.post-text pre,
+.wmd-preview pre {
     max-height: 80vh;
 }
 
@@ -178,6 +179,22 @@ ul.comments-list .comment-up-on {
 /* Remove new edit button from question closed notice */
 .js-post-notice .mt24:last-child {
     display: none;
+}
+
+
+/* Revert large margins on .s-prose */
+.s-prose {
+    margin-bottom: 1.4em;
+}
+.s-prose blockquote {
+    margin-left: 0px;
+}
+.s-prose > * {
+    margin-bottom: 1em !important;
+}
+.s-prose ol li,
+.s-prose ul li {
+    margin-bottom: 0.5em;
 }
 
 `);
