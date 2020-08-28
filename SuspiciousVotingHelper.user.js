@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.1
+// @version      1.8.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -94,7 +94,7 @@
                 // Format flags
                 flags = flags.filter(function(i,el) {
                     return $(el).find('.flag-outcome').length == 0 &&
-                        /\b((up|down)vot(es?|ing)|sock|revenge|serial|suspicious)/.test($(el).find('.revision-comment').text());
+                        /\b((up|down)?vot(es?|ing)|sock|revenge|serial|suspicious)/.test($(el).find('.revision-comment').text());
                 })
                 .each(function(i,el) {
                     $(el).find('a').each(function() { this.innerText = this.href; });
