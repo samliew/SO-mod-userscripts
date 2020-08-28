@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.7
+// @version      0.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -93,7 +93,7 @@
     /* Do not fade downvoted answers */
     .downvoted-answer .comment-body,
     .downvoted-answer .post-signature,
-    .downvoted-answer .post-text,
+    .downvoted-answer .s-prose,
     .downvoted-answer .vote>* {
         opacity: 1;
     }
@@ -142,10 +142,10 @@
     }
 
     /* Embiggen images */
-    .post-text p {
+    .s-prose p {
         page-break-inside: avoid;
     }
-    .post-text img {
+    .s-prose img {
         width: auto;
         max-width: 100%;
         max-height: 90vh;
@@ -157,7 +157,7 @@
     .comment-text,
     .post-signature,
     .user-gravatar32,
-    .post-text ~ div {
+    .s-prose ~ div {
         page-break-inside: avoid;
     }
 

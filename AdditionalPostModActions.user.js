@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.15
+// @version      2.16
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -781,7 +781,7 @@
             const isProtected = post.find('.js-post-notice b').text().includes('Highly active question');
             const isMigrated = postStatus.includes('migrated to');
             const isLocked = isMigrated || postStatus.includes('locked');
-            const isOldDupe = isQuestion && post.find('.post-text blockquote').first().find('strong').text().includes('Possible Duplicate');
+            const isOldDupe = isQuestion && post.find('.js-post-body blockquote').first().find('strong').text().includes('Possible Duplicate');
             const needsRedupe = postStatus.match(/This question already has( an)? answers? here:(\s|\n|\r)+Closed/i) != null;
             const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
             const pid = post.attr('data-questionid') || post.attr('data-answerid');
@@ -797,7 +797,7 @@
 
             //isSO && isQuestion ? console.log('isOldDupe:', isOldDupe, 'needsRedupe:', needsRedupe) : null;
             if(isSO && isOldDupe && needsRedupe) { // Q-only
-                const oldDupePid = isOldDupe ? post.find('.post-text > blockquote:first a').attr('href').match(/(\/\d+\/|\/\d+$)/)[0].replace(/\D/g, '') : null;
+                const oldDupePid = isOldDupe ? post.find('.js-post-body > blockquote:first a').attr('href').match(/(\/\d+\/|\/\d+$)/)[0].replace(/\D/g, '') : null;
 
                 menuitems += `<a data-action="old-redupe" data-redupe-pid="${oldDupePid}">close as proper duplicate</a>`;
                 menuitems += `<div class="separator"></div>`;
@@ -1108,7 +1108,7 @@
 /* Disable transitions so z-index will work instantly */
 .downvoted-answer .comment-body,
 .downvoted-answer .post-signature,
-.downvoted-answer .post-text,
+.downvoted-answer .js-post-body,
 .downvoted-answer .vote > * {
     transition: unset;
 }

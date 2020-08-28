@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.1
+// @version      2.6
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -94,7 +94,7 @@
         const post = $('#question');
         const pid = Number(post.attr('data-questionid'));
         const postOwner = $('.post-signature:last .user-details a[href*="/users/"]', post).first();
-        const postText = ($('h1 .question-hyperlink').text() + $('.post-text p', post).text()).toLowerCase();
+        const postText = ($('h1 .question-hyperlink').text() + $('.js-post-body p', post).text()).toLowerCase();
         const isDeleted = post.find('.js-post-notice a[href="/help/deleted-questions"]').length > 0;
 
         const postDate = new Date(post.find('.post-signature').last().find('.relativetime').attr('title'));

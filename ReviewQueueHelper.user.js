@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3.2
+// @version      3.4
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -435,7 +435,7 @@ async function waitForSOMU() {
 
     function processLowQualityPostsReview() {
 
-        const postEl = $('.reviewable-answer .post-text');
+        const postEl = $('.reviewable-answer .js-post-body');
         const postText = postEl.text();
         const postHtml = postEl.html();
         const postNoCodeHtml = postEl.clone(true, true).find('pre, code').remove().end().html();
@@ -1141,8 +1141,8 @@ async function waitForSOMU() {
                         id: responseJson.postId,
                         permalink: `https://${location.hostname}/${isQuestion ? 'q':'a'}/${responseJson.postId}`,
                         title: $('h1[itemprop="name"] a').text(),
-                        content: $('.post-text').first().text(),
-                        contentHtml: $('.post-text').first().html(),
+                        content: $('.js-post-body').first().text(),
+                        contentHtml: $('.js-post-body').first().html(),
                         votes: parseInt($('.js-vote-count').first().text(), 10),
                         tags: $('.post-taglist .post-tag').get().map(v => v.innerText),
                         isQuestion: isQuestion,

@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.15.1
+// @version      2.16
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -373,7 +373,7 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
         if(isElectionPage) return;
 
         // Parse headers and insert anchors
-        $('.post-text').find('h1, h2, h3').each(function() {
+        $('.js-post-body').find('h1, h2, h3').each(function() {
             // Only if they do not contain links
             if($(this).children('a').length > 0) return;
 
@@ -383,7 +383,7 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
         });
 
         // Click event
-        $('.post-text').on('click', 'a.js-named-anchor', function() {
+        $('.js-post-body').on('click', 'a.js-named-anchor', function() {
             gotoAnchor(this.hash);
             return false;
         });

@@ -3,7 +3,7 @@
 // @description  Revert recent changes that makes the page more cluttered
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.23
+// @version      1.23.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -170,7 +170,7 @@ ul.comments-list .comment-up-on {
    Set a variable max-height for code blocks
    https://meta.stackoverflow.com/q/397012
 */
-.post-text pre,
+.js-post-body pre,
 .wmd-preview pre {
     max-height: 80vh;
 }

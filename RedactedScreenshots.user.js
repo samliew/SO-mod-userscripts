@@ -3,7 +3,7 @@
 // @description  Masks and hides user-identifing info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.2
+// @version      1.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -56,7 +56,7 @@
         // Redact IP and email addresses in content div
         const content = $('#content');
         $('input, a', content).each(redactPii);
-        $('.post-text li, .post-text p', content).each(redactPii);
+        $('.s-prose li, .s-prose p', content).each(redactPii);
         $('div > div, div > p, div > span', content).each(redactPii);
 
         // Shrink user comments table for mod messages
