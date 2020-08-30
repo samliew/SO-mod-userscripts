@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.3
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -45,12 +45,24 @@
     // This may be edited to add more custom templates to mod messages
     const customModMessages = [
         {
-            templateName: "minor edits to post",
+            templateName: "minor edits bumping post",
             suspensionReason: "for rule violations",
             suspensionDefaultDays: 0,
             templateBody: `You appear to be editing your post to attract attention, rather than to improve it. Periodic cosmetic edits are not constructive and needlessly bump your post, displacing actually active posts that require more community attention.
 
 Please only edit your post to correct errors, to include additional insights, or to update the question for changing circumstances. If you continue to only edit it for cosmetic reasons only, we'll have to lock your post from all further edits.`,
+        },
+        {
+            templateName: "minor suggested edits",
+            suspensionReason: "for rule violations",
+            suspensionDefaultDays: 0,
+            templateBody: `We have noticed that your recent suggested edits are just correcting a typo in the title and haven't handled any of the other problems with a question. Please note that we expect suggested edits to fix all issues with a post, rather than correcting only a single thing. From "[How does editing work?](http://stackoverflow.com/help/editing)":
+
+> **Edits are expected to be substantial and to leave the post better than you found it.**
+
+Do keep in mind to clean up all the problems with the post, while you are proposing edits to it. Suggested edits must also be approved by at least two other users prior to being accepted. We therefore ask users to only make edits which make substantial improvements to posts.
+
+We have removed your ability to suggest edits for a few days, to ensure this message reaches you first.`,
         },
         {
             templateName: "tag-wiki plagiarism",
