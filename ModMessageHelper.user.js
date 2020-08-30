@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      1.4.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -103,13 +103,13 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
     // This may be edited to add more custom templates to CM messages
     const customCmMessages = [
         //{
-        //    templateName: "extremely underaged user",
-        //    templateBody: `This is an underage user.`,
+        //    templateName: "needs further investigation",
+        //    templateBody: `This user needs investigation for ...`,
         //},
         /* EXAMPLE
         {
-            templateName: "a farewell",
-            templateBody: `goodbye`,
+            templateName: "an example",
+            templateBody: `This is an example template.`,
         },
         */
     ];
@@ -293,6 +293,8 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
 
             const actionList = popup.find('.action-list');
             if(actionList.length === 0) return;
+
+            // Do not continue if there are no custom mod message templates
             if(customModMessages.length === 0) return;
 
             // Add description expand/collapse events for custom templates
@@ -455,12 +457,14 @@ ${sitename} Moderation Team`;
 
             const actionList = popup.find('.action-list');
             if(actionList.length === 0) return;
-            if(customCmMessages.length === 0) return;
 
-            // If additionalInfo, replace default templates {todo} placeholder
+            // If additionalInfo param, replace default templates {todo} placeholder
             if(additionalInfo) {
                 actionList.find('input:radio').prop('checked', true).val((i, v) => v.replace(/(\n|\r)+{todo}/, additionalInfo));
             }
+
+            // Do not continue if there are no custom CM templates
+            if(customCmMessages.length === 0) return;
 
             // Add description expand/collapse events for custom templates
             actionList.append('<hr />').on('click', '.js-custom-template', function() {
@@ -586,7 +590,7 @@ ${sitename} moderator`;
             cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=post-dissociation${postIdParam}">post dissociation</a>`;
             cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suspicious-voting">suspicious voting</a>`;
             cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suicidal-user">suicidal user</a>`;
-            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=underage-user">underage user</a>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=underage-user&info=Underage+user.">underage user</a>`;
             cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=profile-merge">user profile merge</a>`;
             cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=spam">spam</a>`;
 
