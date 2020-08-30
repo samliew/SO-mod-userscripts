@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4
+// @version      3.5
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1375,7 +1375,14 @@ pre {
 .suggested-edits-review-queue .js-review-bar {
     min-height: unset;
 }
-.reviewable-post .question {
+.review-task-page .reviewable-post + div {
+    margin-top: 40px;
+    opacity: 0.8 !important;
+}
+.review-task-page .reviewable-post + div:hover {
+    opacity: 1 !important;
+}
+.review-task-page .reviewable-post .question {
     position: relative;
 }
 .reviewable-post-stats > table:first-child {
