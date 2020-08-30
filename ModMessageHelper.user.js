@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -28,14 +28,16 @@
 
     const superusers = [ 584192, 366904 ];
     const isSuperuser = superusers.includes(StackExchange.options.user.userId);
+    const showHiddenFields = true || isSuperuser;
 
     const newlines = '\n\n';
     const fkey = StackExchange.options.user.fkey;
-    const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
+    const getQueryParam = key => new URLSearchParams(window.location.search).get(key) || '';
     const isSO = location.hostname == 'stackoverflow.com';
     const isSOMeta = location.hostname == 'meta.stackoverflow.com';
     const isMeta = typeof StackExchange.options.site.parentUrl !== 'undefined';
     const parentUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
+    const additionalInfo = getQueryParam('info') ? newlines + decodeURIComponent(getQueryParam('info')) : '';
 
 
     const modMenuOnClick = true;
@@ -92,6 +94,22 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
             templateBody: `goodbye`,
             addPrefix: false,
             addSuffix: false,
+        },
+        */
+    ];
+
+
+    // CUSTOM CM MESSAGE TEMPLATES
+    // This may be edited to add more custom templates to CM messages
+    const customCmMessages = [
+        //{
+        //    templateName: "extremely underaged user",
+        //    templateBody: `This is an underage user.`,
+        //},
+        /* EXAMPLE
+        {
+            templateName: "a farewell",
+            templateBody: `goodbye`,
         },
         */
     ];
@@ -163,7 +181,7 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
 
             $('#copyPanel > table').first().addClass('mb12');
 
-            if(1 || isSuperuser) {
+            if(showHiddenFields) {
 
                 // Show hidden fields
                 $('#templateName, #suspendReason, #templateEdited').attr('type', 'text').addClass('d-inline-block s-input s-input__sm w70');
@@ -193,7 +211,7 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
                 addCustomModMessageTemplates();
 
                 // If template selected via querystring
-                if(template != null && !hasRun) {
+                if(template != '' && !hasRun) {
                     hasRun = true;
 
                     // Try to select selected template from parameter
@@ -207,7 +225,8 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
 
 
         function selectModMessage(template) {
-            const actionList = $('#show-templates').next('.popup').find('.action-list');
+            const popup = $('#show-templates').siblings('.popup').first();
+            const actionList = popup.find('.action-list');
             const hr = actionList.children('hr').index();
             const numberOfItems = hr > 0 ? hr : actionList.children('li').length;
 
@@ -260,7 +279,7 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
                 }
             }
 
-            const popupSubmit = $('#show-templates').next('.popup').find('.popup-submit');
+            const popupSubmit = popup.find('.popup-submit');
             if(!popupSubmit.prop('disabled')) popupSubmit.click();
         }
 
@@ -272,11 +291,11 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
             popup.attr('data-controller', 'se-draggable');
             popup.find('h2').first().attr('data-target', 'se-draggable.handle');
 
-
-            const actionList = $('#show-templates').next('.popup').find('.action-list');
+            const actionList = popup.find('.action-list');
             if(actionList.length === 0) return;
             if(customModMessages.length === 0) return;
 
+            // Add description expand/collapse events for custom templates
             actionList.append('<hr />').on('click', '.js-custom-template', function() {
                 $(this).addClass('action-selected').find('.action-desc').slideDown(200);
                 $(this).find('input:radio').prop('checked', true);
@@ -330,9 +349,28 @@ ${sitename} Moderation Team`;
 
     function initCmMessageHelper() {
 
+        if(location.pathname.includes('/admin/cm-message/')) {
+
+            // Move generic warning to sidebar
+            $('#mainbar > .module.system-alert').prependTo($('#sidebar')).find('#confirm-new').text((i, v) => v.trim());
+
+            if(showHiddenFields) {
+
+                // Show hidden fields
+                $('#templateName').attr('type', 'text').addClass('d-inline-block s-input s-input__sm w70');
+
+                $('#templateName').wrap('<label for="templateName" class="dblock"></label>').before(`<span class="inline-label">template name:</span>`);
+            }
+        }
+
+        // The rest of this function is for creating new messages
         if(!location.pathname.includes('/admin/cm-message/create/')) return;
 
         const template = getQueryParam('action');
+
+        // Do not support suspicious-voting template, since we have "SuspiciousVotingHelper" userscript for that
+        // Download from https://github.com/samliew/SO-mod-userscripts/blob/master/SuspiciousVotingHelper.user.js
+        if(template === 'suspicious-voting') return;
 
         // On any page update
         let hasRun = false;
@@ -341,16 +379,19 @@ ${sitename} Moderation Team`;
             // Once templates loaded , update templates
             if(settings.url.includes('/admin/contact-cm/template-popup/')) {
 
+                // Add our own canned templates
+                addCustomCmMessageTemplates();
+
                 // If template selected via querystring
-                if(template != null && !hasRun) {
+                if(template != '' && !hasRun) {
                     hasRun = true;
 
                     // Try to select selected template from parameter
-                    setTimeout(selectCmMessage, 500, template);
+                    setTimeout(selectCmMessage, 600, template);
                 }
 
                 // Make the popup draggable!
-                const popup = $('#show-templates').next('.popup');
+                const popup = $('#show-templates').siblings('.popup').first();
                 popup.attr('data-controller', 'se-draggable');
                 popup.find('h2').first().attr('data-target', 'se-draggable.handle');
             }
@@ -361,6 +402,10 @@ ${sitename} Moderation Team`;
 
 
         function selectCmMessage(template) {
+            const popup = $('#show-templates').siblings('.popup').first();
+            const actionList = popup.find('.action-list');
+            const hr = actionList.children('hr').index();
+            const numberOfItems = hr > 0 ? hr : actionList.children('li').length;
 
             switch(template) {
                 case 'profile-merge':
@@ -384,10 +429,86 @@ ${sitename} Moderation Team`;
                 case 'other':
                     $('#template-6').click().triggerHandler('click');
                     break;
+                default: {
+                    // Try to match a custom template
+                    template = template.replace(/\W/g, '').toLowerCase();
+                    customCmMessages.forEach(function(v, i) {
+                        const match = v.templateName.replace(/\W/g, '').toLowerCase().includes(template);
+                        if(match) {
+                            actionList.children('li').eq(numberOfItems + i).click().triggerHandler('click');
+                        }
+                    });
+                }
             }
 
-            const popupSubmit = $('#show-templates').next('.popup').find('.popup-submit');
+            const popupSubmit = popup.find('.popup-submit');
             if(!popupSubmit.prop('disabled')) popupSubmit.click();
+        }
+
+
+        function addCustomCmMessageTemplates() {
+
+            // Make the popup draggable!
+            const popup = $('#show-templates').siblings('.popup').first();
+            popup.attr('data-controller', 'se-draggable');
+            popup.find('h2').first().attr('data-target', 'se-draggable.handle');
+
+            const actionList = popup.find('.action-list');
+            if(actionList.length === 0) return;
+            if(customCmMessages.length === 0) return;
+
+            // If additionalInfo, replace default templates {todo} placeholder
+            if(additionalInfo) {
+                actionList.find('input:radio').prop('checked', true).val((i, v) => v.replace(/(\n|\r)+{todo}/, additionalInfo));
+            }
+
+            // Add description expand/collapse events for custom templates
+            actionList.append('<hr />').on('click', '.js-custom-template', function() {
+                $(this).addClass('action-selected').find('.action-desc').slideDown(200);
+                $(this).find('input:radio').prop('checked', true);
+                $(this).siblings().removeClass('action-selected').find('.action-desc').slideUp(200);
+                $('.popup-submit').prop('disabled', false);
+            });
+
+            // Message vars (should not be edited here)
+            const numberOfItems = actionList.children('li').length;
+            const sitename = StackExchange.options.site.name;
+            const modName = $('#msg-form a').first().text();
+            const userId = $('#aboutUserId').val();
+            const userLink = 'https://' + location.hostname + $('#msg-form .user-details a').first().attr('href');
+
+            const messagePrefix = `Hello,
+
+I'm writing in reference to the ${sitename} account:
+
+${userLink}
+
+`;
+            const messageSuffix = additionalInfo + `
+
+Regards,
+${modName}
+${sitename} moderator`;
+
+
+            customCmMessages.forEach(function(item, i) {
+                const templateNumber = numberOfItems + i;
+                const templateBodyText = (item.addPrefix !== false ? messagePrefix : '') + item.templateBody + (item.addSuffix !== false ? messageSuffix : '');
+                const templateBodyProcessed = templateBodyText.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+                    return '&#'+i.charCodeAt(0)+';';
+                }).replace('Regards,', 'Regards,  '); // always needs two spaces after for a line break
+                const templateShortText = item.templateBody.length > 400 ? item.templateBody.replace(/(\n|\r)+/g, ' ').substr(0, 397) + '...' : item.templateBody;
+
+                const messageTemplate = `
+<li style="width: auto" class="js-custom-template"><label>
+<input type="radio" id="template-${templateNumber}" name="mod-template" value="${templateBodyProcessed}">
+<input type="hidden" id="template-${templateNumber}-reason" value="${item.suspensionReason || ''}" data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}">
+<span class="action-name">${item.templateName}</span>
+<span class="action-desc" style="display: none;"><div style="margin-left: 18px; line-height: 130%; margin-bottom: 5px;">${templateShortText}</div></span>
+</label></li>`;
+
+                actionList.append(messageTemplate);
+            });
         }
     }
 
