@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.2
+// @version      1.8.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -16,6 +16,8 @@
 // @exclude      https://stackoverflow.com/c/*
 // ==/UserScript==
 
+// Support for SEDE query https://data.stackexchange.com/stackoverflow/query/968803
+
 (function() {
     'use strict';
 
@@ -25,7 +27,7 @@
 
     const newlines = '\n\n';
     const strToRep = str => Number(str.replace(/\.(\d)k/, '$100').replace(/k/, '000').replace(/[^\d]+/g, ''));
-    const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
+    const getQueryParam = key => new URLSearchParams(window.location.search).get(key) || '';
 
 
     function mapVotePatternItemsToObject() {
@@ -236,7 +238,7 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
 
             // Additional information from querystring, mostly for use with
             // https://data.stackexchange.com/stackoverflow/query/968803
-            if(additionalInfo != null) {
+            if(additionalInfo) {
                 let infotext = `Additional information:` + newlines + ' - ' + decodeURIComponent(additionalInfo) + newlines;
                 appstr = infotext + newlines + appstr;
             }
