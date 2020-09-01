@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.24
+// @version      1.24.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -126,7 +126,8 @@ ul.comments-list .comment-up-on {
 
 
 /* 
-   Better duplicates edited list in revisions
+   Better "duplicates edited list" in question revisions page
+   https://meta.stackoverflow.com/q/400817
 */
 .revision-page .revision-comment.somu-duplicates-edited {
     display: block;
@@ -171,14 +172,6 @@ ul.comments-list .comment-up-on {
 */
 .js-follow-post ~ .s-popover {
     display: none !important;
-}
-
-
-/*
-   Fix some z-indexes to prevent them from being in front of (close) dialogs
-*/
-.s-btn-group .s-btn.is-selected {
-    z-index: unset !important;
 }
 
 
@@ -234,6 +227,14 @@ ul.comments-list .comment-up-on {
     line-height: 1.5;
     background-color: var(--yellow-050) !important;
     color: inherit;
+}
+
+
+/*
+   Fix some z-indexes to prevent them from being in front of (close) dialogs
+*/
+.s-btn-group .s-btn.is-selected {
+    z-index: unset !important;
 }
 
 `);
