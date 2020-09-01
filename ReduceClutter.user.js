@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Reduce Clutter
-// @description  Revert recent changes that makes the page more cluttered
+// @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.23.2
+// @version      1.24
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -93,30 +93,41 @@ ul.comments-list .comment-up-on {
 }
 
 
-/* Hide newsletter sidebar ad */
+/* 
+   Hide newsletter sidebar ad to reclaim vertical space
+   https://meta.stackoverflow.com/q/360450
+*/
 #newsletter-ad {
     display: none !important;
 }
 
 
-/* Hide post reactions (Teams) */
+/*
+   Hide post reactions (Teams), and experiments on main
+   https://meta.stackoverflow.com/q/398367
+*/
 .votecell [data-controller="reactions"],
 .votecell .js-reactions {
     display: none !important;
 }
 
 
-/* Hide new contributor popover */
+/* 
+   Hide new contributor popover
+   Hide new contributor displaying twice on a post (post author and when commenting)
+   https://meta.stackoverflow.com/q/372877
+*/
 .js-new-contributor-popover {
     display: none !important;
 }
-/* Hide new contributor displaying twice on a post */
 .comments .new-contributor-indicator {
     display: none !important;
 }
 
 
-/* Better duplicates edited list in revisions */
+/* 
+   Better duplicates edited list in revisions
+*/
 .revision-page .revision-comment.somu-duplicates-edited {
     display: block;
     padding-top: 5px;
@@ -154,13 +165,18 @@ ul.comments-list .comment-up-on {
 }
 
 
-/* Hide follow post tooltip popup */
+/* 
+   Hide follow post tooltip popup
+   https://meta.stackexchange.com/q/345661
+*/
 .js-follow-post ~ .s-popover {
     display: none !important;
 }
 
 
-/* Fix some z-indexes to prevent them from being in front of (close) dialogs */
+/*
+   Fix some z-indexes to prevent them from being in front of (close) dialogs
+*/
 .s-btn-group .s-btn.is-selected {
     z-index: unset !important;
 }
@@ -176,13 +192,19 @@ ul.comments-list .comment-up-on {
 }
 
 
-/* Remove new edit button from question closed notice */
+/* 
+   Remove new edit button from question closed notice
+   https://meta.stackexchange.com/q/349479
+*/
 .js-post-notice .mt24:last-child {
     display: none;
 }
 
 
-/* Revert large margins on .s-prose */
+/* 
+   Revert large margins on .s-prose
+   https://meta.stackexchange.com/q/353446
+*/
 .s-prose {
     margin-bottom: 1.4em;
     line-height: 1.4em;
@@ -196,6 +218,22 @@ ul.comments-list .comment-up-on {
 .s-prose ol li,
 .s-prose ul li {
     margin-bottom: 0.5em;
+}
+
+
+/*
+   Switch back to yellow background color for blockquotes
+   https://meta.stackexchange.com/q/343919
+   https://meta.stackexchange.com/q/344874
+*/
+.s-prose blockquote {
+    margin-left: 0;
+    margin-right: 0;
+    padding: 1em;
+    padding-left: 1.2em;
+    line-height: 1.5;
+    background-color: var(--yellow-050) !important;
+    color: inherit;
 }
 
 `);
