@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.23
+// @version      2.23.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -741,7 +741,8 @@ body td.deleted-answer,
 #revisions .vote-revision *,
 .js-admin-dashboard .deleted-answer *,
 .search-result.bg-red-050 *,
-tr.bg-red-050 td {
+tr.bg-red-050 td,
+blockquote > * {
     background-color: transparent;
 }
 #question .question-status,
