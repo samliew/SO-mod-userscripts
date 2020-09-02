@@ -3,11 +3,15 @@
 // @description  Converts UTC timestamps to local time, Load entire day into single page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0.6
+// @version      2.1
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
 // @include      https://chat.meta.stackexchange.com/transcript/*
+//
+// @include      https://chat.stackoverflow.com/search*
+// @include      https://chat.stackexchange.com/search*
+// @include      https://chat.meta.stackexchange.com/search*
 //
 // @grant        GM_addStyle
 // ==/UserScript==
@@ -22,10 +26,31 @@
     const tzSymbol = (tzHours >= 0 ? '+' : '') + tzHours;
 
 
+    function parseSearchTimestamps() {
+
+        $('.timestamp').not('[data-orig-timestamp]').each(function(i, el) {
+            const str = el.innerText;
+            let prefix = str.split(/\s*\d+:\d+\s[AP]M/)[0];
+            prefix += prefix.length > 0 && !prefix.includes('yst') ? ', ' : '';
+            const time = str.match(/\d+:\d+\s(AM|PM)/)[0];
+            let h = Number(time.split(':')[0]);
+            const m = time.split(':')[1].split(' ')[0];
+            const a = time.split(' ')[1];
+            if(a == 'PM' && h < 12) h += 12;
+            else if(a == 'AM' && h == 12) h = 0;
+            h += tzHours;
+            if(h < 0) h += 24;
+            else if(h >= 24) h %= 24;
+            if(h.toString().length != 2) h = '0' + h;
+            $(this).text(`${prefix} ${h}:${m}`).attr('data-orig-timestamp', str);
+        });
+    }
+
+
     function parseTimestamps() {
 
-        $('.timestamp').not('[data-orig-timestamp]').each(function(i, elem) {
-            const str = $(this).text();
+        $('.timestamp').not('[data-orig-timestamp]').each(function(i, el) {
+            const str = el.innerText;
             let h = Number(str.split(':')[0]);
             const m = str.split(':')[1].split(' ')[0];
             const a = str.split(' ')[1];
@@ -38,8 +63,8 @@
             $(this).text(`${h}:${m}`).attr('data-orig-timestamp', str);
         });
 
-        $('.msplab').not('[data-orig-timestamp]').each(function(i, elem) {
-            const str = $(this).text();
+        $('.msplab').not('[data-orig-timestamp]').each(function(i, el) {
+            const str = el.innerText;
             let h = Number(str.split(':')[0]) + tzHours;
             const m = str.split(':')[1];
             if(h < 0) h += 24;
@@ -48,7 +73,7 @@
             $(this).text(`${h}:${m}`).attr('data-orig-timestamp', str);
         });
 
-        $('.pager span.page-numbers').not('[data-orig-text]').each(function(i, elem) {
+        $('.pager span.page-numbers').not('[data-orig-text]').each(function(i, el) {
             const str = $(this).text();
             const t1 = str.split(' - ')[0];
             const t2 = str.split(' - ')[1];
@@ -77,7 +102,6 @@
 
         // Amend timezone message in sidebar
         $('#info .msg-small').text(`all times have been converted to local time (UTC${tzSymbol})`);
-
     }
 
 
@@ -212,10 +236,16 @@
 
     function doPageload() {
 
-        parseTimestamps();
-        highlightMessageReplies();
-        scrollToRepliedToMessage();
-        addLoadEntireDayButton();
+        if(location.pathname.includes('/search')) {
+            parseSearchTimestamps();
+        }
+
+        else if(location.pathname.includes('/transcript')) {
+            parseTimestamps();
+            highlightMessageReplies();
+            scrollToRepliedToMessage();
+            addLoadEntireDayButton();
+        }
     }
 
 
