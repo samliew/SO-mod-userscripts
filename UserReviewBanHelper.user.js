@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.5
+// @version      5.5.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -642,7 +642,7 @@
             table.on('click', '.js-suspend-again', function() {
                 if(confirm("Apply another year's suspension to this user?")) {
                     const uid = this.dataset.userid;
-                    reviewUnban(uid).then(() => reviewPermaBan(uid).then(reloadPage));
+                    reviewPermaBan(uid).then(reloadPage);
                 }
                 return false;
             });
@@ -800,7 +800,7 @@ Breakdown:<br>
             const histTable = $('#user-history').addClass('hide-col-action').addClass('hide-col-ip');
 
             // Get last review ban date and duration
-            const hist = histTable.children('tbody tr:first td');
+            const hist = histTable.find('tbody tr:first td');
             if(hist.length == 4) {
                 const lastBannedDate = hist.find('.relativetime').attr('title');
                 const lastBannedDur = Number(hist.eq(2).text().match(/\d+ days/)[0].replace(/\D+/g, ''));
@@ -816,12 +816,13 @@ Breakdown:<br>
                             }
                         })
                         .insertAfter(heading);
-                    return;
                 }
             }
 
-            // Not currently banned, show review ban button
-            $(`<a class="fr s-btn s-btn__sm s-btn__filled s-btn__primary reviewban-button" href="/admin/review/suspensions#${uid2}">Review Ban</a>`).insertAfter(heading);
+            if($('.reviewban-button').length === 0) {
+                // Not currently banned, show review ban button
+                $(`<a class="fr s-btn s-btn__sm s-btn__filled s-btn__primary reviewban-button" href="/admin/review/suspensions#${uid2}">Review Ban</a>`).insertAfter(heading);
+            }
 
             // Add copyable CommonMark review link
             histTable.find('.history-comment').each(function() {
