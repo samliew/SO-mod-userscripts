@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.24.1
+// @version      1.24.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -93,7 +93,7 @@ ul.comments-list .comment-up-on {
 }
 
 
-/* 
+/*
    Hide newsletter sidebar ad to reclaim vertical space
    https://meta.stackoverflow.com/q/360450
 */
@@ -112,7 +112,7 @@ ul.comments-list .comment-up-on {
 }
 
 
-/* 
+/*
    Hide new contributor popover
    Hide new contributor displaying twice on a post (post author and when commenting)
    https://meta.stackoverflow.com/q/372877
@@ -125,7 +125,7 @@ ul.comments-list .comment-up-on {
 }
 
 
-/* 
+/*
    Better "duplicates edited list" in question revisions page
    https://meta.stackoverflow.com/q/400817
 */
@@ -166,7 +166,7 @@ ul.comments-list .comment-up-on {
 }
 
 
-/* 
+/*
    Hide follow post tooltip popup
    https://meta.stackexchange.com/q/345661
 */
@@ -185,7 +185,7 @@ ul.comments-list .comment-up-on {
 }
 
 
-/* 
+/*
    Remove new edit button from question closed notice
    https://meta.stackexchange.com/q/349479
 */
@@ -194,7 +194,7 @@ ul.comments-list .comment-up-on {
 }
 
 
-/* 
+/*
    Revert large margins on .s-prose
    https://meta.stackexchange.com/q/353446
 */
@@ -204,13 +204,10 @@ ul.comments-list .comment-up-on {
 }
 .s-prose blockquote {
     margin-left: 0px;
+    line-height: 1.4em;
 }
 .s-prose > * {
     margin-bottom: 1em !important;
-}
-.s-prose ol li,
-.s-prose ul li {
-    margin-bottom: 0.5em;
 }
 
 
@@ -224,7 +221,6 @@ ul.comments-list .comment-up-on {
     margin-right: 0;
     padding: 1em;
     padding-left: 1.2em;
-    line-height: 1.5;
     background-color: var(--yellow-050) !important;
     color: inherit;
 }
