@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.6
+// @version      3.6.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -874,12 +874,11 @@ async function waitForSOMU() {
                     }
 
                     // If no popular vote, select detected general close reason
-                    if(selOpt.length == 0 && flaggedReason !== '') {
+                    if(!isSuperuser && selOpt.length == 0 && flaggedReason !== '') {
 
                         if(['too broad', 'unclear what you\'re asking', 'primarily opinion-based'].includes(flaggedReason)) {
                             popup.find('.action-name').filter((i, el) => el.textContent == flaggedReason).prev().click();
                         }
-
                     }
                     // If no flagged reason, try to prediect close reasons from keywords
                     else if(selOpt.length == 0 && flaggedReason === '') {
@@ -919,9 +918,9 @@ async function waitForSOMU() {
                             skipReview();
                             return;
                         }
-                        else if($('.reviewable-post').find('.post-signature').length === 2) {
-                            console.log('AUTO SKIP - edited question');
-                            toastMessage('AUTO SKIP - edited question');
+                        else if(post.content.length >= 700 && $('.reviewable-post').find('.post-signature').length === 2) {
+                            console.log('AUTO SKIP - edited long question');
+                            toastMessage('AUTO SKIP - edited long question');
                             skipReview();
                             return;
                         }
@@ -929,7 +928,7 @@ async function waitForSOMU() {
                         // After short delay
                         setTimeout(postId => {
                             if(postId !== post.id) return; // Review changed, do nothing
-                            
+
                             // Remove instant actions
                             $('.instant-actions').remove();
 
