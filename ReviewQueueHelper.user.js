@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.5
+// @version      3.6
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -62,7 +62,7 @@ async function waitForSOMU() {
     let numOfReviews = 0;
     let remainingCloseVotes = null, remainingPostFlags = null;
 
-    let skipAccepted = false, skipUpvoted = false, skipMultipleAnswers = false, skipMediumQuestions = false, skipLongQuestions = false, autoCloseShortQuestions = false, downvoteAfterClose = false;
+    let skipAccepted = false, skipUpvoted = false, skipMultipleAnswers = false, skipMediumQuestions = false, skipLongQuestions = false, autoCloseShortQuestions = false, autoCloseQuestions = false, downvoteAfterClose = false;
 
 
     function getCloseVotesQuota(viewablePostId = 1) {
@@ -153,6 +153,11 @@ async function waitForSOMU() {
             SOMU.addOption(scriptName, 'Skip Long Questions', skipLongQuestions, 'bool');
             // Get current custom value with default
             skipLongQuestions = SOMU.getOptionValue(scriptName, 'Skip Long Questions', skipLongQuestions, 'bool');
+
+            // Set option field in sidebar with current custom value; use default value if not set before
+            SOMU.addOption(scriptName, 'Auto-open close dialogs', autoCloseQuestions, 'bool');
+            // Get current custom value with default
+            autoCloseQuestions = SOMU.getOptionValue(scriptName, 'Auto-open close dialogs', autoCloseQuestions, 'bool');
 
             // Set option field in sidebar with current custom value; use default value if not set before
             SOMU.addOption(scriptName, 'Try to close short Questions', autoCloseShortQuestions, 'bool');
@@ -271,6 +276,9 @@ async function waitForSOMU() {
         }
 
         setTimeout(function() {
+            // Remove instant actions
+            $('.instant-actions').remove();
+            // Click skip or next button
             $('.js-review-actions').find('button[title^="skip this"], button[title="review next item"]').click();
         }, 500);
     }
@@ -425,9 +433,9 @@ async function waitForSOMU() {
         }
 
         // Question body is short, try to close if enabled
-        if(autoCloseShortQuestions && post.isQuestion && post.content.length < 500) {
+        if(autoCloseQuestions || (autoCloseShortQuestions && post.isQuestion && post.content.length < 500)) {
             console.log('short question detected, length ' + post.content.length);
-            $('.js-review-actions button[title*="Close"], .close-question-link').first().click();
+            $('.js-review-actions button[title*="Close"], .close-question-link[data-isclosed="false"]').first().click();
             return;
         }
     }
@@ -505,10 +513,8 @@ async function waitForSOMU() {
 
             if(!error) {
                 // immediately skip to next review
-                instantActions.remove();
-
-                if(!isSuperuser()) {
-                    $('.js-review-actions button[title="skip this question"]').click();
+                if(!isSuperuser) {
+                    skipReview();
                 }
                 else {
                     location.reload(true);
@@ -841,13 +847,15 @@ async function waitForSOMU() {
             if(settings.url.includes('/close/popup')) {
                 setTimeout(function() {
 
+                    const popup = $('#popup-close-question');
+                    const reviewKeywords = $('#review-keywords').text();
                     //repositionReviewDialogs(true);
 
                     // Find and add class to off-topic badge count so we can avoid it
-                    $('#popup-close-question input[value="SiteSpecific"]').closest('li').find('.s-badge__mini').addClass('offtopic-indicator');
+                    popup.find('input[value="SiteSpecific"]').closest('li').find('.s-badge__mini').addClass('offtopic-indicator');
 
                     // Select default radio based on previous votes, ignoring the off-topic reason
-                    let opts = $('#popup-close-question .s-badge__mini').not('.offtopic-indicator').get().sort((a, b) => Number(a.innerText) - Number(b.innerText));
+                    let opts = popup.find('.s-badge__mini').not('.offtopic-indicator').get().sort((a, b) => Number(a.innerText) - Number(b.innerText));
                     const selOpt = $(opts).last().closest('li').find('input:radio').click();
                     //console.log(opts, selOpt);
 
@@ -859,19 +867,93 @@ async function waitForSOMU() {
                         const paneName = pane.attr('data-subpane-name');
 
                         // Select radio with same subpane name
-                        $(`#popup-close-question input[data-subpane-name="${paneName}"]`).click();
+                        popup.find(`input[data-subpane-name="${paneName}"]`).click();
 
                         // Re-select option
                         selOpt.click();
                     }
 
                     // If no popular vote, select detected general close reason
-                    if(selOpt.length == 0 && ['too broad', 'unclear what you\'re asking', 'primarily opinion-based'].includes(flaggedReason)) {
-                        $('#popup-close-question .action-name').filter((i, el) => el.textContent == flaggedReason).prev().click();
+                    if(selOpt.length == 0 && flaggedReason !== '') {
+
+                        if(['too broad', 'unclear what you\'re asking', 'primarily opinion-based'].includes(flaggedReason)) {
+                            popup.find('.action-name').filter((i, el) => el.textContent == flaggedReason).prev().click();
+                        }
+
+                    }
+                    // If no flagged reason, try to prediect close reasons from keywords
+                    else if(selOpt.length == 0 && flaggedReason === '') {
+
+                        // No code, close as unclear
+                        if(reviewKeywords.includes('no-code')) {
+                            console.log('AUTOCLOSE - no code');
+                            toastMessage('AUTOCLOSE - no code');
+                            $('#closeReasonId-NeedsDetailsOrClarity').prop('checked', true).trigger('click');
+                        }
+
+                        // Experimental
+                        if(isSuperuser) {
+                            // Click Close button
+                            popup.find('.js-popup-submit, input:submit').click();
+                        }
                     }
 
-                    // Focus Close button
-                    $('#popup-close-question').find('input:submit, .js-popup-submit').focus();
+                    if(isSuperuser) {
+
+                        // If dupe, edited, answered, positive score, skip review
+                        if(post.accepted || post.answers >= 2) {
+                            console.log('AUTO SKIP - accepted or has answers');
+                            toastMessage('AUTO SKIP - accepted or has answers');
+                            skipReview();
+                            return;
+                        }
+                        else if(post.votes > 1) {
+                            console.log('AUTO SKIP - positive score');
+                            toastMessage('AUTO SKIP - positive score');
+                            skipReview();
+                            return;
+                        }
+                        else if(flaggedReason.includes('duplicate')) {
+                            console.log('AUTO SKIP - ignore dupe closure');
+                            toastMessage('AUTO SKIP - ignore dupe closure');
+                            skipReview();
+                            return;
+                        }
+                        else if($('.reviewable-post').find('.post-signature').length === 2) {
+                            console.log('AUTO SKIP - edited question');
+                            toastMessage('AUTO SKIP - edited question');
+                            skipReview();
+                            return;
+                        }
+
+                        // After short delay
+                        setTimeout(postId => {
+                            if(postId !== post.id) return; // Review changed, do nothing
+                            
+                            // Remove instant actions
+                            $('.instant-actions').remove();
+
+                            // Skip to next review after a short delay if no option is selected
+                            if($('#popup-close-question').length > 0 && $('#popup-close-question input:radio:checked').length === 0) {
+                                console.log('AUTO SKIP - no action selected');
+                                toastMessage('AUTO SKIP - no action selected');
+                                skipReview();
+                                return;
+                            }
+                            // Click Close button
+                            else {
+                                console.log('AUTO CLOSED');
+                                toastMessage('AUTO CLOSED');
+                                popup.find('.js-popup-submit, input:submit').click();
+                            }
+
+                        }, 5000, post.id);
+                    }
+                    else {
+                        // Focus Close button only
+                        popup.find('.js-popup-submit, input:submit').focus();
+                    }
+
                 }, 50);
             }
 
@@ -958,7 +1040,7 @@ async function waitForSOMU() {
 
                 // Parse flagged reason (to select as default if no popular vote)
                 flaggedReason = (responseJson.instructions.match(/(too broad|unclear what you&#39;re asking|primarily opinion-based)/i) || ['']).pop().replace('&#39;', "'");
-                console.log(flaggedReason);
+                console.log('flaggedReason: ', flaggedReason || '-');
 
                 setTimeout(function() {
 
