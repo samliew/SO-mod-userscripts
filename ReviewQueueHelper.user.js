@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.6.1
+// @version      3.6.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -57,7 +57,7 @@ async function waitForSOMU() {
     const queueType = /^\/review/.test(location.pathname) ? location.pathname.replace(/\/\d+$/, '').split('/').pop() : null;
     const filteredElem = document.querySelector('.review-filter-tags');
     const filteredTags = filteredElem ? (filteredElem.value || '').split(' ') : [''];
-    let processReview, post = {}, flaggedReason = null;
+    let processReview, currentReview = {}, post = {}, flaggedReason = null;
     let isLinkOnlyAnswer = false, isCodeOnlyAnswer = false;
     let numOfReviews = 0;
     let remainingCloseVotes = null, remainingPostFlags = null;
@@ -912,7 +912,7 @@ async function waitForSOMU() {
                             skipReview();
                             return;
                         }
-                        else if(flaggedReason.includes('duplicate')) {
+                        else if(currentReview.instructions.toLowerCase().includes('duplicate') || flaggedReason.toLowerCase().includes('duplicate')) {
                             console.log('AUTO SKIP - ignore dupe closure');
                             toastMessage('AUTO SKIP - ignore dupe closure');
                             skipReview();
@@ -1024,6 +1024,7 @@ async function waitForSOMU() {
                 catch (e) {
                     console.error('error parsing JSON', xhr.responseText);
                 }
+                currentReview = responseJson; // store globally
 
                 // Display remaining CV and flag quota
                 displayRemainingQuota();
