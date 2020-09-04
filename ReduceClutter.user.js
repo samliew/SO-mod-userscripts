@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.24.2
+// @version      1.24.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -107,7 +107,7 @@ ul.comments-list .comment-up-on {
    https://meta.stackoverflow.com/q/398367
 */
 .votecell [data-controller="reactions"],
-.votecell .js-reactions {
+.js-reactions {
     display: none !important;
 }
 
