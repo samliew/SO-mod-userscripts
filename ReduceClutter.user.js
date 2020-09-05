@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.24.3
+// @version      1.25
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -140,29 +140,30 @@ ul.comments-list .comment-up-on {
     padding-top: 0;
 }
 .revision-page .originals-of-duplicate li {
+    position: relative;
     cursor: initial;
-}
-.revision-page .revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-added,
-.revision-page .revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-removed {
     list-style-type: none;
 }
-.revision-page .revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-added:before,
-.revision-page .revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-removed:before {
+.revision-page .originals-of-duplicate li:before {
     display: block;
     position: absolute;
     top: 0;
-    left: -18px;
+    left: -16px;
     font-size: 1.2em;
     font-weight: bold;
+    content: '•';
+    color: var(--black-300);
 }
 .revision-page .revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-added:before {
     content: '+';
     color: var(--green-600);
+    left: -18px;
 }
 .revision-page .revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-removed:before {
-    content: '-';
+    content: '–';
     color: var(--red-600);
-    left: -16px;
+    top: -2px;
+    left: -18px;
 }
 
 
