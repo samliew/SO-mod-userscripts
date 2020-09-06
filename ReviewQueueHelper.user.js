@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.6.4
+// @version      3.6.5
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -852,7 +852,7 @@ async function waitForSOMU() {
 
                     const popup = $('#popup-close-question');
                     const reviewKeywords = $('#review-keywords').text();
-                    repositionReviewDialogs(true);
+                    if(queueType != null) repositionReviewDialogs(true);
 
                     // Find and add class to off-topic badge count so we can avoid it
                     popup.find('input[value="SiteSpecific"]').closest('li').find('.s-badge__mini').addClass('offtopic-indicator');
@@ -860,7 +860,7 @@ async function waitForSOMU() {
                     // Select default radio based on previous votes, ignoring the off-topic reason
                     let opts = popup.find('.s-badge__mini').not('.offtopic-indicator').get().sort((a, b) => Number(a.innerText) - Number(b.innerText));
                     const selOpt = $(opts).last().closest('li').find('input:radio').click();
-                    //console.log(opts, selOpt); debugger;
+                    console.log(opts, selOpt); debugger;
 
                     // If selected option is in a subpane, display off-topic subpane instead
                     const pane = selOpt.closest('.popup-subpane');
@@ -903,12 +903,12 @@ async function waitForSOMU() {
                     if(isSuperuser) {
 
                         // If dupe, edited, answered, positive score, skip review
-                        if(post.accepted || post.answers >= 2) {
+                        if(post.content.length >= 200 && (post.accepted || post.answers >= 2)) {
                             toastMessage('AUTO SKIP - accepted or has answers');
                             skipReview();
                             return;
                         }
-                        else if(post.votes > 1) {
+                        else if(post.content.length >= 200 && post.votes > 1) {
                             toastMessage('AUTO SKIP - positive score');
                             skipReview();
                             return;
@@ -935,10 +935,10 @@ async function waitForSOMU() {
                             skipReview();
                             return;
                         }
-                        else if($('siteSpecificCloseReasonId-2-').is(':checked') || $('input[name="belongsOnBaseHostAddress"]:checked').length > 0) { // migrate
-                            toastMessage('AUTO SKIP - ignore migration');
-                            skipReview();
-                            return;
+
+                        // Convert migrations to unclear
+                        if($('siteSpecificCloseReasonId-2-').is(':checked') || $('input[name="belongsOnBaseHostAddress"]:checked').length > 0) { // migrate
+                            $('#closeReasonId-NeedsDetailsOrClarity').prop('checked', true).trigger('click');
                         }
 
                         // After short delay
