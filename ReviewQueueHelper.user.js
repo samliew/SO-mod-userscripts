@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.6.3
+// @version      3.6.4
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -818,7 +818,10 @@ async function waitForSOMU() {
         scrollTop ? setTimeout(() => window.scrollTo(0,0), 100) : 0;
 
         // position dialog
-        $('.popup').css({
+        $('.popup').css(isSuperuser ? {
+            top: -50,
+            left: 730
+        } : {
             top: 100,
             left: 0
         });
@@ -849,7 +852,7 @@ async function waitForSOMU() {
 
                     const popup = $('#popup-close-question');
                     const reviewKeywords = $('#review-keywords').text();
-                    //repositionReviewDialogs(true);
+                    repositionReviewDialogs(true);
 
                     // Find and add class to off-topic badge count so we can avoid it
                     popup.find('input[value="SiteSpecific"]').closest('li').find('.s-badge__mini').addClass('offtopic-indicator');
