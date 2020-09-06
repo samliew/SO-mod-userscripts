@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.6.2
+// @version      3.6.3
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -857,7 +857,7 @@ async function waitForSOMU() {
                     // Select default radio based on previous votes, ignoring the off-topic reason
                     let opts = popup.find('.s-badge__mini').not('.offtopic-indicator').get().sort((a, b) => Number(a.innerText) - Number(b.innerText));
                     const selOpt = $(opts).last().closest('li').find('input:radio').click();
-                    //console.log(opts, selOpt);
+                    //console.log(opts, selOpt); debugger;
 
                     // If selected option is in a subpane, display off-topic subpane instead
                     const pane = selOpt.closest('.popup-subpane');
@@ -901,26 +901,39 @@ async function waitForSOMU() {
 
                         // If dupe, edited, answered, positive score, skip review
                         if(post.accepted || post.answers >= 2) {
-                            console.log('AUTO SKIP - accepted or has answers');
                             toastMessage('AUTO SKIP - accepted or has answers');
                             skipReview();
                             return;
                         }
                         else if(post.votes > 1) {
-                            console.log('AUTO SKIP - positive score');
                             toastMessage('AUTO SKIP - positive score');
                             skipReview();
                             return;
                         }
                         else if(currentReview.instructions.toLowerCase().includes('duplicate') || flaggedReason.toLowerCase().includes('duplicate')) {
-                            console.log('AUTO SKIP - ignore dupe closure');
                             toastMessage('AUTO SKIP - ignore dupe closure');
                             skipReview();
                             return;
                         }
                         else if(post.content.length >= 700 && $('.reviewable-post').find('.post-signature').length === 2) {
-                            console.log('AUTO SKIP - edited long question');
                             toastMessage('AUTO SKIP - edited long question');
+                            skipReview();
+                            return;
+                        }
+
+                        // Ignore these close reasons on SO
+                        if($('#closeReasonId-Duplicate').is(':checked')) { // dupes
+                            toastMessage('AUTO SKIP - ignore dupes');
+                            skipReview();
+                            return;
+                        }
+                        else if($('#siteSpecificCloseReasonId-11-').is(':checked')) { // typos
+                            toastMessage('AUTO SKIP - ignore typo');
+                            skipReview();
+                            return;
+                        }
+                        else if($('siteSpecificCloseReasonId-2-').is(':checked') || $('input[name="belongsOnBaseHostAddress"]:checked').length > 0) { // migrate
+                            toastMessage('AUTO SKIP - ignore migration');
                             skipReview();
                             return;
                         }
