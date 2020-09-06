@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.6.5
+// @version      3.6.6
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -859,6 +859,7 @@ async function waitForSOMU() {
 
                     // Select default radio based on previous votes, ignoring the off-topic reason
                     let opts = popup.find('.s-badge__mini').not('.offtopic-indicator').get().sort((a, b) => Number(a.innerText) - Number(b.innerText));
+                    const selOptCount = Number($(opts).last().text()) || 0;
                     const selOpt = $(opts).last().closest('li').find('input:radio').click();
                     console.log(opts, selOpt); debugger;
 
@@ -888,14 +889,14 @@ async function waitForSOMU() {
 
                         // No code, close as unclear
                         if(reviewKeywords.includes('no-code')) {
-                            console.log('AUTOCLOSE - no code');
-                            toastMessage('AUTOCLOSE - no code');
                             $('#closeReasonId-NeedsDetailsOrClarity').prop('checked', true).trigger('click');
                         }
 
                         // Experimental
                         if(isSuperuser) {
                             // Click Close button
+                            console.log('AUTOCLOSE - no code');
+                            toastMessage('AUTOCLOSE - no code');
                             popup.find('.js-popup-submit, input:submit').click();
                         }
                     }
@@ -930,7 +931,7 @@ async function waitForSOMU() {
                             skipReview();
                             return;
                         }
-                        else if($('#siteSpecificCloseReasonId-11-').is(':checked')) { // typos
+                        else if($('#siteSpecificCloseReasonId-11-').is(':checked') && selOptCount < 2) { // typos
                             toastMessage('AUTO SKIP - ignore typo');
                             skipReview();
                             return;
