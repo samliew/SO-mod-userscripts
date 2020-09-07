@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.6.6
+// @version      3.6.7
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -55,6 +55,8 @@ async function waitForSOMU() {
     const isSuperuser = () => superusers.includes(StackExchange.options.user.userId);
 
     const queueType = /^\/review/.test(location.pathname) ? location.pathname.replace(/\/\d+$/, '').split('/').pop() : null;
+    const filteredTypesElem = document.querySelector('.review-filter-summary');
+    const filteredTypes = filteredTypesElem ? (filteredTypesElem.innerText || '').replace(/; \[.*$/, '').split('; ') : [''];
     const filteredElem = document.querySelector('.review-filter-tags');
     const filteredTags = filteredElem ? (filteredElem.value || '').split(' ') : [''];
     let processReview, currentReview = {}, post = {}, flaggedReason = null;
@@ -902,6 +904,12 @@ async function waitForSOMU() {
                     }
 
                     if(isSuperuser) {
+
+                        console.log('filteredTypes', filteredTypes);
+                        debugger;
+
+                        // If only filtering by "Duplicate", do nothing
+                        if((filteredTypes.length === 1 && filteredTypes.includes('Duplicate')) === true) return;
 
                         // If dupe, edited, answered, positive score, skip review
                         if(post.content.length >= 200 && (post.accepted || post.answers >= 2)) {
