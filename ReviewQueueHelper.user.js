@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.7
+// @version      3.7.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -863,7 +863,7 @@ async function waitForSOMU() {
                     let opts = popup.find('.s-badge__mini').not('.offtopic-indicator').get().sort((a, b) => Number(a.innerText) - Number(b.innerText));
                     const selOptCount = Number($(opts).last().text()) || 0;
                     const selOpt = $(opts).last().closest('li').find('input:radio').click();
-                    console.log(opts, selOpt); debugger;
+                    //console.log(opts, selOpt); debugger;
 
                     // If selected option is in a subpane, display off-topic subpane instead
                     const pane = selOpt.closest('.popup-subpane');
@@ -905,8 +905,7 @@ async function waitForSOMU() {
 
                     if(isSuperuser) {
 
-                        console.log('filteredTypes', filteredTypes);
-                        debugger;
+                        //console.log('filteredTypes', filteredTypes);debugger;
 
                         // If only filtering by "Duplicate", do nothing
                         if((filteredTypes.length === 1 && filteredTypes.includes('Duplicate')) === true) return;
