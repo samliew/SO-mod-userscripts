@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.7.1
+// @version      3.7.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -529,6 +529,8 @@ async function waitForSOMU() {
     function insertVotingButtonsIfMissing() {
 
         const reviewablePost = $('.reviewable-post');
+        if(reviewablePost.length == 0) return; // e.g.: suggested edits
+
         const pid = Number(reviewablePost[0].className.replace(/\D+/g, ''));
         const isQuestion = reviewablePost.find('.question').length == 1;
 
