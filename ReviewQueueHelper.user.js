@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.6.7
+// @version      3.7
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -52,7 +52,7 @@ async function waitForSOMU() {
     const isSO = site === 'stackoverflow.com';
 
     const superusers = [ 584192 ];
-    const isSuperuser = () => superusers.includes(StackExchange.options.user.userId);
+    const isSuperuser = superusers.includes(StackExchange.options.user.userId);
 
     const queueType = /^\/review/.test(location.pathname) ? location.pathname.replace(/\/\d+$/, '').split('/').pop() : null;
     const filteredTypesElem = document.querySelector('.review-filter-summary');
