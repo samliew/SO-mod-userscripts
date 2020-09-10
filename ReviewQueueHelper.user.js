@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.7.2
+// @version      3.7.3
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1017,12 +1017,19 @@ async function waitForSOMU() {
             // Next review loaded, transform UI and pre-process review
             else if(settings.url.includes('/review/next-task') || settings.url.includes('/review/task-reviewed/')) {
 
+                // If reviewing reopen votes, click "I'm done"
+                if(queueType === 'first-posts') {
+
+                    setTimeout(() => {
+                        $('.js-review-actions button[title*="done reviewing"]').click();
+                    }, 1000);
+                }
 
                 // If reviewing a suggested edit from Q&A (outside of review queues)
                 if(location.href.includes('/questions/')) {
 
                     // Remove delete button
-                    $('.js-review-actions button[title="delete this post and the pending suggested edit"]').remove();
+                    $('.js-review-actions button[title*="delete this post"]').remove();
 
                     // If reject is clicked, restyle popups to new stacks theme
                     $('.post-menu').on('click', '.popup .js-action-button[title="reject this suggested edit"]', function() {
@@ -1030,7 +1037,6 @@ async function waitForSOMU() {
                         // Convert radio buttons to new stacks radio
                         $('#rejection-popup input:radio').addClass('s-radio');
                     });
-
                     return;
                 }
 
