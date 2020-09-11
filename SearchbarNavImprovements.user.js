@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.14.4
+// @version      4.15
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -608,7 +608,7 @@
 <a>Answers</a>
 <a>Status</a>
 <a>Author</a>
-<a>Favorites</a>
+<a>Bookmarks</a>
 <a>Dates</a>
 <a>Other</a>
 </div>
@@ -633,6 +633,10 @@
 </div>
 <div>
   <label class="section-label">Tags</label>
+  <div>
+    <label for="tags-self">my own tags:</label>
+    <input type="checkbox" name="tags-self" id="tags-self" value="intags:mine" data-autofill /><label for="tags-self">self</label>
+  </div>
   <label for="tags">all of these tags:</label>
   <div><input name="tags" id="tags" class="js-taglookup" data-clearbtn data-autofill data-join="] [" data-prefix="[" data-suffix="]" /></div>
   <label for="any-tags">any of these tags:</label>
@@ -769,13 +773,14 @@
   <input name="user-id" id="user-id" class="input-small js-dnlookup" placeholder="username or id" data-clearbtn data-clears="#user-self" data-autofill data-prefix="user:" />
 </div>
 <div>
-  <label class="section-label">Favorites</label>
+  <label class="section-label">Bookmarks</label>
+  <em>(also known as favorites/starred questions)</em>
   <div>
-    <label for="fav-self">my own favorites:</label>
-    <input type="checkbox" name="fav-self" id="fav-self" value="infavorites:mine" data-clears="#fav-id" data-autofill /><label for="fav-self">self</label>
+    <label for="fav-self">my own bookmarks:</label>
+    <input type="checkbox" name="fav-self" id="fav-self" value="inbookmarks:mine" data-clears="#fav-id" data-autofill /><label for="fav-self">self</label>
   </div>
-  <label for="fav-id">favourited by: (autocomplete)</label>
-  <input name="fav-id" id="fav-id" class="input-small js-dnlookup" placeholder="username or id" data-clearbtn data-clears="#fav-self" data-autofill data-prefix="infavorites:" />
+  <label for="fav-id">bookmarked by: (autocomplete)</label>
+  <input name="fav-id" id="fav-id" class="input-small js-dnlookup" placeholder="username or id" data-clearbtn data-clears="#fav-self" data-autofill data-prefix="inbookmarks:" />
 </div>
 <div>
   <label class="section-label">Post Date</label>
