@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.3
+// @version      1.6.4
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -249,6 +249,9 @@ body.SOMU-SEDM #annotations tr.user-message td:nth-child(4) {
 #user-history td.pre {
     font-family: monospace;
     white-space: pre-line;
+}
+#user-history tbody > tr > td {
+    word-break: break-word;
 }
 /* Hides IP address column
 #user-history tr th:last-child,
