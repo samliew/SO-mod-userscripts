@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.5.1
+// @version      5.5.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -41,7 +41,7 @@
     const messageCharLimit = 2000;
 
     const defaultBanMessage = `A number of your [recent reviews](https://${location.hostname}/users/current?tab=activity&sort=reviews) were incorrect. We suspect that you are not giving each task adequate attention. Please pay more attention to each review in future.`;
-    const permaBanMessage = `Due to your [poor review history](https://${location.hostname}/users/current?tab=activity&sort=reviews) as well as no signs of improvement after many review bans, you won't be able to use any of the review queues on the site any longer.`;
+    const permaBanMessage = `Due to your [poor review history](https://${location.hostname}/users/current?tab=activity&sort=reviews) as well as no signs of improvement after many review suspensions, you won't be able to use any of the review queues on the site any longer.`;
 
     // Use {POSTLINK} and {QUEUENAME} placeholders
     const cannedMessages = {
