@@ -125,7 +125,7 @@
             const rBan = blocked[3].innerText === 'yes';
 
             const banStats = $(`
-              <div class="main-banned">
+              <div class="main-banned postcell post-layout--right">
                 <b>User "${username}" - bans on main: </b>
                 <span>${qBan ? 'question' : ''}</span>
                 <span>${aBan ? 'answer' : ''}</span>
