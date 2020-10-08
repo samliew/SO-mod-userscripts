@@ -25,13 +25,11 @@
 
 
     function doPageload() {
-        $(document).ajaxStop(callbackWhenPageLoaded);
+        // Once on page load only
+        $(document).one('ajaxStop', callbackWhenPageLoaded);
     }
 
     function callbackWhenPageLoaded() {
-
-        // Once on page load only
-        $(document).unbind('ajaxStop');
 
         if(currentTabName === 'stats') {
 
