@@ -3,7 +3,7 @@
 // @description  Expand all sections, and adds additional filters
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      0.2
 //
 // @include      https://*stackexchange.com/tools*
 // @include      https://*stackoverflow.com/tools*
@@ -20,7 +20,8 @@
     'use strict';
 
 
-    const search = location.search.toLowerCase();
+    const currentTab = document.querySelector('#tabs .youarehere');
+    const currentTabName = currentTab.dataset.value;
 
 
     function doPageload() {
@@ -32,22 +33,22 @@
         // Once on page load only
         $(document).unbind('ajaxStop');
 
-        if(search.includes('tab=stats')) {
+        if(currentTabName === 'stats') {
 
 
         }
 
-        else if(search.includes('tab=migrated')) {
+        else if(currentTabName === 'migrated') {
 
 
         }
 
-        else if(search.includes('tab=close')) {
+        else if(currentTabName === 'close') {
 
 
         }
 
-        else if(search.includes('tab=delete')) {
+        else if(currentTabName === 'delete') {
 
             const buttonWrapper = $(`<div class="modtools-filters-wrapper grid">Quick filters:&nbsp;<div class="modtools-filters grid tt-capitalize">
   <a class="grid--cell s-btn s-btn__muted s-btn__outlined py8 ws-nowrap is-selected" data-filter="q">questions</a>
