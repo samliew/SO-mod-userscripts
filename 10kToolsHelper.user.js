@@ -78,8 +78,8 @@
 
 
     GM_addStyle(`
-.summary-table tr {
-    display: table-row !important;
+.summary-table tr.collapsing {
+    display: table-row;
 }
 .expander-arrow-small-hide,
 .summary-table tr.dno {
