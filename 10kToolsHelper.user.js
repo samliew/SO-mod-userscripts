@@ -3,7 +3,7 @@
 // @description  Expand all sections, and adds additional filters
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2
+// @version      0.3
 //
 // @include      https://*stackexchange.com/tools*
 // @include      https://*stackoverflow.com/tools*
