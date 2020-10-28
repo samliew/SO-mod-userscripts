@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.6.1
+// @version      5.7
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -14,6 +14,7 @@
 // @include      */review/first-posts*
 // @include      */review/late-answers*
 //
+// @include      */users/account-info/*
 // @include      */users/history/*?type=User+has+been+suspended+from+reviewing
 // @include      */users/*?tab=activity&sort=reviews*
 // @include      */users/*?tab=activity&sort=suggestions*
@@ -783,6 +784,16 @@ Breakdown:<br>
 
         }
 
+        // Mod user dashboard
+        else if(location.pathname.includes('/users/account-info/')) {
+
+            // Fix incorrect link to review ban history page
+            const reviewbanhistoryLink = $('.mod-section').eq(1).children().last().find('a').first();
+            if(reviewbanhistoryLink.length === 1) {
+                reviewbanhistoryLink.attr('href', (i, v) => v.replace('/admin/review/suspensions/historical/', '/users/history/') + '?type=User+has+been+suspended+from+reviewing');
+            }
+        }
+
         // Mod user history - review bans filter
         else if(location.pathname.includes('/users/history') && location.search == "?type=User+has+been+suspended+from+reviewing") {
 
@@ -795,9 +806,10 @@ Breakdown:<br>
 
             // Hide action and ip columns
             const histTable = $('#user-history').addClass('hide-col-action').addClass('hide-col-ip');
+            const histTableEvents = histTable.children('tbody');
 
             // Get last review ban date and duration
-            const hist = histTable.find('tbody tr:first td');
+            const hist = histTableEvents.children('tr:first td');
             if(hist.length == 4) {
                 const lastBannedDate = hist.find('.relativetime').attr('title');
                 const lastBannedDur = Number(hist.eq(2).text().match(/\d+ days/)[0].replace(/\D+/g, ''));
@@ -834,6 +846,22 @@ Breakdown:<br>
             });
             histTable.on('focus', '.js-review-textlinks', function() {
                 this.select();
+            });
+
+            // Fetch and display "Review suspension notice viewed" and display inline
+            $.get(`https://${location.hostname}/users/history/${uid2}?type=Review+suspension+notice+viewed`, function(data) {
+                const events = $('#user-history tbody', data).children();
+                events.addClass('js-review-susp-viewed').children().eq(2).html('<em>review suspension notice viewed</em>');
+
+                histTableEvents.append(events);
+
+                // Re-sort histTableEvents by date desc
+                histTableEvents.children().detach().sort(function(a, b) {
+                    const aDate = new Date(a.children[0].children[0].title);
+                    const bDate = new Date(b.children[0].children[0].title);
+
+                    return aDate > bDate ? -1 : 1;
+                }).appendTo(histTableEvents);
             });
         }
 
@@ -1161,6 +1189,14 @@ table.sorter > thead > tr .tablesorter-headerDesc span::after {
 #user-history.hide-col-action th:nth-child(2),
 #user-history.hide-col-action td:nth-child(2) {
     display: none;
+}
+
+#user-history td {
+    padding-top: 5px;
+    padding-bottom: 5px !important;
+}
+#user-history .js-review-susp-viewed td {
+    background: var(--yellow-050);
 }
 
 a.js-suspend-again {
