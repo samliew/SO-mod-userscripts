@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.7
+// @version      5.7.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -851,7 +851,9 @@ Breakdown:<br>
             // Fetch and display "Review suspension notice viewed" and display inline
             $.get(`https://${location.hostname}/users/history/${uid2}?type=Review+suspension+notice+viewed`, function(data) {
                 const events = $('#user-history tbody', data).children();
-                events.addClass('js-review-susp-viewed').children().eq(2).html('<em>review suspension notice viewed</em>');
+                events.addClass('js-review-susp-viewed').each(function() {
+                    $(this).children().eq(2).html('review suspension notice viewed');
+                });
 
                 histTableEvents.append(events);
 
@@ -859,9 +861,22 @@ Breakdown:<br>
                 histTableEvents.children().detach().sort(function(a, b) {
                     const aDate = new Date(a.children[0].children[0].title);
                     const bDate = new Date(b.children[0].children[0].title);
-
                     return aDate > bDate ? -1 : 1;
                 }).appendTo(histTableEvents);
+
+                // Calculate time taken to view
+                $('#user-history .js-review-susp-viewed').each(function(i, el) {
+                    const aDate = new Date(el.children[0].children[0].title);
+                    const bDate = new Date(el.nextSibling.children[0].children[0].title);
+
+                    // Convert to readable format
+                    const minDiff = Math.ceil((aDate - bDate) / 60000);
+                    const hourDiff = minDiff >= 60 ? Math.floor(minDiff / 60) : null;
+                    const dayDiff = hourDiff >= 24 ? Math.floor(hourDiff / 24) : null;
+                    const displayDiff = dayDiff ? dayDiff + ' day/s' : (hourDiff ? hourDiff + ' hour/s' : minDiff + ' min/s');
+
+                    el.children[2].innerText += ` (took ~${displayDiff})`;
+                });
             });
         }
 
@@ -1197,6 +1212,9 @@ table.sorter > thead > tr .tablesorter-headerDesc span::after {
 }
 #user-history .js-review-susp-viewed td {
     background: var(--yellow-050);
+}
+#user-history .js-review-susp-viewed td:nth-child(3) {
+    font-style: italic;
 }
 
 a.js-suspend-again {
