@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4.2
+// @version      1.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -162,6 +162,52 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
     }
 
 
+    function toShortLink(str, newdomain = null) {
+
+        // Match ids in string, prefixed with either a / or #
+        const ids = str.match(/[\/#](\d+)/g);
+
+        // Get last occurance of numeric id in string
+        const pid = ids.pop().replace(/\D+/g, '');
+
+        // Q (single id) or A (multiple ids)
+        const qa = ids.length > 1 ? 'a' : 'q';
+
+        // Use domain if set, otherwise use domain from string, fallback to relative path
+        const baseDomain = newdomain ?
+              newdomain.replace(/\/$/, '') + '/' :
+        (str.match(/\/+([a-z]+\.)+[a-z]{2,3}\//) || ['/'])[0];
+
+        // Format of short link on the Stack Exchange network
+        return pid ? baseDomain + qa + '/' + pid : str;
+    }
+
+
+    function getDeletedPosts(uid, type) {
+
+        const url = `https://${location.hostname}/search?q=user%3a${uid}%20is%3a${type}%20deleted%3a1%20score%3a..0&tab=newest`;
+        $.get(url).done(function(data) {
+            const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
+            const stats = $(`
+                <div class="post-ban-deleted-posts">
+                    User has <a href="${url}" target="_blank">${count} deleted ${type}s</a>, score &lt;= 0
+                </div>`).appendTo('#sidebar');
+
+            // If no deleted posts, do nothing
+            if(isNaN(count) || count <= 0) return;
+
+            // Add deleted posts to the stats element
+            const results = $('.js-search-results .search-result', data);
+
+            // Add copyable element to the results
+            const hyperlinks = results.find('a').attr('href', (i,v) => 'https://' + location.hostname + v).attr('target', '_blank');
+            const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1+i}](${toShortLink(el.href)})`).get();
+            const comment = `Additionally, you have ${hyperlinks2.length} deleted ${type}${hyperlinks2.length == 1 ? '' : 's'}, which may be contributing to the [${type} ban](https://${location.hostname}/help/${type}-bans): ${hyperlinks2.join(' ')}`;
+            const commentArea = $(`<textarea readonly="readonly" class="h128 s-textarea"></textarea>`).val(comment).appendTo(stats);
+        });
+    }
+
+
     function initModMessageHelper() {
 
         if(location.pathname.includes('/users/message/')) {
@@ -196,6 +242,12 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
         if(!location.pathname.includes('/users/message/create/')) return;
 
         const template = getQueryParam('action');
+
+        // If low-quality-questions template was selected, fetch deleted questions
+        const uid = location.pathname.match(/\/(\d+)/)[1];
+        if(template === 'low-quality-questions') {
+            getDeletedPosts(uid, 'question');
+        }
 
         // Restrict max suspension days to 365, otherwise it fails rudely
         $('#suspendDays').attr('type', 'number').attr('max', '365');
