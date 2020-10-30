@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.7.3
+// @version      3.7.4
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -765,9 +765,9 @@ async function waitForSOMU() {
                 return false;
             });
 
-            // Triage, filter by "Requires Editing" by default
+            // Triage, filter by "Requires Editing" (or new "Needs community edit") by default
             if(/\/triage\/history$/.test(location.pathname)) {
-                $('a[data-filter="requires-editing"]').click();
+                $('a[data-filter="needs-community-edit"]').click();
             }
         }
 
@@ -905,6 +905,7 @@ async function waitForSOMU() {
                         }
                     }
 
+                    // Experimental
                     if(isSuperuser) {
 
                         //console.log('filteredTypes', filteredTypes);debugger;
@@ -928,11 +929,11 @@ async function waitForSOMU() {
                             skipReview();
                             return;
                         }
-                        else if(post.content.length >= 700 && $('.reviewable-post').find('.post-signature').length === 2) {
-                            toastMessage('AUTO SKIP - edited long question');
-                            skipReview();
-                            return;
-                        }
+                        //else if(post.content.length >= 700 && $('.reviewable-post').find('.post-signature').length === 2) {
+                        //    toastMessage('AUTO SKIP - edited long question');
+                        //    skipReview();
+                        //    return;
+                        //}
 
                         // Ignore these close reasons on SO
                         if($('#closeReasonId-Duplicate').is(':checked')) { // dupes
