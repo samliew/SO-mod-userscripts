@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.7.2
+// @version      5.8
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -47,7 +47,7 @@
     // Use {POSTLINK} and {QUEUENAME} placeholders
     const cannedMessages = {
         current: '',
-        triageQuestionReqEdits: `You took incorrect action on the following task(s):\n{POSTLINK}. Choose the "Unsalvageable" action for questions that should be closed or can only be improved or clarified by the question-asker. The "Requires Editing" action should only be used when other community users (like yourself) are able to improve an answerable question with editing or formatting. When in doubt, use the Skip action.`,
+        triageQuestionReqEdits: `You took incorrect action on the following task(s):\n{POSTLINK}. Choose the "Unsalvageable" action for questions that should be closed or can only be improved or clarified by the question-asker. The "Needs community edit" action should only be used when other community users (like yourself) are able to improve an answerable question with editing or formatting. When in doubt, use the Skip action.`,
         helperEditPoor: `Your review on {POSTLINK} wasn't helpful. If a question should be closed and you are unable to make the question on-topic in the "Help and Improvement" review, please use "Skip" instead of making trivial changes.`,
         postNaa: `You recently reviewed this post {POSTLINK}. Although it was posted as an answer, it clearly did not attempt to provide an answer to the question. You should have flagged it as "not an answer" so that it could be removed.`,
         postNaaEdited: `You recently edited this post {POSTLINK}. Please do not edit posts that should have been deleted. Use "edit" only when your edit salvages the post and makes it a valid answer.`,
@@ -269,22 +269,22 @@
                 return ax < bx ? -1 : 1;
             }).appendTo('.js-review-instructions');
 
-            // Add review-ban button for users who selected "Looks OK"
-            $(`<button class="s-btn s-btn__sm s-btn__filled mt12 js-ban-ok">Review ban "Looks OK"</button>`).appendTo('.reviewable-post-stats').click(function() {
-                $('.review-results').filter((i, el) => el.innerText.includes('Looks OK')).find('.reviewban-link').each((i, el) => el.click());
+            // Add review-ban button for users who selected "Approve"
+            $(`<button class="s-btn s-btn__sm s-btn__filled mt12 js-ban-approve">Review ban "Approve"</button>`).appendTo('.reviewable-post-stats').click(function() {
+                $('.review-results').filter((i, el) => el.innerText.includes('Approve')).find('.reviewban-link').each((i, el) => el.click());
                 $(this).remove();
             }).wrap('<div></div>');
 
-            // Add review-ban button for users who selected "Requires Editing"
-            $(`<button class="s-btn s-btn__sm s-btn__filled mt12 js-ban-reqedit">Review ban "Requires Editing"</button>`).appendTo('.reviewable-post-stats').click(function() {
-                $('.review-results').filter((i, el) => el.innerText.includes('Requires Editing')).find('.reviewban-link').each((i, el) => el.click());
+            // Add review-ban button for users who selected "Needs community edit"
+            $(`<button class="s-btn s-btn__sm s-btn__filled mt12 js-ban-reqedit">Review ban "Needs community edit"</button>`).appendTo('.reviewable-post-stats').click(function() {
+                $('.review-results').filter((i, el) => el.innerText.includes('Needs community edit')).find('.reviewban-link').each((i, el) => el.click());
                 $(this).remove();
                 unsafeWindow.top.close();
             }).wrap('<div></div>');
 
             // Add review ban all button
             $(`<button class="s-btn s-btn__sm s-btn__filled mt12">Review ban ALL</button>`).appendTo('.reviewable-post-stats').click(function() {
-                $(this).parents('.reviewable-post-stats').find('.js-ban-ok, .js-ban-reqedit').click();
+                $(this).parents('.reviewable-post-stats').find('.js-ban-approve, .js-ban-reqedit').click();
                 $(this).remove();
                 unsafeWindow.top.close();
             }).wrap('<div></div>');
@@ -479,8 +479,8 @@
             // If sam is review banning users in Triage
             if(isSuperuser() && location.hash.includes('/triage')) {
 
-                // If reviewAction is "looks-ok", and user is currently banned for >= 16, ignore (close tab)
-                if(reviewAction == 'looks-ok' && isCurrentlyBanned && recommendedDuration >= 8) {
+                // If reviewAction is "approve", and user is currently banned for >= 16, ignore (close tab)
+                if(reviewAction == 'approve' && isCurrentlyBanned && recommendedDuration >= 8) {
                     unsafeWindow.top.close();
                 }
                 // If recommended is up to 8, auto submit form
@@ -695,7 +695,7 @@
                 const weekAhead = Date.now() + (7 * 24 * 60 * 60 * 1000);
 
                 const rows = table.find('tbody tr');
-                const reqEditing = rows.filter((i, el) => el.children[4].innerText.includes('Requires Editing')).length;
+                const reqEditing = rows.filter((i, el) => el.children[4].innerText.match(/(requires editing|needs community edit)/i)).length;
                 const forTriage = rows.filter((i, el) => el.children[4].innerText.toLowerCase().includes('triage')).length;
                 const auditFailures = rows.filter((i, el) => {
                     const t = el.children[4].innerText;
@@ -725,7 +725,7 @@
 
                 const bannedStats = $(`<div id="banned-users-stats"><ul>` +
 (forTriage > 0 ? `<li><span class="copy-only">-&nbsp;</span>${forTriage} (${(forTriage/rows.length*100).toFixed(1)}%) users are banned for Triage reviews in one way or another</li>` : '') +
-(reqEditing > 0 ? `<li><span class="copy-only">-&nbsp;</span>${reqEditing} (${(reqEditing/rows.length*100).toFixed(1)}%) users are banned for selecting "Requires Editing" in Triage when the question was unsalvagable</li>` : '') + `
+(reqEditing > 0 ? `<li><span class="copy-only">-&nbsp;</span>${reqEditing} (${(reqEditing/rows.length*100).toFixed(1)}%) users are banned for selecting "Needs community edit" in Triage when the question was unsalvagable</li>` : '') + `
 <li><span class="copy-only">-&nbsp;</span>${auditFailures} (${(auditFailures/rows.length*100).toFixed(1)}%) users are automatically banned for failing multiple review audits</li>
 <li><span class="copy-only">-&nbsp;</span>${firstTimers} (${(firstTimers/rows.length*100).toFixed(1)}%) users are banned for the first time</li>
 <li><span class="copy-only">-&nbsp;</span>${fiveTimers} (${(fiveTimers/rows.length*100).toFixed(1)}%) users have at least five review bans</li>
@@ -828,10 +828,14 @@ Breakdown:<br>
                 }
             }
 
+            debugger;
+
             if($('.reviewban-button').length === 0) {
                 // Not currently banned, show review ban button
                 $(`<a class="fr s-btn s-btn__sm s-btn__filled s-btn__primary reviewban-button" href="/admin/review/suspensions#${uid2}">Review Ban</a>`).insertAfter(heading);
             }
+
+            debugger;
 
             // Add copyable CommonMark review link
             histTable.find('.history-comment').each(function() {
@@ -975,9 +979,9 @@ Breakdown:<br>
                     // If triage reviews
                     if(location.hash.includes('|/review/triage/')) {
 
-                        // If reviewAction is "requires-editing", select alternate canned message
-                        if(reviewAction == 'requires-editing') {
-                            $('#canned-messages a[data-message*="Requires Editing"]').click();
+                        // If reviewAction is "needs-community-edit", select alternate canned message
+                        if(reviewAction == 'needs-community-edit') {
+                            $('#canned-messages a[data-message*="Needs community edit"]').click();
                         }
                     }
 
