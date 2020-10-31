@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.15.1
+// @version      3.16
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -153,8 +153,6 @@
         console.log("Toggle by: " + filter);
 
         const filterFunction = function() {
-            if(filter === 'magisch') return $(this).find('.js-post-flag-group:not(.js-cleared) a[href^="/users/5389107/"]').length > 0; // Magisch's userid on SO
-            if(filter === 'ekad')    return $(this).find('.js-post-flag-group:not(.js-cleared) a[href^="/users/1905949/"]').length > 0; // ekad's userid on SO
             if(filter === 'deleted') return $(this).find('.bg-red-050').length > 0;
 
             if(filter === 'self-answer') {
@@ -393,15 +391,6 @@
 <a data-toggle="self-answer" title="Self Answer">Self</a>
 <a data-toggle="deleted" title="Show Deleted only">Del</a>
 `);
-
-            // Insert additional filter options
-            if(superusers.includes(StackExchange.options.user.userId)) {
-
-                $filterOpts.append(`
-<a data-toggle="magisch" title="Show flags by "Magisch" only">Mg</a>
-<a data-toggle="ekad" title="Show flags by "ekad" only">Ek</a>
-`);
-            }
         }
 
         // Sort options event
@@ -447,11 +436,6 @@
 
         // Remove old "deemed invalid by" flags as they mess up sorting by flagger rank
         $('.js-flag-row.js-cleared').filter((i, el) => el.innerText.includes('deemed invalid by')).remove();
-
-        // Show Magisch filter option if there are flags by this user
-        if($posts.find('.js-post-flag-group:not(.js-cleared) a[href^="/users/5389107/"]').length > 0) {
-            $filterOpts.find('[data-toggle="magisch"]').removeClass('dno');
-        }
 
         // Selects default decline reason and focus submit button
         $('.js-resolve-action[data-type="decline"]').click(function(evt) {
