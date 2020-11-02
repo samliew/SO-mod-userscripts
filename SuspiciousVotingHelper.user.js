@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.3
+// @version      1.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -28,8 +28,16 @@
     const newlines = '\n\n';
     const strToRep = str => Number(str.replace(/\.(\d)k/, '$100').replace(/k/, '000').replace(/[^\d]+/g, ''));
     const getQueryParam = key => new URLSearchParams(window.location.search).get(key) || '';
+    const apikey = 'yZcUvuGAMj25rYZ)a5YNqg((';
 
 
+    // Helper functions
+    function toSeDateFormat(dateObj) {
+        return dateObj.toISOString().replace('T', ' ').replace('.000', '');
+    }
+
+
+    // Mapper functions
     function mapVotePatternItemsToObject() {
         const link = $('.user-details a', this);
         const uRep = $('.reputation-score', this);
@@ -53,7 +61,6 @@
         }
     }
 
-
     function mapInvVotePatternItemsToObject() {
         const link = $('.user-details a', this);
         const uRep = $('.reputation-score', this);
@@ -73,6 +80,7 @@
     }
 
 
+    // Main functions
     let updateModTemplates = function () {
 
         updateModTemplates = () => 0; // run once only
@@ -460,17 +468,27 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
         else if(location.pathname.includes('/users/account-info/')) {
 
             const uid = location.pathname.match(/\/(\d+)/)[1];
+            const networkUid = $('.js-user-header > .grid--cell').last().children().children().last().attr('href').match(/\/(\d+)\//)[1];
 
-            // Fetch timestamp of first "Add Credential"
-            const dateRegContainer = $(` <span class="d-inline-block ml12"></span>`);
-            $('#mod-content .details .col-4').eq(1).append(dateRegContainer);
+            const dateNetworkRegContainer = $(` <span class="d-inline-block ml12"></span>`);
+            $('#mod-content .details .col-4').eq(0).append(dateNetworkRegContainer);
 
-            $.get(`https://stackoverflow.com/users/history/${uid}?type=Add+Credential`)
-            .done(function(data) {
-                const eventDate = $('#user-history .relativetime', data).last();
-                const timestamp = eventDate.attr('title') || '(legal not shown)';
-                dateRegContainer.text(timestamp);
-            });
+            const dateSiteRegContainer = $(` <span class="d-inline-block ml12"></span>`);
+            $('#mod-content .details .col-4').eq(1).append(dateSiteRegContainer);
+
+            // Fetch network accounts info of this user from API
+            $.get(`https://api.stackexchange.com/2.2/users/${networkUid}/associated?pagesize=100&types=main_site&filter=!myEHrh)iPP&key=${apikey}`)
+                .done(function(data) {
+                    const accounts = data.items.sort((a, b) => {
+                        return a.creation_date > b.creation_date ? 1 : -1;
+                    });
+                    const networkSiteTimestamp = new Date(accounts[0].creation_date * 1000);
+                    dateNetworkRegContainer.text(toSeDateFormat(networkSiteTimestamp));
+
+                    const currSite = accounts.filter(v => v.site_url.includes(location.hostname))[0];
+                    const currSiteTimestamp = new Date(currSite.creation_date * 1000);
+                    dateSiteRegContainer.text(toSeDateFormat(currSiteTimestamp));
+                });
         }
     }
 
