@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.26
+// @version      1.27
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -33,6 +33,7 @@
 
 
         GM_addStyle(`
+
 
 /*
    Fix comment upvote and flag always showing
@@ -253,6 +254,7 @@ ul.comments-list .comment-up-on {
         revertVotecellTooltips();
         initShortUsernames();
         initShortenBadgeCounts();
+        initFixBrokenImages();
 
         betterDuplicatesEditedList();
     });
@@ -379,7 +381,7 @@ ul.comments-list .comment-up-on {
 
         findAndRevertTooltips();
         setTimeout(findAndRevertTooltips, 200);
-        $(document).ajaxStop(() => setTimeout(findAndRevertTooltips, 200));
+        $(document).ajaxStop(() => setTimeout(findAndRevertTooltips, 200)); // on page update
     }
 
 
@@ -395,7 +397,7 @@ ul.comments-list .comment-up-on {
         }
 
         findAndShortenUsernames();
-        $(document).ajaxStop(findAndShortenUsernames);
+        $(document).ajaxStop(findAndShortenUsernames); // on page update
     }
 
 
@@ -406,7 +408,28 @@ ul.comments-list .comment-up-on {
         }
 
         findAndShortenBadgeCounts();
-        $(document).ajaxStop(findAndShortenBadgeCounts);
+        $(document).ajaxStop(findAndShortenBadgeCounts); // on page update
+    }
+
+
+    function initFixBrokenImages() {
+
+        function fixBrokenImages() {
+
+            // Apply to newly-loaded unprocessed images
+            $('img').not('[js-error-check]').attr('js-error-check', '').each(function(i, img) {
+
+                // When image throws an error, set to transparent with gray bgcolor
+                img.onerror = function() {
+                    this.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"; // https://stackoverflow.com/a/26896684
+                    this.style.background = 'var(--black-100)';
+                    this.classList.add('img-error');
+                };
+            });
+        }
+
+        fixBrokenImages();
+        $(document).ajaxStop(fixBrokenImages); // on page update
     }
 
 
