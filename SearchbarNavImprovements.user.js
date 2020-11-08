@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.15
+// @version      5.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1128,6 +1128,30 @@
       initQuickfilters();
 
       loadSvgIcons();
+
+      // If on search results page, and no results, try title search instead
+      if(location.pathname === '/search' && hasSearchResults && $('.js-search-results > .page-description').length === 1) {
+
+          // Can't filter title search
+          const searchResultsContainer = $('.js-search-results').removeClass('flush-left').addClass('ml0 bt btw0');
+
+          searchResultsContainer.prev('.grid.mb16').remove().end()
+          searchResultsContainer.prev('.mb12').text('no results. falling back to results from title search');
+
+          const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
+          const q = getQueryParam('q');
+          $.get(`https://${location.hostname}/search/titles?title=${q}`, function(data) {
+
+              searchResultsContainer.html('<div class="s-card p0">' + data.content + '</div>');
+
+              // Transform to original search results design
+              searchResultsContainer.find('.s-link').removeClass('s-link');
+              searchResultsContainer.find('.js-link p').addClass('fc-black-900');
+              searchResultsContainer.find('.js-question-summary-scroll').removeClass('overflow-y-scroll question-summary-scroll question-summary sm:fd-row narrow grid ai-start p0 bbw0 h100 sm:pl0 sm:pr0');
+              searchResultsContainer.find('.relativetime').unwrap();
+              searchResultsContainer.find('.started').removeClass('fc-black-300');
+          });
+      }
   }
 
 
@@ -2066,6 +2090,12 @@ button, .button,
   top: 0;
   right: 0;
   opacity: 0;
+}
+.statscontainer {
+  min-width: 58px;
+}
+.started {
+  width: 220px;
 }
 
 /* Hide duplicate search form on search results page */
