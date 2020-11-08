@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.8.1
+// @version      5.8.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -812,7 +812,7 @@ Breakdown:<br>
             const lastHist = histTableEvents.children().first().children('td');
             if(lastHist.length == 4) {
                 const lastBannedDate = lastHist.find('.relativetime').attr('title');
-                const lastBannedDur = Number(lastHist.eq(2).text().match(/\d+ days/)[0].replace(/\D+/g, ''));
+                const lastBannedDur = Number(lastHist.eq(2).text().match(/(\d+ days|"Duration":\d+)/)[0].replace(/\D+/g, ''));
                 const bannedDiff = daysReviewBanned(lastBannedDate, lastBannedDur);
 
                 if(bannedDiff > 0) {
