@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.17.2
+// @version      1.17.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -243,7 +243,7 @@
             case 'only-mod':
                 filterFn = function(i, el) {
                     const eType = $(el).find('span.event-type').text();
-                    return eType !== 'comment flag' && (eType === 'flag' || $(el).hasClass('deleted-event') || $(el).hasClass('deleted-event-details'));
+                    return eType !== 'comment flag' && (eType === 'flag' || eType === 'close' || $(el).hasClass('deleted-event') || $(el).hasClass('deleted-event-details'));
                 };
                 break;
 
