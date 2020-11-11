@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.5.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -40,7 +40,7 @@
     const additionalInfo = getQueryParam('info') ? newlines + decodeURIComponent(getQueryParam('info')) : '';
 
 
-    const modMenuOnClick = true;
+    const modMenuOnClick = false;
 
 
     // CUSTOM MOD MESSAGE TEMPLATES
@@ -72,7 +72,7 @@ We have removed your ability to suggest edits for a few days, to ensure this mes
             suspensionDefaultDays: 0,
             templateBody: `It has come to our attention that your recent suggested tag wiki edits consisted primarily or entirely of text copied from other websites. We prefer not to simply copy content already available elsewhere in lieu of creating something that adds value to this site, and where possible we prefer that content be your own original work.
 
-Please note that we require full attribution with a link to the original author, and please be sure you are not copying content without permission.
+Please note that we still require full attribution with a link to the external source, and citing the name of the original author if you are quoting an excerpt. You should also make an effort to seek permission before copying content.
 
 Thank you, and we look forward to your contributions in the future.`,
         },
