@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.8.2
+// @version      5.8.3
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -381,8 +381,9 @@
                 let endDate = new Date(startDate);
                 event.begin = startDate;
                 event.reason = el.children[2].innerHTML.split('duration =')[0];
-                event.mod = el.children[2].innerHTML.split(/duration = \d+ days?/)[1].replace(/\s*by\s*/, '');
-                event.duration = Number(el.children[2].innerText.match(/\= (\d+) day/m)[1]);
+                event.mod = el.children[2].innerHTML.split(/(duration = \d+ days?|{"Duration":\d+})/i)[2].replace(/\s*by\s*/, '');
+                event.duration = Number(el.children[2].innerText.match(/(\= (\d+) day|:(\d+)})/m)[0].replace(/\D+/g, ''));
+
                 // calculate end datetime
                 endDate.setDate(endDate.getDate() + event.duration);
                 event.end = endDate;
@@ -434,7 +435,7 @@
             daysago.setDate(daysago.getDate() - 60);
             eventRows.eq(0).each(function() {
                 const datetime = new Date($(this).find('.relativetime').attr('title'));
-                const duration = Number(this.innerText.match(/\= \d+ days/)[0].replace(/\D+/g, ''));
+                const duration = Number(this.innerText.match(/(\= (\d+) day|:(\d+)})/m)[0].replace(/\D+/g, ''));
                 let banEndDatetime = new Date(datetime);
                 banEndDatetime.setDate(banEndDatetime.getDate() + duration);
                 const currtext = banEndDatetime > Date.now() ? 'Current' : 'Recent';
@@ -1044,6 +1045,9 @@ a.reviewban-button {
 }
 .js-lookup-result br {
     display: none;
+}
+.js-lookup-result .item-reason br {
+    display: initial;
 }
 .js-lookup-result .duration-radio-group {
     display: block;
