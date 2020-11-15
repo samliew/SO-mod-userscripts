@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3
+// @version      0.3.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -169,7 +169,8 @@
     .post-id,
     .post-mod-menu-link,
     .mod-userlinks,
-    .comment-flagcount
+    .comment-flagcount,
+    .meta-mentioned
     {
         display: none;
     }
@@ -188,6 +189,7 @@
 
     /* Hide/Reset other userscripts stuff */
     #roombaFieldRow,
+    .mod-tools,
     .pronouns
     {
         display: none;
