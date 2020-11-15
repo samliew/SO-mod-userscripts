@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.2
+// @version      0.3.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -44,6 +44,25 @@
     }
 
 
+    function processTimestampTooltips() {
+
+        $('.relativetime, .relativetime-clean').not('[data-timestamp]').each(function() {
+            const title = $(this).attr('title');
+            $(this).attr('data-timestamp', title.replace(/,.+$/, ''));
+        });
+
+        $('time[datetime]').not('[data-timestamp]').each(function() {
+            const title = $(this).attr('datetime');
+            $(this).attr('data-timestamp', title.replace('T', ' ') + 'Z');
+        });
+
+        $('#question-header').next().find('a[title]').each(function() {
+            const title = $(this).attr('title');
+            $(this).attr('data-timestamp', title);
+        });
+    }
+
+
     function appendQnaPrintStyles() {
 
         GM_addStyle(`
@@ -53,9 +72,14 @@
         max-width: none;
     }
     body {
-        font-size: 11px;
+        font-size: 1rem;
         background-color: #fff;
         background-image: none;
+    }
+    .comments,
+    .comments .comment-body > * {
+        font-size: 1.1rem;
+        line-height: 1.35;
     }
     header,
     footer,
@@ -78,7 +102,9 @@
     .js-comment-delete,
     .z-banner,
     #edit-tags,
-    .js-bookmark-btn
+    .js-bookmark-btn,
+    .js-new-contributor-indicator,
+    .new-contributor-indicator
     {
         display: none;
     }
@@ -116,12 +142,9 @@
     .relativetime-clean:before,
     #question-header + .grid > .grid--cell time:before,
     #question-header + .grid > .grid--cell a:before {
-        content: attr(title);
+        content: attr(data-timestamp);
         font-size: 13px;
         white-space: nowrap;
-    }
-    #question-header + .grid > .grid--cell time:before {
-        content: attr(datetime);
     }
     .comment-date .relativetime:before,
     .comment-date .relativetime-clean:before,
@@ -481,8 +504,8 @@
                 let deferreds = [];
                 pages.each(function(i, el) {
                     const pageNum = el.innerText.trim();
-                    let page = $(`<div class="js-answer-page" data-page="${pageNum}"></div>`).insertAfter(previousPage);
-                    let aj = page.load(el.href + ' #answers', function() {
+                    const page = $(`<div class="js-answer-page" data-page="${pageNum}"></div>`).insertAfter(previousPage);
+                    const aj = page.load(el.href + ' #answers', function() {
                         page.children().children().not('.answer, a').remove();
                     });
                     previousPage = page;
@@ -503,27 +526,41 @@
         // Always expand comments if comments have not been expanded yet
         function loadAllComments(inclDeletedComments) {
 
-            $('.question, #answers .answer').find('.js-comments-container').not('.js-del-loaded').addClass('js-del-loaded').each(function() {
+            return new Promise(function(resolve, reject) {
+                let deferreds = [];
 
-                // Get post id which is required for loading comments
-                const postId = this.dataset.answerid || this.dataset.questionid || this.dataset.postId;
+                $('.question, #answers .answer').find('.js-comments-container').not('.js-del-loaded').addClass('js-del-loaded').each(function() {
 
-                // Remove default comment expander after loading comments
-                const elems = $(this).next().find('.js-show-link.comments-link:visible').prev('.js-link-separator').addBack();
+                    // Get post id which is required for loading comments
+                    const postId = this.dataset.answerid || this.dataset.questionid || this.dataset.postId;
 
-                // If no comment expander and not loading deleted comments,
-                // do nothing else since everything is already displayed
-                if(!inclDeletedComments && elems.length == 0) {
-                    return;
-                }
+                    // Remove default comment expander after loading comments
+                    const elems = $(this).next().find('.js-show-link.comments-link:visible').prev('.js-link-separator').addBack();
 
-                // Get all including deleted comments
-                // This method will avoid jumping to comments section
-                const commentsUrl = `/posts/${postId}/comments?includeDeleted=${inclDeletedComments}&_=${Date.now()}`;
-                $('#comments-' + postId).show().children('ul.js-comments-list').load(commentsUrl, function() {
-                    console.log('loaded comments ' + postId);
-                    elems.remove();
+                    // If no comment expander and not loading deleted comments,
+                    // do nothing else since everything is already displayed
+                    if(!inclDeletedComments && elems.length == 0) {
+                        return;
+                    }
+
+                    // Get all including deleted comments
+                    // This method will avoid jumping to comments section
+                    const commentsUrl = `/posts/${postId}/comments?includeDeleted=${inclDeletedComments}&_=${Date.now()}`;
+                    const aj = $('#comments-' + postId).show().children('ul.js-comments-list').load(commentsUrl, function() {
+                        console.log('loaded comments ' + postId);
+                        elems.remove();
+                    });
+                    deferreds.push(aj);
                 });
+
+                // Resolve when all comments load
+                $.when.all(deferreds).then(function() {
+                    console.log('loaded all comments');
+
+                    // short delay to allow comments to be added to page
+                    setTimeout(() => { resolve(); }, 2000);
+                }, reject);
+
             });
         }
 
@@ -547,6 +584,9 @@
 
         if(location.pathname.includes('/questions/') && document.getElementById('question')) {
             appendQnaPrintStyles();
+            processTimestampTooltips();
+
+            $(document).on('ajaxStop', processTimestampTooltips);
 
             const commentButtons = $(`<div class="print-comment-buttons"><button>Load answers and comments</button></div>`).appendTo('body');
             if(StackExchange.options.user.isModerator) {
