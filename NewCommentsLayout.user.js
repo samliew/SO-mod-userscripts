@@ -3,7 +3,7 @@
 // @description  Better comments layout for easier readability and moderation
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -32,7 +32,7 @@
 .comment-body > * {
     display: inline-block;
     margin: 0 10px 0 0;
-    font-size: 0.9rem;
+    font-size: 0.96rem;
 }
 .comment-body .comment-date,
 .comment-body .comment-date > a {
