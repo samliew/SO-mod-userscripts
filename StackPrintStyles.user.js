@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.1
+// @version      0.3.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -76,7 +76,9 @@
     a.new-answer,
     .js-comment-edit,
     .js-comment-delete,
-    .z-banner
+    .z-banner,
+    #edit-tags,
+    .js-bookmark-btn
     {
         display: none;
     }
@@ -99,7 +101,7 @@
     }
 
     /* Don't show if you have voted */
-    .s-btn.fc-theme-primary {
+    .js-voting-container .s-btn {
         color: inherit;
     }
 
@@ -548,7 +550,7 @@
 
             const commentButtons = $(`<div class="print-comment-buttons"><button>Load answers and comments</button></div>`).appendTo('body');
             if(StackExchange.options.user.isModerator) {
-                commentButtons.prepend(`<button data-incldeletedcomments="true">+ deleted comments (mod)</button>`);
+                commentButtons.prepend(`<button data-incldeletedcomments="true">+ deleted comments</button>`);
             }
 
             commentButtons.on('click', 'button', function(evt) {
