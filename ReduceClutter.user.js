@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.27
+// @version      1.27.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -235,6 +235,7 @@ ul.comments-list .comment-up-on {
     z-index: unset !important;
 }
 
+
 `);
 
 
@@ -257,6 +258,7 @@ ul.comments-list .comment-up-on {
         initFixBrokenImages();
 
         betterDuplicatesEditedList();
+
     });
 
 
@@ -419,12 +421,21 @@ ul.comments-list .comment-up-on {
             // Apply to newly-loaded unprocessed images
             $('img').not('[js-error-check]').attr('js-error-check', '').each(function(i, img) {
 
+                const originalImg = img.src;
+
+                function imageError() {
+                    img.setAttribute('data-original-image', originalImg);
+                    img.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"; // https://stackoverflow.com/a/26896684
+                    img.style.background = 'var(--black-100)';
+                    img.classList.add('img-haserror');
+                }
+
                 // When image throws an error, set to transparent with gray bgcolor
-                img.onerror = function() {
-                    this.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"; // https://stackoverflow.com/a/26896684
-                    this.style.background = 'var(--black-100)';
-                    this.classList.add('img-error');
-                };
+                img.onerror = imageError;
+
+                // Workaround for Chrome caching images, toggle the source so we can catch any image errors on page load
+                img.src = '';
+                img.src = originalImg;
             });
         }
 
