@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.4
+// @version      0.3.5
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -167,7 +167,8 @@
     }
     #answers > a:nth-of-type(2),
     #answers > a:last-of-type,
-    .js-answer-page[data-page="1"] > a:first-child {
+    .js-answer-page[data-page="1"] > a:first-child,
+    #mainbar > table .msg {
         page-break-before: always;
     }
 
@@ -592,7 +593,11 @@
 
     function doPageload() {
 
-        if(location.pathname.includes('/questions/') && document.getElementById('question')) {
+        if(location.hostname.includes('chat.')) {
+            appendChatPrintStyles();
+        }
+
+        else if(document.getElementById('question') || location.pathname.includes('/questions/') || document.body.classList.contains('unified-theme')) {
             appendQnaPrintStyles();
             processTimestampTooltips();
 
@@ -638,10 +643,6 @@
     margin-right: 0;
 }
 `);
-        }
-
-        else if(location.hostname.includes('chat.')) {
-            appendChatPrintStyles();
         }
     }
 
