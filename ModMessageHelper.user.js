@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5.1
+// @version      1.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -40,11 +40,16 @@
     const additionalInfo = getQueryParam('info') ? newlines + decodeURIComponent(getQueryParam('info')) : '';
 
 
-    const modMenuOnClick = false;
+    const modMenuOnClick = true;
 
 
-    // CUSTOM MOD MESSAGE TEMPLATES
-    // This may be edited to add more custom templates to mod messages
+    /* CUSTOM MOD MESSAGE TEMPLATES
+     * This may be edited to add more custom templates to mod messages
+     * Dyanamic variables: {suspensionDurationDays} , {optionalSuspensionAutoMessage}
+     * addPrefix false:    no pleasantries and userlink
+     * addSuffix false:    no suspension auto message
+     * addSignature false: no regards and sign off
+     */
     const customModMessages = [
         {
             templateName: "minor edits bumping post",
@@ -86,14 +91,26 @@ You have recently removed many tags from questions without following the burnina
 
 The edits you made will be reverted. Some of the edits have other beneficial changes, which you are welcome to reapply. However, you are not permitted to systematically remove tags from questions without following the burnination process.`,
         },
+        {
+            templateName: "upon request",
+            suspensionReason: "upon request",
+            suspensionDefaultDays: 30,
+            templateBody: `We have temporarily suspended your account for {suspensionDurationDays} days upon request.
+
+Since this suspension is fully voluntary, you are welcome to reply to this message and request that the suspension be lifted early. Otherwise it will automatically expire in {suspensionDurationDays} days, upon which time your full reputation and privileges will be restored.
+
+We wish you a pleasant vacation from the site, and we look forward to your return!`,
+            addSuffix: false,
+        },
         /* EXAMPLE
         {
             templateName: "a farewell",
             suspensionReason: "for rule violations",
             suspensionDefaultDays: 365,
             templateBody: `goodbye`,
-            addPrefix: false,
-            addSuffix: false,
+            //addPrefix: false,
+            //addSuffix: false,
+            //addSignature: false,
         },
         */
     ];
@@ -325,7 +342,14 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
                     customModMessages.forEach(function(v, i) {
                         const match = v.templateName.replace(/\W/g, '').toLowerCase().includes(template);
                         if(match) {
-                            actionList.children('li').eq(numberOfItems + i).click().triggerHandler('click');
+                            const actionListItem = actionList.children('li').eq(numberOfItems + i);
+                            const defaultSuspendDurationDays = Number(actionListItem.find('input[data-days]').attr('data-days'));
+
+                            // Select template if match found
+                            actionListItem.click().triggerHandler('click');
+
+                            // Set custom susp duration to template default days
+                            if(defaultSuspendDurationDays > 0) $('#suspendDays').val(defaultSuspendDurationDays);
                         }
                     });
                 }
@@ -370,9 +394,12 @@ We're writing in reference to your ${sitename} account:
 ${userLink}
 
 `;
+
             const messageSuffix = `
 
-{optionalSuspensionAutoMessage}
+{optionalSuspensionAutoMessage}`;
+
+            const messageSignature = `
 
 Regards,
 ${sitename} Moderation Team`;
@@ -380,7 +407,7 @@ ${sitename} Moderation Team`;
 
             customModMessages.forEach(function(item, i) {
                 const templateNumber = numberOfItems + i;
-                const templateBodyText = (item.addPrefix !== false ? messagePrefix : '') + item.templateBody + (item.addSuffix !== false ? messageSuffix : '');
+                const templateBodyText = (item.addPrefix !== false ? messagePrefix : '') + item.templateBody + (item.addSuffix !== false ? messageSuffix : '') + (item.addSignature !== false ? messageSignature : '');
                 const templateBodyProcessed = templateBodyText.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
                     return '&#'+i.charCodeAt(0)+';';
                 }).replace('Regards,', 'Regards,  '); // always needs two spaces after for a line break
