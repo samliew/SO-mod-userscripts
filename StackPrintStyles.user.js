@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.3
+// @version      0.3.4
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -154,6 +154,11 @@
     }
 
     /* Answers starts on a new page */
+    #answers-header,
+    #answers .pager-answers + a[name],
+    #answers-header + .js-answer-page[data-page="1"] > a:first-child {
+        page-break-before: avoid;
+    }
     #answers > a,
     .js-answer-page > a {
         display: block;
@@ -163,7 +168,13 @@
     #answers > a:nth-of-type(2),
     #answers > a:last-of-type,
     .js-answer-page[data-page="1"] > a:first-child {
-        page-break-before: auto;
+        page-break-before: always;
+    }
+
+    /* Deleted comments on deleted posts */
+    .deleted-answer .comments .comment.deleted-comment .comment-text,
+    .deleted-answer .comments .comment.deleted-comment .comment-actions {
+        background-color: var(--red-100);
     }
 
     /* Embiggen images */
@@ -178,7 +189,6 @@
     }
 
     /* Do not break comments and usercards between pages */
-    .comment,
     .comment-text,
     .post-signature,
     .user-gravatar32,
