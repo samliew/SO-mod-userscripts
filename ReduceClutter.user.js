@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.27.2
+// @version      1.28
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -233,6 +233,21 @@ ul.comments-list .comment-up-on {
 */
 .s-btn-group .s-btn.is-selected {
     z-index: unset !important;
+}
+
+
+/* Expand profile descriptions on hover without using scrollbars in a small area */
+#user-card .profile-user--about {
+    max-height: auto;
+    height: auto;
+    overflow: hidden !important;
+}
+#user-card .profile-user--bio {
+    height: 240px;
+    overflow: hidden;
+}
+#user-card > .grid > .grid--cell:hover .profile-user--bio {
+    height: auto;
 }
 
 
