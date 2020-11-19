@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.7.4
+// @version      3.7.5
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -174,7 +174,7 @@ async function waitForSOMU() {
     }
 
 
-    let toastTimeout, defaultDuration = 1.5;
+    let toastTimeout, defaultDuration = 2;
     function toastMessage(msg, duration = defaultDuration) {
         // Validation
         duration = Number(duration);
@@ -427,7 +427,7 @@ async function waitForSOMU() {
         }
 
         // Question body is of medium length, skip if enabled
-        if(skipMediumQuestions && post.isQuestion && post.content.length > 1200) {
+        if(skipMediumQuestions && post.isQuestion && post.content.length > 1000) {
             console.log('skipping medium-length question, length ' + post.content.length);
             toastMessage('skipping medium-length question, length ' + post.content.length);
             skipReview();
@@ -438,6 +438,64 @@ async function waitForSOMU() {
         if(autoCloseQuestions || (autoCloseShortQuestions && post.isQuestion && post.content.length < 500)) {
             console.log('short question detected, length ' + post.content.length);
             $('.js-review-actions button[title*="Close"], .close-question-link[data-isclosed="false"]').first().click();
+            return;
+        }
+    }
+
+
+    function processReopenReview() {
+
+        // Post has positive score, skip if enabled
+        if(skipUpvoted && post.votes > 3) {
+            console.log('skipping upvoted post');
+            toastMessage('skipping upvoted post');
+            skipReview();
+            return;
+        }
+
+        // Question has multiple answers, skip if enabled
+        if(skipMultipleAnswers && post.isQuestion && post.answers > 1) {
+            console.log('skipping question with >1 answer');
+            toastMessage('skipping question with >1 answer');
+            skipReview();
+            return;
+        }
+
+        if(!isSuperuser) return;
+
+        const shortPostBody = post.content.length < 500;
+        const tooManyQuestions = post.content.includes('?') && post.content.match(/\?/g).length > 3;
+
+        const diff = $('.sidebyside-diff');
+        const adds = diff.find('.diff-add').text().length || 0;
+        const subs = diff.find('.diff-delete').text().length || 0;
+
+        const imageLinks = $('.inline-diff').find('a[href$="png"], a[href$="jpg"], a[href$="gif"]').length;
+        const images = $('.inline-diff').find('img').length;
+        const badImageLinks = imageLinks - images;
+
+        console.log('adds', adds, 'subs', subs, 'badImageLinks', badImageLinks);
+
+        // Question has comprehensive changes with no bad images, reopen
+        if(adds > 400 && badImageLinks === 0 && !shortPostBody && !tooManyQuestions) {
+            console.log('reopened');
+            toastMessage('reopened');
+            $('.js-review-actions button[title^="agree"]').removeAttr('disabled').click();
+            $('#confirm-modal-body').next().children('.js-ok-button').click();
+            return;
+        }
+        // Question has some edits with no bad images, ignore
+        else if((subs > 200 || adds > 200) && badImageLinks === 0) {
+            console.log('skipping minor edits');
+            toastMessage('skipping minor edits', 3000);
+            setTimeout(skipReview, 4000);
+            return;
+        }
+        // Leave closed
+        else {
+            console.log('leave closed' + (badImageLinks > 0 ? ', has badImageLinks' : '') + (shortPostBody ? ', too short' : ''));
+            toastMessage('leave closed' + (badImageLinks > 0 ? ', has badImageLinks' : '') + (shortPostBody ? ', too short' : ''));
+            $('.js-review-actions button[title^="disagree"]').removeAttr('disabled').click();
             return;
         }
     }
@@ -786,7 +844,7 @@ async function waitForSOMU() {
             case 'close':
                 processReview = processCloseReview; break;
             case 'reopen':
-                processReview = processCloseReview; break;
+                processReview = processReopenReview; break;
             case 'suggested-edits':
                 processReview = processCloseReview; break;
             case 'helper':
@@ -1072,7 +1130,7 @@ async function waitForSOMU() {
                 $('.js-show-link.comments-link').click();
 
                 // Parse flagged reason (to select as default if no popular vote)
-                flaggedReason = (responseJson.instructions.match(/(too broad|unclear what you&#39;re asking|primarily opinion-based)/i) || ['']).pop().replace('&#39;', "'");
+                flaggedReason = (responseJson.instructions.match(/(needs more focus|needs details or clarity|primarily opinion-based)/i) || ['']).pop().replace('&#39;', "'");
                 console.log('flaggedReason: ', flaggedReason || '-');
 
                 setTimeout(function() {
