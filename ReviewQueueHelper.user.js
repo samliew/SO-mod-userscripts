@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.7.5
+// @version      3.7.6
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1005,9 +1005,12 @@ async function waitForSOMU() {
                             return;
                         }
 
-                        // Convert migrations to unclear
+                        // Ignore migrations
                         if($('siteSpecificCloseReasonId-2-').is(':checked') || $('input[name="belongsOnBaseHostAddress"]:checked').length > 0) { // migrate
-                            $('#closeReasonId-NeedsDetailsOrClarity').prop('checked', true).trigger('click');
+                            //$('#closeReasonId-NeedsDetailsOrClarity').prop('checked', true).trigger('click'); // default to unclear?
+                            toastMessage('AUTO SKIP - ignore migrations');
+                            skipReview();
+                            return;
                         }
 
                         // After short delay
