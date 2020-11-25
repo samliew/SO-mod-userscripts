@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.8.4
+// @version      6.0
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -36,7 +36,7 @@
 
 
     const superusers = [ 584192 ];
-    const isSuperuser = () => superusers.includes(StackExchange.options.user.userId);
+    const isSuperuser = superusers.includes(StackExchange.options.user.userId);
 
     const fkey = StackExchange.options.user.fkey;
     const messageCharLimit = 2000;
@@ -290,27 +290,36 @@
             }).wrap('<div></div>');
         }
 
+        const reviewTaskId = location.pathname.split('/').pop();
+
         // Get users review history
         $('.js-review-instructions').find('a[href^="/users/"]').each(function() {
 
             // Ignore mods
-            var modFlair = $(this).next('.mod-flair');
-            if(modFlair.length) return;
+            const hasModFlair = $(this).next('.mod-flair');
+            if(hasModFlair.length) return;
 
-            var userlink = $(this);
-            var uid = $(this).attr('href').match(/\d+/)[0];
-            var url = '/users/history/' + uid + '?type=User+has+been+suspended+from+reviewing';
-            var action = $(this).nextAll('b').last().text().toLowerCase().trim().replace(/\W+/g, '-');
-            var banUrl = `/admin/review/suspensions#${uid}|${location.pathname}|${action}`;
+            const userlink = $(this);
+            const uid = $(this).attr('href').match(/\d+/)[0];
+            const url = '/users/history/' + uid + '?type=User+has+been+suspended+from+reviewing';
+            const action = $(this).nextAll('b').last().text().toLowerCase().trim().replace(/\W+/g, '-');
+            const reviewActionQuerystring = `&reviewAction=${action}`;
 
-            // Add ban link
-            $(`<a class="reviewban-link" href="${banUrl}" title="Suspend user from reviews" target="_blank">X</a>`)
-                .insertBefore(userlink);
+            // Append review action to suspend link
+            userlink.nextAll('a').first()
+                .attr('href', function(i, href) {
+                    return href + (href.includes('/suspend-user?') ? reviewActionQuerystring : `/suspend-user?userId=${uid}&reviewTaskId=${reviewTaskId}` + reviewActionQuerystring);
+                })
+                .attr({
+                    'title': 'suspend user from reviews',
+                    'target': '_blank',
+                })
+                .text((i, v) => v.replace(' user from reviews', ''));
 
             // Skip fetching history for supermods since we will already be fetching that while attempting to ban
-            if(!isSuperuser()) {
+            if(isSuperuser) {
 
-                // Grab user's history
+                // Grab user review ban history
                 $.ajax({
                     url: url,
                     xhr: jQueryXhrOverride,
@@ -324,10 +333,8 @@
                             numBans = Number(numBansLink.nextSibling.nodeValue.match(/\d+/)[0]);
                         }
 
-                        console.log("Review suspensions for " + uid, numBans);
-
                         // Add annotation count
-                        $(`<a class="reviewban-count ${numBans > 2 ? 'warning' : ''}" href="${url}" title="${numBans} prior review suspensions" target="_blank">${numBans}</a>`)
+                        $(`<a class="reviewban-count ${numBans > 5 ? 'warning' : ''}" href="${url}" title="${numBans} prior review suspensions" target="_blank">${numBans}</a>`)
                             .insertBefore(userlink);
                     }
                 });
@@ -478,7 +485,7 @@
             });
 
             // If sam is review banning users in Triage
-            if(isSuperuser() && location.hash.includes('/triage')) {
+            if(isSuperuser && location.hash.includes('/triage')) {
 
                 // If reviewAction is "Looks OK", and user is currently banned for >= 16, ignore (close tab)
                 if(reviewAction == 'looks-ok' && isCurrentlyBanned && recommendedDuration >= 8) {
@@ -495,7 +502,7 @@
             }
 
             // If is currently banned, add confirmation prompt when trying to ban user
-            if(!isSuperuser() && isCurrentlyBanned) {
+            if(!isSuperuser && isCurrentlyBanned) {
                 $('.js-lookup-result form').submit(function() {
                     return confirm('User is currently review suspended!\n\nAre you sure you want to replace with a new ban?');
                 });
@@ -507,90 +514,30 @@
 
     function doPageload() {
 
-        // If on /admin/review/suspensions/historical, linkify ban count
-        if(location.pathname.includes('/admin/review/suspensions/historical')) {
+        // New suspend user form
+        if(location.pathname === '/admin/review/suspensions/suspend-user') {
 
-            // Linkify historical ban counts to user review ban history page
-            const table = $('.sorter').attr('id', 'banned-users-table');
-            table.find('tbody tr').each(function() {
-                const userlink = $(this).find('td a').first();
-                const uid = userlink.attr('href').match(/\/(\d+)\//)[1];
-                $(this).children('td').last().html(function(i, v) {
-                    return `<a href="/users/history/${uid}?type=User+has+been+suspended+from+reviewing" target="_blank" title="see review ban history">${v}</a>`;
+            const uid = getQueryParam('userId');
+            if(!uid) return;
+
+            const warning = $('.js-lookup-result .s-notice.s-notice__warning');
+            const isCurrentlySuspended = warning.length > 0 ? warning.text().includes('currently suspended') : false;
+
+            if(isCurrentlySuspended) {
+
+                const unbanAndRefreshBtn = $(`<a class="fr mtn8 s-btn s-btn__filled s-btn__sm">Unsuspend user and try again</a>`).appendTo(warning);
+                unbanAndRefreshBtn.click(function() {
+                    reviewUnban(uid).then(() => {
+                        location.reload(true);
+                    });
                 });
-            });
+            }
         }
 
-        // Linkify ban counts on ban page and historical page tables
-        // /admin/review/suspensions  &  /admin/review/suspensions/historical
-        else if(location.pathname.includes('/admin/review/suspensions')) {
+        // Linkify ban counts on ban page /admin/review/suspensions
+        else if(location.pathname === '/admin/review/suspensions') {
 
-            const table = $('.sorter').attr('id', 'banned-users-table');
-
-            // If superuser,
-            if(isSuperuser()) {
-                // close tab/window if a user has just been banned
-                if(location.pathname == '/admin/review/suspensions' && history.length >= 2 && location.hash == '') {
-                    window.top.close();
-                }
-                // remove ban table to save browser memory
-                if(location.hash != '') {
-                    table.remove();
-                }
-            }
-
-            // Load ban form for user if passed via querystring
-            params = location.hash.substr(1).split('|');
-            if(params) {
-                uid = Number(params[0]) || null;
-
-                if(params.length >= 2) {
-
-                    // Change window/tab title so we can visually see the progress
-                    document.title = '1.INIT';
-
-                    posts = params[1].split(';').map(v => v.replace(/\/?review\//, ''));
-                    reviewAction = params[2] || null;
-
-                    // Remove similar consecutive review types from urls
-                    // (possibly no longer needed as we can increase max length)
-                    //var prevType = null;
-                    //posts = posts.map(v => {
-                    //    if(v.includes(prevType + '/')) v = v.replace(/\D+/g, '');
-                    //    else prevType = v.split('/')[0];
-                    //    return v;
-                    //});
-
-                    console.log(posts, reviewAction);
-
-                    // Fit as many URLs as possible into message
-                    var i = posts.length;
-                    do {
-                        posttext = posts.slice(0, i--).map(v => `\n[${v}](/review/${v})`).join(", ") + '\n';
-                    }
-                    while(i > 1 && 48 + location.hostname.length + posttext.length > messageCharLimit);
-
-                    // Save all posts for canned messages
-                    allposts = posts.map(v => `\n[${v}](/review/${v})`).join(", ") + '\n';
-                }
-
-                // Validation
-                if(uid && !isNaN(uid)) {
-
-                    // Insert UID
-                    $('.js-user-to-suspend').val(uid);
-
-                    // Submit lookup
-                    setTimeout(() => {
-
-                        // Change window/tab title so we can visually see the progress
-                        document.title = '2.LOOKUP';
-
-                        $('.js-lookup').click();
-                    }, 1500);
-                }
-            }
-
+            const table = $('.js-current-suspensions, .js-historical-grid table').first();
 
             // Linkify ban counts to user review ban history page
             table.find('tbody tr').each(function() {
@@ -623,20 +570,30 @@
                 });
             }, 2000);
 
+            // Add duration column header
+            table.find('thead tr th').eq(2).after(`
+<th scope="col" data-target="s-table.column" data-action="click->s-table#sort">
+  Duration
+  <svg aria-hidden="true" class="js-sorting-indicator js-sorting-indicator-asc svg-icon iconArrowUpSm" width="14" height="14" viewBox="0 0 14 14"><path d="M3 9h8L7 5 3 9z"></path></svg>
+  <svg aria-hidden="true" class="js-sorting-indicator js-sorting-indicator-desc svg-icon iconArrowDownSm d-none" width="14" height="14" viewBox="0 0 14 14"><path d="M3 5h8L7 9 3 5z"></path></svg>
+  <svg aria-hidden="true" class="js-sorting-indicator js-sorting-indicator-none svg-icon iconArrowUpDownSm d-none" width="14" height="14" viewBox="0 0 14 14"><path d="M7 2l4 4H3l4-4zm0 10l4-4H3l4 4z"></path></svg>
+</th>`);
             // Add duration column to the other rows
             table.find('tbody tr').each(function() {
                 const cells = $(this).children('td');
                 let startDate = new Date(cells.eq(1).find('.relativetime').attr('title')).getTime();
                 let endDate = new Date(cells.eq(2).find('.relativetime').attr('title')).getTime();
                 let diffDays = (endDate - startDate) / 86400000;
-                cells.eq(2).after(`<td>${diffDays}</td>`);
+                cells.eq(2).after(`<td class="ta-center va-top">${diffDays}</td>`);
             });
 
             // Option to renew permanent bans
-            $('.reason', table).filter((i, el) => el.innerText.includes('no longer welcome') || el.innerText.includes('no signs') || el.innerText.includes('any longer')).each(function() {
-                const p = $(this).parent();
-                const l = p.find('a.js-unsuspend').clone().appendTo(this);
-                l.removeClass('js-unsuspend').addClass('js-suspend-again').attr('title', (i, s) => s.replace('Unsuspend', 'reapply another yearly review suspension to').replace(' from reviewing', '')).text((i, s) => s.replace('Unsuspend', 'Re-suspend'));
+            $('.js-message-body-container', table).filter((i, el) => el.innerText.includes('no longer welcome') || el.innerText.includes('no signs') || el.innerText.includes('any longer')).each(function() {
+                const row = $(this).closest('tr');
+                const reasonTemplate = $(this).parent().find('.js-message-type').text('Permabanned');
+                const rebanLink = row.find('.js-unsuspend').clone().insertAfter(this);
+                rebanLink.removeClass('s-btn__link js-unsuspend').addClass('s-btn__xs s-btn__filled mt8 js-suspend-again')
+                    .attr('title', (i, s) => s.replace('Unsuspend', 'Renew review permaban for').replace(' from reviewing', '')).text((i, s) => s.replace('Unsuspend', 'Renew permaban'));
             });
             table.on('click', '.js-suspend-again', function() {
                 if(confirm("Apply another year's suspension to this user?")) {
@@ -646,49 +603,6 @@
                 return false;
             });
 
-            // UI classes
-            $('.js-user-to-suspend').addClass('s-input');
-            $('.js-lookup').addClass('s-btn');
-
-            // Ban user form submission
-            $('.js-lookup-result').on('submit', 'form', function() {
-
-                // No duration selected, alert and prevent
-                if($('input[name="reviewSuspensionChoice"]:checked').length == 0) {
-                    $(this).addClass('validation-error');
-                    return false;
-                }
-
-                // Disable button to prevent double submission
-                $('.js-lookup-result input:submit').prop('disabled', true);
-
-                // If Samuel
-                if(isSuperuser()) {
-
-                    // Perform an ajax submit instead and then immediately close the window for efficiency
-                    $.ajax({
-                        type : 'POST',
-                        url : this.action,
-                        data : $(this).serialize(),
-                        beforeSend: function() {
-                            // Max timeout before closing window
-                            setTimeout(function() {
-                                unsafeWindow.top.close();
-                            }, 5000);
-                        }
-                    }).done(function() {
-                        unsafeWindow.top.close();
-                    });
-                    return false;
-                }
-
-                if(document.title.includes('BAN')) {
-
-                    // Change window/tab title so we can visually see the progress
-                    document.title = '>> BANNING';
-                }
-            });
-
 
             // Add summary of currently review-banned users if we are not review banning users
             if(location.hash == '' && location.search == '') {
@@ -696,14 +610,14 @@
                 const weekAhead = Date.now() + (7 * 24 * 60 * 60 * 1000);
 
                 const rows = table.find('tbody tr');
-                const reqEditing = rows.filter((i, el) => el.children[4].innerText.match(/(requires editing|needs community edit)/i)).length;
-                const forTriage = rows.filter((i, el) => el.children[4].innerText.toLowerCase().includes('triage')).length;
-                const auditFailures = rows.filter((i, el) => {
-                    const t = el.children[4].innerText;
-                    return t.includes('You have made too many incorrect reviews.') || t.includes('A number of your recent reviews were incorrect.');
+                const banReasons = rows.find('.js-message-body-container');
+                const reqEditing = banReasons.filter((i, el) => el.innerText.match(/(requires editing|needs community edit)/i)).length;
+                const forTriage = banReasons.filter((i, el) => el.innerText.toLowerCase().includes('triage')).length;
+                const auditFailures = banReasons.filter((i, el) => {
+                    return el.innerText.includes('You have made too many incorrect reviews.') || el.innerText.includes('A number of your recent reviews were incorrect.');
                 }).length;
                 const hundred = rows.filter((i, el) => el.children[3].innerText >= 100).length;
-                const permaban = rows.filter((i, el) => el.children[4].innerText.match(/(no|any) (longer|signs)/)).length;
+                const permaban = banReasons.filter((i, el) => el.innerText.match(/(no|any) (longer|signs)/)).length;
                 const firstTimers = rows.filter((i, el) => el.children[5].innerText == 1).length;
                 const fiveTimers = rows.filter((i, el) => el.children[5].innerText >= 5).length;
                 const tenTimers = rows.filter((i, el) => el.children[5].innerText >= 10).length;
@@ -724,7 +638,7 @@
                   'count366': durations.filter(v => v > 365).length
                 };
 
-                const bannedStats = $(`<div id="banned-users-stats"><ul>` +
+                const bannedStats = $(`<div id="banned-users-stats" class="mb16"><ul>` +
 (forTriage > 0 ? `<li><span class="copy-only">-&nbsp;</span>${forTriage} (${(forTriage/rows.length*100).toFixed(1)}%) users are banned for Triage reviews in one way or another</li>` : '') +
 (reqEditing > 0 ? `<li><span class="copy-only">-&nbsp;</span>${reqEditing} (${(reqEditing/rows.length*100).toFixed(1)}%) users are banned for selecting "Needs community edit" in Triage when the question should be closed</li>` : '') + `
 <li><span class="copy-only">-&nbsp;</span>${auditFailures} (${(auditFailures/rows.length*100).toFixed(1)}%) users are automatically banned for failing multiple review audits</li>
@@ -775,12 +689,12 @@ Breakdown:<br>
 <td>${tally.count366}</td>
 </tr></table>`);
 
-                if(isSuperuser()) {
+                if(isSuperuser) {
                     copyTable.appendTo(bannedStats);
                 }
 
                 table.before(bannedStats);
-                bannedStats.parent().addClass('banned-reviewers-section').children('h3').text((i,v) => v.toLowerCase() + ', out of which:').prepend('<span>Currently, there are </span>');
+                bannedStats.prepend(`<span>Currently, there are ${rows.length} banned reviewers, out of which:</span>`).parent().addClass('banned-reviewers-section');
             }
 
         }
@@ -836,8 +750,8 @@ Breakdown:<br>
 
             // Add copyable CommonMark review link
             histTable.find('.history-comment').each(function() {
-                const reviewLinks = $(this).children('a[href*="/review/"]');
-                if(reviewLinks.length == 0) return;
+                const reviewLinks = $(this).find('a[href*="/review/"]');
+                if(reviewLinks.length === 0) return;
 
                 const links = reviewLinks.get().map(v => {
                     const b = v.href.split('/review/')[1];
@@ -936,10 +850,6 @@ Breakdown:<br>
                     return this.nodeType === 3
                 }).wrap('<span>').parent().text((i, v) => v.replace(/^\s*suspend\s*$/, 'Review suspend '));
 
-                // Update message label
-                $('label[for="explanation"]').html(`Explain why this person is being review suspended. Comment markdown supported.<div>Example:</div>`)
-                    .after(`<div class="examples"><pre>You approved edits on [blatant spam](&lt;link to review task&gt;)</pre></div>`);
-
                 // Update message max length
                 textarea = $('textarea[name="explanation"]').addClass('s-textarea').attr('maxlength', messageCharLimit).wrapAll(`<div class="message-wrapper"></div>`);
 
@@ -971,7 +881,7 @@ Breakdown:<br>
 
                 firstRadio.remove(); // remove option 2
 
-                if(isSuperuser()) {
+                if(isSuperuser) {
 
                     // If triage reviews
                     if(location.hash.includes('|/review/triage/')) {
@@ -1003,47 +913,21 @@ Breakdown:<br>
 
         const styles = `
 <style>
-a.reviewban-count,
-a.reviewban-link {
-    position: relative;
-    top: -2px;
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    margin-right: 5px;
-    text-align: center;
-    font-size: 0.8em;
-    line-height: 14px;
-    border-radius: 50%;
-    border: 1px solid var(--black-500);
-    color: var(--black-500);
-}
-a.reviewban-count.warning {
-    background: var(--yellow-100);
-    border-color: var(--red-500);
+.review-results a[href*="/suspensions/"] {
     color: var(--red-500);
-}
-a.reviewban-link {
-    border: 1px solid var(--red-500);
-    background: var(--red-500);
-    color: #fff;
 }
 a.reviewban-button {
     float: right;
 }
 
 .js-lookup-result {
-    margin-top: 20px !important;
+    margin-top: 0px;
 }
-.js-lookup-result .examples pre {
-    margin-bottom: 0;
-    padding: 5px 10px;
+.js-lookup-result .user-info {
+    min-height: 0;
 }
-.js-lookup-result br {
+.js-lookup-result .user-info .user-action-time {
     display: none;
-}
-.js-lookup-result .item-reason br {
-    display: initial;
 }
 .js-lookup-result .duration-radio-group {
     display: block;
