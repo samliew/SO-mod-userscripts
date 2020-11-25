@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      6.0
+// @version      6.0.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -128,9 +128,10 @@
     }
     function reviewPermaBan(uid) {
         return new Promise(function(resolve, reject) {
-            reviewBan(uid, 365, permaBanMessage)
-                .then(resolve)
-                .catch(reject);
+            reviewUnban(uid).then(() =>
+                reviewBan(uid, 365, permaBanMessage)
+                    .then(resolve).catch(reject)
+                ).catch(reject);
         });
     }
 
