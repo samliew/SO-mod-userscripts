@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.8.3
+// @version      5.8.4
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -829,14 +829,10 @@ Breakdown:<br>
                 }
             }
 
-            debugger;
-
             if($('.reviewban-button').length === 0) {
                 // Not currently banned, show review ban button
                 $(`<a class="fr s-btn s-btn__sm s-btn__filled s-btn__primary reviewban-button" href="/admin/review/suspensions#${uid2}">Review Ban</a>`).insertAfter(heading);
             }
-
-            debugger;
 
             // Add copyable CommonMark review link
             histTable.find('.history-comment').each(function() {
