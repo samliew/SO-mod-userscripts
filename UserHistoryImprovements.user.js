@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.5
+// @version      1.7
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -88,8 +88,12 @@
 
             // count number of newlines
             td.each(function() {
+                const isNewReviewSusp = this.textContent.includes('{"Duration":');
                 const newlines = this.textContent.match(/\n/g);
-                if(newlines && newlines.length > 2) {
+                if(isNewReviewSusp) {
+                    comment.classList.add('new-review-susp');
+                }
+                else if(newlines && newlines.length > 2) {
                     this.classList.add('pre');
                 }
             });
@@ -139,8 +143,12 @@
             }
 
             // count number of newlines
+            const isNewReviewSusp = comment.textContent.includes('{"Duration":');
             const newlines = comment.textContent.match(/\n/g);
-            if(newlines && newlines.length > 2) {
+            if(isNewReviewSusp) {
+                comment.classList.add('new-review-susp');
+            }
+            else if(newlines && newlines.length > 2) {
                 comment.classList.add('pre');
             }
         });
@@ -269,6 +277,13 @@ body.SOMU-SEDM #annotations tr.user-message td:nth-child(4) {
 #user-history th:nth-child(2) {
     width: auto !important;
     min-width: 150px;
+}
+#user-history .history-comment.new-review-susp li,
+#user-history .history-comment.new-review-susp li p {
+    margin-bottom: 0;
+}
+#user-history .history-comment.new-review-susp br:last-of-type {
+    display: none;
 }
 
 </style>
