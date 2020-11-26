@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.17.3
+// @version      1.17.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -329,7 +329,7 @@
             // Pre-trim certain elements once on page load to make filtering less complicated
             $('span.event-type, td.event-verb span a').text((i, v) => '' + v.trim());
             $('td.event-type, td.event-verb span').filter((i, el) => el.children.length === 0).text((i, v) => '' + v.trim());
-            $('td.event-comment span').filter((i, el) => el.innerText.trim() == '').remove();
+            $('td.event-comment span').not('.badge-earned-check').filter((i, el) => el.innerText.trim() == '').remove();
             $('td.event-comment span div.mt6').each(function(i, el) { $(this).appendTo(el.parentNode.parentNode); });
 
             // Rename "CommentNoLongerNeeded" event-verb to take up less space
