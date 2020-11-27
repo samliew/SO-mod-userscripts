@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      6.0.1
+// @version      6.0.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -335,7 +335,7 @@
                         }
 
                         // Add annotation count
-                        $(`<a class="reviewban-count ${numBans > 5 ? 'warning' : ''}" href="${url}" title="${numBans} prior review suspensions" target="_blank">${numBans}</a>`)
+                        $(`<a class="reviewban-count ${numBans >= 10 ? 'warning' : ''}" href="${url}" title="${numBans} prior review suspensions" target="_blank">${numBans}</a>`)
                             .insertBefore(userlink);
                     }
                 });
@@ -914,6 +914,25 @@ Breakdown:<br>
 
         const styles = `
 <style>
+a.reviewban-count {
+    position: relative;
+    top: -2px;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-right: 5px;
+    text-align: center;
+    font-size: 0.8em;
+    line-height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--black-500);
+    color: var(--black-500);
+}
+a.reviewban-count.warning {
+    background: var(--yellow-100);
+    border-color: var(--red-500);
+    color: var(--red-500);
+}
 .review-results a[href*="/suspensions/"] {
     color: var(--red-500);
 }
