@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.11.3
+// @version      1.11.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -86,7 +86,7 @@
 
         const styles = `
 <style>
-[class*='link']:not(.s-modal),
+[class*='link']:not(.s-modal):not(.s-popover),
 .count-cell + td,
 .user-tab-content td,
 .user-tab-content h3,

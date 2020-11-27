@@ -52,7 +52,7 @@ async function waitForSOMU() {
     const isSO = site === 'stackoverflow.com';
 
     const superusers = [ 584192 ];
-    const isSuperuser = false && superusers.includes(StackExchange.options.user.userId);
+    const isSuperuser = superusers.includes(StackExchange.options.user.userId);
 
     const queueType = /^\/review/.test(location.pathname) ? location.pathname.replace(/\/\d+$/, '').split('/').pop() : null;
     const filteredTypesElem = document.querySelector('.review-filter-summary');
