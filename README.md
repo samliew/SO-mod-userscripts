@@ -226,7 +226,7 @@ Recommended chat userscripts:
   - Answer score, accepted, user display name, indicates mods and deleted users, datetime
   - Sorted by current answer sort order (active/oldest/votes)
   - Clicking on answer links scrolls to start of post (replaces URL hash)
-  - Toggle deleted answers in ToC
+  - Option to toggle visibility of deleted answers (visible to 10k rep users)
   
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-07_150848.png)
 
