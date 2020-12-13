@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.7.7
+// @version      3.8
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -64,7 +64,10 @@ async function waitForSOMU() {
     let numOfReviews = 0;
     let remainingCloseVotes = null, remainingPostFlags = null;
 
-    let skipAccepted = false, skipUpvoted = false, skipMultipleAnswers = false, skipMediumQuestions = false, skipLongQuestions = false, autoCloseShortQuestions = false, autoCloseQuestions = false, downvoteAfterClose = false;
+    let skipAudits = true, skipAccepted = false, skipUpvoted = false, skipMultipleAnswers = false, skipMediumQuestions = false, skipLongQuestions = false, autoCloseShortQuestions = false, autoCloseQuestions = false, downvoteAfterClose = false;
+
+    // Keywords to detect opinion-based questions
+    const opinionKeywords = [ 'fastest', 'best', 'recommended' ];
 
 
     function getCloseVotesQuota(viewablePostId = 1) {
@@ -170,6 +173,11 @@ async function waitForSOMU() {
             SOMU.addOption(scriptName, 'Downvote after Question Closure', downvoteAfterClose, 'bool');
             // Get current custom value with default
             downvoteAfterClose = SOMU.getOptionValue(scriptName, 'Downvote after Question Closure', downvoteAfterClose, 'bool');
+
+            // Set option field in sidebar with current custom value; use default value if not set before
+            SOMU.addOption(scriptName, 'Skip Review Audits', skipAudits, 'bool');
+            // Get current custom value with default
+            skipAudits = SOMU.getOptionValue(scriptName, 'Skip Review Audits', skipAudits, 'bool');
         });
     }
 
@@ -187,6 +195,9 @@ async function waitForSOMU() {
         // Reuse or create new
         let div = $('#toasty').html(msg).show();
         if(div.length == 0) div = $(`<div id="toasty">${msg}</div>`).appendTo(document.body);
+
+        // Log in browser console as well
+        console.log(msg);
 
         // Hide div
         toastTimeout = setTimeout(function(div) {
@@ -396,7 +407,6 @@ async function waitForSOMU() {
 
         // Question has an accepted answer, skip if enabled
         if(skipAccepted && post.isQuestion && post.accepted) {
-            console.log('skipping accepted question');
             toastMessage('skipping accepted question');
             skipReview();
             return;
@@ -404,7 +414,6 @@ async function waitForSOMU() {
 
         // Post has positive score, skip if enabled
         if(skipUpvoted && post.votes > 3) {
-            console.log('skipping upvoted post');
             toastMessage('skipping upvoted post');
             skipReview();
             return;
@@ -412,7 +421,6 @@ async function waitForSOMU() {
 
         // Question has multiple answers, skip if enabled
         if(skipMultipleAnswers && post.isQuestion && post.answers > 1) {
-            console.log('skipping question with >1 answer');
             toastMessage('skipping question with >1 answer');
             skipReview();
             return;
@@ -420,7 +428,6 @@ async function waitForSOMU() {
 
         // Question body is too long, skip if enabled
         if(skipLongQuestions && post.isQuestion && post.content.length > 3000) {
-            console.log('skipping long-length question, length ' + post.content.length);
             toastMessage('skipping long-length question, length ' + post.content.length);
             skipReview();
             return;
@@ -428,7 +435,6 @@ async function waitForSOMU() {
 
         // Question body is of medium length, skip if enabled
         if(skipMediumQuestions && post.isQuestion && post.content.length > 1000) {
-            console.log('skipping medium-length question, length ' + post.content.length);
             toastMessage('skipping medium-length question, length ' + post.content.length);
             skipReview();
             return;
@@ -436,7 +442,6 @@ async function waitForSOMU() {
 
         // Question body is short, try to close if enabled
         if(autoCloseQuestions || (autoCloseShortQuestions && post.isQuestion && post.content.length < 500)) {
-            console.log('short question detected, length ' + post.content.length);
             $('.js-review-actions button[title*="Close"], .close-question-link[data-isclosed="false"]').first().click();
             return;
         }
@@ -447,7 +452,6 @@ async function waitForSOMU() {
 
         // Post has positive score, skip if enabled
         if(skipUpvoted && post.votes > 3) {
-            console.log('skipping upvoted post');
             toastMessage('skipping upvoted post');
             skipReview();
             return;
@@ -455,7 +459,6 @@ async function waitForSOMU() {
 
         // Question has multiple answers, skip if enabled
         if(skipMultipleAnswers && post.isQuestion && post.answers > 1) {
-            console.log('skipping question with >1 answer');
             toastMessage('skipping question with >1 answer');
             skipReview();
             return;
@@ -478,7 +481,6 @@ async function waitForSOMU() {
 
         // Question has comprehensive changes with no bad images, reopen
         if(adds > 400 && badImageLinks === 0 && !shortPostBody && !tooManyQuestions) {
-            console.log('reopened');
             toastMessage('reopened');
             $('.js-review-actions button[title^="agree"]').removeAttr('disabled').click();
             $('#confirm-modal-body').next().children('.js-ok-button').click();
@@ -486,14 +488,12 @@ async function waitForSOMU() {
         }
         // Question has some edits with no bad images, ignore
         else if((subs > 200 || adds > 200) && badImageLinks === 0) {
-            console.log('skipping minor edits');
             toastMessage('skipping minor edits', 3000);
             setTimeout(skipReview, 4000);
             return;
         }
         // Leave closed
         else {
-            console.log('leave closed' + (badImageLinks > 0 ? ', has badImageLinks' : '') + (shortPostBody ? ', too short' : ''));
             toastMessage('leave closed' + (badImageLinks > 0 ? ', has badImageLinks' : '') + (shortPostBody ? ', too short' : ''));
             $('.js-review-actions button[title^="disagree"]').removeAttr('disabled').click();
             return;
@@ -914,6 +914,7 @@ async function waitForSOMU() {
 
                     const popup = $('#popup-close-question');
                     const reviewKeywords = $('#review-keywords').text();
+
                     if(queueType != null) repositionReviewDialogs(true);
 
                     // Find and add class to off-topic badge count so we can avoid it
@@ -942,7 +943,7 @@ async function waitForSOMU() {
                     // If no popular vote, select detected general close reason
                     if(!isSuperuser && selOpt.length == 0 && flaggedReason !== '') {
 
-                        if(['too broad', 'unclear what you\'re asking', 'primarily opinion-based'].includes(flaggedReason)) {
+                        if(["too broad", "unclear what you're asking", "primarily opinion-based"].includes(flaggedReason)) {
                             popup.find('.action-name').filter((i, el) => el.textContent == flaggedReason).prev().click();
                         }
                     }
@@ -951,14 +952,19 @@ async function waitForSOMU() {
 
                         // No code, close as unclear
                         if(reviewKeywords.includes('no-code')) {
+                            toastMessage('DETECTED - no code');
                             $('#closeReasonId-NeedsDetailsOrClarity').prop('checked', true).trigger('click');
+                        }
+
+                        // Possibly opinion-based
+                        else if(["what is", "what's"].some(v => post.content.includes(v)) && opinionKeywords.some(v => post.content.includes(v))) {
+                            toastMessage('DETECTED - possible opinion-based');
+                            $('#closeReasonId-OpinionBased').prop('checked', true).trigger('click');
                         }
 
                         // Experimental
                         if(isSuperuser) {
                             // Click Close button
-                            console.log('AUTOCLOSE - no code');
-                            toastMessage('AUTOCLOSE - no code');
                             popup.find('.js-popup-submit, input:submit').click();
                         }
                     }
@@ -987,11 +993,17 @@ async function waitForSOMU() {
                             skipReview();
                             return;
                         }
-                        //else if(post.content.length >= 700 && $('.reviewable-post').find('.post-signature').length === 2) {
-                        //    toastMessage('AUTO SKIP - edited long question');
-                        //    skipReview();
-                        //    return;
-                        //}
+                        else if(post.content.length >= 700 && $('.reviewable-post').find('.post-signature').length === 2) {
+                            toastMessage('AUTO SKIP - edited long question');
+                            skipReview();
+                            return;
+                        }
+                        // Debugging but has code
+                        else if(!reviewKeywords.includes('no-code') && flaggedReason.toLowerCase().includes('not suitable for this site') && selOpt.attr('id') === 'siteSpecificCloseReasonId-13-') {
+                            toastMessage('AUTO SKIP - Debugging, but code was provided');
+                            skipReview();
+                            return;
+                        }
 
                         // Ignore these close reasons on SO-only
                         if($('#closeReasonId-Duplicate').is(':checked')) { // dupes
@@ -1027,14 +1039,12 @@ async function waitForSOMU() {
 
                             // Skip to next review after a short delay if no option is selected
                             if($('#popup-close-question').length > 0 && $('#popup-close-question input:radio:checked').length === 0) {
-                                console.log('AUTO SKIP - no action selected');
                                 toastMessage('AUTO SKIP - no action selected');
                                 skipReview();
                                 return;
                             }
                             // Click Close button
                             else {
-                                console.log('AUTO CLOSED');
                                 toastMessage('AUTO CLOSED');
                                 popup.find('.js-popup-submit, input:submit').click();
                             }
@@ -1138,8 +1148,9 @@ async function waitForSOMU() {
                 $('.js-show-link.comments-link').click();
 
                 // Parse flagged reason (to select as default if no popular vote)
-                flaggedReason = (responseJson.instructions.match(/(needs more focus|needs details or clarity|primarily opinion-based)/i) || ['']).pop().replace('&#39;', "'");
+                flaggedReason = (responseJson.instructions.toLowerCase().match(/(needs more focus|needs details or clarity|primarily opinion-based|not suitable for this site)/i) || ['']).pop().replace('&#39;', "'");
                 console.log('flaggedReason: ', flaggedReason || '-');
+                if(flaggedReason === '-') debugger;
 
                 setTimeout(function() {
 
@@ -1355,9 +1366,15 @@ async function waitForSOMU() {
 
                     // Check for audits and skip them
                     if(responseJson.isAudit) {
-                        console.log('skipping review audit');
-                        toastMessage('skipping review audit');
-                        skipReview();
+
+                        if(skipAudits) {
+                            toastMessage('skipping review audit');
+                            skipReview();
+                        }
+                        else {
+                            toastMessage('this is a review audit', 10000);
+                        }
+
                         return;
                     }
                     //else if(isAudit()) {
