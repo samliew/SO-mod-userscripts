@@ -3,7 +3,7 @@
 // @description  Adds right sidebar to modify options of installed userscripts from the repo https://github.com/samliew/SO-mod-userscripts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.5
+// @version      1.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -37,7 +37,10 @@ SOMU = unsafeWindow.SOMU || {
         const uniqueSlug = `${SOMU.keyPrefix}${scriptSlug}:${optionSlug}`;
         let v = store.getItem(uniqueSlug);
         if(dataType === 'int') v = toInt(v);
-        if(dataType === 'bool') v = toBool(v);
+        if(dataType === 'bool') {
+            v = toBool(v);
+            return v;
+        }
         return v || defaultValue;
     },
 
@@ -47,7 +50,6 @@ SOMU = unsafeWindow.SOMU || {
     },
 
 
-    // TODO: support other data types like boolean (toggle)
     addOption: function(scriptName, optionName, defaultValue = '', dataType = 'string') {
         const scriptSlug = toSlug(scriptName);
         const optionSlug = toSlug(optionName);
@@ -66,7 +68,7 @@ SOMU = unsafeWindow.SOMU || {
         }
 
         // Get option value from store
-        const currValue = SOMU.getOptionValue(scriptName, optionName, defaultValue, dataType) || defaultValue;
+        const currValue = SOMU.getOptionValue(scriptName, optionName, defaultValue, dataType);
 
         // Build field HTML
         let fieldHtml = '';
