@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.8
+// @version      3.9
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -940,31 +940,35 @@ async function waitForSOMU() {
                         selOpt.click();
                     }
 
-                    // If no popular vote, select detected general close reason
-                    if(!isSuperuser && selOpt.length == 0 && flaggedReason !== '') {
+                    // If no popular vote
+                    if(selOpt.length == 0) {
 
-                        if(["too broad", "unclear what you're asking", "primarily opinion-based"].includes(flaggedReason)) {
-                            popup.find('.action-name').filter((i, el) => el.textContent == flaggedReason).prev().click();
+                        // Select general flagged close reason
+                        if(["needs more focus", "needs details or clarity", "opinion-based"].includes(flaggedReason)) {
+                            const labels = popup.find('.js-action-name');
+                            const selectedLabel = labels.filter((i, el) => el.textContent.toLowerCase() == flaggedReason)
+                            const selectedRadio = selectedLabel.closest('li').find('input:radio').click();
+
+                            toastMessage('DETECTED - ' + flaggedReason);
                         }
-                    }
-                    // If no flagged reason, try to prediect close reasons from keywords
-                    else if(selOpt.length == 0 && flaggedReason === '') {
+                        // Try to prediect close reasons from keywords
+                        else {
 
-                        // No code, close as unclear
-                        if(reviewKeywords.includes('no-code')) {
-                            toastMessage('DETECTED - no code');
-                            $('#closeReasonId-NeedsDetailsOrClarity').prop('checked', true).trigger('click');
+                            // No code, close as unclear
+                            if(reviewKeywords.includes('no-code')) {
+                                toastMessage('DETECTED - unclear (no code)');
+                                $('#closeReasonId-NeedsDetailsOrClarity').prop('checked', true).trigger('click');
+                            }
+
+                            // Possibly opinion-based
+                            else if(["what is", "what's"].some(v => post.content.includes(v)) && opinionKeywords.some(v => post.content.includes(v))) {
+                                toastMessage('DETECTED - opinion-based');
+                                $('#closeReasonId-OpinionBased').prop('checked', true).trigger('click');
+                            }
                         }
 
-                        // Possibly opinion-based
-                        else if(["what is", "what's"].some(v => post.content.includes(v)) && opinionKeywords.some(v => post.content.includes(v))) {
-                            toastMessage('DETECTED - possible opinion-based');
-                            $('#closeReasonId-OpinionBased').prop('checked', true).trigger('click');
-                        }
-
-                        // Experimental
                         if(isSuperuser) {
-                            // Click Close button
+                            // Click Close button to submit previous detections
                             popup.find('.js-popup-submit, input:submit').click();
                         }
                     }
@@ -1065,7 +1069,7 @@ async function waitForSOMU() {
 
                     // Select recommended option if there are no auto comments yet
                     if(post.comments.some(v => /- From Review/i.test(v)) == false && isLinkOnlyAnswer) {
-                        $('.popup-active-pane .action-name').filter((i, el) => el.innerText.includes('link-only answer')).prev('input').click();
+                        $('.popup-active-pane .js-action-name').filter((i, el) => el.innerText.includes('link-only answer')).prev('input').click();
                     }
 
                     // Focus Delete button
@@ -1148,9 +1152,8 @@ async function waitForSOMU() {
                 $('.js-show-link.comments-link').click();
 
                 // Parse flagged reason (to select as default if no popular vote)
-                flaggedReason = (responseJson.instructions.toLowerCase().match(/(needs more focus|needs details or clarity|primarily opinion-based|not suitable for this site)/i) || ['']).pop().replace('&#39;', "'");
-                console.log('flaggedReason: ', flaggedReason || '-');
-                if(flaggedReason === '-') debugger;
+                flaggedReason = (responseJson.instructions.toLowerCase().match(/(needs more focus|needs details or clarity|opinion-based|not suitable for this site)/i) || ['-']).pop().replace('&#39;', "'");
+                console.log('flaggedReason:', flaggedReason);
 
                 setTimeout(function() {
 
