@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.0
+// @version      5.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -596,7 +596,7 @@
 </div>`);
 
       searchhelper = $(`<div id="search-helper" class="search-helper">
-<button type="reset" class="btnreset btn-warning">Reset</button>
+<button type="reset" class="btnreset s-btn s-btn__xs s-btn__filled s-btn__danger">Reset</button>
 <a id="btn-saved-search" data-svg="bookmark" title="Saved Search"></a>
 <div id="saved-search"></div>
 <div id="search-helper-tabs" class="tabs">
@@ -870,29 +870,29 @@
     <input type="checkbox" name="dupe-current" id="dupe-current" data-currentfor="#dupe-id" /><label for="dupe-current">current question</label>
     <label for="dupe-id">question id:</label>
     <input name="dupe-id" id="dupe-id" class="input-small" maxlength="12" data-clearbtn data-validate-numeric data-clears="#dupe-current" />
-    <a class="button extbutton" data-exturl="https://data.stackexchange.com/${currentSiteSlug}/query/874526/?QuestionId={dupe-id}">SEDE</a>
+    <a class="s-btn s-btn__sm extbutton" data-exturl="https://data.stackexchange.com/${currentSiteSlug}/query/874526/?QuestionId={dupe-id}">SEDE</a>
   </div>
   <label class="section-label">Search comments</label>
   <div class="ext">
     <label for="comment-query">Text:</label>
     <input name="comment-query" id="comment-query" data-clearbtn />
-    <a class="button extbutton" data-exturl="https://data.stackexchange.com/${currentSiteSlug}/query/898774/?Query={comment-query}">SEDE</a>
+    <a class="s-btn s-btn__sm extbutton" data-exturl="https://data.stackexchange.com/${currentSiteSlug}/query/898774/?Query={comment-query}">SEDE</a>
   </div>
   <div class="ext">
     <label for="comment-query2">Comments replying to username:</label>
     <input name="comment-query2" id="comment-query2" data-clearbtn placeholder="user display name without spaces (case-insensitive)" />
-    <a class="button extbutton" data-exturl="https://data.stackexchange.com/${currentSiteSlug}/query/1160376/?UsernameWithoutSpaces={comment-query2}">SEDE</a>
+    <a class="s-btn s-btn__sm extbutton" data-exturl="https://data.stackexchange.com/${currentSiteSlug}/query/1160376/?UsernameWithoutSpaces={comment-query2}">SEDE</a>
   </div>
   <div class="ext">
     <label for="comment-query3">Comments by user: (autocomplete)</label>
     <input name="comment-query3" id="comment-query3" class="input-small js-dnlookup" data-clearbtn placeholder="username or id" />
-    <a class="button extbutton" data-exturl="https://data.stackexchange.com/${currentSiteSlug}/query/1160377/?UserId={comment-query3}">SEDE</a>
+    <a class="s-btn s-btn__sm extbutton" data-exturl="https://data.stackexchange.com/${currentSiteSlug}/query/1160377/?UserId={comment-query3}">SEDE</a>
   </div>
   <label class="section-label">Archive for</label>
   <div class="ext">
     <label for="archive-org">URL:</label>
     <input name="archive-org" id="archive-org" data-clearbtn />
-    <a class="button extbutton" data-exturl="https://web.archive.org/web/*/{archive-org}">Search archive.org</a>
+    <a class="s-btn s-btn__sm extbutton" data-exturl="https://web.archive.org/web/*/{archive-org}">Search archive.org</a>
   </div>
 </div>
 </div>
@@ -1092,6 +1092,11 @@
               .after(`<option data-url="https://${mseDomain}/search">Meta Stack Exchange</option>`)
               .after(`<option data-url="${metaUrl}/search">Meta ${mainName}</option>`);
       }
+      // Update form action
+      $('#search-channel-selector').on('change', function() {
+          const url = $(this).children().filter(':selected').attr('data-url');
+          $('form.js-searchbar').attr('action', url);
+      });
 
       // Move new svg search icon before the search field
       $('#search .svg-icon.s-input-icon__search.iconSearch').insertBefore('#search input[name="q"]');
@@ -1189,7 +1194,7 @@
 
   font-size: 12px;
 }
-.top-bar .searchbar {
+.top-bar .js-searchbar {
   max-width: none;
 }
 @media screen and (max-width: 980px) {
@@ -1470,9 +1475,9 @@
 #btn-saved-search[data-svg] {
   position: absolute;
   top: 14px;
-  right: 78px;
-  width: 30px;
-  height: 30px;
+  right: 67px;
+  width: 29px;
+  height: 27px;
   padding: 6px;
 }
 #btn-saved-search.active {
@@ -2050,7 +2055,7 @@ button, .button,
 .unselectable {
   user-select: none;
 }
-.top-bar .searchbar .grid {
+.top-bar .js-searchbar .grid {
   display: flex;
 }
 .wmn1 {
@@ -2059,7 +2064,7 @@ button, .button,
 .w20 {
   width: 20% !important;
 }
-.top-bar .searchbar .s-select select {
+.top-bar .js-searchbar .s-select select {
   max-width: 140px;
 }
 .channels-page .search-channel-switcher-select {
@@ -2077,7 +2082,7 @@ button, .button,
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;
 }
-.top-bar .searchbar .btn-topbar-primary {
+.top-bar .js-searchbar .btn-topbar-primary {
   transition: none;
   opacity: 1;
   z-index: 1;
