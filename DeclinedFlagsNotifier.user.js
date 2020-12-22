@@ -3,7 +3,7 @@
 // @description  Show topbar indicator for recently declined flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.0.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -38,7 +38,7 @@
     }
 
 
-    const recent = new Date(Date.now() - 99 * 365 * 86400000);
+    const recent = new Date(Date.now() - 3 * 86400000);
     const declinedFlagsResults = $(`<div id="declined-flags-results" style="display:none !important;"></div>`).appendTo(document.body);
     let declinedFlags = [], recentlyDeclinedFlags = [], weeklyDeclinedFlags = [], oldDeclinedFlags = [];
 
