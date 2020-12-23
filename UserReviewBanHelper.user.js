@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      6.0.2
+// @version      6.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -596,10 +596,12 @@
                 rebanLink.removeClass('s-btn__link js-unsuspend').addClass('s-btn__xs s-btn__filled mt8 js-suspend-again')
                     .attr('title', (i, s) => s.replace('Unsuspend', 'Renew review permaban for').replace(' from reviewing', '')).text((i, s) => s.replace('Unsuspend', 'Renew permaban'));
             });
-            table.on('click', '.js-suspend-again', function() {
+            table.on('click', '.js-suspend-again', function(i, btn) {
                 if(confirm("Apply another year's suspension to this user?")) {
                     const uid = this.dataset.userid;
-                    reviewPermaBan(uid).then(reloadPage);
+                    reviewPermaBan(uid).then(() => {
+                        btn.replaceWith(`<em>done!</em>`);
+                    });
                 }
                 return false;
             });
@@ -619,9 +621,9 @@
                 }).length;
                 const hundred = rows.filter((i, el) => el.children[3].innerText >= 100).length;
                 const permaban = banReasons.filter((i, el) => el.innerText.match(/(no|any) (longer|signs)/)).length;
-                const firstTimers = rows.filter((i, el) => el.children[5].innerText == 1).length;
-                const fiveTimers = rows.filter((i, el) => el.children[5].innerText >= 5).length;
-                const tenTimers = rows.filter((i, el) => el.children[5].innerText >= 10).length;
+                const firstTimers = rows.filter((i, el) => el.children[6].innerText == 1).length;
+                const fiveTimers = rows.filter((i, el) => el.children[6].innerText >= 5).length;
+                const tenTimers = rows.filter((i, el) => el.children[6].innerText >= 10).length;
                 const pastDay = rows.filter((i, el) => el.children[1].innerText.match(/(just|min|hour)/)).length;
                 const pastWeek = rows.filter((i, el) => new Date(el.children[1].children[0].title) > weekAgo).length;
                 const unbanDay = rows.filter((i, el) => el.children[2].innerText.match(/(just|min|hour)/)).length;
