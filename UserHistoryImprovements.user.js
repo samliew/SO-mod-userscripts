@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7
+// @version      1.7.1
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -85,18 +85,6 @@
                 $(this).addClass('user-message');
                 return;
             }
-
-            // count number of newlines
-            td.each(function() {
-                const isNewReviewSusp = this.textContent.includes('{"Duration":');
-                const newlines = this.textContent.match(/\n/g);
-                if(isNewReviewSusp) {
-                    comment.classList.add('new-review-susp');
-                }
-                else if(newlines && newlines.length > 2) {
-                    this.classList.add('pre');
-                }
-            });
 
             // Fix broken links
             const str = td.html()
