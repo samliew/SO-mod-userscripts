@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.17
+// @version      2.17.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -660,12 +660,12 @@ a.js-named-anchor {
    Reduce font size slightly
    This makes the six links stay in the same row
 */
-.post-menu .lsep,
-.post-menu .js-share-link {
+.js-post-menu .lsep,
+.js-post-menu .js-share-link {
     display: none;
 }
-.post-menu > a,
-.post-menu > button {
+.js-post-menu > a,
+.js-post-menu > button {
     font-size: 0.95em;
     padding: 2px 0px;
     margin-right: 5px;

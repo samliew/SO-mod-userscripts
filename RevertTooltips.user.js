@@ -3,7 +3,7 @@
 // @description  Revert annoying instant popup tooltips
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2.1
+// @version      0.2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -22,7 +22,7 @@
     'use strict';
 
     function findAndRevertTooltips() {
-        $('.js-voting-container, .post-menu').find('[aria-describedby^="--stacks-s-tooltip"]').each(function() {
+        $('.js-voting-container, .js-post-menu').find('[aria-describedby^="--stacks-s-tooltip"]').each(function() {
             const tooltipId = $(this).attr('aria-describedby');
             const tooltip = $('#' + $(this).attr('aria-describedby'));
             this.title = tooltip.text();

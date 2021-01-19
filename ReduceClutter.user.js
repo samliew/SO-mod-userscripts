@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.28
+// @version      1.28.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -386,7 +386,7 @@ ul.comments-list .comment-up-on {
     function revertVotecellTooltips() {
 
         function findAndRevertTooltips() {
-            $('.js-voting-container, .post-menu').find('[aria-describedby^="--stacks-s-tooltip"]').each(function() {
+            $('.js-voting-container, .js-post-menu').find('[aria-describedby^="--stacks-s-tooltip"]').each(function() {
                 const tooltipId = $(this).attr('aria-describedby');
                 const tooltip = $('#' + $(this).attr('aria-describedby'));
                 this.title = tooltip.text();

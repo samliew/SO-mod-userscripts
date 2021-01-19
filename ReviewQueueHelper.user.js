@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.9
+// @version      3.9.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1113,7 +1113,7 @@ async function waitForSOMU() {
                     $('.js-review-actions button[title*="delete this post"]').remove();
 
                     // If reject is clicked, restyle popups to new stacks theme
-                    $('.post-menu').on('click', '.popup .js-action-button[title="reject this suggested edit"]', function() {
+                    $('.js-post-menu').on('click', '.popup .js-action-button[title="reject this suggested edit"]', function() {
 
                         // Convert radio buttons to new stacks radio
                         $('#rejection-popup input:radio').addClass('s-radio');
@@ -1185,7 +1185,7 @@ async function waitForSOMU() {
                             closeBtn.click(function() {
                                 // If button not disabled
                                 if(!$(this).prop('disabled')) {
-                                    $('.post-menu').first().find('.close-question-link').click();
+                                    $('.js-post-menu').first().find('.close-question-link').click();
                                 }
                                 return false;
                             });
@@ -1193,12 +1193,12 @@ async function waitForSOMU() {
                         }
 
                         // Else if answer and user has delete privs, insert "Delete" option
-                        else if(!isQuestion && (StackExchange.options.user.isModerator || StackExchange.options.user.rep >= 10000 && $('.post-menu a[title="vote to delete this post"]').length === 1)) {
+                        else if(!isQuestion && (StackExchange.options.user.isModerator || StackExchange.options.user.rep >= 10000 && $('.js-post-menu a[title="vote to delete this post"]').length === 1)) {
                             const delBtn = $(`<button class="js-action-button s-btn s-btn__primary grid--cell" title="delete answer">Delete</button>`).attr('disabled', isClosedOrDeleted);
                             delBtn.click(function() {
                                 // If button not disabled
                                 if(!$(this).prop('disabled')) {
-                                    $('.post-menu').first().find('a[title*="delete"]').click();
+                                    $('.js-post-menu').first().find('a[title*="delete"]').click();
                                 }
                                 return false;
                             });
@@ -1244,11 +1244,11 @@ async function waitForSOMU() {
                     // Show post menu links, if not in queues that don't already show full menus or doesn't support it
                     if(queueType !== 'first-posts' && queueType !== 'late-answers' && queueType !== 'suggested-edits') {
 
-                        const postmenu = reviewablePost.find('.post-menu');
+                        const postmenu = reviewablePost.find('.js-post-menu');
 
                         // delete
                         if(StackExchange.options.user.canSeeDeletedPosts) {
-                            $('.post-menu a[id^="delete-post-"]').text(isDeleted ? 'undelete' : 'delete').show();
+                            $('.js-post-menu a[id^="delete-post-"]').text(isDeleted ? 'undelete' : 'delete').show();
                         }
 
                         // flag
@@ -1596,7 +1596,7 @@ pre {
 .suggested-edits-review-queue .review-bar .js-review-actions-error-target {
     flex-basis: 55%;
 }
-.suggested-edits-review-queue .suggested-edit .post-menu {
+.suggested-edits-review-queue .suggested-edit .js-post-menu {
     margin-top: 20px;
     margin-left: 62px;
 }
@@ -1614,8 +1614,8 @@ pre {
     opacity: 1;
 }
 
-.review-task-page .post-menu > a,
-.review-task-page .post-menu > button {
+.review-task-page .js-post-menu > a,
+.review-task-page .js-post-menu > button {
     float: left;
     margin-right: 9px;
 }

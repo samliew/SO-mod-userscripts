@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.1
+// @version      1.9.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -779,7 +779,7 @@
             // Wrap both post signatures into a single div, if it stacks due to lack of horizontal space, we can avoid having a large vertical space too due to the added post menu size (height)
             //$(this).closest('.grid').find('.post-signature').wrapAll('<div class="js-post-signatures"></div>');
 
-            // Validation, since .post-menu is also found on post revisions page, which we do not want to touch
+            // Validation, since .js-post-menu is also found on post revisions page, which we do not want to touch
             if(typeof pid === 'undefined') return;
 
             // Create menu based on post type and state
@@ -1056,11 +1056,11 @@
         const styles = `
 <style>
 /* Better post menu links */
-.post-menu .lsep {
+.js-post-menu .lsep {
     display: none;
 }
-.post-menu > a,
-.post-menu > button {
+.js-post-menu > a,
+.js-post-menu > button {
     font-size: 0.95em;
     padding: 2px 0px;
     margin-right: 5px;
