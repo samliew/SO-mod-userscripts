@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.28.1
+// @version      1.29
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -248,6 +248,14 @@ ul.comments-list .comment-up-on {
 }
 #user-card > .grid > .grid--cell:hover .profile-user--bio {
     height: auto;
+}
+
+
+/* Revert post menu to lowercase */
+#edit-tags,
+.js-post-menu > .grid > .grid--cell > a,
+.js-post-menu > .grid > .grid--cell > button {
+    text-transform: lowercase;
 }
 
 
