@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9
+// @version      1.9.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -754,7 +754,7 @@
     function appendInlinePostModMenus() {
 
         // Append link to post sidebar if it doesn't exist yet
-        $('.post-menu').not('.preview-options').not('.js-init-better-inline-menu').addClass('js-init-better-inline-menu').each(function() {
+        $('.js-post-menu').not('.preview-options').not('.js-init-better-inline-menu').addClass('js-init-better-inline-menu').each(function() {
             const post = $(this).closest('.question, .answer');
             const postScore = Number($(this).find('.js-vote-count').text());
             const postStatus = post.find('.js-post-notice, .special-status, .question-status').text().toLowerCase();
