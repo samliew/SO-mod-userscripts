@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.29
+// @version      1.29.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -417,7 +417,7 @@ ul.comments-list .comment-up-on {
                 .filter((i, el) => el.children.length === 0)
                 .addClass('js-shortusernames').text((i, v) => {
                     return v.trim()
-                        .replace(/[\s-_]+(-|_|says|likes|loves|supports|is.at)[\s-_]*.+$/i, '');
+                        .replace(/[\s-_]+(-|_|says|likes|loves|supports|is|is.at)[\s-_]*.+$/i, '');
                 });
         }
 
