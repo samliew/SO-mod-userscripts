@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.29.1
+// @version      1.30
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -336,7 +336,15 @@ ul.comments-list .comment-up-on {
             this.classList.remove('js-gps-track');
             el.dataset.ga = '';
             el.dataset.gpsTrack = '';
-            el.search ? el.href = el.getAttribute('href').replace(/\?.*/, '') : 0;
+
+            // Specify which query params to remove from link
+            let params = new URLSearchParams(el.search);
+            params.delete('utm_source');
+            params.delete('utm_medium');
+            params.delete('utm_campaign');
+            params.delete('utm_content');
+            el.search = params.toString();
+
             trackedElemCount++;
         });
         console.log('Removed tracking data from ' + trackedElemCount + ' elements');
