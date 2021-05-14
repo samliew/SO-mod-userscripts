@@ -655,6 +655,13 @@ a.js-named-anchor {
     color: inherit !important;
 }
 
+/* Keep bottom margin for headings (broken by wrapping them inside an <a> element). */
+.s-prose a.js-named-anchor > h1,
+.s-prose a.js-named-anchor > h2,
+.s-prose a.js-named-anchor > h3 {
+    margin-bottom: revert;
+}
+
 
 /* Move share link to header to save space now that we have the follow button
    Reduce font size slightly
