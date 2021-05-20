@@ -3,7 +3,7 @@
 // @description  Implements retract flag button on own flag history page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://*stackoverflow.com/users/flag-summary/*
 // @include      https://*serverfault.com/users/flag-summary/*
@@ -16,7 +16,7 @@
 // @exclude      *blog.*
 // @exclude      https://stackoverflow.com/c/*
 //
-// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
 (function() {

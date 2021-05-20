@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.2
+// @version      1.9.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -16,7 +16,7 @@
 // @exclude      *blog.*
 // @exclude      https://stackoverflow.com/c/*
 //
-// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
 (function() {

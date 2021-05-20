@@ -3,13 +3,13 @@
 // @description  Improvements to pagination of user recent messages page. Do not install if you have ChatImprovements as it also implements this.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
 // @include      https://chat.meta.stackexchange.com/*
 //
-// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
 (function() {

@@ -3,7 +3,7 @@
 // @description  New page to review rejected suggested edits
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.1
+// @version      1.6.2
 //
 // @include      https://*stackoverflow.com/review/suggested-edits*
 // @include      https://*serverfault.com/review/suggested-edits*
@@ -19,7 +19,7 @@
 // @include      https://*mathoverflow.net/admin/links
 // @include      https://*.stackexchange.com/admin/links
 //
-// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
 (function() {

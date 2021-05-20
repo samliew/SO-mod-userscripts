@@ -3,7 +3,7 @@
 // @description  Fetch vote counts for posts and enables you to click to fetch them again, even if you do not have sufficient rep. Also enables fetch vote counts on posts in mod flag queue as well as question/search lists!!!
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      1.6.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -16,7 +16,7 @@
 // @exclude      */election*
 // @exclude      *chat.*
 //
-// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
 

@@ -3,7 +3,7 @@
 // @description  Display reputation in tooltip upon user link mouseover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.6
+// @version      1.3.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -15,7 +15,7 @@
 // @exclude      *chat.*
 // @exclude      https://stackoverflow.com/c/*
 //
-// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
 

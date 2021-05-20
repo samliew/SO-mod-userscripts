@@ -3,7 +3,7 @@
 // @description  One-click button to create private/mod chat room with user and grant write access
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.2
+// @version      1.2.3
 //
 // @include      https://chat.stackoverflow.com/users/*
 // @include      https://chat.stackexchange.com/users/*
@@ -11,7 +11,7 @@
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
 //
-// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
 (function() {

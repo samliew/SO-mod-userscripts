@@ -3,7 +3,7 @@
 // @description  Loads more user details on the find users page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.4
+// @version      0.1.5
 //
 // @include      https://stackoverflow.com/admin/find-users?*
 // @include      https://serverfault.com/admin/find-users?*
@@ -19,7 +19,7 @@
 //
 // @grant        GM_addStyle
 //
-// @require      https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
 (function() {
