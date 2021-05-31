@@ -250,7 +250,7 @@ We wish you a pleasant vacation from the site, and we look forward to your retur
                 $('#templateName, #suspendReason, #templateEdited').attr('type', 'text').addClass('d-inline-block s-input s-input__sm w70');
 
                 $('#templateName').wrap('<label for="templateName" class="dblock"></label>').before(`<span class="inline-label">template name:</span>`);
-                $('#suspendReason').wrap('<label for="suspendReason" class="dblock"></label>').before(`<span class="inline-label">suspend reason:</span>`);
+                $('#suspendReason').wrap('<label for="suspendReason" class="dblock"></label>').before(`<span class="inline-label" title="publicly displayed as 'This account is temporarily suspended ___'"><span style="border-bottom: 1px dotted #000">suspend reason:</span></span>`);
                 $('#templateEdited').wrap('<label for="templateEdited" class="dblock"></label>').before(`<span class="inline-label">template edited:</span>`);
             }
         }
