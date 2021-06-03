@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.1
+// @version      1.6.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
