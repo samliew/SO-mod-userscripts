@@ -534,7 +534,6 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 /* Sticky Sidebar ToC */
 body.question-page #content .inner-content,
 body.election-page #content {
-    display: flex;
     flex-wrap: wrap;
 }
 .subheader,
