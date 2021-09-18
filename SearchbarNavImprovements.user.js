@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.1
+// @version      5.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1289,6 +1289,9 @@
   border: 1px solid var(--black-150);
   font-size: 14px;
   line-height: 1.6;
+
+  background-color: var(--black-025);
+  color: var(--black);
 }
 #search-helper input.input-small,
 #search-helper input[type="number"] {
@@ -1304,6 +1307,9 @@
   padding: 4px 10px;
   border: 1px solid var(--black-150);
   font-size: 14px;
+
+  background-color: var(--black-025);
+  color: var(--black);
 }
 #search-helper input[data-clearbtn] {
   padding-right: 26px;
