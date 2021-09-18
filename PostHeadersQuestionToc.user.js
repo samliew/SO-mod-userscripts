@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.17.2
+// @version      2.18
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -366,6 +366,12 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
             // Put count of deleted answers next to total
             $('#answers-header h2').append(`<span class="deleted-count fs-body1">(${deletedCount} deleted)</span>`);
         });
+
+        // Set min-height of sidebar to height of mainbar
+        function updateSidebarHeight() {
+            $('#sidebar').css('min-height', $('#mainbar').height() + 'px');
+        }
+        setInterval(updateSidebarHeight, 3000);
     }
 
 
