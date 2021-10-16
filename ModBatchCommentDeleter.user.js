@@ -3,7 +3,7 @@
 // @description  Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       @samliew
-// @version      2.0.2
+// @version      2.0.3
 //
 // @include      https://*stackoverflow.com/admin/deleter
 // @include      https://*serverfault.com/admin/deleter
@@ -212,6 +212,9 @@
 
         $(`
 <style>
+#content {
+    display: block !important;
+}
 
 .slick-header.ui-state-default,.slick-headerrow.ui-state-default {
     width: 100%;
