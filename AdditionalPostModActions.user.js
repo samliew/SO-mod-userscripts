@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.16.2
+// @version      2.16.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1052,7 +1052,7 @@
                 const pid = this.dataset.pid;
                 const elems = $(this).prevAll('.comments-link, .js-link-separator').addBack().not('.js-add-link');
                 const commentsUrl = `/posts/${pid}/comments?includeDeleted=true&_=${Date.now()}`;
-                $('#comments-' + pid).children('ul.comments-list').load(commentsUrl, function() {
+                $('#comments-' + pid).show().children('ul.comments-list').load(commentsUrl, function () {
                     //elems.remove();
                 });
             });
