@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.18
+// @version      2.19
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -214,6 +214,11 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 
         if(isElectionPage) {
 
+            // Missing sidebar, add it
+            if ($('#sidebar').length === 0) {
+                $('#mainbar').after(`<div id="sidebar"></div>`);
+            }
+
             $('#sidebar').addClass('show-votes');
 
             let nominations = $('.candidate-row');
@@ -260,9 +265,8 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
                 return !gotoPost(pid);
             });
 
-            // Prepend to scroller, or insert after featured module
-            $('#sidebar .s-sidebarwidget__yellow').after(qtoc);
-            $('#sidebar #scroller #vote-picks').before(qtoc);
+            // Append to sidebar
+            $('#sidebar').append(qtoc);
 
             return;
         }
@@ -371,7 +375,7 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
         function updateSidebarHeight() {
             $('#sidebar').css('min-height', $('#mainbar').height() + 'px');
         }
-        setInterval(updateSidebarHeight, 3000);
+        setTimeout(updateSidebarHeight, 3000);
     }
 
 
@@ -474,7 +478,7 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 }
 .post-stickyheader {
     position: sticky;
-    top: 0;
+    top: 50px;
     display: block;
     margin-bottom: 15px;
     padding: 12px 16px;
@@ -681,6 +685,16 @@ a.js-named-anchor {
     font-size: 0.95em;
     padding: 2px 0px;
     margin-right: 5px;
+}
+
+
+/* Overrides for election pages */
+body.election-page #content {
+    display: flex;
+    flex-wrap: wrap;
+}
+body.election-page #content > div:not([id]):first-child {
+    flex-basis: 100%;
 }
 
 </style>
