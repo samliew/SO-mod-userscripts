@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.19
+// @version      2.21
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -55,6 +55,11 @@
         let val = store.getItem(delKeyRoot);
         return val !== 'false';
     }
+
+
+    const sleep = (milliseconds) => {
+        return new Promise(resolve => setTimeout(resolve, milliseconds));
+    };
 
 
     // (Promise) Get post timeline
@@ -206,13 +211,39 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
     }
 
 
+    async function loadNewCommentsOnElectionPage() {
+        if (!isElectionPage) return;
+
+        const posts = document.querySelectorAll('.candidate-row');
+
+        posts.forEach(async function (el, i) {
+            const pid = el.id.match(/\d+$/)[0];
+
+            await sleep(800 * i);
+
+            $.ajax({
+                url: `/posts/${pid}/comments?includeDeleted=true&_=${Date.now()}`,
+                type: 'GET',
+                success: function (data) {
+                    $('#comments-' + pid).show().children('ul.comments-list').html(data);
+                },
+            });
+        });
+
+        $('.js-show-link.comments-link, .js-load-deleted-comments-link').prev('.js-link-separator').addBack().remove();
+
+        await sleep(15000);
+        loadNewCommentsOnElectionPage();
+    }
+
+
     function initTableOfContentsSidebar() {
 
         const postsOnPage = $('#answers > .answer');
         const qid = $('#question').attr('data-questionid');
         const sortby = $('#answers-header .js-filter-btn .youarehere, #answers-header #tabs .youarehere').text().toLowerCase().trim();
 
-        if(isElectionPage) {
+        if (isElectionPage) {
 
             // Missing sidebar, add it
             if ($('#sidebar').length === 0) {
@@ -267,6 +298,8 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 
             // Append to sidebar
             $('#sidebar').append(qtoc);
+
+            loadNewCommentsOnElectionPage();
 
             return;
         }
