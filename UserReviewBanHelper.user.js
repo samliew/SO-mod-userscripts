@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      6.1
+// @version      6.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -203,7 +203,7 @@
         // Valid values: last30days, last14days, last7days, last2days, today
         const dateRange = 'last30days';
 
-        const cont = $('#content').addClass('failed-audits-page')
+        const cont = $('#content').removeClass('d-flex').addClass('failed-audits-page')
             .empty().prepend(`<h1 class="bb bc-black-5 py8 s-subheader">Failed Audits (${dateRange.replace(/(\d+)/, ' $1 ')})</h1>`);
 
         cont.append(`
@@ -218,12 +218,13 @@
             cont.toggleClass('js-absolute-dates');
         })
         .on('change', '#js-filter-user', function() {
-            const rows = $('.history-table tr');
+            const rows = $('.s-table tr');
             const val = this.value.toLowerCase().trim();
             const userid = Number(val);
             if(!isNaN(userid)) {
                 rows.hide().filter(function() {
-                    return $(this).find('a').attr('href').includes(userid);
+                    const link = $(this).find('a').attr('href');
+                    return link ? link.includes(userid) : false;
                 }).show();
             }
             else if(val.length > 0) {
@@ -245,7 +246,8 @@
             if(q[1] === 'first-posts') numPages = 6;
 
             for(let i = 1; i <= numPages; i++) {
-                $(`<div id="${q[1]}-review-${i}"><i>loading...</i></div>`).appendTo(cont).load(`https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=True&page=${i} #content .history-table`, function() {
+                $(`<div id="${q[1]}-review-${i}"><i>loading...</i></div>`).appendTo(cont).load(`https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=True&page=${i} #content .s-table`, function () {
+                    $(`#${q[1]}-review-${i}`).find('thead').remove();
                     filterField.trigger('change');
                 });
             }
