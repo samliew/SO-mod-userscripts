@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.4
+// @version      1.9.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -705,7 +705,7 @@
             const delCommentsBtn = post.find('.js-fetch-deleted-comments');
             if(delCommentsBtn.length == 1) {
                 const numDeletedComments = (delCommentsBtn.attr('title') || delCommentsBtn.attr('aria-label')).match(/\d+/)[0];
-                $(this).append(`<span class="js-link-separator2">&nbsp;|&nbsp;</span> <a class="js-show-deleted-comments-link fc-red-600" title="expand to show all comments on this post (including deleted)" href="#" onclick="" role="button">load <b>${numDeletedComments}</b> deleted comment${numDeletedComments > 1 ? 's' : ''}</a>`);
+                $(this).append(`<span class="js-link-separator2">&nbsp;|&nbsp;</span> <a class="js-show-deleted-comments-link fc-red-600" title="expand to show all comments on this post (including deleted)" href="${delCommentsBtn.attr('href')}" role="button">load <b>${numDeletedComments}</b> deleted comment${numDeletedComments > 1 ? 's' : ''}</a>`);
                 delCommentsBtn.hide();
             }
 
@@ -730,20 +730,23 @@
 
         const d = $('body').not('.js-comments-menu-events').addClass('js-comments-menu-events');
 
-        d.on('click', 'a.js-show-deleted-comments-link', function() {
+        d.on('click', 'a.js-show-deleted-comments-link', function(e) {
+            e.preventDefault();
             const post = $(this).closest('.answer, .question');
             post.find('.js-fetch-deleted-comments').click();
             $(this).prev('.js-link-separator2').addBack().remove();
         });
 
-        d.on('click', 'a.js-move-comments-link', function() {
+        d.on('click', 'a.js-move-comments-link', function(e) {
+            e.preventDefault();
             const post = $(this).closest('.answer, .question');
             const pid = Number(this.dataset.postId) || null;
             $(this).remove();
             moveCommentsOnPostToChat(pid);
         });
 
-        d.on('click', 'a.js-purge-comments-link', function() {
+        d.on('click', 'a.js-purge-comments-link', function(e) {
+            e.preventDefault();
             const post = $(this).closest('.answer, .question');
             const pid = Number(this.dataset.postId) || null;
             deleteCommentsOnPost(pid);
