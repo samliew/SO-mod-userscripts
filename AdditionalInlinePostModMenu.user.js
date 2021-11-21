@@ -466,7 +466,7 @@
 
 
     // Send mod message + optional suspension
-    function modMessage(uid, message = '', sendEmail = true, suspendDays = 0) {
+    function modMessage(uid, message = '', sendEmail = true, suspendDays = 0, templateName = 'something else...', suspendReason = 'for rule violations') {
         return new Promise(function(resolve, reject) {
             if(typeof uid === 'undefined' || uid === null) { reject(); return; }
             if(suspendDays < 0 || suspendDays > 365) { reject(); return; }
@@ -476,27 +476,14 @@
                 alert('Mod message cannot be empty.'); reject(); return;
             }
 
-            let suspendUser = false;
-            let suspendChoice = 0;
-            if(suspendDays > 0) {
-                suspendUser = true;
-                suspendChoice = suspendDays;
-            }
-
-            let templateName = 'something else...';
-            let suspendReason = 'for rule violations';
-            if(message == 'goodbye') {
-                templateName = 'a farewell';
-            }
-
             $.post({
                 url: `https://${location.hostname}/users/message/save`,
                 data: {
                     'userId': uid,
                     'lastMessageDate': 0,
                     'email': sendEmail,
-                    'suspendUser': suspendUser,
-                    'suspend-choice': suspendChoice,
+                    'suspendUser': (suspendDays > 0),
+                    'suspend-choice': ((suspendDays > 0) ? suspendDays : 0),
                     'suspendDays': suspendDays,
                     'templateName': templateName,
                     'suspendReason': suspendReason,
@@ -529,7 +516,12 @@
             }
 
             // Apply max suspension before deletion
-            modMessage(uid, 'goodbye', false, 365);
+            modMessage(uid,
+                       'Account removed for spamming and/or abusive behavior. You\'re no longer welcome to participate here.',
+                       false,
+                       365,
+                       'no longer welcome',
+                       'because of low-quality contributions');
 
             getUserPii(uid).then(v => {
 
@@ -573,7 +565,12 @@
             }
 
             // Apply max suspension before deletion
-            modMessage(uid, 'goodbye', false, 365);
+            modMessage(uid,
+                       'Account removed for spamming and/or abusive behavior. You\'re no longer welcome to participate here.',
+                       false,
+                       365,
+                       'destroy spammer',
+                       'for promotional content');
 
             getUserPii(uid).then(v => {
 
