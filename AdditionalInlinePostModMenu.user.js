@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.4
+// @version      1.9.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -466,7 +466,7 @@
 
 
     // Send mod message + optional suspension
-    function modMessage(uid, message = '', sendEmail = true, suspendDays = 0) {
+    function modMessage(uid, message = '', sendEmail = true, suspendDays = 0, templateName = 'something else...', suspendReason = 'for rule violations') {
         return new Promise(function(resolve, reject) {
             if(typeof uid === 'undefined' || uid === null) { reject(); return; }
             if(suspendDays < 0 || suspendDays > 365) { reject(); return; }
@@ -476,27 +476,14 @@
                 alert('Mod message cannot be empty.'); reject(); return;
             }
 
-            let suspendUser = false;
-            let suspendChoice = 0;
-            if(suspendDays > 0) {
-                suspendUser = true;
-                suspendChoice = suspendDays;
-            }
-
-            let templateName = 'something else...';
-            let suspendReason = 'for rule violations';
-            if(message == 'goodbye') {
-                templateName = 'a farewell';
-            }
-
             $.post({
                 url: `https://${location.hostname}/users/message/save`,
                 data: {
                     'userId': uid,
                     'lastMessageDate': 0,
                     'email': sendEmail,
-                    'suspendUser': suspendUser,
-                    'suspend-choice': suspendChoice,
+                    'suspendUser': (suspendDays > 0),
+                    'suspend-choice': ((suspendDays > 0) ? suspendDays : 0),
                     'suspendDays': suspendDays,
                     'templateName': templateName,
                     'suspendReason': suspendReason,
@@ -529,7 +516,12 @@
             }
 
             // Apply max suspension before deletion
-            modMessage(uid, 'goodbye', false, 365);
+            modMessage(uid,
+                       'Account removed for spamming and/or abusive behavior. You\'re no longer welcome to participate here.',
+                       false,
+                       365,
+                       'no longer welcome',
+                       'because of low-quality contributions');
 
             getUserPii(uid).then(v => {
 
@@ -573,7 +565,12 @@
             }
 
             // Apply max suspension before deletion
-            modMessage(uid, 'goodbye', false, 365);
+            modMessage(uid,
+                       'Account removed for spamming and/or abusive behavior. You\'re no longer welcome to participate here.',
+                       false,
+                       365,
+                       'destroy spammer',
+                       'for promotional content');
 
             getUserPii(uid).then(v => {
 
@@ -705,7 +702,7 @@
             const delCommentsBtn = post.find('.js-fetch-deleted-comments');
             if(delCommentsBtn.length == 1) {
                 const numDeletedComments = (delCommentsBtn.attr('title') || delCommentsBtn.attr('aria-label')).match(/\d+/)[0];
-                $(this).append(`<span class="js-link-separator2">&nbsp;|&nbsp;</span> <a class="js-show-deleted-comments-link fc-red-600" title="expand to show all comments on this post (including deleted)" href="#" onclick="" role="button">load <b>${numDeletedComments}</b> deleted comment${numDeletedComments > 1 ? 's' : ''}</a>`);
+                $(this).append(`<span class="js-link-separator2">&nbsp;|&nbsp;</span> <a class="js-show-deleted-comments-link fc-red-600" title="expand to show all comments on this post (including deleted)" href="${delCommentsBtn.attr('href')}" role="button">load <b>${numDeletedComments}</b> deleted comment${numDeletedComments > 1 ? 's' : ''}</a>`);
                 delCommentsBtn.hide();
             }
 
@@ -730,20 +727,23 @@
 
         const d = $('body').not('.js-comments-menu-events').addClass('js-comments-menu-events');
 
-        d.on('click', 'a.js-show-deleted-comments-link', function() {
+        d.on('click', 'a.js-show-deleted-comments-link', function(e) {
+            e.preventDefault();
             const post = $(this).closest('.answer, .question');
             post.find('.js-fetch-deleted-comments').click();
             $(this).prev('.js-link-separator2').addBack().remove();
         });
 
-        d.on('click', 'a.js-move-comments-link', function() {
+        d.on('click', 'a.js-move-comments-link', function(e) {
+            e.preventDefault();
             const post = $(this).closest('.answer, .question');
             const pid = Number(this.dataset.postId) || null;
             $(this).remove();
             moveCommentsOnPostToChat(pid);
         });
 
-        d.on('click', 'a.js-purge-comments-link', function() {
+        d.on('click', 'a.js-purge-comments-link', function(e) {
+            e.preventDefault();
             const post = $(this).closest('.answer, .question');
             const pid = Number(this.dataset.postId) || null;
             deleteCommentsOnPost(pid);
