@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.6
+// @version      0.3.7
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -134,14 +134,14 @@
     /* No relative dates */
     .relativetime,
     .relativetime-clean,
-    #question-header + .grid > .grid--cell time,
-    #question-header + .grid > .grid--cell a {
+    #question-header + .grid > .flex--item time,
+    #question-header + .grid > .flex--item a {
         font-size: 0;
     }
     .relativetime:before,
     .relativetime-clean:before,
-    #question-header + .grid > .grid--cell time:before,
-    #question-header + .grid > .grid--cell a:before {
+    #question-header + .grid > .flex--item time:before,
+    #question-header + .grid > .flex--item a:before {
         content: attr(data-timestamp);
         font-size: 13px;
         white-space: nowrap;

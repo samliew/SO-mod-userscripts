@@ -3,7 +3,7 @@
 // @description  Loads more user details on the find users page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.5
+// @version      0.1.6
 //
 // @include      https://stackoverflow.com/admin/find-users?*
 // @include      https://serverfault.com/admin/find-users?*
@@ -68,7 +68,7 @@
         const searchField = $('#content input[name="q"]').addClass('s-input s-input__md js-usersearch-input');
         const searchSubmit = $('#content input[type="submit"]').addClass('s-btn s-btn__md s-btn__primary js-usersearch-submit');
 
-        searchField.add(searchSubmit).wrapAll(`<div class="grid--cell ps-relative fl1"></div>`);
+        searchField.add(searchSubmit).wrapAll(`<div class="flex--item ps-relative fl1"></div>`);
 
         const table = $('#users-list');
         const ids = table.find('tbody tr').find('a:first').attr('target', '_blank').each(function() {

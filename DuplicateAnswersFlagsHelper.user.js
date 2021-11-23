@@ -3,8 +3,8 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
-// 
+// @version      2.4.1
+//
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
 //
@@ -60,7 +60,7 @@ async function waitForSOMU() {
         $('.js-flagged-post').each(function() {
 
             // Add delete and comment button
-            $('.js-post-flag-options .ff-row-wrap', this).append(`<input type="button" class="js-hide-on-delete grid--cell s-btn s-btn__danger s-btn__outlined js-delete-and-comment" data-post-id="${this.dataset.postId}" value="Delete + Comment" title="delete and add dupe comment" />`);
+            $('.js-post-flag-options .ff-row-wrap', this).append(`<input type="button" class="js-hide-on-delete flex--item s-btn s-btn__danger s-btn__outlined js-delete-and-comment" data-post-id="${this.dataset.postId}" value="Delete + Comment" title="delete and add dupe comment" />`);
         })
         .on('click', '.js-delete-and-comment', function() {
             const pid = this.dataset.postId;

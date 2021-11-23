@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      6.3
+// @version      6.3.1
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -539,7 +539,7 @@
             if(!isSuperuser) return;
 
             // Init batch comments deleter
-            const delAllComments = $(`<button id="delete-all-btn" class="grid--cell mb12 ml12 s-btn s-btn__filled s-btn__danger js-delete-all" role="button">Delete ALL</button>`);
+            const delAllComments = $(`<button id="delete-all-btn" class="flex--item mb12 ml12 s-btn s-btn__filled s-btn__danger js-delete-all" role="button">Delete ALL</button>`);
             delAllComments.click(function() {
                 const searchUrl = location.search.slice(1).replace(/[&?]page=\d+/, '');
                 const lastPageLink = $('.js-comments-table-container .s-pagination--item').not('[rel="next"]').last();
@@ -886,7 +886,7 @@ mark {
 }
 
 /* General new mod interface stuff */
-.js-admin-dashboard > div.grid--cell {
+.js-admin-dashboard > div.flex--item {
     /* so the decline + delete option goes over the sidebar */
     position: relative;
     z-index: 1;

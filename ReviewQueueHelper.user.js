@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.9.1
+// @version      3.9.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -534,11 +534,11 @@ async function waitForSOMU() {
         actionsCont.children('.instant-actions').remove();
 
         const instantActions = $('<span class="instant-actions grid gs8 jc-end ff-row-wrap">'
-+ '<button class="s-btn s-btn__outlined grid--cell" data-instant="unclear" title="Needs details or clarity">Unclear</button>'
-+ '<button class="s-btn s-btn__outlined grid--cell" data-instant="broad" title="Needs more focus">Broad</button>'
-+ '<button class="s-btn s-btn__outlined grid--cell" data-instant="softrec" title="It\'s seeking recommendations for books, software libraries, or other off-site resources">SoftRec</button>'
-+ '<button class="s-btn s-btn__outlined grid--cell" data-instant="debug" title="It\'s seeking debugging help but needs more information">Debug</button>'
-+ '<button class="s-btn s-btn__outlined grid--cell" data-instant="opinion" title="Opinion-based">Opinion</button>'
+            + '<button class="s-btn s-btn__outlined flex--item" data-instant="unclear" title="Needs details or clarity">Unclear</button>'
+            + '<button class="s-btn s-btn__outlined flex--item" data-instant="broad" title="Needs more focus">Broad</button>'
+            + '<button class="s-btn s-btn__outlined flex--item" data-instant="softrec" title="It\'s seeking recommendations for books, software libraries, or other off-site resources">SoftRec</button>'
+            + '<button class="s-btn s-btn__outlined flex--item" data-instant="debug" title="It\'s seeking debugging help but needs more information">Debug</button>'
+            + '<button class="s-btn s-btn__outlined flex--item" data-instant="opinion" title="Opinion-based">Opinion</button>'
 + '</span>').appendTo(actionsCont);
 
         instantActions.one('click', 'button[data-instant]', function() {
@@ -595,12 +595,12 @@ async function waitForSOMU() {
         const voteCont = reviewablePost.find('.js-voting-container').first();
         if(voteCont.length == 0) return;
 
-        const upvoteBtn = `<button class="js-vote-up-btn grid--cell s-btn s-btn__unset c-pointer" title="This question shows research effort; it is useful and clear" aria-pressed="false" aria-label="up vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowUpLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 26h32L18 10 2 26z"></path></svg></button>`;
-        const dnvoteBtn = `<button class="js-vote-down-btn grid--cell s-btn s-btn__unset c-pointer" title="This question does not show any research effort; it is unclear or not useful" aria-pressed="false" aria-label="down vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowDownLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 10h32L18 26 2 10z"></path></svg></button>`;
+        const upvoteBtn = `<button class="js-vote-up-btn flex--item s-btn s-btn__unset c-pointer" title="This question shows research effort; it is useful and clear" aria-pressed="false" aria-label="up vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowUpLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 26h32L18 10 2 26z"></path></svg></button>`;
+        const dnvoteBtn = `<button class="js-vote-down-btn flex--item s-btn s-btn__unset c-pointer" title="This question does not show any research effort; it is unclear or not useful" aria-pressed="false" aria-label="down vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowDownLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 10h32L18 26 2 10z"></path></svg></button>`;
 
         if(voteCont.find('.js-vote-up-btn, .js-vote-down-btn').length != 2) {
             voteCont.find('.fs-caption').remove();
-            voteCont.find('.js-vote-count').removeClass('mb8').addClass('fc-black-500 fd-column ai-center grid--cell grid').unwrap().before(upvoteBtn).after(dnvoteBtn);
+            voteCont.find('.js-vote-count').removeClass('mb8').addClass('fc-black-500 fd-column ai-center flex--item grid').unwrap().before(upvoteBtn).after(dnvoteBtn);
 
             StackExchange.vote.init(pid);
         }
@@ -1181,7 +1181,7 @@ async function waitForSOMU() {
 
                         // If question, insert "Close" option
                         if(isQuestion) {
-                            const closeBtn = $(`<button class="js-action-button s-btn s-btn__primary grid--cell" title="close question">Close</button>`).attr('disabled', isClosedOrDeleted);
+                            const closeBtn = $(`<button class="js-action-button s-btn s-btn__primary flex--item" title="close question">Close</button>`).attr('disabled', isClosedOrDeleted);
                             closeBtn.click(function() {
                                 // If button not disabled
                                 if(!$(this).prop('disabled')) {
@@ -1194,7 +1194,7 @@ async function waitForSOMU() {
 
                         // Else if answer and user has delete privs, insert "Delete" option
                         else if(!isQuestion && (StackExchange.options.user.isModerator || StackExchange.options.user.rep >= 10000 && $('.js-post-menu a[title="vote to delete this post"]').length === 1)) {
-                            const delBtn = $(`<button class="js-action-button s-btn s-btn__primary grid--cell" title="delete answer">Delete</button>`).attr('disabled', isClosedOrDeleted);
+                            const delBtn = $(`<button class="js-action-button s-btn s-btn__primary flex--item" title="delete answer">Delete</button>`).attr('disabled', isClosedOrDeleted);
                             delBtn.click(function() {
                                 // If button not disabled
                                 if(!$(this).prop('disabled')) {
@@ -1237,7 +1237,7 @@ async function waitForSOMU() {
 
                         // Add post timeline link to post
                         reviewablePost.find('.votecell').addClass('grid fd-column ai-stretch gs4')
-                            .append(`<a class="js-post-issue grid--cell s-btn s-btn__unset c-pointer py8 mx-auto mt16 fc-black-200" href="/posts/${pid}/timeline" data-shortcut="T" title="Timeline"><svg aria-hidden="true" class="mln2 mr0 svg-icon iconHistory" width="19" height="18" viewBox="0 0 19 18"><path d="M3 9a8 8 0 113.73 6.77L8.2 14.3A6 6 0 105 9l3.01-.01-4 4-4-4h3L3 9zm7-4h1.01L11 9.36l3.22 2.1-.6.93L10 10V5z"></path></svg></a>`);
+                            .append(`<a class="js-post-issue flex--item s-btn s-btn__unset c-pointer py8 mx-auto mt16 fc-black-200" href="/posts/${pid}/timeline" data-shortcut="T" title="Timeline"><svg aria-hidden="true" class="mln2 mr0 svg-icon iconHistory" width="19" height="18" viewBox="0 0 19 18"><path d="M3 9a8 8 0 113.73 6.77L8.2 14.3A6 6 0 105 9l3.01-.01-4 4-4-4h3L3 9zm7-4h1.01L11 9.36l3.22 2.1-.6.93L10 10V5z"></path></svg></a>`);
                     }
 
 

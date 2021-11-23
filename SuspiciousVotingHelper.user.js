@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9
+// @version      1.9.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -468,7 +468,7 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
         else if(location.pathname.includes('/users/account-info/')) {
 
             const uid = location.pathname.match(/\/(\d+)/)[1];
-            const networkUid = $('.js-user-header > .grid--cell').last().children().children().last().attr('href').match(/\/(\d+)\//)[1];
+            const networkUid = $('.js-user-header > .flex--item').last().children().children().last().attr('href').match(/\/(\d+)\//)[1];
 
             const dateNetworkRegContainer = $(` <span class="d-inline-block ml12"></span>`);
             $('#mod-content .details .col-4').eq(0).append(dateNetworkRegContainer);

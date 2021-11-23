@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.1.1
+// @version      5.1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -45,7 +45,7 @@
   const mixed = isSO ? '&mixed=0' : '';
 
   const store = window.localStorage;
-  const searchSelector = $(`<div class="grid--cell s-select wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
+  const searchSelector = $(`<div class="flex--item s-select wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
 <option data-url="${mainUrl}/search" ${!isChildMeta ? 'selected="selected"' : ''} data-mixed="0">${mainName}</option>
 <option data-url="${metaUrl}/search" ${ isChildMeta ? 'selected="selected"' : ''}>Meta</option>
 <option data-url="https://${mseDomain}/search">Meta Stack Exchange</option>
@@ -392,18 +392,18 @@
 
       let quickfilter = $(`<div id="res-quickfilter">Quick filters:
 <div class="grid tabs-filter tt-capitalize">
-<a class="grid--cell s-btn s-btn__muted s-btn__outlined py8 ws-nowrap ${isOnTagPage ? 'is-selected' : ''}"
+<a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap ${isOnTagPage ? 'is-selected' : ''}"
    href="${removeParam(query, 'is')}+is%3aq${querysuffix}" data-onwhen="is%3aq"
    data-toggleoff="${removeParam(query, 'is')}${querysuffix}">questions</a>
-<a class="grid--cell s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
+<a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
    href="${removeParam(query, 'is')}+is%3aa${querysuffix}" data-onwhen="is%3aa"
    data-toggleoff="${removeParam(query, 'is')}${querysuffix}">answers</a>
 </div>
 <div class="grid tabs-filter tt-capitalize">
-<a class="grid--cell s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
+<a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
    href="${removeParam(query, 'deleted')}+deleted%3a1${querysuffix}" data-onwhen="deleted%3ayes"
    data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany${querysuffix}">deleted</a>
-<a class="grid--cell s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
+<a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
    href="${removeParam(query, 'deleted')}+deleted%3a0${querysuffix}" data-onwhen="deleted%3ano" data-onwhenmissing="deleted%3a"
    data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany${querysuffix}">not deleted</a>
 </div>
@@ -1080,7 +1080,7 @@
           }
 
           searchform.addClass('search-channel-context')
-              .find('.js-search-field, .js-search-submit').wrapAll('<div class="grid--cell ps-relative fl1"></div>');
+            .find('.js-search-field, .js-search-submit').wrapAll('<div class="flex--item ps-relative fl1"></div>');
 
           searchform
               .append('<input name="mixed" value="0" type="hidden" id="search-channel-mixed">')

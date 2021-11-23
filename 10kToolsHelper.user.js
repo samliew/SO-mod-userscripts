@@ -3,7 +3,7 @@
 // @description  Expand all sections, and adds additional filters
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3
+// @version      0.3.1
 //
 // @include      https://*stackexchange.com/tools*
 // @include      https://*stackoverflow.com/tools*
@@ -49,8 +49,8 @@
         else if(currentTabName === 'delete') {
 
             const buttonWrapper = $(`<div class="modtools-filters-wrapper grid">Quick filters:&nbsp;<div class="modtools-filters grid tt-capitalize">
-  <a class="grid--cell s-btn s-btn__muted s-btn__outlined py8 ws-nowrap is-selected" data-filter="q">questions</a>
-  <a class="grid--cell s-btn s-btn__muted s-btn__outlined py8 ws-nowrap is-selected" data-filter="a">answers</a>
+  <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap is-selected" data-filter="q">questions</a>
+  <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap is-selected" data-filter="a">answers</a>
 </div><div>`).appendTo('.tools-index-subtabs');
             const buttons = buttonWrapper.find('[data-filter]');
 

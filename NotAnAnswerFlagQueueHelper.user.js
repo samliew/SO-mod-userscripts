@@ -3,8 +3,8 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.16
-// 
+// @version      3.16.1
+//
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 //
@@ -544,7 +544,7 @@ input.js-helpful-purge {
 }
 
 /* General new mod interface stuff */
-.js-admin-dashboard > div.grid--cell {
+.js-admin-dashboard > div.flex--item {
     position: relative; /* so the decline + delete option goes over the sidebar */
     z-index: 1;
 }
@@ -562,13 +562,13 @@ input.js-helpful-purge {
 .js-flagged-post .bc-black-3 {
     border-color: var(--black-050) !important;
 }
-.js-post-flag-group > .grid--cell {
+.js-post-flag-group > .flex--item {
     padding: 8px 0;
 }
-.js-post-flag-group > .grid--cell.ta-right {
+.js-post-flag-group > .flex--item.ta-right {
     padding: 18px 8px !important;
 }
-.js-post-flag-group > .grid--cell > div {
+.js-post-flag-group > .flex--item > div {
     padding: 2px 0;
 }
 .js-admin-dashboard span[title]:hover {

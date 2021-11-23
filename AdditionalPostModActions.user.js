@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.16.3
+// @version      2.16.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -871,7 +871,7 @@
             }
 
             $(this).append(`
-<div class="js-post-issue grid--cell s-btn s-btn__unset ta-center py8 post-mod-menu-link" data-shortcut="O" title="Other mod actions">
+<div class="js-post-issue flex--item s-btn s-btn__unset ta-center py8 post-mod-menu-link" data-shortcut="O" title="Other mod actions">
   <svg aria-hidden="true" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 512" class="svg-icon mln1 mr0"><path fill="currentColor"
        d="M64 208c26.5 0 48 21.5 48 48s-21.5 48-48 48-48-21.5-48-48 21.5-48 48-48zM16 104c0 26.5 21.5 48 48 48s48-21.5 48-48-21.5-48-48-48-48 21.5-48 48zm0 304c0 26.5 21.5 48 48 48s48-21.5 48-48-21.5-48-48-48-48 21.5-48 48z"></path>
   </svg>

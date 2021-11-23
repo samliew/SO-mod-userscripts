@@ -3,7 +3,7 @@
 // @description  Show topbar indicator for recently declined flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -149,7 +149,7 @@
             if(recentlyDeclinedFlags.length === 0) {
 
                 // Show "no results" in modal content
-                $('.topbar-dialog.flag-dialog .modal-content').html('<ul><li><div class="item-content grid--cell fl1 pl12">none!</div></li></ul>');
+                $('.topbar-dialog.flag-dialog .modal-content').html('<ul><li><div class="item-content flex--item fl1 pl12">none!</div></li></ul>');
 
                 return;
             }
@@ -161,7 +161,7 @@
                 declinedFlagsContent += `
                     <li class="inbox-item">
                         <a href="${v.permalink}" class="grid gs8 gsx">
-                            <div class="item-content grid--cell fl1">
+                            <div class="item-content flex--item fl1">
                                 <div class="item-header">
                                     <span class="item-type">${v.flagType} flag</span>
                                     <span class="item-creation"><span title="${d}" class="relativetime" data-timestamp="${d}">${v.flagRelativeTime}</span></span>
