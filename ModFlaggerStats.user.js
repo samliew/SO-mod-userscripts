@@ -4,7 +4,7 @@
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
 // @version      3.5.1
-// 
+//
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/ModFlaggerStats.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/ModFlaggerStats.user.js
 //
@@ -177,7 +177,7 @@ unsafeWindow.purgeUserFlagStats = function() {
             getUserFlagStats(currUid).then(function(v) {
                 const tier = calculateFlagTier(v[1], v[3]);
                 const badge = `<a href="/users/flag-summary/${currUid}" class="flag-badge large ${tier.name}" title="${tier.name} flagger\n${v[1]} flags, ${v[2]} declined (accuracy ${(100 - v[3]).toFixed(2)}%)" target="_blank"><svg aria-hidden="true" class="svg-icon iconFlag" width="17" height="17" viewBox="0 0 17 17"><path d="M3 2v14h2v-6h3.6l.4 1h6V3H9.5L9 2H3z"></path></svg></a>`;
-                $('.profile-user--name, .user-card-name').append(badge);
+                $("#content .fs-headline2").after(badge);
             });
         }
 
