@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "@types/gapi": "^0.0.41",
+    "@types/gapi.auth2": "^0.0.55"
+  }
+}
