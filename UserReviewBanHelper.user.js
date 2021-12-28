@@ -779,21 +779,16 @@
                     const rowPos = rowIdx + 2;
                     const range = `'Data'!A${rowPos}:V${rowPos}`;
 
-                    if (rowPos > numRows) {
-                        return appendValues(
-                            sheetsApiBase,
-                            sheetsApiVersion,
-                            statsSpreadId,
-                            newData, range
-                        );
-                    }
+                    const handler = rowPos > numRows ? appendValues : updateValues;
 
-                    updateValues(
+                    handler(
                         sheetsApiBase,
                         sheetsApiVersion,
                         statsSpreadId,
                         newData, range
-                    );
+                    ).then(() => {
+                        console.debug("Successful upload");
+                    }, handleError);
                 };
 
                 /**
