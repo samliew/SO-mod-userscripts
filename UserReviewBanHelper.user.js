@@ -25,7 +25,13 @@
 // @include      */admin/links
 //
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
+// @require      https://raw.githubusercontent.com/userscripters/storage/master/dist/browser.js
+
+// @grant        GM_setValue
+// @grant        GM_getValue
 // ==/UserScript==
+
+/* globals Store */
 
 (function() {
     'use strict';
@@ -515,7 +521,7 @@
     }
 
 
-    function doPageload() {
+    async function doPageload() {
 
         // New suspend user form
         if(location.pathname === '/admin/review/suspensions/suspend-user') {
@@ -643,11 +649,29 @@
                   'count366': durations.filter(v => v > 365).length
                 };
 
+                const { GreasemonkeyStorage, TampermonkeyStorage } =/** @type {typeof import("@userscripters/store/dist/index")} */(Store);
+
+                const { scriptHandler } = typeof GM !== "undefined" ? GM.info : {};
+
+                const handlerMap = {
+                    "Greasemonkey": GreasemonkeyStorage,
+                    "Tampermonkey": TampermonkeyStorage
+                };
+
+                const storageConstructor = handlerMap[scriptHandler];
+
+                const store = new Store.default(
+                    "review_ban_helper_sheets_api",
+                    storageConstructor ?
+                        new storageConstructor() :
+                        localStorage
+                );
+
                 const sheetsApiVersion = 4;
                 const sheetsApiBase = "https://sheets.googleapis.com";
-                const sheetsApiKey = "";
-                const appClientId = "";
-                const statsSpreadId = "";
+                const appClientId = await store.load("client_id") || prompt("Enter the Google Cloud Project client id");
+                const statsSpreadId = await store.load("spreadsheet_id") || prompt("Enter the destination spreadsheet id");
+                const sheetsApiKey = await store.load("api_key") || prompt("Enter the Sheets API key");;
 
                 /**
                  * @param clientId client id to use

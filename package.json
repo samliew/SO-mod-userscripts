@@ -1,6 +1,8 @@
 {
   "devDependencies": {
     "@types/gapi": "^0.0.41",
-    "@types/gapi.auth2": "^0.0.55"
+    "@types/gapi.auth2": "^0.0.55",
+    "@types/greasemonkey": "^4.0.2",
+    "@types/tampermonkey": "^4.0.5"
   }
 }
