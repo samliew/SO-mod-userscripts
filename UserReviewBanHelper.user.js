@@ -649,7 +649,7 @@
                   'count366': durations.filter(v => v > 365).length
                 };
 
-                const { GreasemonkeyStorage, TampermonkeyStorage } =/** @type {typeof import("@userscripters/store/dist/index")} */(Store);
+                const { GreasemonkeyStorage, TampermonkeyStorage } = /** @type {typeof import("@userscripters/store/dist/index")} */(Store);
 
                 const { scriptHandler } = typeof GM !== "undefined" ? GM.info : {};
 
@@ -671,7 +671,11 @@
                 const sheetsApiBase = "https://sheets.googleapis.com";
                 const appClientId = await store.load("client_id") || prompt("Enter the Google Cloud Project client id");
                 const statsSpreadId = await store.load("spreadsheet_id") || prompt("Enter the destination spreadsheet id");
-                const sheetsApiKey = await store.load("api_key") || prompt("Enter the Sheets API key");;
+                const sheetsApiKey = await store.load("api_key") || prompt("Enter the Sheets API key");
+
+                await store.save("client_id", appClientId);
+                await store.save("spreadsheet_id", statsSpreadId);
+                await store.save("api_key", sheetsApiKey);
 
                 /**
                  * @param clientId client id to use
