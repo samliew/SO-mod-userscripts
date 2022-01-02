@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      7.1.1
+// @version      7.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -599,6 +599,15 @@
 
         }
 
+        // New historical page
+        else if (location.pathname === '/admin/review/suspensions/historical') {
+
+            // Load histories in a new window (instead of popup) to take advantage of userscript
+            $('.js-show-suspension-history').replaceWith(function(i, el) {
+                return `<a href="https://${location.hostname}/admin/review/suspensions/historical/${this.dataset.userid}" target="_blank">${this.innerText}</a>`;
+            });
+        }
+
         // New user historical page
         else if (location.pathname.startsWith('/admin/review/suspensions/historical/')) {
 
@@ -635,12 +644,16 @@
                 $(this).children().eq(2).insertAfter(aftEl);
             });
 
+            // Remove expando arrow icons
+            $('.js-message-grid > .flex--item').remove();
+
             // Expand all messages
             $('.js-message-body-container').removeClass('d-none');
 
-            // Remove exapndos
-            $('.js-message-grid > .flex--item').remove();
-
+            // Remove unsuspended by column to save horizontal space
+            if(table.find('thead th').length === 6 && table.find('thead th').last().text().includes('Unsuspended')) {
+                table.find('tr').find('th, td').filter(':last-child').remove();
+            }
         }
 
         // Review suspension page /admin/review/suspensions
@@ -670,7 +683,7 @@
                 });
             });
 
-            // BETTER ban descriptions if "general" or "custom" type
+            // BETTER ban titles if "general" or "custom" type
             $('.js-message-body-container').each(function() {
                 const btn = $(this).parent().find('.js-message-type');
                 if(!/(Custom|General)/i.test(btn.text())) return;
@@ -681,12 +694,14 @@
                 if(/(won't be able|(any|no) longer|no signs of improvement)/.test(reason)) {
                     btn.text('Permabanned');
                 }
-
-                // Plagiarism
-                else if(/plagiari([sz]ed|sm)/.test(reason)) {
+                // Approved Plagiarism
+                else if(/approve/.test(reason) && /plagiari([sz]ed|sm)/.test(reason)) {
                     btn.text('Approved plagiarism');
                 }
-
+                // Approved Vandalism
+                else if(/approve/.test(reason) && /vandalis[]/.test(reason)) {
+                    btn.text('Approved vandalism');
+                }
             });
 
             // Fix table date sorting
@@ -731,13 +746,14 @@
             });
 
             // Option to renew permanent bans
-            /*
             $('.js-message-body-container', table).filter((i, el) => el.innerText.includes('no longer welcome') || el.innerText.includes('no signs') || el.innerText.includes('any longer')).each(function() {
                 const row = $(this).closest('tr');
                 const reasonTemplate = $(this).parent().find('.js-message-type').text('Permabanned');
-                const rebanLink = row.find('.js-unsuspend').clone().insertAfter(this);
+                const unsuspendButton = row.find('.js-unsuspend');
+                const rebanLink = unsuspendButton.clone().insertAfter(this);
                 rebanLink.removeClass('s-btn__link js-unsuspend').addClass('s-btn__xs s-btn__filled mt8 js-suspend-again')
                     .attr('title', (i, s) => s.replace('Unsuspend', 'Renew review permaban for').replace(' from reviewing', '')).text((i, s) => s.replace('Unsuspend', 'Renew permaban'));
+                unsuspendButton.hide();
             });
             table.on('click', '.js-suspend-again', function(i, btn) {
                 if(confirm("Apply another year's suspension to this user?")) {
@@ -748,7 +764,6 @@
                 }
                 return false;
             });
-            */
 
 
             // Add summary of currently review-banned users if we are not review banning users
