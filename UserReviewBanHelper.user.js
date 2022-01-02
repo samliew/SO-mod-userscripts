@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      7.1
+// @version      7.1.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -665,15 +665,15 @@
                 // Linkify ban counts to user review ban history page
                 const countCell = $(this).children('td').eq(5);
                 countCell.addClass('px0').html(function(i, v) {
-                    //return `<a href="/users/history/${uid}?type=User+has+been+suspended+from+reviewing" target="_blank" title="see review suspension history">${v}</a>`;
-                    return `<a href="/admin/review/suspensions/historical/${uid}" class="px6" target="_blank" title="see review suspension history">${v}</a>`;
+                    //return `<a href="/users/history/${uid}?type=User+has+been+suspended+from+reviewing" target="_blank" title="see review suspension history">${v}</a>`; // Old method uses user mod history filter
+                    return `<a href="/admin/review/suspensions/historical/${uid}" class="px6" target="_blank" title="see review suspension history">${v}</a>`; // New user ban history page
                 });
             });
 
-            // BETTER ban descriptions if "custom" type
+            // BETTER ban descriptions if "general" or "custom" type
             $('.js-message-body-container').each(function() {
                 const btn = $(this).parent().find('.js-message-type');
-                if(!btn.text().includes('Custom')) return;
+                if(!/(Custom|General)/i.test(btn.text())) return;
 
                 const reason = $(this).text().toLowerCase();
 
@@ -795,7 +795,7 @@
 <li><span class="copy-only">-&nbsp;</span>${firstTimers} (${(firstTimers/rows.length*100).toFixed(1)}%) users are banned for the first time</li>
 <li><span class="copy-only">-&nbsp;</span>${fiveTimers} (${(fiveTimers/rows.length*100).toFixed(1)}%) users have at least five review bans</li>
 <li><span class="copy-only">-&nbsp;</span>${tenTimers} (${(tenTimers/rows.length*100).toFixed(1)}%) users have at least ten review bans</li>
-<li><span class="copy-only">-&nbsp;</span>${hundred} (${(hundred/rows.length*100).toFixed(1)}%) users have a duration of at least 100 days, of which ${permaban} users are perma-banned</li>
+<li><span class="copy-only">-&nbsp;</span>${hundred} (${(hundred/rows.length*100).toFixed(1)}%) users have a duration of at least 100 days, of which ${permaban} users are permabanned</li>
 <li><span class="copy-only">-&nbsp;</span>${pastDay} (${(pastDay/rows.length*100).toFixed(1)}%) users are banned within the past day</li>
 <li><span class="copy-only">-&nbsp;</span>${pastWeek} (${(pastWeek/rows.length*100).toFixed(1)}%) users are banned within the past week</li>
 <li><span class="copy-only">-&nbsp;</span>${unbanDay} (${(unbanDay/rows.length*100).toFixed(1)}%) users will be unbanned by tomorrow</li>
