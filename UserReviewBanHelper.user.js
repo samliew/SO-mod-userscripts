@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      6.2
+// @version      7.0
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -246,7 +246,7 @@
             if(q[1] === 'first-posts') numPages = 6;
 
             for(let i = 1; i <= numPages; i++) {
-                $(`<div id="${q[1]}-review-${i}"><i>loading...</i></div>`).appendTo(cont).load(`https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=True&page=${i} #content .s-table`, function () {
+                $(`<div id="${q[1]}-review-${i}"><i>loading...</i></div>`).appendTo(cont).load(`https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=True&page=${i} #content .s-table`, function() {
                     $(`#${q[1]}-review-${i}`).find('thead').remove();
                     filterField.trigger('change');
                 });
@@ -537,21 +537,79 @@
             }
         }
 
+        // New user historical page
+        else if (location.pathname.startsWith('/admin/review/suspensions/historical/')) {
+
+            const wrapper = $('.js-individual-history');
+            const heading = wrapper.children().first();
+            const notice = wrapper.find('aside.s-notice.s-notice__warning');
+            const table = wrapper.find('table.s-table').first();
+
+            const isBanned = notice.find('b').text().includes('currently suspended');
+
+            // Wrap heading text in a span
+            heading.addClass('d-flex');
+            $(heading.get(0).childNodes).wrapAll(`<span class="pt4"></span>`);
+
+            // Add additional links to new pages
+            const uid2 = location.pathname.match(/\d+/)[0];
+            heading.append(`<a href="/admin/review/failed-audits?uid=${uid2}" target="_blank" class="float-right s-btn s-btn__sm mr12" title="view all recently failed audits from all queues on a single page">see all failed audits</a>`);
+
+            if(isBanned) {
+                // Currently banned, show unban button
+                $(`<a class="fr s-btn s-btn__sm s-btn__filled s-btn__danger reviewban-button">Review Unban</a>`)
+                    .click(function() {
+                    if(confirm('Unban user from reviewing?')) {
+                        $(this).remove();
+                        reviewUnban(uid2);
+                    }
+                })
+                .appendTo(heading);
+            }
+
+            // Move duration from third to second column for a little consistency
+            table.find('tr').each(function() {
+                const aftEl = $(this).children().eq(0);
+                $(this).children().eq(2).insertAfter(aftEl);
+            });
+
+            // Expand all messages
+            $('.js-message-body-container').removeClass('d-none');
+
+            // Remove exapndos
+            $('.js-message-grid > .flex--item').remove();
+
+        }
+
         // Linkify ban counts on ban page /admin/review/suspensions
         else if(location.pathname === '/admin/review/suspensions') {
 
             const table = $('.js-current-suspensions, .js-historical-grid table').first();
 
-            // Linkify ban counts to user review ban history page
+            // Save space on all columns except reason
+            table.find('thead th').addClass('w0').eq(4).removeClass('w0');
+
+            // Each table item row
             table.find('tbody tr').each(function() {
-                const userlink = $(this).find('a').first();
-                const uid = userlink.attr('data-uid') || userlink.attr('href').match(/\/(\d+)\//)[1];
-                $(this).children('td').eq(4).html(function(i, v) {
-                    return `<a href="/users/history/${uid}?type=User+has+been+suspended+from+reviewing" target="_blank" title="see review suspension history">${v}</a>`;
+                const uid = this.dataset.userId;
+
+                // Remove (History) link to save space
+                const firstCell = $(this).children('td').eq(0);
+                firstCell.removeClass('ws-nowrap').addClass('w128').find('a').last().remove();
+                firstCell.html(function(i, html) {
+                    return html.replace(/[\(\)\s]+$/, '');
+                });
+
+                // Linkify ban counts to user review ban history page
+                const countCell = $(this).children('td').eq(5);
+                countCell.addClass('px0').html(function(i, v) {
+                    //return `<a href="/users/history/${uid}?type=User+has+been+suspended+from+reviewing" target="_blank" title="see review suspension history">${v}</a>`;
+                    return `<a href="/admin/review/suspensions/historical/${uid}" class="px6" target="_blank" title="see review suspension history">${v}</a>`;
                 });
             });
 
             // Fix table date sorting
+            /*
             setTimeout(() => {
                 if($('#banned-users-table').length == 0) return;
                 $.tablesorter.destroy('.sorter', true, function() {
@@ -572,11 +630,12 @@
                     headers.eq(1).addClass('tablesorter-headerDesc');
                 });
             }, 2000);
+            */
 
             // Add duration column header
             table.find('thead tr th').eq(2).after(`
-<th scope="col" data-target="s-table.column" data-action="click->s-table#sort">
-  Duration
+<th scope="col" data-target="s-table.column" data-action="click->s-table#sort" class="w0">
+  Length
   <svg aria-hidden="true" class="js-sorting-indicator js-sorting-indicator-asc svg-icon iconArrowUpSm" width="14" height="14" viewBox="0 0 14 14"><path d="M3 9h8L7 5 3 9z"></path></svg>
   <svg aria-hidden="true" class="js-sorting-indicator js-sorting-indicator-desc svg-icon iconArrowDownSm d-none" width="14" height="14" viewBox="0 0 14 14"><path d="M3 5h8L7 9 3 5z"></path></svg>
   <svg aria-hidden="true" class="js-sorting-indicator js-sorting-indicator-none svg-icon iconArrowUpDownSm d-none" width="14" height="14" viewBox="0 0 14 14"><path d="M7 2l4 4H3l4-4zm0 10l4-4H3l4 4z"></path></svg>
@@ -591,6 +650,7 @@
             });
 
             // Option to renew permanent bans
+            /*
             $('.js-message-body-container', table).filter((i, el) => el.innerText.includes('no longer welcome') || el.innerText.includes('no signs') || el.innerText.includes('any longer')).each(function() {
                 const row = $(this).closest('tr');
                 const reasonTemplate = $(this).parent().find('.js-message-type').text('Permabanned');
@@ -607,6 +667,7 @@
                 }
                 return false;
             });
+            */
 
 
             // Add summary of currently review-banned users if we are not review banning users
@@ -615,11 +676,14 @@
                 const weekAhead = Date.now() + (7 * 24 * 60 * 60 * 1000);
 
                 const rows = table.find('tbody tr');
+
                 const banReasons = rows.find('.js-message-body-container');
+                const banTitles = banReasons.prev();
+
                 const reqEditing = banReasons.filter((i, el) => el.innerText.match(/(requires editing|needs community edit)/i)).length;
                 const forTriage = banReasons.filter((i, el) => el.innerText.toLowerCase().includes('triage')).length;
-                const auditFailures = banReasons.filter((i, el) => {
-                    return el.innerText.includes('You have made too many incorrect reviews.') || el.innerText.includes('A number of your recent reviews were incorrect.');
+                const auditFailures = banTitles.filter((i, el) => {
+                    return el.innerText.includes('(Auto)');
                 }).length;
                 const hundred = rows.filter((i, el) => el.children[3].innerText >= 100).length;
                 const permaban = banReasons.filter((i, el) => el.innerText.match(/(no|any) (longer|signs)/)).length;
@@ -722,7 +786,7 @@ Breakdown:<br>
             const heading = $('#mainbar h2').first();
 
             // Add additional links to new pages
-            heading.after(`<a href="/admin/review/failed-audits?uid=${uid2}" class="fr s-btn s-btn__sm mr12" title="view all recently failed audits from all queues on a single page">see all failed audits</a>`);
+            heading.after(`<a href="/admin/review/failed-audits?uid=${uid2}" class="float-right s-btn s-btn__sm mr12" title="view all recently failed audits from all queues on a single page">see all failed audits</a>`);
 
             // Hide action and ip columns
             const histTable = $('#user-history').addClass('hide-col-action').addClass('hide-col-ip');
@@ -1178,6 +1242,10 @@ a.js-suspend-again:hover {
 .failed-audits-page.js-absolute-dates .history-table span.history-date:before {
     content: attr(title);
     font-size: 0.9rem;
+}
+
+.js-current-suspensions span[title^="Community Bot"] {
+    display: none;
 }
 </style>
 `;
