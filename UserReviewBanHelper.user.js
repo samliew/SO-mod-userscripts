@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      7.0.1
+// @version      7.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -535,6 +535,68 @@
                     });
                 });
             }
+
+            // Keep button enabled
+            setInterval(() => $('.js-add-selected-actions').attr('disabled', false), 1000);
+
+            // Add canned message for permaban
+            const cannedTemplates = $('.js-choose-template-modal fieldset');
+            const permabanTemplate = $(`
+<div class="d-flex gs8">
+    <div class="flex--item">
+        <input class="s-radio js-suspension-message" type="radio" name="suspensionMessage" id="rb-message-Permabanned" value="Permabanned" data-title="Permabanned" data-controller="s-expandable-control" data-is-queue-specific="false" aria-controls="message-Permabanned-text" aria-expanded="false">
+    </div>
+    <div class="d-flex fd-column">
+        <label class="flex--item s-label fw-normal" for="rb-message-Permabanned">Permabanned</label>
+        <div class="flex--item s-expandable" id="message-Permabanned-text" data-duration="365">
+            <div class="d-flex fd-column mt8 s-expandable--content bar-sm bg-black-075 gs4 gsy fs-body1 py4 px6">
+                <div class="flex--item">Due to your <a href="https://${location.hostname}/users/current?tab=activity&sort=reviews">poor review history</a> as well as no signs of improvement after many review suspensions, you won't be able to use any of the review queues on the site any longer.</div>
+            </div>
+        </div>
+    </div>
+</div>`);
+            permabanTemplate.insertBefore(cannedTemplates.children().last());
+
+            // Error handling for new template generator, so we can inject our own templates
+            $(document).ajaxError(function(event, xhr, options, exception) {
+                //console.error(event, xhr, options, exception);
+                if(options.url !== '/admin/review/generate-message') return;
+
+                // Hide error toast
+                $('.js-stacks-managed-popup').remove();
+
+                // Grab injected template via the template selector
+                const selectedTemplate = options.data.match(/template=([^&]+)/i)[1];
+                const templateEl = cannedTemplates.find(`#message-${selectedTemplate}-text`);
+                const templateHtml = templateEl.children().children().unwrap().html();
+
+                // Set duration if found
+                const selectedDuration = templateEl.get(0).dataset.duration || null;
+                if(selectedDuration) {
+                    $('.js-suspension-duration, .js-other-duration').val('other').val(selectedDuration);
+                }
+
+                // Convert HTML to markdown
+                const templateMarkdown = templateHtml.replace(/<a href="([^"]+)">([^<]+)<\/a>/g, "[$2]($1)").replace(/<\/?(b|strong)>/, "**").replace(/<\/?(i|em)>/, "*");
+
+                const editorEl = $('.js-stacks-editor').get(0);
+                StackExchange.using("stacksEditor", function() {
+                    StackExchange.stacksEditor.createAsync(editorEl, templateMarkdown, {
+                        parserFeatures: {
+                            html: !1,
+                            snippets: !1,
+                            tables: !1
+                        },
+                        imageUpload: {
+                            handler: null
+                        }
+                    })
+                });
+
+                // Enable submit button
+                $('.js-initiate-suspension').attr('disabled', false);
+            });
+
         }
 
         // New user historical page
@@ -581,7 +643,7 @@
 
         }
 
-        // Linkify ban counts on ban page /admin/review/suspensions
+        // Review suspension page /admin/review/suspensions
         else if(location.pathname === '/admin/review/suspensions') {
 
             const table = $('.js-current-suspensions, .js-historical-grid table').first();
@@ -606,6 +668,25 @@
                     //return `<a href="/users/history/${uid}?type=User+has+been+suspended+from+reviewing" target="_blank" title="see review suspension history">${v}</a>`;
                     return `<a href="/admin/review/suspensions/historical/${uid}" class="px6" target="_blank" title="see review suspension history">${v}</a>`;
                 });
+            });
+
+            // BETTER ban descriptions if "custom" type
+            $('.js-message-body-container').each(function() {
+                const btn = $(this).parent().find('.js-message-type');
+                if(!btn.text().includes('Custom')) return;
+
+                const reason = $(this).text().toLowerCase();
+
+                // Permabanned
+                if(/(won't be able|(any|no) longer|no signs of improvement)/.test(reason)) {
+                    btn.text('Permabanned');
+                }
+
+                // Plagiarism
+                else if(/plagiari([sz]ed|sm)/.test(reason)) {
+                    btn.text('Approved plagiarism');
+                }
+
             });
 
             // Fix table date sorting
