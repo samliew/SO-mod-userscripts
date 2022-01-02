@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      7.0
+// @version      7.0.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -35,7 +35,7 @@
     if(!isModerator()) return;
 
 
-    const superusers = [ 584192 ];
+    const superusers = [ 584192, 6296561 ];
     const isSuperuser = superusers.includes(StackExchange.options.user.userId);
 
     const fkey = StackExchange.options.user.fkey;
