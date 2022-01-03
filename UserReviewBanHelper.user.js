@@ -31,7 +31,9 @@
 // @grant        GM_getValue
 // ==/UserScript==
 
-/* globals Store */
+/* globals Store, SOMU */
+
+/// <reference types="./globals" />
 
 (function() {
     'use strict';
@@ -809,21 +811,40 @@
                   'count366': durations.filter(v => v > 365).length
                 };
 
+                const sheetsApiVersion = 4;
+                const sheetsApiBase = "https://sheets.googleapis.com";
+
                 const { locateStorage } = /** @type {typeof import("@userscripters/storage/dist/index")} */(Store);
 
                 const storage = locateStorage();
 
-                const store = new Store.default("review_ban_helper_sheets_api", storage);
+                window.addEventListener("load", async () => {
+                    const name = "review_ban_helper_sheets_api";
+                    SOMU.store = storage;
+                    SOMU.addOption(name,"client_id");
+                    SOMU.addOption(name,"spreadsheet_id");
+                    SOMU.addOption(name, "api_key");
 
-                const sheetsApiVersion = 4;
-                const sheetsApiBase = "https://sheets.googleapis.com";
-                const appClientId = await store.load("client_id") || prompt("Enter the Google Cloud Project client id");
-                const statsSpreadId = await store.load("spreadsheet_id") || prompt("Enter the destination spreadsheet id");
-                const sheetsApiKey = await store.load("api_key") || prompt("Enter the Sheets API key");
+                    const store = new Store.default(name, storage);
 
-                await store.save("client_id", appClientId);
-                await store.save("spreadsheet_id", statsSpreadId);
-                await store.save("api_key", sheetsApiKey);
+                    const appClientId = SOMU.getOptionValue(name, "client_id") ||
+                        await store.load("client_id") ||
+                        prompt("Enter the Google Cloud Project client id");
+
+                    const statsSpreadId = SOMU.getOptionValue(name, "spreadsheet_id") ||
+                        await store.load("spreadsheet_id") ||
+                        prompt("Enter the destination spreadsheet id");
+
+                    const sheetsApiKey = SOMU.getOptionValue(name, "api_key") ||
+                        await store.load("api_key") ||
+                        prompt("Enter the Sheets API key");
+
+                    await store.save("client_id", appClientId);
+                    await store.save("spreadsheet_id", statsSpreadId);
+                    await store.save("api_key", sheetsApiKey);
+
+                    loadGAPI(appClientId, sheetsApiKey, statsSpreadId);
+                });
 
                 /**
                  * @param clientId client id to use
@@ -905,7 +926,7 @@
                     }
 
                     const { result } = response;
-                    const { valueRanges } = result;
+                    const { valueRanges, spreadsheetId } = result;
 
                     const today = new Date();
                     const todayReset = new Date(
@@ -960,7 +981,7 @@
                     handler(
                         sheetsApiBase,
                         sheetsApiVersion,
-                        statsSpreadId,
+                        spreadsheetId,
                         newData, range
                     ).then(() => {
                         console.debug("Successful upload");
@@ -974,14 +995,17 @@
                     console.debug(`Sheets API error:\n${response.result.error.message}`);
                 };
 
-                const addStatsUploadButton = () => {
+                /**
+                 * @param spreadId spreadsheet id
+                 */
+                const addStatsUploadButton = (spreadId) => {
                     const uploadBtn = $(`<a id="upload_ban_stats" class="s-btn s-btn__sm s-btn__filled s-btn__primary">Send to Sheets</a>`);
                     uploadBtn.on("click", () => {
                         const auth = gapi.auth2.getAuthInstance();
 
                         const { isSignedIn } = auth;
 
-                        const handle = () => readValues(sheetsApiBase, sheetsApiVersion, statsSpreadId).then(handleValues, handleError);
+                        const handle = () => readValues(sheetsApiBase, sheetsApiVersion, spreadId).then(handleValues, handleError);
 
                         isSignedIn.listen(handle);
 
@@ -994,19 +1018,18 @@
                 /**
                  * @param clientId client id to use
                  * @param apiKey API key to use
+                 * @param spreadId spreadsheet id
                  */
-                const loadGAPI = (cliendId, apiKey) => {
+                const loadGAPI = (clientId, apiKey, spreadId) => {
                     const script = document.createElement("script");
                     script.src = "https://apis.google.com/js/api.js";
                     script.async = true;
                     script.defer = true;
                     script.addEventListener("load", () => {
-                        gapi.load("client:auth2", () => initGAPI(cliendId, apiKey).then(addStatsUploadButton));
+                        gapi.load("client:auth2", () => initGAPI(clientId, apiKey).then(() => addStatsUploadButton(spreadId)));
                     });
                     document.body.append(script);
                 };
-
-                loadGAPI(appClientId, sheetsApiKey);
 
                 const bannedStats = $(`<div id="banned-users-stats" class="mb16"><ul>` +
 (forTriage > 0 ? `<li><span class="copy-only">-&nbsp;</span>${forTriage} (${(forTriage/rows.length*100).toFixed(1)}%) users are banned for Triage reviews in one way or another</li>` : '') +
