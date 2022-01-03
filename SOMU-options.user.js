@@ -16,7 +16,6 @@
 // @exclude      https://stackoverflow.com/c/*
 // ==/UserScript==
 
-const store = window.localStorage;
 const toInt = v => v == null || isNaN(Number(v)) ? null : Number(v);
 const toBool = v => v == null ? null : v === true || v.toLowerCase() === 'true';
 const toSlug = str => (str || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -29,13 +28,14 @@ SOMU = unsafeWindow.SOMU || {
     hasInit: false,
     sidebar: null,
     sidebarContent: null,
+    store: window.localStorage,
 
 
     getOptionValue: function(scriptName, optionName, defaultValue = null, dataType = 'string') {
         const scriptSlug = toSlug(scriptName);
         const optionSlug = toSlug(optionName);
         const uniqueSlug = `${SOMU.keyPrefix}${scriptSlug}:${optionSlug}`;
-        let v = store.getItem(uniqueSlug);
+        let v = this.store.getItem(uniqueSlug);
         if(dataType === 'int') v = toInt(v);
         if(dataType === 'bool') {
             v = toBool(v);
@@ -46,7 +46,7 @@ SOMU = unsafeWindow.SOMU || {
 
 
     saveOptionValue: function(key, value) {
-        store.setItem(key, value.trim());
+        this.store.setItem(key, value.trim());
     },
 
 
