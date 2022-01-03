@@ -809,23 +809,11 @@
                   'count366': durations.filter(v => v > 365).length
                 };
 
-                const { GreasemonkeyStorage, TampermonkeyStorage } = /** @type {typeof import("@userscripters/store/dist/index")} */(Store);
+                const { locateStorage } = /** @type {typeof import("@userscripters/storage/dist/index")} */(Store);
 
-                const { scriptHandler } = typeof GM !== "undefined" ? GM.info : {};
+                const storage = locateStorage();
 
-                const handlerMap = {
-                    "Greasemonkey": GreasemonkeyStorage,
-                    "Tampermonkey": TampermonkeyStorage
-                };
-
-                const storageConstructor = handlerMap[scriptHandler];
-
-                const store = new Store.default(
-                    "review_ban_helper_sheets_api",
-                    storageConstructor ?
-                        new storageConstructor() :
-                        localStorage
-                );
+                const store = new Store.default("review_ban_helper_sheets_api", storage);
 
                 const sheetsApiVersion = 4;
                 const sheetsApiBase = "https://sheets.googleapis.com";
