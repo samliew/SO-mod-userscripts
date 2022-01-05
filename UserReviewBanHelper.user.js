@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      7.2.1
+// @version      7.3
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -221,15 +221,15 @@
             const rows = $('.s-table tr');
             const val = this.value.toLowerCase().trim();
             const userid = Number(val);
-            if(!isNaN(userid)) {
+            if(!isNaN(userid) && userid > 0) {
                 rows.hide().filter(function() {
                     const link = $(this).find('a').attr('href');
-                    return link ? link.includes(userid) : false;
+                    return link ? link.includes(`/users/${userid}/`) : false;
                 }).show();
             }
             else if(val.length > 0) {
                 rows.hide().filter(function() {
-                    return $(this).find('a').text().toLowerCase().includes(val);
+                    return $(this).find('a').first().text().toLowerCase().includes(val);
                 }).show();
             }
             else {
@@ -240,13 +240,13 @@
         const filterField = $('#js-filter-user');
 
         queues.forEach(q => {
-            cont.append(`<h3 class="s-subheader mt32 py8 bb bc-black-5"><a href="https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=True" target="_blank">${q[0]}</a></h3>`);
+            cont.append(`<h3 class="s-subheader mt32 py8 bb bc-black-5"><a href="https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=true" target="_blank">${q[0]}</a></h3>`);
 
             let numPages = 3;
             if(q[1] === 'first-posts') numPages = 6;
 
             for(let i = 1; i <= numPages; i++) {
-                $(`<div id="${q[1]}-review-${i}"><i>loading...</i></div>`).appendTo(cont).load(`https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=True&page=${i} #content .s-table`, function() {
+                $(`<div id="${q[1]}-review-${i}"><i>loading...</i></div>`).appendTo(cont).load(`https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=true&page=${i} #content .s-table`, function() {
                     $(`#${q[1]}-review-${i}`).find('thead').remove();
                     filterField.trigger('change');
                 });
@@ -254,7 +254,7 @@
         });
 
         // Once on page load, read user querystring to filter results
-        const uid = Number(getQueryParam('uid'));
+        const uid = Number(getQueryParam('uid')) || "";
         filterField.val(uid);
     }
 
@@ -1301,15 +1301,15 @@ a.js-suspend-again:hover {
     background: var(--red-500);
 }
 
-.failed-audits-page .history-table,
-.failed-audits-page .history-table-filter {
+.failed-audits-page table {
     width: 100%;
+    border: none;
 }
-.failed-audits-page .history-table tr,
+.failed-audits-page table tr,
 .failed-audits-page .history-table-filter tr {
     display: flex;
 }
-.failed-audits-page .history-table td,
+.failed-audits-page table td,
 .failed-audits-page .history-table-filter td {
     display: inline-block;
     width: 120px;
@@ -1317,25 +1317,27 @@ a.js-suspend-again:hover {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    border: none;
 }
-.failed-audits-page .history-table td:nth-child(2) {
-    width: 500px;
+.failed-audits-page table td:nth-child(2) {
+    width: 600px;
 }
-.failed-audits-page .history-table td:nth-child(4),
-.failed-audits-page .history-table td:nth-child(6) {
+.failed-audits-page table td:nth-child(4) {
     width: 70px;
 }
-.failed-audits-page .history-table td:nth-child(5) {
-    height: 22px;
+.failed-audits-page table td:nth-child(5) {
     order: -1;
+}
+.failed-audits-page table td:nth-child(6) {
+    width: 130px;
 }
 .failed-audits-page .history-table-filter td:nth-child(2) {
     width: 124px;
 }
-.failed-audits-page.js-absolute-dates .history-table td:nth-child(5) {
+.failed-audits-page.js-absolute-dates table td:nth-child(5) {
     font-size: 0;
 }
-.failed-audits-page.js-absolute-dates .history-table span.history-date:before {
+.failed-audits-page.js-absolute-dates table span.history-date:before {
     content: attr(title);
     font-size: 0.9rem;
 }
