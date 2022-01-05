@@ -3,7 +3,7 @@
 // @description  Adds right sidebar to modify options of installed userscripts from the repo https://github.com/samliew/SO-mod-userscripts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -16,26 +16,31 @@
 // @exclude      https://stackoverflow.com/c/*
 // ==/UserScript==
 
-const store = window.localStorage;
 const toInt = v => v == null || isNaN(Number(v)) ? null : Number(v);
 const toBool = v => v == null ? null : v === true || v.toLowerCase() === 'true';
 const toSlug = str => (str || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
 
 // Any way to avoid using a global variable?
-SOMU = unsafeWindow.SOMU || {
+SOMU = unsafeWindow.SOMU || /** @type {SOMU} */ ({
 
     keyPrefix: 'SOMU:',
     hasInit: false,
     sidebar: null,
     sidebarContent: null,
+    store: window.localStorage,
 
-
-    getOptionValue: function(scriptName, optionName, defaultValue = null, dataType = 'string') {
+    /**
+     * @param {string} scriptName
+     * @param {string} optionName
+     * @param {string|number|boolean} [defaultValue]
+     * @param {"bool"|"int"|"string"} [dataType]
+     */
+    getOptionValue(scriptName, optionName, defaultValue = null, dataType = 'string') {
         const scriptSlug = toSlug(scriptName);
         const optionSlug = toSlug(optionName);
         const uniqueSlug = `${SOMU.keyPrefix}${scriptSlug}:${optionSlug}`;
-        let v = store.getItem(uniqueSlug);
+        let v = /** @type {string|number|boolean} */(this.store.getItem(uniqueSlug));
         if(dataType === 'int') v = toInt(v);
         if(dataType === 'bool') {
             v = toBool(v);
@@ -46,11 +51,16 @@ SOMU = unsafeWindow.SOMU || {
 
 
     saveOptionValue: function(key, value) {
-        store.setItem(key, value.trim());
+        this.store.setItem(key, value.trim());
     },
 
-
-    addOption: function(scriptName, optionName, defaultValue = '', dataType = 'string') {
+    /**
+     * @param {string} scriptName
+     * @param {string} optionName
+     * @param {string|number|boolean} [defaultValue]
+     * @param {"bool"|"int"|"string"} [dataType]
+     */
+    addOption(scriptName, optionName, defaultValue = '', dataType = 'string') {
         const scriptSlug = toSlug(scriptName);
         const optionSlug = toSlug(optionName);
         const uniqueSlug = `${SOMU.keyPrefix}${scriptSlug}:${optionSlug}`;
@@ -276,7 +286,7 @@ SOMU = unsafeWindow.SOMU || {
     },
 
 
-    init: function() {
+    init() {
 
         // Run validation
         if(typeof jQuery === 'undefined') {
@@ -302,7 +312,7 @@ SOMU = unsafeWindow.SOMU || {
         });
     }
 
-};
+});
 
 
 (function() {
