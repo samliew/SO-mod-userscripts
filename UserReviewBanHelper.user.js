@@ -820,22 +820,26 @@
 
                 window.addEventListener("load", async () => {
                     const name = "review_ban_helper_sheets_api";
-                    SOMU.store = storage;
-                    SOMU.addOption(name,"client_id");
-                    SOMU.addOption(name,"spreadsheet_id");
-                    SOMU.addOption(name, "api_key");
+
+                    const manager = typeof SOMU !== "undefined" ? SOMU : null;
+                    if(manager) {
+                        manager.store = storage;
+                        manager.addOption(name,"client_id");
+                        manager.addOption(name,"spreadsheet_id");
+                        manager.addOption(name, "api_key");
+                    }
 
                     const store = new Store.default(name, storage);
 
-                    const appClientId = SOMU.getOptionValue(name, "client_id") ||
+                    const appClientId = (manager && manager.getOptionValue(name, "client_id")) ||
                         await store.load("client_id") ||
                         prompt("Enter the Google Cloud Project client id");
 
-                    const statsSpreadId = SOMU.getOptionValue(name, "spreadsheet_id") ||
+                    const statsSpreadId = (manager && manager.getOptionValue(name, "spreadsheet_id")) ||
                         await store.load("spreadsheet_id") ||
                         prompt("Enter the destination spreadsheet id");
 
-                    const sheetsApiKey = SOMU.getOptionValue(name, "api_key") ||
+                    const sheetsApiKey = (manager && manager.getOptionValue(name, "api_key")) ||
                         await store.load("api_key") ||
                         prompt("Enter the Sheets API key");
 
