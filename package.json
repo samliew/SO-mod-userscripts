@@ -4,6 +4,8 @@
     "@types/gapi.auth2": "^0.0.55",
     "@types/greasemonkey": "^4.0.2",
     "@types/jquery": "^3.5.11",
-    "@types/tampermonkey": "^4.0.5"
+    "@types/tampermonkey": "^4.0.5",
+    "@userscripters/stackexchange-global-types": "^2.4.0",
+    "@userscripters/storage": "^0.1.2"
   }
 }

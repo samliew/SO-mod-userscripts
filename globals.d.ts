@@ -6,7 +6,7 @@ interface SOMU {
     hasInit: boolean,
     sidebar: JQuery | null,
     sidebarContent: JQuery | null,
-    store: Storage;
+    store: Storage | import("@userscripters/storage").AsyncStorage
 
     addOption(scriptName: string, optionName: string, defaultValue?: boolean, dataType?: "bool"): boolean | undefined;
     addOption(scriptName: string, optionName: string, defaultValue?: number, dataType?: "int"): boolean | undefined;
@@ -27,7 +27,16 @@ interface SOMU {
 }
 
 declare var SOMU: SOMU;
+declare var Store: typeof import("@userscripters/storage");
+
+declare function ajaxPromise(opts: string|object, type?: string): Promise<Document>;
+declare function isModerator(): boolean;
+declare function hasInvalidIds(): boolean;
+declare function htmlDecode(input:string): string;
+declare function jQueryXhrOverride(): XMLHttpRequest;
+declare function addBackoff(sec:number): void;
 
 interface Window {
     SOMU: SOMU | undefined;
+    Store: typeof Store | undefined;
 }
