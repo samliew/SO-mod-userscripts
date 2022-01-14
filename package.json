@@ -5,7 +5,7 @@
     "@types/greasemonkey": "^4.0.2",
     "@types/jquery": "^3.5.11",
     "@types/tampermonkey": "^4.0.5",
-    "@userscripters/stackexchange-global-types": "^2.3.1",
+    "@userscripters/stackexchange-global-types": "^2.4.0",
     "@userscripters/storage": "^0.1.1"
   }
 }
