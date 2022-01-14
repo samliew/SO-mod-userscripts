@@ -29,6 +29,13 @@ interface SOMU {
 declare var SOMU: SOMU;
 declare var Store: typeof import("@userscripters/storage/dist");
 
+declare function ajaxPromise(opts: string|object, type?: string): Promise<Document>;
+declare function isModerator(): boolean;
+declare function hasInvalidIds(): boolean;
+declare function htmlDecode(input:string): string;
+declare function jQueryXhrOverride(): XMLHttpRequest;
+declare function addBackoff(sec:number): void;
+
 interface Window {
     SOMU: SOMU | undefined;
     Store: typeof Store | undefined;
