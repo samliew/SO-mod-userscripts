@@ -814,7 +814,7 @@
                 const sheetsApiVersion = 4;
                 const sheetsApiBase = "https://sheets.googleapis.com";
 
-                const { locateStorage } = /** @type {typeof import("@userscripters/storage/dist/index")} */(Store);
+                const { locateStorage } = Store;
 
                 const storage = locateStorage();
 
@@ -847,8 +847,8 @@
                 });
 
                 /**
-                 * @param clientId client id to use
-                 * @param apiKey API key to use
+                 * @param {string} clientId client id to use
+                 * @param {string} apiKey API key to use
                  */
                 const initGAPI = (clientId, apiKey) => {
                     return gapi.client.init({
@@ -916,7 +916,7 @@
                 };
 
                 /**
-                 * @param {gapi.client.HttpRequestFulfilled<>} response API response
+                 * @param {gapi.client.HttpRequestFulfilled<any>} response API response
                  * @param {string} raw non-JSON response from the API
                  */
                 const handleValues = (response, raw) => {
@@ -996,7 +996,7 @@
                 };
 
                 /**
-                 * @param spreadId spreadsheet id
+                 * @param {string} spreadId spreadsheet id
                  */
                 const addStatsUploadButton = (spreadId) => {
                     const uploadBtn = $(`<a id="upload_ban_stats" class="s-btn s-btn__sm s-btn__filled s-btn__primary">Send to Sheets</a>`);
