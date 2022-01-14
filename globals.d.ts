@@ -27,7 +27,7 @@ interface SOMU {
 }
 
 declare var SOMU: SOMU;
-declare var Store: typeof import("@userscripters/storage/dist");
+declare var Store: typeof import("@userscripters/storage");
 
 declare function ajaxPromise(opts: string|object, type?: string): Promise<Document>;
 declare function isModerator(): boolean;
