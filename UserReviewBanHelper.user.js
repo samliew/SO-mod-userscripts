@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      7.3
+// @version      7.3.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -89,7 +89,6 @@
     };
 
 
-    const reloadPage = () => location.reload(true);
     const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
     const pluralize = s => s.length != 1 ? 's' : '';
     const dateToSeDateFormat = d => d.toISOString().replace('T', ' ').replace(/\.\d+Z$/, 'Z');
