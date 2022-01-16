@@ -2,7 +2,16 @@
     "compilerOptions": {
         "checkJs": true,
         "allowJs": true,
-        "types": ["jquery","tampermonkey","./globals"]
+        "lib": ["ESNext","DOM","DOM.Iterable"],
+        "types": [
+            "@userscripters/stackexchange-global-types",
+            "@userscripters/storage",
+            "gapi",
+            "gapi.auth2",
+            "jquery",
+            "tampermonkey",
+            "./globals"
+        ]
     },
-    "include": ["./SOMU-*"]
+    "include": ["./SOMU-*","UserReviewBan*"]
 }

@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      7.3
+// @version      7.3.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -89,7 +89,6 @@
     };
 
 
-    const reloadPage = () => location.reload(true);
     const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
     const pluralize = s => s.length != 1 ? 's' : '';
     const dateToSeDateFormat = d => d.toISOString().replace('T', ' ').replace(/\.\d+Z$/, 'Z');
@@ -814,28 +813,32 @@
                 const sheetsApiVersion = 4;
                 const sheetsApiBase = "https://sheets.googleapis.com";
 
-                const { locateStorage } = /** @type {typeof import("@userscripters/storage/dist/index")} */(Store);
+                const { locateStorage } = Store;
 
                 const storage = locateStorage();
 
                 window.addEventListener("load", async () => {
                     const name = "review_ban_helper_sheets_api";
-                    SOMU.store = storage;
-                    SOMU.addOption(name,"client_id");
-                    SOMU.addOption(name,"spreadsheet_id");
-                    SOMU.addOption(name, "api_key");
+
+                    const manager = typeof SOMU !== "undefined" ? SOMU : null;
+                    if(manager) {
+                        manager.store = storage;
+                        manager.addOption(name,"client_id");
+                        manager.addOption(name,"spreadsheet_id");
+                        manager.addOption(name, "api_key");
+                    }
 
                     const store = new Store.default(name, storage);
 
-                    const appClientId = SOMU.getOptionValue(name, "client_id") ||
+                    const appClientId = (manager && manager.getOptionValue(name, "client_id")) ||
                         await store.load("client_id") ||
                         prompt("Enter the Google Cloud Project client id");
 
-                    const statsSpreadId = SOMU.getOptionValue(name, "spreadsheet_id") ||
+                    const statsSpreadId = (manager && manager.getOptionValue(name, "spreadsheet_id")) ||
                         await store.load("spreadsheet_id") ||
                         prompt("Enter the destination spreadsheet id");
 
-                    const sheetsApiKey = SOMU.getOptionValue(name, "api_key") ||
+                    const sheetsApiKey = (manager && manager.getOptionValue(name, "api_key")) ||
                         await store.load("api_key") ||
                         prompt("Enter the Sheets API key");
 
@@ -847,8 +850,8 @@
                 });
 
                 /**
-                 * @param clientId client id to use
-                 * @param apiKey API key to use
+                 * @param {string} clientId client id to use
+                 * @param {string} apiKey API key to use
                  */
                 const initGAPI = (clientId, apiKey) => {
                     return gapi.client.init({
@@ -916,7 +919,7 @@
                 };
 
                 /**
-                 * @param {gapi.client.HttpRequestFulfilled<>} response API response
+                 * @param {gapi.client.HttpRequestFulfilled<any>} response API response
                  * @param {string} raw non-JSON response from the API
                  */
                 const handleValues = (response, raw) => {
@@ -996,7 +999,7 @@
                 };
 
                 /**
-                 * @param spreadId spreadsheet id
+                 * @param {string} spreadId spreadsheet id
                  */
                 const addStatsUploadButton = (spreadId) => {
                     const uploadBtn = $(`<a id="upload_ban_stats" class="s-btn s-btn__sm s-btn__filled s-btn__primary">Send to Sheets</a>`);
