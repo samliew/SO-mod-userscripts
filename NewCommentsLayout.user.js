@@ -3,7 +3,7 @@
 // @description  Better comments layout for easier readability and moderation
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -22,6 +22,8 @@
 (function() {
     'use strict';
 
+    const commentsFontSize = '0.96rem';
+
 
         GM_addStyle(`
 
@@ -32,7 +34,7 @@
 .comment-body > * {
     display: inline-block;
     margin: 0 10px 0 0;
-    font-size: 0.96rem;
+    font-size: ${commentsFontSize};
 }
 .comment-body .comment-date,
 .comment-body .comment-date > a {
@@ -47,7 +49,7 @@
 }
 ul.comments-list .comment-score span,
 .comment-copy {
-    font-size: 0.96rem;
+    font-size: ${commentsFontSize};
 }
 .comment-copy {
     display: block;
