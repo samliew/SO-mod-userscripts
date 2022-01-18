@@ -3,7 +3,7 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.1
+// @version      2.4.2
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
@@ -93,7 +93,7 @@ async function waitForSOMU() {
 
         // Delete + Comment ALL
         if(superusers.includes(StackExchange.options.user.userId)) {
-            $('<button class="btn-warning">Delete + Comment ALL</button>')
+            $('<button class="s-btn s-btn__xs s-btn__filled s-btn__danger">Delete + Comment ALL</button>')
                 .click(function() {
                     if(!confirm('Confirm Delete ALL?')) return false;
 
@@ -112,7 +112,7 @@ async function waitForSOMU() {
         const styles = `
 <style>
 #actionBtns {
-    margin: 40px 24px 0px;
+    margin: 10px 24px 20px;
 }
 #actionBtns button {
     margin-right: 10px;

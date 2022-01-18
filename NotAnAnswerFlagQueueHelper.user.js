@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.16.1
+// @version      3.16.2
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -315,7 +315,7 @@
         if($('.js-flagged-post').length > 3 && superusers.includes(StackExchange.options.user.userId)) {
 
             // Delete all posts left on page button
-            $('<button class="btn-warning">Delete ALL</button>')
+            $('<button class="s-btn s-btn__xs s-btn__filled s-btn__danger">Delete ALL</button>')
                 .click(function() {
                     if(!confirm('Confirm Delete ALL?')) return false;
 
@@ -327,7 +327,7 @@
                 .appendTo(actionBtns);
 
             // Decline all posts left on page button
-            $('<button class="btn-warning">Decline ALL</button>')
+            $('<button class="s-btn s-btn__xs s-btn__filled s-btn__danger">Decline ALL</button>')
                 .click(function() {
                     if(!confirm('Confirm Decline ALL?')) return false;
 
@@ -342,7 +342,7 @@
                 .appendTo(actionBtns);
 
             // Close all questions left on page button
-            $('<button class="btn-warning">Offtopic ALL</button>')
+            $('<button class="s-btn s-btn__xs s-btn__filled s-btn__danger">Offtopic ALL</button>')
                 .click(function() {
                     if(!confirm('Confirm Close ALL as Unclear?')) return false;
 
@@ -514,7 +514,7 @@
 }
 
 #actionBtns {
-    margin: 40px 24px 0px;
+    margin: 10px 24px 20px;
 }
 #actionBtns button {
     margin-right: 10px;
