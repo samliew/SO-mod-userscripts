@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Find Users Additional Info
-// @description  Loads more user details on the find users page
+// @description  Loads more user details from the API on the find users page (/admin/find-users)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1.6
+// @version      0.1.8
 //
 // @include      https://stackoverflow.com/admin/find-users?*
 // @include      https://serverfault.com/admin/find-users?*
@@ -27,12 +27,11 @@
 
     if(!isModerator()) return;
 
-
     const apikey = 'vbWJDc*G3ug1FpRrCx0pEw((';
 
 
-    // Get users details
-    /* Example fields:
+    /*
+    // API: User
     {
       "answer_count": 123,
       "question_count": 123,
@@ -62,13 +61,11 @@
     function doPageLoad() {
 
         // UI stuff
-        $('#mainbar-full > .subheader + div > div').removeAttr('style');
-        $('.subheader h1').text((i, v) => v.split(' - ')[1]);
+        const form = $('#content form').attr('id', 'find-users-form').removeClass('d-flex');
+        const searchField = $('input[name="q"]', form).addClass('s-input s-input__md js-usersearch-input');
+        const searchSubmit = $('button', form).addClass('s-btn s-btn__md s-btn__primary js-usersearch-submit').insertAfter(searchField);
 
-        const searchField = $('#content input[name="q"]').addClass('s-input s-input__md js-usersearch-input');
-        const searchSubmit = $('#content input[type="submit"]').addClass('s-btn s-btn__md s-btn__primary js-usersearch-submit');
-
-        searchField.add(searchSubmit).wrapAll(`<div class="flex--item ps-relative fl1"></div>`);
+        searchField.parent().addClass('d-flex');
 
         const table = $('#users-list');
         const ids = table.find('tbody tr').find('a:first').attr('target', '_blank').each(function() {
@@ -120,13 +117,17 @@ body > .container,
 .subheader * {
     float: none !important;
 }
-#content form {
+#content #find-users-form {
     margin: 40px auto !important;
+    width: 40%;
+    text-align: center;
+}
+#content .s-notice {
     text-align: center;
 }
 .js-usersearch-input,
 .js-usersearch-submit {
-    height: 45px !important;;
+    height: 40px !important;;
     margin: 0;
 }
 .js-usersearch-input {
