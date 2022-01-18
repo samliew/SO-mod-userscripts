@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.21
+// @version      2.22
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -527,11 +527,11 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postu
 }
 .election-page .votecell .vote,
 .election-page .votecell .js-voting-container {
-    top: 0px;
+    top: 101px;
 }
 .post-stickyheader ~ .post-layout .votecell .vote,
 .post-stickyheader ~ .post-layout .votecell .js-voting-container {
-    top: 51px;
+    top: 101px;
     z-index: 1;
 }
 .question:hover,
@@ -603,17 +603,6 @@ body.election-page #sidebar > #qtoc,
 /* Remove timeline button in post sidebar as we have a link in the header now */
 .js-post-issue[title="Timeline"] {
     display: none;
-}
-
-/* If topbar is fixed */
-.top-bar._fixed ~ .container .post-stickyheader,
-.election-page .top-bar._fixed ~ .container .votecell .vote,
-.election-page .top-bar._fixed ~ .container .votecell .js-voting-container {
-    top: 50px;
-}
-.top-bar._fixed ~ .container .post-stickyheader ~ .post-layout .votecell .vote,
-.top-bar._fixed ~ .container .post-stickyheader ~ .post-layout .votecell .js-voting-container {
-    top: 101px;
 }
 
 /* Compat with MonicasFlagToC */
