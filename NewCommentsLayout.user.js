@@ -3,7 +3,7 @@
 // @description  Better comments layout for easier readability and moderation
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -51,10 +51,14 @@ ul.comments-list .comment-score span,
 .comment-copy {
     font-size: ${commentsFontSize};
 }
-.comment-copy {
+.comment-body .comment-copy {
     display: block;
     margin: 0 0 2px 0;
     line-height: 1.2;
+
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: ${commentsFontSize};
+    color: var(--black);
 }
 
 /* Minor comments UI changes */
@@ -66,7 +70,7 @@ ul.comments-list .comment-score span,
     margin-right: 5px;
 }
 .comment-user {
-    font-style: italic;
+
 }
 .deleted-comment-info {
     float: right;
