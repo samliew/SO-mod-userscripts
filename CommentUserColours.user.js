@@ -3,7 +3,7 @@
 // @description  Unique colour for each user in comments to make following users in long comment threads easier
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.3
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -42,7 +42,7 @@
 
         // If more than one comment per comment section, set user color
         $('.comments').each(function(i, section) {
-            $('.comment-copy + .comment-user', section).not('.js-usercolor').filter(function() {
+            $('.comment-copy + div .comment-user', section).not('.js-usercolor').filter(function() {
                 return $(`.comment-user[data-uid=${this.dataset.uid}]`, section).length > 1;
             }).each(setUserColor);
         });
