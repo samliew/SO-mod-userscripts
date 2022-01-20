@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.16.4
+// @version      2.17
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -773,7 +773,7 @@
         $('.question, .answer').find('.js-voting-container').not('.js-post-mod-menu').addClass('js-post-mod-menu').each(function() {
             const post = $(this).closest('.question, .answer');
             const postScore = Number($(this).find('.js-vote-count').text());
-            const postStatus = post.find('.js-post-notice, .special-status, .question-status').text().toLowerCase();
+            const postStatus = post.find('.js-post-notice, .special-status').text().toLowerCase();
             const isQuestion = post.hasClass('question');
             const isDeleted = post.hasClass('deleted-answer');
             const isModDeleted = post.find('.deleted-answer-info').text().includes('♦') || (postStatus.includes('deleted') && postStatus.includes('♦'));
@@ -965,7 +965,7 @@
                     });
                     break;
                 case 'toggle-protect': {
-                        if(post.find('.question-status b').text().includes('protect')) unprotectPost(pid).finally(reloadPage);
+                        if(post.find('.js-post-notice').text().includes('unprotect')) unprotectPost(pid).finally(reloadPage);
                         else protectPost(pid).finally(reloadPage);
                     }
                     break;
@@ -1052,7 +1052,7 @@
                 const pid = this.dataset.pid;
                 const elems = $(this).prevAll('.comments-link, .js-link-separator').addBack().not('.js-add-link');
                 const commentsUrl = `/posts/${pid}/comments?includeDeleted=true&_=${Date.now()}`;
-                $('#comments-' + pid).show().children('ul.comments-list').load(commentsUrl, function () {
+                $('#comments-' + pid).show().children('ul.comments-list').load(commentsUrl, function() {
                     //elems.remove();
                 });
             });
