@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.24.1
+// @version      2.24.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -552,6 +552,15 @@ header > div > div,
 }
 .topbar-dialog.help-dialog .item-summary {
     color: ${textcolor};
+}
+.top-bar .my-profile .-badges .badge1+.badgecount {
+    color: var(--gold);
+}
+.top-bar .my-profile .-badges .badge2+.badgecount {
+    color: var(--silver);
+}
+.top-bar .my-profile .-badges .badge3+.badgecount {
+    color: var(--bronze);
 }
 .s-select:before, .s-select:after,
 .f-select:before, .f-select:after {
