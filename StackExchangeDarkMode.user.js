@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.24
+// @version      2.24.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -189,7 +189,7 @@ body {
     --scrollbar: rgba(255, 255, 255, 0.2);
 }
 *,
-*:before,
+*:before:not(.s-award-bling),
 *:after,
 #search-channel-selector,
 body .bg-black-025,
@@ -261,7 +261,7 @@ table td {
     border: none;
 }
 #sidebar .community-bulletin .bulletin-item-content a,
-a:not(.s-btn),
+a:not(.s-btn):not(.supernovabg):not(.hotbg),
 .js-post-menu button,
 .js-post-menu button:hover {
     color: ${linkcolor};
