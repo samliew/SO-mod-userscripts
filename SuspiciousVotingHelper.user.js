@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.1
+// @version      1.9.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
