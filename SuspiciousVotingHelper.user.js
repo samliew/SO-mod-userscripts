@@ -468,7 +468,7 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
         else if(location.pathname.includes('/users/account-info/')) {
 
             const uid = location.pathname.match(/\/(\d+)/)[1];
-            const networkUid = $('.js-user-header > .flex--item').last().children().children().last().attr('href').match(/\/(\d+)\//)[1];
+            const networkUid = $('#profiles-menu ul li a:contains("Network profile")').attr('href').match(/\/(\d+)\/?/)[1];
 
             const dateNetworkRegContainer = $(` <span class="d-inline-block ml12"></span>`);
             $('#mod-content .details .col-4').eq(0).append(dateNetworkRegContainer);
