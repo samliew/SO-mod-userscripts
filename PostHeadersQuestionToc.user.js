@@ -142,32 +142,33 @@
             const pid = isQuestion ? this.dataset.questionid : this.dataset.answerid;
             const isWiki = $(this).find('span.community-wiki').length > 0;
 
-            const postuser = $(this).find('.user-info:last .user-details').last().children('a, span.d-none');
-            let postuserHtml = '<span class="deleted-user">' + postuser.last().text() + '</span>'; // default to deleted user
+            const postUser = $(this).find('.user-info:last .user-details').last().children('a, span.d-none');
+            const postUserText = postUser.last().text().replace(/\d+ revs/, '').trim();
+            let postUserHtml = `<span class="deleted-user">${postUserText}</span>`; // default to deleted user
             if(isWiki) {
-                postuserHtml = '<span>' + postuser.last().text() + '</span>';
+                postUserHtml = `<span>${postUserText}</span>`;
             }
-            else if(postuser.length == 2) {
-                postuserHtml = postuser.filter('a')[0].outerHTML;
+            else if(postUser.length == 2) {
+                postUserHtml = postUser.filter('a')[0].outerHTML;
             }
             else if(isElectionPage) {
-                postuserHtml = postuser[0].outerHTML;
+                postUserHtml = postUser[0].outerHTML;
             }
 
-            const postismod = postuser.length != 0 ? postuser.next().hasClass('mod-flair') : false;
-            const postdate = $(this).find('.user-info .user-action-time').last().html() || '';
-            const postdateReversed = postdate.trim().replace(/<span title="([^"]+)".*>([^<]+)<\/span>/, '<span title="$2" class="absolutetime">$1</span>');
+            const postIsMod = postUser.length != 0 ? postUser.next().hasClass('mod-flair') : false;
+            const postDate = $(this).find('.user-info .user-action-time').last().html() || '';
+            const postDateReversed = postDate.trim().replace(/<span title="([^"]+)".*>([^<]+)<\/span>/, '<span title="$2" class="absolutetime">$1</span>');
 
             if(post.find('.post-layout--left').length == 0) {
                 post.find('.post-layout--right').before(`<div class="votecell post-layout--left"></div>`);
             }
 
-            const stickyheader = $(`<div class="post-stickyheader ${isElectionPage ? 'election-stickyheader' : ''}">
-${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postuserHtml}${postismod ? modflair : ''} ${postdateReversed}
+            const stickyHeader = $(`<div class="post-stickyheader ${isElectionPage ? 'election-stickyheader' : ''}">
+${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postUserHtml}${postIsMod ? modflair : ''} ${postDateReversed}
 <div class="sticky-tools">
   <a href="${routePrefix}/${isQuestion ? 'q' : 'a'}/${pid}">permalink</a> | <a href="${routePrefix}/posts/${pid}/revisions">revs</a> | <a href="${routePrefix}/posts/${pid}/timeline?filter=WithVoteSummaries">timeline</a>
 </div></div>`);
-            post.prepend(stickyheader);
+            post.prepend(stickyHeader);
         });
 
         $('.post-stickyheader a').attr('target', '_blank');
