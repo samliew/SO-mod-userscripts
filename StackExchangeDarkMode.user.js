@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.24.5
+// @version      2.24.6
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -299,10 +299,10 @@ input[type="submit"]:hover,
     color: inherit;
 }
 body .fc-dark {
-    color: var(--black-100);
+    color: var(--black-300);
 }
 body .fc-medium {
-    color: var(--black-400);
+    color: var(--black-500);
 }
 #user-menu,
 body .bc-black-1,
