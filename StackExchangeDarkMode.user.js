@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.24.4
+// @version      2.24.5
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -266,6 +266,9 @@ a:not(.s-btn):not(.supernovabg):not(.hotbg):not(.owner),
 .js-post-menu button:hover {
     color: ${linkcolor};
     background-color: transparent;
+}
+.SOMU-SEDM #user-menu .um-header-info .um-user-link {
+    color: ${textcolor};
 }
 #sidebar .community-bulletin .bulletin-item-content a:hover,
 a:hover {
@@ -673,8 +676,7 @@ body > div[style*="absolute"],
 }
 .s-badge__bounty,
 .bounty-indicator,
-.bounty-indicator-tab,
-.tabs .bounty-indicator-tab {
+.SOMU-SEDM .bounty-indicator-tab {
     background-color: ${bountyblue};
     color: var(--black);
 }
