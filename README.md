@@ -118,6 +118,10 @@ Recommended chat userscripts:
 - **Auto Refresh**
   - Toggle from search results page
   <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-02_130815.png)
+  
+- **Instant Filter Toggles**
+  - Toggle from search results page
+  <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2022-01-27_112150.png)
 
 
 ### [Stack Exchange Dark Mode](https://github.com/samliew/SO-mod-userscripts/blob/master/StackExchangeDarkMode.user.js)
@@ -691,4 +695,3 @@ Works with "No Oneboxes In Chat" and "Stack Exchange Dark Mode".
   - mods:  when you were elected
   - users: for the latest election
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-05-17_210559.png)
-
