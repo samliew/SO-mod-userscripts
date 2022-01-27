@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.30.3
+// @version      1.31
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -410,7 +410,7 @@ ul.comments-list .comment-up-on {
                 this.title = tooltip.text();
 
                 $(this).attr('aria-describedby', '');
-                tooltip.remove();
+                //tooltip.remove(); // looks like this breaks the follow link now :(
             });
         }
 
