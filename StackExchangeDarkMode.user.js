@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.24.6
+// @version      2.24.7
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -403,6 +403,9 @@ ul.comments-list .comment-up-on * {
     color: var(--white);
     text-decoration: underline;
     background: transparent;
+}
+.post-tag.s-tag__watched:before {
+    filter: invert(0.6);
 }
 
 
