@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.22.1
+// @version      2.23
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -547,7 +547,7 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postU
 }
 .question:hover .post-stickyheader,
 .answer:hover .post-stickyheader {
-    z-index: 4;
+    z-index: 11;
 }
 #postflag-bar {
     z-index: 1000;
@@ -672,6 +672,18 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
     margin-left: 0;
     padding-left: 0;
     border: 0;
+}
+
+/* Compat with us-bookmarkers */
+#left-sidebar, .left-sidebar {
+    z-index: 1;
+}
+.question:hover .votecell,
+.question:hover .js-voting-container {
+    z-index: 10;
+}
+.us-bookmarkers-popover.s-popover {
+    width: auto;
 }
 
 /* Toggle deleted posts */
