@@ -587,7 +587,7 @@
         fetchUserCommentsPage(filter, pageNum).then(data => {
             const commentIds = $('.js-bulk-select', data).get().map(v => v.dataset.id);
             bulkDeleteComments(commentIds).then(v => {
-                if(pageNum <= 1) location.reload(true);
+                if(pageNum <= 1) location.reload();
                 else recurseDeleteUserComments(filter, pageNum - 1);
             });
         });

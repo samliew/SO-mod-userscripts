@@ -577,7 +577,7 @@ async function waitForSOMU() {
                     skipReview();
                 }
                 else {
-                    location.reload(true);
+                    location.reload();
                 }
             }
         });
@@ -1170,7 +1170,7 @@ async function waitForSOMU() {
                     // If no more reviews, refresh page every 10 seconds
                     // Can't use responseJson.isUnavailable here, as it can also refer to current completed review
                     if($('.js-review-instructions').text().includes('This queue has been cleared!')) {
-                        setTimeout(() => location.reload(true), 10000);
+                        setTimeout(() => location.reload(), 10000);
                         return;
                     }
 

@@ -478,7 +478,7 @@
 
         // Triggers when all ajax requests have completed
         $(document).ajaxStop(function() {
-            location.reload(true);
+            location.reload();
         });
     }
 

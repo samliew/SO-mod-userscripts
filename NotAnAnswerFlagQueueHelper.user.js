@@ -285,7 +285,7 @@
                 break;
 
             default:
-                location.reload(true);
+                location.reload();
                 return;
         }
 

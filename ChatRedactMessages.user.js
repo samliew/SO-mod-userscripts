@@ -64,7 +64,7 @@
                     .then(function() {
 
                         // Refresh page to reflect changes
-                        location.reload(true);
+                        location.reload();
                     });
                 });
             });

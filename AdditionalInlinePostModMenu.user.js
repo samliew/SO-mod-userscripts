@@ -58,7 +58,7 @@
     function reloadPage() {
         // If in mod queues, do not reload
         if(location.pathname.includes('/admin/dashboard')) return false;
-        location.reload(true);
+        location.reload();
     }
     function reloadWhenDone() {
 

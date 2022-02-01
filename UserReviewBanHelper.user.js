@@ -539,7 +539,7 @@
                 const unbanAndRefreshBtn = $(`<a class="fr mtn8 s-btn s-btn__filled s-btn__sm">Unsuspend user and try again</a>`).appendTo(warning);
                 unbanAndRefreshBtn.click(function() {
                     reviewUnban(uid).then(() => {
-                        location.reload(true);
+                        location.reload();
                     });
                 });
             }
