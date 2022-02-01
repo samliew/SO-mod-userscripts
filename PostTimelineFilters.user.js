@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.17.4
+// @version      1.18
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -308,7 +308,8 @@
 
             // Redirect to version with post summaries
             if(!location.search.includes('filter=WithVoteSummaries')) {
-                history.replaceState(null, document.title, "?filter=WithVoteSummaries");
+                const hash = location.hash;
+                history.replaceState(null, document.title, `?filter=WithVoteSummaries${hash}`);
                 location.reload();
             }
 
