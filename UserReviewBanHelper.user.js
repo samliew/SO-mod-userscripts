@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      7.4
+// @version      7.4.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -534,8 +534,8 @@
             const warning = $('.js-lookup-result .s-notice.s-notice__warning');
             const isCurrentlySuspended = warning.length > 0 ? warning.text().includes('currently suspended') : false;
 
+            // Can't continue if user is currently suspended. Add a button to help us unban easily.
             if(isCurrentlySuspended) {
-
                 const unbanAndRefreshBtn = $(`<a class="fr mtn8 s-btn s-btn__filled s-btn__sm">Unsuspend user and try again</a>`).appendTo(warning);
                 unbanAndRefreshBtn.click(function() {
                     reviewUnban(uid).then(() => {
@@ -547,12 +547,15 @@
             // Keep button enabled
             setInterval(() => $('.js-add-selected-actions').attr('disabled', false), 1000);
 
+            // TODO: Work in-progress
+            return;
+
             // Add canned message for permaban
             const cannedTemplates = $('.js-choose-template-modal fieldset');
             const permabanTemplate = $(`
 <div class="d-flex gs8">
     <div class="flex--item">
-        <input class="s-radio js-suspension-message" type="radio" name="suspensionMessage" id="rb-message-Permabanned" value="Permabanned" data-title="Permabanned" data-controller="s-expandable-control" data-is-queue-specific="false" aria-controls="message-Permabanned-text" aria-expanded="false">
+        <input data-custom-template="true" class="s-radio js-suspension-message" type="radio" name="suspensionMessage" id="rb-message-Permabanned" value="Permabanned" data-title="Permabanned" data-controller="s-expandable-control" data-is-queue-specific="false" aria-controls="message-Permabanned-text" aria-expanded="false">
     </div>
     <div class="d-flex fd-column">
         <label class="flex--item s-label fw-normal" for="rb-message-Permabanned">Permabanned</label>
@@ -562,8 +565,23 @@
             </div>
         </div>
     </div>
-</div>`);
-            permabanTemplate.insertBefore(cannedTemplates.children().last());
+</div>`).insertBefore(cannedTemplates.children().last());
+
+            // Add canned message for resetting ban duration
+            const durationResetTemplate = $(`
+<div class="d-flex gs8">
+    <div class="flex--item">
+        <input data-custom-template="true" class="s-radio js-suspension-message" type="radio" name="suspensionMessage" id="rb-message-Forgiven" value="Forgiven" data-title="Forgiven" data-controller="s-expandable-control" data-is-queue-specific="false" aria-controls="message-Forgiven-text" aria-expanded="false">
+    </div>
+    <div class="d-flex fd-column">
+        <label class="flex--item s-label fw-normal" for="rb-message-Forgiven">Duration Reset<div class="fs-caption">(To immediately unsuspend after selecting a shorter duration - recommended: 4 days)</div></label>
+        <div class="flex--item s-expandable" id="message-Forgiven-text" data-duration="365">
+            <div class="d-flex fd-column mt8 s-expandable--content bar-sm bg-black-075 gs4 gsy fs-body1 py4 px6">
+                <div class="flex--item">Your review suspension has been lifted. Please review carefully.</div>
+            </div>
+        </div>
+    </div>
+</div>`).insertBefore(cannedTemplates.children().last());
 
             // Error handling for new template generator, so we can inject our own templates
             $(document).ajaxError(function(event, xhr, options, exception) {
@@ -603,6 +621,21 @@
 
                 // Enable submit button
                 $('.js-initiate-suspension').attr('disabled', false);
+            });
+
+            // Listen to suspend button, so if we have a custom template selected we can perform our own suspension call
+            $('.js-initiate-suspension').click(function(evt) {
+                const selectedTemplate = $('#modal-description input:checked').val();
+                const isCustomTemplate = $('#modal-description input:checked').attr('data-custom-template') === 'true';
+                console.log(isCustomTemplate);
+
+                if(!isCustomTemplate) return;
+
+                // Custom template
+                // TODO
+
+                reviewBan();
+                return false;
             });
 
         }
