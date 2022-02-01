@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      7.3.1
+// @version      7.4
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -45,6 +45,7 @@
 
     const superusers = [ 584192, 6296561 ];
     const isSuperuser = superusers.includes(StackExchange.options.user.userId);
+    const disableGApiPrompts = true;
 
     const fkey = StackExchange.options.user.fkey;
     const messageCharLimit = 2000;
@@ -774,269 +775,46 @@
 
 
             // Add summary of currently review-banned users if we are not review banning users
-            if(location.hash == '' && location.search == '') {
-                const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-                const weekAhead = Date.now() + (7 * 24 * 60 * 60 * 1000);
+            if(!(location.hash === '' && location.search === '')) return;
 
-                const rows = table.find('tbody tr');
+            const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+            const weekAhead = Date.now() + (7 * 24 * 60 * 60 * 1000);
 
-                const banReasons = rows.find('.js-message-body-container');
-                const banTitles = banReasons.prev();
+            const rows = table.find('tbody tr');
 
-                const reqEditing = banReasons.filter((i, el) => el.innerText.match(/(requires editing|needs community edit)/i)).length;
-                const forTriage = banReasons.filter((i, el) => el.innerText.toLowerCase().includes('triage')).length;
-                const auditFailures = banTitles.filter((i, el) => {
-                    return el.innerText.includes('(Auto)');
-                }).length;
-                const hundred = rows.filter((i, el) => el.children[3].innerText >= 100).length;
-                const permaban = banReasons.filter((i, el) => el.innerText.match(/(no|any) (longer|signs)/)).length;
-                const firstTimers = rows.filter((i, el) => el.children[6].innerText == 1).length;
-                const fiveTimers = rows.filter((i, el) => el.children[6].innerText >= 5).length;
-                const tenTimers = rows.filter((i, el) => el.children[6].innerText >= 10).length;
-                const pastDay = rows.filter((i, el) => el.children[1].innerText.match(/(just|min|hour)/)).length;
-                const pastWeek = rows.filter((i, el) => new Date(el.children[1].children[0].title) > weekAgo).length;
-                const unbanDay = rows.filter((i, el) => el.children[2].innerText.match(/(just|min|hour)/)).length;
-                const unbanWeek = rows.filter((i, el) => new Date(el.children[2].children[0].title) < weekAhead).length;
+            const banReasons = rows.find('.js-message-body-container');
+            const banTitles = banReasons.prev();
 
-                const durations = rows.map((i, el) => Number(el.children[3].innerText)).get();
-                const tally = {
-                  'count4': durations.filter(v => v <= 4).length,
-                  'count8': durations.filter(v => v > 4 && v <= 8).length,
-                  'count16': durations.filter(v => v > 8 && v <= 16).length,
-                  'count32': durations.filter(v => v > 16 && v <= 32).length,
-                  'count64': durations.filter(v => v > 32 && v <= 64).length,
-                  'count128': durations.filter(v => v > 64 && v <= 128).length,
-                  'count365': durations.filter(v => v > 128 && v <= 365).length,
-                  'count366': durations.filter(v => v > 365).length
-                };
+            const reqEditing = banReasons.filter((i, el) => el.innerText.match(/(requires editing|needs community edit)/i)).length;
+            const forTriage = banReasons.filter((i, el) => el.innerText.toLowerCase().includes('triage')).length;
+            const auditFailures = banTitles.filter((i, el) => {
+                return el.innerText.includes('(Auto)');
+            }).length;
+            const hundred = rows.filter((i, el) => el.children[3].innerText >= 100).length;
+            const permaban = banReasons.filter((i, el) => el.innerText.match(/(no|any) (longer|signs)/)).length;
+            const firstTimers = rows.filter((i, el) => el.children[6].innerText == 1).length;
+            const fiveTimers = rows.filter((i, el) => el.children[6].innerText >= 5).length;
+            const tenTimers = rows.filter((i, el) => el.children[6].innerText >= 10).length;
+            const pastDay = rows.filter((i, el) => el.children[1].innerText.match(/(just|min|hour)/)).length;
+            const pastWeek = rows.filter((i, el) => new Date(el.children[1].children[0].title) > weekAgo).length;
+            const unbanDay = rows.filter((i, el) => el.children[2].innerText.match(/(just|min|hour)/)).length;
+            const unbanWeek = rows.filter((i, el) => new Date(el.children[2].children[0].title) < weekAhead).length;
 
-                const sheetsApiVersion = 4;
-                const sheetsApiBase = "https://sheets.googleapis.com";
+            const durations = rows.map((i, el) => Number(el.children[3].innerText)).get();
+            const tally = {
+                'count4': durations.filter(v => v <= 4).length,
+                'count8': durations.filter(v => v > 4 && v <= 8).length,
+                'count16': durations.filter(v => v > 8 && v <= 16).length,
+                'count32': durations.filter(v => v > 16 && v <= 32).length,
+                'count64': durations.filter(v => v > 32 && v <= 64).length,
+                'count128': durations.filter(v => v > 64 && v <= 128).length,
+                'count365': durations.filter(v => v > 128 && v <= 365).length,
+                'count366': durations.filter(v => v > 365).length
+            };
 
-                const { locateStorage } = Store;
-
-                const storage = locateStorage();
-
-                window.addEventListener("load", async () => {
-                    const name = "review_ban_helper_sheets_api";
-
-                    const manager = typeof SOMU !== "undefined" ? SOMU : null;
-                    if(manager) {
-                        manager.store = storage;
-                        manager.addOption(name,"client_id");
-                        manager.addOption(name,"spreadsheet_id");
-                        manager.addOption(name, "api_key");
-                    }
-
-                    const store = new Store.default(name, storage);
-
-                    const appClientId = (manager && manager.getOptionValue(name, "client_id")) ||
-                        await store.load("client_id") ||
-                        prompt("Enter the Google Cloud Project client id");
-
-                    const statsSpreadId = (manager && manager.getOptionValue(name, "spreadsheet_id")) ||
-                        await store.load("spreadsheet_id") ||
-                        prompt("Enter the destination spreadsheet id");
-
-                    const sheetsApiKey = (manager && manager.getOptionValue(name, "api_key")) ||
-                        await store.load("api_key") ||
-                        prompt("Enter the Sheets API key");
-
-                    await store.save("client_id", appClientId);
-                    await store.save("spreadsheet_id", statsSpreadId);
-                    await store.save("api_key", sheetsApiKey);
-
-                    loadGAPI(appClientId, sheetsApiKey, statsSpreadId);
-                });
-
-                /**
-                 * @param {string} clientId client id to use
-                 * @param {string} apiKey API key to use
-                 */
-                const initGAPI = (clientId, apiKey) => {
-                    return gapi.client.init({
-                        apiKey,
-                        clientId,
-                        scope: "https://www.googleapis.com/auth/spreadsheets"
-                    });
-                };
-
-                /**
-                 * @param {string} apiBase base URL of the API
-                 * @param {string|number} apiVer version of the API
-                 * @param {string} id spreadsheet id
-                 */
-                const readValues = (apiBase, apiVer, id) => {
-                    return gapi.client.request({
-                        path: `${apiBase}/v${apiVer}/spreadsheets/${id}/values:batchGet`,
-                        params: {
-                            ranges: ["'Data'!A1:AB"],
-                            majorDimension: "ROWS",
-                            valueRenderOption: "UNFORMATTED_VALUE"
-                        }
-                    });
-                };
-
-                /**
-                 * @param {string} apiBase base URL of the API
-                 * @param {string|number} apiVer version of the API
-                 * @param {string} id spreadsheet id
-                 * @param {any[][]} values grid of values to set
-                 * @param {string} range A1 range to insert into
-                 */
-                const updateValues = (apiBase, apiVer, id, values, range) => {
-                    return gapi.client.request({
-                        path: `${apiBase}/v${apiVer}/spreadsheets/${id}/values/${range}`,
-                        method: "PUT",
-                        body: { values },
-                        params: { valueInputOption: "USER_ENTERED" }
-                    });
-                };
-
-                /**
-                 * @param {string} apiBase base URL of the API
-                 * @param {string|number} apiVer version of the API
-                 * @param {string} id spreadsheet id
-                 * @param {any[][]} values grid of values to set
-                 * @param {string} range A1 range to insert into
-                 */
-                const appendValues = (apiBase, apiVer, id, values, range) => {
-                    return gapi.client.request({
-                        path: `${apiBase}/v${apiVer}/spreadsheets/${id}/values/${range}:append`,
-                        method: "POST",
-                        body: { values },
-                        params: { valueInputOption: "USER_ENTERED" }
-                    });
-                };
-
-
-                /**
-                 * @param {string} num serial number date
-                 */
-                const getDateValueFromSerialNumber = (num) => {
-                    const dec30th1899 = -2209170617000;
-                    return dec30th1899 + parseFloat(num) * 864e5;
-                };
-
-                /**
-                 * @param {gapi.client.HttpRequestFulfilled<any>} response API response
-                 * @param {string} raw non-JSON response from the API
-                 */
-                const handleValues = (response, raw) => {
-                    if (!response) {
-                        console.debug(`Sheets API did not respond with JSON:\n\n${raw}`);
-                        return;
-                    }
-
-                    const { result } = response;
-                    const { valueRanges, spreadsheetId } = result;
-
-                    const today = new Date();
-                    const todayReset = new Date(
-                        today.getFullYear(),
-                        today.getMonth(),
-                        today.getDate()
-                    );
-                    const todayVal = todayReset.valueOf();
-
-                    const [{ values }] = valueRanges;
-                    const { length: numRows } = values;
-
-                    let rowIdx = numRows - 1;
-                    for (rowIdx; rowIdx >= 0; rowIdx--) {
-                        const [serialNumber] = values[rowIdx];
-                        if (!serialNumber) continue;
-
-                        const date = getDateValueFromSerialNumber(serialNumber);
-                        if (date.valueOf() <= todayVal) break;
-                    }
-
-                    const newData = [[
-                        todayReset.toISOString().slice(0, 10),
-                        rows.length, // total banned, TODO: reuse
-                        forTriage,
-                        reqEditing,
-                        auditFailures,
-                        firstTimers,
-                        fiveTimers,
-                        tenTimers,
-                        hundred,
-                        permaban,
-                        pastDay,
-                        pastWeek,
-                        unbanDay,
-                        unbanWeek,
-                        tally.count4,
-                        tally.count8,
-                        tally.count16,
-                        tally.count32,
-                        tally.count64,
-                        tally.count128,
-                        tally.count365,
-                        tally.count366
-                    ]];
-
-                    const rowPos = rowIdx + 2;
-                    const range = `'Data'!A${rowPos}:V${rowPos}`;
-
-                    const handler = rowPos > numRows ? appendValues : updateValues;
-
-                    handler(
-                        sheetsApiBase,
-                        sheetsApiVersion,
-                        spreadsheetId,
-                        newData, range
-                    ).then(() => {
-                        console.debug("Successful upload");
-                    }, handleError);
-                };
-
-                /**
-                 * @param {gapi.client.HttpRequestRejected} response
-                 */
-                const handleError = (response) => {
-                    console.debug(`Sheets API error:\n${response.result.error.message}`);
-                };
-
-                /**
-                 * @param {string} spreadId spreadsheet id
-                 */
-                const addStatsUploadButton = (spreadId) => {
-                    const uploadBtn = $(`<a id="upload_ban_stats" class="s-btn s-btn__sm s-btn__filled s-btn__primary">Send to Sheets</a>`);
-                    uploadBtn.on("click", () => {
-                        const auth = gapi.auth2.getAuthInstance();
-
-                        const { isSignedIn } = auth;
-
-                        const handle = () => readValues(sheetsApiBase, sheetsApiVersion, spreadId).then(handleValues, handleError);
-
-                        isSignedIn.listen(handle);
-
-                        return isSignedIn.get() ? handle() : auth.signIn();
-
-                    });
-                    uploadBtn.appendTo($("#banned-users-stats"));
-                };
-
-                /**
-                 * @param clientId client id to use
-                 * @param apiKey API key to use
-                 * @param spreadId spreadsheet id
-                 */
-                const loadGAPI = (clientId, apiKey, spreadId) => {
-                    const script = document.createElement("script");
-                    script.src = "https://apis.google.com/js/api.js";
-                    script.async = true;
-                    script.defer = true;
-                    script.addEventListener("load", () => {
-                        gapi.load("client:auth2", () => initGAPI(clientId, apiKey).then(() => addStatsUploadButton(spreadId)));
-                    });
-                    document.body.append(script);
-                };
-
-                const bannedStats = $(`<div id="banned-users-stats" class="mb16"><ul>` +
-(forTriage > 0 ? `<li><span class="copy-only">-&nbsp;</span>${forTriage} (${(forTriage/rows.length*100).toFixed(1)}%) users are banned for Triage reviews in one way or another</li>` : '') +
-(reqEditing > 0 ? `<li><span class="copy-only">-&nbsp;</span>${reqEditing} (${(reqEditing/rows.length*100).toFixed(1)}%) users are banned for selecting "Needs community edit" in Triage when the question should be closed</li>` : '') + `
+            const bannedStats = $(`<div id="banned-users-stats" class="mb16"><ul>` +
+                                  (forTriage > 0 ? `<li><span class="copy-only">-&nbsp;</span>${forTriage} (${(forTriage/rows.length*100).toFixed(1)}%) users are banned for Triage reviews in one way or another</li>` : '') +
+                                  (reqEditing > 0 ? `<li><span class="copy-only">-&nbsp;</span>${reqEditing} (${(reqEditing/rows.length*100).toFixed(1)}%) users are banned for selecting "Needs community edit" in Triage when the question should be closed</li>` : '') + `
 <li><span class="copy-only">-&nbsp;</span>${auditFailures} (${(auditFailures/rows.length*100).toFixed(1)}%) users are automatically banned for failing multiple review audits</li>
 <li><span class="copy-only">-&nbsp;</span>${firstTimers} (${(firstTimers/rows.length*100).toFixed(1)}%) users are banned for the first time</li>
 <li><span class="copy-only">-&nbsp;</span>${fiveTimers} (${(fiveTimers/rows.length*100).toFixed(1)}%) users have at least five review bans</li>
@@ -1060,38 +838,266 @@ Breakdown:<br>
 </ul>
 </div>`);
 
-                // For easier copying data to a spreadsheet
-                const copyTable = $(`<table><tr>
-<td>${rows.length}</td>
-<td>${forTriage}</td>
-<td>${reqEditing}</td>
-<td>${auditFailures}</td>
-<td>${firstTimers}</td>
-<td>${fiveTimers}</td>
-<td>${tenTimers}</td>
-<td>${hundred}</td>
-<td>${permaban}</td>
-<td>${pastDay}</td>
-<td>${pastWeek}</td>
-<td>${unbanDay}</td>
-<td>${unbanWeek}</td>
-<td>${tally.count4}</td>
-<td>${tally.count8}</td>
-<td>${tally.count16}</td>
-<td>${tally.count32}</td>
-<td>${tally.count64}</td>
-<td>${tally.count128}</td>
-<td>${tally.count365}</td>
-<td>${tally.count366}</td>
+            // For easier copying data to a spreadsheet
+            const copyTable = $(`<table><tr>
+<td class="pl4">${rows.length}</td>
+<td class="pl4">${forTriage}</td>
+<td class="pl4">${reqEditing}</td>
+<td class="pl4">${auditFailures}</td>
+<td class="pl4">${firstTimers}</td>
+<td class="pl4">${fiveTimers}</td>
+<td class="pl4">${tenTimers}</td>
+<td class="pl4">${hundred}</td>
+<td class="pl4">${permaban}</td>
+<td class="pl4">${pastDay}</td>
+<td class="pl4">${pastWeek}</td>
+<td class="pl4">${unbanDay}</td>
+<td class="pl4">${unbanWeek}</td>
+<td class="pl4">${tally.count4}</td>
+<td class="pl4">${tally.count8}</td>
+<td class="pl4">${tally.count16}</td>
+<td class="pl4">${tally.count32}</td>
+<td class="pl4">${tally.count64}</td>
+<td class="pl4">${tally.count128}</td>
+<td class="pl4">${tally.count365}</td>
+<td class="pl4">${tally.count366}</td>
 </tr></table>`);
 
-                if(isSuperuser) {
-                    copyTable.appendTo(bannedStats);
+            // Add a table that we can copy into a spreadsheet
+            if(isSuperuser) {
+                copyTable.appendTo(bannedStats);
+            }
+
+            table.before(bannedStats);
+            bannedStats.prepend(`<span>Currently, there are ${rows.length} banned reviewers, out of which:</span>`).parent().addClass('banned-reviewers-section');
+
+
+            // Do not display upload to sheets option to all mods, so it's opt-in only
+            if(!isSuperuser) return;
+
+            const sheetsApiVersion = 4;
+            const sheetsApiBase = "https://sheets.googleapis.com";
+
+            const { locateStorage } = Store;
+
+            const storage = locateStorage();
+
+            window.addEventListener("load", async () => {
+                const name = "review_ban_helper_sheets_api";
+
+                const manager = typeof SOMU !== "undefined" ? SOMU : null;
+                if(manager) {
+                    manager.store = storage;
+                    manager.addOption(name,"client_id");
+                    manager.addOption(name,"spreadsheet_id");
+                    manager.addOption(name, "api_key");
                 }
 
-                table.before(bannedStats);
-                bannedStats.prepend(`<span>Currently, there are ${rows.length} banned reviewers, out of which:</span>`).parent().addClass('banned-reviewers-section');
-            }
+                const store = new Store.default(name, storage);
+
+                const appClientId = (manager && manager.getOptionValue(name, "client_id")) ||
+                      await store.load("client_id") ||
+                      (!disableGApiPrompts ? prompt("Enter the Google Cloud Project client id") : '');
+
+                const statsSpreadId = (manager && manager.getOptionValue(name, "spreadsheet_id")) ||
+                      await store.load("spreadsheet_id") ||
+                      (!disableGApiPrompts ? prompt("Enter the destination spreadsheet id") : '');
+
+                const sheetsApiKey = (manager && manager.getOptionValue(name, "api_key")) ||
+                      await store.load("api_key") ||
+                      (!disableGApiPrompts ? prompt("Enter the Sheets API key") : '');
+
+                await store.save("client_id", appClientId);
+                await store.save("spreadsheet_id", statsSpreadId);
+                await store.save("api_key", sheetsApiKey);
+
+                loadGAPI(appClientId, sheetsApiKey, statsSpreadId);
+            });
+
+            /**
+                 * @param {string} clientId client id to use
+                 * @param {string} apiKey API key to use
+                 */
+            const initGAPI = (clientId, apiKey) => {
+                return gapi.client.init({
+                    apiKey,
+                    clientId,
+                    scope: "https://www.googleapis.com/auth/spreadsheets"
+                });
+            };
+
+            /**
+                 * @param {string} apiBase base URL of the API
+                 * @param {string|number} apiVer version of the API
+                 * @param {string} id spreadsheet id
+                 */
+            const readValues = (apiBase, apiVer, id) => {
+                return gapi.client.request({
+                    path: `${apiBase}/v${apiVer}/spreadsheets/${id}/values:batchGet`,
+                    params: {
+                        ranges: ["'Data'!A1:AB"],
+                        majorDimension: "ROWS",
+                        valueRenderOption: "UNFORMATTED_VALUE"
+                    }
+                });
+            };
+
+            /**
+                 * @param {string} apiBase base URL of the API
+                 * @param {string|number} apiVer version of the API
+                 * @param {string} id spreadsheet id
+                 * @param {any[][]} values grid of values to set
+                 * @param {string} range A1 range to insert into
+                 */
+            const updateValues = (apiBase, apiVer, id, values, range) => {
+                return gapi.client.request({
+                    path: `${apiBase}/v${apiVer}/spreadsheets/${id}/values/${range}`,
+                    method: "PUT",
+                    body: { values },
+                    params: { valueInputOption: "USER_ENTERED" }
+                });
+            };
+
+            /**
+                 * @param {string} apiBase base URL of the API
+                 * @param {string|number} apiVer version of the API
+                 * @param {string} id spreadsheet id
+                 * @param {any[][]} values grid of values to set
+                 * @param {string} range A1 range to insert into
+                 */
+            const appendValues = (apiBase, apiVer, id, values, range) => {
+                return gapi.client.request({
+                    path: `${apiBase}/v${apiVer}/spreadsheets/${id}/values/${range}:append`,
+                    method: "POST",
+                    body: { values },
+                    params: { valueInputOption: "USER_ENTERED" }
+                });
+            };
+
+
+            /**
+                 * @param {string} num serial number date
+                 */
+            const getDateValueFromSerialNumber = (num) => {
+                const dec30th1899 = -2209170617000;
+                return dec30th1899 + parseFloat(num) * 864e5;
+            };
+
+            /**
+                 * @param {gapi.client.HttpRequestFulfilled<any>} response API response
+                 * @param {string} raw non-JSON response from the API
+                 */
+            const handleValues = (response, raw) => {
+                if (!response) {
+                    console.debug(`Sheets API did not respond with JSON:\n\n${raw}`);
+                    return;
+                }
+
+                const { result } = response;
+                const { valueRanges, spreadsheetId } = result;
+
+                const today = new Date();
+                const todayReset = new Date(
+                    today.getFullYear(),
+                    today.getMonth(),
+                    today.getDate()
+                );
+                const todayVal = todayReset.valueOf();
+
+                const [{ values }] = valueRanges;
+                const { length: numRows } = values;
+
+                let rowIdx = numRows - 1;
+                for (rowIdx; rowIdx >= 0; rowIdx--) {
+                    const [serialNumber] = values[rowIdx];
+                    if (!serialNumber) continue;
+
+                    const date = getDateValueFromSerialNumber(serialNumber);
+                    if (date.valueOf() <= todayVal) break;
+                }
+
+                const newData = [[
+                    todayReset.toISOString().slice(0, 10),
+                    rows.length, // total banned, TODO: reuse
+                    forTriage,
+                    reqEditing,
+                    auditFailures,
+                    firstTimers,
+                    fiveTimers,
+                    tenTimers,
+                    hundred,
+                    permaban,
+                    pastDay,
+                    pastWeek,
+                    unbanDay,
+                    unbanWeek,
+                    tally.count4,
+                    tally.count8,
+                    tally.count16,
+                    tally.count32,
+                    tally.count64,
+                    tally.count128,
+                    tally.count365,
+                    tally.count366
+                ]];
+
+                const rowPos = rowIdx + 2;
+                const range = `'Data'!A${rowPos}:V${rowPos}`;
+
+                const handler = rowPos > numRows ? appendValues : updateValues;
+
+                handler(
+                    sheetsApiBase,
+                    sheetsApiVersion,
+                    spreadsheetId,
+                    newData, range
+                ).then(() => {
+                    console.debug("Successful upload");
+                }, handleError);
+            };
+
+            /**
+                 * @param {gapi.client.HttpRequestRejected} response
+                 */
+            const handleError = (response) => {
+                console.debug(`Sheets API error:\n${response.result.error.message}`);
+            };
+
+            /**
+                 * @param {string} spreadId spreadsheet id
+                 */
+            const addStatsUploadButton = (spreadId) => {
+                const uploadBtn = $(`<a id="upload_ban_stats" class="s-btn s-btn__sm s-btn__filled s-btn__primary">Send to Sheets</a>`);
+                uploadBtn.on("click", () => {
+                    const auth = gapi.auth2.getAuthInstance();
+
+                    const { isSignedIn } = auth;
+
+                    const handle = () => readValues(sheetsApiBase, sheetsApiVersion, spreadId).then(handleValues, handleError);
+
+                    isSignedIn.listen(handle);
+
+                    return isSignedIn.get() ? handle() : auth.signIn();
+
+                });
+                uploadBtn.appendTo($("#banned-users-stats"));
+            };
+
+            /**
+                 * @param clientId client id to use
+                 * @param apiKey API key to use
+                 * @param spreadId spreadsheet id
+                 */
+            const loadGAPI = (clientId, apiKey, spreadId) => {
+                const script = document.createElement("script");
+                script.src = "https://apis.google.com/js/api.js";
+                script.async = true;
+                script.defer = true;
+                script.addEventListener("load", () => {
+                    gapi.load("client:auth2", () => initGAPI(clientId, apiKey).then(() => addStatsUploadButton(spreadId)));
+                });
+                document.body.append(script);
+            };
 
         }
 
