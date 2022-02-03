@@ -3,7 +3,7 @@
 // @description  On pagination dots "..." mouseover, adds more page links (max 30 per hover), keyboard shortcuts for jumping to prev/next pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.10.2
+// @version      1.11
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -67,10 +67,10 @@
     function doPageload() {
 
         // Fix incorrect nav params on page load
-        let queryparams = location.search.replace('?', '').replace(/&?page=\d+/, '');
+        let queryparams = location.search.replace('?', '').replace(/&?page=\d+/i, '');
         if(queryparams.length > 0) queryparams += '&';
         $('.pager > a').each(function() {
-            const matches = this.href.match(/[&?]page=(\d+)/);
+            const matches = this.href.match(/[&?]page=(\d+)/i);
             if(matches && matches.length) {
                 const page = matches[0].replace(/\D+/g, '');
                 this.href = '?' + queryparams + 'page=' + page;
@@ -79,7 +79,7 @@
 
         $('#content').on('click mouseover', '.page-numbers.dots, .s-pagination--item__clear', function() {
 
-            let queryparams = location.search.replace('?', '').replace(/&?page=\d+&?/, '');
+            let queryparams = location.search.replace('?', '').replace(/&?page=\d+/i, '');
             if(queryparams.length > 0) queryparams += '&';
 
             let baseurl = this.previousElementSibling.pathname || '';
