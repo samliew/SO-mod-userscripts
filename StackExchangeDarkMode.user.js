@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.24.8
+// @version      2.25
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -38,8 +38,8 @@
     const orange = '#f2720c';
 
 
-    let textcolor = '#ccc';
-    let linkcolor = '#ddd';
+    let textcolor = '#bbb';
+    let linkcolor = '#eee';
     let highlightcolor = '#ddd';
     let bgcolor = '#1c1c1c';
     let btncolor = '#444';
@@ -188,7 +188,7 @@ body {
     --bs-lg: 0 1px 4px rgba(255, 255, 255, 0.09),0 3px 8px rgba(255, 255, 255, 0.09),0 4px 13px rgba(255, 255, 255, 0.13);
     --scrollbar: rgba(255, 255, 255, 0.2);
 }
-*,
+*:not(svg):not(path):not(img):not(span),
 *:not(.s-award-bling):before,
 *:after,
 #search-channel-selector,
@@ -261,7 +261,7 @@ table td {
     border: none;
 }
 #sidebar .community-bulletin .bulletin-item-content a,
-a:not(.s-btn):not(.supernovabg):not(.hotbg):not(.owner),
+a:not(.s-btn):not(.supernovabg):not(.hotbg):not(.owner):not(.flag-badge),
 .js-post-menu button,
 .js-post-menu button:hover {
     color: ${linkcolor};
