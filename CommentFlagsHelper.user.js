@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      6.3.1
+// @version      6.4
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -879,9 +879,10 @@ mark {
 }
 
 #actionBtns {
-    margin: 40px 24px 0px;
+    margin: 25px 24px 20px;
 }
 #actionBtns button {
+    margin-top: 10px;
     margin-right: 10px;
 }
 

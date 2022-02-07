@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.16.2
+// @version      3.17
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -514,9 +514,10 @@
 }
 
 #actionBtns {
-    margin: 10px 24px 20px;
+    margin: 25px 24px 20px;
 }
 #actionBtns button {
+    margin-top: 10px;
     margin-right: 10px;
 }
 

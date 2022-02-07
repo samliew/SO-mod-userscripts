@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.9
+// @version      4.10
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
@@ -225,7 +225,7 @@
             $('.js-flagged-post').first().parent().prepend(actionBtns);
 
             // Start from bottom link
-            $('<button>Review from bottom</button>')
+            $('<button class="s-btn s-btn__filled">Review from bottom</button>')
                 .click(function() {
                     window.scrollTo(0,999999);
                 })
@@ -234,7 +234,7 @@
             if(superusers.includes(StackExchange.options.user.userId)) {
 
                 // Move all comments on page to chat
-                $('<button class="btn-warning">Move ALL to chat</button>')
+                $('<button class="s-btn s-btn__danger s-btn__filled s-btn__xs">Move ALL to chat</button>')
                     .click(function() {
                         $(this).remove();
                         const moveLinks = $('.move-comments-link:visible');
@@ -244,7 +244,7 @@
                     .appendTo(actionBtns);
 
                 // Dismiss all handled ones
-                $('<button class="btn-warning">Dismiss ALL handled</button>')
+                $('<button class="s-btn s-btn__danger s-btn__filled s-btn__xs">Dismiss ALL handled</button>')
                     .click(function() {
                         const dismissLinks = $('.immediate-dismiss-all:visible');
                         dismissLinks.click();
@@ -366,9 +366,10 @@
 }
 
 #actionBtns {
-    margin: 40px 24px 0px;
+    margin: 25px 24px 20px;
 }
 #actionBtns button {
+    margin-top: 10px;
     margin-right: 10px;
 }
 
