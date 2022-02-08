@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5
+// @version      2.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -330,6 +330,11 @@
 .mod-quick-links .bounty-indicator-tab {
     float: left;
     margin-right: 4px !important;
+}
+
+/* Fullscreen snippets always on top */
+.snippet.expanded-snippet {
+    z-index: 9999999 !important;
 }
 
 @media screen and (max-height: 740px) {
