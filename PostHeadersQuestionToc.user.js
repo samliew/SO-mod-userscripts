@@ -310,7 +310,7 @@ ${isElectionPage ? 'Nomination' : isQuestion ? 'Question' : 'Answer'} by ${postU
 
         getPostAnswers(qid).then(function(v) {
 
-            if(sortby == 'votes') {
+            if(sortby == 'score' || sortby == 'votes') {
                 v = v.get().sort(function(a, b) {
                     const ax = Number($(a).find('.event-comment span:not(.badge-earned-check)').last().text().match(/[-0-9]+$/)[0]);
                     const bx = Number($(b).find('.event-comment span:not(.badge-earned-check)').last().text().match(/[-0-9]+$/)[0]);
