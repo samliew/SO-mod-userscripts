@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.25
+// @version      2.25.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -1239,7 +1239,7 @@ span.mod-flair {
     background-color: transparent;
 }
 .topbar .topbar-wrapper .topbar-dialog {
-    background: var(--black);
+    background: var(--white);
 }
 .topbar .icon-inbox .unread-count {
     background-color: #F00;
