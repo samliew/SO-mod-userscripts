@@ -917,6 +917,9 @@ nav a *,
     color: inherit;
     background-color: inherit;
 }
+.s-post-summary__watched:not(.s-post-summary__ignored) {
+    border-left: 5px solid #a58700;
+}
 
 
 /* Diff colours */
