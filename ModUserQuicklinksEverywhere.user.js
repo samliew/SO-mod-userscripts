@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.5
+// @version      2.11.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -30,7 +30,7 @@
 
     function addUserLinks() {
 
-        $('.post-user-info, .user-details, .js-body-loader div.ai-center.fw-wrap')
+        $('.post-user-info, .s-user-card, .user-details, .js-body-loader div.ai-center.fw-wrap')
             .not('.js-mod-quicklinks')
             .addClass('js-mod-quicklinks')
             .find('a[href^="/users/"]:first').each(function() {
@@ -48,7 +48,7 @@
 (!isChildMeta ? `<a href="${parentUrl}/admin/cm-message/create/${uid}?action=suspicious-voting" target="_blank">cm</a>` : '') +
 `</div>`;
 
-                $(this).closest('.user-info, .js-mod-quicklinks').append($(userlinks));
+                $(this).closest('.user-info, .s-user-card, .js-mod-quicklinks').append($(userlinks));
             });
 
         $('.user-info').addClass('js-mod-quicklinks');
@@ -76,6 +76,10 @@
     width: 100%;
     white-space: nowrap;
     font-size: 0.95em;
+}
+.s-user-card .mod-userlinks {
+    /* New s-user-card uses grid, we want it in last position */
+    order: 999;
 }
 .mod-userlinks.show-on-hover {
     display: none;
