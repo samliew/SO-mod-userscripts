@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.4
+// @version      1.6.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -599,7 +599,7 @@ ${sitename} moderator`;
     function appendModMessageMenu() {
 
         // Append link to post sidebar if it doesn't exist yet
-        $('.user-info').not('.js-mod-message-menu').addClass('js-mod-message-menu').each(function() {
+        $('.user-info, .s-user-card').not('.js-mod-message-menu').addClass('js-mod-message-menu').each(function() {
 
             let uid = 0;
             try {
@@ -728,15 +728,18 @@ ${sitename} moderator`;
 
         const styles = `
 <style>
-.user-info {
+.user-info,
+.s-user-card {
     position: relative;
     min-height: 88px;
     border: 1px solid transparent;
 }
-.user-info:hover {
+.user-info:hover,
+.s-user-card:hover {
     /*border-color: var(--black-200);*/
 }
-.user-info.js-mod-message-menu:not(.js-mod-quicklinks) {
+.user-info.js-mod-message-menu:not(.js-mod-quicklinks),
+.s-user-card.js-mod-message-menu:not(.js-mod-quicklinks) {
     padding-bottom: 25px;
 }
 .user-action-time {
@@ -744,10 +747,13 @@ ${sitename} moderator`;
 }
 
 .mod-summary .user-info,
+.mod-summary .s-user-card,
 .mod-summary .user-action-time,
 .single-badge-user .user-info,
+.single-badge-user .s-user-card,
 .single-badge-user .user-action-time,
-.cast-votes .user-info {
+.cast-votes .user-info,
+.cast-votes .s-user-card {
     min-height: 0;
 }
 
