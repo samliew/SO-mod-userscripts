@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      0.2
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -40,12 +40,12 @@ const wait = (seconds = 1) => new Promise((r) => setTimeout(r, seconds * 1e3));
  * @returns {Promise<void>}
  */
 const getQuestions = async function (pids) {
-    if(hasBackoff) return; // TODO: await remaining backoff period instead of dropping request
+    if(hasBackoff()) return; // TODO: await remaining backoff period instead of dropping request
     if(!Array.isArray(pids) || pids.length === 0) throw new Error('Parameter is not an array, or empty.');
     if(pids.length > 100) pids = pids.slice(0, 100);
 
     // Fetch question details from API
-    return await fetch(`https://api.stackexchange.com/2.3/questions/${pids.join(';')}?pagesize=${pids.length}&order=desc&sort=creation&site=${siteApiSlug}&filter=!LeccOePNkCvNktEublRmRy&key=${apikey}`)
+    return await fetch(`https://api.stackexchange.com/2.3/questions/${pids.join(';')}?pagesize=${pids.length}&order=desc&sort=creation&site=${siteApiSlug}&filter=!0XA5-PIRJe4ut-7QzJK2bGYQO&key=${apikey}`)
         .then(response => response.ok ? response.json() : null)
         .then(data => {
         // Respect backoff
@@ -67,7 +67,7 @@ const appendStyles = () => {
 .s-post-summary--content .s-post-summary--content-excerpt {
   -webkit-line-clamp: 10;
 }
-.s-post-summary--content-excerpt p {
+.s-post-summary--content-excerpt > * {
   margin-bottom: 0;
 }
 .s-post-summary--content-excerpt pre,
@@ -95,8 +95,7 @@ const appendStyles = () => {
     const qList = document.getElementById('questions');
     if(!qList) throw new Error('Not a question list page.');
 
-    const qids = [...qList.querySelectorAll('.s-post-summary--content-title a')].map(v => Number(v.pathname.match(/\/(\d+)\//)[1]));
-    console.log(qids);
+    const qids = [...qList.querySelectorAll('.s-post-summary:not(.somu-question-stats) .s-post-summary--content-title a')].map(v => Number(v.pathname.match(/\/(\d+)\//)[1]));
 
     const questions = await getQuestions(qids);
     questions?.forEach(data => {
@@ -107,6 +106,9 @@ const appendStyles = () => {
         const qStats = qElem.querySelector('.s-post-summary--stats');
         const qSummary = qElem.querySelector('.s-post-summary--content');
         const qExcerpt = qElem.querySelector('.s-post-summary--content-excerpt');
+
+        // Run once on each question only
+        qElem.classList.add('somu-question-stats');
 
         // Insert full body
         qExcerpt.innerHTML = body;
@@ -121,14 +123,26 @@ const appendStyles = () => {
 
         const moreStats = document.createElement('div');
         moreStats.classList.add('s-post-summary--morestats');
-        Object.keys(data).forEach((key, i) => {
-
-            // Ignore some keys
-            if(['question_id', 'comment_count', 'link', 'title', 'last_activity_date', 'creation_date', 'body'].includes(key)) return;
-
-            // Add data
-            moreStats.innerHTML += `<div>${key}: ${data[key]}</div>`;
-        });
+        Object.keys(data).filter(key => ![
+            'question_id',
+            'comment_count',
+            'link',
+            'title',
+            'last_activity_date',
+            'creation_date',
+            'body',
+            'tags',
+            'owner',
+            'last_editor',
+            'score',
+            'view_count',
+            'answer_count',
+            'is_answered'
+            ].includes(key)).forEach((key, i) => {
+                let value = data[key];
+                if(key === 'comments') value = `<div class="fs-caption ml16">${value.map(v => v.body_markdown).join('<br>')}</div>`;
+                moreStats.innerHTML += `<div>${key}: ${value}</div>`;
+            });
         qSummary.appendChild(moreStats);
     });
 
