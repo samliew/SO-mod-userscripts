@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.6
+// @version      2.11.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -80,6 +80,7 @@
 .s-user-card .mod-userlinks {
     /* New s-user-card uses grid, we want it in last position */
     order: 999;
+    grid-column-start: 2;
 }
 .mod-userlinks.show-on-hover {
     display: none;
