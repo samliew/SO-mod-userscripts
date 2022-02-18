@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.5
+// @version      1.6.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -731,8 +731,10 @@ ${sitename} moderator`;
 .user-info,
 .s-user-card {
     position: relative;
-    min-height: 88px;
     border: 1px solid transparent;
+}
+.user-info,
+    min-height: 88px;
 }
 .user-info:hover,
 .s-user-card:hover {
@@ -769,6 +771,11 @@ ${sitename} moderator`;
     line-height: 0;
     color: inherit;
     cursor: pointer;
+}
+.s-user-card .somu-mod-message-link {
+    /* New s-user-card uses grid */
+    position: unset !important;
+    padding: 2px !important;
 }
 .somu-mod-message-link svg {
     width: 13px;
