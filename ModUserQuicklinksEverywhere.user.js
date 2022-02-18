@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11.7
+// @version      2.12
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -40,7 +40,7 @@
                 const modFlair = $(this).next('.mod-flair');
                 if(uid == -1 || modFlair.length == 1) return;
 
-                const userlinks = `<div class="mod-userlinks flex--item ${showOnHover ? 'show-on-hover' : ''}">` +
+                const userlinks = `<div class="somu-mod-userlinks flex--item ${showOnHover ? 'show-on-hover' : ''}">` +
 `<a href="${parentUrl}/users/account-info/${uid}" target="_blank">mod</a>` +
 `<a href="/admin/users/${uid}/post-comments" target="_blank">cmnts</a>` +
 `<a href="${parentUrl}/admin/show-user-votes/${uid}" target="_blank">votes</a>` +
@@ -70,39 +70,43 @@
 .user-info .user-details {
     position: relative;
 }
-.mod-userlinks {
+.somu-mod-userlinks {
     display: block;
     clear: both;
     width: 100%;
     white-space: nowrap;
     font-size: 0.95em;
 }
-.s-user-card .mod-userlinks {
+#questions .somu-mod-userlinks {
+    /* No quicklinks in question lists */
+    display: none;
+}
+.s-user-card .somu-mod-userlinks {
     /* New s-user-card uses grid, we want it in last position */
     order: 999;
     grid-column-start: 2;
 }
-.mod-userlinks.show-on-hover {
+.somu-mod-userlinks.show-on-hover {
     display: none;
 }
-.mod-userlinks,
-.mod-userlinks a,
-.started .mod-userlinks a {
+.somu-mod-userlinks,
+.somu-mod-userlinks a,
+.started .somu-mod-userlinks a {
     color: var(--black-400);
 }
-.mod-userlinks > a {
+.somu-mod-userlinks > a {
     display: inline-block;
     margin-right: 3px;
 }
-.mod-userlinks a:hover,
-.started .mod-userlinks a:hover {
+.somu-mod-userlinks a:hover,
+.started .somu-mod-userlinks a:hover {
     color: var(--black);
 }
-.post-user-info:hover .mod-userlinks,
-.user-info:hover .mod-userlinks {
+.post-user-info:hover .somu-mod-userlinks,
+.user-info:hover .somu-mod-userlinks {
     display: block;
 }
-.flex--item + .mod-userlinks {
+.flex--item + .somu-mod-userlinks {
     position: initial !important;
     display: inline-block;
     width: auto;
