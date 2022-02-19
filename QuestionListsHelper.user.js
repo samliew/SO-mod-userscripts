@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.2
+// @version      0.3
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -19,8 +19,9 @@
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
-/* globals hasBackoff, addBackoff */
+/* globals StackExchange, hasBackoff, addBackoff */
 
+'use strict';
 
 let backoff;
 const siteApiSlug = location.hostname.replace(/(\.stackexchange)?\.(com|net|org)$/i, '');
@@ -41,7 +42,7 @@ const wait = (seconds = 1) => new Promise((r) => setTimeout(r, seconds * 1e3));
  */
 const getQuestions = async function (pids) {
     if(hasBackoff()) return; // TODO: await remaining backoff period instead of dropping request
-    if(!Array.isArray(pids) || pids.length === 0) throw new Error('Parameter is not an array, or empty.');
+    if(!Array.isArray(pids) || pids.length === 0) console.log('Parameter is not an array, or empty.');
     if(pids.length > 100) pids = pids.slice(0, 100);
 
     // Fetch question details from API
@@ -55,57 +56,41 @@ const getQuestions = async function (pids) {
     });
 };
 
-/**
- * @summary Append styles used by this userscript to the page
- */
-const appendStyles = () => {
-    const style = document.createElement('style');
-    style.innerHTML = `
-.s-post-summary--stats {
-  --s-post-summary-stats-gap: 3px;
-}
-.s-post-summary--content .s-post-summary--content-excerpt {
-  -webkit-line-clamp: 10;
-}
-.s-post-summary--content-excerpt > * {
-  margin-bottom: 0;
-}
-.s-post-summary--content-excerpt pre,
-.s-post-summary--content-excerpt .snippet {
-  display: none;
-}
-.s-post-summary--morestats {
-  margin-top: 3px;
-}
-`;
-    document.body.appendChild(style);
-}
-
 
 /**
  * @summary Main async function
  */
 (async function() {
-    'use strict';
 
-    // Run on page load
-    appendStyles();
+    // Run on question list and search results pages only
+    const qList = document.querySelectorAll('#questions, #question-mini-list, .js-search-results > div:last-child');
+    if(!qList.length) throw new Error('Not a question list page.');
 
-    // Run on question list pages only
-    const qList = document.getElementById('questions');
-    if(!qList) throw new Error('Not a question list page.');
+    // Transform search results to new question list style
+    const searchResults = document.querySelector('.js-search-results');
+    if(searchResults) {
+        searchResults.classList.remove('ml0', 'bt');
+        searchResults.classList.add('flush-left');
+        searchResults.querySelectorAll('.s-card').forEach(el => {
+            el.classList.remove('s-card');
+            el.classList.add('br', 'bb', 'bt', 'bc-black-100');
+        });
+    }
 
-    const qids = [...qList.querySelectorAll('.s-post-summary:not(.somu-question-stats) .s-post-summary--content-title a')].map(v => Number(v.pathname.match(/\/(\d+)\//)[1]));
+    // Get questions
+    const qids = [...qList[0].querySelectorAll('.s-post-summary:not(.somu-question-stats) .s-post-summary--content-title a, .search-result[id^="question-id-"]:not(.somu-question-stats) .result-link a')].map(v => Number(v.pathname.match(/\/(\d+)\//)[1]));
 
     const questions = await getQuestions(qids);
     questions?.forEach(data => {
         console.log(data);
-        const { question_id, comment_count, body } = data;
+        const { question_id, body, comments, comment_count, favorite_count, closed_reason, closed_details, notice } = data;
 
         const qElem = document.getElementById(`question-summary-${question_id}`);
-        const qStats = qElem.querySelector('.s-post-summary--stats');
-        const qSummary = qElem.querySelector('.s-post-summary--content');
-        const qExcerpt = qElem.querySelector('.s-post-summary--content-excerpt');
+        if(!qElem) return; // not a question, do nothing
+
+        const qStats = qElem.querySelectorAll('.s-post-summary--stats, .statscontainer')[0];
+        const qSummary = qElem.querySelectorAll('.s-post-summary--content, .summary')[0];
+        const qExcerpt = qElem.querySelectorAll('.s-post-summary--content-excerpt, .excerpt')[0];
 
         // Run once on each question only
         qElem.classList.add('somu-question-stats');
@@ -113,23 +98,42 @@ const appendStyles = () => {
         // Insert full body
         qExcerpt.innerHTML = body;
 
-        const stats = document.createElement('div');
-        stats.innerHTML = `
-<div class="s-post-summary--stats-item" title="${comment_count} comments">
+        // Add comments to stats
+        let commentsHtml = comments?.map(v => v.body_markdown).join('</li><li>') || '';
+        let statsHtml = '';
+
+        // Add favorite_count if is question
+        if(!isNaN(favorite_count)) {
+          statsHtml += `
+<div class="s-post-summary--stats-item" title="${favorite_count} favorited this question">
+  <span class="s-post-summary--stats-item-number mr4">${favorite_count}</span><span class="s-post-summary--stats-item-unit">favorited</span>
+</div>`;
+        }
+
+        statsHtml += `
+<div class="s-post-summary--stats-item">
   <span class="s-post-summary--stats-item-number mr4">${comment_count}</span><span class="s-post-summary--stats-item-unit">comments</span>
+  <div class="somu-comments-preview ${comment_count ? '' : 'd-none'}"><ol class="mb0"><li>${commentsHtml}</li></ol></div>
 </div>
-        `;
-        qStats.appendChild(stats);
+<div class="s-post-summary--stats-item" title="length of post text">
+  <span class="s-post-summary--stats-item-number mr4">${qExcerpt.innerText.length}</span><span class="s-post-summary--stats-item-unit">chars</span>
+</div>`;
+        qStats.innerHTML += statsHtml;
+        qStats.classList.add('s-post-summary--stats');
 
         const moreStats = document.createElement('div');
         moreStats.classList.add('s-post-summary--morestats');
         Object.keys(data).filter(key => ![
+            'notice',
+            'closed_reason',
+            'closed_details',
             'question_id',
             'comment_count',
+            'favorite_count',
+            'comments',
+            'answers',
             'link',
             'title',
-            'last_activity_date',
-            'creation_date',
             'body',
             'tags',
             'owner',
@@ -137,13 +141,158 @@ const appendStyles = () => {
             'score',
             'view_count',
             'answer_count',
-            'is_answered'
+            'is_answered',
+            'down_vote_count',
+            'reopen_vote_count',
             ].includes(key)).forEach((key, i) => {
                 let value = data[key];
-                if(key === 'comments') value = `<div class="fs-caption ml16">${value.map(v => v.body_markdown).join('<br>')}</div>`;
+                if(key.includes('protected_date')) {
+                    key = 'protected';
+                    value = 'yes';
+                }
+                else if(key.includes('protected_date')) {
+                    key = 'protected';
+                    value = 'yes';
+                }
+                else if(key.includes('community_owned_date')) {
+                    key = 'community_wiki';
+                    value = 'yes';
+                }
+                else if(key.includes('close_vote_count')) {
+                    key = 'close_reopen_vote_count';
+                    value = value || data['reopen_vote_count'];
+                }
+                else if(key.includes('up_vote_count')) {
+                    key = 'votes';
+                    value = `+${value} / -${data['down_vote_count']}`;
+                }
+                else if(key.includes('accepted_answer_id')) {
+                    value = `<a href="https://${location.hostname}/a/${value}" target="_blank">${value}</a>`;
+                }
+                else if(key.includes('_date')) {
+                    const d = new Date(value * 1000).toISOString().replace('T', ' ').replace('.000', '');
+                    value = `<span class="relativetime" title="${d}" data-timestamp="${d}">${d}</span>`;
+                }
                 moreStats.innerHTML += `<div>${key}: ${value}</div>`;
             });
+
+        // Has post notice
+        if(notice?.body) {
+            moreStats.innerHTML += `<div>post_notice: ${notice.body.trim()}</div>`;
+        }
+        // Closed
+        if(closed_reason) {
+            moreStats.innerHTML += `<div>closed_reason: <strong>${closed_reason}</strong></div>`;
+
+            // Hammered by gold
+            const closedByHammer = closed_details?.by_users.filter(u => u.user_type !== 'unregistered');
+            if(/Duplicate/i.test(closed_reason) && closedByHammer?.length < 3) {
+                moreStats.innerHTML += `<div>closed_by_hammer: ${closedByHammer.map(({ user_id, display_name }) => `<a href="https://${location.hostname}/users/${user_id}" target="_blank">${display_name}</a>`).pop()}</div>`;
+            }
+
+            // Closed by mod
+            const closedByMods = closed_details?.by_users.filter(u => u.user_type === 'moderator');
+            if(closedByMods?.length) {
+                moreStats.innerHTML += `<div>closed_by_mod: ${closedByMods.map(({ user_id, display_name }) => `<a href="https://${location.hostname}/users/${user_id}" target="_blank">${display_name} ♦</a>`).join(', ')}</div>`;
+            }
+        }
+
         qSummary.appendChild(moreStats);
+        qSummary.classList.add('s-post-summary--content');
+
+        StackExchange.realtime.updateRelativeDates();
     });
 
 })();
+
+
+/**
+ * @summary Append styles used by this userscript to the page
+ */
+const style = document.createElement('style');
+style.innerHTML = `
+.s-post-summary--stats {
+  --s-post-summary-stats-gap: 3px;
+}
+.search-result .excerpt,
+.s-post-summary--content .s-post-summary--content-excerpt {
+  -webkit-line-clamp: 10;
+}
+.search-result .excerpt > *,
+.s-post-summary--content-excerpt > * {
+  margin-bottom: 0;
+}
+.search-result .excerpt pre,
+.search-result .excerpt .snippet,
+.s-post-summary--content-excerpt pre,
+.s-post-summary--content-excerpt .snippet {
+  max-width: 100%;
+  max-height: 100px;
+  padding: 5px;
+  overflow: hidden;
+  white-space: break-spaces;
+  font-size: 4px;
+}
+.s-post-summary--content b,
+.s-post-summary--content strong {
+  font-weight: 500;
+}
+.s-post-summary--content-excerpt .snippet-code {
+  padding: 0;
+}
+.s-post-summary--content-excerpt .snippet-code-html {
+  margin: 0;
+}
+.search-result .excerpt img,
+.s-post-summary--content-excerpt img {
+  max-width: 100%;
+  max-height: 80px;
+}
+.s-post-summary--morestats {
+  padding-top: 10px;
+  clear: both;
+  columns: 2;
+  color: var(--black-600);
+}
+.somu-comments-preview {
+  display: none;
+  position: absolute;
+  top: -10px;
+  left: calc(100% + 10px);
+  width: 100vw;
+  max-width: 610px;
+  background: white;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid var(--black-300);
+  white-space: normal;
+  box-shadow: 2px 2px 11px -6px black;
+}
+.somu-comments-preview:before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  right: 100%;
+  width: 90px;
+  height: 27px;
+  z-index: 0;
+}
+.somu-question-stats .statscontainer.s-post-summary--stats {
+  width: 108px;
+  margin-right: 8px;
+  margin-bottom: -2px;
+}
+.statscontainer .s-post-summary--stats-item {
+  font-size: 13px;
+}
+.s-post-summary--stats-item {
+  position: relative;
+  opacity: 1 !important;
+  z-index: 1;
+}
+.s-post-summary--stats-item:hover .somu-comments-preview {
+  display: block;
+  z-index: 2;
+}
+`;
+document.body.appendChild(style);
