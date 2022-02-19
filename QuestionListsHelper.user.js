@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.2
+// @version      0.3.3
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -80,7 +80,12 @@ const getQuestions = async function (pids) {
     }
 
     // Get questions from API
-    const qids = [...qList[0].querySelectorAll('.s-post-summary:not(.somu-question-stats) .s-post-summary--content-title a, .search-result[id^="question-id-"]:not(.somu-question-stats) .result-link a')].map(v => Number(v.pathname.match(/\/(\d+)\//)[1]));
+    const qids = [...qList[0].querySelectorAll('.s-post-summary:not(.somu-question-stats) .s-post-summary--content-title a, .search-result[id^="question-summary-"]:not(.somu-question-stats) .result-link a')].map(v => Number(v.pathname.match(/\/(\d+)\//)[1]));
+
+    if(!qids.length) {
+        console.log('No question IDs found.');
+        return;
+    }
 
     // Each item from API
     const questions = await getQuestions(qids);
@@ -99,6 +104,8 @@ const getQuestions = async function (pids) {
 
         // Insert full body
         qExcerpt.innerHTML = body;
+        qExcerpt.classList.add('s-post-summary--content-excerpt');
+        qExcerpt.classList.remove('excerpt');
 
         // Add comments to stats
         let commentsHtml = comments?.map(v => v.body_markdown).join('</li><li>') || '';
@@ -236,6 +243,7 @@ style.innerHTML = `
 .s-post-summary--content-excerpt .snippet {
   max-width: 100%;
   max-height: 100px;
+  margin: 4px 0;
   padding: 5px;
   overflow: hidden;
   white-space: break-spaces;
