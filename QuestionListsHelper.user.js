@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.4
+// @version      0.3.5
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -62,25 +62,30 @@ const getQuestions = async function (pids) {
 (async function() {
 
     // Run on question lists and search results pages only
-    const qList = document.querySelectorAll('#questions, #question-mini-list, .js-search-results > div:last-child');
-    if(!qList.length) {
+    const qList = document.querySelector('#questions, #question-mini-list, .js-search-results > div:last-child');
+    if(!qList) {
         console.log('Not a question list page.');
         return;
     }
 
-    // Transform search results to new question list style
-    const searchResults = document.querySelector('.js-search-results');
-    if(searchResults) {
-        searchResults.classList.remove('ml0', 'bt');
-        searchResults.classList.add('flush-left');
-        searchResults.querySelectorAll('.s-card').forEach(el => {
+    // Transform old question lists to new style
+    let oldQuestionList = document.querySelector('.js-search-results, #qlist-wrapper');
+    if(oldQuestionList) {
+        oldQuestionList.classList.remove('ml0', 'bt', 's-card');
+        oldQuestionList.classList.add('flush-left');
+        oldQuestionList.querySelectorAll('.s-card').forEach(el => {
             el.classList.remove('s-card');
-            el.classList.add('br', 'bb', 'bt', 'bc-black-100');
+            el.classList.add('bb', 'bt', 'bc-black-100');
         });
+    }
+    const mixedQuestionList = document.querySelector('.mixed-question-list');
+    if(mixedQuestionList) {
+        mixedQuestionList.classList.remove('ml0', 'bt', 's-card');
+        mixedQuestionList.classList.add('flush-left');
     }
 
     // Get questions from API
-    const qids = [...qList[0].querySelectorAll('.s-post-summary:not(.somu-question-stats) .s-post-summary--content-title a, .search-result[id^="question-summary-"]:not(.somu-question-stats) .result-link a')].map(v => Number(v.pathname.match(/\/(\d+)\//)[1]));
+    const qids = [...qList.querySelectorAll('.s-post-summary:not(.somu-question-stats) .s-post-summary--content-title a, .search-result[id^="question-summary-"]:not(.somu-question-stats) .result-link a')].map(v => Number(v.pathname.match(/\/(\d+)\//)[1]));
 
     if(!qids.length) {
         console.log('No question IDs found.');
@@ -95,17 +100,16 @@ const getQuestions = async function (pids) {
         const qElem = document.getElementById(`question-summary-${question_id}`);
         if(!qElem) return; // not a question, do nothing
 
-        const qTitle = qElem.querySelectorAll('.s-post-summary--content-title, .result-link')[0];
-        const qStats = qElem.querySelectorAll('.s-post-summary--stats, .statscontainer')[0];
-        const qSummary = qElem.querySelectorAll('.s-post-summary--content, .summary')[0];
-        let qExcerpt = qElem.querySelectorAll('.s-post-summary--content-excerpt, .excerpt');
+        const qTitle = qElem.querySelector('.s-post-summary--content-title, .result-link');
+        const qStats = qElem.querySelector('.s-post-summary--stats, .statscontainer');
+        const qSummary = qElem.querySelector('.s-post-summary--content, .summary');
+        let qExcerpt = qElem.querySelector('.s-post-summary--content-excerpt, .excerpt');
 
         // If excerpt element missing (home page), add
-        if(!qExcerpt.length) {
+        if(!qExcerpt) {
             qExcerpt = document.createElement('div');
             qTitle.insertAdjacentElement('afterend', qExcerpt);
         }
-        else qExcerpt = eExcerpt[0];
 
         // Run once on each question only
         qElem.classList.add('somu-question-stats');
