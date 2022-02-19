@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3
+// @version      0.3.1
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -23,7 +23,6 @@
 
 'use strict';
 
-let backoff;
 const siteApiSlug = location.hostname.replace(/(\.stackexchange)?\.(com|net|org)$/i, '');
 const apikey = 'ENmQ1YxlYnp725at*EkjEg((';
 
@@ -77,12 +76,12 @@ const getQuestions = async function (pids) {
         });
     }
 
-    // Get questions
+    // Get questions from API
     const qids = [...qList[0].querySelectorAll('.s-post-summary:not(.somu-question-stats) .s-post-summary--content-title a, .search-result[id^="question-id-"]:not(.somu-question-stats) .result-link a')].map(v => Number(v.pathname.match(/\/(\d+)\//)[1]));
 
+    // Each item from API
     const questions = await getQuestions(qids);
     questions?.forEach(data => {
-        console.log(data);
         const { question_id, body, comments, comment_count, favorite_count, closed_reason, closed_details, notice } = data;
 
         const qElem = document.getElementById(`question-summary-${question_id}`);
@@ -118,12 +117,16 @@ const getQuestions = async function (pids) {
 <div class="s-post-summary--stats-item" title="length of post text">
   <span class="s-post-summary--stats-item-number mr4">${qExcerpt.innerText.length}</span><span class="s-post-summary--stats-item-unit">chars</span>
 </div>`;
+
+        // Append to post stats
         qStats.innerHTML += statsHtml;
         qStats.classList.add('s-post-summary--stats');
 
+        // Add each key into morestats
         const moreStats = document.createElement('div');
         moreStats.classList.add('s-post-summary--morestats');
         Object.keys(data).filter(key => ![
+            // Ignored keys
             'notice',
             'closed_reason',
             'closed_details',
@@ -144,18 +147,17 @@ const getQuestions = async function (pids) {
             'is_answered',
             'down_vote_count',
             'reopen_vote_count',
+            'community_owned_date',
             ].includes(key)).forEach((key, i) => {
+                // For each key
                 let value = data[key];
+
                 if(key.includes('protected_date')) {
                     key = 'protected';
                     value = 'yes';
                 }
                 else if(key.includes('protected_date')) {
                     key = 'protected';
-                    value = 'yes';
-                }
-                else if(key.includes('community_owned_date')) {
-                    key = 'community_wiki';
                     value = 'yes';
                 }
                 else if(key.includes('close_vote_count')) {
@@ -178,8 +180,9 @@ const getQuestions = async function (pids) {
 
         // Has post notice
         if(notice?.body) {
-            moreStats.innerHTML += `<div>post_notice: ${notice.body.trim()}</div>`;
+            moreStats.innerHTML += `<div>post_notice: <div class="b1 bl blw2 pl6 bc-black-100 mt6">${notice.body.trim()}</div></div>`;
         }
+
         // Closed
         if(closed_reason) {
             moreStats.innerHTML += `<div>closed_reason: <strong>${closed_reason}</strong></div>`;
@@ -197,9 +200,11 @@ const getQuestions = async function (pids) {
             }
         }
 
+        // Append to post summary
         qSummary.appendChild(moreStats);
         qSummary.classList.add('s-post-summary--content');
 
+        // Update relative dates
         StackExchange.realtime.updateRelativeDates();
     });
 
@@ -243,13 +248,27 @@ style.innerHTML = `
 .s-post-summary--content-excerpt .snippet-code-html {
   margin: 0;
 }
+.search-result .excerpt br,
+.search-result .excerpt hr,
+.s-post-summary--content-excerpt br,
+.s-post-summary--content-excerpt hr {
+  display: none;
+}
 .search-result .excerpt img,
 .s-post-summary--content-excerpt img {
   max-width: 100%;
   max-height: 80px;
 }
+.excerpt sup,
+.excerpt sub,
+.s-post-summary--content-excerpt sup,
+.s-post-summary--content-excerpt sub {
+  font-size: 0.9em;
+  vertical-align: unset;
+}
+
 .s-post-summary--morestats {
-  padding-top: 10px;
+  padding-top: 16px;
   clear: both;
   columns: 2;
   color: var(--black-600);
