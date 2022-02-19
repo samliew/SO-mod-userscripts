@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.1
+// @version      0.3.2
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -61,9 +61,12 @@ const getQuestions = async function (pids) {
  */
 (async function() {
 
-    // Run on question list and search results pages only
+    // Run on question lists and search results pages only
     const qList = document.querySelectorAll('#questions, #question-mini-list, .js-search-results > div:last-child');
-    if(!qList.length) throw new Error('Not a question list page.');
+    if(!qList.length) {
+        console.log('Not a question list page.');
+        return;
+    }
 
     // Transform search results to new question list style
     const searchResults = document.querySelector('.js-search-results');
