@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.3
+// @version      0.3.4
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -95,9 +95,17 @@ const getQuestions = async function (pids) {
         const qElem = document.getElementById(`question-summary-${question_id}`);
         if(!qElem) return; // not a question, do nothing
 
+        const qTitle = qElem.querySelectorAll('.s-post-summary--content-title, .result-link')[0];
         const qStats = qElem.querySelectorAll('.s-post-summary--stats, .statscontainer')[0];
         const qSummary = qElem.querySelectorAll('.s-post-summary--content, .summary')[0];
-        const qExcerpt = qElem.querySelectorAll('.s-post-summary--content-excerpt, .excerpt')[0];
+        let qExcerpt = qElem.querySelectorAll('.s-post-summary--content-excerpt, .excerpt');
+
+        // If excerpt element missing (home page), add
+        if(!qExcerpt.length) {
+            qExcerpt = document.createElement('div');
+            qTitle.insertAdjacentElement('afterend', qExcerpt);
+        }
+        else qExcerpt = eExcerpt[0];
 
         // Run once on each question only
         qElem.classList.add('somu-question-stats');
