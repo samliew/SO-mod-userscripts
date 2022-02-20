@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.5
+// @version      0.3.6
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -335,6 +335,10 @@ style.innerHTML = `
 .s-post-summary--stats-item:hover .somu-comments-preview {
   display: block;
   z-index: 2;
+}
+
+.flush-left > .flush-left {
+  margin-left: 0;
 }
 `;
 document.body.appendChild(style);
