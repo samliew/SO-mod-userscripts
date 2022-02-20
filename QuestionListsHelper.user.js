@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.4.2
+// @version      0.4.3
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -320,7 +320,7 @@ style.innerHTML = `
   left: calc(100% + 10px);
   width: 100vw;
   max-width: 610px;
-  background: white;
+  background: var(--white);
   padding: 10px;
   border-radius: 5px;
   border: 1px solid var(--black-300);
