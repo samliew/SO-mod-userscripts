@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.4.1
+// @version      0.4.2
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -122,6 +122,7 @@ const getQuestions = async function (pids) {
             qExcerpt.innerHTML = body;
             qExcerpt.classList.add('s-post-summary--content-excerpt');
             qExcerpt.classList.remove('excerpt');
+            const postLength = qExcerpt.innerText.length;
 
             // Add comments to stats
             let commentsHtml = comments?.map(v => v.body_markdown).join('</li><li>') || '';
@@ -130,18 +131,18 @@ const getQuestions = async function (pids) {
             // Add favorite_count if is question
             if(!isNaN(favorite_count)) {
                 statsHtml += `
-<div class="s-post-summary--stats-item" title="${favorite_count} favorited this question">
+<div class="s-post-summary--stats-item ${favorite_count >= 1000 ? 'is-supernova' : ''}" title="${favorite_count} favorited this question">
   <span class="s-post-summary--stats-item-number mr4">${favorite_count}</span><span class="s-post-summary--stats-item-unit">favorited</span>
 </div>`;
             }
 
             statsHtml += `
-<div class="s-post-summary--stats-item">
+<div class="s-post-summary--stats-item ${comment_count >= 10 ? 'is-supernova' : ''}">
   <span class="s-post-summary--stats-item-number mr4">${comment_count}</span><span class="s-post-summary--stats-item-unit">comments</span>
   <div class="somu-comments-preview ${comment_count ? '' : 'd-none'}"><ol class="mb0"><li>${commentsHtml}</li></ol></div>
 </div>
-<div class="s-post-summary--stats-item" title="length of post text">
-  <span class="s-post-summary--stats-item-number mr4">${qExcerpt.innerText.length}</span><span class="s-post-summary--stats-item-unit">chars</span>
+<div class="s-post-summary--stats-item ${postLength < 200 || postLength >= 10000 ? 'is-supernova' : ''}" title="length of post text">
+  <span class="s-post-summary--stats-item-number mr4">${postLength}</span><span class="s-post-summary--stats-item-unit">chars</span>
 </div>`;
 
             // Append to post stats
@@ -323,6 +324,7 @@ style.innerHTML = `
   padding: 10px;
   border-radius: 5px;
   border: 1px solid var(--black-300);
+  color: var(--theme-body-font-color);
   white-space: normal;
   box-shadow: 2px 2px 11px -6px black;
 }
