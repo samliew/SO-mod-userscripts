@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.6.7
+// @version      1.6.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -794,8 +794,9 @@ ${sitename} moderator`;
     display: none;
     position: absolute;
     top: 0;
-    left: 0;
+    left: 36px;
     padding: 0;
+    transform: translate(-50%, 0);
     z-index: 3;
     cursor: auto;
 
