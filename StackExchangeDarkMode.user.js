@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1
+// @version      3.2
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -193,7 +193,6 @@ body {
 body .bg-black-025,
 body .bg-black-050,
 body .bg-black-700,
-body .fc-light,
 body .fc-medium,
 body .fc-dark,
 body .fc-black-900,
@@ -205,6 +204,9 @@ body .fc-black-600 {
     box-shadow: none;
     outline: none;
     text-shadow: none;
+}
+body .fc-light {
+    color: ${textcolor};
 }
 i,
 b,
@@ -745,6 +747,7 @@ body td.deleted-answer,
 .deleted-answer .js-post-notices *,
 .deleted-answer .answercell *:not(.popup):not(.comment-flags):not(.comment-flagcount),
 .deleted-comment .comment-text *:not(.popup),
+.bg-red-050 *,
 .question-status *,
 .s-notice__info *,
 .s-banner__info *,
