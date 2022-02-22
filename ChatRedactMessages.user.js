@@ -3,18 +3,18 @@
 // @description  Add "Redact + Purge + Delete" button to message history page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
 // @include      https://chat.meta.stackexchange.com/*
 // ==/UserScript==
 
-/* globals StackExchange, GM_info */
+/* globals StackExchange, GM_info, window, unsafeWindow */
 
 'use strict';
 
-const window = unsafeWindow;
+window = window || unsafeWindow;
 const store = window.localStorage;
 let cachedfkey = store.getItem('fkey');
 let redactText = `[message redacted by moderator]`;
