@@ -3,7 +3,7 @@
 // @description  Expands user network links menu and add chat profile links
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -73,18 +73,20 @@ styles.innerHTML = `
   display: none;
 }
 #profiles-wrapper {
+  align-items: flex-start !important;
   margin: 0 !important;
 }
 #profiles-menu {
   display: block !important;
-  padding: 0 !important;
   position: static;
   max-width: none;
   min-width: 10rem;
+  margin-left: 10px;
+  padding: 0 !important;
   z-index: unset;
   border-radius: unset;
   border: unset;
-  background: unset;
+  background: var(--white);
   box-shadow: unset;
   white-space: nowrap;
 }
@@ -93,6 +95,10 @@ styles.innerHTML = `
 }
 #profiles-menu .iconLogoSEXxs.mr2 {
   margin-right: 4px !important;
+}
+#profiles-menu .s-menu--title,
+#profiles-menu .is-selected {
+  display: none !important;
 }
 `;
 document.body.appendChild(styles);
