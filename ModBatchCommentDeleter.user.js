@@ -3,7 +3,7 @@
 // @description  Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.1
 //
 // @include      https://*stackoverflow.com/admin/deleter
 // @include      https://*serverfault.com/admin/deleter
@@ -177,7 +177,7 @@ function parseInputUpdatePreview(evt) {
 }
 
 
-function doPageload() {
+function doPageLoad() {
 
     document.title = "Batch Comment Deleter - " + StackExchange.options.site.name;
 
@@ -210,7 +210,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

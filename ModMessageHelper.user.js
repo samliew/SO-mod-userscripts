@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -707,7 +707,7 @@ function appendModMessageMenu() {
 }
 
 
-function doPageload() {
+function doPageLoad() {
     appendModMessageMenu();
     initModMessageHelper();
     initCmMessageHelper();
@@ -720,7 +720,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

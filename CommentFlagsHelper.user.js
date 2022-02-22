@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      7.0
+// @version      7.1
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -225,7 +225,7 @@ function filterPosts(filter) {
 }
 
 
-function doPageload() {
+function doPageLoad() {
 
     initPostCommentsModLinksEvents();
 
@@ -761,7 +761,7 @@ table.comments tr.roa-comment > td {
 
 // On page Load
 getSiteModerators().then(() => {
-    doPageload();
+    doPageLoad();
     listenToPageUpdates();
 });
 

@@ -3,7 +3,7 @@
 // @description  Display users' annotations in chat room info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://chat.stackoverflow.com/rooms/info/*
 // @include      https://chat.stackexchange.com/rooms/info/*
@@ -19,7 +19,7 @@
 if (!$('.topbar-menu-links').text().includes('♦')) return;
 
 
-function doPageload() {
+function doPageLoad() {
     var $users = $('#room-usercards-container').find('.usercard');
 
     // Load 10 users at a time
@@ -60,7 +60,7 @@ function getUsersInfo($users) {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

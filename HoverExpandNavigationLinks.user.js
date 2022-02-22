@@ -3,7 +3,7 @@
 // @description  On pagination dots "..." mouseover, adds more page links (max 30 per hover), keyboard shortcuts for jumping to prev/next pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -21,7 +21,7 @@
 'use strict';
 
 
-function doPageload() {
+function doPageLoad() {
 
     // Fix incorrect nav params on page load
     let queryparams = location.search.replace('?', '').replace(/&?page=\d+/i, '');
@@ -100,7 +100,7 @@ function listenToKeyboardEvents() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 listenToKeyboardEvents();
 
 

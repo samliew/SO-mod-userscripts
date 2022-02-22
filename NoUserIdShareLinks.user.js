@@ -3,7 +3,7 @@
 // @description  Adds option to remove your user ID from post share links
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -28,7 +28,7 @@ function stripUserIds() {
 }
 
 
-function doPageload() {
+function doPageLoad() {
     stripUserIds();
 
     // When new stuff is loaded
@@ -39,7 +39,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

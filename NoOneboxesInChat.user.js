@@ -3,7 +3,7 @@
 // @description  Collapses oneboxes from chat rooms/transcripts/bookmarks, click to display onebox
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -74,7 +74,7 @@ unsafeWindow.hideOneboxes = function (mid = null) {
 };
 
 
-function doPageload() {
+function doPageLoad() {
 
     // Once on page load
     hideOneboxes();
@@ -91,7 +91,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

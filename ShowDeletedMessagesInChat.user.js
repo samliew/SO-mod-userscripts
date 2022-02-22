@@ -3,7 +3,7 @@
 // @description  Show Deleted Messages in Chat and Transcripts. Works with NoOneboxesInChat userscript
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://chat.stackoverflow.com/rooms/*
 // @include      https://chat.stackexchange.com/rooms/*
@@ -60,7 +60,7 @@ function processNewDeletedMessages() {
         .each((i, el) => getDeletedMessagesHistory(el.id.replace('message-', '')));
 }
 
-function doPageload() {
+function doPageLoad() {
 
     // Mobile chat transcript does not have this
     if (typeof CHAT.RoomUsers.current === 'undefined') return;
@@ -79,7 +79,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

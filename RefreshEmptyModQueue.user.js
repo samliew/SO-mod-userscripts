@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -54,7 +54,7 @@ let initRefresh = function (main = false) {
 unsafeWindow.initRefresh = initRefresh;
 
 
-function doPageload() {
+function doPageLoad() {
 
     // If no mod flags, insert mod flags indicator in header anyway...
     if ($('.flag-count-item').length === 0) {
@@ -105,7 +105,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

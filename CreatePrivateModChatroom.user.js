@@ -3,7 +3,7 @@
 // @description  One-click button to create private/mod chat room with user and grant write access
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://chat.stackoverflow.com/users/*
 // @include      https://chat.stackexchange.com/users/*
@@ -32,7 +32,7 @@ unsafeWindow.addFullPageBlocker = (msg = "") => {
     $(`<div class="ajax-blocker">${msg}</div>`).appendTo('body');
 }
 
-function doPageload() {
+function doPageLoad() {
 
     // User general tab
     if (location.pathname.includes('/users/') && $('#tabs a').first().hasClass('youarehere')) {
@@ -152,7 +152,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

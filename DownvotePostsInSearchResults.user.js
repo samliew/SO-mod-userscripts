@@ -3,7 +3,7 @@
 // @description  Button to mass downvote posts in search results when searching for not locked posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackexchange.com/search*
 // @include      https://*stackoverflow.com/search*

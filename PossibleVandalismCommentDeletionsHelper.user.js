@@ -3,7 +3,7 @@
 // @description  Display deleted comments and user who deleted the comments
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=commentvandalismdeletionsauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=commentvandalismdeletionsauto*
@@ -122,7 +122,7 @@ function processFlags(flags) {
     });
 }
 
-function doPageload() {
+function doPageLoad() {
 
     const flags = $('.flagged-post-row span.revision-comment.active-flag')
         .filter((i, el) => el.innerText.indexOf('possible vandalism: comment deletions (auto)') >= 0)
@@ -155,7 +155,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

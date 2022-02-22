@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.1
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -68,7 +68,7 @@ function toShortLink(str, newdomain = null) {
 }
 
 
-function doPageload() {
+function doPageLoad() {
 
     const post = $('#question');
     const pid = Number(post.attr('data-questionid'));
@@ -177,7 +177,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

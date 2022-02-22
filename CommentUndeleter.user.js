@@ -3,7 +3,7 @@
 // @description  Allows moderators to undelete user-deleted comments
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -66,7 +66,7 @@ function undeleteComment(pid, cid) {
     });
 }
 
-function doPageload() {
+function doPageLoad() {
 
     // On any page update
     $(document).ajaxComplete(function (event, xhr, settings) {
@@ -139,7 +139,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

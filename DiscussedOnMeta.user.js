@@ -3,7 +3,7 @@
 // @description  For questions and answers, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.1
 //
 // @include      https://stackoverflow.com/questions/*
 // @include      https://serverfault.com/questions/*
@@ -39,7 +39,7 @@ if (location.hostname.indexOf('stackexchange.com') > 0) {
 }
 
 
-function doPageload() {
+function doPageLoad() {
     $('.question, .answer').each(function () {
         const post = $(this);
         const pid = this.dataset.answerid || this.dataset.questionid;
@@ -94,7 +94,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

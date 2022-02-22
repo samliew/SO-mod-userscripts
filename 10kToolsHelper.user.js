@@ -3,7 +3,7 @@
 // @description  Expand all sections, and adds additional filters
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.2
 //
 // @include      https://*stackexchange.com/tools*
 // @include      https://*stackoverflow.com/tools*
@@ -66,14 +66,14 @@ function callbackWhenPageLoaded() {
     }
 }
 
-function doPageload() {
+function doPageLoad() {
     // Once on page load only
     $(document).one('ajaxStop', callbackWhenPageLoaded);
 }
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

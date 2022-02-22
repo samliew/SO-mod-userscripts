@@ -3,7 +3,7 @@
 // @description  Displays your sent mod messages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -77,7 +77,7 @@ function togglePersonalModHistory() {
     $('.modInbox-dialog .header h3').first().text((i, t) => t === 'mod messages' ? 'your messages' : 'mod messages');
 }
 
-function doPageload() {
+function doPageLoad() {
 
     // If on account info dashboard page, show username in page title
     if (location.pathname.includes('/users/account-info/')) {
@@ -105,7 +105,7 @@ function listenToPageUpdates() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 listenToPageUpdates();
 
 

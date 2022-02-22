@@ -3,7 +3,7 @@
 // @description  Loads more user details from the API on the find users page (/admin/find-users)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://stackoverflow.com/admin/find-users?*
 // @include      https://serverfault.com/admin/find-users?*
@@ -95,7 +95,7 @@ function doPageLoad() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

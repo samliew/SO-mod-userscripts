@@ -3,7 +3,7 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.1
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
@@ -52,7 +52,7 @@ function loadOptions() {
 }
 
 
-function doPageload() {
+function doPageLoad() {
 
     // Remove convert to comment buttons
     $('.convert-to-comment').remove();
@@ -108,7 +108,7 @@ function doPageload() {
 
 // On page load
 loadOptions();
-doPageload();
+doPageLoad();
 
 
 // Append styles

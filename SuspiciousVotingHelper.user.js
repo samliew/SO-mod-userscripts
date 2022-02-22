@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table. Also provides support for SEDE query https://data.stackexchange.com/stackoverflow/query/968803
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -280,7 +280,7 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
 }
 
 
-function doPageload() {
+function doPageLoad() {
 
     // If on xref-user-ips page
     if (location.pathname.includes('/admin/xref-user-ips/')) {
@@ -502,7 +502,7 @@ function listenToPageUpdates() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 listenToPageUpdates();
 
 

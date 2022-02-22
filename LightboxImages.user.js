@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat. Lightbox images that are displayed smaller than it's original size.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -79,7 +79,7 @@ function linkUnlinkedImages() {
     });
 }
 
-function doPageload() {
+function doPageLoad() {
 
     // Imgur album link to direct image
     $('a[href^="https://imgur.com/"], a[href^="https://i.stack.imgur.com/"]').attr('href', (i, v) => v.match(/\.(jpg|png|gif)/) != null ? v : v + '.jpg');
@@ -114,7 +114,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

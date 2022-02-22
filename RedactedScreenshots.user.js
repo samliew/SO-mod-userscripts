@@ -3,7 +3,7 @@
 // @description  Masks and hides user identifying info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -119,7 +119,7 @@ function anonymizeUsers(fullwipe = false) {
 }
 
 
-function doPageload() {
+function doPageLoad() {
 
     const redactButtons = $(`<div class="redact-buttons"><button>Redact</button><button data-fullwipe="true">Redact Full</button></div>`).appendTo('body');
     redactButtons.on('click', 'button', function (evt) {
@@ -141,7 +141,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

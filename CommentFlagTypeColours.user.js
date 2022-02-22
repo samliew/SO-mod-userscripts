@@ -3,7 +3,7 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -44,7 +44,7 @@
 
 'use strict';
 
-function doPageload() {
+function doPageLoad() {
 
     // Path /post-comments
     if(location.pathname.indexOf('/post-comments') > 0) {
@@ -134,7 +134,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

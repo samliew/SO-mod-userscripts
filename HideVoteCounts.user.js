@@ -3,7 +3,7 @@
 // @description  Hides post score until voted
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -29,7 +29,7 @@
 if (StackExchange.options.user.rep < 125) return;
 
 
-function doPageload() {
+function doPageLoad() {
 
     // Hide all vote counts immediately on page load
     $('.js-voting-container').addClass('js-score-hidden');
@@ -87,7 +87,7 @@ function listenToPageUpdates() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 listenToPageUpdates();
 
 

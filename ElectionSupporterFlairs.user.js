@@ -3,7 +3,7 @@
 // @description  Flair users who voted in the elections when you were elected, or if non-mod, for the latest election
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -137,7 +137,7 @@ function initUserElectionParticipation() {
     }
 }
 
-function doPageload() {
+function doPageLoad() {
 
     // We need the site's constituentBadgeId to proceed
     getConstituentBadgeId().then(function (v) {
@@ -159,7 +159,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

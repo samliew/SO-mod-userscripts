@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      8.0
+// @version      8.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -517,7 +517,7 @@ function getUserReviewBanHistory(uid) {
 }
 
 
-async function doPageload() {
+async function doPageLoad() {
 
     // New suspend user form
     if (location.pathname === '/admin/review/suspensions/suspend-user') {
@@ -1339,7 +1339,7 @@ function listenForPageUpdates() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 listenForPageUpdates();
 
 

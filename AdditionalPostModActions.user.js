@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1035,7 +1035,7 @@
     }
 
 
-    function doPageload() {
+    function doPageLoad() {
 
         // Election page - allow loading of comments under nominations
         if(document.body.classList.contains('election-page')) {
@@ -1259,6 +1259,6 @@ body.js-spam-mode .visited-post {
     appendStyles();
 
 // On page load
-doPageload();
+doPageLoad();
 
 })();

@@ -3,7 +3,7 @@
 // @description  Implements retract flag button on own flag history page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/users/flag-summary/*
 // @include      https://*serverfault.com/users/flag-summary/*
@@ -57,7 +57,7 @@ function retractFlag(pid, flagType) {
     });
 }
 
-function doPageload() {
+function doPageLoad() {
 
     // Work only on OWN flag history page (e.g.: mods can't retract another user's flags)
     if (location.pathname !== '/users/flag-summary/' + StackExchange.options.user.userId) return;
@@ -82,7 +82,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

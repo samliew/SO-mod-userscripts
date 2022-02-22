@@ -3,7 +3,7 @@
 // @description  Show topbar indicator for recently declined flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -185,7 +185,7 @@ function doPageLoad() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

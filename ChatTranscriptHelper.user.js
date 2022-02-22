@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time, Load entire day into single page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.1
 //
 // @include      https://chat.stackoverflow.com/transcript/*
 // @include      https://chat.stackexchange.com/transcript/*
@@ -231,7 +231,7 @@ function addLoadEntireDayButton() {
 }
 
 
-function doPageload() {
+function doPageLoad() {
     if (location.pathname.includes('/search')) {
         parseSearchTimestamps();
     }
@@ -245,7 +245,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

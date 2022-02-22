@@ -3,7 +3,7 @@
 // @description  New page to review rejected suggested edits
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/review/suggested-edits*
 // @include      https://*serverfault.com/review/suggested-edits*
@@ -252,7 +252,7 @@ function initRejectsPage() {
 }
 
 
-function doPageload() {
+function doPageLoad() {
 
     if (location.pathname === '/review/suggested-edits/history/rejected') {
         appendStyles();
@@ -271,7 +271,7 @@ function doPageload() {
 
 
 // On page load
-doPageload();
+doPageLoad();
 
 
 // Append styles

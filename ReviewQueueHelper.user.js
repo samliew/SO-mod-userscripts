@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.0
+// @version      4.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1398,7 +1398,7 @@ function listenToPageUpdates() {
 
 // On page load
 loadOptions();
-doPageload();
+doPageLoad();
 listenToKeyboardEvents();
 listenToPageUpdates();
 
