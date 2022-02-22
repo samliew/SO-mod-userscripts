@@ -3,7 +3,7 @@
 // @description  Improvements to pagination of user recent messages page. Do not install if you have ChatImprovements as it also implements this.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -121,6 +121,5 @@ styles.innerHTML = `
 }
 .room-mini {
     min-height: 110px;
-}
-</style>`;
+}`;
 document.body.appendChild(styles);

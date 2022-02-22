@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1
+// @version      3.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1091,11 +1091,14 @@
     }
 
 
-    function appendStyles() {
+// On page load
+doPageLoad();
 
-        const styles = `
-<style>
-/* ===== SOMU - Additional Post Mod Actions ===== */
+
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 /* Better post menu links */
 .js-post-menu .lsep {
     display: none;
@@ -1249,16 +1252,5 @@ body.js-spam-mode .post-layout.expandable-question-summary {
 body.js-spam-mode .visited-post {
     opacity: 1 !important;
 }
-</style>
 `;
-        $('body').append(styles);
-    }
-
-
-    // On page load
-    appendStyles();
-
-// On page load
-doPageLoad();
-
-})();
+document.body.appendChild(styles);
