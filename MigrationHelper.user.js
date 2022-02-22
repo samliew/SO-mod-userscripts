@@ -3,7 +3,7 @@
 // @description  Dropdown list of migration targets displaying site icon/logo/header images and links to the selected site's on-topic page and mod list. Displays additional information for custom flagger for selected network site.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6.1
+// @version      3.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -19,199 +19,199 @@
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
+/* globals StackExchange, GM_info */
 
-(function() {
-    'use strict';
-
-
-    // Moderator check
-    if(!isModerator()) return;
+'use strict';
 
 
-    const store = window.localStorage;
-    const cdn = 'https://cdn.sstatic.net/Sites/';
-    const apikey = 'Wjm8SDrrbQSDSUwcLaifHA((';
-    let networkSites, networkSitenames, flaggeraccounts;
+// Moderator check
+if (!isModerator()) return;
 
 
-    function getNetworkSites() {
-        const fullkey = 'NetworkSites';
-        let v = JSON.parse(store.getItem(fullkey));
-
-        return new Promise(function(resolve, reject) {
-            if(v != null) { resolve(v); return; }
-
-            $.get(`https://api.stackexchange.com/2.2/sites?pagesize=999&filter=!)QmDp1jjtiQg0J)1qAulk5k1&key=${apikey}`)
-                .done(function(data) {
-                    store.setItem(fullkey, JSON.stringify(data.items));
-                    resolve(data.items);
-                })
-                .fail(reject);
-        });
-    }
-    function getMainNetworkSites() {
-        return new Promise(function(resolve, reject) {
-            getNetworkSites()
-                .then(function(items) {
-                    resolve(items.filter(v => v.site_type == 'main_site'));
-                })
-                .catch(reject);
-        });
-    }
+const store = window.localStorage;
+const cdn = 'https://cdn.sstatic.net/Sites/';
+const apikey = 'Wjm8SDrrbQSDSUwcLaifHA((';
+let networkSites, networkSitenames, flaggeraccounts;
 
 
-    function getNetworkUidForUser(uid) {
-        return new Promise(function(resolve, reject) {
-            if(typeof uid === 'undefined' || uid == null) { reject(); return; }
+function getNetworkSites() {
+    const fullkey = 'NetworkSites';
+    let v = JSON.parse(store.getItem(fullkey));
 
-            $.get(`https://stackoverflow.com/users/${uid}?tab=profile`)
-                .done(function(data) {
-                    const networkUid = Number($(data).find('.additional-links a:last, .communities:first a:last').first().attr('href').split('//')[1].match(/\/\d+\/?/)[0].replace(/\//g, '')) || null;
-                    resolve(networkUid);
-                })
-                .fail(reject);
-        });
-    }
+    return new Promise(function (resolve, reject) {
+        if (v != null) { resolve(v); return; }
 
-
-    function getNetworkAccountsViaApi(networkUid) {
-        return new Promise(function(resolve, reject) {
-            if(typeof networkUid === 'undefined' || networkUid == null) { reject(); return; }
-
-            // via API
-            $.get(`https://api.stackexchange.com/2.2/users/${networkUid}/associated?filter=!*LB1tJQ3xNMaIJ-W`)
-                .done(function(data) {
-                    resolve(data.items);
-                })
-                .fail(reject);
-        });
-    }
+        $.get(`https://api.stackexchange.com/2.2/sites?pagesize=999&filter=!)QmDp1jjtiQg0J)1qAulk5k1&key=${apikey}`)
+            .done(function (data) {
+                store.setItem(fullkey, JSON.stringify(data.items));
+                resolve(data.items);
+            })
+            .fail(reject);
+    });
+}
+function getMainNetworkSites() {
+    return new Promise(function (resolve, reject) {
+        getNetworkSites()
+            .then(function (items) {
+                resolve(items.filter(v => v.site_type == 'main_site'));
+            })
+            .catch(reject);
+    });
+}
 
 
-    function getNetworkAccountsForLocalUser(uid) {
-        return new Promise(function(resolve, reject) {
-            if(typeof uid === 'undefined' || uid == null) { reject(); return; }
+function getNetworkUidForUser(uid) {
+    return new Promise(function (resolve, reject) {
+        if (typeof uid === 'undefined' || uid == null) { reject(); return; }
 
-            // via mod dashboard
-            $.get(`https://stackoverflow.com/users/account-info/${uid}`)
-                .done(function(data) {
-                    const v = $('.communities .list .row', data).map(function(i, el) {
-                        const repText = $(el).find('.rep').text().trim();
-                        const url = $(el).find('.site-hyperlink').attr('href');
-                        const rep = Number(repText.replace(/\.(\d+)k/, '$100'));
-                        return {
-                            reputation: rep,
-                            user_id: Number(url.match(/\/(\d+)\/$/)[0].replace(/\//g, '')),
-                            site_url: url.match(/^https?:\/\/[^/]+/)[0],
-                            site_name: $(el).find('.community-name').text(),
-                        };
-                    }).get();
-                    resolve(v);
-                })
-                .fail(reject);
-        });
-    }
+        $.get(`https://stackoverflow.com/users/${uid}?tab=profile`)
+            .done(function (data) {
+                const networkUid = Number($(data).find('.additional-links a:last, .communities:first a:last').first().attr('href').split('//')[1].match(/\/\d+\/?/)[0].replace(/\//g, '')) || null;
+                resolve(networkUid);
+            })
+            .fail(reject);
+    });
+}
 
 
-    function getFlaggerAccounts(uid) {
-        return new Promise(function(resolve, reject) {
-            if(flaggeraccounts) {
-                resolve(flaggeraccounts);
-                return;
-            }
+function getNetworkAccountsViaApi(networkUid) {
+    return new Promise(function (resolve, reject) {
+        if (typeof networkUid === 'undefined' || networkUid == null) { reject(); return; }
 
-            getNetworkAccountsForLocalUser(uid).then(function(v) {
-                flaggeraccounts = v;
-                resolve(flaggeraccounts);
-            });
-        });
-    }
+        // via API
+        $.get(`https://api.stackexchange.com/2.2/users/${networkUid}/associated?filter=!*LB1tJQ3xNMaIJ-W`)
+            .done(function (data) {
+                resolve(data.items);
+            })
+            .fail(reject);
+    });
+}
 
 
-    function updateMigrationPane() {
-        if($('#close-question-form').length == 0 || typeof networkSites === 'undefined') return;
+function getNetworkAccountsForLocalUser(uid) {
+    return new Promise(function (resolve, reject) {
+        if (typeof uid === 'undefined' || uid == null) { reject(); return; }
 
-        const anywhere = $('#migrate-anywhere');
-        const container = anywhere.closest('li');
-        const closeSubmitBtn = $('#close-question-form .popup-submit');
-        const siteTargetField = $('#destinationSiteIdAC').attr('type', 'hidden');
-        const migflaggerStats = $(`<div id="migflagger-stats"></div>`).hide().prependTo(container);
-        let flaggerUid, flaggerName;
+        // via mod dashboard
+        $.get(`https://stackoverflow.com/users/account-info/${uid}`)
+            .done(function (data) {
+                const v = $('.communities .list .row', data).map(function (i, el) {
+                    const repText = $(el).find('.rep').text().trim();
+                    const url = $(el).find('.site-hyperlink').attr('href');
+                    const rep = Number(repText.replace(/\.(\d+)k/, '$100'));
+                    return {
+                        reputation: rep,
+                        user_id: Number(url.match(/\/(\d+)\/$/)[0].replace(/\//g, '')),
+                        site_url: url.match(/^https?:\/\/[^/]+/)[0],
+                        site_name: $(el).find('.community-name').text(),
+                    };
+                }).get();
+                resolve(v);
+            })
+            .fail(reject);
+    });
+}
 
-        // Detect flagger and suggested site(s)
-        const modQueueFlags = anywhere.parents('.flagged-post-row').find('.flag-row:not(.js-cleared)');
-        const flags = $('.active-flag').filter((i,el) => /\b(migrated?|moved?|site)\b/i.test(el.innerText) || $(el).find('a').length != 0);
-        const suggestedSite = modQueueFlags.add(flags).map(function(i,el) {
-            const flagtext = el.innerText.toLowerCase();
-            const site = networkSites.filter(v => flagtext.contains(v.name.toLowerCase().replace('&amp;', '&')) || flagtext.contains(v.site_url.replace('https://', '').replace(/\.[a-z]+/gi, '')) );
-            return site.length > 0 ? {
-                elem: $(el),
-                name: site[0].name,
-                slug: site[0].api_site_parameter,
-                site_url: site[0].site_url
-            } : null;
-        }).get(0);
 
-        // Preload flagger's network accounts
-        if(flags.length > 0 && suggestedSite) {
-            const flaggerLink = suggestedSite.elem.siblings('a').first();
-            flaggerUid = flaggerLink.getUid();
-            flaggerName = flaggerLink.text();
-            if(flaggerUid) {
-                getFlaggerAccounts(flaggerUid);
-            }
+function getFlaggerAccounts(uid) {
+    return new Promise(function (resolve, reject) {
+        if (flaggeraccounts) {
+            resolve(flaggeraccounts);
+            return;
         }
 
-        const siteDesc = $(`<div id="site-desc"><div>none selected</div></div>`);
-        const siteDropdown = $(`<select id="network-site-selector" class="js-chosen-select" data-placeholder="-- select site --"><option value="">-- select site --</option></select>`).insertAfter(siteTargetField).after(siteDesc)
-            .on('change', function(evt) {
-                if(evt.target.selectedIndex < 0) return;
+        getNetworkAccountsForLocalUser(uid).then(function (v) {
+            flaggeraccounts = v;
+            resolve(flaggeraccounts);
+        });
+    });
+}
 
-                const sOpt = evt.target.options[evt.target.selectedIndex];
-                const sValue = $(this).val();
-                const sUrl = (sOpt.dataset.url || "").replace('https://', '');
-                const sSlug = sOpt.dataset.slug;
-                const valid = sValue !== '';
 
-                if(valid) {
-                    anywhere.click();
-                }
-                else {
-                    migflaggerStats.hide();
-                }
-                anywhere.val(sUrl).attr('checked', valid).closest('li').toggleClass('action-selected', valid);
-                closeSubmitBtn.toggleClass('disabled-button', !valid);
-                const currsite = siteDesc.children().removeClass('active').eq(this.selectedIndex).addClass('active');
-                siteTargetField.val(sValue);
+function updateMigrationPane() {
+    if ($('#close-question-form').length == 0 || typeof networkSites === 'undefined') return;
 
-                // Lazyload images
-                currsite.find('img').each(function(i, el) {
-                    el.src = el.dataset.src;
-                });
+    const anywhere = $('#migrate-anywhere');
+    const container = anywhere.closest('li');
+    const closeSubmitBtn = $('#close-question-form .popup-submit');
+    const siteTargetField = $('#destinationSiteIdAC').attr('type', 'hidden');
+    const migflaggerStats = $(`<div id="migflagger-stats"></div>`).hide().prependTo(container);
+    let flaggerUid, flaggerName;
 
-                if(flaggerUid) {
-                    getFlaggerAccounts(flaggerUid).then(function(a) {
-                        let sAccount = a.find(function(v) {
-                            return v.site_url === sUrl || v.site_url.indexOf(sSlug) >= 0 || v.site_url.indexOf(sValue.replace(/\s/g, '').toLowerCase()) >= 0;
-                        });
-                        if(typeof sAccount === 'undefined') {
-                            migflaggerStats.html(`Flagger ${flaggerName} not found on selected site.`).show();
-                        }
-                        else {
-                            migflaggerStats.html(`Flagger <a href="${sAccount.site_url}/users/${sAccount.user_id}" target="_blank">${flaggerName}</a> has <span>${sAccount.reputation.toLocaleString()}</span> rep on selected site.</span>`).show();
-                        }
-                    });
-                }
+    // Detect flagger and suggested site(s)
+    const modQueueFlags = anywhere.parents('.flagged-post-row').find('.flag-row:not(.js-cleared)');
+    const flags = $('.active-flag').filter((i, el) => /\b(migrated?|moved?|site)\b/i.test(el.innerText) || $(el).find('a').length != 0);
+    const suggestedSite = modQueueFlags.add(flags).map(function (i, el) {
+        const flagtext = el.innerText.toLowerCase();
+        const site = networkSites.filter(v => flagtext.contains(v.name.toLowerCase().replace('&amp;', '&')) || flagtext.contains(v.site_url.replace('https://', '').replace(/\.[a-z]+/gi, '')));
+        return site.length > 0 ? {
+            elem: $(el),
+            name: site[0].name,
+            slug: site[0].api_site_parameter,
+            site_url: site[0].site_url
+        } : null;
+    }).get(0);
+
+    // Preload flagger's network accounts
+    if (flags.length > 0 && suggestedSite) {
+        const flaggerLink = suggestedSite.elem.siblings('a').first();
+        flaggerUid = flaggerLink.getUid();
+        flaggerName = flaggerLink.text();
+        if (flaggerUid) {
+            getFlaggerAccounts(flaggerUid);
+        }
+    }
+
+    const siteDesc = $(`<div id="site-desc"><div>none selected</div></div>`);
+    const siteDropdown = $(`<select id="network-site-selector" class="js-chosen-select" data-placeholder="-- select site --"><option value="">-- select site --</option></select>`).insertAfter(siteTargetField).after(siteDesc)
+        .on('change', function (evt) {
+            if (evt.target.selectedIndex < 0) return;
+
+            const sOpt = evt.target.options[evt.target.selectedIndex];
+            const sValue = $(this).val();
+            const sUrl = (sOpt.dataset.url || "").replace('https://', '');
+            const sSlug = sOpt.dataset.slug;
+            const valid = sValue !== '';
+
+            if (valid) {
+                anywhere.click();
+            }
+            else {
+                migflaggerStats.hide();
+            }
+            anywhere.val(sUrl).attr('checked', valid).closest('li').toggleClass('action-selected', valid);
+            closeSubmitBtn.toggleClass('disabled-button', !valid);
+            const currsite = siteDesc.children().removeClass('active').eq(this.selectedIndex).addClass('active');
+            siteTargetField.val(sValue);
+
+            // Lazyload images
+            currsite.find('img').each(function (i, el) {
+                el.src = el.dataset.src;
             });
 
-        let siteDescHtml = '';
-        let siteDropdownHtml = '';
-        networkSites.forEach(site => {
+            if (!flaggerUid) return;
 
-            // Exclude current site
-            if(site.site_url === 'https://' + location.hostname) return;
+            getFlaggerAccounts(flaggerUid).then(function (a) {
+                let sAccount = a.find(function (v) {
+                    return v.site_url === sUrl || v.site_url.indexOf(sSlug) >= 0 || v.site_url.indexOf(sValue.replace(/\s/g, '').toLowerCase()) >= 0;
+                });
+                if (typeof sAccount === 'undefined') {
+                    migflaggerStats.html(`Flagger ${flaggerName} not found on selected site.`).show();
+                }
+                else {
+                    migflaggerStats.html(`Flagger <a href="${sAccount.site_url}/users/${sAccount.user_id}" target="_blank">${flaggerName}</a> has <span>${sAccount.reputation.toLocaleString()}</span> rep on selected site.</span>`).show();
+                }
+            });
+        });
 
-            siteDescHtml += `<div>
+    let siteDescHtml = '';
+    let siteDropdownHtml = '';
+    networkSites.forEach(site => {
+
+        // Exclude current site
+        if (site.site_url === 'https://' + location.hostname) return;
+
+        siteDescHtml += `<div>
 <div class="site-logos">
   <img class="site-icon" data-src="${site.icon_url}" />
   <div class="site-header" style="background: url('${cdn}${site.api_site_parameter}/img/bg-body.png'), url('${cdn}${site.api_site_parameter}/img/body-bg.svg'), url('${cdn}${site.api_site_parameter}/img/bg-site.png'), url('${cdn}${site.api_site_parameter}/img/bg-site.jpg');">
@@ -220,57 +220,68 @@
 </div>
 Q&A for ${site.audience}<br><a href="${site.site_url}/help/on-topic" target="_blank">on-topic?</a> | <a href="${site.site_url}/users?tab=moderators" target="_blank">moderators</a></div>`;
 
-            siteDropdownHtml += `<option value="${site.name}" data-slug="${site.api_site_parameter}" data-url="${site.site_url}">${site.name}</option>`;
+        siteDropdownHtml += `<option value="${site.name}" data-slug="${site.api_site_parameter}" data-url="${site.site_url}">${site.name}</option>`;
+    });
+
+    siteDesc.append(siteDescHtml);
+    siteDropdown.append(siteDropdownHtml);
+
+    // Preselect suggested site
+    console.log(suggestedSite);
+    if (suggestedSite) {
+        siteDropdown.val(suggestedSite.name.replace('&amp;', '&')).triggerHandler('change');
+    }
+
+    $.getCachedScript('https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js', function () {
+        $('.js-chosen-select').chosen({
+            allow_single_deselect: true,
+            no_results_text: "Oops, nothing found!",
         });
+    });
+}
 
-        siteDesc.append(siteDescHtml);
-        siteDropdown.append(siteDropdownHtml);
 
-        // Preselect suggested site
-        console.log(suggestedSite);
-        if(suggestedSite) {
-            siteDropdown.val(suggestedSite.name.replace('&amp;', '&')).triggerHandler('change');
+function listenToPageUpdates() {
+
+    // On any page update
+    $(document).ajaxComplete(function (event, xhr, settings) {
+        if (/.*\/flags\/questions\/\d+\/close\/popup\?.*/.test(settings.url)) {
+            updateMigrationPane();
         }
-
-        $.getCachedScript('https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.jquery.min.js', function() {
-            $('.js-chosen-select').chosen({
-                allow_single_deselect: true,
-                no_results_text: "Oops, nothing found!",
-            });
-        });
-    }
+    });
+}
 
 
-    function listenToPageUpdates() {
+function doPageLoad() {
 
-        // On any page update
-        $(document).ajaxComplete(function(event, xhr, settings) {
-            if(/.*\/flags\/questions\/\d+\/close\/popup\?.*/.test(settings.url)) {
-                updateMigrationPane();
-            }
-        });
-    }
+    // Do not run if not on question page or mod queue
+    const cls = document.body.classList;
+    if (!cls.contains('question-page') && !cls.contains('mod-page')) return;
 
-
-    function doPageLoad() {
-
-        // Do not run if not on question page or mod queue
-        const cls = document.body.classList;
-        if(!cls.contains('question-page') && !cls.contains('mod-page')) return;
-
-        // Cache list in localstorage
-        getMainNetworkSites().then(v => {
-            networkSites = v;
-            networkSitenames = v.map(site => site.name);
-        });
-    }
+    // Cache list in localstorage
+    getMainNetworkSites().then(v => {
+        networkSites = v;
+        networkSitenames = v.map(site => site.name);
+    });
+}
 
 
-    function appendStyles() {
+// On page load
+doPageload();
+listenToPageUpdates();
 
-        const styles = `
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css" />
-<style>
+
+// Append external stylesheet
+const styles_chosen = document.createElement('link');
+styles_chosen.rel = 'stylesheet';
+styles_chosen.href = 'https://cdnjs.cloudflare.com/ajax/libs/chosen/1.8.7/chosen.min.css';
+document.head.appendChild(styles_chosen);
+
+
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 #network-site-selector {
     padding: 8px 10px 7px;
     cursor: pointer;
@@ -338,15 +349,5 @@ Q&A for ${site.audience}<br><a href="${site.site_url}/help/on-topic" target="_bl
 .chosen-container-single .chosen-single div b {
     background-position: top 5px left 0px;
 }
-</style>
 `;
-        $('body').append(styles);
-    }
-
-
-    // On page load
-    appendStyles();
-    doPageLoad();
-    listenToPageUpdates();
-
-})();
+document.body.appendChild(styles);

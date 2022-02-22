@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.14
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -20,72 +20,81 @@
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
+
+'use strict';
 
 
-    // See also https://github.com/samliew/dynamic-width
-    $.fn.dynamicWidth = function () {
-        var plugin = $.fn.dynamicWidth;
-        if (!plugin.fakeEl) plugin.fakeEl = $('<span>').hide().appendTo(document.body);
+/**
+ * @summary jQuery plugin to fit element width to text
+ * @link https://github.com/samliew/dynamic-width
+ */
+$.fn.dynamicWidth = function () {
+    var plugin = $.fn.dynamicWidth;
+    if (!plugin.fakeEl) plugin.fakeEl = $('<span>').hide().appendTo(document.body);
 
-        function sizeToContent (el) {
-            var $el = $(el);
-            var cs = getComputedStyle(el);
-            plugin.fakeEl.text(el.value || el.innerText || el.placeholder).css('font', $el.css('font'));
-            $el.css('width', plugin.fakeEl.width() + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight));
-        }
+    function sizeToContent(el) {
+        var $el = $(el);
+        var cs = getComputedStyle(el);
+        plugin.fakeEl.text(el.value || el.innerText || el.placeholder).css('font', $el.css('font'));
+        $el.css('width', plugin.fakeEl.width() + parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight));
+    }
 
-        return this.each(function (i, el) {
-            sizeToContent(el);
-            $(el).filter('input:not([readonly])').on('change keypress keyup blur', evt => sizeToContent(evt.target));
+    return this.each(function (i, el) {
+        sizeToContent(el);
+        $(el).filter('input:not([readonly])').on('change keypress keyup blur', evt => sizeToContent(evt.target));
+    });
+};
+
+
+function insertPostIds() {
+
+    // Lists
+    const modQueuePostLinks = $('.js-body-loader').find('a:first');
+    $('a.question-hyperlink, a.answer-hyperlink, .s-post-summary--content-title > a, .s-post-summary--content-title.s-link, .js-post-title-link, .originals-of-duplicate li > a, .originals-of-duplicate .js-originals-list > a').add(modQueuePostLinks)
+        .not('.js-somu-post-ids').addClass('js-somu-post-ids')
+        .each((i, el) => {
+            if (el.href.includes('/election')) return;
+            const pid = getPostId(el.href);
+            $(`<input class="post-id" title="double click to view timeline" value="${pid}" readonly />`).insertAfter(el);
         });
-    };
+
+    // Q&A
+    $('[data-questionid], [data-answerid]').not('.close-question-link')
+        .not('.js-somu-post-ids').addClass('js-somu-post-ids')
+        .each((i, el) => {
+            const pid = el.dataset.answerid || el.dataset.questionid;
+            $(`<input class="post-id" title="double click to view timeline" value="${pid}" readonly />`).insertBefore($(el).find('.post-layout'));
+        });
+
+    // Remove duplicates if necessary
+    $('.post-id ~ .post-id').remove();
+
+    // Fit width of element to content
+    $('.post-id').dynamicWidth();
+}
 
 
-    function insertPostIds() {
+function doPageLoad() {
+    insertPostIds();
+    $(document).ajaxStop(insertPostIds);
 
-        // Lists
-        const modQueuePostLinks = $('.js-body-loader').find('a:first');
-        $('a.question-hyperlink, a.answer-hyperlink, .s-post-summary--content-title > a, .s-post-summary--content-title.s-link, .js-post-title-link, .originals-of-duplicate li > a, .originals-of-duplicate .js-originals-list > a').add(modQueuePostLinks)
-            .not('.js-somu-post-ids').addClass('js-somu-post-ids')
-            .each((i,el) => {
-                if(el.href.includes('/election')) return;
-                const pid = getPostId(el.href);
-                $(`<input class="post-id" title="double click to view timeline" value="${pid}" readonly />`).insertAfter(el);
-            });
+    // Select when focused
+    $(document).on('click', 'input.post-id', function () { this.select(); });
 
-        // Q&A
-        $('[data-questionid], [data-answerid]').not('.close-question-link')
-            .not('.js-somu-post-ids').addClass('js-somu-post-ids')
-            .each((i,el) => {
-                const pid = el.dataset.answerid||el.dataset.questionid;
-                $(`<input class="post-id" title="double click to view timeline" value="${pid}" readonly />`).insertBefore($(el).find('.post-layout'));
-            });
-
-        // Remove duplicates if necessary
-        $('.post-id ~ .post-id').remove();
-
-        $('.post-id').dynamicWidth();
-    }
+    // Open post timeline in new tab when double clicked
+    $(document).on('dblclick', 'input.post-id', function () { window.open(`https://${location.hostname}/posts/${this.value}/timeline?filter=WithVoteSummaries`, ''); });
+}
 
 
-    function doPageLoad() {
-        $(document).ajaxStop(insertPostIds);
-        insertPostIds();
-
-        // Select when focused
-        $(document).on('click', 'input.post-id', function() { this.select(); });
-
-        // Open post timeline in new tab when double clicked
-        $(document).on('dblclick', 'input.post-id', function() { window.open(`https://${location.hostname}/posts/${this.value}/timeline?filter=WithVoteSummaries`, ''); });
-    }
+// On page load
+doPageload();
 
 
-    function appendStyles() {
-
-        const styles = `
-<style>
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 .count-cell + td,
 .user-page .s-card .flex--item,
 .user-page .js-user-tab .flex--item,
@@ -179,14 +188,5 @@
 .post-stickyheader ~ .post-id {
     z-index: unset;
 }
-</style>
 `;
-        $('body').append(styles);
-    }
-
-
-    // On page load
-    appendStyles();
-    doPageLoad();
-
-})();
+document.body.appendChild(styles);

@@ -3,7 +3,7 @@
 // @description  Converts mod pages to mobile-friendly UI
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3
+// @version      1.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -16,33 +16,28 @@
 // @exclude      https://stackoverflow.com/c/*
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
+
+'use strict';
+
+const isMobile = () => devicePixelRatio > 2 || outerWidth <= 500;
+const isModPage = () => document.body.classList.contains('mod-page');
+
+if (!isMobile() || !isModPage()) return;
 
 
-    const isMobile = () => devicePixelRatio > 2 || outerWidth <= 500;
-    const isModPage = () => document.body.classList.contains('mod-page');
+// Transform page
+$('html').addClass('html__responsive');
+$('head meta[name=viewport]').remove(); // remove existing viewport tag
+$('head').append(`<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />`);
+$('#left-sidebar > div').appendTo('.leftnav-dialog');
+$('table.mod-summary').parent('div').attr('style', 'overflow-x:scroll!important;');
 
 
-    function doPageload() {
-
-        if(!isMobile() || !isModPage()) return;
-
-        appendStyles();
-
-        // Transform page
-        $('html').addClass('html__responsive');
-        $('head meta[name=viewport]').remove(); // remove existing viewport tag
-        $('head').append(`<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />`);
-        $('#left-sidebar > div').appendTo('.leftnav-dialog');
-        $('table.mod-summary').parent('div').attr('style', 'overflow-x:scroll!important;');
-    }
-
-
-    function appendStyles() {
-
-        const styles = `
-<style>
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 /* General */
 html, body {
     min-width: 0;
@@ -182,13 +177,5 @@ table.flagged-posts .mod-audit {
 .badge1, .badge2, .badge3 {
     width: 6px !important;
 }
-</style>
 `;
-        $('body').append(styles);
-    }
-
-
-    // On page load
-    doPageload();
-
-})();
+document.body.appendChild(styles);

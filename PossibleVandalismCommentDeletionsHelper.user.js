@@ -3,7 +3,7 @@
 // @description  Display deleted comments and user who deleted the comments
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=commentvandalismdeletionsauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=commentvandalismdeletionsauto*
@@ -13,158 +13,155 @@
 // @include      https://*.stackexchange.com/admin/dashboard?flagtype=commentvandalismdeletionsauto*
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
 
-    // Moderator check
-    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+'use strict';
 
-    const fkey = StackExchange.options.user.fkey;
-    let ajaxRequests = 0;
+// Moderator check
+if (typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator) return;
 
-
-    // Highest occurance in array - https://stackoverflow.com/a/20762713/584192
-    function mode(arr) {
-        return arr.sort((a, b) => arr.filter(v => v===a).length - arr.filter(v => v===b).length).pop();
-    }
+const fkey = StackExchange.options.user.fkey;
+let ajaxRequests = 0;
 
 
-    // Get all post comments
-    function getPostComments(pid, inclDeleted = false) {
-        ajaxRequests++;
-
-        return new Promise(function(resolve, reject) {
-            if(typeof pid === 'undefined' || pid == null) { reject(); return; }
-
-            $.get(`https://${location.hostname}/posts/${pid}/comments?includeDeleted=${inclDeleted}&fkey=${fkey}`)
-                .done(function(data) {
-                    const v = $(data).filter('.comment');
-                    resolve(v);
-                })
-                .fail(reject)
-                .always(() => ajaxRequests--);
-        });
-    }
+// Highest occurrence in array - https://stackoverflow.com/a/20762713/584192
+const mode = arr => arr.sort((a, b) => arr.filter(v => v === a).length - arr.filter(v => v === b).length).pop();
 
 
-    // Get deleted post comments only
-    function getPostDeletedComments(pid) {
-        ajaxRequests++;
+// Get all post comments
+function getPostComments(pid, inclDeleted = false) {
+    ajaxRequests++;
 
-        return new Promise(function(resolve, reject) {
-            if(typeof pid === 'undefined' || pid == null) { reject(); return; }
+    return new Promise(function (resolve, reject) {
+        if (typeof pid === 'undefined' || pid == null) { reject(); return; }
 
-            $.get(`https://${location.hostname}/posts/${pid}/comments?includeDeleted=true&fkey=${fkey}`)
-                .done(function(data) {
-                    const v = $(data).filter('.deleted-comment');
-                    resolve(v);
-                })
-                .fail(reject)
-                .always(() => ajaxRequests--);
-        });
-    }
+        $.get(`https://${location.hostname}/posts/${pid}/comments?includeDeleted=${inclDeleted}&fkey=${fkey}`)
+            .done(function (data) {
+                const v = $(data).filter('.comment');
+                resolve(v);
+            })
+            .fail(reject)
+            .always(() => ajaxRequests--);
+    });
+}
+
+// Get deleted post comments only
+function getPostDeletedComments(pid) {
+    ajaxRequests++;
+
+    return new Promise(function (resolve, reject) {
+        if (typeof pid === 'undefined' || pid == null) { reject(); return; }
+
+        $.get(`https://${location.hostname}/posts/${pid}/comments?includeDeleted=true&fkey=${fkey}`)
+            .done(function (data) {
+                const v = $(data).filter('.deleted-comment');
+                resolve(v);
+            })
+            .fail(reject)
+            .always(() => ajaxRequests--);
+    });
+}
+
+// Get post comments by user
+function getPostCommentsByUser(uid, pid, inclDeleted = false) {
+    ajaxRequests++;
+
+    return new Promise(function (resolve, reject) {
+        if (typeof pid === 'undefined' || pid == null) { reject(); return; }
+
+        $.get(`https://${location.hostname}/posts/${pid}/comments?includeDeleted=${inclDeleted}&fkey=${fkey}`)
+            .done(function (data) {
+                const v = $(data).filter('.comment').filter(function () {
+                    const user = $(this).find('.comment-user').first().get(0);
+                    return (user.href || user.innerText).match(/\d+/, '')[0] == uid;
+                });
+                resolve(v);
+            })
+            .fail(reject)
+            .always(() => ajaxRequests--);
+    });
+}
 
 
-    // Get post comments by user
-    function getPostCommentsByUser(uid, pid, inclDeleted = false) {
-        ajaxRequests++;
+function processFlags(flags) {
 
-        return new Promise(function(resolve, reject) {
-            if(typeof pid === 'undefined' || pid == null) { reject(); return; }
+    // Pre-parse user ids
+    $('.comment-user').not('[data-uid]').each(function () {
+        // No href if deleted user, fallback to innerText
+        this.dataset.uid = (this.href || this.innerText).match(/\d+/, '')[0];
+    });
 
-            $.get(`https://${location.hostname}/posts/${pid}/comments?includeDeleted=${inclDeleted}&fkey=${fkey}`)
-                .done(function(data) {
-                    const v = $(data).filter('.comment').filter(function() {
-                        const user = $(this).find('.comment-user').first().get(0);
-                        return (user.href || user.innerText).match(/\d+/, '')[0] == uid;
-                    });
-                    resolve(v);
-                })
-                .fail(reject)
-                .always(() => ajaxRequests--);
-        });
-    }
+    // For each flag
+    flags.not('.js-comments-loaded').addClass('js-comments-loaded').each(function () {
+        const post = $(this).closest('.flagged-post-row');
+        const modMessageContent = $(this).closest('td');
+        const cmmtsContainer = post.find('.comments-list');
 
+        // Calculate the user (highest freq)
+        const userIds = cmmtsContainer.find('.deleted-comment-info .comment-user').map((i, el) => el.dataset.uid).get();
+        const uid = mode(userIds);
 
-    function processFlags(flags) {
+        // Remove deleted comments that were not deleted by user
+        cmmtsContainer.children().filter(function () {
+            return $(this).find('.deleted-comment-info .comment-user').attr('data-uid') != uid;
+        }).remove();
 
-        // Pre-parse user ids
-        $('.comment-user').not('[data-uid]').each(function() {
-            // No href if deleted user, fallback to innerText
-            this.dataset.uid = (this.href || this.innerText).match(/\d+/, '')[0];
-        });
+        // Change deleted user link to "self"
+        const userlinks = cmmtsContainer.find('.deleted-comment-info .comment-user');
+        const username = userlinks.first().text();
+        userlinks.replaceWith('user');
 
-        // For each flag
-        flags.not('.js-comments-loaded').addClass('js-comments-loaded').each(function() {
+        // Add links to user and comment history
+        modMessageContent.append(`<div class="ra-userlinks">[ ` +
+            `<a href="https://stackoverflow.com/users/${uid}" target="_blank"><b>${username}</b></a> | ` +
+            `<a href="https://stackoverflow.com/users/account-info/${uid}" target="_blank">Dashboard</a> | ` +
+            `<a href="https://stackoverflow.com/users/history/${uid}?type=User+suspended" target="_blank">Susp. History</a> | ` +
+            `<a href="https://stackoverflow.com/users/message/create/${uid}" target="_blank">Message/Suspend</a> | ` +
+            `<a href="https://stackoverflow.com/admin/users/${uid}/post-comments?state=flagged" target="_blank">Comments</a>` +
+            ` ]</div>`);
+    });
+}
+
+function doPageload() {
+
+    const flags = $('.flagged-post-row span.revision-comment.active-flag')
+        .filter((i, el) => el.innerText.indexOf('possible vandalism: comment deletions (auto)') >= 0)
+        .each(function () {
             const post = $(this).closest('.flagged-post-row');
             const modMessageContent = $(this).closest('td');
-            const cmmtsContainer = post.find('.comments-list');
+            const cmmtsContainer = $(`<ul class="comments comments-list"></ul>`).appendTo($(this).parents('.js-dashboard-row '));
 
-            // Calculate the user (highest freq)
-            const userIds = cmmtsContainer.find('.deleted-comment-info .comment-user').map((i, el) => el.dataset.uid).get();
-            const uid = mode(userIds);
+            // Move action buttons
+            cmmtsContainer.before(post.find('.post-options.keep'));
 
-            // Remove deleted comments that were not deleted by user
-            cmmtsContainer.children().filter(function() {
-                return $(this).find('.deleted-comment-info .comment-user').attr('data-uid') != uid;
-            }).remove();
+            // For each post in list
+            post.find('ul.post-list').hide().children().each(function () {
+                const postlink = $(this).find('a').first();
+                const posturl = postlink.get(0).href;
+                const pid = postlink.hasClass('question-hyperlink') ? posturl.match(/\d+/)[0] : posturl.match(/\d+$/)[0];
 
-            // Change deleted user link to "self"
-            const userlinks = cmmtsContainer.find('.deleted-comment-info .comment-user');
-            const username = userlinks.first().text();
-            userlinks.replaceWith('user');
-
-            // Add links to user and comment history
-            modMessageContent
-                .append(`<div class="ra-userlinks">[ ` +
-                    `<a href="https://stackoverflow.com/users/${uid}" target="_blank"><b>${username}</b></a> | ` +
-                    `<a href="https://stackoverflow.com/users/account-info/${uid}" target="_blank">Dashboard</a> | ` +
-                    `<a href="https://stackoverflow.com/users/history/${uid}?type=User+suspended" target="_blank">Susp. History</a> | ` +
-                    `<a href="https://stackoverflow.com/users/message/create/${uid}" target="_blank">Message/Suspend</a> | ` +
-                    `<a href="https://stackoverflow.com/admin/users/${uid}/post-comments?state=flagged" target="_blank">Comments</a>` +
-                ` ]</div>`);
-        });
-
-    }
-
-
-    function doPageload() {
-
-        const flags = $('.flagged-post-row span.revision-comment.active-flag')
-            .filter((i, el) => el.innerText.indexOf('possible vandalism: comment deletions (auto)') >= 0)
-            .each(function() {
-                const post = $(this).closest('.flagged-post-row');
-                const modMessageContent = $(this).closest('td');
-                const cmmtsContainer = $(`<ul class="comments comments-list"></ul>`).appendTo($(this).parents('.js-dashboard-row '));
-
-                // Move action buttons
-                cmmtsContainer.before(post.find('.post-options.keep'));
-
-                // For each post in list
-                post.find('ul.post-list').hide().children().each(function() {
-                    const postlink = $(this).find('a').first();
-                    const posturl = postlink.get(0).href;
-                    const pid = postlink.hasClass('question-hyperlink') ? posturl.match(/\d+/)[0] : posturl.match(/\d+$/)[0];
-
-                    // Get post's deleted comments
-                    getPostDeletedComments(pid)
-                        .then(function(v) {
-                            cmmtsContainer.append(v);
-                        });
+                // Get post's deleted comments
+                getPostDeletedComments(pid).then(function (v) {
+                    cmmtsContainer.append(v);
                 });
             });
-
-        // On all load complete
-        $(document).ajaxStop(function() {
-            setTimeout(processFlags, 100, flags);
         });
-    }
+
+    // On all load complete
+    $(document).ajaxStop(function () {
+        setTimeout(processFlags, 100, flags);
+    });
+}
 
 
-    function appendStyles() {
+// On page load
+doPageload();
 
-        const styles = `
-<style>
+
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 #mod-history {
     position: relative;
     top: 0;
@@ -227,14 +224,5 @@ table.mod-message .flagcell {
 .undelete-post {
     display: none !important;
 }
-</style>
 `;
-        $('body').append(styles);
-    }
-
-
-    // On page load
-    appendStyles();
-    doPageload();
-
-})();
+document.body.appendChild(styles);

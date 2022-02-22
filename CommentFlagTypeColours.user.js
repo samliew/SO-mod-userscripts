@@ -3,7 +3,7 @@
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.5
+// @version      3.0
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -40,144 +40,140 @@
 // @exclude      */admin/dashboard?flagtype=commenttoomanydeletedrudenotconstructiveauto*
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
 
+'use strict';
 
-    function doPageload() {
+function doPageload() {
 
-        // Path /post-comments
-        if(location.pathname.indexOf('/post-comments') > 0) {
+    // Path /post-comments
+    if(location.pathname.indexOf('/post-comments') > 0) {
 
-            // wrap comment type text with .revision-comment span
-            $('.deleted-info').html((i, html) => html.replace(/span>\s*([a-z]+(\s[a-z]+)*)\s/i, `><span class="revision-comment">$1</span> `));
-        }
+        // wrap comment type text with .revision-comment span
+        $('.deleted-info').html((i, html) => html.replace(/span>\s*([a-z]+(\s[a-z]+)*)\s/i, `><span class="revision-comment">$1</span> `));
+    }
 
-        // New stacks theme
-        if(document.body.classList.contains('unified-theme')) {
+    // New stacks theme
+    if(document.body.classList.contains('unified-theme')) {
 
-            // wrap comment type text with .revision-comment span
-            $('.js-flagged-comment .js-flag-text').html((i, html) => html.replace(/^(.*) - </i, `<span class="revision-comment">$1</span> - <`));
-        }
+        // wrap comment type text with .revision-comment span
+        $('.js-flagged-comment .js-flag-text').html((i, html) => html.replace(/^(.*) - </i, `<span class="revision-comment">$1</span> - <`));
+    }
 
-        // On Post Timelines, highlight differently
-        if(/^\/posts\/\d+\/timeline.*/.test(location.pathname)) {
+    // On Post Timelines, highlight differently
+    if(/^\/posts\/\d+\/timeline.*/.test(location.pathname)) {
 
-            $('.event-verb span').filter((i, el) => el.children.length == 0).each(function(i, el) {
-                let cls = '';
-                el.innerText = el.innerText.trim();
-                switch(el.innerText.toLowerCase()) {
-                    case 'commentrudeoroffensive':
-                    case 'rudeoroffensive':
-                        cls = 'ctype-bad';
-                        break;
-                    case 'commentunwelcoming':
-                    case 'unwelcoming':
-                        cls = 'ctype-poor';
-                        break;
-                    case 'commentnolongerneeded':
-                    case 'nolongerneeded':
-                        cls = 'ctype-meh';
-                        break;
-                    case 'commentother':
-                    case 'other':
-                        cls = 'ctype-custom';
-                        break;
-                }
-                if(cls !== '') el.classList.add(cls);
-
-                if(cls == 'ctype-custom') {
-                    $(el).closest('.event-verb').siblings('.event-comment').find('span').addClass('ctype-custom');
-                }
-            });
-
-            return false;
-        }
-
-        // all other included pages
-        $('.revision-comment').filter(function() {
-            // not in a mod post list and table cell, or not the first element
-            return ($(this).closest('ul.post-list').length == 0 && $(this).parent('td').length == 0) || $(this).index() !== 0;
-        }).each(function(i, el) {
-            let cls = 'ctype-custom';
+        $('.event-verb span').filter((i, el) => el.children.length == 0).each(function(i, el) {
+            let cls = '';
             el.innerText = el.innerText.trim();
             switch(el.innerText.toLowerCase()) {
-                case 'rude or offensive':
-                case 'harassment, bigotry, or abuse':
-                case 'harrassment, bigotry, or abuse':
+                case 'commentrudeoroffensive':
+                case 'rudeoroffensive':
                     cls = 'ctype-bad';
                     break;
-                case 'unfriendly or unkind (auto)':
-                case 'robot says unfriendly':
-                    cls = 'ctype-poor-bot';
-                    break;
-                case 'unfriendly or unkind':
+                case 'commentunwelcoming':
                 case 'unwelcoming':
                     cls = 'ctype-poor';
                     break;
-                case 'no longer needed':
-                case 'not relevant':
-                case 'not constructive':
-                case 'obsolete':
-                case 'not constructive or off topic':
-                case 'too chatty':
+                case 'commentnolongerneeded':
+                case 'nolongerneeded':
                     cls = 'ctype-meh';
                     break;
+                case 'commentother':
+                case 'other':
+                    cls = 'ctype-custom';
+                    break;
             }
-            el.classList.add(cls);
+            if(cls !== '') el.classList.add(cls);
 
             if(cls == 'ctype-custom') {
-                $(el).parents('.deleted-info').next('.flag-other-text').addClass('revision-comment ctype-custom');
+                $(el).closest('.event-verb').siblings('.event-comment').find('span').addClass('ctype-custom');
             }
         });
+
+        return false;
     }
 
+    // All other included pages
+    $('.revision-comment').filter(function() {
+        // Not in a mod post list and table cell, or not the first element
+        return ($(this).closest('ul.post-list').length == 0 && $(this).parent('td').length == 0) || $(this).index() !== 0;
+    }).each(function(i, el) {
+        let cls = 'ctype-custom';
+        el.innerText = el.innerText.trim();
+        switch(el.innerText.toLowerCase()) {
+            case 'rude or offensive':
+            case 'harassment, bigotry, or abuse':
+            case 'harrassment, bigotry, or abuse':
+                cls = 'ctype-bad';
+                break;
+            case 'unfriendly or unkind (auto)':
+            case 'robot says unfriendly':
+                cls = 'ctype-poor-bot';
+                break;
+            case 'unfriendly or unkind':
+            case 'unwelcoming':
+                cls = 'ctype-poor';
+                break;
+            case 'no longer needed':
+            case 'not relevant':
+            case 'not constructive':
+            case 'obsolete':
+            case 'not constructive or off topic':
+            case 'too chatty':
+                cls = 'ctype-meh';
+                break;
+        }
+        el.classList.add(cls);
 
-    function appendStyles() {
+        if(cls == 'ctype-custom') {
+            $(el).parents('.deleted-info').next('.flag-other-text').addClass('revision-comment ctype-custom');
+        }
+    });
+}
 
-        const styles = `
-<style>
+
+// On page load
+doPageload();
+
+
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 .ctype-bad,
 .ctype-poor,
 .ctype-poor-bot,
 .ctype-meh {
-    display: inline;
-    padding: 2px 5px 3px !important;
-    line-height: 1;
-    font-size: 10px;
-    font-style: normal;
-    border-radius: 2px;
-    color: white;
-    text-shadow: 0px 0px 1px #666;
+display: inline;
+padding: 2px 5px 3px !important;
+line-height: 1;
+font-size: 10px;
+font-style: normal;
+border-radius: 2px;
+color: white;
+text-shadow: 0px 0px 1px #666;
 }
 .ctype-bad {
-    background-color: var(--red-500);
+background-color: var(--red-500);
 }
 .ctype-poor {
-    background-color: var(--orange-400);
+background-color: var(--orange-400);
 }
 .ctype-poor-bot {
-    background-color: var(--orange-300);
+background-color: var(--orange-300);
 }
 .ctype-meh {
-    background-color: var(--black-300);
+background-color: var(--black-300);
 }
 .ctype-custom {
-    padding: 2px 0 !important;
-    background-color: var(--yellow-100);
-    line-height: inherit;
-    color: var(--black);
+padding: 2px 0 !important;
+background-color: var(--yellow-100);
+line-height: inherit;
+color: var(--black);
 }
 .comment-flag-off {
-    color: var(--black-500);
+color: var(--black-500);
 }
-</style>
 `;
-        $('body').append(styles);
-    }
-
-
-    appendStyles();
-    doPageload();
-
-})();
+document.body.appendChild(styles);

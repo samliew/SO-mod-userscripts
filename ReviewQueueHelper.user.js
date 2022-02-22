@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.9.2
+// @version      4.0
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -29,1386 +29,1384 @@
 // @exclude      *chat.*
 // @exclude      https://stackoverflow.com/c/*
 // @exclude      https://stackoverflow.blog*
-//
-// @grant        GM_addStyle
 // ==/UserScript==
 
+/* globals StackExchange, GM_info */
+
+'use strict';
 
 // Detect if SOMU is loaded
 const rafAsync = () => new Promise(resolve => { requestAnimationFrame(resolve); });
 async function waitForSOMU() {
-    while(typeof SOMU === 'undefined' || !SOMU.hasInit) { await rafAsync(); }
+    while (typeof SOMU === 'undefined' || !SOMU.hasInit) { await rafAsync(); }
     return SOMU;
 }
 
 
-(function() {
-    'use strict';
+const fkey = StackExchange.options.user.fkey;
+const scriptName = GM_info.script.name;
+const site = location.hostname;
+const siteApiSlug = site.toLowerCase().replace(/\.(com|net)$/, '').replace(/\s/g, '');
+const isSO = site === 'stackoverflow.com';
 
-    const fkey = StackExchange.options.user.fkey;
-    const scriptName = GM_info.script.name;
-    const site = location.hostname;
-    const siteApiSlug = site.toLowerCase().replace(/\.(com|net)$/, '').replace(/\s/g, '');
-    const isSO = site === 'stackoverflow.com';
+const superusers = [584192];
+const isSuperuser = superusers.includes(StackExchange.options.user.userId);
 
-    const superusers = [ 584192 ];
-    const isSuperuser = superusers.includes(StackExchange.options.user.userId);
+const queueType = /^\/review/.test(location.pathname) ? location.pathname.replace(/\/\d+$/, '').split('/').pop() : null;
+const filteredTypesElem = document.querySelector('.review-filter-summary');
+const filteredTypes = filteredTypesElem ? (filteredTypesElem.innerText || '').replace(/; \[.*$/, '').split('; ') : [''];
+const filteredElem = document.querySelector('.review-filter-tags');
+const filteredTags = filteredElem ? (filteredElem.value || '').split(' ') : [''];
+let processReview, currentReview = {}, post = {}, flaggedReason = null;
+let isLinkOnlyAnswer = false, isCodeOnlyAnswer = false;
+let numOfReviews = 0;
+let remainingCloseVotes = null, remainingPostFlags = null;
 
-    const queueType = /^\/review/.test(location.pathname) ? location.pathname.replace(/\/\d+$/, '').split('/').pop() : null;
-    const filteredTypesElem = document.querySelector('.review-filter-summary');
-    const filteredTypes = filteredTypesElem ? (filteredTypesElem.innerText || '').replace(/; \[.*$/, '').split('; ') : [''];
-    const filteredElem = document.querySelector('.review-filter-tags');
-    const filteredTags = filteredElem ? (filteredElem.value || '').split(' ') : [''];
-    let processReview, currentReview = {}, post = {}, flaggedReason = null;
-    let isLinkOnlyAnswer = false, isCodeOnlyAnswer = false;
-    let numOfReviews = 0;
-    let remainingCloseVotes = null, remainingPostFlags = null;
+let skipAudits = true, skipAccepted = false, skipUpvoted = false, skipMultipleAnswers = false, skipMediumQuestions = false, skipLongQuestions = false, autoCloseShortQuestions = false, autoCloseQuestions = false, downvoteAfterClose = false;
 
-    let skipAudits = true, skipAccepted = false, skipUpvoted = false, skipMultipleAnswers = false, skipMediumQuestions = false, skipLongQuestions = false, autoCloseShortQuestions = false, autoCloseQuestions = false, downvoteAfterClose = false;
-
-    // Keywords to detect opinion-based questions
-    const opinionKeywords = [ 'fastest', 'best', 'recommended' ];
+// Keywords to detect opinion-based questions
+const opinionKeywords = ['fastest', 'best', 'recommended'];
 
 
-    function getCloseVotesQuota(viewablePostId = 1) {
-        return new Promise(function(resolve, reject) {
-            $.get(`https://${location.hostname}/flags/questions/${viewablePostId}/close/popup`)
-                .done(function(data) {
-                    const num = Number($('.bounty-indicator-tab, .popup-actions .ml-auto.fc-light', data).last().text().replace(/\D+/g, ''));
-                    console.log(num, 'votes');
-                    resolve(num);
-                })
-                .fail(reject);
-        });
-    }
-    function getFlagsQuota(viewablePostId = 1) {
-        return new Promise(function(resolve, reject) {
-            $.get(`https://${location.hostname}/flags/posts/${viewablePostId}/popup`)
-                .done(function(data) {
-                    const num = Number($('.bounty-indicator-tab, .popup-actions .ml-auto.fc-light', data).last().text().replace(/\D+/g, ''));
-                    console.log(num, 'flags');
-                    resolve(num);
-                })
-                .fail(reject);
-        });
-    }
-    function displayRemainingQuota() {
-
-        // Ignore mods, since we have unlimited power
-        if(StackExchange.options.user.isModerator) {
-            remainingCloseVotes = 0;
-            remainingPostFlags = 0;
-        }
-
-        const viewableQuestionId = post.postId || 11227809; // an open question on SO
-
-        // Oops, we don't have values yet, callback when done fetching
-        if(remainingCloseVotes == null || remainingPostFlags == null) {
-
-            Promise.all([getCloseVotesQuota(viewableQuestionId), getFlagsQuota(viewableQuestionId)]).then(v => {
-                remainingCloseVotes = v[0];
-                remainingPostFlags = v[1];
-                displayRemainingQuota();
+function getCloseVotesQuota(viewablePostId = 1) {
+    return new Promise(function (resolve, reject) {
+        $.get(`https://${location.hostname}/flags/questions/${viewablePostId}/close/popup`)
+            .done(function (data) {
+                const num = Number($('.bounty-indicator-tab, .popup-actions .ml-auto.fc-light', data).last().text().replace(/\D+/g, ''));
+                console.log(num, 'votes');
+                resolve(num);
             })
+            .fail(reject);
+    });
+}
+function getFlagsQuota(viewablePostId = 1) {
+    return new Promise(function (resolve, reject) {
+        $.get(`https://${location.hostname}/flags/posts/${viewablePostId}/popup`)
+            .done(function (data) {
+                const num = Number($('.bounty-indicator-tab, .popup-actions .ml-auto.fc-light', data).last().text().replace(/\D+/g, ''));
+                console.log(num, 'flags');
+                resolve(num);
+            })
+            .fail(reject);
+    });
+}
+function displayRemainingQuota() {
+
+    // Ignore mods, since we have unlimited power
+    if (StackExchange.options.user.isModerator) {
+        remainingCloseVotes = 0;
+        remainingPostFlags = 0;
+    }
+
+    const viewableQuestionId = post.postId || 11227809; // an open question on SO
+
+    // Oops, we don't have values yet, callback when done fetching
+    if (remainingCloseVotes == null || remainingPostFlags == null) {
+
+        Promise.all([getCloseVotesQuota(viewableQuestionId), getFlagsQuota(viewableQuestionId)]).then(v => {
+            remainingCloseVotes = v[0];
+            remainingPostFlags = v[1];
+            displayRemainingQuota();
+        })
             .catch(error => console.log(`Error in promises ${error}`));
-            return;
-        }
+        return;
+    }
 
-        // Clear old values
-        $('.remaining-quota').remove();
+    // Clear old values
+    $('.remaining-quota').remove();
 
-        // Display number of CVs and flags remaining
-        const quota = $(`<table class="remaining-quota"><tr><td colspan="2">
+    // Display number of CVs and flags remaining
+    const quota = $(`<table class="remaining-quota"><tr><td colspan="2">
                   <span class="remaining-votes"><span class="bounty-indicator-tab">${remainingCloseVotes}</span> <span>close votes left</span></span>
                 </td></tr>
                 <tr><td colspan="2">
                   <span class="flag-remaining-inform" style="padding-right:20px"><span class="bounty-indicator-tab supernovabg">${remainingPostFlags}</span> flags left</span>
                 </td></tr></table>`);
 
-        $('.reviewable-post-stats > table').after(quota);
-    }
+    $('.reviewable-post-stats > table').after(quota);
+}
 
 
-    function loadOptions() {
-        waitForSOMU().then(function(SOMU) {
+function loadOptions() {
+    waitForSOMU().then(function (SOMU) {
 
-            if(queueType == null) return;
+        if (queueType == null) return;
 
-            // Set option field in sidebar with current custom value; use default value if not set before
-            SOMU.addOption(scriptName, 'Skip Accepted Questions', skipAccepted, 'bool');
-            // Get current custom value with default
-            skipAccepted = SOMU.getOptionValue(scriptName, 'Skip Accepted Questions', skipAccepted, 'bool');
+        // Set option field in sidebar with current custom value; use default value if not set before
+        SOMU.addOption(scriptName, 'Skip Accepted Questions', skipAccepted, 'bool');
+        // Get current custom value with default
+        skipAccepted = SOMU.getOptionValue(scriptName, 'Skip Accepted Questions', skipAccepted, 'bool');
 
-            // Set option field in sidebar with current custom value; use default value if not set before
-            SOMU.addOption(scriptName, 'Skip Upvoted Posts', skipUpvoted, 'bool');
-            // Get current custom value with default
-            skipUpvoted = SOMU.getOptionValue(scriptName, 'Skip Upvoted Posts', skipUpvoted, 'bool');
+        // Set option field in sidebar with current custom value; use default value if not set before
+        SOMU.addOption(scriptName, 'Skip Upvoted Posts', skipUpvoted, 'bool');
+        // Get current custom value with default
+        skipUpvoted = SOMU.getOptionValue(scriptName, 'Skip Upvoted Posts', skipUpvoted, 'bool');
 
-            // Set option field in sidebar with current custom value; use default value if not set before
-            SOMU.addOption(scriptName, 'Skip Questions with >1 Answer', skipMultipleAnswers, 'bool');
-            // Get current custom value with default
-            skipMultipleAnswers = SOMU.getOptionValue(scriptName, 'Skip Questions with >1 Answer', skipMultipleAnswers, 'bool');
+        // Set option field in sidebar with current custom value; use default value if not set before
+        SOMU.addOption(scriptName, 'Skip Questions with >1 Answer', skipMultipleAnswers, 'bool');
+        // Get current custom value with default
+        skipMultipleAnswers = SOMU.getOptionValue(scriptName, 'Skip Questions with >1 Answer', skipMultipleAnswers, 'bool');
 
-            // Set option field in sidebar with current custom value; use default value if not set before
-            SOMU.addOption(scriptName, 'Skip Medium-length Questions', skipMediumQuestions, 'bool');
-            // Get current custom value with default
-            skipMediumQuestions = SOMU.getOptionValue(scriptName, 'Skip Medium-length Questions', skipMediumQuestions, 'bool');
+        // Set option field in sidebar with current custom value; use default value if not set before
+        SOMU.addOption(scriptName, 'Skip Medium-length Questions', skipMediumQuestions, 'bool');
+        // Get current custom value with default
+        skipMediumQuestions = SOMU.getOptionValue(scriptName, 'Skip Medium-length Questions', skipMediumQuestions, 'bool');
 
-            // Set option field in sidebar with current custom value; use default value if not set before
-            SOMU.addOption(scriptName, 'Skip Long Questions', skipLongQuestions, 'bool');
-            // Get current custom value with default
-            skipLongQuestions = SOMU.getOptionValue(scriptName, 'Skip Long Questions', skipLongQuestions, 'bool');
+        // Set option field in sidebar with current custom value; use default value if not set before
+        SOMU.addOption(scriptName, 'Skip Long Questions', skipLongQuestions, 'bool');
+        // Get current custom value with default
+        skipLongQuestions = SOMU.getOptionValue(scriptName, 'Skip Long Questions', skipLongQuestions, 'bool');
 
-            // Set option field in sidebar with current custom value; use default value if not set before
-            SOMU.addOption(scriptName, 'Auto-open close dialogs', autoCloseQuestions, 'bool');
-            // Get current custom value with default
-            autoCloseQuestions = SOMU.getOptionValue(scriptName, 'Auto-open close dialogs', autoCloseQuestions, 'bool');
+        // Set option field in sidebar with current custom value; use default value if not set before
+        SOMU.addOption(scriptName, 'Auto-open close dialogs', autoCloseQuestions, 'bool');
+        // Get current custom value with default
+        autoCloseQuestions = SOMU.getOptionValue(scriptName, 'Auto-open close dialogs', autoCloseQuestions, 'bool');
 
-            // Set option field in sidebar with current custom value; use default value if not set before
-            SOMU.addOption(scriptName, 'Try to close short Questions', autoCloseShortQuestions, 'bool');
-            // Get current custom value with default
-            autoCloseShortQuestions = SOMU.getOptionValue(scriptName, 'Try to close short Questions', autoCloseShortQuestions, 'bool');
+        // Set option field in sidebar with current custom value; use default value if not set before
+        SOMU.addOption(scriptName, 'Try to close short Questions', autoCloseShortQuestions, 'bool');
+        // Get current custom value with default
+        autoCloseShortQuestions = SOMU.getOptionValue(scriptName, 'Try to close short Questions', autoCloseShortQuestions, 'bool');
 
-            // Set option field in sidebar with current custom value; use default value if not set before
-            SOMU.addOption(scriptName, 'Downvote after Question Closure', downvoteAfterClose, 'bool');
-            // Get current custom value with default
-            downvoteAfterClose = SOMU.getOptionValue(scriptName, 'Downvote after Question Closure', downvoteAfterClose, 'bool');
+        // Set option field in sidebar with current custom value; use default value if not set before
+        SOMU.addOption(scriptName, 'Downvote after Question Closure', downvoteAfterClose, 'bool');
+        // Get current custom value with default
+        downvoteAfterClose = SOMU.getOptionValue(scriptName, 'Downvote after Question Closure', downvoteAfterClose, 'bool');
 
-            // Set option field in sidebar with current custom value; use default value if not set before
-            SOMU.addOption(scriptName, 'Skip Review Audits', skipAudits, 'bool');
-            // Get current custom value with default
-            skipAudits = SOMU.getOptionValue(scriptName, 'Skip Review Audits', skipAudits, 'bool');
-        });
-    }
-
-
-    let toastTimeout, defaultDuration = 2;
-    function toastMessage(msg, duration = defaultDuration) {
-        // Validation
-        duration = Number(duration);
-        if(typeof(msg) !== 'string') return;
-        if(isNaN(duration)) duration = defaultDuration;
-
-        // Clear existing timeout
-        if(toastTimeout) clearTimeout(toastTimeout);
-
-        // Reuse or create new
-        let div = $('#toasty').html(msg).show();
-        if(div.length == 0) div = $(`<div id="toasty">${msg}</div>`).appendTo(document.body);
-
-        // Log in browser console as well
-        console.log(msg);
-
-        // Hide div
-        toastTimeout = setTimeout(function(div) {
-            div.hide();
-        }, duration * 1000, div);
-    }
+        // Set option field in sidebar with current custom value; use default value if not set before
+        SOMU.addOption(scriptName, 'Skip Review Audits', skipAudits, 'bool');
+        // Get current custom value with default
+        skipAudits = SOMU.getOptionValue(scriptName, 'Skip Review Audits', skipAudits, 'bool');
+    });
+}
 
 
-    // Close individual post
-    // closeReasonId: 'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
-    // if closeReasonId is 'SiteSpecific', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
-    function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', offtopicReasonId = 3, offTopicOtherText = 'I’m voting to close this question because ', duplicateOfQuestionId = null) {
-        return new Promise(function(resolve, reject) {
-            if(!isSO) { reject(); return; }
-            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
-            if(typeof closeReasonId === 'undefined' || closeReasonId === null) { reject(); return; }
-            if(closeReasonId === 'SiteSpecific' && (typeof offtopicReasonId === 'undefined' || offtopicReasonId === null)) { reject(); return; }
+let toastTimeout, defaultDuration = 2;
+function toastMessage(msg, duration = defaultDuration) {
+    // Validation
+    duration = Number(duration);
+    if (typeof (msg) !== 'string') return;
+    if (isNaN(duration)) duration = defaultDuration;
 
-            if(closeReasonId === 'Duplicate') offtopicReasonId = null;
+    // Clear existing timeout
+    if (toastTimeout) clearTimeout(toastTimeout);
 
-            // Logging actual action
-            console.log(`%c Closing ${pid} as ${closeReasonId}, reason ${offtopicReasonId}.`, 'font-weight: bold');
+    // Reuse or create new
+    let div = $('#toasty').html(msg).show();
+    if (div.length == 0) div = $(`<div id="toasty">${msg}</div>`).appendTo(document.body);
 
-            $.post({
-                url: `https://${location.hostname}/flags/questions/${pid}/close/add`,
-                data: {
-                    'fkey': fkey,
-                    'closeReasonId': closeReasonId,
-                    'duplicateOfQuestionId': duplicateOfQuestionId,
-                    'siteSpecificCloseReasonId': offtopicReasonId,
-                    'siteSpecificOtherText': offtopicReasonId == 3 && isSO ? 'This question does not appear to be about programming within the scope defined in the [help]' : offTopicOtherText,
-                    //'offTopicOtherCommentId': '',
-                    'originalSiteSpecificOtherText': 'I’m voting to close this question because ',
-                }
-            })
+    // Log in browser console as well
+    console.log(msg);
+
+    // Hide div
+    toastTimeout = setTimeout(function (div) {
+        div.hide();
+    }, duration * 1000, div);
+}
+
+
+// Close individual post
+// closeReasonId: 'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
+// if closeReasonId is 'SiteSpecific', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
+function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', offtopicReasonId = 3, offTopicOtherText = 'I’m voting to close this question because ', duplicateOfQuestionId = null) {
+    return new Promise(function (resolve, reject) {
+        if (!isSO) { reject(); return; }
+        if (typeof pid === 'undefined' || pid === null) { reject(); return; }
+        if (typeof closeReasonId === 'undefined' || closeReasonId === null) { reject(); return; }
+        if (closeReasonId === 'SiteSpecific' && (typeof offtopicReasonId === 'undefined' || offtopicReasonId === null)) { reject(); return; }
+
+        if (closeReasonId === 'Duplicate') offtopicReasonId = null;
+
+        // Logging actual action
+        console.log(`%c Closing ${pid} as ${closeReasonId}, reason ${offtopicReasonId}.`, 'font-weight: bold');
+
+        $.post({
+            url: `https://${location.hostname}/flags/questions/${pid}/close/add`,
+            data: {
+                'fkey': fkey,
+                'closeReasonId': closeReasonId,
+                'duplicateOfQuestionId': duplicateOfQuestionId,
+                'siteSpecificCloseReasonId': offtopicReasonId,
+                'siteSpecificOtherText': offtopicReasonId == 3 && isSO ? 'This question does not appear to be about programming within the scope defined in the [help]' : offTopicOtherText,
+                //'offTopicOtherCommentId': '',
+                'originalSiteSpecificOtherText': 'I’m voting to close this question because ',
+            }
+        })
             .done(resolve)
             .fail(reject);
-        });
-    }
+    });
+}
 
 
-    // Vote for post
-    // type: 2 - up, 3 - down, omitted = unupdownvote
-    function votePost(pid, type = 0) {
-        return new Promise(function(resolve, reject) {
-            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+// Vote for post
+// type: 2 - up, 3 - down, omitted = unupdownvote
+function votePost(pid, type = 0) {
+    return new Promise(function (resolve, reject) {
+        if (typeof pid === 'undefined' || pid === null) { reject(); return; }
 
-            $.post({
-                url: `https://${location.hostname}/posts/${pid}/vote/${type}`,
-                data: {
-                    fkey: fkey
-                }
-            })
+        $.post({
+            url: `https://${location.hostname}/posts/${pid}/vote/${type}`,
+            data: {
+                fkey: fkey
+            }
+        })
             .done(resolve)
             .fail(reject);
-        });
-    }
-    function upvotePost(pid) {
-        return votePost(pid, 2);
-    }
-    function downvotePost(pid) {
-        return votePost(pid, 3);
-    }
+    });
+}
+function upvotePost(pid) {
+    return votePost(pid, 2);
+}
+function downvotePost(pid) {
+    return votePost(pid, 3);
+}
 
 
-    // Follow/Unfollow post
-    function followPost(pid, undo = false) {
-        return new Promise(function(resolve, reject) {
-            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
+// Follow/Unfollow post
+function followPost(pid, undo = false) {
+    return new Promise(function (resolve, reject) {
+        if (typeof pid === 'undefined' || pid === null) { reject(); return; }
 
-            $.post({
-                url: `https://${location.hostname}/posts/${pid}/vote/21?undo=${undo}`,
-                data: {
-                    fkey: fkey
-                }
-            })
+        $.post({
+            url: `https://${location.hostname}/posts/${pid}/vote/21?undo=${undo}`,
+            data: {
+                fkey: fkey
+            }
+        })
             .done(resolve)
             .fail(reject);
-        });
+    });
+}
+
+
+function skipReview() {
+
+    // If referred from meta or post timeline, and is first review, do not automatically skip
+    if ((document.referrer.includes('meta.') || /\/posts\/\d+\/timeline/.test(document.referrer)) && numOfReviews <= 1) {
+        console.log('Not skipping review as it was opened from Meta or post timeline page.');
+        return;
     }
 
+    setTimeout(function () {
+        // Remove instant actions
+        $('.instant-actions').remove();
+        // Click skip or next button
+        $('.js-review-actions').find('button[title^="skip this"], button[title="review next item"]').click();
+    }, 500);
+}
 
-    function skipReview() {
 
-        // If referred from meta or post timeline, and is first review, do not automatically skip
-        if((document.referrer.includes('meta.') || /\/posts\/\d+\/timeline/.test(document.referrer)) && numOfReviews <= 1) {
-            console.log('Not skipping review as it was opened from Meta or post timeline page.');
-            return;
+function isAudit() {
+    let audit = false;
+
+    // Post does not have any of the filtered tags
+    if (post.tags && post.tags.length && filteredTags[0] !== '' && !filteredTags.some(t => post.tags.includes(t))) {
+        audit = true;
+    }
+
+    // Check post score
+    else if (!isNaN(post.votes)) {
+
+        let votes, error = false;
+        $.ajax({
+            url: `https://${location.hostname}/posts/${post.id}/vote-counts`,
+            async: false
+        }).done(function (data) {
+            votes = Number(data.up) + Number(data.down);
+        }).fail(function () {
+            console.error('failed fetching vote counts');
+            error = true;
+        });
+
+        // Displayed post score not same as fetched vote score
+        if (!error && votes !== post.votes) audit = true;
+    }
+
+    console.log("audit:", audit);
+    return audit;
+}
+
+
+function displayPostKeywords() {
+    if (!post.isQuestion) return;
+
+    // Display post keywords
+    post.issues = [];
+    const header = $('.reviewable-post .subheader').first();
+    const resultsDiv = $(`<div id="review-keywords"></div>`).appendTo(header);
+
+    const keywords = [
+        'suggest', 'software', 'tool', 'library', 'tutorial', 'guide', 'blog', 'resource', 'plugin',
+        'didn\'t work', 'doesn\'t work', 'want', 'help', 'advice', 'give',
+        'I am new', 'I\'m new', 'Im new', 'beginner', 'newbie', 'explain', 'understand', 'example', 'reference', 'imgur'
+    ];
+    const foreignKeywords = [
+        ' se ', ' de ', ' que ', ' untuk ',
+    ];
+
+    try {
+        const paras = $(post.contentHtml).filter('p, ol, ul').text();
+        const text = (post.title + paras).toLowerCase();
+        const results = keywords.filter(v => text.includes(v.toLowerCase()));
+        results.forEach(v => {
+            $('<span>' + v + '</span>').appendTo(resultsDiv);
+            post.issues.push(v);
+        });
+
+        const code = $('code', post.contentHtml).text();
+        if (code.length < 60) {
+            $('<span>no-code</span>').prependTo(resultsDiv);
+            post.issues.unshift('no-code');
+        };
+
+        const postLinks = text.match(/href="http/g);
+        if (postLinks && postLinks.length > 1) {
+            $('<span>' + postLinks.length + ' links</span>').prependTo(resultsDiv);
+            post.issues.unshift(postLinks.length + ' links');
         }
 
-        setTimeout(function() {
-            // Remove instant actions
-            $('.instant-actions').remove();
-            // Click skip or next button
-            $('.js-review-actions').find('button[title^="skip this"], button[title="review next item"]').click();
-        }, 500);
-    }
-
-
-    function isAudit() {
-
-        let audit = false;
-
-        // Post does not have any of the filtered tags
-        if(post.tags && post.tags.length && filteredTags[0] !== '' && !filteredTags.some(t => post.tags.includes(t))) {
-            audit = true;
+        const questionMarks = paras.match(/\?+/g);
+        if (questionMarks && questionMarks.length > 1) {
+            $('<span>' + questionMarks.length + '?</span>').prependTo(resultsDiv);
+            post.issues.unshift(questionMarks.length + '?');
         }
 
-        // Check post score
-        else if(!isNaN(post.votes)) {
+        if (foreignKeywords.some(v => text.includes(v.toLowerCase()))) {
+            $('<span>non-english</span>').prependTo(resultsDiv);
+            post.issues.unshift('non-english');
+        };
+    }
+    catch (e) {
+        $('<span>bad-formatting</span>').appendTo(resultsDiv);
+        post.issues.push('bad-formatting code-only');
+    }
 
-            let votes, error = false;
-            $.ajax({
-                url: `https://${location.hostname}/posts/${post.id}/vote-counts`,
-                async: false
-            }).done(function(data) {
-                votes = Number(data.up) + Number(data.down);
-            }).fail(function() {
-                console.error('failed fetching vote counts');
+    if (post.content.length <= 500) {
+        $('<span>short</span>').prependTo(resultsDiv);
+        post.issues.unshift('short');
+    }
+    else if (post.content.length >= 8000) {
+        $('<span>excessive</span>').prependTo(resultsDiv);
+        post.issues.unshift('excessive');
+    }
+    else if (post.content.length >= 5000) {
+        $('<span>long</span>').prependTo(resultsDiv);
+        post.issues.unshift('long');
+    }
+
+    //console.log('post issues:', post.issues);
+}
+
+
+function processCloseReview() {
+
+    // Question has an accepted answer, skip if enabled
+    if (skipAccepted && post.isQuestion && post.accepted) {
+        toastMessage('skipping accepted question');
+        skipReview();
+        return;
+    }
+
+    // Post has positive score, skip if enabled
+    if (skipUpvoted && post.votes > 3) {
+        toastMessage('skipping upvoted post');
+        skipReview();
+        return;
+    }
+
+    // Question has multiple answers, skip if enabled
+    if (skipMultipleAnswers && post.isQuestion && post.answers > 1) {
+        toastMessage('skipping question with >1 answer');
+        skipReview();
+        return;
+    }
+
+    // Question body is too long, skip if enabled
+    if (skipLongQuestions && post.isQuestion && post.content.length > 3000) {
+        toastMessage('skipping long-length question, length ' + post.content.length);
+        skipReview();
+        return;
+    }
+
+    // Question body is of medium length, skip if enabled
+    if (skipMediumQuestions && post.isQuestion && post.content.length > 1000) {
+        toastMessage('skipping medium-length question, length ' + post.content.length);
+        skipReview();
+        return;
+    }
+
+    // Question body is short, try to close if enabled
+    if (autoCloseQuestions || (autoCloseShortQuestions && post.isQuestion && post.content.length < 500)) {
+        $('.js-review-actions button[title*="Close"], .close-question-link[data-isclosed="false"]').first().click();
+        return;
+    }
+}
+
+
+function processReopenReview() {
+
+    // Post has positive score, skip if enabled
+    if (skipUpvoted && post.votes > 3) {
+        toastMessage('skipping upvoted post');
+        skipReview();
+        return;
+    }
+
+    // Question has multiple answers, skip if enabled
+    if (skipMultipleAnswers && post.isQuestion && post.answers > 1) {
+        toastMessage('skipping question with >1 answer');
+        skipReview();
+        return;
+    }
+
+    if (!isSuperuser) return;
+
+    const shortPostBody = post.content.length < 500;
+    const tooManyQuestions = post.content.includes('?') && post.content.match(/\?/g).length > 3;
+
+    const diff = $('.sidebyside-diff');
+    const adds = diff.find('.diff-add').text().length || 0;
+    const subs = diff.find('.diff-delete').text().length || 0;
+
+    const imageLinks = $('.inline-diff').find('a[href$="png"], a[href$="jpg"], a[href$="gif"]').length;
+    const images = $('.inline-diff').find('img').length;
+    const badImageLinks = imageLinks - images;
+
+    console.log('adds', adds, 'subs', subs, 'badImageLinks', badImageLinks);
+
+    // Question has comprehensive changes with no bad images, reopen
+    if (adds > 400 && badImageLinks === 0 && !shortPostBody && !tooManyQuestions) {
+        toastMessage('reopened');
+        $('.js-review-actions button[title^="agree"]').removeAttr('disabled').click();
+        $('#confirm-modal-body').next().children('.js-ok-button').click();
+        return;
+    }
+    // Question has some edits with no bad images, ignore
+    else if ((subs > 200 || adds > 200) && badImageLinks === 0) {
+        toastMessage('skipping minor edits', 3000);
+        setTimeout(skipReview, 4000);
+        return;
+    }
+    // Leave closed
+    else {
+        toastMessage('leave closed' + (badImageLinks > 0 ? ', has badImageLinks' : '') + (shortPostBody ? ', too short' : ''));
+        $('.js-review-actions button[title^="disagree"]').removeAttr('disabled').click();
+        return;
+    }
+}
+
+
+function processLowQualityPostsReview() {
+    const postEl = $('.reviewable-answer .js-post-body');
+    const postText = postEl.text();
+    const postHtml = postEl.html();
+    const postNoCodeHtml = postEl.clone(true, true).find('pre, code').remove().end().html();
+
+    // If post type is an answer
+    if (!post.isQuestion) {
+
+        // If is a short answer and there is a link in the post, select "link-only answer" option in delete dialog
+        if (postText.length < 300 && /https?:\/\//.test(postHtml)) {
+            isLinkOnlyAnswer = true;
+            console.log('Possible link-only answer detected.');
+        }
+
+        // Try to detect if the post contains mostly code
+        else if (postEl.find('pre, code').length > 0 &&
+            (postNoCodeHtml.length < 50 || postHtml.length / postNoCodeHtml.length > 0.9)) {
+            isCodeOnlyAnswer = true;
+            console.log('Possible code-only answer detected.');
+        }
+    }
+}
+
+
+function insertInstantCloseButtons() {
+    const actionsCont = $('.js-review-actions-error-target').first();
+    if (actionsCont.length == 0) return;
+    actionsCont.children('.instant-actions').remove();
+
+    const instantActions = $('<span class="instant-actions grid gs8 jc-end ff-row-wrap">'
+        + '<button class="s-btn s-btn__outlined flex--item" data-instant="unclear" title="Needs details or clarity">Unclear</button>'
+        + '<button class="s-btn s-btn__outlined flex--item" data-instant="broad" title="Needs more focus">Broad</button>'
+        + '<button class="s-btn s-btn__outlined flex--item" data-instant="softrec" title="It\'s seeking recommendations for books, software libraries, or other off-site resources">SoftRec</button>'
+        + '<button class="s-btn s-btn__outlined flex--item" data-instant="debug" title="It\'s seeking debugging help but needs more information">Debug</button>'
+        + '<button class="s-btn s-btn__outlined flex--item" data-instant="opinion" title="Opinion-based">Opinion</button>'
+        + '</span>').appendTo(actionsCont);
+
+    instantActions.one('click', 'button[data-instant]', function () {
+        actionsCont.find('.instant-actions button').prop('disabled', true);
+        const pid = post.id;
+
+        // closeQuestionAsOfftopic() :
+        // closeReasonId: 'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
+        // if closeReasonId is 'SiteSpecific', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
+        let error = false;
+        switch (this.dataset.instant) {
+            case 'unclear':
+                closeQuestionAsOfftopic(pid, 'NeedsDetailsOrClarity');
+                break;
+            case 'broad':
+                closeQuestionAsOfftopic(pid, 'NeedMoreFocus');
+                break;
+            case 'softrec':
+                closeQuestionAsOfftopic(pid, 'SiteSpecific', 16);
+                break;
+            case 'debug':
+                closeQuestionAsOfftopic(pid, 'SiteSpecific', 13);
+                break;
+            case 'opinion':
+                closeQuestionAsOfftopic(pid, 'OpinionBased');
+                break;
+            default: {
                 error = true;
-            });
-
-            // Displayed post score not same as fetched vote score
-            if(!error && votes !== post.votes) audit = true;
-        }
-
-        console.log("audit:", audit);
-        return audit;
-    }
-
-
-    function displayPostKeywords() {
-
-        // Questions only
-        if(!post.isQuestion) return;
-
-
-        // Display post keywords
-        post.issues = [];
-        const header = $('.reviewable-post .subheader').first();
-        const resultsDiv = $(`<div id="review-keywords"></div>`).appendTo(header);
-
-        const keywords = [
-            'suggest', 'software', 'tool', 'library', 'tutorial', 'guide', 'blog', 'resource', 'plugin',
-            'didn\'t work', 'doesn\'t work', 'want', 'help', 'advice', 'give',
-            'I am new', 'I\'m new', 'Im new', 'beginner', 'newbie', 'explain', 'understand', 'example', 'reference', 'imgur'
-        ];
-        const foreignKeywords = [
-            ' se ', ' de ', ' que ', ' untuk ',
-        ];
-
-        try {
-            const paras = $(post.contentHtml).filter('p, ol, ul').text();
-            const text = (post.title + paras).toLowerCase();
-            const results = keywords.filter(v => text.includes(v.toLowerCase()));
-            results.forEach(v => {
-                $('<span>' + v + '</span>').appendTo(resultsDiv);
-                post.issues.push(v);
-            });
-
-            const code = $('code', post.contentHtml).text();
-            if(code.length < 60) {
-                $('<span>no-code</span>').prependTo(resultsDiv);
-                post.issues.unshift('no-code');
-            };
-
-            const postLinks = text.match(/href="http/g);
-            if(postLinks && postLinks.length > 1) {
-                $('<span>' + postLinks.length + ' links</span>').prependTo(resultsDiv);
-                post.issues.unshift(postLinks.length + ' links');
-            }
-
-            const questionMarks = paras.match(/\?+/g);
-            if(questionMarks && questionMarks.length > 1) {
-                $('<span>' + questionMarks.length + '?</span>').prependTo(resultsDiv);
-                post.issues.unshift(questionMarks.length + '?');
-            }
-
-            if(foreignKeywords.some(v => text.includes(v.toLowerCase()))) {
-                $('<span>non-english</span>').prependTo(resultsDiv);
-                post.issues.unshift('non-english');
-            };
-        }
-        catch(e) {
-            $('<span>bad-formatting</span>').appendTo(resultsDiv);
-            post.issues.push('bad-formatting code-only');
-        }
-
-        if(post.content.length <= 500) {
-            $('<span>short</span>').prependTo(resultsDiv);
-            post.issues.unshift('short');
-        }
-        else if(post.content.length >= 8000) {
-            $('<span>excessive</span>').prependTo(resultsDiv);
-            post.issues.unshift('excessive');
-        }
-        else if(post.content.length >= 5000) {
-            $('<span>long</span>').prependTo(resultsDiv);
-            post.issues.unshift('long');
-        }
-
-        //console.log('post issues:', post.issues);
-    }
-
-
-    function processCloseReview() {
-
-        // Question has an accepted answer, skip if enabled
-        if(skipAccepted && post.isQuestion && post.accepted) {
-            toastMessage('skipping accepted question');
-            skipReview();
-            return;
-        }
-
-        // Post has positive score, skip if enabled
-        if(skipUpvoted && post.votes > 3) {
-            toastMessage('skipping upvoted post');
-            skipReview();
-            return;
-        }
-
-        // Question has multiple answers, skip if enabled
-        if(skipMultipleAnswers && post.isQuestion && post.answers > 1) {
-            toastMessage('skipping question with >1 answer');
-            skipReview();
-            return;
-        }
-
-        // Question body is too long, skip if enabled
-        if(skipLongQuestions && post.isQuestion && post.content.length > 3000) {
-            toastMessage('skipping long-length question, length ' + post.content.length);
-            skipReview();
-            return;
-        }
-
-        // Question body is of medium length, skip if enabled
-        if(skipMediumQuestions && post.isQuestion && post.content.length > 1000) {
-            toastMessage('skipping medium-length question, length ' + post.content.length);
-            skipReview();
-            return;
-        }
-
-        // Question body is short, try to close if enabled
-        if(autoCloseQuestions || (autoCloseShortQuestions && post.isQuestion && post.content.length < 500)) {
-            $('.js-review-actions button[title*="Close"], .close-question-link[data-isclosed="false"]').first().click();
-            return;
-        }
-    }
-
-
-    function processReopenReview() {
-
-        // Post has positive score, skip if enabled
-        if(skipUpvoted && post.votes > 3) {
-            toastMessage('skipping upvoted post');
-            skipReview();
-            return;
-        }
-
-        // Question has multiple answers, skip if enabled
-        if(skipMultipleAnswers && post.isQuestion && post.answers > 1) {
-            toastMessage('skipping question with >1 answer');
-            skipReview();
-            return;
-        }
-
-        if(!isSuperuser) return;
-
-        const shortPostBody = post.content.length < 500;
-        const tooManyQuestions = post.content.includes('?') && post.content.match(/\?/g).length > 3;
-
-        const diff = $('.sidebyside-diff');
-        const adds = diff.find('.diff-add').text().length || 0;
-        const subs = diff.find('.diff-delete').text().length || 0;
-
-        const imageLinks = $('.inline-diff').find('a[href$="png"], a[href$="jpg"], a[href$="gif"]').length;
-        const images = $('.inline-diff').find('img').length;
-        const badImageLinks = imageLinks - images;
-
-        console.log('adds', adds, 'subs', subs, 'badImageLinks', badImageLinks);
-
-        // Question has comprehensive changes with no bad images, reopen
-        if(adds > 400 && badImageLinks === 0 && !shortPostBody && !tooManyQuestions) {
-            toastMessage('reopened');
-            $('.js-review-actions button[title^="agree"]').removeAttr('disabled').click();
-            $('#confirm-modal-body').next().children('.js-ok-button').click();
-            return;
-        }
-        // Question has some edits with no bad images, ignore
-        else if((subs > 200 || adds > 200) && badImageLinks === 0) {
-            toastMessage('skipping minor edits', 3000);
-            setTimeout(skipReview, 4000);
-            return;
-        }
-        // Leave closed
-        else {
-            toastMessage('leave closed' + (badImageLinks > 0 ? ', has badImageLinks' : '') + (shortPostBody ? ', too short' : ''));
-            $('.js-review-actions button[title^="disagree"]').removeAttr('disabled').click();
-            return;
-        }
-    }
-
-
-    function processLowQualityPostsReview() {
-
-        const postEl = $('.reviewable-answer .js-post-body');
-        const postText = postEl.text();
-        const postHtml = postEl.html();
-        const postNoCodeHtml = postEl.clone(true, true).find('pre, code').remove().end().html();
-
-        // If post type is an answer
-        if(!post.isQuestion) {
-
-            // If is a short answer and there is a link in the post, select "link-only answer" option in delete dialog
-            if(postText.length < 300 && /https?:\/\//.test(postHtml)) {
-                isLinkOnlyAnswer = true;
-                console.log('Possible link-only answer detected.');
-            }
-
-            // Try to detect if the post contains mostly code
-            else if(postEl.find('pre, code').length > 0 &&
-                    (postNoCodeHtml.length < 50 || postHtml.length / postNoCodeHtml.length > 0.9)) {
-                isCodeOnlyAnswer = true;
-                console.log('Possible code-only answer detected.');
+                console.error('invalid option');
             }
         }
+
+        if (!error) {
+            // immediately skip to next review
+            if (!isSuperuser) {
+                skipReview();
+            }
+            else {
+                location.reload();
+            }
+        }
+    });
+}
+
+
+function insertVotingButtonsIfMissing() {
+    const reviewablePost = $('.reviewable-post');
+    if (reviewablePost.length == 0) return; // e.g.: suggested edits
+
+    const pid = Number(reviewablePost[0].className.replace(/\D+/g, ''));
+    const isQuestion = reviewablePost.find('.question').length == 1;
+
+    const voteCont = reviewablePost.find('.js-voting-container').first();
+    if (voteCont.length == 0) return;
+
+    const upvoteBtn = `<button class="js-vote-up-btn flex--item s-btn s-btn__unset c-pointer" title="This question shows research effort; it is useful and clear" aria-pressed="false" aria-label="up vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowUpLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 26h32L18 10 2 26z"></path></svg></button>`;
+    const dnvoteBtn = `<button class="js-vote-down-btn flex--item s-btn s-btn__unset c-pointer" title="This question does not show any research effort; it is unclear or not useful" aria-pressed="false" aria-label="down vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowDownLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 10h32L18 26 2 10z"></path></svg></button>`;
+
+    if (voteCont.find('.js-vote-up-btn, .js-vote-down-btn').length != 2) {
+        voteCont.find('.fs-caption').remove();
+        voteCont.find('.js-vote-count').removeClass('mb8').addClass('fc-black-500 fd-column ai-center flex--item grid').unwrap().before(upvoteBtn).after(dnvoteBtn);
+
+        StackExchange.vote.init(pid);
     }
+}
 
 
-    function insertInstantCloseButtons() {
+function listenToKeyboardEvents() {
 
-        const actionsCont = $('.js-review-actions-error-target').first();
-        if(actionsCont.length == 0) return;
-        actionsCont.children('.instant-actions').remove();
+    // Focus Delete button when radio button in delete dialog popup is selected
+    $(document).on('click', '#delete-question-popup input:radio', function () {
+        $('#delete-question-popup').find('input:submit, .js-popup-submit').focus();
+    });
 
-        const instantActions = $('<span class="instant-actions grid gs8 jc-end ff-row-wrap">'
-            + '<button class="s-btn s-btn__outlined flex--item" data-instant="unclear" title="Needs details or clarity">Unclear</button>'
-            + '<button class="s-btn s-btn__outlined flex--item" data-instant="broad" title="Needs more focus">Broad</button>'
-            + '<button class="s-btn s-btn__outlined flex--item" data-instant="softrec" title="It\'s seeking recommendations for books, software libraries, or other off-site resources">SoftRec</button>'
-            + '<button class="s-btn s-btn__outlined flex--item" data-instant="debug" title="It\'s seeking debugging help but needs more information">Debug</button>'
-            + '<button class="s-btn s-btn__outlined flex--item" data-instant="opinion" title="Opinion-based">Opinion</button>'
-+ '</span>').appendTo(actionsCont);
+    // Focus Flag button when radio button in flag dialog popup is selected, UNLESS it's the custom reason option
+    $(document).on('click', '#popup-flag-post input:radio', function (evt) {
 
-        instantActions.one('click', 'button[data-instant]', function() {
-            actionsCont.find('.instant-actions button').prop('disabled', true);
-            const pid = post.id;
+        // If custom reason option, do nothing
+        if (this.value == 'PostOther') return;
 
-            // closeQuestionAsOfftopic() :
-            // closeReasonId: 'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
-            // if closeReasonId is 'SiteSpecific', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
-            let error = false;
-            switch(this.dataset.instant) {
-                case 'unclear':
-                    closeQuestionAsOfftopic(pid, 'NeedsDetailsOrClarity');
-                    break;
-                case 'broad':
-                    closeQuestionAsOfftopic(pid, 'NeedMoreFocus');
-                    break;
-                case 'softrec':
-                    closeQuestionAsOfftopic(pid, 'SiteSpecific', 16);
-                    break;
-                case 'debug':
-                    closeQuestionAsOfftopic(pid, 'SiteSpecific', 13);
-                    break;
-                case 'opinion':
-                    closeQuestionAsOfftopic(pid, 'OpinionBased');
-                    break;
-                default: {
-                    error = true;
-                    console.error('invalid option');
+        $('#popup-flag-post').find('input:submit, .js-popup-submit').focus();
+    });
+
+    // Focus Reject button when radio button in edit reject dialog popup is selected
+    $(document).on('click', '#rejection-popup input:radio', function () {
+        if ($(this).hasClass('custom-reason')) $('textarea.custom-reason-text').focus();
+        else $('#rejection-popup').find('input:submit, .js-popup-submit').focus();
+    });
+
+    // Cancel existing handlers and implement our own keyboard shortcuts
+    $(document).off('keypress keyup');
+
+    // Keyboard shortcuts event handler
+    $(document).on('keyup', function (evt) {
+
+        //console.trace('RQH', 'keyup', evt);
+
+        // Back buttons: escape (27)
+        // Unable to use tilde (192) as on the UK keyboard it is swapped the single quote keycode
+        const cancel = evt.keyCode === 27;
+        const goback = evt.keyCode === 27;
+        //console.log("cancel", cancel, "goback", goback);
+
+        // Get numeric key presses
+        let index = evt.keyCode - 49; // 49 = number 1 = 0 (index)
+        if (index == -1) index = 9; // remap zero to last index
+        if (index < 0 || index > 9) { // handle 1-0 number keys only (index 0-9)
+
+            // Try keypad keycodes instead
+            let altIndex = evt.keyCode - 97; // 97 = number 1 = 0 (index)
+            if (altIndex == -1) altIndex = 9; // remap zero to last index
+            if (altIndex >= 0 && altIndex <= 9) {
+                index = altIndex; // handle 1-0 number keys only (index 0-9)
+            }
+            else {
+                // Both are invalid
+                index = null;
+            }
+        }
+        //console.log("keypress", evt.keyCode, "index", index);
+
+        // Do nothing if key modifiers were pressed
+        if (evt.shiftKey || evt.ctrlKey || evt.altKey) return;
+
+        // If edit mode, cancel if esc is pressed
+        if (cancel && $('.editing-review-content').length > 0) {
+            $('.js-review-cancel-button').click();
+            return;
+        }
+
+
+        // Get current popup
+        const currPopup = $('#delete-question-popup, #rejection-popup, #popup-flag-post, #popup-close-question').filter(':visible').last();
+
+        // #69 - If a textbox or textarea is focused, e.g.: comment box
+        // E.g.: if post is being edited or being commented on
+        if (document.activeElement.tagName == 'TEXTAREA' ||
+            (document.activeElement.tagName == 'INPUT' && document.activeElement.type == 'text') ||
+            document.getElementsByClassName('editing-review-content').length > 0) {
+
+            // Just unfocus the element if esc was pressed
+            if (currPopup.length && goback) document.activeElement.blur();
+            return;
+        }
+
+
+        // If there's an active popup
+        if (currPopup.length) {
+
+            // If escape key pressed, go back to previous pane, or dismiss popup if on main pane
+            if (goback) {
+
+                // If displaying a single duplicate post, go back to duplicates search
+                const dupeBack = currPopup.find('.original-display .navi a').filter(':visible');
+                if (dupeBack.length) {
+                    dupeBack.click();
+                    return false;
+                }
+
+                // Go back to previous pane if possible,
+                // otherwise default to dismiss popup
+                const link = currPopup.find('.popup-close a, .popup-breadcrumbs a, .js-popup-back').filter(':visible');
+                if (link.length) {
+                    link.last().click();
+                    // Always clear dupe closure search box on back action
+                    $('#search-text').val('');
+                    return false;
                 }
             }
 
-            if(!error) {
-                // immediately skip to next review
-                if(!isSuperuser) {
-                    skipReview();
-                }
-                else {
-                    location.reload();
-                }
+            // If valid index, click it
+            else if (index != null) {
+                const currPopup = $('.popup:visible').last();
+                // Get active (visible) pane
+                const pane = currPopup.find('form .action-list, .popup-active-pane').filter(':visible').last();
+                // Get options
+                const opts = pane.find('input:radio');
+                // Click option
+                const opt = opts.eq(index).click();
+                // Job is done here. Do not bubble if an option was clicked
+                return opt.length !== 1;
             }
-        });
-    }
+
+        } // end popup is active
 
 
-    function insertVotingButtonsIfMissing() {
+        // Review action buttons
+        if (index != null && index <= 4) {
+            //console.log('review action', 'keyCode', evt.keyCode, 'index', index);
 
-        const reviewablePost = $('.reviewable-post');
-        if(reviewablePost.length == 0) return; // e.g.: suggested edits
+            const btns = $('.js-review-actions button');
+            // If there is only one button and is "Next", click it
+            if (btns.length === 1) {
+                index = 0;
+            }
 
-        const pid = Number(reviewablePost[0].className.replace(/\D+/g, ''));
-        const isQuestion = reviewablePost.find('.question').length == 1;
-
-        const voteCont = reviewablePost.find('.js-voting-container').first();
-        if(voteCont.length == 0) return;
-
-        const upvoteBtn = `<button class="js-vote-up-btn flex--item s-btn s-btn__unset c-pointer" title="This question shows research effort; it is useful and clear" aria-pressed="false" aria-label="up vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowUpLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 26h32L18 10 2 26z"></path></svg></button>`;
-        const dnvoteBtn = `<button class="js-vote-down-btn flex--item s-btn s-btn__unset c-pointer" title="This question does not show any research effort; it is unclear or not useful" aria-pressed="false" aria-label="down vote" data-selected-classes="fc-theme-primary"><svg aria-hidden="true" class="svg-icon m0 iconArrowDownLg" width="36" height="36" viewBox="0 0 36 36"><path d="M2 10h32L18 26 2 10z"></path></svg></button>`;
-
-        if(voteCont.find('.js-vote-up-btn, .js-vote-down-btn').length != 2) {
-            voteCont.find('.fs-caption').remove();
-            voteCont.find('.js-vote-count').removeClass('mb8').addClass('fc-black-500 fd-column ai-center flex--item grid').unwrap().before(upvoteBtn).after(dnvoteBtn);
-
-            StackExchange.vote.init(pid);
+            // Default to clicking review buttons based on index
+            btns.eq(index).click();
+            return false;
         }
-    }
+        // Instant action buttons
+        else if (index != null && index >= 5) {
+            //console.log('instant action', 'keyCode', evt.keyCode, 'index', index);
 
-
-    function listenToKeyboardEvents() {
-
-        // Focus Delete button when radio button in delete dialog popup is selected
-        $(document).on('click', '#delete-question-popup input:radio', function() {
-            $('#delete-question-popup').find('input:submit, .js-popup-submit').focus();
-        });
-
-        // Focus Flag button when radio button in flag dialog popup is selected, UNLESS it's the custom reason option
-        $(document).on('click', '#popup-flag-post input:radio', function(evt) {
-
-            // If custom reason option, do nothing
-            if(this.value == 'PostOther') return;
-
-            $('#popup-flag-post').find('input:submit, .js-popup-submit').focus();
-        });
-
-        // Focus Reject button when radio button in edit reject dialog popup is selected
-        $(document).on('click', '#rejection-popup input:radio', function() {
-            if ($(this).hasClass('custom-reason')) $('textarea.custom-reason-text').focus();
-            else $('#rejection-popup').find('input:submit, .js-popup-submit').focus();
-        });
-
-        // Cancel existing handlers and implement our own keyboard shortcuts
-        $(document).off('keypress keyup');
-
-        // Keyboard shortcuts event handler
-        $(document).on('keyup', function(evt) {
-
-            //console.trace('RQH', 'keyup', evt);
-
-            // Back buttons: escape (27)
-            // Unable to use tilde (192) as on the UK keyboard it is swapped the single quote keycode
-            const cancel = evt.keyCode === 27;
-            const goback = evt.keyCode === 27;
-            //console.log("cancel", cancel, "goback", goback);
-
-            // Get numeric key presses
-            let index = evt.keyCode - 49; // 49 = number 1 = 0 (index)
-            if(index == -1) index = 9; // remap zero to last index
-            if(index < 0 || index > 9) { // handle 1-0 number keys only (index 0-9)
-
-                // Try keypad keycodes instead
-                let altIndex = evt.keyCode - 97; // 97 = number 1 = 0 (index)
-                if(altIndex == -1) altIndex = 9; // remap zero to last index
-                if(altIndex >= 0 && altIndex <= 9) {
-                    index = altIndex; // handle 1-0 number keys only (index 0-9)
-                }
-                else {
-                    // Both are invalid
-                    index = null;
-                }
-            }
-            //console.log("keypress", evt.keyCode, "index", index);
-
-            // Do nothing if key modifiers were pressed
-            if(evt.shiftKey || evt.ctrlKey || evt.altKey) return;
-
-            // If edit mode, cancel if esc is pressed
-            if(cancel && $('.editing-review-content').length > 0) {
-                $('.js-review-cancel-button').click();
-                return;
-            }
-
-
-            // Get current popup
-            const currPopup = $('#delete-question-popup, #rejection-popup, #popup-flag-post, #popup-close-question').filter(':visible').last();
-
-            // #69 - If a textbox or textarea is focused, e.g.: comment box
-            // E.g.: if post is being edited or being commented on
-            if(document.activeElement.tagName == 'TEXTAREA' ||
-                (document.activeElement.tagName == 'INPUT' && document.activeElement.type == 'text') ||
-                document.getElementsByClassName('editing-review-content').length > 0) {
-
-                // Just unfocus the element if esc was pressed
-                if(currPopup.length && goback) document.activeElement.blur();
-                return;
-            }
-
-
-            // If there's an active popup
-            if(currPopup.length) {
-
-                // If escape key pressed, go back to previous pane, or dismiss popup if on main pane
-                if(goback) {
-
-                    // If displaying a single duplicate post, go back to duplicates search
-                    const dupeBack = currPopup.find('.original-display .navi a').filter(':visible');
-                    if(dupeBack.length) {
-                        dupeBack.click();
-                        return false;
-                    }
-
-                    // Go back to previous pane if possible,
-                    // otherwise default to dismiss popup
-                    const link = currPopup.find('.popup-close a, .popup-breadcrumbs a, .js-popup-back').filter(':visible');
-                    if(link.length) {
-                        link.last().click();
-                        // Always clear dupe closure search box on back action
-                        $('#search-text').val('');
-                        return false;
-                    }
-                }
-
-                // If valid index, click it
-                else if(index != null) {
-                    const currPopup = $('.popup:visible').last();
-                    // Get active (visible) pane
-                    const pane = currPopup.find('form .action-list, .popup-active-pane').filter(':visible').last();
-                    // Get options
-                    const opts = pane.find('input:radio');
-                    // Click option
-                    const opt = opts.eq(index).click();
-                    // Job is done here. Do not bubble if an option was clicked
-                    return opt.length !== 1;
-                }
-
-            } // end popup is active
-
-
-            // Review action buttons
-            if(index != null && index <= 4) {
-                //console.log('review action', 'keyCode', evt.keyCode, 'index', index);
-
-                const btns = $('.js-review-actions button');
-                // If there is only one button and is "Next", click it
-                if(btns.length === 1) {
-                    index = 0;
-                }
-
-                // Default to clicking review buttons based on index
-                btns.eq(index).click();
-                return false;
-            }
-            // Instant action buttons
-            else if(index != null && index >= 5) {
-                //console.log('instant action', 'keyCode', evt.keyCode, 'index', index);
-
-                const btns = $('.instant-actions button');
-                btns.eq(index - 5).click();
-                return false;
-            }
-        });
-    }
-
-
-    function doPageLoad() {
-
-        listenToKeyboardEvents();
-
-        // Focus VTC button when radio button in close dialog popup is selected
-        $(document).on('click', '#popup-close-question input:radio', function(evt) {
-
-            // If dupe radio, do nothing
-            if(this.value === 'Duplicate') return;
-
-            // If custom reason option, do nothing
-            if(this.value == '3') return;
-
-            // If migrate anywhere radio, do nothing
-            if(this.id === 'migrate-anywhere') return;
-
-            $('#popup-close-question').find('input:submit, .js-popup-submit').focus();
-        });
-
-        // Review queues styles
-        if(/\/review\//.test(location.pathname)) {
-            addReviewQueueStyles();
+            const btns = $('.instant-actions button');
+            btns.eq(index - 5).click();
+            return false;
         }
+    });
+}
 
-        // If in queue history page
-        if(/\/history$/.test(location.pathname)) {
 
-            let userId = location.search.match(/userId=\d+/) || '';
-            if(userId) userId = '&' + userId;
+function doPageLoad() {
 
-            const filterTabs = $(`<div id="review-history-tabs" class="tabs">
+    // Focus VTC button when radio button in close dialog popup is selected
+    $(document).on('click', '#popup-close-question input:radio', function (evt) {
+
+        // If dupe radio, do nothing
+        if (this.value === 'Duplicate') return;
+
+        // If custom reason option, do nothing
+        if (this.value == '3') return;
+
+        // If migrate anywhere radio, do nothing
+        if (this.id === 'migrate-anywhere') return;
+
+        $('#popup-close-question').find('input:submit, .js-popup-submit').focus();
+    });
+
+    // Review queues styles
+    if (/\/review\//.test(location.pathname)) {
+        addReviewQueueStyles();
+    }
+
+    // If in queue history page
+    if (/\/history$/.test(location.pathname)) {
+
+        let userId = location.search.match(/userId=\d+/) || '';
+        if (userId) userId = '&' + userId;
+
+        const filterTabs = $(`<div id="review-history-tabs" class="tabs">
 <a href="?skipped=true${userId}" class="${location.search.includes('skipped=true') ? 'youarehere' : ''}">Show All</a>
 <a href="?skipped=false${userId}" class="${location.search.includes('skipped=true') ? '' : 'youarehere'}">Default</a>
 </div>`);
 
-            const actions = $('.history-table tbody tr').map((i, el) => {
-                const actionName = el.children[2].innerText.trim();
-                el.dataset.actionType = actionName.toLowerCase().replace(/\W+/gi, '-');
-                return actionName;
-            }).get();
-            const historyTypes = [...new Set(actions)].sort();
-            historyTypes.forEach(function(actionName) {
-                const actionSlug = actionName.toLowerCase().replace(/\W+/gi, '-');
-                filterTabs.append(`<a data-filter="${actionSlug}">${actionName}</a>`);
-            });
-
-            $('.history-table').before(filterTabs);
-
-            // Filter options event
-            $('#review-history-tabs').on('click', 'a[data-filter]', function() {
-
-                // Unset if set, and show all
-                if($(this).hasClass('youarehere')) {
-
-                    $('.history-table tbody tr').show();
-
-                    // Update active tab highlight class
-                    $(this).removeClass('youarehere')
-                }
-                else {
-
-                    // Filter posts based on selected filter
-                    $('.history-table tbody tr').hide().filter(`[data-action-type="${this.dataset.filter}"]`).show();
-
-                    // Update active tab highlight class
-                    $(this).addClass('youarehere').siblings('[data-filter]').removeClass('youarehere');
-                }
-
-                return false;
-            });
-
-            // Triage, filter by "Requires Editing" (or new "Needs community edit") by default
-            if(/\/triage\/history$/.test(location.pathname)) {
-                $('a[data-filter="needs-community-edit"]').click();
-            }
-        }
-
-        // Not in a review queue, do nothing. Required for ajaxComplete function below
-        if(queueType == null) return;
-        console.log('Review queue:', queueType);
-
-        // Add additional class to body based on review queue
-        document.body.classList.add(queueType + '-review-queue');
-
-        // Display remaining CV and flag quota for non-mods
-        setTimeout(displayRemainingQuota, 3000);
-
-        // Detect queue type and set appropriate process function
-        switch(queueType) {
-            case 'close':
-                processReview = processCloseReview; break;
-            case 'reopen':
-                processReview = processReopenReview; break;
-            case 'suggested-edits':
-                processReview = processCloseReview; break;
-            case 'helper':
-                processReview = processCloseReview; break;
-            case 'low-quality-posts':
-                processReview = processLowQualityPostsReview; break;
-            case 'triage':
-                processReview = processCloseReview; break;
-            case 'first-posts':
-                processReview = processCloseReview; break;
-            case 'late-answers':
-                processReview = processCloseReview; break;
-            default:
-                break;
-        }
-
-        // Handle follow/unfollow feature ourselves
-        $('#content').on('click', '.js-somu-follow-post', function() {
-            const link = this;
-            const postType = this.dataset.postType;
-            const undo = this.innerText === 'unfollow';
-            followPost(this.dataset.pid, undo).then(v => {
-                link.innerText = undo ? 'follow' : 'unfollow';
-                if(undo) StackExchange.helpers.showToast('You’re no longer following this ' + postType);
-            });
+        const actions = $('.history-table tbody tr').map((i, el) => {
+            const actionName = el.children[2].innerText.trim();
+            el.dataset.actionType = actionName.toLowerCase().replace(/\W+/gi, '-');
+            return actionName;
+        }).get();
+        const historyTypes = [...new Set(actions)].sort();
+        historyTypes.forEach(function (actionName) {
+            const actionSlug = actionName.toLowerCase().replace(/\W+/gi, '-');
+            filterTabs.append(`<a data-filter="${actionSlug}">${actionName}</a>`);
         });
+
+        $('.history-table').before(filterTabs);
+
+        // Filter options event
+        $('#review-history-tabs').on('click', 'a[data-filter]', function () {
+
+            // Unset if set, and show all
+            if ($(this).hasClass('youarehere')) {
+
+                $('.history-table tbody tr').show();
+
+                // Update active tab highlight class
+                $(this).removeClass('youarehere')
+            }
+            else {
+
+                // Filter posts based on selected filter
+                $('.history-table tbody tr').hide().filter(`[data-action-type="${this.dataset.filter}"]`).show();
+
+                // Update active tab highlight class
+                $(this).addClass('youarehere').siblings('[data-filter]').removeClass('youarehere');
+            }
+
+            return false;
+        });
+
+        // Triage, filter by "Requires Editing" (or new "Needs community edit") by default
+        if (/\/triage\/history$/.test(location.pathname)) {
+            $('a[data-filter="needs-community-edit"]').click();
+        }
     }
 
+    // Not in a review queue, do nothing. Required for ajaxComplete function below
+    if (queueType == null) return;
+    console.log('Review queue:', queueType);
 
-    function repositionReviewDialogs(scrollTop = true) {
+    // Add additional class to body based on review queue
+    document.body.classList.add(queueType + '-review-queue');
 
-        // option to scroll to top of page
-        scrollTop ? setTimeout(() => window.scrollTo(0,0), 100) : 0;
+    // Display remaining CV and flag quota for non-mods
+    setTimeout(displayRemainingQuota, 3000);
 
-        // position dialog
-        $('.popup').css(isSuperuser ? {
-            top: -50,
-            left: 730
-        } : {
-            top: 100,
-            left: 0
-        });
+    // Detect queue type and set appropriate process function
+    switch (queueType) {
+        case 'close':
+            processReview = processCloseReview; break;
+        case 'reopen':
+            processReview = processReopenReview; break;
+        case 'suggested-edits':
+            processReview = processCloseReview; break;
+        case 'helper':
+            processReview = processCloseReview; break;
+        case 'low-quality-posts':
+            processReview = processLowQualityPostsReview; break;
+        case 'triage':
+            processReview = processCloseReview; break;
+        case 'first-posts':
+            processReview = processCloseReview; break;
+        case 'late-answers':
+            processReview = processCloseReview; break;
+        default:
+            break;
     }
 
+    // Handle follow/unfollow feature ourselves
+    $('#content').on('click', '.js-somu-follow-post', function () {
+        const link = this;
+        const postType = this.dataset.postType;
+        const undo = this.innerText === 'unfollow';
+        followPost(this.dataset.pid, undo).then(v => {
+            link.innerText = undo ? 'follow' : 'unfollow';
+            if (undo) StackExchange.helpers.showToast('You’re no longer following this ' + postType);
+        });
+    });
+}
 
-    function listenToPageUpdates() {
 
-        // On any page update
-        $(document).ajaxComplete(function(event, xhr, settings) {
+function repositionReviewDialogs(scrollTop = true) {
 
-            // Do nothing with fetching vote counts
-            if(settings.url.includes('/vote-counts')) return;
+    // option to scroll to top of page
+    scrollTop ? setTimeout(() => window.scrollTo(0, 0), 100) : 0;
 
-            // Do nothing with saving preferences
-            if(settings.url.includes('/users/save-preference')) return;
+    // position dialog
+    $('.popup').css(isSuperuser ? {
+        top: -50,
+        left: 730
+    } : {
+        top: 100,
+        left: 0
+    });
+}
 
-            if(settings.url.includes('/close/add')) {
-                !isNaN(remainingCloseVotes) ? remainingCloseVotes-- : null;
-            }
-            if(settings.url.includes('/add/PostOther')) {
-                !isNaN(remainingPostFlags) ? remainingPostFlags-- : null;
-            }
 
-            // Close dialog loaded
-            if(settings.url.includes('/close/popup')) {
-                setTimeout(function() {
+function listenToPageUpdates() {
 
-                    const popup = $('#popup-close-question');
-                    const reviewKeywords = $('#review-keywords').text();
+    // On any page update
+    $(document).ajaxComplete(function (event, xhr, settings) {
 
-                    if(queueType != null) repositionReviewDialogs(true);
+        // Do nothing with fetching vote counts
+        if (settings.url.includes('/vote-counts')) return;
 
-                    // Find and add class to off-topic badge count so we can avoid it
-                    popup.find('input[value="SiteSpecific"]').closest('li').find('.s-badge__mini').addClass('offtopic-indicator');
+        // Do nothing with saving preferences
+        if (settings.url.includes('/users/save-preference')) return;
 
-                    // Select default radio based on previous votes, ignoring the off-topic reason
-                    let opts = popup.find('.s-badge__mini').not('.offtopic-indicator').get().sort((a, b) => Number(a.innerText) - Number(b.innerText));
-                    const selOptCount = Number($(opts).last().text()) || 0;
-                    const selOpt = $(opts).last().closest('li').find('input:radio').click();
-                    //console.log(opts, selOpt); debugger;
+        if (settings.url.includes('/close/add')) {
+            !isNaN(remainingCloseVotes) ? remainingCloseVotes-- : null;
+        }
+        if (settings.url.includes('/add/PostOther')) {
+            !isNaN(remainingPostFlags) ? remainingPostFlags-- : null;
+        }
 
-                    // If selected option is in a subpane, display off-topic subpane instead
-                    const pane = selOpt.closest('.popup-subpane');
-                    if(pane.attr('id') !== 'pane-main') {
+        // Close dialog loaded
+        if (settings.url.includes('/close/popup')) {
+            setTimeout(function () {
 
-                        // Get pane name
-                        const paneName = pane.attr('data-subpane-name');
+                const popup = $('#popup-close-question');
+                const reviewKeywords = $('#review-keywords').text();
 
-                        // Select radio with same subpane name
-                        popup.find(`input[data-subpane-name="${paneName}"]`).click();
+                if (queueType != null) repositionReviewDialogs(true);
 
-                        // Re-select option
-                        selOpt.click();
+                // Find and add class to off-topic badge count so we can avoid it
+                popup.find('input[value="SiteSpecific"]').closest('li').find('.s-badge__mini').addClass('offtopic-indicator');
+
+                // Select default radio based on previous votes, ignoring the off-topic reason
+                let opts = popup.find('.s-badge__mini').not('.offtopic-indicator').get().sort((a, b) => Number(a.innerText) - Number(b.innerText));
+                const selOptCount = Number($(opts).last().text()) || 0;
+                const selOpt = $(opts).last().closest('li').find('input:radio').click();
+                //console.log(opts, selOpt); debugger;
+
+                // If selected option is in a subpane, display off-topic subpane instead
+                const pane = selOpt.closest('.popup-subpane');
+                if (pane.attr('id') !== 'pane-main') {
+
+                    // Get pane name
+                    const paneName = pane.attr('data-subpane-name');
+
+                    // Select radio with same subpane name
+                    popup.find(`input[data-subpane-name="${paneName}"]`).click();
+
+                    // Re-select option
+                    selOpt.click();
+                }
+
+                // If no popular vote
+                if (selOpt.length == 0) {
+
+                    // Select general flagged close reason
+                    if (["needs more focus", "needs details or clarity", "opinion-based"].includes(flaggedReason)) {
+                        const labels = popup.find('.js-action-name');
+                        const selectedLabel = labels.filter((i, el) => el.textContent.toLowerCase() == flaggedReason)
+                        const selectedRadio = selectedLabel.closest('li').find('input:radio').click();
+
+                        toastMessage('DETECTED - ' + flaggedReason);
                     }
-
-                    // If no popular vote
-                    if(selOpt.length == 0) {
-
-                        // Select general flagged close reason
-                        if(["needs more focus", "needs details or clarity", "opinion-based"].includes(flaggedReason)) {
-                            const labels = popup.find('.js-action-name');
-                            const selectedLabel = labels.filter((i, el) => el.textContent.toLowerCase() == flaggedReason)
-                            const selectedRadio = selectedLabel.closest('li').find('input:radio').click();
-
-                            toastMessage('DETECTED - ' + flaggedReason);
-                        }
-                        // Try to prediect close reasons from keywords
-                        else {
-
-                            // No code, close as unclear
-                            if(reviewKeywords.includes('no-code')) {
-                                toastMessage('DETECTED - unclear (no code)');
-                                $('#closeReasonId-NeedsDetailsOrClarity').prop('checked', true).trigger('click');
-                            }
-
-                            // Possibly opinion-based
-                            else if(["what is", "what's"].some(v => post.content.includes(v)) && opinionKeywords.some(v => post.content.includes(v))) {
-                                toastMessage('DETECTED - opinion-based');
-                                $('#closeReasonId-OpinionBased').prop('checked', true).trigger('click');
-                            }
-                        }
-
-                        if(isSuperuser) {
-                            // Click Close button to submit previous detections
-                            popup.find('.js-popup-submit, input:submit').click();
-                        }
-                    }
-
-                    // Experimental
-                    if(isSuperuser) {
-
-                        //console.log('filteredTypes', filteredTypes);debugger;
-
-                        // If only filtering by "Duplicate", do nothing
-                        if((filteredTypes.length === 1 && filteredTypes.includes('Duplicate')) === true) return;
-
-                        // If dupe, edited, answered, positive score, skip review
-                        if(post.content.length >= 200 && (post.accepted || post.answers >= 2)) {
-                            toastMessage('AUTO SKIP - accepted or has answers');
-                            skipReview();
-                            return;
-                        }
-                        else if(post.content.length >= 200 && post.votes > 1) {
-                            toastMessage('AUTO SKIP - positive score');
-                            skipReview();
-                            return;
-                        }
-                        else if(currentReview.instructions.toLowerCase().includes('duplicate') || flaggedReason.toLowerCase().includes('duplicate')) {
-                            toastMessage('AUTO SKIP - ignore dupe closure');
-                            skipReview();
-                            return;
-                        }
-                        else if(post.content.length >= 700 && $('.reviewable-post').find('.post-signature').length === 2) {
-                            toastMessage('AUTO SKIP - edited long question');
-                            skipReview();
-                            return;
-                        }
-                        // Debugging but has code
-                        else if(!reviewKeywords.includes('no-code') && flaggedReason.toLowerCase().includes('not suitable for this site') && selOpt.attr('id') === 'siteSpecificCloseReasonId-13-') {
-                            toastMessage('AUTO SKIP - Debugging, but code was provided');
-                            skipReview();
-                            return;
-                        }
-
-                        // Ignore these close reasons on SO-only
-                        if($('#closeReasonId-Duplicate').is(':checked')) { // dupes
-                            toastMessage('AUTO SKIP - ignore dupes');
-                            skipReview();
-                            return;
-                        }
-                        else if($('#siteSpecificCloseReasonId-11-').is(':checked')) { // typos
-                            toastMessage('AUTO SKIP - ignore typo');
-                            skipReview();
-                            return;
-                        }
-                        else if($('#siteSpecificCloseReasonId-16-').is(':checked')) { // software recs
-                            toastMessage('AUTO SKIP - ignore softrec');
-                            skipReview();
-                            return;
-                        }
-
-                        // Ignore migrations
-                        if($('#siteSpecificCloseReasonId-2-').is(':checked') || $('input[name="belongsOnBaseHostAddress"]:checked').length > 0) { // migrate
-                            //$('#closeReasonId-NeedsDetailsOrClarity').prop('checked', true).trigger('click'); // default to unclear?
-                            toastMessage('AUTO SKIP - ignore migrations');
-                            skipReview();
-                            return;
-                        }
-
-                        // After short delay
-                        setTimeout(postId => {
-                            if(postId !== post.id) return; // Review changed, do nothing
-
-                            // Remove instant actions
-                            $('.instant-actions').remove();
-
-                            // Skip to next review after a short delay if no option is selected
-                            if($('#popup-close-question').length > 0 && $('#popup-close-question input:radio:checked').length === 0) {
-                                toastMessage('AUTO SKIP - no action selected');
-                                skipReview();
-                                return;
-                            }
-                            // Click Close button
-                            else {
-                                toastMessage('AUTO CLOSED');
-                                popup.find('.js-popup-submit, input:submit').click();
-                            }
-
-                        }, 5000, post.id);
-                    }
+                    // Try to prediect close reasons from keywords
                     else {
-                        // Focus Close button only
-                        popup.find('.js-popup-submit, input:submit').focus();
+
+                        // No code, close as unclear
+                        if (reviewKeywords.includes('no-code')) {
+                            toastMessage('DETECTED - unclear (no code)');
+                            $('#closeReasonId-NeedsDetailsOrClarity').prop('checked', true).trigger('click');
+                        }
+
+                        // Possibly opinion-based
+                        else if (["what is", "what's"].some(v => post.content.includes(v)) && opinionKeywords.some(v => post.content.includes(v))) {
+                            toastMessage('DETECTED - opinion-based');
+                            $('#closeReasonId-OpinionBased').prop('checked', true).trigger('click');
+                        }
                     }
 
-                }, 50);
-            }
-
-            // Delete dialog loaded
-            else if(settings.url.includes('/posts/popup/delete/')) {
-                setTimeout(function() {
-
-                    // Select recommended option if there are no auto comments yet
-                    if(post.comments.some(v => /- From Review/i.test(v)) == false && isLinkOnlyAnswer) {
-                        $('.popup-active-pane .js-action-name').filter((i, el) => el.innerText.includes('link-only answer')).prev('input').click();
+                    if (isSuperuser) {
+                        // Click Close button to submit previous detections
+                        popup.find('.js-popup-submit, input:submit').click();
                     }
-
-                    // Focus Delete button
-                    $('#delete-question-popup').find('input:submit, .js-popup-submit').focus();
-                }, 50);
-            }
-
-            // Flag dialog loaded
-            else if(settings.url.includes('/flags/posts/') && settings.url.includes('/popup')) {
-
-                // Convert radio buttons to new stacks radio
-                $('#popup-flag-post input:radio').addClass('s-radio');
-            }
-
-            // Question was closed
-            else if(settings.url.includes('/close/add')) {
-                $('.js-review-actions button[title*="close"]').attr('disabled', true);
-
-                // If downvoteAfterClose option enabled, and score >= 0
-                if(downvoteAfterClose && post.isQuestion && post.votes >= 0) {
-                    console.log('post downvoted', post.id);
-                    downvotePost(post.id);
-                }
-            }
-
-            // Next review loaded, transform UI and pre-process review
-            else if(settings.url.includes('/review/next-task') || settings.url.includes('/review/task-reviewed/')) {
-
-                // If reviewing reopen votes, click "I'm done"
-                if(queueType === 'first-posts') {
-
-                    setTimeout(() => {
-                        $('.js-review-actions button[title*="done reviewing"]').click();
-                    }, 1000);
                 }
 
-                // If reviewing a suggested edit from Q&A (outside of review queues)
-                if(location.href.includes('/questions/')) {
+                // Experimental
+                if (isSuperuser) {
 
-                    // Remove delete button
-                    $('.js-review-actions button[title*="delete this post"]').remove();
+                    //console.log('filteredTypes', filteredTypes);debugger;
 
-                    // If reject is clicked, restyle popups to new stacks theme
-                    $('.js-post-menu').on('click', '.popup .js-action-button[title="reject this suggested edit"]', function() {
+                    // If only filtering by "Duplicate", do nothing
+                    if ((filteredTypes.length === 1 && filteredTypes.includes('Duplicate')) === true) return;
 
-                        // Convert radio buttons to new stacks radio
-                        $('#rejection-popup input:radio').addClass('s-radio');
-                    });
-                    return;
-                }
-
-                // Keep track of how many reviews were viewed in this session
-                numOfReviews++;
-
-                // Reset variables for next task
-                isLinkOnlyAnswer = false;
-                isCodeOnlyAnswer = false;
-
-                // Get additional info about review from JSON response
-                let responseJson = {};
-                try {
-                    responseJson = JSON.parse(xhr.responseText);
-                    console.log(responseJson);
-                }
-                catch (e) {
-                    console.error('error parsing JSON', xhr.responseText);
-                }
-                currentReview = responseJson; // store globally
-
-                // Display remaining CV and flag quota
-                displayRemainingQuota();
-
-                // If action was taken (post was refreshed), don't do anything else
-                if(responseJson.isRefreshing) return;
-
-                // If not review queue, do nothing (e.g.: viewing suggested edit from Q&A)
-                if(queueType == null) return;
-
-                // Load more comments
-                $('.js-show-link.comments-link').click();
-
-                // Parse flagged reason (to select as default if no popular vote)
-                flaggedReason = (responseJson.instructions.toLowerCase().match(/(needs more focus|needs details or clarity|opinion-based|not suitable for this site)/i) || ['-']).pop().replace('&#39;', "'");
-                console.log('flaggedReason:', flaggedReason);
-
-                setTimeout(function() {
-
-                    // Get post type
-                    const reviewablePost = $('.reviewable-post, .suggested-edit').first();
-                    const pid = responseJson.postId;
-                    const isQuestion = reviewablePost.find('.answers-subheader').text().includes('Question') || reviewablePost.find('.question-hyperlink').length > 0;
-
-                    // Get post status
-                    const isDeleted = reviewablePost.find('.deleted-answer').length > 0;
-                    const isClosedOrDeleted = reviewablePost.find('.question-status, .deleted-answer').length > 0;
-                    console.log('isClosedOrDeleted', isClosedOrDeleted);
-
-                    // If no more reviews, refresh page every 10 seconds
-                    // Can't use responseJson.isUnavailable here, as it can also refer to current completed review
-                    if($('.js-review-instructions').text().includes('This queue has been cleared!')) {
-                        setTimeout(() => location.reload(), 10000);
+                    // If dupe, edited, answered, positive score, skip review
+                    if (post.content.length >= 200 && (post.accepted || post.answers >= 2)) {
+                        toastMessage('AUTO SKIP - accepted or has answers');
+                        skipReview();
+                        return;
+                    }
+                    else if (post.content.length >= 200 && post.votes > 1) {
+                        toastMessage('AUTO SKIP - positive score');
+                        skipReview();
+                        return;
+                    }
+                    else if (currentReview.instructions.toLowerCase().includes('duplicate') || flaggedReason.toLowerCase().includes('duplicate')) {
+                        toastMessage('AUTO SKIP - ignore dupe closure');
+                        skipReview();
+                        return;
+                    }
+                    else if (post.content.length >= 700 && $('.reviewable-post').find('.post-signature').length === 2) {
+                        toastMessage('AUTO SKIP - edited long question');
+                        skipReview();
+                        return;
+                    }
+                    // Debugging but has code
+                    else if (!reviewKeywords.includes('no-code') && flaggedReason.toLowerCase().includes('not suitable for this site') && selOpt.attr('id') === 'siteSpecificCloseReasonId-13-') {
+                        toastMessage('AUTO SKIP - Debugging, but code was provided');
+                        skipReview();
                         return;
                     }
 
-                    // If first-posts or late-answers queue, and not already reviewed (no Next button)
-                    const reviewStatus = $('.review-status').text();
-                    if((queueType == 'first-posts' || queueType == 'late-answers' || queueType == 'helper') &&
-                       !reviewStatus.includes('This item is no longer reviewable.') && !reviewStatus.includes('This item is not reviewable.') && !reviewStatus.includes('Review completed')) {
-
-                        // If question, insert "Close" option
-                        if(isQuestion) {
-                            const closeBtn = $(`<button class="js-action-button s-btn s-btn__primary flex--item" title="close question">Close</button>`).attr('disabled', isClosedOrDeleted);
-                            closeBtn.click(function() {
-                                // If button not disabled
-                                if(!$(this).prop('disabled')) {
-                                    $('.js-post-menu').first().find('.close-question-link').click();
-                                }
-                                return false;
-                            });
-                            $('.js-review-actions button').first().after(closeBtn);
-                        }
-
-                        // Else if answer and user has delete privs, insert "Delete" option
-                        else if(!isQuestion && (StackExchange.options.user.isModerator || StackExchange.options.user.rep >= 10000 && $('.js-post-menu a[title="vote to delete this post"]').length === 1)) {
-                            const delBtn = $(`<button class="js-action-button s-btn s-btn__primary flex--item" title="delete answer">Delete</button>`).attr('disabled', isClosedOrDeleted);
-                            delBtn.click(function() {
-                                // If button not disabled
-                                if(!$(this).prop('disabled')) {
-                                    $('.js-post-menu').first().find('a[title*="delete"]').click();
-                                }
-                                return false;
-                            });
-                            $('.js-review-actions button').first().after(delBtn);
-                        }
-
-                        // Show post menu if in the H&I queue
-                        if(location.pathname.includes('/review/helper/')) {
-                            $('.close-question-link').show();
-                        }
+                    // Ignore these close reasons on SO-only
+                    if ($('#closeReasonId-Duplicate').is(':checked')) { // dupes
+                        toastMessage('AUTO SKIP - ignore dupes');
+                        skipReview();
+                        return;
+                    }
+                    else if ($('#siteSpecificCloseReasonId-11-').is(':checked')) { // typos
+                        toastMessage('AUTO SKIP - ignore typo');
+                        skipReview();
+                        return;
+                    }
+                    else if ($('#siteSpecificCloseReasonId-16-').is(':checked')) { // software recs
+                        toastMessage('AUTO SKIP - ignore softrec');
+                        skipReview();
+                        return;
                     }
 
-                    // If we are in H&I
-                    if(queueType == 'helper') {
+                    // Ignore migrations
+                    if ($('#siteSpecificCloseReasonId-2-').is(':checked') || $('input[name="belongsOnBaseHostAddress"]:checked').length > 0) { // migrate
+                        //$('#closeReasonId-NeedsDetailsOrClarity').prop('checked', true).trigger('click'); // default to unclear?
+                        toastMessage('AUTO SKIP - ignore migrations');
+                        skipReview();
+                        return;
+                    }
 
-                        // If H&I review has been completed
-                        if(responseJson.isUnavailable) {
-                            // Remove edit button so only "Next" is displayed
-                            $('.js-review-actions button').first().remove();
+                    // After short delay
+                    setTimeout(postId => {
+                        if (postId !== post.id) return; // Review changed, do nothing
+
+                        // Remove instant actions
+                        $('.instant-actions').remove();
+
+                        // Skip to next review after a short delay if no option is selected
+                        if ($('#popup-close-question').length > 0 && $('#popup-close-question input:radio:checked').length === 0) {
+                            toastMessage('AUTO SKIP - no action selected');
+                            skipReview();
+                            return;
+                        }
+                        // Click Close button
+                        else {
+                            toastMessage('AUTO CLOSED');
+                            popup.find('.js-popup-submit, input:submit').click();
                         }
 
-                        // Display link to triage review if not already shown
-                        if($('.reviewable-post-stats .js-triage-link').length === 0) {
-                            $.get(`https://${location.hostname}/posts/${responseJson.postId}/timeline`)
-                                .done(function(data) {
+                    }, 5000, post.id);
+                }
+                else {
+                    // Focus Close button only
+                    popup.find('.js-popup-submit, input:submit').focus();
+                }
+
+            }, 50);
+        }
+
+        // Delete dialog loaded
+        else if (settings.url.includes('/posts/popup/delete/')) {
+            setTimeout(function () {
+
+                // Select recommended option if there are no auto comments yet
+                if (post.comments.some(v => /- From Review/i.test(v)) == false && isLinkOnlyAnswer) {
+                    $('.popup-active-pane .js-action-name').filter((i, el) => el.innerText.includes('link-only answer')).prev('input').click();
+                }
+
+                // Focus Delete button
+                $('#delete-question-popup').find('input:submit, .js-popup-submit').focus();
+            }, 50);
+        }
+
+        // Flag dialog loaded
+        else if (settings.url.includes('/flags/posts/') && settings.url.includes('/popup')) {
+
+            // Convert radio buttons to new stacks radio
+            $('#popup-flag-post input:radio').addClass('s-radio');
+        }
+
+        // Question was closed
+        else if (settings.url.includes('/close/add')) {
+            $('.js-review-actions button[title*="close"]').attr('disabled', true);
+
+            // If downvoteAfterClose option enabled, and score >= 0
+            if (downvoteAfterClose && post.isQuestion && post.votes >= 0) {
+                console.log('post downvoted', post.id);
+                downvotePost(post.id);
+            }
+        }
+
+        // Next review loaded, transform UI and pre-process review
+        else if (settings.url.includes('/review/next-task') || settings.url.includes('/review/task-reviewed/')) {
+
+            // If reviewing reopen votes, click "I'm done"
+            if (queueType === 'first-posts') {
+
+                setTimeout(() => {
+                    $('.js-review-actions button[title*="done reviewing"]').click();
+                }, 1000);
+            }
+
+            // If reviewing a suggested edit from Q&A (outside of review queues)
+            if (location.href.includes('/questions/')) {
+
+                // Remove delete button
+                $('.js-review-actions button[title*="delete this post"]').remove();
+
+                // If reject is clicked, restyle popups to new stacks theme
+                $('.js-post-menu').on('click', '.popup .js-action-button[title="reject this suggested edit"]', function () {
+
+                    // Convert radio buttons to new stacks radio
+                    $('#rejection-popup input:radio').addClass('s-radio');
+                });
+                return;
+            }
+
+            // Keep track of how many reviews were viewed in this session
+            numOfReviews++;
+
+            // Reset variables for next task
+            isLinkOnlyAnswer = false;
+            isCodeOnlyAnswer = false;
+
+            // Get additional info about review from JSON response
+            let responseJson = {};
+            try {
+                responseJson = JSON.parse(xhr.responseText);
+                console.log(responseJson);
+            }
+            catch (e) {
+                console.error('error parsing JSON', xhr.responseText);
+            }
+            currentReview = responseJson; // store globally
+
+            // Display remaining CV and flag quota
+            displayRemainingQuota();
+
+            // If action was taken (post was refreshed), don't do anything else
+            if (responseJson.isRefreshing) return;
+
+            // If not review queue, do nothing (e.g.: viewing suggested edit from Q&A)
+            if (queueType == null) return;
+
+            // Load more comments
+            $('.js-show-link.comments-link').click();
+
+            // Parse flagged reason (to select as default if no popular vote)
+            flaggedReason = (responseJson.instructions.toLowerCase().match(/(needs more focus|needs details or clarity|opinion-based|not suitable for this site)/i) || ['-']).pop().replace('&#39;', "'");
+            console.log('flaggedReason:', flaggedReason);
+
+            setTimeout(function () {
+
+                // Get post type
+                const reviewablePost = $('.reviewable-post, .suggested-edit').first();
+                const pid = responseJson.postId;
+                const isQuestion = reviewablePost.find('.answers-subheader').text().includes('Question') || reviewablePost.find('.question-hyperlink').length > 0;
+
+                // Get post status
+                const isDeleted = reviewablePost.find('.deleted-answer').length > 0;
+                const isClosedOrDeleted = reviewablePost.find('.question-status, .deleted-answer').length > 0;
+                console.log('isClosedOrDeleted', isClosedOrDeleted);
+
+                // If no more reviews, refresh page every 10 seconds
+                // Can't use responseJson.isUnavailable here, as it can also refer to current completed review
+                if ($('.js-review-instructions').text().includes('This queue has been cleared!')) {
+                    setTimeout(() => location.reload(), 10000);
+                    return;
+                }
+
+                // If first-posts or late-answers queue, and not already reviewed (no Next button)
+                const reviewStatus = $('.review-status').text();
+                if ((queueType == 'first-posts' || queueType == 'late-answers' || queueType == 'helper') &&
+                    !reviewStatus.includes('This item is no longer reviewable.') && !reviewStatus.includes('This item is not reviewable.') && !reviewStatus.includes('Review completed')) {
+
+                    // If question, insert "Close" option
+                    if (isQuestion) {
+                        const closeBtn = $(`<button class="js-action-button s-btn s-btn__primary flex--item" title="close question">Close</button>`).attr('disabled', isClosedOrDeleted);
+                        closeBtn.on('click', function () {
+                            // If button not disabled
+                            if (!$(this).prop('disabled')) {
+                                $('.js-post-menu').first().find('.close-question-link').click();
+                            }
+                            return false;
+                        });
+                        $('.js-review-actions button').first().after(closeBtn);
+                    }
+
+                    // Else if answer and user has delete privs, insert "Delete" option
+                    else if (!isQuestion && (StackExchange.options.user.isModerator || StackExchange.options.user.rep >= 10000 && $('.js-post-menu a[title="vote to delete this post"]').length === 1)) {
+                        const delBtn = $(`<button class="js-action-button s-btn s-btn__primary flex--item" title="delete answer">Delete</button>`).attr('disabled', isClosedOrDeleted);
+                        delBtn.on('click', function () {
+                            // If button not disabled
+                            if (!$(this).prop('disabled')) {
+                                $('.js-post-menu').first().find('a[title*="delete"]').click();
+                            }
+                            return false;
+                        });
+                        $('.js-review-actions button').first().after(delBtn);
+                    }
+
+                    // Show post menu if in the H&I queue
+                    if (location.pathname.includes('/review/helper/')) {
+                        $('.close-question-link').show();
+                    }
+                }
+
+                // If we are in H&I
+                if (queueType == 'helper') {
+
+                    // If H&I review has been completed
+                    if (responseJson.isUnavailable) {
+                        // Remove edit button so only "Next" is displayed
+                        $('.js-review-actions button').first().remove();
+                    }
+
+                    // Display link to triage review if not already shown
+                    if ($('.reviewable-post-stats .js-triage-link').length === 0) {
+                        $.get(`https://${location.hostname}/posts/${responseJson.postId}/timeline`)
+                            .done(function (data) {
                                 const triageLink = $('[data-eventtype="review"] a', data).filter((i, el) => el.href.includes('/triage/')).attr('href');
                                 $('.reviewable-post-stats')
                                     .append(`<a href="${triageLink}" class="s-btn s-btn__sm s-btn__primary mt16 js-triage-link" title="see who voted for requires editing" target="_blank">view triage</a>`);
                             });
-                        }
+                    }
+                }
+
+
+                // For suggested edits
+                if (queueType === 'suggested-edits') {
+
+                    // Add post timeline link to post
+                    reviewablePost.find('.votecell').addClass('grid fd-column ai-stretch gs4')
+                        .append(`<a class="js-post-issue flex--item s-btn s-btn__unset c-pointer py8 mx-auto mt16 fc-black-200" href="/posts/${pid}/timeline" data-shortcut="T" title="Timeline"><svg aria-hidden="true" class="mln2 mr0 svg-icon iconHistory" width="19" height="18" viewBox="0 0 19 18"><path d="M3 9a8 8 0 113.73 6.77L8.2 14.3A6 6 0 105 9l3.01-.01-4 4-4-4h3L3 9zm7-4h1.01L11 9.36l3.22 2.1-.6.93L10 10V5z"></path></svg></a>`);
+                }
+
+
+                // Show post menu links, if not in queues that don't already show full menus or doesn't support it
+                if (queueType !== 'first-posts' && queueType !== 'late-answers' && queueType !== 'suggested-edits') {
+
+                    const postmenu = reviewablePost.find('.js-post-menu');
+
+                    // delete
+                    if (StackExchange.options.user.canSeeDeletedPosts) {
+                        $('.js-post-menu a[id^="delete-post-"]').text(isDeleted ? 'undelete' : 'delete').show();
                     }
 
+                    // flag
+                    $('.flag-post-link').each(function () {
+                        this.dataset.postid = this.dataset.questionid || this.dataset.answerid;
+                    }).text('flag').show();
 
-                    // For suggested edits
-                    if(queueType === 'suggested-edits') {
+                    // close
+                    if (isQuestion) {
+                        let closeLink = postmenu.find('.close-question-link').show();
 
-                        // Add post timeline link to post
-                        reviewablePost.find('.votecell').addClass('grid fd-column ai-stretch gs4')
-                            .append(`<a class="js-post-issue flex--item s-btn s-btn__unset c-pointer py8 mx-auto mt16 fc-black-200" href="/posts/${pid}/timeline" data-shortcut="T" title="Timeline"><svg aria-hidden="true" class="mln2 mr0 svg-icon iconHistory" width="19" height="18" viewBox="0 0 19 18"><path d="M3 9a8 8 0 113.73 6.77L8.2 14.3A6 6 0 105 9l3.01-.01-4 4-4-4h3L3 9zm7-4h1.01L11 9.36l3.22 2.1-.6.93L10 10V5z"></path></svg></a>`);
-                    }
-
-
-                    // Show post menu links, if not in queues that don't already show full menus or doesn't support it
-                    if(queueType !== 'first-posts' && queueType !== 'late-answers' && queueType !== 'suggested-edits') {
-
-                        const postmenu = reviewablePost.find('.js-post-menu');
-
-                        // delete
-                        if(StackExchange.options.user.canSeeDeletedPosts) {
-                            $('.js-post-menu a[id^="delete-post-"]').text(isDeleted ? 'undelete' : 'delete').show();
+                        // If close link is not there for any reason, add back (e.g.: suggested-edit)
+                        if (closeLink.length === 0) {
+                            closeLink = $(`<a href="#" class="close-question-link js-close-question-link" title="vote to close this question (when closed, no new answers can be added)" data-questionid="${pid}" data-show-interstitial="" data-isclosed="false">close</a>`).prependTo(postmenu);
                         }
 
-                        // flag
-                        $('.flag-post-link').each(function() {
-                            this.dataset.postid = this.dataset.questionid || this.dataset.answerid;
-                        }).text('flag').show();
+                        // If close link has not been processed for CV count
+                        if (closeLink.not('.js-close-count') && !closeLink.text().includes('(') && !closeLink.text().includes('reopen')) {
+                            closeLink.addClass('js-close-count');
 
-                        // close
-                        if(isQuestion) {
-                            let closeLink = postmenu.find('.close-question-link').show();
-
-                            // If close link is not there for any reason, add back (e.g.: suggested-edit)
-                            if(closeLink.length === 0) {
-                                closeLink = $(`<a href="#" class="close-question-link js-close-question-link" title="vote to close this question (when closed, no new answers can be added)" data-questionid="${pid}" data-show-interstitial="" data-isclosed="false">close</a>`).prependTo(postmenu);
-                            }
-
-                            // If close link has not been processed for CV count
-                            if(closeLink.not('.js-close-count') && !closeLink.text().includes('(') && !closeLink.text().includes('reopen')) {
-                                closeLink.addClass('js-close-count');
-
-                                $.get(`https://api.stackexchange.com/2.2/questions/${pid}?order=desc&sort=activity&site=${siteApiSlug}&filter=!)5IW-1CBJh-k0T7yaaeIcKxo)Nsr&key=ViEjavpQX)kK3lob1h2Nxw((`, results => {
-                                    if(results && results.items && results.items.length > 0) {
-                                        const cvCount = Number(results.items[0].close_vote_count);
-                                        if(cvCount > 0 && /\d/.test(closeLink.text()) === false) {
-                                            closeLink.text((i, v) => v + ' (' + cvCount + ')');
-                                        }
+                            $.get(`https://api.stackexchange.com/2.2/questions/${pid}?order=desc&sort=activity&site=${siteApiSlug}&filter=!)5IW-1CBJh-k0T7yaaeIcKxo)Nsr&key=ViEjavpQX)kK3lob1h2Nxw((`, results => {
+                                if (results && results.items && results.items.length > 0) {
+                                    const cvCount = Number(results.items[0].close_vote_count);
+                                    if (cvCount > 0 && /\d/.test(closeLink.text()) === false) {
+                                        closeLink.text((i, v) => v + ' (' + cvCount + ')');
                                     }
-                                });
-                            }
-                        }
-
-                        // follow
-                        postmenu.prepend(`<button data-pid="${pid}" data-post-type="${isQuestion ? 'question' : 'answer'}" class="js-somu-follow-post s-btn s-btn__link fc-black-400 h:fc-black-700 pb2" role="button">follow</button>`);
-
-                        // edit
-                        if(queueType !== 'suggested-edits') {
-                            postmenu.prepend(`<a href="/posts/${pid}/edit" class="edit-post" title="revise and improve this post">edit</a>`);
-                            StackExchange.inlineEditing.init();
-                        }
-
-                        // share
-                        postmenu.prepend(`<a href="/${isQuestion ? 'q' : 'a'}/${pid}" rel="nofollow" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this ${isQuestion ? 'question' : 'answer'}" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this ${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-subtitle="(includes your user id)" data-se-share-sheet-post-type="${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-social="facebook twitter devto" data-se-share-sheet-location="1" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-0" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show->se-share-sheet#willShow s-popover:shown->se-share-sheet#didShow">share</a>`);
-                        StackExchange.question.initShareLinks();
-
-                        // mod
-                        if(StackExchange.options.user.isModerator) {
-                            postmenu.prepend(`<a class="js-mod-menu-button" href="#" role="button" data-controller="se-mod-button" data-se-mod-button-type="post" data-se-mod-button-id="${pid}">mod</a>`);
+                                }
+                            });
                         }
                     }
 
-                    // finally remove sidebar table links
-                    $('.reviewable-post-stats').each(function() {
-                        const table = $(this).children('table').first();
+                    // follow
+                    postmenu.prepend(`<button data-pid="${pid}" data-post-type="${isQuestion ? 'question' : 'answer'}" class="js-somu-follow-post s-btn s-btn__link fc-black-400 h:fc-black-700 pb2" role="button">follow</button>`);
 
-                        const links = table.find('tbody td[colspan="2"]').parent();
-                        const tfooter = $('<tfoot></tfoot>').append(links).appendTo(table);
-
-                        // add padding text for cells that do not have content
-                        table.find('.label-key').filter((i, v) => v.textContent.trim() == '').html('&nbsp;');
-                        // if less than six rows, add more
-                        const tableRows = table.find('.label-key').length;
-                        for(let i = tableRows; i < 6; i++) {
-                            table.children('tbody').append('<tr><td class="label-key">&nbsp;</td><td class="label-value"></td></tr>');
-                        }
-                    });
-
-                    // Remove "Delete" option for suggested-edits queue, if not already reviewed (no Next button)
-                    if(queueType == 'suggested-edits' && !$('.review-status').text().includes('This item is no longer reviewable.')) {
-                        $('.js-review-actions button[title*="delete"]').remove();
+                    // edit
+                    if (queueType !== 'suggested-edits') {
+                        postmenu.prepend(`<a href="/posts/${pid}/edit" class="edit-post" title="revise and improve this post">edit</a>`);
+                        StackExchange.inlineEditing.init();
                     }
 
-                    // Remove "Requires Editing" option for Triage queue
-                    if(queueType == 'triage') {
-                        $('.js-review-actions button[data-result-type="20"]').remove();
+                    // share
+                    postmenu.prepend(`<a href="/${isQuestion ? 'q' : 'a'}/${pid}" rel="nofollow" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this ${isQuestion ? 'question' : 'answer'}" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this ${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-subtitle="(includes your user id)" data-se-share-sheet-post-type="${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-social="facebook twitter devto" data-se-share-sheet-location="1" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-0" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show->se-share-sheet#willShow s-popover:shown->se-share-sheet#didShow">share</a>`);
+                    StackExchange.question.initShareLinks();
+
+                    // mod
+                    if (StackExchange.options.user.isModerator) {
+                        postmenu.prepend(`<a class="js-mod-menu-button" href="#" role="button" data-controller="se-mod-button" data-se-mod-button-type="post" data-se-mod-button-id="${pid}">mod</a>`);
+                    }
+                }
+
+                // finally remove sidebar table links
+                $('.reviewable-post-stats').each(function () {
+                    const table = $(this).children('table').first();
+
+                    const links = table.find('tbody td[colspan="2"]').parent();
+                    const tfooter = $('<tfoot></tfoot>').append(links).appendTo(table);
+
+                    // add padding text for cells that do not have content
+                    table.find('.label-key').filter((i, v) => v.textContent.trim() == '').html('&nbsp;');
+                    // if less than six rows, add more
+                    const tableRows = table.find('.label-key').length;
+                    for (let i = tableRows; i < 6; i++) {
+                        table.children('tbody').append('<tr><td class="label-key">&nbsp;</td><td class="label-value"></td></tr>');
+                    }
+                });
+
+                // Remove "Delete" option for suggested-edits queue, if not already reviewed (no Next button)
+                if (queueType == 'suggested-edits' && !$('.review-status').text().includes('This item is no longer reviewable.')) {
+                    $('.js-review-actions button[title*="delete"]').remove();
+                }
+
+                // Remove "Requires Editing" option for Triage queue
+                if (queueType == 'triage') {
+                    $('.js-review-actions button[data-result-type="20"]').remove();
+                }
+
+                // Modify buttons to insert numeric labels
+                //$('.js-review-actions button').removeAttr('disabled').text(function(i, v) {
+                //    if(v.includes('] ')) return v; // do not modify twice
+                //    return '{' + (i+1) + '} ' + v;
+                //});
+
+                // Get review vars
+                post = {
+                    id: responseJson.postId,
+                    permalink: `https://${location.hostname}/${isQuestion ? 'q' : 'a'}/${responseJson.postId}`,
+                    title: $('h1[itemprop="name"] a').text(),
+                    content: $('.js-post-body').first().text(),
+                    contentHtml: $('.js-post-body').first().html(),
+                    votes: parseInt($('.js-vote-count').first().text(), 10),
+                    tags: $('.post-taglist .post-tag').get().map(v => v.innerText),
+                    isQuestion: isQuestion,
+                    isClosedOrDeleted: isClosedOrDeleted,
+                    comments: $('.reviewable-post:first .comment-copy').get().map(v => v.innerText),
+                };
+                // Parse post stats from sidebar
+                $('.reviewable-post:first .reviewable-post-stats tr').each(function () {
+                    let k = $(this).find('.label-key').text();
+                    let v = $(this).find('.label-value').text();
+
+                    if (k.length == 0 && v.length == 0) return;
+
+                    // convert key to camelCase (in case of two words, like "is accepted" or "other answers"
+                    k = k.replace(/[^\S\r\n]([^\s])/g, x => x.toUpperCase()).replace(/\s+/g, '');
+
+                    // try convert to primitive
+                    let d = new Date($(this).find('.label-value').attr('title')).getTime();
+                    let b = v == 'no' ? false : v == 'yes' ? true : null;
+                    let n = parseInt(v, 10);
+
+                    if (!isNaN(d)) v = d; // date
+                    else if (b !== null) v = b; // bool
+                    else if (!isNaN(n)) v = n; // number
+
+                    post[k] = v;
+                });
+                console.log(post);
+
+                // Check for audits and skip them
+                if (responseJson.isAudit) {
+
+                    if (skipAudits) {
+                        toastMessage('skipping review audit');
+                        skipReview();
+                    }
+                    else {
+                        toastMessage('this is a review audit', 10000);
                     }
 
-                    // Modify buttons to insert numeric labels
-                    //$('.js-review-actions button').removeAttr('disabled').text(function(i, v) {
-                    //    if(v.includes('] ')) return v; // do not modify twice
-                    //    return '{' + (i+1) + '} ' + v;
-                    //});
+                    return;
+                }
+                //else if(isAudit()) {
+                //    console.log('skipping review audit via manual check');
+                //    skipReview();
+                //    return;
+                //}
 
-                    // Get review vars
-                    post = {
-                        id: responseJson.postId,
-                        permalink: `https://${location.hostname}/${isQuestion ? 'q':'a'}/${responseJson.postId}`,
-                        title: $('h1[itemprop="name"] a').text(),
-                        content: $('.js-post-body').first().text(),
-                        contentHtml: $('.js-post-body').first().html(),
-                        votes: parseInt($('.js-vote-count').first().text(), 10),
-                        tags: $('.post-taglist .post-tag').get().map(v => v.innerText),
-                        isQuestion: isQuestion,
-                        isClosedOrDeleted: isClosedOrDeleted,
-                        comments: $('.reviewable-post:first .comment-copy').get().map(v => v.innerText),
-                    };
-                    // Parse post stats from sidebar
-                    $('.reviewable-post:first .reviewable-post-stats tr').each(function() {
-                        let k = $(this).find('.label-key').text();
-                        let v = $(this).find('.label-value').text();
+                // Display post keywords
+                displayPostKeywords();
 
-                        if(k.length == 0 && v.length == 0) return;
+                // Process post based on queue type
+                if (typeof processReview === 'function') processReview();
 
-                        // convert key to camelCase (in case of two words, like "is accepted" or "other answers"
-                        k = k.replace(/[^\S\r\n]([^\s])/g, x => x.toUpperCase()).replace(/\s+/g, '');
+                // Insert voting buttons
+                insertVotingButtonsIfMissing();
 
-                        // try convert to primitive
-                        let d = new Date($(this).find('.label-value').attr('title')).getTime();
-                        let b = v == 'no' ? false : v == 'yes' ? true : null;
-                        let n = parseInt(v, 10);
+                // Insert instant buttons
+                if (isSO && post.isQuestion && queueType !== 'suggested-edits' && queueType !== 'reopen') insertInstantCloseButtons();
+                else if (!post.isQuestion) {
+                    $('.instant-actions').remove();
+                }
 
-                        if(!isNaN(d)) v = d; // date
-                        else if(b !== null) v = b; // bool
-                        else if(!isNaN(n)) v = n; // number
-
-                        post[k] = v;
-                    });
-                    console.log(post);
-
-                    // Check for audits and skip them
-                    if(responseJson.isAudit) {
-
-                        if(skipAudits) {
-                            toastMessage('skipping review audit');
-                            skipReview();
-                        }
-                        else {
-                            toastMessage('this is a review audit', 10000);
-                        }
-
-                        return;
-                    }
-                    //else if(isAudit()) {
-                    //    console.log('skipping review audit via manual check');
-                    //    skipReview();
-                    //    return;
-                    //}
-
-                    // Display post keywords
-                    displayPostKeywords();
-
-                    // Process post based on queue type
-                    if(typeof processReview === 'function') processReview();
-
-                    // Insert voting buttons
-                    insertVotingButtonsIfMissing();
-
-                    // Insert instant buttons
-                    if(isSO && post.isQuestion && queueType !== 'suggested-edits' && queueType !== 'reopen') insertInstantCloseButtons();
-                    else if(!post.isQuestion) {
-                        $('.instant-actions').remove();
-                    }
-
-                }, 100);
-            }
-        });
-    }
+            }, 100);
+        }
+    });
+}
 
 
-    function appendStyles() {
-        GM_addStyle(`
+// On page load
+loadOptions();
+doPageload();
+listenToKeyboardEvents();
+listenToPageUpdates();
+
+
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 /* Edit reasons link to take up less space */
 .popup a.edit-link {
     position: absolute;
@@ -1551,13 +1549,15 @@ async function waitForSOMU() {
 .auto-review-comments.popup .action-list li:before {
     content: '';
 }
+`;
+document.body.appendChild(styles);
 
-`);
-    }
 
-
-    function addReviewQueueStyles() {
-        GM_addStyle(`
+function addReviewQueueStyles() {
+    // Append review queue styles
+    const styles_review = document.createElement('style');
+    styles_review.setAttribute('data-somu', GM_info?.script.name);
+    styles_review.innerHTML = `
 .sidebar .ajax-loader,
 #footer {
     display: none !important;
@@ -1714,16 +1714,6 @@ pre {
 .history-table a[href^="/review/"]:visited:hover {
     color: var(--black-400);
 }
-
-`);
-    }
-
-
-    // On page load
-    appendStyles();
-    loadOptions();
-    doPageLoad();
-    listenToPageUpdates();
-
-
-})();
+`;
+    document.body.appendChild(styles_review);
+}

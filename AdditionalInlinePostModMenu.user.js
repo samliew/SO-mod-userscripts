@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.9.5
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -19,8 +19,9 @@
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
+
+'use strict';
 
     // Moderator check
     if(!isModerator()) return;
@@ -1021,7 +1022,7 @@
                 cmmtlinks.append(`<span class="js-link-separator">|&nbsp;</span><a class="s-link__danger comments-link js-load-deleted-comments-link" data-pid="${pid}">show deleted comments</a>`);
             });
 
-            $('.js-load-deleted-comments-link').click(function() {
+            $('.js-load-deleted-comments-link').on('click', function() {
                 const pid = this.dataset.pid;
                 const elems = $(this).prevAll('.comments-link, .js-link-separator').addBack().not('.js-add-link');
                 const commentsUrl = `/posts/${pid}/comments?includeDeleted=true&_=${Date.now()}`;
@@ -1055,6 +1056,7 @@
 
         const styles = `
 <style>
+/* ===== SOMU - Additional Inline Post Mod Menu ===== */
 /* Better post menu links */
 .js-post-menu .lsep {
     display: none;
@@ -1157,6 +1159,8 @@
 
     // On page load
     appendStyles();
-    doPageload();
+
+// On page load
+doPageload();
 
 })();

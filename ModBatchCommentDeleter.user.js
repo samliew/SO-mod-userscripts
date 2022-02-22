@@ -3,7 +3,7 @@
 // @description  Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       @samliew
-// @version      2.0.4
+// @version      3.0
 //
 // @include      https://*stackoverflow.com/admin/deleter
 // @include      https://*serverfault.com/admin/deleter
@@ -13,205 +13,210 @@
 // @include      https://*.stackexchange.com/admin/deleter
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
+
+'use strict';
 
 
-    const fkey = StackExchange.options.user.fkey;
-    const params = {
-        itemsPerBatch: 1000,
-        delayPerBatch: 5000,
-    };
-    let content, button, preview, textarea;
-    let isRunning = false;
-    let failures = 0, retryCount = 0;
+const fkey = StackExchange.options.user.fkey;
+const params = {
+    itemsPerBatch: 1000,
+    delayPerBatch: 5000,
+};
+let content, button, preview, textarea;
+let isRunning = false;
+let failures = 0, retryCount = 0;
 
 
-    function deleteOne(url, callback = null) {
-        $.ajax({
-            url: url,
-            method: 'POST',
-            data: {
-                fkey: fkey,
-                sendCommentBackInMessage: false,
-            },
-            dataType: 'json',
-        }).done(function(response) {
-            if(response.success == false) {
-                failures++;
-            }
-            if(typeof callback == 'function') callback();
-        }).fail(function(jqXHR, textStatus, errorThrown) {
+function deleteOne(url, callback = null) {
+    $.ajax({
+        url: url,
+        method: 'POST',
+        data: {
+            fkey: fkey,
+            sendCommentBackInMessage: false,
+        },
+        dataType: 'json',
+    }).done(function (response) {
+        if (response.success == false) {
             failures++;
-        });
-    }
+        }
+        if (typeof callback == 'function') callback();
+    }).fail(function (jqXHR, textStatus, errorThrown) {
+        failures++;
+    });
+}
 
-    function bulkDeleteComments(commentIds) {
-        return new Promise(function(resolve, reject) {
-            if(typeof commentIds === 'undefined' || commentIds.length === 0) { reject(); return; }
+function bulkDeleteComments(commentIds) {
+    return new Promise(function (resolve, reject) {
+        if (typeof commentIds === 'undefined' || commentIds.length === 0) { reject(); return; }
 
-            const datastring = 'commentIds%5B%5D=' + commentIds.join('&commentIds%5B%5D=') + '&action=delete&fkey=' + fkey;
-            $.post(`https://${location.hostname}/admin/comment/bulk-comment-change`, datastring)
-                .done(function(response) {
-                    if(response.includes('ok') === false) {
-                        failures++;
-                    }
-                }).fail(function() {
+        const datastring = 'commentIds%5B%5D=' + commentIds.join('&commentIds%5B%5D=') + '&action=delete&fkey=' + fkey;
+        $.post(`https://${location.hostname}/admin/comment/bulk-comment-change`, datastring)
+            .done(function (response) {
+                if (response.includes('ok') === false) {
                     failures++;
-                });
-        });
-    }
-
-
-    let doDeleteAll = function() {
-        const startTime = new Date();
-        let linkElems = preview.find('a').hide();
-        //let links = linkElems.get().map(el => {
-        //    if(!el.href.includes('/vote/10')) { return el.href + '/vote/10' }
-        //    return el.href;
-        //});
-        let commentIds = linkElems.get().map(el => el.href.match(/\/(\d+)/)[1]);
-        let total = typeof links !== 'undefined' ? links.length : commentIds.length;
-        let currentNum = 0;
-
-        linkElems.remove(); // Save memory?
-
-        // Calculate and update progress
-        function updateProgress() {
-            const minsElapsed = (Date.now() - startTime) / 60000;
-            const minsRemaining = (minsElapsed / currentNum) * (total - currentNum);
-            document.title = `${currentNum.toLocaleString()}/${total.toLocaleString()} (${(currentNum/total*100).toFixed(1)}%)`;
-            preview.text(document.title + `. ${Math.floor(minsElapsed)} mins elapsed, ${Math.round(minsRemaining)} mins remaining`);
-        }
-
-        // Callback
-        function processNextBatch() {
-            if(currentNum >= total) cleanup();
-            //links.slice(currentNum, currentNum + params.itemsPerBatch).forEach(v => { deleteOne(v); });
-            bulkDeleteComments( commentIds.slice(currentNum, currentNum + params.itemsPerBatch) );
-            currentNum += params.itemsPerBatch;
-            if(currentNum > total) currentNum = total;
-        }
-
-        // After a batch of ajax calls complete
-        $(document).unbind('ajaxStop').ajaxStop(function() {
-            updateProgress();
-
-            // Some errors, wait and try up to 3 times
-            if(failures > 1) {
-
-                // Too many errors, stop
-                if(retryCount >= 10) {
-                    cleanup(true);
-                    return;
                 }
+            }).fail(function () {
+                failures++;
+            });
+    });
+}
 
-                // Reset and try last batch again in 2 minutes
-                retryCount++;
-                failures = 0;
-                $('input[data-param-name="itemsPerBatch"]').val('20').trigger('change');
-                $('input[data-param-name="delayPerBatch"]').val('20').trigger('change');
-                currentNum -= params.itemsPerBatch;
-                setTimeout(processNextBatch, 300000);
-            }
-            // Continue next batch after a delay
-            else {
-                setTimeout(processNextBatch, params.delayPerBatch);
-            }
-        });
 
-        // Begin
-        isRunning = true;
-        processNextBatch();
+let doDeleteAll = function () {
+    const startTime = new Date();
+    let linkElems = preview.find('a').hide();
+    //let links = linkElems.get().map(el => {
+    //    if(!el.href.includes('/vote/10')) { return el.href + '/vote/10' }
+    //    return el.href;
+    //});
+    let commentIds = linkElems.get().map(el => el.href.match(/\/(\d+)/)[1]);
+    let total = typeof links !== 'undefined' ? links.length : commentIds.length;
+    let currentNum = 0;
 
-        // Confirm when leaving page if batch script running
-        $(window).on('beforeunload', function(evt) {
-            return isRunning && confirm('Are you sure you wish to leave this page?');
-        });
+    linkElems.remove(); // Save memory?
 
-        // Stop everything and exit
-        function cleanup(hasError = false) {
-            isRunning = false;
-            $(document).unbind('ajaxStop');
-            $(window).off('beforeunload');
-
-            button.remove();
-
-            const endTime = new Date();
-            preview.text(hasError ?
-                `Receiving response errors. Check if you are rate-limited or these items are already deleted. Stopped at ${currentNum - params.itemsPerBatch} items.` :
-                `Completed ${total} items in ${Math.round((endTime - startTime) / 60000)} minutes!`
-            );
-            document.title = hasError ? 'Error!' : 'Completed!';
-        }
-
-        // for safety, doDeleteAll can be called once only
-        doDeleteAll = function() {};
+    // Calculate and update progress
+    function updateProgress() {
+        const minsElapsed = (Date.now() - startTime) / 60000;
+        const minsRemaining = (minsElapsed / currentNum) * (total - currentNum);
+        document.title = `${currentNum.toLocaleString()}/${total.toLocaleString()} (${(currentNum / total * 100).toFixed(1)}%)`;
+        preview.text(document.title + `. ${Math.floor(minsElapsed)} mins elapsed, ${Math.round(minsRemaining)} mins remaining`);
     }
 
+    // Callback
+    function processNextBatch() {
+        if (currentNum >= total) cleanup();
+        //links.slice(currentNum, currentNum + params.itemsPerBatch).forEach(v => { deleteOne(v); });
+        bulkDeleteComments(commentIds.slice(currentNum, currentNum + params.itemsPerBatch));
+        currentNum += params.itemsPerBatch;
+        if (currentNum > total) currentNum = total;
+    }
 
-    function parseInputUpdatePreview(evt) {
+    // After a batch of ajax calls complete
+    $(document).unbind('ajaxStop').ajaxStop(function () {
+        updateProgress();
 
-        // Do nothing and wait for another event
-        if(this.value.trim() == '') {
-            console.log('input empty!');
-            $(this).one('change keyup', parseInputUpdatePreview);
-            return false;
+        // Some errors, wait and try up to 3 times
+        if (failures > 1) {
+
+            // Too many errors, stop
+            if (retryCount >= 10) {
+                cleanup(true);
+                return;
+            }
+
+            // Reset and try last batch again in 2 minutes
+            retryCount++;
+            failures = 0;
+            $('input[data-param-name="itemsPerBatch"]').val('20').trigger('change');
+            $('input[data-param-name="delayPerBatch"]').val('20').trigger('change');
+            currentNum -= params.itemsPerBatch;
+            setTimeout(processNextBatch, 300000);
         }
-
-        $(this).hide();
-
-        // HTML pasted from SEDE
-        if(this.value.includes('grid-canvas')) {
-            preview.html(this.value);
-        }
-        // Links pasted from CSV
+        // Continue next batch after a delay
         else {
-            preview.html(`<a href="//${location.hostname}/` + this.value.replace(/[\s\n\r]+/g, ' ').trim().split(/\s?site:\/\//).join(`" target="_blank">link</a> <a href="//${location.hostname}/`) + `" target="_blank">link</a>`);
-            preview.children().first().remove();
+            setTimeout(processNextBatch, params.delayPerBatch);
         }
+    });
 
-        // Show delete all button
-        button.insertBefore(preview).text('Delete ALL ' + preview.find('a').length.toLocaleString());
+    // Begin
+    isRunning = true;
+    processNextBatch();
+
+    // Confirm when leaving page if batch script running
+    $(window).on('beforeunload', function (evt) {
+        return isRunning && confirm('Are you sure you wish to leave this page?');
+    });
+
+    // Stop everything and exit
+    function cleanup(hasError = false) {
+        isRunning = false;
+        $(document).unbind('ajaxStop');
+        $(window).off('beforeunload');
+
+        button.remove();
+
+        const endTime = new Date();
+        preview.text(hasError ?
+            `Receiving response errors. Check if you are rate-limited or these items are already deleted. Stopped at ${currentNum - params.itemsPerBatch} items.` :
+            `Completed ${total} items in ${Math.round((endTime - startTime) / 60000)} minutes!`
+        );
+        document.title = hasError ? 'Error!' : 'Completed!';
     }
 
+    // for safety, doDeleteAll can be called once only
+    doDeleteAll = function () { };
+}
 
-    function doPageload() {
 
-        document.title = "Batch Comment Deleter - " + StackExchange.options.site.name;
+function parseInputUpdatePreview(evt) {
 
-        // Init UI
-        content = $('#content').empty().prepend(`
+    // Do nothing and wait for another event
+    if (this.value.trim() == '') {
+        console.log('input empty!');
+        $(this).one('change keyup', parseInputUpdatePreview);
+        return false;
+    }
+
+    $(this).hide();
+
+    // HTML pasted from SEDE
+    if (this.value.includes('grid-canvas')) {
+        preview.html(this.value);
+    }
+    // Links pasted from CSV
+    else {
+        preview.html(`<a href="//${location.hostname}/` + this.value.replace(/[\s\n\r]+/g, ' ').trim().split(/\s?site:\/\//).join(`" target="_blank">link</a> <a href="//${location.hostname}/`) + `" target="_blank">link</a>`);
+        preview.children().first().remove();
+    }
+
+    // Show delete all button
+    button.insertBefore(preview).text('Delete ALL ' + preview.find('a').length.toLocaleString());
+}
+
+
+function doPageload() {
+
+    document.title = "Batch Comment Deleter - " + StackExchange.options.site.name;
+
+    // Init UI
+    content = $('#content').empty().prepend(`
 <div id="mainbar-full">
     <div class="grid ai-center jc-space-between mb12 bb bc-black-3 pb12">
         <div class="fs-body3 flex--item fl1 mr12">Batch Comment Deleter</div>
     </div>
-    <div class="deleter-info">items per batch: <input type="number" min="1" max="100" class="inline" data-param-name="itemsPerBatch" value="${params.itemsPerBatch}" />; secs delay between batches: <input type="number" min="0" max="60" class="inline" data-param-name="delayPerBatch" data-multiplier="1000" value="${params.delayPerBatch/1000}" /></div>
+    <div class="deleter-info">items per batch: <input type="number" min="1" max="100" class="inline" data-param-name="itemsPerBatch" value="${params.itemsPerBatch}" />; secs delay between batches: <input type="number" min="0" max="60" class="inline" data-param-name="delayPerBatch" data-multiplier="1000" value="${params.delayPerBatch / 1000}" /></div>
 </div>
 `);
-        button = $(`<button>Delete ALL</button>`).on('click', function() {
-            $(this).prop('disabled', true).text('processing...');
-            doDeleteAll();
-        });
-        preview = $(`<div class="html-preview">Use this <a href="https://data.stackexchange.com/stackoverflow/query/1131935" target="_blank">SEDE query</a> to find comments to delete. Download results and paste the comment permalinks column below.</div>`).appendTo(content);
-        textarea = $('<textarea placeholder="paste comment permalinks from exported query" class="html-editor"></textarea>').appendTo(content).one('change keyup', parseInputUpdatePreview);
+    button = $(`<button>Delete ALL</button>`).on('click', function () {
+        $(this).prop('disabled', true).text('processing...');
+        doDeleteAll();
+    });
+    preview = $(`<div class="html-preview">Use this <a href="https://data.stackexchange.com/stackoverflow/query/1131935" target="_blank">SEDE query</a> to find comments to delete. Download results and paste the comment permalinks column below.</div>`).appendTo(content);
+    textarea = $('<textarea placeholder="paste comment permalinks from exported query" class="html-editor"></textarea>').appendTo(content).one('change keyup', parseInputUpdatePreview);
 
-        // Events to update params
-        content.on('change', 'input[data-param-name]', function(evt) {
-            const paramName = this.dataset.paramName;
-            const num = Number(this.value) * (Number(this.dataset.multiplier) || 1);
-            const isNum = !isNaN(num);
+    // Events to update params
+    content.on('change', 'input[data-param-name]', function (evt) {
+        const paramName = this.dataset.paramName;
+        const num = Number(this.value) * (Number(this.dataset.multiplier) || 1);
+        const isNum = !isNaN(num);
 
-            if(this.value != '') params[paramName] = isNum ? num : this.value;
-            //console.log('params updated:', params);
-        });
-    }
+        if (this.value != '') params[paramName] = isNum ? num : this.value;
+        //console.log('params updated:', params);
+    });
+}
 
 
-    function appendStyles() {
+// On page load
+doPageload();
 
-        $(`
-<style>
+
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 #content {
     display: block !important;
 }
@@ -439,15 +444,5 @@ input.inline {
     border: none !important;
     border-bottom: 1px dotted var(--black-700) !important;
 }
-
-</style>
-`).appendTo(document.body);
-
-    }
-
-
-    // On page load
-    appendStyles();
-    doPageload();
-
-})();
+`;
+document.body.appendChild(styles);

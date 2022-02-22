@@ -3,7 +3,7 @@
 // @description  Expand all sections, and adds additional filters
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.1
+// @version      1.0
 //
 // @include      https://*stackexchange.com/tools*
 // @include      https://*stackoverflow.com/tools*
@@ -12,72 +12,74 @@
 // @include      https://*askubuntu.com/tools*
 // @include      https://*mathoverflow.net/tools*
 // @include      https://*.stackexchange.com/tools*
-//
-// @grant        GM_addStyle
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
+
+'use strict';
+
+const currentTab = document.querySelector('#tabs .youarehere');
+const currentTabName = currentTab.dataset.value;
 
 
-    const currentTab = document.querySelector('#tabs .youarehere');
-    const currentTabName = currentTab.dataset.value;
+function callbackWhenPageLoaded() {
 
+    if (currentTabName === 'stats') {
 
-    function doPageload() {
-        // Once on page load only
-        $(document).one('ajaxStop', callbackWhenPageLoaded);
     }
 
-    function callbackWhenPageLoaded() {
+    else if (currentTabName === 'migrated') {
 
-        if(currentTabName === 'stats') {
+    }
 
+    else if (currentTabName === 'close') {
 
-        }
+    }
 
-        else if(currentTabName === 'migrated') {
+    else if (currentTabName === 'delete') {
 
-
-        }
-
-        else if(currentTabName === 'close') {
-
-
-        }
-
-        else if(currentTabName === 'delete') {
-
-            const buttonWrapper = $(`<div class="modtools-filters-wrapper grid">Quick filters:&nbsp;<div class="modtools-filters grid tt-capitalize">
+        const buttonWrapper = $(`<div class="modtools-filters-wrapper grid">Quick filters:&nbsp;<div class="modtools-filters grid tt-capitalize">
   <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap is-selected" data-filter="q">questions</a>
   <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap is-selected" data-filter="a">answers</a>
 </div><div>`).appendTo('.tools-index-subtabs');
-            const buttons = buttonWrapper.find('[data-filter]');
+        const buttons = buttonWrapper.find('[data-filter]');
 
-            const items = $('.summary-table tr').each(function() {
-                this.dataset.posttype = $(this).find('.question-hyperlink').length ? 'q' : 'a';
-            });
+        const items = $('.summary-table tr').each(function () {
+            this.dataset.posttype = $(this).find('.question-hyperlink').length ? 'q' : 'a';
+        });
 
-            buttons.on('click', function() {
-                $(this).toggleClass('is-selected');
-                const selectedButtons = buttons.filter('.is-selected');
+        buttons.on('click', function () {
+            $(this).toggleClass('is-selected');
+            const selectedButtons = buttons.filter('.is-selected');
 
-                // if both selected or unselected, show all
-                if(selectedButtons.length != 1) {
-                    console.log('show all');
-                    items.removeClass('dno');
-                }
-                else {
-                    const activeFilter = selectedButtons.attr('data-filter');
-                    console.log('show ' + activeFilter);
-                    items.addClass('dno').filter((i, el) => el.dataset.posttype == activeFilter).removeClass('dno');
-                }
-            });
-        }
+            // if both selected or unselected, show all
+            if (selectedButtons.length != 1) {
+                console.log('show all');
+                items.removeClass('dno');
+            }
+            else {
+                const activeFilter = selectedButtons.attr('data-filter');
+                console.log('show ' + activeFilter);
+                items.addClass('dno').filter((i, el) => el.dataset.posttype == activeFilter).removeClass('dno');
+            }
+        });
     }
+}
+
+function doPageload() {
+    // Once on page load only
+    $(document).one('ajaxStop', callbackWhenPageLoaded);
+}
 
 
-    GM_addStyle(`
+// On page load
+doPageload();
+
+
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 .summary-table tr.collapsing {
     display: table-row;
 }
@@ -109,10 +111,5 @@
     border-left: 0;
     margin-left: -1px;
 }
-`);
-
-
-    // On page load
-    doPageload();
-
-})();
+`;
+document.body.appendChild(styles);

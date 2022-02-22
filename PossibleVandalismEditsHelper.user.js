@@ -3,7 +3,7 @@
 // @description  Display revision count and post age
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=postvandalismeditsauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=postvandalismeditsauto*
@@ -13,47 +13,50 @@
 // @include      https://*.stackexchange.com/admin/dashboard?flagtype=postvandalismeditsauto*
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
 
-    // Moderator check
-    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+'use strict';
+
+// Moderator check
+if (typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator) return;
 
 
-    function doPageload() {
+function doPageload() {
 
-        $('.post-list .revision-comment a').each(function() {
+    $('.post-list .revision-comment a').each(function () {
+        const flag = $(this).parents('.flagged-post-row');
+        const link = $(this);
+        const pid = this.href.match(/\d+/)[0];
 
-            const flag = $(this).parents('.flagged-post-row');
-            const link = $(this);
-            const pid = this.href.match(/\d+/)[0];
+        // Get post info
+        $.get({
+            url: `https://stackoverflow.com/posts/${pid}/timeline`,
+            success: function (data) {
+                const eventrows = $('.event-rows tr', data);
+                const dateCreated = new Date(eventrows.filter('[data-eventtype="history"]').last().find('.relativetime').attr('title'));
+                const dateDiff = Date.now() - dateCreated;
+                const age = Math.floor(dateDiff / 86400000); // 86400000 = 1 day
+                const revisions = eventrows.filter(function () {
+                    return $(this).find('.event-verb, .wmn1').text().includes('edited');
+                });
+                //console.log(eventrows, dateCreated, age, revisions.length);
 
-            // Get post info
-            $.get({
-                url: `https://stackoverflow.com/posts/${pid}/timeline`,
-                success: function(data) {
-                    const eventrows = $('.event-rows tr', data);
-                    const dateCreated = new Date(eventrows.filter('[data-eventtype="history"]').last().find('.relativetime').attr('title'));
-                    const dateDiff = Date.now() - dateCreated;
-                    const age = Math.floor(dateDiff / 86400000); // 86400000 = 1 day
-                    const revisions = eventrows.filter(function() {
-                        return $(this).find('.event-verb, .wmn1').text().includes('edited');
-                    });
-                    //console.log(eventrows, dateCreated, age, revisions.length);
-
-                    link.before(`<span class="info-num rev-count ${revisions.length >= 5 ? 'red' : ''}" title="post revisions">${revisions.length}</span>`);
-                    link.before(`<span class="info-num post-age ${age > 365 ? 'red' : ''}" title="post age">${age}d</span>`);
-                }
-            });
-
+                link.before(`<span class="info-num rev-count ${revisions.length >= 5 ? 'red' : ''}" title="post revisions">${revisions.length}</span>`);
+                link.before(`<span class="info-num post-age ${age > 365 ? 'red' : ''}" title="post age">${age}d</span>`);
+            }
         });
-    }
+    });
+}
 
 
-    function appendStyles() {
+// On page load
+doPageload();
 
-        const styles = `
-<style>
+
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 .post-header,
 .post-summary,
 .close-question-button,
@@ -99,14 +102,5 @@ p[title="question originally asked"],
 .tagged-ignored {
     opacity: 1;
 }
-</style>
 `;
-        $('body').append(styles);
-    }
-
-
-    // On page load
-    appendStyles();
-    doPageload();
-
-})();
+document.body.appendChild(styles);

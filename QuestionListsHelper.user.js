@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.4.3
+// @version      1.0
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -19,7 +19,7 @@
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
-/* globals StackExchange, hasBackoff, addBackoff */
+/* globals StackExchange, GM_info, hasBackoff, addBackoff */
 
 'use strict';
 
@@ -250,11 +250,10 @@ const getQuestions = async function (pids) {
 })();
 
 
-/**
- * @summary Append styles used by this userscript to the page
- */
-const style = document.createElement('style');
-style.innerHTML = `
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 .s-post-summary--stats {
   --s-post-summary-stats-gap: 3px;
 }

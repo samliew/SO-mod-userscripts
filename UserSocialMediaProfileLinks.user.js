@@ -3,7 +3,7 @@
 // @description  When PII is loaded, add links to social media profile
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/users/account-info/*
 // @include      https://*serverfault.com/users/account-info/*
@@ -15,55 +15,47 @@
 // @exclude      *chat.*
 // ==/UserScript==
 
+/* globals StackExchange, GM_info */
 
-(function() {
-    'use strict';
+'use strict';
 
-
-    // Moderator check
-    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
-
-    const facebookProfileUrl = 'https://www.facebook.com/profile.php?id=';
-    
-    function linkifySocialProfiles() {
-
-        $('.mod-credentials a.lookup').each(function() {
-            const num = (this.innerText || '').trim().match(/\d+$/);
-            
-            if(this.innerText.indexOf('/facebook/') >= 0 && num) {
-                $(`<a href="${facebookProfileUrl}${num[0]}" target="_blank" class="social-profile-link">Facebook Account</a>`).insertAfter(this);
-            }
-        });
-    }
+// Moderator check
+if (typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator) return;
 
 
-    function listenToPageUpdates() {
+function linkifySocialProfiles() {
 
-        // On any page update
-        $(document).ajaxComplete(function(event, xhr, settings) {
+    $('.mod-credentials a.lookup').each(function () {
+        const num = (this.innerText || '').trim().match(/\d+$/);
 
-            // Loaded PII, wait for other scripts to complete
-            if(settings.url.indexOf('/admin/all-pii') >= 0) setTimeout(linkifySocialProfiles, 500);
-        });
-    }
+        if (this.innerText.indexOf('/facebook/') >= 0 && num) {
+            $(`<a href="https://www.facebook.com/profile.php?id=${num[0]}" target="_blank" class="social-profile-link">Facebook Account</a>`).insertAfter(this);
+        }
+    });
+}
+
+function doPageload() {
+
+    // On any page update
+    $(document).ajaxComplete(function (event, xhr, settings) {
+
+        // Loaded PII, wait for other scripts to complete
+        if (settings.url.indexOf('/admin/all-pii') >= 0) setTimeout(linkifySocialProfiles, 500);
+    });
+}
 
 
-    function appendStyles() {
+// On page load
+doPageload();
 
-        const styles = `
-<style>
+
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 .social-profile-link {
     display: block;
     margin-top: 5px;
 }
-</style>
 `;
-        $('body').append(styles);
-    }
-
-
-    // On page load
-    appendStyles();
-    listenToPageUpdates();
-
-})();
+document.body.appendChild(styles);

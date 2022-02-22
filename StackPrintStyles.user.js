@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.7
+// @version      1.0
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -19,53 +19,211 @@
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
 // @include      https://chat.meta.stackexchange.com/*
-//
-// @grant        GM_addStyle
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
+
+'use strict';
 
 
-    // jQuery plugin to support an array of deferreds for jQuery.when
-    // With thanks from https://stackoverflow.com/a/16208232
-    if (typeof jQuery.when.all === 'undefined') {
-        jQuery.when.all = function (deferreds) {
-            return $.Deferred(function (def) {
-                $.when.apply(jQuery, deferreds).then(
-                    function () {
-                        def.resolveWith(this, [Array.prototype.slice.call(arguments)]);
-                    },
-                    function () {
-                        def.rejectWith(this, [Array.prototype.slice.call(arguments)]);
-                    });
+// jQuery plugin to support an array of deferreds for jQuery.when
+// With thanks from https://stackoverflow.com/a/16208232
+if (typeof jQuery.when.all === 'undefined') {
+    jQuery.when.all = function (deferreds) {
+        return $.Deferred(function (def) {
+            $.when.apply(jQuery, deferreds).then(
+                function () {
+                    def.resolveWith(this, [Array.prototype.slice.call(arguments)]);
+                },
+                function () {
+                    def.rejectWith(this, [Array.prototype.slice.call(arguments)]);
+                }
+            );
+        });
+    }
+}
+
+
+function processTimestampTooltips() {
+
+    $('.relativetime, .relativetime-clean').not('[data-timestamp]').each(function () {
+        const title = $(this).attr('title');
+        $(this).attr('data-timestamp', title.replace(/,.+$/, ''));
+    });
+    $('time[datetime]').not('[data-timestamp]').each(function () {
+        const title = $(this).attr('datetime');
+        $(this).attr('data-timestamp', title.replace('T', ' ') + 'Z');
+    });
+    $('#question-header').next().find('a[title]').each(function () {
+        const title = $(this).attr('title');
+        $(this).attr('data-timestamp', title);
+    });
+}
+
+function loadAllAnswersAndComments(inclDeletedComments = false) {
+
+    // Load answers from other pages (if more than one)
+    function loadAllAnswers() {
+
+        // Wrap all existing answers in a div
+        let previousPage = $(`<div class="js-answer-page" data-page="1"></div>`).insertAfter('#answers-header');
+        $('#answers').children('.answer, a[name]').not('[name="new-answer"], [name="tab-top"]').appendTo(previousPage);
+
+        return new Promise(function (resolve, reject) {
+
+            // Get other pages, if no other pages resolve immediately
+            const pages = $('.pager-answers').first().children('a').not('[rel="prev"]').not('[rel="next"]');
+            if (pages.length == 0) {
+                console.log('only one page of answers');
+                resolve();
+                return;
+            }
+
+            // Remove pagination
+            $('.pager-answers').remove();
+
+            // Load each pager's url into divs below existing answers
+            let deferreds = [];
+            pages.each(function (i, el) {
+                const pageNum = el.innerText.trim();
+                const page = $(`<div class="js-answer-page" data-page="${pageNum}"></div>`).insertAfter(previousPage);
+                const aj = page.load(el.href + ' #answers', function () {
+                    page.children().children().not('.answer, a').remove();
+                });
+                previousPage = page;
+                deferreds.push(aj);
             });
+
+            // Resolve when all pages load
+            $.when.all(deferreds).then(function () {
+                console.log('loaded all answer pages');
+
+                // short delay to allow comments to be added to page
+                setTimeout(() => { resolve(); }, 2000);
+            }, reject);
+        });
+    }
+
+    // Always expand comments if comments have not been expanded yet
+    function loadAllComments(inclDeletedComments) {
+        return new Promise(function (resolve, reject) {
+            let deferreds = [];
+
+            $('.question, #answers .answer').find('.js-comments-container').not('.js-del-loaded').addClass('js-del-loaded').each(function () {
+                // Get post id which is required for loading comments
+                const postId = this.dataset.answerid || this.dataset.questionid || this.dataset.postId;
+
+                // Remove default comment expander after loading comments
+                const elems = $(this).next().find('.js-show-link.comments-link:visible').prev('.js-link-separator').addBack();
+
+                // If no comment expander and not loading deleted comments,
+                // do nothing else since everything is already displayed
+                if (!inclDeletedComments && elems.length == 0) {
+                    return;
+                }
+
+                // Get all including deleted comments
+                // This method will avoid jumping to comments section
+                const commentsUrl = `/posts/${postId}/comments?includeDeleted=${inclDeletedComments}&_=${Date.now()}`;
+                const aj = $('#comments-' + postId).show().children('ul.js-comments-list').load(commentsUrl, function () {
+                    console.log('loaded comments ' + postId);
+                    elems.remove();
+                });
+                deferreds.push(aj);
+            });
+
+            // Resolve when all comments load
+            $.when.all(deferreds).then(function () {
+                console.log('loaded all comments');
+
+                // short delay to allow comments to be added to page
+                setTimeout(() => { resolve(); }, 2000);
+            }, reject);
+
+        });
+    }
+
+    // Short delay for Q&A to init
+    setTimeout(() => {
+        // If on Teams, strip out "Stack Overflow" from title
+        if (location.pathname.includes('/c/')) {
+            document.title = document.title.replace('Stack Overflow - ', '');
         }
+
+        // Do one then the other after
+        loadAllAnswers().then(() => loadAllComments(inclDeletedComments));
+    }, 1000);
+}
+
+function doPageload() {
+
+    if (location.hostname.includes('chat.')) {
+        appendChatPrintStyles();
     }
+    else if (document.getElementById('question') || location.pathname.includes('/questions/') || document.body.classList.contains('unified-theme')) {
+        appendQnaPrintStyles();
+        processTimestampTooltips();
 
+        $(document).on('ajaxStop', processTimestampTooltips);
 
-    function processTimestampTooltips() {
+        const commentButtons = $(`<div class="print-comment-buttons"><button>Load answers and comments</button></div>`).appendTo('body');
+        if (StackExchange.options.user.isModerator) {
+            commentButtons.prepend(`<button data-incldeletedcomments="true">+ deleted comments</button>`);
+        }
 
-        $('.relativetime, .relativetime-clean').not('[data-timestamp]').each(function() {
-            const title = $(this).attr('title');
-            $(this).attr('data-timestamp', title.replace(/,.+$/, ''));
-        });
+        commentButtons.on('click', 'button', function (evt) {
 
-        $('time[datetime]').not('[data-timestamp]').each(function() {
-            const title = $(this).attr('datetime');
-            $(this).attr('data-timestamp', title.replace('T', ' ') + 'Z');
-        });
+            // Remove buttons
+            commentButtons.remove();
 
-        $('#question-header').next().find('a[title]').each(function() {
-            const title = $(this).attr('title');
-            $(this).attr('data-timestamp', title);
+            const inclDeletedComments = !!evt.target.dataset.incldeletedcomments;
+            loadAllAnswersAndComments(inclDeletedComments);
+
+            return false;
         });
     }
+}
 
 
-    function appendQnaPrintStyles() {
+// On page load
+doPageload();
 
-        GM_addStyle(`
+
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
+/* Styles for loading comments buttons */
+.print-comment-buttons {
+    position: fixed !important;
+    bottom: 3px;
+    right: 3px;
+    z-index: 999999;
+}
+.print-comment-buttons:hover button {
+    display: inline-block !important;
+}
+.print-comment-buttons button {
+    display: none;
+    margin-right: 3px;
+    opacity: 0.5;
+}
+.print-comment-buttons button:hover {
+    opacity: 1;
+}
+.print-comment-buttons button:nth-last-child(1) {
+    display: inline-block;
+    margin-right: 0;
+}
+`;
+document.body.appendChild(styles);
+
+
+function appendQnaPrintStyles() {
+
+    const styles = document.createElement('style');
+    styles.setAttribute('data-somu', GM_info?.script.name);
+    styles.innerHTML = `
 @media print {
 
     html, body {
@@ -233,14 +391,16 @@
     }
 
 }
-`.replace(/ !important/g, '').replace(/;/g, ' !important;'));
+`.replace(/ !important/g, '').replace(/;/g, ' !important;');
+    document.body.appendChild(styles);
 
-    } // End QnA styles
+} // End QnA styles
 
 
-    function appendChatPrintStyles() {
-
-        GM_addStyle(`
+function appendChatPrintStyles() {
+    const styles = document.createElement('style');
+    styles.setAttribute('data-somu', GM_info?.script.name);
+    styles.innerHTML = `
 @media print {
 
     html, body {
@@ -485,171 +645,7 @@
     }
 
 }
-`.replace(/ !important/g, '').replace(/;/g, ' !important;'));
+`.replace(/ !important/g, '').replace(/;/g, ' !important;');
+    document.body.appendChild(styles);
 
-    } // End chat styles
-
-
-    function loadAllAnswersAndComments(inclDeletedComments = false) {
-
-        // Load answers from other pages (if more than one)
-        function loadAllAnswers() {
-
-            // Wrap all existing answers in a div
-            let previousPage = $(`<div class="js-answer-page" data-page="1"></div>`).insertAfter('#answers-header');
-            $('#answers').children('.answer, a[name]').not('[name="new-answer"], [name="tab-top"]').appendTo(previousPage);
-
-            return new Promise(function(resolve, reject) {
-
-                // Get other pages, if no other pages resolve immediately
-                const pages = $('.pager-answers').first().children('a').not('[rel="prev"]').not('[rel="next"]');
-                if(pages.length == 0) {
-                    console.log('only one page of answers');
-                    resolve();
-                    return;
-                }
-
-                // Remove pagination
-                $('.pager-answers').remove();
-
-                // Load each pager's url into divs below existing answers
-                let deferreds = [];
-                pages.each(function(i, el) {
-                    const pageNum = el.innerText.trim();
-                    const page = $(`<div class="js-answer-page" data-page="${pageNum}"></div>`).insertAfter(previousPage);
-                    const aj = page.load(el.href + ' #answers', function() {
-                        page.children().children().not('.answer, a').remove();
-                    });
-                    previousPage = page;
-                    deferreds.push(aj);
-                });
-
-                // Resolve when all pages load
-                $.when.all(deferreds).then(function() {
-                    console.log('loaded all answer pages');
-
-                    // short delay to allow comments to be added to page
-                    setTimeout(() => { resolve(); }, 2000);
-                }, reject);
-
-            });
-        }
-
-        // Always expand comments if comments have not been expanded yet
-        function loadAllComments(inclDeletedComments) {
-
-            return new Promise(function(resolve, reject) {
-                let deferreds = [];
-
-                $('.question, #answers .answer').find('.js-comments-container').not('.js-del-loaded').addClass('js-del-loaded').each(function() {
-
-                    // Get post id which is required for loading comments
-                    const postId = this.dataset.answerid || this.dataset.questionid || this.dataset.postId;
-
-                    // Remove default comment expander after loading comments
-                    const elems = $(this).next().find('.js-show-link.comments-link:visible').prev('.js-link-separator').addBack();
-
-                    // If no comment expander and not loading deleted comments,
-                    // do nothing else since everything is already displayed
-                    if(!inclDeletedComments && elems.length == 0) {
-                        return;
-                    }
-
-                    // Get all including deleted comments
-                    // This method will avoid jumping to comments section
-                    const commentsUrl = `/posts/${postId}/comments?includeDeleted=${inclDeletedComments}&_=${Date.now()}`;
-                    const aj = $('#comments-' + postId).show().children('ul.js-comments-list').load(commentsUrl, function() {
-                        console.log('loaded comments ' + postId);
-                        elems.remove();
-                    });
-                    deferreds.push(aj);
-                });
-
-                // Resolve when all comments load
-                $.when.all(deferreds).then(function() {
-                    console.log('loaded all comments');
-
-                    // short delay to allow comments to be added to page
-                    setTimeout(() => { resolve(); }, 2000);
-                }, reject);
-
-            });
-        }
-
-        // Short delay for Q&A to init
-        setTimeout(() => {
-
-            // If on Teams, strip out "Stack Overflow" from title
-            if(location.pathname.includes('/c/')) {
-                document.title = document.title.replace('Stack Overflow - ', '');
-            }
-
-            // Do one then the other after
-            loadAllAnswers().then(() => loadAllComments(inclDeletedComments));
-
-        }, 1000);
-
-    }
-
-
-    function doPageload() {
-
-        if(location.hostname.includes('chat.')) {
-            appendChatPrintStyles();
-        }
-
-        else if(document.getElementById('question') || location.pathname.includes('/questions/') || document.body.classList.contains('unified-theme')) {
-            appendQnaPrintStyles();
-            processTimestampTooltips();
-
-            $(document).on('ajaxStop', processTimestampTooltips);
-
-            const commentButtons = $(`<div class="print-comment-buttons"><button>Load answers and comments</button></div>`).appendTo('body');
-            if(StackExchange.options.user.isModerator) {
-                commentButtons.prepend(`<button data-incldeletedcomments="true">+ deleted comments</button>`);
-            }
-
-            commentButtons.on('click', 'button', function(evt) {
-
-                // Remove buttons
-                commentButtons.remove();
-
-                const inclDeletedComments = !!evt.target.dataset.incldeletedcomments;
-                loadAllAnswersAndComments(inclDeletedComments);
-
-                return false;
-            });
-
-            // Styles for loading comments buttons
-            GM_addStyle(`
-.print-comment-buttons {
-    position: fixed !important;
-    bottom: 3px;
-    right: 3px;
-    z-index: 999999;
-}
-.print-comment-buttons:hover button {
-    display: inline-block !important;
-}
-.print-comment-buttons button {
-    display: none;
-    margin-right: 3px;
-    opacity: 0.5;
-}
-.print-comment-buttons button:hover {
-    opacity: 1;
-}
-.print-comment-buttons button:nth-last-child(1) {
-    display: inline-block;
-    margin-right: 0;
-}
-`);
-        }
-    }
-
-
-    // On page load
-    doPageload();
-
-
-})();
+} // End chat styles

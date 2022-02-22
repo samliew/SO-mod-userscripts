@@ -3,7 +3,7 @@
 // @description  Appends more characters to short link texts in posts and comments so they can be easily seen and clicked on
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.4
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -13,19 +13,25 @@
 // @include      https://*.stackexchange.com/*
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
+
+'use strict';
 
 
-    function expandShortLinks() {
-        $('.js-post-body, .comment-copy').find('a').not('.post-tag').not('.shortlink').filter((i,el) => el.innerText.length > 0 && el.innerText.length <= 2 && el.children.length == 0).addClass('shortlink');
-    }
+function expandShortLinks() {
+    $('.js-post-body, .comment-copy').find('a').not('.post-tag').not('.shortlink').filter((i, el) => el.innerText.length > 0 && el.innerText.length <= 2 && el.children.length == 0).addClass('shortlink');
+}
 
 
-    function appendStyles() {
+// On page load
+expandShortLinks();
+$(document).ajaxComplete(expandShortLinks);
 
-        const styles = `
-<style>
+
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 a.shortlink {
     font-weight: bold;
     color: var(--red-500) !important;
@@ -36,15 +42,5 @@ a.shortlink:after {
     font-style: italic;
     font-weight: normal;
 }
-</style>
 `;
-        $('body').append(styles);
-    }
-
-
-    // On page load
-    appendStyles();
-    expandShortLinks();
-    $(document).ajaxComplete(expandShortLinks);
-
-})();
+document.body.appendChild(styles);

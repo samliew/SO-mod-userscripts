@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         SO-mod-userscripts Options
-// @description  Adds right sidebar to modify options of installed userscripts from the repo https://github.com/samliew/SO-mod-userscripts
+// @name         SOMU Options
+// @description  Adds right sidebar to modify options of installed userscripts from the Stack Overflow Moderation Userscripts repo
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -15,6 +15,10 @@
 // @exclude      *chat.*
 // @exclude      https://stackoverflow.com/c/*
 // ==/UserScript==
+
+/* globals StackExchange, GM_info */
+
+'use strict';
 
 const toInt = v => v == null || isNaN(Number(v)) ? null : Number(v);
 const toBool = v => v == null ? null : v === true || v.toLowerCase() === 'true';
@@ -41,16 +45,19 @@ SOMU = unsafeWindow.SOMU || /** @type {SOMU} */ ({
         const optionSlug = toSlug(optionName);
         const uniqueSlug = `${SOMU.keyPrefix}${scriptSlug}:${optionSlug}`;
         let v = /** @type {string|number|boolean} */(this.store.getItem(uniqueSlug));
-        if(dataType === 'int') v = toInt(v);
-        if(dataType === 'bool') {
+        if (dataType === 'int') v = toInt(v);
+        if (dataType === 'bool') {
             v = toBool(v);
             return v;
         }
         return v || defaultValue;
     },
 
-
-    saveOptionValue: function(key, value) {
+    /**
+     * @param {string} key
+     * @param {string} value
+     */
+    saveOptionValue: function (key, value) {
         this.store.setItem(key, value.trim());
     },
 
@@ -67,13 +74,13 @@ SOMU = unsafeWindow.SOMU || /** @type {SOMU} */ ({
         let scriptHeader = this.sidebar.find(`.somu-${scriptSlug}`);
 
         // If option has already been added, do nothing
-        if($('.' + uniqueSlug).length > 0) {
+        if ($('.' + uniqueSlug).length > 0) {
             console.log('Option has already been added!', uniqueSlug);
             return false;
         }
 
         // If scriptname header not found yet, insert header
-        if(scriptHeader.length === 0) {
+        if (scriptHeader.length === 0) {
             scriptHeader = $(`<h3 class="title-section somu-${scriptSlug}">${scriptName}</h3>`).prependTo(this.sidebarContent);
         }
 
@@ -82,10 +89,10 @@ SOMU = unsafeWindow.SOMU || /** @type {SOMU} */ ({
 
         // Build field HTML
         let fieldHtml = '';
-        if(dataType === 'bool') {
-            fieldHtml = `<input type="checkbox" class="input" name="${uniqueSlug}" data-datatype="bool" data-currentvalue="${currValue}" data-defaultvalue="${defaultValue}" ${currValue === true ? 'checked="checked"': '' } />`;
+        if (dataType === 'bool') {
+            fieldHtml = `<input type="checkbox" class="input" name="${uniqueSlug}" data-datatype="bool" data-currentvalue="${currValue}" data-defaultvalue="${defaultValue}" ${currValue === true ? 'checked="checked"' : ''} />`;
         }
-        else if(dataType === 'string') {
+        else if (dataType === 'string') {
             fieldHtml = `<textarea class="input" name="${uniqueSlug}" data-datatype="string" data-currentvalue="${currValue}" data-defaultvalue="${defaultValue}">${currValue}</textarea>`;
         }
 
@@ -102,11 +109,10 @@ SOMU = unsafeWindow.SOMU || /** @type {SOMU} */ ({
         this.sidebar.removeClass('no-items');
     },
 
-
-    handleSidebarEvents: function() {
+    handleSidebarEvents: function () {
         $(this.sidebar)
-            .on('change keyup', '.input', function() {
-                if(this.dataset.datatype === 'bool') {
+            .on('change keyup', '.input', function () {
+                if (this.dataset.datatype === 'bool') {
                     let currvalue = this.dataset.currentvalue === 'true';
                     let defaultvalue = this.dataset.defaultvalue === 'true';
                     $(this).toggleClass('js-changed', $(this).prop('checked') != currvalue);
@@ -117,16 +123,16 @@ SOMU = unsafeWindow.SOMU || /** @type {SOMU} */ ({
                     $(this).toggleClass('js-notdefault', !$(this).hasClass('js-changed') && this.dataset.currentvalue != this.dataset.defaultvalue);
                 }
             })
-            .on('focus', '.input', function() {
+            .on('focus', '.input', function () {
                 SOMU.sidebar.addClass('focused');
             })
-            .on('blur', '.input', function() {
+            .on('blur', '.input', function () {
                 SOMU.sidebar.removeClass('focused');
             })
-            .on('click', '.somu-save', function() {
+            .on('click', '.somu-save', function () {
                 const $el = $(this).prevAll('.input').removeClass('js-changed');
                 const el = $el.get(0);
-                if(el.dataset.datatype === 'bool') {
+                if (el.dataset.datatype === 'bool') {
                     el.dataset.currentvalue = $el.prop('checked');
                 }
                 else {
@@ -135,11 +141,11 @@ SOMU = unsafeWindow.SOMU || /** @type {SOMU} */ ({
                 $el.trigger('change');
                 SOMU.saveOptionValue(el.name, el.dataset.currentvalue);
             })
-            .on('click', '.somu-delete', function() {
+            .on('click', '.somu-delete', function () {
                 const $el = $(this).prevAll('.input');
                 const el = $el.get(0);
                 el.dataset.currentvalue = el.dataset.defaultvalue;
-                if(el.dataset.datatype === 'bool') {
+                if (el.dataset.datatype === 'bool') {
                     $el.prop('checked', el.dataset.defaultvalue === 'true');
                 }
                 else {
@@ -148,16 +154,15 @@ SOMU = unsafeWindow.SOMU || /** @type {SOMU} */ ({
                 $el.trigger('change');
                 SOMU.saveOptionValue(el.name, el.dataset.currentvalue);
             })
-            .on('click', '.title-section', function() {
+            .on('click', '.title-section', function () {
                 $(this).nextUntil('.title-section').toggle();
             });
     },
 
-
-    appendStyles: function() {
-
-        const styles = `
-<style>
+    appendStyles: function () {
+        const styles = document.createElement('style');
+        styles.setAttribute('data-somu', GM_info?.script.name);
+        styles.innerHTML = `
 #somusidebar {
     position: fixed;
     z-index: 8950;
@@ -280,21 +285,19 @@ SOMU = unsafeWindow.SOMU || /** @type {SOMU} */ ({
     padding-right: 10px;
     overflow-y: auto;
 }
-</style>
 `;
-        $('body').append(styles);
+        document.body.appendChild(styles);
     },
-
 
     init() {
 
         // Run validation
-        if(typeof jQuery === 'undefined') {
-            console.log('jQuery not found!');
+        if (typeof jQuery === 'undefined') {
+            console.error('SOMU Options - jQuery not found!');
             return;
         }
-        if(this.hasInit) {
-            console.log('Options userscript has already initialized!');
+        if (this.hasInit) {
+            console.error('SOMU Options - Userscript has already initialized!');
             return;
         }
 
@@ -306,22 +309,14 @@ SOMU = unsafeWindow.SOMU || /** @type {SOMU} */ ({
 
         this.handleSidebarEvents();
 
-        $(window).on('load resize', function() {
+        $(window).on('load resize', function () {
             //$('body').toggleClass('somusidebar-open', $(document).width() >= 1800);
             $('body').toggleClass('somusidebar-compact', $(window).height() <= 680);
         });
     }
-
 });
 
+SOMU.init();
 
-(function() {
-    'use strict';
-
-    // On page load
-    SOMU.init();
-
-    // For testing purposes
-    // SOMU.addOption('Test Script', 'Testing Option', 'default value');
-
-})();
+// For testing purposes
+// SOMU.addOption('Test Script', 'Testing Option', 'default value');

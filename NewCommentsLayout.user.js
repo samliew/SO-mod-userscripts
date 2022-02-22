@@ -3,7 +3,7 @@
 // @description  Better comments layout for easier readability and moderation
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.3
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -15,18 +15,20 @@
 //
 // @exclude      *chat.*
 //
-// @grant        GM_addStyle
 // @run-at       document-start
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
 
-    const commentsFontSize = '0.94rem';
+'use strict';
+
+const commentsFontSize = '0.94rem';
 
 
-        GM_addStyle(`
-
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 /* Main comments UI changes */
 .comment-body {
     font-size: 0;
@@ -127,7 +129,5 @@ ul.comments-list .comment:not(.deleted-comment):hover .comment-text {
 .s-badge__moderator:before {
     display: inline-block !important;
 }
-
-`);
-
-})();
+`;
+document.head.appendChild(styles);

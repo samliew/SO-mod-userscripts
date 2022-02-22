@@ -3,7 +3,7 @@
 // @description  Unique colour for each user in comments to make following users in long comment threads easier
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -15,44 +15,46 @@
 // @exclude      *chat.*
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
+
+'use strict';
+
+function getUserColor(uid, username) {
+    if (typeof uid === 'string') uid = Number(uid) || 0;
+    const colorCode = (uid * 99999999 % 16777216).toString(16) + '000000'; // 16777216 = 16^6
+    return colorCode.slice(0, 6);
+}
+function setUserColor(i, el) {
+    el.style.setProperty("--usercolor", '#' + getUserColor(this.dataset.uid, this.innerText));
+    el.classList.add("js-usercolor");
+}
+
+function updateUsers() {
+
+    // Pre-parse user ids
+    $('.comment-user').not('[data-uid]').each(function () {
+        // No href if deleted user, fallback to innerText
+        this.dataset.uid = (this.href || this.innerText).match(/\d+/, '')[0];
+    });
+
+    // If more than one comment per comment section, set user color
+    $('.comments').each(function (i, section) {
+        $('.comment-copy + div .comment-user', section).not('.js-usercolor').filter(function () {
+            return $(`.comment-user[data-uid=${this.dataset.uid}]`, section).length > 1;
+        }).each(setUserColor);
+    });
+}
 
 
-    function getUserColor(uid, username) {
-        if(typeof uid === 'string') uid = Number(uid) || 0;
-        const colorCode = (uid * 99999999 % 16777216).toString(16) + '000000'; // 16777216 = 16^6
-        return colorCode.slice(0, 6);
-    }
+// On page load
+updateUsers();
+$(document).ajaxStop(updateUsers);
 
 
-    function setUserColor(i, el) {
-        el.style.setProperty("--usercolor", '#' + getUserColor(this.dataset.uid, this.innerText));
-        el.classList.add("js-usercolor");
-    }
-
-
-    function updateUsers() {
-
-        // Pre-parse user ids
-        $('.comment-user').not('[data-uid]').each(function() {
-            // No href if deleted user, fallback to innerText
-            this.dataset.uid = (this.href || this.innerText).match(/\d+/, '')[0];
-        });
-
-        // If more than one comment per comment section, set user color
-        $('.comments').each(function(i, section) {
-            $('.comment-copy + div .comment-user', section).not('.js-usercolor').filter(function() {
-                return $(`.comment-user[data-uid=${this.dataset.uid}]`, section).length > 1;
-            }).each(setUserColor);
-        });
-    }
-
-
-    function appendStyles() {
-
-        var styles = `
-<style>
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 .js-usercolor {
     position: relative;
     --usercolor: transparent;
@@ -66,15 +68,5 @@
     border-bottom: 3px solid var(--usercolor) !important;
     pointer-events: none;
 }
-</style>
 `;
-        $('body').append(styles);
-    }
-
-
-    // On page load
-    appendStyles();
-    updateUsers();
-    $(document).ajaxStop(updateUsers);
-
-})();
+document.body.appendChild(styles);

@@ -3,7 +3,7 @@
 // @description  Implements retract flag button on own flag history page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/users/flag-summary/*
 // @include      https://*serverfault.com/users/flag-summary/*
@@ -19,83 +19,78 @@
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
 
-    const fkey = StackExchange.options.user.fkey;
+'use strict';
 
-    const flagTypes = {
-        CommentNoLongerNeeded: 'no longer needed',
-        CommentUnwelcoming: 'unfriendly or unkind',
-        CommentRudeOrOffensive: 'harassment, bigotry, or abuse',
+const fkey = StackExchange.options.user.fkey;
+const flagTypes = {
+    CommentNoLongerNeeded: 'no longer needed',
+    CommentUnwelcoming: 'unfriendly or unkind',
+    CommentRudeOrOffensive: 'harassment, bigotry, or abuse',
 
-        PostSpam: 'spam',
-        PostOffensive: 'rude or abusive',
-        PostLowQuality: 'very low quality',
-        AnswerNotAnAnswer: 'not an answer',
-    };
-    const mapFlagTypeToName = flagtype => flagTypes[flagtype] || 'PostOther';
-    const mapFlagNameToType = flagname => Object.keys(flagTypes).find(key => flagTypes[key] === flagname.toLowerCase()) || 'PostOther';
+    PostSpam: 'spam',
+    PostOffensive: 'rude or abusive',
+    PostLowQuality: 'very low quality',
+    AnswerNotAnAnswer: 'not an answer',
+};
+
+const mapFlagTypeToName = flagtype => flagTypes[flagtype] || 'PostOther';
+const mapFlagNameToType = flagname => Object.keys(flagTypes).find(key => flagTypes[key] === flagname.toLowerCase()) || 'PostOther';
 
 
-    // Retract post flag
-    function retractFlag(pid, flagType) {
-        return new Promise(function(resolve, reject) {
-            if(typeof pid === 'undefined' || pid === null) { reject(); return; }
-            if(typeof flagType === 'undefined' || flagType === null) { reject(); return; }
+// Retract post flag
+function retractFlag(pid, flagType) {
+    return new Promise(function (resolve, reject) {
+        if (typeof pid === 'undefined' || pid === null) { reject(); return; }
+        if (typeof flagType === 'undefined' || flagType === null) { reject(); return; }
 
-            $.post({
-                url: `https://${location.hostname}/flags/posts/${pid}/retract/${flagType}`,
-                data: {
-                    'fkey': fkey,
-                    'otherText': '',
-                }
-            })
+        $.post({
+            url: `https://${location.hostname}/flags/posts/${pid}/retract/${flagType}`,
+            data: {
+                'fkey': fkey,
+                'otherText': '',
+            }
+        })
             .done(resolve)
             .fail(reject);
-        });
-    }
+    });
+}
+
+function doPageload() {
+
+    // Work only on OWN flag history page (e.g.: mods can't retract another user's flags)
+    if (location.pathname !== '/users/flag-summary/' + StackExchange.options.user.userId) return;
+
+    // Cannot work on comment flags
+    if (location.search.includes('group=4')) return;
+
+    $('.user-flag-history').on('click', '[data-retractflagtype]', function () {
+        retractFlag(this.dataset.postid, this.dataset.retractflagtype);
+        $(this).remove();
+        return false;
+    });
+
+    $('.user-flag-history .mod-flag-indicator').parent('.mod-flag').each(function () {
+        const link = $(this).closest('.flagged-post').find('.answer-hyperlink').attr('href');
+        const pid = getPostId(link);
+        const flagname = $(this).children('.revision-comment, .bounty-indicator-tab').first().text().toLowerCase(); // spam flags still use class ".bounty-indicator-tab"
+        const flagtype = mapFlagNameToType(flagname);
+        $(this).append(`<button class="s-btn s-btn__xs s-btn__github" data-retractflagtype="${flagtype}" data-postid="${pid}">Retract ${flagtype} flag</button>`);
+    });
+}
 
 
-    function doPageload() {
-
-        // Work only on OWN flag history page (e.g.: mods can't retract another user's flags)
-        if(location.pathname !== '/users/flag-summary/' + StackExchange.options.user.userId) return;
-
-        // Cannot work on comment flags
-        if(location.search.includes('group=4')) return;
-
-        $('.user-flag-history').on('click', '[data-retractflagtype]', function() {
-            retractFlag(this.dataset.postid, this.dataset.retractflagtype);
-            $(this).remove();
-            return false;
-        });
-
-        $('.user-flag-history .mod-flag-indicator').parent('.mod-flag').each(function() {
-            const link = $(this).closest('.flagged-post').find('.answer-hyperlink').attr('href');
-            const pid = getPostId(link);
-            const flagname = $(this).children('.revision-comment, .bounty-indicator-tab').first().text().toLowerCase(); // spam flags still use class ".bounty-indicator-tab"
-            const flagtype = mapFlagNameToType(flagname);
-            $(this).append(`<button class="s-btn s-btn__xs s-btn__github" data-retractflagtype="${flagtype}" data-postid="${pid}">Retract ${flagtype} flag</button>`);
-        });
-    }
+// On page load
+doPageload();
 
 
-    function appendStyles() {
-
-        const styles = `
-<style>
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 .user-flag-history .mod-flag button {
     font-size: 0.8em !important;
 }
-</style>`;
-
-        $('body').append(styles);
-    }
-
-
-    // On page load
-    appendStyles();
-    doPageload();
-
-})();
+`;
+document.body.appendChild(styles);

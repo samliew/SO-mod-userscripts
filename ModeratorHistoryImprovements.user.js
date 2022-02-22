@@ -3,179 +3,180 @@
 // @description  Better UI for mod action history page. Auto-refresh every minute.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.8.1
+// @version      2.0
 //
 // @include      https://stackoverflow.com/admin/history/*
-//
-// @grant        GM_addStyle
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
+
+'use strict';
+
+const hour = 3600000;
+const day = hour * 24;
+const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+let $historyContainer, lastUpdated = -1;
 
 
-    const hour = 3600000;
-    const day = hour * 24;
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    let $historyContainer, lastUpdated = -1;
+const htmlEntities = str => str.replace(/[\u00A0-\u9999<>\&]/gim, i => `&#${i.charCodeAt(0)};`);
+const linkify = htmlstr => htmlstr
+    .replace(/[\[]{1}([^\]]+)[\]]{1}[\(]{1}([^\)\"]+)(\"(.+)\")?[\)]{1}/g, '<a href="$2" title="$4">$1</a>')
+    .replace(/(?<!>|=")(https?:\/\/)([-_a-z0-9:.,\/#=&?]+[^?.,! ])/gi, '<a href="$1$2" target="_blank">$2</a>');
 
 
-    const htmlEntities = str => str.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
-        return '&#' + i.charCodeAt(0) + ';';
+function processNewItems($items) {
+
+    // Remove fluff
+    $items.children('li').each(function () {
+        let t = this.innerHTML.trim().replace(/\s*- no link available\s*/, '');
+        this.innerHTML = t;
     });
-    const linkify = htmlstr => htmlstr
-      .replace(/[\[]{1}([^\]]+)[\]]{1}[\(]{1}([^\)\"]+)(\"(.+)\")?[\)]{1}/g, '<a href="$2" title="$4">$1</a>')
-      .replace(/(?<!>|=")(https?:\/\/)([-_a-z0-9:.,\/#=&?]+[^?.,! ])/gi, '<a href="$1$2" target="_blank">$2</a>');
+
+    // Links open in new window since this page auto-updates
+    $items.find('a').attr('target', '_blank');
+
+    // Linkify stuff on history page
+    $('ul li', $items).each(function () {
+
+        let t = this.innerText.trim().replace(/\s*- no link available\s*/, '').replace(/- from question id =/, 'for question').replace(/- for id =/, '').replace(/-$/, '');
+
+        if (t.includes('Declined)')) $(this).addClass('mod-declined');
+        else if (t.includes('Flag processed')) $(this).addClass('mod-helpful');
+
+        if (/^♦/.test(t)) {
+            $(this).addClass('mod-actions');
+        }
+
+        if (/Comment deleted:/.test(t)) {
+            t = t.replace('Comment deleted: ', '');
+            t = '<em>' + htmlEntities(t) + '</em>';
+            $(this).addClass('type-cmnt');
+        }
+        else if (t.includes('(AnswerNotAnAnswer')) {
+            $(this).addClass('type-naa');
+        }
+        else if (t.includes('(PostOther')) {
+            $(this).addClass('type-postother');
+        }
+        else if (t.includes('(PostLowQuality')) {
+            $(this).addClass('type-vlq');
+        }
+        else if (t.includes('(PostTooManyCommentsAuto')) {
+            $(this).addClass('type-toomanycmnts');
+        }
+        else if (/^User annotated - /.test(t)) {
+            t = linkify(t);
+            $(this).addClass('mod-annotates');
+        }
+        else if (/^Moderator (deletes|destroys) user/.test(t)) {
+            t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/users/$1" target="_blank" title="view user">$1</a>`);
+            $(this).addClass('mod-destroys');
+        }
+        else if (/^Moderator merges users/.test(t)) {
+            t = t.replace(/(\d+)/g, `<a href="https://${location.hostname}/users/$1" target="_blank" title="view user">$1</a>`);
+            $(this).addClass('mod-merges-users');
+        }
+        else if (/^(Moderator contacts user|See user-message)/.test(t)) {
+            t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/users/message/$1" target="_blank" title="view message">$1</a>`);
+            $(this).addClass('mod-contacts-user');
+        }
+        else if (/^(Moderator removes bounty)/.test(t)) {
+            t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/questions/$1" target="_blank" title="view question">$1</a>`);
+            $(this).addClass('mod-removes-bounty');
+        }
+        else if (/^(Moderator edits comment)/.test(t)) {
+            t = t.replace(/ - on post id = (\d+), comment id = (\d+)/, ` <a href="https://${location.hostname}/posts/comments/$2" target="_blank" title="view comment">$2</a>`);
+            $(this).addClass('mod-edits-comment');
+        }
+        else if (/^Moderator merges tags/.test(t)) {
+            t = t.replace(/\[([^\]]+)\]/g, `<a href="https://${location.hostname}/tags/$1/info" class="post-tag" target="_blank" title="view tag">$1</a>`);
+            $(this).addClass('mod-merges-tags');
+        }
+        else if (/^Moderator merges questions/.test(t)) {
+            t = t.replace(/(\d+)/g, `<a href="https://${location.hostname}/questions/$1" target="_blank" title="view question">$1</a>`);
+            $(this).addClass('mod-merges-questions');
+        }
+
+        this.innerHTML = t.replace(/Flag processed \((\w+), (Declined|Helpful)\)/, '$1');
+    });
+}
 
 
-    function processNewItems($items) {
+function updatePage() {
 
-        // Remove fluff
-        $items.children('li').each(function() {
-            let t = this.innerHTML.trim().replace(/\s*- no link available\s*/, '');
-            this.innerHTML = t;
-        });
-
-        // Links open in new window since this page auto-updates
-        $items.find('a').attr('target', '_blank');
-
-        // Linkify stuff on history page
-        $('ul li', $items).each(function() {
-
-            let t = this.innerText.trim().replace(/\s*- no link available\s*/, '').replace(/- from question id =/, 'for question').replace(/- for id =/, '').replace(/-$/, '');
-
-            if(t.includes('Declined)')) $(this).addClass('mod-declined');
-            else if(t.includes('Flag processed')) $(this).addClass('mod-helpful');
-
-            if(/^♦/.test(t)) {
-                $(this).addClass('mod-actions');
-            }
-
-            if(/Comment deleted:/.test(t)) {
-                t = t.replace('Comment deleted: ', '');
-                t = '<em>' + htmlEntities(t) + '</em>';
-                $(this).addClass('type-cmnt');
-            }
-            else if(t.includes('(AnswerNotAnAnswer')) {
-                $(this).addClass('type-naa');
-            }
-            else if(t.includes('(PostOther')) {
-                $(this).addClass('type-postother');
-            }
-            else if(t.includes('(PostLowQuality')) {
-                $(this).addClass('type-vlq');
-            }
-            else if(t.includes('(PostTooManyCommentsAuto')) {
-                $(this).addClass('type-toomanycmnts');
-            }
-            else if(/^User annotated - /.test(t)) {
-                t = linkify(t);
-                $(this).addClass('mod-annotates');
-            }
-            else if(/^Moderator (deletes|destroys) user/.test(t)) {
-                t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/users/$1" target="_blank" title="view user">$1</a>`);
-                $(this).addClass('mod-destroys');
-            }
-            else if(/^Moderator merges users/.test(t)) {
-                t = t.replace(/(\d+)/g, `<a href="https://${location.hostname}/users/$1" target="_blank" title="view user">$1</a>`);
-                $(this).addClass('mod-merges-users');
-            }
-            else if(/^(Moderator contacts user|See user-message)/.test(t)) {
-                t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/users/message/$1" target="_blank" title="view message">$1</a>`);
-                $(this).addClass('mod-contacts-user');
-            }
-            else if(/^(Moderator removes bounty)/.test(t)) {
-                t = t.replace(/(\d+)/, `<a href="https://${location.hostname}/questions/$1" target="_blank" title="view question">$1</a>`);
-                $(this).addClass('mod-removes-bounty');
-            }
-            else if(/^(Moderator edits comment)/.test(t)) {
-                t = t.replace(/ - on post id = (\d+), comment id = (\d+)/, ` <a href="https://${location.hostname}/posts/comments/$2" target="_blank" title="view comment">$2</a>`);
-                $(this).addClass('mod-edits-comment');
-            }
-            else if(/^Moderator merges tags/.test(t)) {
-                t = t.replace(/\[([^\]]+)\]/g, `<a href="https://${location.hostname}/tags/$1/info" class="post-tag" target="_blank" title="view tag">$1</a>`);
-                $(this).addClass('mod-merges-tags');
-            }
-            else if(/^Moderator merges questions/.test(t)) {
-                t = t.replace(/(\d+)/g, `<a href="https://${location.hostname}/questions/$1" target="_blank" title="view question">$1</a>`);
-                $(this).addClass('mod-merges-questions');
-            }
-
-            t = t.replace(/Flag processed \((\w+), (Declined|Helpful)\)/, '$1');
-
-            this.innerHTML = t;
-        });
-    }
-
-
-    function updatePage() {
-
-        // Get same page
-        $.get(location.href, function(page) {
-
-            // Preprocess items to get pid
-            const $items = $('#mod-user-history > li', page);
-            let $newItems = $items.filter(function(i, el) {
-                const url = $(el).find('a.answer-hyperlink, a.question-hyperlink').first().attr('href');
-                const pid = url ? Number(url.match(/\/(\d+)/g).pop().replace('/', '')) : -1;
-                $(this).attr('data-pid', pid);
-
-                // Return items that are newer than last time
-                return new Date($(this).find('.relativetime').attr('title')).getTime() > lastUpdated;
-            })
-            .prependTo($historyContainer);
-            processNewItems($newItems);
-
-            // Get last item timestamp
-            lastUpdated = new Date($items.first().find('.relativetime').attr('title')).getTime();
-        });
-    }
-
-
-    function doPageLoad() {
-
-        // Set page title
-        const mod = $('#mod-user-history').parent().prev().find('.user-info');
-        const modname = mod.find('.user-details a').first().text();
-        document.title = `${modname} - mod history`;
-
-        // Cache item container
-        $historyContainer = $('#mod-user-history');
+    // Get same page
+    $.get(location.href, function (page) {
 
         // Preprocess items to get pid
-        const $items = $historyContainer.children('li');
-        $items.each(function(i, el) {
+        const $items = $('#mod-user-history > li', page);
+        let $newItems = $items.filter(function (i, el) {
             const url = $(el).find('a.answer-hyperlink, a.question-hyperlink').first().attr('href');
             const pid = url ? Number(url.match(/\/(\d+)/g).pop().replace('/', '')) : -1;
             $(this).attr('data-pid', pid);
-        });
-        processNewItems($items);
+
+            // Return items that are newer than last time
+            return new Date($(this).find('.relativetime').attr('title')).getTime() > lastUpdated;
+        })
+            .prependTo($historyContainer);
+        processNewItems($newItems);
 
         // Get last item timestamp
         lastUpdated = new Date($items.first().find('.relativetime').attr('title')).getTime();
-
-        // If more than 24h, instead of relative date text, show date + time
-        $items.find('.relativetime').each(function() {
-            let d = new Date(this.title);
-            if(Date.now() - day > d) {
-                this.innerText = `${months[d.getMonth()]} ${d.getDate()} at ${('0'+d.getHours()).substr(-2)}:${('0'+d.getMinutes()).substr(-2)}`;
-            }
-        });
-
-        // Remove time from old items
-        $items.find('.relativetime').text((i, v) => v.replace(' at ', ', '));
-
-        // Auto update history
-        setInterval(updatePage, 30000);
-
-        // Update timestamps of items
-        setInterval(() => {
-            StackExchange.realtime.updateRelativeDates();
-        }, 10000);
-    }
+    });
+}
 
 
-    GM_addStyle(`
+function doPageLoad() {
+
+    // Set page title
+    const mod = $('#mod-user-history').parent().prev().find('.user-info');
+    const modname = mod.find('.user-details a').first().text();
+    document.title = `${modname} - mod history`;
+
+    // Cache item container
+    $historyContainer = $('#mod-user-history');
+
+    // Preprocess items to get pid
+    const $items = $historyContainer.children('li');
+    $items.each(function (i, el) {
+        const url = $(el).find('a.answer-hyperlink, a.question-hyperlink').first().attr('href');
+        const pid = url ? Number(url.match(/\/(\d+)/g).pop().replace('/', '')) : -1;
+        $(this).attr('data-pid', pid);
+    });
+    processNewItems($items);
+
+    // Get last item timestamp
+    lastUpdated = new Date($items.first().find('.relativetime').attr('title')).getTime();
+
+    // If more than 24h, instead of relative date text, show date + time
+    $items.find('.relativetime').each(function () {
+        let d = new Date(this.title);
+        if (Date.now() - day > d) {
+            this.innerText = `${months[d.getMonth()]} ${d.getDate()} at ${('0' + d.getHours()).substr(-2)}:${('0' + d.getMinutes()).substr(-2)}`;
+        }
+    });
+
+    // Remove time from old items
+    $items.find('.relativetime').text((i, v) => v.replace(' at ', ', '));
+
+    // Auto update history
+    setInterval(updatePage, 30000);
+
+    // Update timestamps of items
+    setInterval(() => {
+        StackExchange.realtime.updateRelativeDates();
+    }, 10000);
+}
+
+
+// On page load
+doPageload();
+
+
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 .mod-page #mod-user-history {
     margin-top: 20px;
     margin-left: 10px;
@@ -281,11 +282,5 @@
     margin-bottom: -1px;
     background: url('data:image/svg+xml;utf8,<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="dot-circle" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-inline--fa fa-dot-circle fa-w-16 fa-5x"><path fill="currentColor" d="M256 8C119.033 8 8 119.033 8 256s111.033 248 248 248 248-111.033 248-248S392.967 8 256 8zm80 248c0 44.112-35.888 80-80 80s-80-35.888-80-80 35.888-80 80-80 80 35.888 80 80z" class=""></path></svg>') left 0px bottom 0px/14px no-repeat;
 }
-`);
-
-
-    // Page is ready
-    doPageLoad();
-
-
-})();
+`;
+document.body.appendChild(styles);

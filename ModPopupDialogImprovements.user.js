@@ -3,7 +3,7 @@
 // @description  Some simple improvements for posts' Mod popup dialog
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      3.0
 //
 // @match        https://stackoverflow.com/*
 // @match        https://serverfault.com/*
@@ -22,52 +22,43 @@
 // @match        *.stackexchange.com/*
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
 
-    // Moderator check
-    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+'use strict';
+
+// Moderator check
+if (typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator) return;
 
 
-    function listenToPageUpdates() {
+$(document).ajaxComplete(function (evt, jqXHR, settings) {
 
-        $(document).ajaxComplete(function(evt, jqXHR, settings) {
+    // When post mod menu link is clicked
+    if (settings.url.startsWith('/admin/posts/') && settings.url.includes('/moderator-menu')) {
 
-            // When post mod menu link is clicked
-            if(settings.url.startsWith('/admin/posts/') && settings.url.includes('/moderator-menu')) {
+        const popupForm = $('.js-modal-dialog[data-action="se-mod-menu#submit"]');
+        if (popupForm.length === 0) return;
 
-                const popupForm = $('.js-modal-dialog[data-action="se-mod-menu#submit"]');
-                if(popupForm.length === 0) return;
+        const listItems = $('#modal-description', popupForm);
 
-                const listItems = $('#modal-description', popupForm);
+        // Move comments to chat is selected by default
+        listItems.find('input#se-mod-menu-action-move-comments-to-chat').prop('checked', true).triggerHandler('click');
 
-                // Move comments to chat is selected by default
-                listItems.find('input#se-mod-menu-action-move-comments-to-chat').prop('checked', true).triggerHandler('click');
+        // On postlowquality queue, default to convert-to-comment instead
+        if (location.href.indexOf('postlowquality') >= 0) {
+            listItems.find('input#se-mod-menu-action-convert-to-comment').prop('checked', true).triggerHandler('click');
+        }
 
-                // On postlowquality queue, default to convert-to-comment instead
-                if(location.href.indexOf('postlowquality') >= 0) {
-                    listItems.find('input#se-mod-menu-action-convert-to-comment').prop('checked', true).triggerHandler('click');
-                }
+        // Delete moved comments is checked by default
+        listItems.find('#mod-menu-deleteMovedComments').prop('checked', true);
 
-                // Delete moved comments is checked by default
-                listItems.find('#mod-menu-deleteMovedComments').prop('checked', true);
+        // Prevent Mod actions in Flag Queue redirecting to post - instead opens in a new tab
+        if (location.pathname.startsWith('/admin/dashboard')) {
+            popupForm.attr('target', '_blank');
+        }
 
-                // Prevent Mod actions in Flag Queue redirecting to post - instead opens in a new tab
-                if(location.pathname.startsWith('/admin/dashboard')) {
-                    popupForm.attr('target', '_blank');
-                }
-
-                // Submitting popup form hides the post as well
-                popupForm.on('submit', null, function() {
-                    setTimeout(() => $(this).parents('tr.flagged-post-row').hide(), 300);
-                });
-            }
-
+        // Submitting popup form hides the post as well
+        popupForm.on('submit', null, function () {
+            setTimeout(() => $(this).parents('tr.flagged-post-row').hide(), 300);
         });
     }
-
-
-    // On page load
-    listenToPageUpdates();
-
-})();
+});

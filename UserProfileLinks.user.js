@@ -3,7 +3,7 @@
 // @description  Expands user network links menu and add chat profile links
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -16,6 +16,8 @@
 // @exclude      *blog.*
 // @exclude      https://stackoverflow.com/c/*
 // ==/UserScript==
+
+/* globals StackExchange, GM_info */
 
 'use strict';
 
@@ -63,12 +65,10 @@
 })();
 
 
-/**
- * @summary Append styles used by this userscript to the page
- */
-const style = document.createElement('style');
-style.innerHTML = `
-/* ===== SOMU - User Profile Links ===== */
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 #profiles-wrapper button[aria-controls="profiles-menu"] {
   display: none;
 }
@@ -95,4 +95,4 @@ style.innerHTML = `
   margin-right: 4px !important;
 }
 `;
-document.body.appendChild(style);
+document.body.appendChild(styles);

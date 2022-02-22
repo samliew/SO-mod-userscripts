@@ -3,7 +3,7 @@
 // @description  Increase max-width of sites to 1440px
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.2
+// @version      2.0
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -16,29 +16,29 @@
 //
 // @exclude      */transcript/*
 //
-// @grant        GM_addStyle
 // @run-at       document-start
 // ==/UserScript==
 
-(function() {
-    'use strict';
+/* globals StackExchange, GM_info */
+
+'use strict';
+
+const breakpoints = {
+    standard: 1264,
+    wide: 1440,
+    wider: 1580,
+    widerer: 1920,
+    widest: 2560,
+    full: 99999
+};
+const maxWidth = breakpoints.wider;
+const leftSidebarWidth = 164;
 
 
-    const breakpoints = {
-        standard: 1264,
-        wide: 1440,
-        wider: 1580,
-        widerer: 1920,
-        widest: 2560,
-        full: 99999
-    };
-    const maxWidth = breakpoints.wider;
-    const leftSidebarWidth = 164;
-
-
-    GM_addStyle(`
-
-
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 /* General */
 .contentWrapper,
 .top-bar .-container,
@@ -99,9 +99,5 @@ body > .wrapper > #content {
     width: calc(100% - 70px);
     box-sizing: border-box;
 }
-
-
-`.replace(/;/g, ' !important;'));
-
-
-})();
+`.replace(/;/g, ' !important;');
+document.body.appendChild(styles);

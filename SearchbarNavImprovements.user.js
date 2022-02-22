@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.1.2
+// @version      6.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -18,576 +18,574 @@
 // @exclude      *chat.*
 // ==/UserScript==
 
+/* globals StackExchange, GM_info */
 
-(function() {
-  'use strict';
+'use strict';
 
+const svgicons = {
+  delete: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M336 64l-33.6-44.8C293.3 7.1 279.1 0 264 0h-80c-15.1 0-29.3 7.1-38.4 19.2L112 64H24C10.7 64 0 74.7 0 88v2c0 3.3 2.7 6 6 6h26v368c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V96h26c3.3 0 6-2.7 6-6v-2c0-13.3-10.7-24-24-24h-88zM184 32h80c5 0 9.8 2.4 12.8 6.4L296 64H152l19.2-25.6c3-4 7.8-6.4 12.8-6.4zm200 432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V96h320v368zm-176-44V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm-80 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm160 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12z"/></svg>',
+  bookmark: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M0 512V48C0 21.49 21.49 0 48 0h288c26.51 0 48 21.49 48 48v464L192 400 0 512z"/></svg>',
+  refresh: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M481.162 164.326c19.478 25.678 30.997 57.709 30.836 92.388C511.61 340.638 442.361 408 358.436 408H176v64c-.001 10.683-12.949 16.021-20.485 8.485l-88-87.995c-4.686-4.686-4.687-12.284 0-16.971l88-88.005c7.58-7.58 20.485-2.14 20.485 8.485v64h182.668C415.933 360 464.06 313.154 464 255.889c-.023-22.372-7.149-43.111-19.237-60.082-3.431-4.817-2.962-11.387 1.223-15.564 8.269-8.255 13.592-13.545 17.137-17.104 5.131-5.152 13.645-4.605 18.039 1.187zM48 256.111C47.94 198.846 96.067 152 153.332 152H336v64c0 10.625 12.905 16.066 20.485 8.485l88-88.005c4.687-4.686 4.686-12.285 0-16.971l-88-87.995C348.949 23.979 336.001 29.317 336 40v64H153.564C69.639 104 .389 171.362.002 255.286c-.16 34.679 11.358 66.71 30.836 92.388 4.394 5.792 12.908 6.339 18.039 1.188 3.545-3.559 8.867-8.849 17.137-17.105 4.185-4.178 4.653-10.748 1.223-15.564-12.088-16.971-19.213-37.71-19.237-60.082z"/></svg>',
+};
 
-  const svgicons = {
-      delete : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M336 64l-33.6-44.8C293.3 7.1 279.1 0 264 0h-80c-15.1 0-29.3 7.1-38.4 19.2L112 64H24C10.7 64 0 74.7 0 88v2c0 3.3 2.7 6 6 6h26v368c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V96h26c3.3 0 6-2.7 6-6v-2c0-13.3-10.7-24-24-24h-88zM184 32h80c5 0 9.8 2.4 12.8 6.4L296 64H152l19.2-25.6c3-4 7.8-6.4 12.8-6.4zm200 432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V96h320v368zm-176-44V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm-80 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm160 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12z"/></svg>',
-      bookmark : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M0 512V48C0 21.49 21.49 0 48 0h288c26.51 0 48 21.49 48 48v464L192 400 0 512z"/></svg>',
-      refresh : '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M481.162 164.326c19.478 25.678 30.997 57.709 30.836 92.388C511.61 340.638 442.361 408 358.436 408H176v64c-.001 10.683-12.949 16.021-20.485 8.485l-88-87.995c-4.686-4.686-4.687-12.284 0-16.971l88-88.005c7.58-7.58 20.485-2.14 20.485 8.485v64h182.668C415.933 360 464.06 313.154 464 255.889c-.023-22.372-7.149-43.111-19.237-60.082-3.431-4.817-2.962-11.387 1.223-15.564 8.269-8.255 13.592-13.545 17.137-17.104 5.131-5.152 13.645-4.605 18.039 1.187zM48 256.111C47.94 198.846 96.067 152 153.332 152H336v64c0 10.625 12.905 16.066 20.485 8.485l88-88.005c4.687-4.686 4.686-12.285 0-16.971l-88-87.995C348.949 23.979 336.001 29.317 336 40v64H153.564C69.639 104 .389 171.362.002 255.286c-.16 34.679 11.358 66.71 30.836 92.388 4.394 5.792 12.908 6.339 18.039 1.188 3.545-3.559 8.867-8.849 17.137-17.105 4.185-4.178 4.653-10.748 1.223-15.564-12.088-16.971-19.213-37.71-19.237-60.082z"/></svg>',
-  };
+const mseDomain = 'meta.stackexchange.com';
+const isMSE = location.hostname === mseDomain;
+const isSO = location.hostname === 'stackoverflow.com';
+const channel = StackExchange.options.site.routePrefix || '';
 
+const isChildMeta = typeof StackExchange.options.site.isChildMeta !== 'undefined';
+const mainName = StackExchange.options.site.name.replace(/\bmeta\b/i, '').replace(/\bStack Exchange\b/, '').trim();
+const mainUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
+const metaUrl = StackExchange.options.site.childUrl || 'https://' + location.hostname;
+const siteslug = location.hostname.split('.')[0];
+const currentSiteSlug = location.hostname.replace('.stackexchange', '').replace(/\.\w+$/, ''); // for SEDE
+const hasSearchResults = (location.pathname === '/search' && location.search.length > 2) || location.pathname.indexOf('/questions/tagged/') == 0;
+const mixed = isSO ? '&mixed=0' : '';
 
-  const mseDomain = 'meta.stackexchange.com';
-  const isMSE = location.hostname === mseDomain;
-  const isSO = location.hostname === 'stackoverflow.com';
-  const channel = StackExchange.options.site.routePrefix || '';
-
-  const isChildMeta = typeof StackExchange.options.site.isChildMeta !== 'undefined';
-  const mainName = StackExchange.options.site.name.replace(/\bmeta\b/i, '').replace(/\bStack Exchange\b/, '').trim();
-  const mainUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
-  const metaUrl = StackExchange.options.site.childUrl || 'https://' + location.hostname;
-  const siteslug = location.hostname.split('.')[0];
-  const currentSiteSlug = location.hostname.replace('.stackexchange', '').replace(/\.\w+$/, ''); // for SEDE
-  const hasSearchResults = (location.pathname === '/search' && location.search.length > 2) || location.pathname.indexOf('/questions/tagged/') == 0;
-  const mixed = isSO ? '&mixed=0' : '';
-
-  const store = window.localStorage;
-  const searchSelector = $(`<div class="flex--item s-select wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
+const store = window.localStorage;
+const searchSelector = $(`<div class="flex--item s-select wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
 <option data-url="${mainUrl}/search" ${!isChildMeta ? 'selected="selected"' : ''} data-mixed="0">${mainName}</option>
-<option data-url="${metaUrl}/search" ${ isChildMeta ? 'selected="selected"' : ''}>Meta</option>
+<option data-url="${metaUrl}/search" ${isChildMeta ? 'selected="selected"' : ''}>Meta</option>
 <option data-url="https://${mseDomain}/search">Meta Stack Exchange</option>
 </select></div>`);
-  const lsidebar = $('#left-sidebar');
-  const searchform = $('#search');
-  const searchfield = $('#search input[name="q"]');
-  let searchbtn = $('#search .js-search-submit');
+const lsidebar = $('#left-sidebar');
+const searchform = $('#search');
+const searchfield = $('#search input[name="q"]');
+let searchbtn = $('#search .js-search-submit');
 
-  // If search button is missing due to layout change, attempt to re-insert a semi-hidden one
-  if(searchbtn.length === 0) {
-      searchbtn = $(`<button type="submit" class="js-search-submit alt-submit-button"></button>`).insertAfter(searchfield);
+// If search button is missing due to layout change, attempt to re-insert a semi-hidden one
+if (searchbtn.length === 0) {
+  searchbtn = $(`<button type="submit" class="js-search-submit alt-submit-button"></button>`).insertAfter(searchfield);
+}
+
+const autoRefreshDefaultSecs = 60;
+let searchhelper, orderby, autoRefreshTimeout;
+
+
+// Has value
+jQuery.fn.hasValue = function (i, v) {
+  return $(this).filter(function () {
+    return $(this).val() !== '';
+  });
+};
+
+
+// Fetch and store last sort option
+const sortKeyRoot = 'SavedSearch-SearchLastSort';
+function setLastSort(val) {
+  store.setItem(sortKeyRoot, val);
+}
+function getLastSort() {
+  return store.getItem(sortKeyRoot);
+}
+
+
+// Fetch and store watched/ignored tags
+const wtKeyRoot = 'SavedSearch-TagsWatched';
+const itKeyRoot = 'SavedSearch-TagsIgnored';
+function tryUpdateWatchedIgnoredTags() {
+  if ($('.js-tag-preferences-container').length === 0) return;
+  const wTags = $('.js-watched-tag-list .post-tag').map((i, el) => el.text).get() || [];
+  const iTags = $('.js-ignored-tag-list .post-tag').map((i, el) => el.text).get() || [];
+  store.setItem(wtKeyRoot, JSON.stringify(wTags));
+  store.setItem(itKeyRoot, JSON.stringify(iTags));
+}
+function getWatchedTags() {
+  return (JSON.parse(store.getItem(wtKeyRoot)) || []).join('  ');
+}
+function getIgnoredTags() {
+  return (JSON.parse(store.getItem(itKeyRoot)) || []).join('  ');
+}
+
+
+function loadSvgIcons() {
+  $('[data-svg]').each(function () {
+    if ($(this).children('svg').length > 0) return; // once
+    const ico = svgicons[this.dataset.svg];
+    if (ico) $(this).append(ico);
+  });
+}
+
+
+// Display name to ID lookup plugin
+jQuery.fn.dnLookup = function (multiple = false, delay = 800) {
+
+  const field = $(this);
+  let debounceDuration = delay;
+  let acTimeout = null;
+
+  function doDnLookup(el) {
+    const query = encodeURIComponent(multiple ? el.value.trim().replace(/^.+\s/, '') : el.value.trim());
+    const resultElem = $(el).nextAll('.aclookup_results').html('<li class="disabled" data-val>loading...</li>');
+    const field = $(el).addClass('js-aclookup-complete');
+    $.get('https://api.stackexchange.com/2.2/users?filter=!)RwcIFN1JaCrhVpgyYeR_oO*&order=desc&sort=reputation&inname=' + query + '&site=' + siteslug, function (data) {
+      const resultlist = data.items.map(v => `<li data-val="${v.user_id}"><img src="${v.profile_image.replace('=128', '=16')}" /> ${v.display_name}</li>`).join('');
+      resultElem.html(resultlist);
+    });
   }
 
-  const autoRefreshDefaultSecs = 60;
-  let searchhelper, orderby, autoRefreshTimeout;
+  const resultslist = $(`<ul class="aclookup_results"></ul>`)
+    .on('click', 'li', function (evt) {
+      const field = $(this).parent().prevAll('input').first();
+      field.removeClass('js-aclookup-complete');
+      field.val((i, v) => ((multiple ? (' ' + v).replace(/\s\S+$/, '') : '') + ' ' + evt.target.dataset.val).trim() + ' ');
+      field.triggerHandler('keyup');
+    });
 
-
-  // Has value
-  jQuery.fn.hasValue = function(i, v) {
-      return $(this).filter(function() {
-          return $(this).val() !== '';
-      });
-  };
-
-
-  // Fetch and store last sort option
-  const sortKeyRoot = 'SavedSearch-SearchLastSort';
-  function setLastSort(val) {
-      store.setItem(sortKeyRoot, val);
-  }
-  function getLastSort() {
-      return store.getItem(sortKeyRoot);
-  }
-
-
-  // Fetch and store watched/ignored tags
-  const wtKeyRoot = 'SavedSearch-TagsWatched';
-  const itKeyRoot = 'SavedSearch-TagsIgnored';
-  function tryUpdateWatchedIgnoredTags() {
-      if($('.js-tag-preferences-container').length === 0) return;
-      const wTags = $('.js-watched-tag-list .post-tag').map((i,el) => el.text).get() || [];
-      const iTags = $('.js-ignored-tag-list .post-tag').map((i,el) => el.text).get() || [];
-      store.setItem(wtKeyRoot, JSON.stringify(wTags));
-      store.setItem(itKeyRoot, JSON.stringify(iTags));
-  }
-  function getWatchedTags() {
-      return (JSON.parse(store.getItem(wtKeyRoot)) || []).join('  ');
-  }
-  function getIgnoredTags() {
-      return (JSON.parse(store.getItem(itKeyRoot)) || []).join('  ');
-  }
-
-
-  function loadSvgIcons() {
-      $('[data-svg]').each(function() {
-          if($(this).children('svg').length > 0) return; // once
-          const ico = svgicons[this.dataset.svg];
-          if(ico) $(this).append(ico);
-      });
-  }
-
-
-  // Display name to ID lookup plugin
-  jQuery.fn.dnLookup = function(multiple = false, delay = 800) {
-
-      const field = $(this);
-      let debounceDuration = delay;
-      let acTimeout = null;
-
-      function doDnLookup(el) {
-          const query = encodeURIComponent( multiple ? el.value.trim().replace(/^.+\s/, '') : el.value.trim() );
-          const resultElem = $(el).nextAll('.aclookup_results').html('<li class="disabled" data-val>loading...</li>');
-          const field = $(el).addClass('js-aclookup-complete');
-          $.get('https://api.stackexchange.com/2.2/users?filter=!)RwcIFN1JaCrhVpgyYeR_oO*&order=desc&sort=reputation&inname='+query+'&site='+siteslug, function(data) {
-              const resultlist = data.items.map(v => `<li data-val="${v.user_id}"><img src="${v.profile_image.replace('=128','=16')}" /> ${v.display_name}</li>`).join('');
-              resultElem.html(resultlist);
-          });
+  field.after(resultslist)
+    .on('keydown blur', function (evt) {
+      if (acTimeout) clearTimeout(acTimeout);
+      $(this).removeClass('js-aclookup-complete').next('.aclookup_results').html();
+    })
+    .on('keyup', function (evt) {
+      if (acTimeout) clearTimeout(acTimeout);
+      if (evt.target.value.trim().length > 1) {
+        acTimeout = setTimeout(doDnLookup, debounceDuration, evt.target);
       }
-
-      const resultslist = $(`<ul class="aclookup_results"></ul>`)
-          .on('click', 'li', function(evt) {
-              const field = $(this).parent().prevAll('input').first();
-              field.removeClass('js-aclookup-complete');
-              field.val((i,v) => ((multiple ? (' ' + v).replace(/\s\S+$/, '') : '') + ' ' + evt.target.dataset.val).trim() + ' ');
-              field.triggerHandler('keyup');
-          });
-
-      field.after(resultslist)
-          .on('keydown blur', function(evt) {
-              if(acTimeout) clearTimeout(acTimeout);
-              $(this).removeClass('js-aclookup-complete').next('.aclookup_results').html();
-          })
-          .on('keyup', function(evt) {
-              if(acTimeout) clearTimeout(acTimeout);
-              if(evt.target.value.trim().length > 1) {
-                  acTimeout = setTimeout(doDnLookup, debounceDuration, evt.target);
-              }
-          });
-  };
+    });
+};
 
 
-  // Tags lookup plugin
-  jQuery.fn.tagLookup = function(multiple = false, delay = 800) {
+// Tags lookup plugin
+jQuery.fn.tagLookup = function (multiple = false, delay = 800) {
 
-      const field = $(this);
-      let debounceDuration = delay;
-      let acTimeout = null;
+  const field = $(this);
+  let debounceDuration = delay;
+  let acTimeout = null;
 
-      function doTagLookup(el) {
-          const query = encodeURIComponent( multiple ? el.value.trim().replace(/^.+\s/, '') : el.value.trim() );
-          const resultElem = $(el).siblings('.aclookup_results').html('<li class="disabled" data-val>loading...</li>');
-          const field = $(el).addClass('js-aclookup-complete');
-          $.get('https://api.stackexchange.com/2.2/tags?filter=!*MPoAL(KAgsdNw0T&order=desc&sort=popular&inname='+query+'&site='+siteslug, function(data) {
-              const resultlist = data.items.map(v => `<li data-val="${v.name}">${v.name}</li>`).join('');
-              resultElem.html(resultlist);
-          });
-      }
-
-      const resultslist = $(`<ul class="aclookup_results"></ul>`)
-          .on('click', 'li', function(evt) {
-              const field = $(this).parent().prevAll('input').first();
-              field.removeClass('js-aclookup-complete');
-              field.val((i,v) => ((multiple ? (' ' + v).replace(/\s\S+$/, '') : '') + ' ' + evt.target.dataset.val).trim() + ' ');
-          });
-
-      field.after(resultslist)
-          .on('keydown blur', function(evt) {
-              if(acTimeout) clearTimeout(acTimeout);
-              $(this).removeClass('js-aclookup-complete').next('.aclookup_results').html();
-          })
-          .on('keyup', function(evt) {
-              if(acTimeout) clearTimeout(acTimeout);
-              if(evt.target.value.trim().length > 1) {
-                  acTimeout = setTimeout(doTagLookup, debounceDuration, evt.target);
-              }
-          });
-
-      // Prevent tag brackets [] from being typed
-      field
-          .on('keydown blur', function(evt) {
-              return /[^\[\]]/.test(evt.key);
-          })
-          .on('change blur', function(evt) {
-              this.value = this.value.trim().replace(/[\[\]]/g, '').replace(/\s+/g, ' ');
-          });
-  };
-
-
-  // Saved Search helper functions
-  const ssKeyRoot = 'SavedSearch';
-  // Sanitize: strip mixed, strip page, convert to lowercase
-  function sanitizeQuery(value) {
-      return value.toLowerCase()
-               .replace(/[?&]mixed=[10]/, '')
-               .replace(/[?&]page=\d+/, '')
-               .replace(/[?&]pagesize=\d+/, '')
-               .replace(/[?&]refresh=\d+/, '')
-               .replace(/^[&]/, '?')
-               .replace(/%20/g, '+')
-               .replace('tab=&', 'tab=relevance&');
+  function doTagLookup(el) {
+    const query = encodeURIComponent(multiple ? el.value.trim().replace(/^.+\s/, '') : el.value.trim());
+    const resultElem = $(el).siblings('.aclookup_results').html('<li class="disabled" data-val>loading...</li>');
+    const field = $(el).addClass('js-aclookup-complete');
+    $.get('https://api.stackexchange.com/2.2/tags?filter=!*MPoAL(KAgsdNw0T&order=desc&sort=popular&inname=' + query + '&site=' + siteslug, function (data) {
+      const resultlist = data.items.map(v => `<li data-val="${v.name}">${v.name}</li>`).join('');
+      resultElem.html(resultlist);
+    });
   }
-  function addSavedSearch(value, append = false) {
-      if(value == null || value == '') return false;
-      value = sanitizeQuery(value);
 
-      let items = getSavedSearches();
-      if(append) {
-          items.push(value); // add to end
+  const resultslist = $(`<ul class="aclookup_results"></ul>`)
+    .on('click', 'li', function (evt) {
+      const field = $(this).parent().prevAll('input').first();
+      field.removeClass('js-aclookup-complete');
+      field.val((i, v) => ((multiple ? (' ' + v).replace(/\s\S+$/, '') : '') + ' ' + evt.target.dataset.val).trim() + ' ');
+    });
+
+  field.after(resultslist)
+    .on('keydown blur', function (evt) {
+      if (acTimeout) clearTimeout(acTimeout);
+      $(this).removeClass('js-aclookup-complete').next('.aclookup_results').html();
+    })
+    .on('keyup', function (evt) {
+      if (acTimeout) clearTimeout(acTimeout);
+      if (evt.target.value.trim().length > 1) {
+        acTimeout = setTimeout(doTagLookup, debounceDuration, evt.target);
+      }
+    });
+
+  // Prevent tag brackets [] from being typed
+  field
+    .on('keydown blur', function (evt) {
+      return /[^\[\]]/.test(evt.key);
+    })
+    .on('change blur', function (evt) {
+      this.value = this.value.trim().replace(/[\[\]]/g, '').replace(/\s+/g, ' ');
+    });
+};
+
+
+// Saved Search helper functions
+const ssKeyRoot = 'SavedSearch';
+// Sanitize: strip mixed, strip page, convert to lowercase
+function sanitizeQuery(value) {
+  return value.toLowerCase()
+    .replace(/[?&]mixed=[10]/, '')
+    .replace(/[?&]page=\d+/, '')
+    .replace(/[?&]pagesize=\d+/, '')
+    .replace(/[?&]refresh=\d+/, '')
+    .replace(/^[&]/, '?')
+    .replace(/%20/g, '+')
+    .replace('tab=&', 'tab=relevance&');
+}
+function addSavedSearch(value, append = false) {
+  if (value == null || value == '') return false;
+  value = sanitizeQuery(value);
+
+  let items = getSavedSearches();
+  if (append) {
+    items.push(value); // add to end
+  }
+  else {
+    items.unshift(value); // add to beginning
+  }
+  store.setItem(ssKeyRoot, JSON.stringify(items));
+}
+function addSavedSearches(arrayValues) {
+  if (typeof arrayValues !== 'object' || arrayValues.length == 0) return false;
+  arrayValues.forEach(o => addSavedSearch(o, true));
+}
+function hasSavedSearch(value) {
+  if (value == null || value == '') return false;
+  value = sanitizeQuery(value);
+
+  const items = getSavedSearches();
+  const result = jQuery.grep(items, function (v) {
+    return v == value;
+  });
+  return result.length > 0;
+}
+function removeSavedSearch(value) {
+  if (value == null || value == '') return false;
+  value = sanitizeQuery(value);
+
+  const items = getSavedSearches();
+  const result = jQuery.grep(items, function (v) {
+    return v != value;
+  });
+  store.setItem(ssKeyRoot, JSON.stringify(result));
+}
+function removeAllSavedSearches() {
+  store.setItem(ssKeyRoot, JSON.stringify([]));
+}
+function getSavedSearches() {
+  return JSON.parse(store.getItem(ssKeyRoot)) || [];
+}
+function humanizeSearchQuery(value) {
+  if (value == null || value == '') return false;
+  value = decodeURIComponent(value);
+  value = sanitizeQuery(value)
+    .replace(/[?&][a-z]+=/g, ' ')
+    .replace(/\+/g, ' ')
+    .trim();
+  return value;
+}
+
+
+// Search auto-refresh helper functions
+const afKeyRoot = 'SavedSearch-AutoRefresh';
+let animInterval;
+function addAutoRefresh(value, duration = autoRefreshDefaultSecs) {
+  if (value == null || value == '') return false;
+  value = sanitizeQuery(value);
+
+  let items = getAutoRefreshes();
+  items.push([value, duration]);
+  store.setItem(afKeyRoot, JSON.stringify(items));
+}
+function getAutoRefreshDuration(value) {
+  if (value == null || value == '') return false;
+  value = sanitizeQuery(value);
+
+  const items = getAutoRefreshes();
+  const result = jQuery.grep(items, function (v) {
+    return v[0] == value;
+  });
+
+  if (result.length > 0 && result[0] && result[0][1]) {
+    return Number(result[0][1]);
+  }
+  return false;
+}
+function removeAutoRefresh(value) {
+  if (value == null || value == '') return false;
+  value = sanitizeQuery(value);
+
+  const items = getAutoRefreshes();
+  const result = jQuery.grep(items, function (v) {
+    return v[0] != value;
+  });
+  store.setItem(afKeyRoot, JSON.stringify(result));
+}
+function removeAllAutoRefreshes() {
+  store.setItem(afKeyRoot, JSON.stringify([]));
+}
+function getAutoRefreshes() {
+  return JSON.parse(store.getItem(afKeyRoot)) || [];
+}
+function stopAutoRefresh() {
+  if (autoRefreshTimeout) {
+    clearTimeout(autoRefreshTimeout);
+    //console.log(`Auto Refresh stopped`);
+  }
+  if (animInterval) {
+    clearInterval(animInterval);
+  }
+}
+function startAutoRefresh(duration = autoRefreshDefaultSecs) {
+  stopAutoRefresh();
+  autoRefreshTimeout = setTimeout("location.reload()", duration * 1000);
+  //console.log(`Auto Refresh started (${duration} seconds)`);
+
+  // Animation
+  const pb = document.querySelector('#btn-auto-refresh .radial-progress');
+  if (pb) {
+    pb.dataset.progress = 0;
+    animInterval = setInterval(function () {
+      let v = Number(pb.dataset.progress) + 1;
+      if (v > duration) v = duration;
+      pb.dataset.progress = v;
+    }, 1000);
+  }
+}
+
+
+function initAutoRefresh() {
+
+  if (!hasSearchResults) return;
+
+  // Has auto refresh?
+  const currRefreshDurationSecs = getAutoRefreshDuration(location.search);
+  let refreshDurationSecs = currRefreshDurationSecs || autoRefreshDefaultSecs;
+
+  const btnAutoRefresh = $(`
+<a id="btn-auto-refresh" class="s-btn" href="#" data-svg="refresh" tabindex="0" title="Auto Refresh (${refreshDurationSecs} seconds)">
+  <div class="radial-progress" data-progress="0">
+    <div class="circle">
+      <div class="mask full">
+        <div class="fill"></div>
+      </div>
+      <div class="mask half">
+        <div class="fill"></div>
+        <div class="fill fix"></div>
+      </div>
+    </div>
+    <div class="inset"></div>
+  </div>
+</a>`)
+    .on('click', function () {
+      $(this).toggleClass('active');
+      if ($(this).hasClass('active')) {
+        addAutoRefresh(location.search);
+        startAutoRefresh(refreshDurationSecs);
       }
       else {
-          items.unshift(value); // add to beginning
+        removeAutoRefresh(location.search);
+        stopAutoRefresh();
       }
-      store.setItem(ssKeyRoot, JSON.stringify(items));
-  }
-  function addSavedSearches(arrayValues) {
-      if(typeof arrayValues !== 'object' || arrayValues.length == 0) return false;
-      arrayValues.forEach(o => addSavedSearch(o, true));
-  }
-  function hasSavedSearch(value) {
-      if(value == null || value == '') return false;
-      value = sanitizeQuery(value);
+    });
 
-      const items = getSavedSearches();
-      const result = jQuery.grep(items, function(v) {
-          return v == value;
-      });
-      return result.length > 0;
-  }
-  function removeSavedSearch(value) {
-      if(value == null || value == '') return false;
-      value = sanitizeQuery(value);
+  // Insert refresh button
+  btnAutoRefresh.insertBefore('#btn-bookmark-search');
 
-      const items = getSavedSearches();
-      const result = jQuery.grep(items, function(v) {
-          return v != value;
-      });
-      store.setItem(ssKeyRoot, JSON.stringify(result));
+  // If set, start auto refresh on page load
+  if (currRefreshDurationSecs !== false) {
+    btnAutoRefresh.addClass('active');
+    startAutoRefresh(currRefreshDurationSecs);
   }
-  function removeAllSavedSearches() {
-      store.setItem(ssKeyRoot, JSON.stringify([]));
-  }
-  function getSavedSearches() {
-      return JSON.parse(store.getItem(ssKeyRoot)) || [];
-  }
-  function humanizeSearchQuery(value) {
-      if(value == null || value == '') return false;
-      value = decodeURIComponent(value);
-      value = sanitizeQuery(value)
-          .replace(/[?&][a-z]+=/g, ' ')
-          .replace(/\+/g, ' ')
-          .trim();
-      return value;
-  }
+}
 
 
-  // Search auto-refresh helper functions
-  const afKeyRoot = 'SavedSearch-AutoRefresh';
-  let animInterval;
-  function addAutoRefresh(value, duration = autoRefreshDefaultSecs) {
-      if(value == null || value == '') return false;
-      value = sanitizeQuery(value);
+function initQuickfilters() {
 
-      let items = getAutoRefreshes();
-      items.push([value, duration]);
-      store.setItem(afKeyRoot, JSON.stringify(items));
+  if (!hasSearchResults) return;
+
+  let query = sanitizeQuery(location.search);
+  const querysuffix = mixed;
+  const lastSort = getLastSort();
+  const isOnTagPage = query == '';
+
+  if (isOnTagPage) {
+    const tag = location.pathname.split('/').pop();
+    query = `/search?tab=${lastSort}&q=%5B${tag}%5D`;
   }
-  function getAutoRefreshDuration(value) {
-      if(value == null || value == '') return false;
-      value = sanitizeQuery(value);
+  query = sanitizeQuery(query.toLowerCase());
 
-      const items = getAutoRefreshes();
-      const result = jQuery.grep(items, function(v) {
-          return v[0] == value;
-      });
-
-      if(result.length > 0 && result[0] && result[0][1]) {
-          return Number(result[0][1]);
-      }
-      return false;
-  }
-  function removeAutoRefresh(value) {
-      if(value == null || value == '') return false;
-      value = sanitizeQuery(value);
-
-      const items = getAutoRefreshes();
-      const result = jQuery.grep(items, function(v) {
-          return v[0] != value;
-      });
-      store.setItem(afKeyRoot, JSON.stringify(result));
-  }
-  function removeAllAutoRefreshes() {
-      store.setItem(afKeyRoot, JSON.stringify([]));
-  }
-  function getAutoRefreshes() {
-      return JSON.parse(store.getItem(afKeyRoot)) || [];
-  }
-  function stopAutoRefresh() {
-      if(autoRefreshTimeout) {
-          clearTimeout(autoRefreshTimeout);
-          //console.log(`Auto Refresh stopped`);
-      }
-      if(animInterval) {
-          clearInterval(animInterval);
-      }
-  }
-  function startAutoRefresh(duration = autoRefreshDefaultSecs) {
-      stopAutoRefresh();
-      autoRefreshTimeout = setTimeout("location.reload()", duration * 1000);
-      //console.log(`Auto Refresh started (${duration} seconds)`);
-
-      // Animation
-      const pb = document.querySelector('#btn-auto-refresh .radial-progress');
-      if(pb) {
-          pb.dataset.progress = 0;
-          animInterval = setInterval(function() {
-              let v = Number(pb.dataset.progress) + 1;
-              if(v > duration) v = duration;
-              pb.dataset.progress = v;
-          }, 1000);
-      }
-  }
-
-
-  function initAutoRefresh() {
-
-      if(!hasSearchResults) return;
-
-      // Has auto refresh?
-      const currRefreshDurationSecs = getAutoRefreshDuration(location.search);
-      let refreshDurationSecs = currRefreshDurationSecs || autoRefreshDefaultSecs;
-
-      const btnAutoRefresh = $(`<a id="btn-auto-refresh" class="s-btn" href="#" data-svg="refresh" tabindex="0" title="Auto Refresh (${refreshDurationSecs} seconds)">
-<div class="radial-progress" data-progress="0">
-  <div class="circle">
-    <div class="mask full">
-      <div class="fill"></div>
-    </div>
-    <div class="mask half">
-      <div class="fill"></div>
-      <div class="fill fix"></div>
-    </div>
+  let quickfilter = $(`
+<div id="res-quickfilter">Quick filters:
+  <div class="grid tabs-filter tt-capitalize">
+  <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap ${isOnTagPage ? 'is-selected' : ''}"
+    href="${removeParam(query, 'is')}+is%3aq${querysuffix}" data-onwhen="is%3aq"
+    data-toggleoff="${removeParam(query, 'is')}${querysuffix}">questions</a>
+  <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
+    href="${removeParam(query, 'is')}+is%3aa${querysuffix}" data-onwhen="is%3aa"
+    data-toggleoff="${removeParam(query, 'is')}${querysuffix}">answers</a>
   </div>
-  <div class="inset"></div>
-</div>
-</a>`)
-      .click(function() {
-          $(this).toggleClass('active');
-          if($(this).hasClass('active')) {
-              addAutoRefresh(location.search);
-              startAutoRefresh(refreshDurationSecs);
-          }
-          else {
-              removeAutoRefresh(location.search);
-              stopAutoRefresh();
-          }
-      });
-
-      // Insert refresh button
-      btnAutoRefresh.insertBefore('#btn-bookmark-search');
-
-      // If set, start auto refresh on page load
-      if(currRefreshDurationSecs !== false) {
-          btnAutoRefresh.addClass('active');
-          startAutoRefresh(currRefreshDurationSecs);
-      }
-  }
-
-
-  function initQuickfilters() {
-
-      if(!hasSearchResults) return;
-
-      let query = sanitizeQuery(location.search);
-      const querysuffix = mixed;
-      const lastSort = getLastSort();
-      const isOnTagPage = query == '';
-
-      if(isOnTagPage) {
-          const tag = location.pathname.split('/').pop();
-          query = `/search?tab=${lastSort}&q=%5B${tag}%5D`;
-      }
-      query = sanitizeQuery(query.toLowerCase());
-
-      let quickfilter = $(`<div id="res-quickfilter">Quick filters:
-<div class="grid tabs-filter tt-capitalize">
-<a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap ${isOnTagPage ? 'is-selected' : ''}"
-   href="${removeParam(query, 'is')}+is%3aq${querysuffix}" data-onwhen="is%3aq"
-   data-toggleoff="${removeParam(query, 'is')}${querysuffix}">questions</a>
-<a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
-   href="${removeParam(query, 'is')}+is%3aa${querysuffix}" data-onwhen="is%3aa"
-   data-toggleoff="${removeParam(query, 'is')}${querysuffix}">answers</a>
-</div>
-<div class="grid tabs-filter tt-capitalize">
-<a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
-   href="${removeParam(query, 'deleted')}+deleted%3a1${querysuffix}" data-onwhen="deleted%3ayes"
-   data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany${querysuffix}">deleted</a>
-<a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
-   href="${removeParam(query, 'deleted')}+deleted%3a0${querysuffix}" data-onwhen="deleted%3ano" data-onwhenmissing="deleted%3a"
-   data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany${querysuffix}">not deleted</a>
-</div>
+  <div class="grid tabs-filter tt-capitalize">
+  <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
+    href="${removeParam(query, 'deleted')}+deleted%3a1${querysuffix}" data-onwhen="deleted%3ayes"
+    data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany${querysuffix}">deleted</a>
+  <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
+    href="${removeParam(query, 'deleted')}+deleted%3a0${querysuffix}" data-onwhen="deleted%3ano" data-onwhenmissing="deleted%3a"
+    data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany${querysuffix}">not deleted</a>
+  </div>
 </div>`).insertAfter('.js-advanced-tips');
 
-      quickfilter.find('a[data-onwhen]').each(function() {
-          let se = this.dataset.onwhen;
-          if(se.match(/(yes|no)$/) != null) {
-              se = se.replace(/yes$/, '(yes|1)').replace(/no$/, '(no|0)');
-          }
-          const matches = query.toLowerCase().match(se);
-          if(matches != null || (this.dataset.onwhenmissing && query.toLowerCase().match(this.dataset.onwhenmissing) == null) ) {
-              $(this).addClass('is-selected');
-          }
-      });
+  quickfilter.find('a[data-onwhen]').each(function () {
+    let se = this.dataset.onwhen;
+    if (se.match(/(yes|no)$/) != null) {
+      se = se.replace(/yes$/, '(yes|1)').replace(/no$/, '(no|0)');
+    }
+    const matches = query.toLowerCase().match(se);
+    if (matches != null || (this.dataset.onwhenmissing && query.toLowerCase().match(this.dataset.onwhenmissing) == null)) {
+      $(this).addClass('is-selected');
+    }
+  });
 
-      quickfilter.find('.is-selected').each(function() {
-          this.href = this.dataset.toggleoff;
-      });
+  quickfilter.find('.is-selected').each(function () {
+    this.href = this.dataset.toggleoff;
+  });
 
-      function removeParam(query, param) {
-          const re = new RegExp('\\+?' + param + '%3a[a-z0-9]+');
-          return query.toLowerCase().replace(re, '');
-      }
-
+  function removeParam(query, param) {
+    const re = new RegExp('\\+?' + param + '%3a[a-z0-9]+');
+    return query.toLowerCase().replace(re, '');
   }
 
+}
 
-  function initSavedSearch() {
 
-      const ss = $('#saved-search');
-      const btnBookmark = $(`<a id="btn-bookmark-search" class="s-btn" href="#" data-svg="bookmark" tabindex="0" title="Bookmark Search"></a>`)
-          .click(function() {
-              $(this).toggleClass('active');
-              if($(this).hasClass('active')) {
-                  addSavedSearch(location.search);
-              }
-              else {
-                  removeSavedSearch(location.search);
-              }
-              reloadSavedSearchList();
-          });
+function initSavedSearch() {
 
-      // Button toggle in Search helper
-      $('#btn-saved-search').click(function() {
-         $(this).toggleClass('active');
-      });
-
-      // Load Saved Searches
-      function reloadSavedSearchList() {
-          ss.empty();
-          const ssitems = getSavedSearches();
-          $.each(ssitems, function(i, v) {
-              const readable = humanizeSearchQuery(v);
-              const sstemplate = $(`<div class="item" data-value="${v}">
-                <span class="handle"></span>
-                <a href="${channel}/search${v}${mixed}">${readable}</a>
-                <div class="actions">
-                  <a class="delete" data-svg="delete" title="Delete (no confirmation)"></a>
-                </div>
-              </div>`).appendTo(ss);
-          });
-          loadSvgIcons();
+  const ss = $('#saved-search');
+  const btnBookmark = $(`<a id="btn-bookmark-search" class="s-btn" href="#" data-svg="bookmark" tabindex="0" title="Bookmark Search"></a>`)
+    .on('click', function () {
+      $(this).toggleClass('active');
+      if ($(this).hasClass('active')) {
+        addSavedSearch(location.search);
       }
-      reloadSavedSearchList(); // Once on init
-
-      // Sortable bookmarks
-      $.getScript('https://cdn.rawgit.com/RubaXa/Sortable/master/Sortable.js', function() {
-
-          // Script validation
-          if(typeof Sortable === 'undefined') {
-              console.error('Searchbar & Nav Improvements - Sortable not loaded');
-              return;
-          }
-
-          Sortable.create(ss.get(0), {
-              ghostClass: 'sortable-ghost',
-              onUpdate: function(evt) {
-                  const items = ss.children('.item').map((i,el) => el.dataset.value).get();
-                  removeAllSavedSearches();
-                  addSavedSearches(items);
-              },
-          });
-      });
-
-      // Handle delete button
-      ss.on('click', 'a.delete', function(evt) {
-          const item = $(this).parents('.item');
-          removeSavedSearch(item.get(0).dataset.value);
-
-          // Update current search page's bookmark
-          btnBookmark.toggleClass('active', hasSavedSearch(location.search));
-
-          item.remove();
-          return false;
-      });
-
-      // On Search Result page and has search query
-      if(location.pathname === '/search' && location.search.length > 2) {
-
-          // Check if current query is already bookmarked
-          btnBookmark.toggleClass('active', hasSavedSearch(location.search));
-
-          // Replace advanced search link with bookmark link
-          $('.advanced-tips-toggle, .js-advanced-tips-toggle').after(btnBookmark).remove();
+      else {
+        removeSavedSearch(location.search);
       }
+      reloadSavedSearchList();
+    });
+
+  // Button toggle in Search helper
+  $('#btn-saved-search').on('click', function () {
+    $(this).toggleClass('active');
+  });
+
+  // Load Saved Searches
+  function reloadSavedSearchList() {
+    ss.empty();
+    const ssitems = getSavedSearches();
+    $.each(ssitems, function (i, v) {
+      const readable = humanizeSearchQuery(v);
+      const sstemplate = $(`
+<div class="item" data-value="${v}">
+  <span class="handle"></span>
+  <a href="${channel}/search${v}${mixed}">${readable}</a>
+  <div class="actions">
+    <a class="delete" data-svg="delete" title="Delete (no confirmation)"></a>
+  </div>
+</div>`).appendTo(ss);
+    });
+    loadSvgIcons();
   }
+  reloadSavedSearchList(); // Once on init
 
+  // Sortable bookmarks
+  $.getScript('https://cdn.rawgit.com/RubaXa/Sortable/master/Sortable.js', function () {
 
-  function handleAdvancedSearch(evt) {
-      const filledFields = searchhelper.find('input[data-autofill]:text, input[data-autofill]:checked, select[data-autofill]').hasValue();
-      const rangedFields = searchhelper.find('input[data-range-to], select[data-range-to]');
-      let addQuery = '';
+    // Script validation
+    if (typeof Sortable === 'undefined') {
+      console.error('Searchbar & Nav Improvements - Sortable not loaded');
+      return;
+    }
 
-      filledFields.each(function(i, el) {
-          let currValue = el.value.trim().replace(/\s+/g, ' ');
-          if(currValue === '') return;
+    Sortable.create(ss.get(0), {
+      ghostClass: 'sortable-ghost',
+      onUpdate: function (evt) {
+        const items = ss.children('.item').map((i, el) => el.dataset.value).get();
+        removeAllSavedSearches();
+        addSavedSearches(items);
+      },
+    });
+  });
 
-          const term = searchhelper.find(`[name="${el.dataset.termvalue}"]:checked`).val() || '';
-          const neg = el.dataset.neg || '';
-          const prefix = el.dataset.prefix || '';
-          const suffix = el.dataset.suffix || '';
-          const joiner = el.dataset.join || '';
+  // Handle delete button
+  ss.on('click', 'a.delete', function (evt) {
+    const item = $(this).parents('.item');
+    removeSavedSearch(item.get(0).dataset.value);
 
-          if(prefix !== '"' && suffix !== '"') currValue = currValue.split(' ').join(neg + joiner + term);
+    // Update current search page's bookmark
+    btnBookmark.toggleClass('active', hasSavedSearch(location.search));
 
-          addQuery += ' ' + neg + term + prefix + currValue + suffix;
-      });
+    item.remove();
+    return false;
+  });
 
-      rangedFields.each(function(i, el) {
-          const addSep = el.dataset.additionalSep || '';
+  // On Search Result page and has search query
+  if (location.pathname === '/search' && location.search.length > 2) {
 
-          const fromValue = el.value;
-          const fromAdditional = document.getElementById(el.dataset.additional);
-          const fromAdditionalValue = fromAdditional ? fromAdditional.value : null;
-          const linkedToField = document.getElementById(el.dataset.rangeTo);
-          const linkedToValue = linkedToField.value;
-          const linkedToAdditional = document.getElementById(linkedToField.dataset.additional);
-          const linkedToAdditionalValue = linkedToAdditional ? linkedToAdditional.value : null;
-          const linkedSuffixFrom = linkedToField.dataset.suffixFrom ? document.getElementById(linkedToField.dataset.suffixFrom).value : '';
+    // Check if current query is already bookmarked
+    btnBookmark.toggleClass('active', hasSavedSearch(location.search));
 
-          const term = searchhelper.find(`[name="${el.dataset.termvalue}"]:checked`).val() || '';
-          const prefix = el.dataset.prefix || '';
-          const suffix = el.dataset.suffix || '';
-          const suffixFrom = el.dataset.suffixFrom ? document.getElementById(el.dataset.suffixFrom).value : '';
-
-          if(fromValue === '' && linkedToValue === '') return;
-
-          // Do not validate if NOT age range (because you can use different unit values)
-          if(el.id !== 'agerange-from') {
-
-              // First value must be more than or equal to second value
-              if(fromValue !== '' && linkedToValue !== '' && Number(fromValue) >= Number(linkedToValue)) return;
-          }
-
-          addQuery += ' ' + term + prefix +
-                      (fromValue ? fromValue + suffixFrom : '') + (fromAdditionalValue ? addSep + fromAdditionalValue : '') + '..' +
-                      (linkedToValue ? linkedToValue + linkedSuffixFrom : '') + (linkedToAdditionalValue ? addSep + linkedToAdditionalValue : '');
-      });
-
-      // Append search to existing field value
-      searchfield.val((i, v) => (v + addQuery).replace(/\s+/g, ' ').replace(/([:])\s+/g, '$1').trim());
-
-      // Move order-by fields before search field so that the resulting query will match SE's format
-      orderby.hide().insertBefore(searchfield);
-
-      // Save last search sort
-      setLastSort(orderby.find(':checked').val() || 'relevance');
-
-      // Remove search helper on submit so it doesn't pollute the query string
-      searchhelper.remove();
+    // Replace advanced search link with bookmark link
+    $('.advanced-tips-toggle, .js-advanced-tips-toggle').after(btnBookmark).remove();
   }
+}
 
 
-  function initAdvancedSearch() {
+function handleAdvancedSearch(evt) {
+  const filledFields = searchhelper.find('input[data-autofill]:text, input[data-autofill]:checked, select[data-autofill]').hasValue();
+  const rangedFields = searchhelper.find('input[data-range-to], select[data-range-to]');
+  let addQuery = '';
 
-      appendAdvancedSearchStyles();
+  filledFields.each(function (i, el) {
+    let currValue = el.value.trim().replace(/\s+/g, ' ');
+    if (currValue === '') return;
 
-      const today = new Date();
+    const term = searchhelper.find(`[name="${el.dataset.termvalue}"]:checked`).val() || '';
+    const neg = el.dataset.neg || '';
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    const joiner = el.dataset.join || '';
 
-      // Remove new top-search
-      $('#top-search').remove();
+    if (prefix !== '"' && suffix !== '"') currValue = currValue.split(' ').join(neg + joiner + term);
 
-      orderby = $(`<div id="order-by">
+    addQuery += ' ' + neg + term + prefix + currValue + suffix;
+  });
+
+  rangedFields.each(function (i, el) {
+    const addSep = el.dataset.additionalSep || '';
+
+    const fromValue = el.value;
+    const fromAdditional = document.getElementById(el.dataset.additional);
+    const fromAdditionalValue = fromAdditional ? fromAdditional.value : null;
+    const linkedToField = document.getElementById(el.dataset.rangeTo);
+    const linkedToValue = linkedToField.value;
+    const linkedToAdditional = document.getElementById(linkedToField.dataset.additional);
+    const linkedToAdditionalValue = linkedToAdditional ? linkedToAdditional.value : null;
+    const linkedSuffixFrom = linkedToField.dataset.suffixFrom ? document.getElementById(linkedToField.dataset.suffixFrom).value : '';
+
+    const term = searchhelper.find(`[name="${el.dataset.termvalue}"]:checked`).val() || '';
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    const suffixFrom = el.dataset.suffixFrom ? document.getElementById(el.dataset.suffixFrom).value : '';
+
+    if (fromValue === '' && linkedToValue === '') return;
+
+    // Do not validate if NOT age range (because you can use different unit values)
+    if (el.id !== 'agerange-from') {
+
+      // First value must be more than or equal to second value
+      if (fromValue !== '' && linkedToValue !== '' && Number(fromValue) >= Number(linkedToValue)) return;
+    }
+
+    addQuery += ' ' + term + prefix +
+      (fromValue ? fromValue + suffixFrom : '') + (fromAdditionalValue ? addSep + fromAdditionalValue : '') + '..' +
+      (linkedToValue ? linkedToValue + linkedSuffixFrom : '') + (linkedToAdditionalValue ? addSep + linkedToAdditionalValue : '');
+  });
+
+  // Append search to existing field value
+  searchfield.val((i, v) => (v + addQuery).replace(/\s+/g, ' ').replace(/([:])\s+/g, '$1').trim());
+
+  // Move order-by fields before search field so that the resulting query will match SE's format
+  orderby.hide().insertBefore(searchfield);
+
+  // Save last search sort
+  setLastSort(orderby.find(':checked').val() || 'relevance');
+
+  // Remove search helper on submit so it doesn't pollute the query string
+  searchhelper.remove();
+}
+
+
+function initAdvancedSearch() {
+  const today = new Date();
+
+  // Remove new top-search
+  $('#top-search').remove();
+
+  orderby = $(`<div id="order-by">
 <span class="label">Order by: </span>
 <input type="radio" name="tab" id="tab-relevance" value="" checked /><label for="tab-relevance">relevance</label>
 <input type="radio" name="tab" id="tab-newest" value="newest" /><label for="tab-newest">newest</label>
@@ -595,7 +593,7 @@
 <input type="radio" name="tab" id="tab-active" value="active" /><label for="tab-active">active</label>
 </div>`);
 
-      searchhelper = $(`<div id="search-helper" class="search-helper">
+  searchhelper = $(`<div id="search-helper" class="search-helper">
 <button type="reset" class="btnreset s-btn s-btn__xs s-btn__filled s-btn__danger">Reset</button>
 <a id="btn-saved-search" data-svg="bookmark" title="Saved Search"></a>
 <div id="saved-search"></div>
@@ -794,7 +792,7 @@
     <select name="age-quickselect" id="age-quickselect" data-autofill data-termvalue="datetype"
             data-clears="#yearrange-from, #monthrange-from, #yearrange-to, #monthrange-to, #agerange-from, #agerange-to">
       <option></option>
-      <option value="${today.getUTCFullYear()}-${today.getUTCMonth()+1}-${today.getUTCDate()}">today</option>
+      <option value="${today.getUTCFullYear()}-${today.getUTCMonth() + 1}-${today.getUTCDate()}">today</option>
       <option value="1d">yesterday</option>
       <option value="7d..">past 7 days</option>
       <option value="14d..">past 14 days</option>
@@ -898,285 +896,397 @@
 </div>
 </div>`).appendTo(searchform);
 
-      orderby.insertBefore('#search-helper-tabs');
+  orderby.insertBefore('#search-helper-tabs');
 
-      // Get last search sort
-      let lastSort = getLastSort();
-      if(lastSort) orderby.find('#tab-' + lastSort).click();
+  // Get last search sort
+  let lastSort = getLastSort();
+  if (lastSort) orderby.find('#tab-' + lastSort).click();
 
 
-      // Opened/closed state
-      let keepOpen = () => { searchhelper.addClass('open'); stopAutoRefresh(); }
-      let clearOpen = () => searchhelper.removeClass('open');
-      $(document).on('click', function(evt) {
-          // Any click on page except header
-          if($(evt.target).closest('.top-bar').length === 0) {
-              clearOpen();
-          }
-      }).on('keydown', function(evt) {
-          // On 'esc' keypress
-          // https://stackoverflow.com/a/3369743/584192
-          evt = evt || window.event;
-          var isEscape = false;
-          if ("key" in evt) {
-              isEscape = (evt.key == "Escape" || evt.key == "Esc");
-          } else {
-              isEscape = (evt.keyCode == 27);
-          }
-          if (isEscape) {
-              clearOpen();
-          }
+  // Opened/closed state
+  let keepOpen = () => { searchhelper.addClass('open'); stopAutoRefresh(); }
+  let clearOpen = () => searchhelper.removeClass('open');
+  $(document).on('click', function (evt) {
+    // Any click on page except header
+    if ($(evt.target).closest('.top-bar').length === 0) {
+      clearOpen();
+    }
+  }).on('keydown', function (evt) {
+    // On 'esc' keypress
+    // https://stackoverflow.com/a/3369743/584192
+    evt = evt || window.event;
+    var isEscape = false;
+    if ("key" in evt) {
+      isEscape = (evt.key == "Escape" || evt.key == "Esc");
+    } else {
+      isEscape = (evt.keyCode == 27);
+    }
+    if (isEscape) {
+      clearOpen();
+    }
+  });
+  searchhelper
+    .on('mouseenter click mouseup', keepOpen)
+    .on('focus change click mouseup', 'input, select', keepOpen);
+  searchform
+    .on('focus change click mouseup', '.js-search-field', keepOpen);
+
+  // Save default checked state on radio buttons for reset purposes
+  $('input:radio:checked').attr('data-default', '');
+
+  // Tabs
+  $('#search-helper-tabs', searchhelper).on('click', 'a', function (e) {
+    $(this).addClass('youarehere').siblings().removeClass('youarehere');
+    $('#search-helper-tabcontent > div').removeClass('active').eq($(this).index()).addClass('active');
+    return false;
+  });
+
+  // Pre-populate year pickers with years up to current
+  const currYear = new Date().getFullYear();
+  $('.js-yearpicker', searchhelper).each(function () {
+    for (let i = currYear; i >= 2008; i--) {
+      $(this).append(`<option value="${i}">${i}</option>`);
+    }
+  });
+
+  // Current question
+  const currentQid = $('#question').attr('data-questionid') || null;
+  searchhelper
+    .on('click', '[data-currentfor]', function (evt) {
+      $(evt.target.dataset.currentfor).val(currentQid).triggerHandler('change');
+    })
+    .find('[data-currentfor]').each(function () {
+      if (!currentQid) {
+        $(this).next('label').addBack().remove();
+      }
+    });
+
+  // Restrict typed value to numerical value
+  searchhelper
+    .on('keydown', '[data-validate-numeric]', function (evt) {
+      const isSpecialKey = evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey || evt.key.length > 1;
+      return /\d/.test(evt.key) || isSpecialKey;
+    })
+    .on('change blur', '[data-validate-numeric]', function (evt) {
+      this.value = this.value.replace(/[^\d]+/g, '');
+    });
+
+  // Restrict typed value to URL
+  searchhelper
+    .on('change blur', '[data-validate-url]', function (evt) {
+      this.value = this.value.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    });
+
+  // Handle display name lookup using API
+  searchhelper.find('.js-dnlookup').dnLookup();
+
+  // Handle tag name lookup using API
+  searchhelper.find('.js-taglookup').tagLookup(true);
+
+  // Handle radio/checkbox fields that populates another field
+  searchhelper.on('click', '[data-autofills-for]', function () {
+    if (this.checked) $(this.dataset.autofillsFor).val(this.value).trigger('change');
+  });
+
+  // Handle fields that checks another radio/checkbox
+  searchhelper.on('change keyup click', '[data-checks]', function () {
+    $(this.dataset.checks).prop('checked', true).trigger('change');
+  });
+
+  // Handle fields that resets another
+  searchhelper.on('change keyup click clear', '[data-clears]', function (evt) {
+    if (this.value.trim() != '' || this.type == 'radio' || this.type == 'checkbox' || evt.type == 'clear') {
+      $(this.dataset.clears).val('').prop('checked', false);
+    }
+  })
+
+  // Handle fields that resets fields in another tab
+  searchhelper.on('change keyup click', '[data-clears-tab]', function () {
+    $(this.dataset.clearsTab)
+      .find('input').val('').prop('checked', false)
+      .filter('[data-default]').prop('checked', true);
+  });
+
+  // Focus submit button when a radio/checkbox is clicked
+  searchhelper.on('click', 'input:radio, input:checkbox', function () {
+    searchbtn.focus();
+  });
+
+  // Insert clear buttons
+  searchhelper
+    .on('click', '.clearbtn', function () {
+      $(this).prev('input').val('').trigger('change').trigger('clear');
+      return false;
+    })
+    .find('[data-clearbtn]').after('<span class="clearbtn" title="clear"></span>');
+
+  // External button links
+  searchhelper.find('.extbutton[data-exturl]')
+    .each(function (i, el) {
+      const linkedEls = '#' + this.dataset.exturl.match(/{[a-z0-9_-]+}/i).join(', #').replace(/[{}]/g, '');
+      $(linkedEls).on('change keyup', function (evt) {
+        $(el).trigger('updatelink');
       });
-      searchhelper
-          .on('mouseenter click mouseup', keepOpen)
-          .on('focus change click mouseup', 'input, select', keepOpen);
-      searchform
-          .on('focus change click mouseup', '.js-search-field', keepOpen);
+      el.target = '_blank';
+    })
+    .on('updatelink', function () {
+      let valid = true;
+      let output = this.dataset.exturl;
+      const el = this;
+      const linkedEls = output.match(/{[a-z0-9_-]+}/i);
 
-      // Save default checked state on radio buttons for reset purposes
-      $('input:radio:checked').attr('data-default', '');
-
-      // Tabs
-      $('#search-helper-tabs', searchhelper).on('click', 'a', function(e) {
-          $(this).addClass('youarehere').siblings().removeClass('youarehere');
-          $('#search-helper-tabcontent > div').removeClass('active').eq($(this).index()).addClass('active');
-          return false;
-      });
-
-      // Pre-populate year pickers with years up to current
-      const currYear = new Date().getFullYear();
-      $('.js-yearpicker', searchhelper).each(function() {
-          for(let i = currYear; i >= 2008; i--) {
-              $(this).append(`<option value="${i}">${i}</option>`);
-          }
-      });
-
-      // Current question
-      const currentQid = $('#question').attr('data-questionid') || null;
-      searchhelper
-          .on('click', '[data-currentfor]', function(evt) {
-              $(evt.target.dataset.currentfor).val(currentQid).triggerHandler('change');
-          })
-          .find('[data-currentfor]').each(function() {
-              if(!currentQid) {
-                  $(this).next('label').addBack().remove();
-              }
-          });
-
-      // Restrict typed value to numerical value
-      searchhelper
-          .on('keydown', '[data-validate-numeric]', function(evt) {
-              const isSpecialKey = evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey || evt.key.length > 1;
-              return /\d/.test(evt.key) || isSpecialKey;
-          })
-          .on('change blur', '[data-validate-numeric]', function(evt) {
-              this.value = this.value.replace(/[^\d]+/g, '');
-          });
-
-      // Restrict typed value to URL
-      searchhelper
-          .on('change blur', '[data-validate-url]', function(evt) {
-              this.value = this.value.replace(/^https?:\/\//, '').replace(/\/$/, '');
-          });
-
-      // Handle display name lookup using API
-      searchhelper.find('.js-dnlookup').dnLookup();
-
-      // Handle tag name lookup using API
-      searchhelper.find('.js-taglookup').tagLookup(true);
-
-      // Handle radio/checkbox fields that populates another field
-      searchhelper.on('click', '[data-autofills-for]', function() {
-          if(this.checked) $(this.dataset.autofillsFor).val(this.value).trigger('change');
-      });
-
-      // Handle fields that checks another radio/checkbox
-      searchhelper.on('change keyup click', '[data-checks]', function() {
-          $(this.dataset.checks).prop('checked', true).trigger('change');
-      });
-
-      // Handle fields that resets another
-      searchhelper.on('change keyup click clear', '[data-clears]', function(evt) {
-          if(this.value.trim() != '' || this.type == 'radio' || this.type == 'checkbox' || evt.type == 'clear') {
-              $(this.dataset.clears).val('').prop('checked', false);
-          }
-      })
-
-      // Handle fields that resets fields in another tab
-      searchhelper.on('change keyup click', '[data-clears-tab]', function() {
-          $(this.dataset.clearsTab)
-              .find('input').val('').prop('checked', false)
-              .filter('[data-default]').prop('checked', true);
-      });
-
-      // Focus submit button when a radio/checkbox is clicked
-      searchhelper.on('click', 'input:radio, input:checkbox', function() {
-          searchbtn.focus();
-      });
-
-      // Insert clear buttons
-      searchhelper
-          .on('click', '.clearbtn', function() {
-              $(this).prev('input').val('').trigger('change').trigger('clear');
-              return false;
-          })
-          .find('[data-clearbtn]').after('<span class="clearbtn" title="clear"></span>');
-
-      // External button links
-      searchhelper.find('.extbutton[data-exturl]')
-          .each(function(i, el) {
-              const linkedEls = '#' + this.dataset.exturl.match(/{[a-z0-9_-]+}/i).join(', #').replace(/[{}]/g, '');
-              $(linkedEls).on('change keyup', function(evt) {
-                  $(el).trigger('updatelink');
-              });
-              el.target = '_blank';
-          })
-          .on('updatelink', function() {
-              let valid = true;
-              let output = this.dataset.exturl;
-              const el = this;
-              const linkedEls = output.match(/{[a-z0-9_-]+}/i);
-
-              linkedEls.forEach(function(tag) {
-                  tag = tag.replace(/[{}]/g, '');
-                  const repl = document.getElementById(tag).value;
-                  if(typeof repl === 'undefined' || repl == '') valid = false;
-                  output = output.replace('{' + tag + '}', repl);
-              });
-
-              this.href = output;
-              if(!valid) $(this).removeAttr('href');
-          });
-
-      // Intercept enter key on external inputs
-      $('.ext').on('keypress', 'input', function(evt) {
-          if(evt.key === 'Enter') {
-              $(this).closest('.ext').find('.extbutton').first().get(0).click();
-              return false;
-          }
+      linkedEls.forEach(function (tag) {
+        tag = tag.replace(/[{}]/g, '');
+        const repl = document.getElementById(tag).value;
+        if (typeof repl === 'undefined' || repl == '') valid = false;
+        output = output.replace('{' + tag + '}', repl);
       });
 
-      // Handle search form submit
-      searchform.on('submit', handleAdvancedSearch);
+      this.href = output;
+      if (!valid) $(this).removeAttr('href');
+    });
+
+  // Intercept enter key on external inputs
+  $('.ext').on('keypress', 'input', function (evt) {
+    if (evt.key === 'Enter') {
+      $(this).closest('.ext').find('.extbutton').first().get(0).click();
+      return false;
+    }
+  });
+
+  // Handle search form submit
+  searchform.on('submit', handleAdvancedSearch);
+}
+
+
+function doPageLoad() {
+
+  // If on Stack Overflow, make logo go to /questions
+  if (location.hostname === 'stackoverflow.com') {
+    $('.-main .-logo').attr('href', '/questions');
   }
 
+  // If using old search bar
+  const searchform = $('#search');
+  if (!searchform.hasClass('search-channel-context')) {
 
-  function doPageLoad() {
+    const grid = searchform.find('.ps-relative').first().removeClass('ps-relative').addClass('grid');
 
-      // If on Stack Overflow, make logo go to /questions
-      if(location.hostname === 'stackoverflow.com') {
-          $('.-main .-logo').attr('href', '/questions');
-      }
+    // If not on MSE, insert channel selector
+    if (!isMSE) {
+      grid.prepend(searchSelector);
+    }
 
-      // If using old search bar
-      const searchform = $('#search');
-      if(!searchform.hasClass('search-channel-context')) {
+    searchform.addClass('search-channel-context')
+      .find('.js-search-field, .js-search-submit').wrapAll('<div class="flex--item ps-relative fl1"></div>');
 
-          const grid = searchform.find('.ps-relative').first().removeClass('ps-relative').addClass('grid');
+    searchform
+      .append('<input name="mixed" value="0" type="hidden" id="search-channel-mixed">')
+      .find('.js-search-field').addClass('search-channel-switcher-field');
+  }
+  // If using new search bar
+  else {
+    $('#search-channel-selector option[selected]')
+      .after(`<option data-url="https://${mseDomain}/search">Meta Stack Exchange</option>`)
+      .after(`<option data-url="${metaUrl}/search">Meta ${mainName}</option>`);
+  }
+  // Update form action
+  $('#search-channel-selector').on('change', function () {
+    const url = $(this).children().filter(':selected').attr('data-url');
+    $('form.js-searchbar').attr('action', url);
+  });
 
-          // If not on MSE, insert channel selector
-          if(!isMSE) {
-             grid.prepend(searchSelector);
-          }
+  // Move new svg search icon before the search field
+  $('#search .svg-icon.s-input-icon__search.iconSearch').insertBefore('#search input[name="q"]');
 
-          searchform.addClass('search-channel-context')
-            .find('.js-search-field, .js-search-submit').wrapAll('<div class="flex--item ps-relative fl1"></div>');
-
-          searchform
-              .append('<input name="mixed" value="0" type="hidden" id="search-channel-mixed">')
-              .find('.js-search-field').addClass('search-channel-switcher-field');
-      }
-      // If using new search bar
-      else {
-          $('#search-channel-selector option[selected]')
-              .after(`<option data-url="https://${mseDomain}/search">Meta Stack Exchange</option>`)
-              .after(`<option data-url="${metaUrl}/search">Meta ${mainName}</option>`);
-      }
-      // Update form action
-      $('#search-channel-selector').on('change', function() {
-          const url = $(this).children().filter(':selected').attr('data-url');
-          $('form.js-searchbar').attr('action', url);
-      });
-
-      // Move new svg search icon before the search field
-      $('#search .svg-icon.s-input-icon__search.iconSearch').insertBefore('#search input[name="q"]');
-
-      // New left navigation, link to parent/meta site
-      if(isChildMeta) {
-          lsidebar.find('.pl8').removeClass('pl8');
-          $('ol.nav-links', lsidebar).first().prepend(`<li><a id="nav-main" href="${mainUrl}/questions" class="nav-links--link -link__with-icon pl8">
+  // New left navigation, link to parent/meta site
+  if (isChildMeta) {
+    lsidebar.find('.pl8').removeClass('pl8');
+    $('ol.nav-links', lsidebar).first().prepend(`<li><a id="nav-main" href="${mainUrl}/questions" class="nav-links--link -link__with-icon pl8">
 <svg aria-hidden="true" class="svg-icon iconGlobe" width="16" height="16" viewBox="0 0 1000 1000">
 <path d="M570,318.4V173.2c0-26.8-14.2-51.4-37-64.1c-22.7-12.6-50.4-11.2-71.9,3.6l-420,290.5C21.7,416.7,10,439.4,10,463.7c0,24.3,11.7,47,31.2,60.4l420,290.5c21.5,14.9,49.1,16.3,71.9,3.6c22.7-12.7,37-37.2,37-64.1V608.9c182.8,0,337.9,121.4,395.6,290.5C981.1,854,990,805.2,990,754.2C990,513.5,802,318.4,570,318.4z"></path></svg>
 <span class="-link--channel-name">${mainName}</span></a></li>`);
-      }
-      // If on main site and has child site
-      else if(metaUrl !== mainUrl) {
-          $(lsidebar).find('#nav-users').parent().after(`<li><a id="nav-meta" href="${metaUrl}/questions" class="nav-links--link">Meta</a></li>`);
-      }
+  }
+  // If on main site and has child site
+  else if (metaUrl !== mainUrl) {
+    $(lsidebar).find('#nav-users').parent().after(`<li><a id="nav-meta" href="${metaUrl}/questions" class="nav-links--link">Meta</a></li>`);
+  }
 
-      // Expand dropdown-container tab items
-      $('.dropdown-container').each(function() {
-          const itemClasses = $(this).siblings('a').get(0).className.replace(/(youarehere|is-selected)/g, '');
-          const items = $(this).find('li a').removeClass('disabled').addClass(itemClasses);
-          items.filter('.selected').addClass('is-selected');
-          $(this).before(items).remove();
-      });
+  // Expand dropdown-container tab items
+  $('.dropdown-container').each(function () {
+    const itemClasses = $(this).siblings('a').get(0).className.replace(/(youarehere|is-selected)/g, '');
+    const items = $(this).find('li a').removeClass('disabled').addClass(itemClasses);
+    items.filter('.selected').addClass('is-selected');
+    $(this).before(items).remove();
+  });
 
-      // Post timeline buttons to open in new tab
-      $('.js-post-issues a[title="Timeline"]').attr('target', '_blank');
+  // Post timeline buttons to open in new tab
+  $('.js-post-issues a[title="Timeline"]').attr('target', '_blank');
 
+  tryUpdateWatchedIgnoredTags();
+
+  initAdvancedSearch();
+  initSavedSearch();
+  initAutoRefresh();
+  initQuickfilters();
+
+  loadSvgIcons();
+
+  // If on search results page, and no results, try title search instead
+  if (location.pathname === '/search' && hasSearchResults && $('.js-search-results > .page-description').length === 1) {
+
+    // Can't filter title search
+    const searchResultsContainer = $('.js-search-results').removeClass('flush-left').addClass('ml0 bt btw0');
+
+    searchResultsContainer.prev('.grid.mb16').remove().end()
+    searchResultsContainer.prev('.mb12').text('no results. falling back to results from title search');
+
+    const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
+    const q = getQueryParam('q');
+    $.get(`https://${location.hostname}/search/titles?title=${q}`, function (data) {
+
+      searchResultsContainer.html('<div class="s-card p0">' + data.content + '</div>');
+
+      // Transform to original search results design
+      searchResultsContainer.find('.s-link').removeClass('s-link');
+      searchResultsContainer.find('.js-link p').addClass('fc-black-900');
+      searchResultsContainer.find('.js-question-summary-scroll').removeClass('overflow-y-scroll question-summary-scroll question-summary sm:fd-row narrow grid ai-start p0 bbw0 h100 sm:pl0 sm:pr0');
+      searchResultsContainer.find('.relativetime').unwrap();
+      searchResultsContainer.find('.started').removeClass('fc-black-300');
+    });
+  }
+}
+
+
+function listenToPageUpdates() {
+
+  // On any page update
+  $(document).ajaxComplete(function (event, xhr, settings) {
+    if (settings.url.indexOf('/users/save-preference') >= 0) {
       tryUpdateWatchedIgnoredTags();
-
-      initAdvancedSearch();
-      initSavedSearch();
-      initAutoRefresh();
-      initQuickfilters();
-
-      loadSvgIcons();
-
-      // If on search results page, and no results, try title search instead
-      if(location.pathname === '/search' && hasSearchResults && $('.js-search-results > .page-description').length === 1) {
-
-          // Can't filter title search
-          const searchResultsContainer = $('.js-search-results').removeClass('flush-left').addClass('ml0 bt btw0');
-
-          searchResultsContainer.prev('.grid.mb16').remove().end()
-          searchResultsContainer.prev('.mb12').text('no results. falling back to results from title search');
-
-          const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
-          const q = getQueryParam('q');
-          $.get(`https://${location.hostname}/search/titles?title=${q}`, function(data) {
-
-              searchResultsContainer.html('<div class="s-card p0">' + data.content + '</div>');
-
-              // Transform to original search results design
-              searchResultsContainer.find('.s-link').removeClass('s-link');
-              searchResultsContainer.find('.js-link p').addClass('fc-black-900');
-              searchResultsContainer.find('.js-question-summary-scroll').removeClass('overflow-y-scroll question-summary-scroll question-summary sm:fd-row narrow grid ai-start p0 bbw0 h100 sm:pl0 sm:pr0');
-              searchResultsContainer.find('.relativetime').unwrap();
-              searchResultsContainer.find('.started').removeClass('fc-black-300');
-          });
-      }
-  }
+      $('#user-watched-tags').val(getWatchedTags());
+      $('#user-ignored-tags').val(getIgnoredTags());
+    }
+  });
+}
 
 
-  function listenToPageUpdates() {
-
-      // On any page update
-      $(document).ajaxComplete(function(event, xhr, settings) {
-          if(settings.url.indexOf('/users/save-preference') >= 0) {
-              tryUpdateWatchedIgnoredTags();
-              $('#user-watched-tags').val(getWatchedTags());
-              $('#user-ignored-tags').val(getIgnoredTags());
-          }
-      });
-  }
+// On page load
+doPageload();
+listenToPageUpdates();
 
 
-  function appendAdvancedSearchStyles() {
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
+/* Left sidebar */
+.nav-links .nav-links--link.-link__with-icon {
+  display: flex;
+  padding: 8px 6px 8px 0;
+}
 
-      const styles = `
-<style>
+/* Search */
+label, .label,
+button, .button,
+#tabs, .tabs,
+.unselectable {
+  user-select: none;
+}
+.top-bar .js-searchbar .grid {
+  display: flex;
+}
+.wmn1 {
+  min-width: 8.1025641rem !important;
+}
+.w20 {
+  width: 20% !important;
+}
+.top-bar .js-searchbar .s-select select {
+  max-width: 140px;
+}
+.channels-page .search-channel-switcher-select {
+  color: var(--white);
+}
+.search-channel-switcher {
+  height: 36px;
+  border-radius: 3px !important;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  border-right: none !important;
+  background-color: var(--black-050);
+}
+.search-channel-switcher-field {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+.top-bar .js-searchbar .btn-topbar-primary {
+  transition: none;
+  opacity: 1;
+  z-index: 1;
+}
+.alt-submit-button {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0 !important;
+  top: 0;
+  right: 0;
+  opacity: 0;
+}
+.statscontainer {
+  min-width: 58px;
+}
+.started {
+  width: 220px;
+}
+
+/* Hide duplicate search form on search results page */
+#bigsearch {
+  display: none !important;
+}
+/* Except help center search form */
+#help-index #bigsearch {
+  display: block !important;
+}
+#help-index #bigsearch input[name=q] {
+  width: 100%;
+}
+
+/* Quick filters */
+#res-quickfilter {
+  margin-top: -6px;
+  margin-bottom: 23px;
+}
+#res-quickfilter .grid {
+  display: inline-flex;
+}
+#res-quickfilter .is-selected {
+  box-shadow: inset 1px 1px 2px 0px rgba(0,0,0,0.3);
+}
+#res-quickfilter a:first-child {
+  border-bottom-right-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+#res-quickfilter a + a {
+  border-bottom-left-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+  margin-left: -1px;
+}
+
+/* Other */
+.s-btn-group .s-btn:last-of-type {
+  border-top-right-radius: 3px !important;
+  border-bottom-right-radius: 3px !important;
+}
+`;
+document.body.appendChild(styles);
+
+
+// Append advanced search styles
+const styles_advsearch = document.createElement('style');
+styles_advsearch.setAttribute('data-somu', GM_info?.script.name);
+styles_advsearch.innerHTML = `
 .search-helper {
   display: none;
   position: absolute;
@@ -2038,124 +2148,5 @@ transform: rotate(180deg);
 .radial-progress[data-progress="60"] .circle .fill.fix {
 transform: rotate(360deg);
 }
-</style>
 `;
-      $('body').append(styles);
-  }
-
-
-  function appendStyles() {
-
-      const styles = `
-<style>
-/* Left sidebar */
-.nav-links .nav-links--link.-link__with-icon {
-  display: flex;
-  padding: 8px 6px 8px 0;
-}
-
-/* Search */
-label, .label,
-button, .button,
-#tabs, .tabs,
-.unselectable {
-  user-select: none;
-}
-.top-bar .js-searchbar .grid {
-  display: flex;
-}
-.wmn1 {
-  min-width: 8.1025641rem !important;
-}
-.w20 {
-  width: 20% !important;
-}
-.top-bar .js-searchbar .s-select select {
-  max-width: 140px;
-}
-.channels-page .search-channel-switcher-select {
-  color: var(--white);
-}
-.search-channel-switcher {
-  height: 36px;
-  border-radius: 3px !important;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  border-right: none !important;
-  background-color: var(--black-050);
-}
-.search-channel-switcher-field {
-  border-top-left-radius: 0 !important;
-  border-bottom-left-radius: 0 !important;
-}
-.top-bar .js-searchbar .btn-topbar-primary {
-  transition: none;
-  opacity: 1;
-  z-index: 1;
-}
-.alt-submit-button {
-  position: absolute !important;
-  width: 1px;
-  height: 1px;
-  padding: 0 !important;
-  top: 0;
-  right: 0;
-  opacity: 0;
-}
-.statscontainer {
-  min-width: 58px;
-}
-.started {
-  width: 220px;
-}
-
-/* Hide duplicate search form on search results page */
-#bigsearch {
-  display: none !important;
-}
-/* Except help center search form */
-#help-index #bigsearch {
-  display: block !important;
-}
-#help-index #bigsearch input[name=q] {
-  width: 100%;
-}
-
-/* Quick filters */
-#res-quickfilter {
-  margin-top: -6px;
-  margin-bottom: 23px;
-}
-#res-quickfilter .grid {
-  display: inline-flex;
-}
-#res-quickfilter .is-selected {
-  box-shadow: inset 1px 1px 2px 0px rgba(0,0,0,0.3);
-}
-#res-quickfilter a:first-child {
-  border-bottom-right-radius: 0 !important;
-  border-top-right-radius: 0 !important;
-}
-#res-quickfilter a + a {
-  border-bottom-left-radius: 0 !important;
-  border-top-left-radius: 0 !important;
-  margin-left: -1px;
-}
-
-/* Other */
-.s-btn-group .s-btn:last-of-type {
-  border-top-right-radius: 3px !important;
-  border-bottom-right-radius: 3px !important;
-}
-</style>
-`;
-      $('body').append(styles);
-  }
-
-
-  // On page load
-  appendStyles();
-  doPageLoad();
-  listenToPageUpdates();
-
-})();
+document.body.appendChild(styles_advsearch);

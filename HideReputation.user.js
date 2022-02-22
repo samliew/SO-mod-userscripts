@@ -3,7 +3,7 @@
 // @description  Hides all reputation
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -19,51 +19,36 @@
 // @run-at       document-end
 // ==/UserScript==
 
+/* globals StackExchange, GM_info */
 
-(function() {
-    'use strict';
+'use strict';
 
+function removeRepTooltips() {
+    // Remove anything with rep in title tooltips
+    $('[title]').attr('title', function (i, v) {
+        return v.includes('rep') ? '' : v;
+    });
+}
 
-    function removeRepTooltips() {
-
-        // Remove anything with rep in title tooltips
-        $('[title]').attr('title', function(i, v) {
-            return v.includes('rep') ? '' : v;
-        });
-    }
-
-
-    function doPageload() {
-
+function listenToPageUpdates() {
+    // On any page update
+    $(document).ajaxStop(function (event, xhr, settings) {
         removeRepTooltips();
-    }
+    });
+}
 
 
-    function listenToPageUpdates() {
-
-        // On any page update
-        $(document).ajaxStop(function(event, xhr, settings) {
-            removeRepTooltips();
-        });
-    }
+// On page load
+removeRepTooltips();
+listenToPageUpdates();
 
 
-    function appendStyles() {
-
-        const styles = `
-<style>
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 .user-info .-flair {
     display: none !important;
 }
-</style>
 `;
-        $('body').append(styles);
-    }
-
-
-    // On page load
-    appendStyles();
-    doPageload();
-    listenToPageUpdates();
-
-})();
+document.body.appendChild(styles);

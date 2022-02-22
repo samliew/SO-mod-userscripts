@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.7.1
+// @version      2.0
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -13,140 +13,140 @@
 // @include      https://*.stackexchange.com/users/history/*
 // ==/UserScript==
 
+/* globals StackExchange, GM_info */
 
-(function() {
-    'use strict';
+'use strict';
 
-    // Moderator check
-    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
+// Moderator check
+if (typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator) return;
 
-
-    const uid = Number(location.pathname.match(/\/(\d+)/)[1]);
-
-
-    function moveHistoryFilters() {
-
-        const origFilters = $('#summary');
-        const newFilters = $('<div id="newHistoryFilters"></div>').insertAfter('#infoAndSpecialEvents');
-
-        origFilters.children().appendTo(newFilters);
-        origFilters.remove();
-
-        // wrap count in span and sort by text
-        newFilters.find('li').each(function(i, el) {
-            if(el.childNodes.length == 2) {
-                $(el.childNodes[1]).wrap('<span class="count"></span>');
-            }
-            else {
-                $(el).prepend('<span></span>');
-            }
-        }).sort(function(a, b) {
-            const x = a.children[0].innerText.toLowerCase();
-            const y = b.children[0].innerText.toLowerCase();
-            return x == y ? 0 : (x > y ? 1 : -1);
-        }).appendTo(newFilters.children('ul'));
-
-        // simplify count and move to front
-        newFilters.find('.count').each(function(i, el) {
-            el.innerText = el.innerText.replace(/\D+/g, '');
-            $(this).prependTo(this.parentNode);
-        });
-    }
+const uid = Number(location.pathname.match(/\/(\d+)/)[1]);
 
 
-    function doPageLoad() {
+function moveHistoryFilters() {
 
-        // Show user links on history page
-        const userheader = $(`<div class="SOMU-userheader"></div>`).prependTo($('#mainbar-full'));
-        userheader.load(`https://${location.hostname}/users/account-info/${uid} .js-user-header`, function() {
-            userheader.addClass('loaded');
+    const origFilters = $('#summary');
+    const newFilters = $('<div id="newHistoryFilters"></div>').insertAfter('#infoAndSpecialEvents');
 
-            // Fix user profile tab/pills taking up too much space
-            userheader.find('.js-user-header .s-navigation--item[href^="/users/account-info/"]').text('Dashboard');
-            userheader.find('.js-user-header .s-navigation--item[href^="/users/edit/"]').text('Edit');
-            userheader.find(`.js-user-header a[href^="https://meta.${location.hostname}/users/"] .ml4`).text('Meta');
-            userheader.find(`.js-user-header a[href^="https://stackexchange.com/users/"]`).html((i,v) => v.replace(/\s+Network profile\s+/, 'Network'));
-            userheader.find('.js-user-header > div .fs-body3').addClass('fw-bold');
-        });
+    origFilters.children().appendTo(newFilters);
+    origFilters.remove();
 
+    // wrap count in span and sort by text
+    newFilters.find('li').each(function (i, el) {
+        if (el.childNodes.length == 2) {
+            $(el.childNodes[1]).wrap('<span class="count"></span>');
+        }
+        else {
+            $(el).prepend('<span></span>');
+        }
+    }).sort(function (a, b) {
+        const x = a.children[0].innerText.toLowerCase();
+        const y = b.children[0].innerText.toLowerCase();
+        return x == y ? 0 : (x > y ? 1 : -1);
+    }).appendTo(newFilters.children('ul'));
 
-        // Prettify annotations table
-        $('#annotations tr').each(function() {
-            const td = $(this).children('td, th').eq(3);
-
-            // Pad dates to same length
-            const date = $(this).children('td, th').eq(2).find('span');
-            date.text((i,v) => v.replace(/\s(\d)\b/g, ' 0$1'));
-
-            // Special class for message/suspension rows
-            const aType = $(this).children().first().text().trim().toLowerCase();
-            const aHasLink = $(this).children().eq(3).find('a').length > 0;
-            if(/(suspension|message)/.test(aType) && aHasLink) {
-                $(this).addClass('user-message');
-                return;
-            }
-
-            // Fix broken links
-            const str = td.html()
-              .replace(/" title="([^"]+)/g, '') // remove title attribute
-              .replace(/" rel="nofollow noreferrer/g, '') // remove auto-inserted rel attribute from external links
-              .replace(/(<a href="|">[^<]+<\/a>)/g, '') // strip existing links (text)
-              .replace(/(&lt;a href="|"&gt;[^&]+&lt;\/a&gt;)/g, '') // strip existing links (html-encoded)
-              .replace(/\s(\/users\/\d+\/[^\s\b]+)\b/gi, ' <a href="$1">$1</a> ') // relink users relative urls
-              .replace(/(https?:\/\/[^\s\)]+)\b/gi, '<a href="$1">$1</a>') // all other urls
-              .replace(/\s(\d{6,})\b/g, ' <a href="/users/$1">$1</a>') // assume numeric digits of >= 6 chars are user ids
-
-            td.html(str);
-        });
-
-        // Links in annotations open in new window
-        $('#annotations a').attr('target', '_blank');
+    // simplify count and move to front
+    newFilters.find('.count').each(function (i, el) {
+        el.innerText = el.innerText.replace(/\D+/g, '');
+        $(this).prependTo(this.parentNode);
+    });
+}
 
 
-        // Move history filters to sidebar
-        moveHistoryFilters();
+function doPageLoad() {
 
-        // Fix history
-        $('#user-history thead td').first().attr('width', '130');
-        $('#user-history tbody tr').each(function() {
+    // Show user links on history page
+    const userheader = $(`<div class="SOMU-userheader"></div>`).prependTo($('#mainbar-full'));
+    userheader.load(`https://${location.hostname}/users/account-info/${uid} .js-user-header`, function () {
+        userheader.addClass('loaded');
 
-            const comment = this.children[2];
-            const link = $(comment).children('a').last();
-            comment.classList.add('history-comment');
+        // Fix user profile tab/pills taking up too much space
+        userheader.find('.js-user-header .s-navigation--item[href^="/users/account-info/"]').text('Dashboard');
+        userheader.find('.js-user-header .s-navigation--item[href^="/users/edit/"]').text('Edit');
+        userheader.find(`.js-user-header a[href^="https://meta.${location.hostname}/users/"] .ml4`).text('Meta');
+        userheader.find(`.js-user-header a[href^="https://stackexchange.com/users/"]`).html((i, v) => v.replace(/\s+Network profile\s+/, 'Network'));
+        userheader.find('.js-user-header > div .fs-body3').addClass('fw-bold');
+    });
 
-            // remove community
-            if(link.length && link.attr('href').includes('-1')) {
-                comment.classList.add('hide-by');
-                link.remove();
-            }
+    // Prettify annotations table
+    $('#annotations tr').each(function () {
+        const td = $(this).children('td, th').eq(3);
 
-            // formatting
-            const firstText = comment.childNodes[0];
-            if(firstText.nodeType === 3) {
-                const html = firstText.textContent.trim()
-                    .replace('Scheduled: old rep = ', 'Scheduled: ').replace('InvalidateVotes old rep = ', 'InvalidateVotes: ').replace(', new rep = ', ' &gt; ')
-                    .replace(/\s*by\s*/, '<span class="user-by"> by </span>') + ' ';
-                comment.removeChild(firstText);
-                $(comment).prepend(`<span>${html}</span>`);
-            }
+        // Pad dates to same length
+        const date = $(this).children('td, th').eq(2).find('span');
+        date.text((i, v) => v.replace(/\s(\d)\b/g, ' 0$1'));
 
-            // count number of newlines
-            const isNewReviewSusp = comment.textContent.includes('{"Duration":');
-            const newlines = comment.textContent.match(/\n/g);
-            if(isNewReviewSusp) {
-                comment.classList.add('new-review-susp');
-            }
-            else if(newlines && newlines.length > 2) {
-                comment.classList.add('pre');
-            }
-        });
-    }
+        // Special class for message/suspension rows
+        const aType = $(this).children().first().text().trim().toLowerCase();
+        const aHasLink = $(this).children().eq(3).find('a').length > 0;
+        if (/(suspension|message)/.test(aType) && aHasLink) {
+            $(this).addClass('user-message');
+            return;
+        }
+
+        // Fix broken links
+        const str = td.html()
+            .replace(/" title="([^"]+)/g, '') // remove title attribute
+            .replace(/" rel="nofollow noreferrer/g, '') // remove auto-inserted rel attribute from external links
+            .replace(/(<a href="|">[^<]+<\/a>)/g, '') // strip existing links (text)
+            .replace(/(&lt;a href="|"&gt;[^&]+&lt;\/a&gt;)/g, '') // strip existing links (html-encoded)
+            .replace(/\s(\/users\/\d+\/[^\s\b]+)\b/gi, ' <a href="$1">$1</a> ') // relink users relative urls
+            .replace(/(https?:\/\/[^\s\)]+)\b/gi, '<a href="$1">$1</a>') // all other urls
+            .replace(/\s(\d{6,})\b/g, ' <a href="/users/$1">$1</a>') // assume numeric digits of >= 6 chars are user ids
+
+        td.html(str);
+    });
+
+    // Links in annotations open in new window
+    $('#annotations a').attr('target', '_blank');
+
+    // Move history filters to sidebar
+    moveHistoryFilters();
+
+    // Fix history
+    $('#user-history thead td').first().attr('width', '130');
+    $('#user-history tbody tr').each(function () {
+        const comment = this.children[2];
+        const link = $(comment).children('a').last();
+        comment.classList.add('history-comment');
+
+        // Remove community
+        if (link.length && link.attr('href').includes('-1')) {
+            comment.classList.add('hide-by');
+            link.remove();
+        }
+
+        // Formatting
+        const firstText = comment.childNodes[0];
+        if (firstText.nodeType === 3) {
+            const html = firstText.textContent.trim()
+                .replace('Scheduled: old rep = ', 'Scheduled: ').replace('InvalidateVotes old rep = ', 'InvalidateVotes: ').replace(', new rep = ', ' &gt; ')
+                .replace(/\s*by\s*/, '<span class="user-by"> by </span>') + ' ';
+            comment.removeChild(firstText);
+            $(comment).prepend(`<span>${html}</span>`);
+        }
+
+        // Count number of newlines
+        const isNewReviewSusp = comment.textContent.includes('{"Duration":');
+        const newlines = comment.textContent.match(/\n/g);
+        if (isNewReviewSusp) {
+            comment.classList.add('new-review-susp');
+        }
+        else if (newlines && newlines.length > 2) {
+            comment.classList.add('pre');
+        }
+    });
+}
 
 
-    function appendStyles() {
+// On page load
+doPageload();
 
-        const styles = `
-<style>
+
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 .SOMU-userheader {
     min-height: 33px;
     margin-bottom: 16px;
@@ -273,15 +273,5 @@ body.SOMU-SEDM #annotations tr.user-message td:nth-child(4) {
 #user-history .history-comment.new-review-susp br:last-of-type {
     display: none;
 }
-
-</style>
 `;
-        $('body').append(styles);
-    }
-
-
-    // On page load
-    appendStyles();
-    doPageLoad();
-
-})();
+document.body.appendChild(styles);

@@ -3,7 +3,7 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5
+// @version      3.0
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/DuplicateAnswersFlagsHelper.user.js
@@ -18,51 +18,50 @@
 // @require      https://raw.githubusercontent.com/samliew/ajax-progress/master/jquery.ajaxProgress.js
 // ==/UserScript==
 
+/* globals StackExchange, GM_info */
+
+'use strict';
+
+// Moderator check
+if (typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator) return;
+
 
 // Detect if SOMU is loaded
 const rafAsync = () => new Promise(resolve => { requestAnimationFrame(resolve); });
 async function waitForSOMU() {
-    while(typeof SOMU === 'undefined' || !SOMU.hasInit) { await rafAsync(); }
+    while (typeof SOMU === 'undefined' || !SOMU.hasInit) { await rafAsync(); }
     return SOMU;
 }
 
 
-(function() {
-    'use strict';
-
-    // Moderator check
-    if(typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator ) return;
-
-
-    const scriptName = GM_info.script.name;
-    const fkey = StackExchange.options.user.fkey;
-    const superusers = [ 584192 ];
-    let duplicateComment = `Please [don't post identical answers to multiple questions](https://meta.stackexchange.com/q/104227). Instead, tailor the answer to the question asked. If the questions are exact duplicates of each other, please vote/flag to close instead.`;
+const scriptName = GM_info.script.name;
+const fkey = StackExchange.options.user.fkey;
+const superusers = [584192];
+let duplicateComment = `Please [don't post identical answers to multiple questions](https://meta.stackexchange.com/q/104227). Instead, tailor the answer to the question asked. If the questions are exact duplicates of each other, please vote/flag to close instead.`;
 
 
-    function loadOptions() {
-        waitForSOMU().then(function(SOMU) {
+function loadOptions() {
+    waitForSOMU().then(function (SOMU) {
 
-            // Set option field in sidebar with current custom value; use default value if not set before
-            SOMU.addOption(scriptName, 'Duplicate Comment', duplicateComment);
+        // Set option field in sidebar with current custom value; use default value if not set before
+        SOMU.addOption(scriptName, 'Duplicate Comment', duplicateComment);
 
-            // Get current custom value with default
-            duplicateComment = SOMU.getOptionValue(scriptName, 'Duplicate Comment', duplicateComment);
-        });
-    }
+        // Get current custom value with default
+        duplicateComment = SOMU.getOptionValue(scriptName, 'Duplicate Comment', duplicateComment);
+    });
+}
 
 
-    function doPageload() {
+function doPageload() {
 
-        // Remove convert to comment buttons
-        $('.convert-to-comment').remove();
+    // Remove convert to comment buttons
+    $('.convert-to-comment').remove();
 
-        $('.js-flagged-post').each(function() {
-
-            // Add delete and comment button
-            $('.js-post-flag-options .ff-row-wrap', this).append(`<input type="button" class="js-hide-on-delete flex--item s-btn s-btn__danger s-btn__outlined js-delete-and-comment" data-post-id="${this.dataset.postId}" value="Delete + Comment" title="delete and add dupe comment" />`);
-        })
-        .on('click', '.js-delete-and-comment', function() {
+    $('.js-flagged-post').each(function () {
+        // Add delete and comment button
+        $('.js-post-flag-options .ff-row-wrap', this).append(`<input type="button" class="js-hide-on-delete flex--item s-btn s-btn__danger s-btn__outlined js-delete-and-comment" data-post-id="${this.dataset.postId}" value="Delete + Comment" title="delete and add dupe comment" />`);
+    })
+        .on('click', '.js-delete-and-comment', function () {
             const pid = this.dataset.postId;
             const $post = $(this).closest('.js-flagged-post');
 
@@ -88,54 +87,49 @@ async function waitForSOMU() {
             $post.hide();
         });
 
-        const actionBtns = $('<div id="actionBtns"></div>');
-        $('.js-flagged-post').first().parent().prepend(actionBtns);
+    const actionBtns = $('<div id="actionBtns"></div>');
+    $('.js-flagged-post').first().parent().prepend(actionBtns);
 
-        // Delete + Comment ALL
-        if(superusers.includes(StackExchange.options.user.userId)) {
-            $('<button class="s-btn s-btn__danger s-btn__filled s-btn__xs">Delete + Comment ALL</button>')
-                .click(function() {
-                    if(!confirm('Confirm Delete ALL?')) return false;
+    if (!superusers.includes(StackExchange.options.user.userId)) return;
 
-                    $(this).remove();
-                    const visibleItems = $('.js-delete-and-comment:visible');
-                    $('body').showAjaxProgress(visibleItems.length * 2, { position: 'fixed' });
-                    visibleItems.click();
-                })
-                .appendTo(actionBtns);
-        }
-    }
+    // Delete + Comment ALL
+    $('<button class="s-btn s-btn__danger s-btn__filled s-btn__xs">Delete + Comment ALL</button>')
+        .appendTo(actionBtns)
+        .on('click', function () {
+            if (!confirm('Confirm Delete ALL?')) return false;
+
+            $(this).remove();
+            const visibleItems = $('.js-delete-and-comment:visible');
+            $('body').showAjaxProgress(visibleItems.length * 2, { position: 'fixed' });
+            visibleItems.click();
+        });
+}
 
 
-    function appendStyles() {
+// On page load
+loadOptions();
+doPageload();
 
-        const styles = `
-<style>
+
+// Append styles
+const styles = document.createElement('style');
+styles.setAttribute('data-somu', GM_info?.script.name);
+styles.innerHTML = `
 #actionBtns {
-    margin: 25px 24px 20px;
+margin: 25px 24px 20px;
 }
 #actionBtns button {
-    margin-top: 10px;
-    margin-right: 10px;
+margin-top: 10px;
+margin-right: 10px;
 }
 
 .rec-button {
-    padding: 3px 5px;
-    border: 1px solid var(--red-500) !important;
-    color: var(--red-500) !important;
+padding: 3px 5px;
+border: 1px solid var(--red-500) !important;
+color: var(--red-500) !important;
 }
 .rec-button:hover {
-    background-color: var(--black-050);
+background-color: var(--black-050);
 }
-</style>
 `;
-        $('body').append(styles);
-    }
-
-
-    // On page load
-    appendStyles();
-    loadOptions();
-    doPageload();
-
-})();
+document.body.appendChild(styles);
