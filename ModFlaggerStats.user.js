@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.1
+// @version      4.2
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -126,9 +126,6 @@ function loadFlaggingFn() {
 }
 
 function doPageLoad() {
-
-    // Clear flagger stats cache on weekends
-    if (new Date().getDay() % 6 === 0) purgeUserFlagStats();
 
     let currUid = StackExchange.options.user.userId;
 
@@ -282,3 +279,6 @@ unsafeWindow.lsRemoveItemsWithPrefix = function (prefix) {
 unsafeWindow.purgeUserFlagStats = function () {
     lsRemoveItemsWithPrefix('ModFlaggerStats');
 };
+
+// Clear flagger stats cache on weekends
+if (new Date().getDay() % 6 === 0) purgeUserFlagStats();

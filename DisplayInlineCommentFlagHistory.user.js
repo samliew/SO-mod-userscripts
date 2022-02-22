@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1
+// @version      3.2
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -129,9 +129,6 @@ const updateCommentsFromTimelines = function () {
 
 
 function doPageLoad() {
-
-    // Clear comment flaggers cache every two days
-    if (new Date().getDay() % 2 === 0) purgeDisplayInlineCommentFlagHistory();
 
     // If timeline page
     if (location.href.indexOf('/timeline') >= 0) {
@@ -263,3 +260,6 @@ unsafeWindow.lsRemoveItemsWithPrefix = function (prefix) {
 unsafeWindow.purgeDisplayInlineCommentFlagHistory = function () {
     lsRemoveItemsWithPrefix('CommentFlags');
 };
+
+// Clear comment flaggers cache every two days
+if (new Date().getDay() % 2 === 0) purgeDisplayInlineCommentFlagHistory();
