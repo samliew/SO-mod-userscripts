@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.1
+// @version      4.2
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -899,10 +899,21 @@ function listenToPageUpdates() {
 
         // Close dialog loaded
         if (settings.url.includes('/close/popup')) {
-            setTimeout(function () {
+            const postId = Number(settings.url.match(/\/(\d+)\//)[1]);
+            
+            setTimeout(function (postId) {
 
                 const popup = $('#popup-close-question');
                 const reviewKeywords = $('#review-keywords').text();
+                    
+                // If post object not populated (i.e.: from question page)
+                if (!post?.content) {
+                    post = {
+                        content: $('#question .js-post-body').text(),
+                        answers: $('#answers .answer').length,
+                        votes: Number($('#question .js-vote-count').text()),
+                    }
+                }
 
                 if (queueType != null) repositionReviewDialogs(true);
 
@@ -1049,7 +1060,7 @@ function listenToPageUpdates() {
                     popup.find('.js-popup-submit, input:submit').focus();
                 }
 
-            }, 50);
+            }, 50, postId);
         }
 
         // Delete dialog loaded
