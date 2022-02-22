@@ -3,7 +3,7 @@
 // @description  Expand all sections, and adds additional filters
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://*stackexchange.com/tools*
 // @include      https://*stackoverflow.com/tools*
@@ -18,7 +18,7 @@
 
 'use strict';
 
-const currentTab = document.querySelector('#tabs .youarehere');
+const currentTab = document.querySelector('.tools-rev .js-filter-btn .youarehere');
 const currentTabName = currentTab.dataset.value;
 
 
