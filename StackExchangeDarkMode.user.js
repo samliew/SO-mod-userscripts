@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2
+// @version      3.3
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -668,8 +668,8 @@ body > div[style*="absolute"],
 .is-selected {
     background-color: ${bordercolor};
 }
-.nav-links .youarehere .nav-links--link {
-    border-right: 3px solid ${orange};
+.nav-links li.youarehere a div {
+    background: transparent;
 }
 .summary .bounty-indicator {
     z-index: 2;
@@ -1482,7 +1482,7 @@ document.head.appendChild(styles);
 
 document.addEventListener('DOMContentLoaded', function () {
     let $ = unsafeWindow.jQuery || null;
-    
+
     document.body.classList.add('SOMU-SEDM');
 
     // Replace logos
