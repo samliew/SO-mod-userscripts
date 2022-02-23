@@ -3,7 +3,7 @@
 // @description  Add "Redact + Purge + Delete" button to message history page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.3
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -14,8 +14,8 @@
 
 'use strict';
 
-window = window || unsafeWindow;
-const store = window.localStorage;
+const _window = window || unsafeWindow;
+const store = _window.localStorage;
 let cachedfkey = store.getItem('fkey');
 let redactText = `[message redacted by moderator]`;
 
@@ -73,10 +73,10 @@ function doPageLoad() {
     else {
 
         // Always re-cache latest fkey if available
-        if (typeof window.fkey === 'function') {
+        if (typeof _window.fkey === 'function') {
 
             // Cache fkey for use in message history page
-            store.setItem('fkey', window.fkey().fkey);
+            store.setItem('fkey', _window.fkey().fkey);
         }
 
         // When message actions link is clicked
