@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -425,7 +425,7 @@ function initShortUsernames() {
             .filter((i, el) => el.children.length === 0)
             .addClass('js-shortusernames').text((i, v) => {
                 return v.trim()
-                    .replace(/[\s-_]+(-|_|says|likes|loves|supports|is|is.at)[\s-_]*.+$/i, '');
+                    .replace(/[\s-_]+(-|_|says|wants|likes|loves|supports|has|is|is.at|stands|reinstate)[\s-_]*.+$/i, '');
             });
     }
 
