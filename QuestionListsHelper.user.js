@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0
+// @version      1.1
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -59,7 +59,7 @@ const getQuestions = async function (pids) {
 /**
  * @summary Main async function
  */
-(async function() {
+const doPageLoad = async function() {
 
     // Run on question lists and search results pages only
     const qList = document.querySelector('#questions, #question-mini-list, .js-search-results > div:last-child');
@@ -212,7 +212,14 @@ const getQuestions = async function (pids) {
 
             // Closed
             if(closed_reason) {
-                moreStats.innerHTML += `<div>closed_reason: <strong>${closed_reason}</strong></div>`;
+                const { reason, description } = closed_details;
+
+                // Convert HTML descriptions to text
+                const tempEl = document.createElement('div');
+                tempEl.innerHTML = description.replace('StackOverflow.StackHtmlContent', '');
+                const descriptionText = tempEl.innerText;
+
+                moreStats.innerHTML += `<div>closed_reason: <strong>${reason}</strong><div class="fs-fine">${descriptionText}</div></div>`;
 
                 const closedByMods = closed_details?.by_users.filter(u => u.user_type === 'moderator');
                 const closedByHammer = closed_details?.by_users.filter(u => u.user_type !== 'unregistered');
@@ -247,7 +254,11 @@ const getQuestions = async function (pids) {
     // Do once on page load
     processQuestionList();
 
-})();
+};
+
+
+// On page load
+doPageLoad();
 
 
 // Append styles
@@ -358,4 +369,4 @@ styles.innerHTML = `
   margin-left: 0;
 }
 `;
-document.body.appendChild(style);
+document.body.appendChild(styles);
