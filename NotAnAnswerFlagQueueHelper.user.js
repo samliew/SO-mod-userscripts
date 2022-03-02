@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.1.2
+// @version      4.1.3
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -585,8 +585,8 @@ input.js-helpful-purge {
 .js-admin-dashboard span[title]:hover {
     cursor: help !important;
 }
-.js-body-summary {
-    min-height: 5.6em;
+.js-flagged-post > div:first-child {
+    min-height: 155px;
 }
 
 /* Split helpful and decline out of popup to save a click */
