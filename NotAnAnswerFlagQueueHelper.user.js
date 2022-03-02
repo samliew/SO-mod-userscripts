@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.1.3
+// @version      4.1.4
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -473,7 +473,7 @@ function listenToPageUpdates() {
 
         // Flagger stats loaded, allow sorting by
         if (settings.url.includes('/users/flag-summary/')) {
-            $('#flag-queue-tabs #flagger-rank').removeClass('dno');
+            $('#flag-queue-tabs #flagger-rank').removeClass('dno').click();
         }
     });
 }
