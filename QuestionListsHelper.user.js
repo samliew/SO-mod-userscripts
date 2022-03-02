@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -217,7 +217,7 @@ const doPageLoad = async function() {
                 // Convert HTML descriptions to text
                 const tempEl = document.createElement('div');
                 tempEl.innerHTML = description.replace('StackOverflow.StackHtmlContent', '');
-                const descriptionText = tempEl.innerText;
+                const descriptionText = reason.includes('Not suitable') ? tempEl.innerText.split('. ').replace(/^"/, '') : '';
 
                 moreStats.innerHTML += `<div>closed_reason: <strong>${reason}</strong><div class="fs-fine">${descriptionText}</div></div>`;
 
@@ -322,6 +322,8 @@ styles.innerHTML = `
   clear: both;
   columns: 2;
   color: var(--black-600);
+  font-size: 0.95em;
+  line-height: 1.2;
 }
 .somu-comments-preview {
   display: none;
