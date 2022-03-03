@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.1
+// @version      5.2
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
@@ -158,93 +158,40 @@ function doPageLoad() {
     const handledPosts = $('.js-flagged-post').not(unhandledPosts).addClass('comments-handled');
     setTimeout((unhandledPosts) => $('.js-body-loader:last .js-expand-body', unhandledPosts).click(), 1000, unhandledPosts);
 
-    // Add "done" (no further action (helpful)) button
-    $('.js-post-flag-options > .grid').append(`<input class="immediate-dismiss-all" type="button" value="done (helpful)" title="dismiss all flags (helpful)" />`);
-
-    // On move comments to chat link click
-    $('.js-flagged-post').on('click handle', '.move-comments-link', function (evt) {
-        if (evt.type == 'click' && !confirm('Move all comments to chat & purge?')) return;
-
-        const pid = this.dataset.postId;
-        const flaggedPost = $(this).closest('.js-flagged-post');
-        const possibleDupeCommentIds = $(`#comments-${pid} .comment`).not('.deleted-comment')
-            .filter(function (i, el) {
-                const cmmtText = $(el).find('.comment-copy').text().toLowerCase();
-                return cmmtText.indexOf('possible duplicate of ') === 0;
-            })
-            .map((i, el) => el.dataset.commentId).get();
-
-        moveCommentsOnPostToChat(pid)
-            .then(function (v) {
-                lockPost(pid, 21);
-                undeleteComments(pid, possibleDupeCommentIds);
-                flaggedPost.addClass('comments-handled');
-            });
-    });
-
-    // On purge all comments link click
-    $('.js-flagged-post').on('click handle', '.purge-comments-link', function (evt) {
-        if (evt.type == 'click' && !confirm('Delete ALL comments?')) return;
-
-        const pid = this.dataset.postId;
-        const flaggedPost = $(this).closest('.js-flagged-post');
-        const possibleDupeCommentIds = $(`#comments-${pid} .comment`).not('.deleted-comment')
-            .filter(function (i, el) {
-                const cmmtText = $(el).find('.comment-copy').text().toLowerCase();
-                return cmmtText.indexOf('possible duplicate of ') === 0 || cmmtText.indexOf('let us continue this discussion ') === 0;
-            })
-            .map((i, el) => el.dataset.commentId).get();
-
-        deleteCommentsOnPost(pid)
-            .then(function (v) {
-                undeleteComments(pid, possibleDupeCommentIds);
-                flaggedPost.addClass('comments-handled');
-            });
-    });
-
     // On "done" button click
-    $('.js-flagged-post').on('click', '.immediate-dismiss-all', function () {
+    $('.js-flagged-post').on('click', '.js-resolve-now', function () {
         const $post = $(this).closest('.js-flagged-post');
         const pid = $post[0].dataset.postId;
-        dismissAllHelpful(pid);
-
         // Hide post immediately so we can move on
         $post.hide();
     });
 
-    // If there are lots of comment flags
-    if ($('.js-flagged-post').length > 1) {
+    const actionBtns = $('<div id="actionBtns"></div>');
+    $('.js-flagged-post').first().parent().prepend(actionBtns);
 
-        const actionBtns = $('<div id="actionBtns"></div>');
-        $('.js-flagged-post').first().parent().prepend(actionBtns);
+    // Start from bottom link
+    $('<button class="s-btn s-btn__filled s-btn__xs">Review from bottom</button>')
+        .on('click', function () {
+        window.scrollTo(0, 999999);
+    }).appendTo(actionBtns);
 
-        // Start from bottom link
-        $('<button class="s-btn s-btn__filled">Review from bottom</button>')
+    if (superusers.includes(StackExchange.options.user.userId)) {
+
+        // Move all comments on page to chat
+        $('<button class="s-btn s-btn__danger s-btn__filled s-btn__xs">Move ALL to chat</button>')
             .on('click', function () {
-                window.scrollTo(0, 999999);
-            })
-            .appendTo(actionBtns);
+            $(this).remove();
+            const moveLinks = $('.move-comments-link:visible');
+            $('body').showAjaxProgress(moveLinks.length, { position: 'fixed' });
+            moveLinks.trigger('handle');
+        }).appendTo(actionBtns);
 
-        if (superusers.includes(StackExchange.options.user.userId)) {
-
-            // Move all comments on page to chat
-            $('<button class="s-btn s-btn__danger s-btn__filled s-btn__xs">Move ALL to chat</button>')
-                .on('click', function () {
-                    $(this).remove();
-                    const moveLinks = $('.move-comments-link:visible');
-                    $('body').showAjaxProgress(moveLinks.length, { position: 'fixed' });
-                    moveLinks.trigger('handle');
-                })
-                .appendTo(actionBtns);
-
-            // Dismiss all handled ones
-            $('<button class="s-btn s-btn__danger s-btn__filled s-btn__xs">Dismiss ALL handled</button>')
-                .on('click', function () {
-                    const dismissLinks = $('.immediate-dismiss-all:visible');
-                    dismissLinks.click();
-                })
-                .appendTo(actionBtns);
-        }
+        // Dismiss all
+        $('<button class="s-btn s-btn__danger s-btn__filled s-btn__xs">Dismiss ALL</button>')
+            .on('click', function () {
+            const dismissLinks = $('.comments-handled .js-resolve-now:visible');
+            dismissLinks.click();
+        }).appendTo(actionBtns);
     }
 }
 
@@ -291,12 +238,12 @@ function listenToPageUpdates() {
                 const cmmtUsers = el.find('.comment-body').find('.comment-user:first').map((i, el) => el.href).get().filter((v, i, self) => self.indexOf(v) === i); // unique users
                 const infoDiv = $(`
 <div class="post-comment-stats">
-  <h3><b>Post info:</b></h3>
+  <h3>Post info:</h3>
   <div>created: ${postCreated}</div>
   ${numAnswersText}
   ${closeReasonText}
-  <div>${cmmtUsers.length} commentators</div>
   <div>${cmmts.length} comments, ${cmmtsDel.length} deleted (<span class="${percDel >= delCommentThreshold ? 'red' : ''}">${percDel}%</span>)</div>
+  <div>${cmmtUsers.length} users</div>
 </div>`).appendTo(postFlags);
 
                 //console.log(closeReasonElem, closeReason);
@@ -307,25 +254,109 @@ function listenToPageUpdates() {
             });
         });
 
-        // Simple throttle
-        if (typeof ajaxTimeout !== undefined) clearTimeout(ajaxTimeout);
-        ajaxTimeout = setTimeout(insertCommentLinks, 500);
+        setTimeout(addPostCommentsModLinks, 100);
     });
 }
 
-function insertCommentLinks() {
-    $('.comments.js-comments-container').not('.js-comment-links').addClass('js-comment-links').each(function () {
-        const pid = this.id.match(/\d+$/)[0];
 
-        // Insert additional comment actions
-        const commentActionLinks = `<div class="mod-action-links" style="float:right; padding-right:10px"><a data-post-id="${pid}" class="move-comments-link comments-link red-mod-link" title="move all comments to chat &amp; purge">move to chat</a><span>&nbsp;|&nbsp;</span><a data-post-id="${pid}" class="purge-comments-link comments-link red-mod-link" title="delete all comments">purge all</a></div></div>`;
-        $('#comments-link-' + pid).append(commentActionLinks);
+function addPostCommentsModLinks() {
+
+    $('div[id^="comments-link-"]').addClass('js-comments-menu');
+
+    // Append link to post sidebar if it doesn't exist yet
+    const allCommentMenus = $('.js-comments-menu');
+
+    // Init those that are not processed yet
+    allCommentMenus.not('.js-comments-menu-init').addClass('js-comments-menu-init').each(function () {
+
+        const post = $(this).closest('.answer, .question');
+        const pid = Number(post.attr('data-answerid') || post.attr('data-questionid')) || null;
+        this.dataset.postId = pid;
+
+        // If there are deleted comments, move from sidebar to bottom
+        const delCommentsBtn = post.find('.js-fetch-deleted-comments');
+        if (delCommentsBtn.length == 1) {
+            const numDeletedComments = (delCommentsBtn.attr('title') || delCommentsBtn.attr('aria-label')).match(/\d+/)[0];
+            $(this).append(`<span class="js-link-separator2">&nbsp;|&nbsp;</span> <a class="js-show-deleted-comments-link fc-red-600" title="expand to show all comments on this post (including deleted)" href="${delCommentsBtn.attr('href')}" role="button">load <b>${numDeletedComments}</b> deleted comment${numDeletedComments > 1 ? 's' : ''}</a>`);
+            delCommentsBtn.hide();
+        }
+
+        // Add move to chat and purge links
+        $(this).children('.mod-action-links').remove(); // in case added by another US
+        $(this).append(`<div class="mod-action-links dno" style="float:right; padding-right:10px">
+<a data-post-id="${pid}" class="js-move-comments-link fc-red-600" title="move all comments to chat + delete all">move to chat</a>
+<a data-post-id="${pid}" class="js-purge-comments-link fc-red-600" title="delete all comments">purge all</a>
+</div>`);
+
+    });
+
+    // Show move/purge links depending on comments
+    allCommentMenus.each(function () {
+        const hasComments = $(this).prev().find('.comment').length > 0;
+        $(this).find('.mod-action-links').toggle(hasComments);
+    });
+}
+
+
+function initPostCommentsModLinksEvents() {
+
+    const d = $('body').not('.js-comments-menu-events').addClass('js-comments-menu-events');
+
+    d.on('click', 'a.js-show-deleted-comments-link', function (e) {
+        e.preventDefault();
+        const post = $(this).closest('.answer, .question');
+        post.find('.js-fetch-deleted-comments').click();
+        $(this).prev('.js-link-separator2').addBack().remove();
+    });
+
+    // On move comments to chat link click
+    d.on('click handle', 'a.js-move-comments-link', function (e) {
+        e.preventDefault();
+        const post = $(this).closest('.answer, .question');
+        const pid = Number(this.dataset.postId) || null;
+        const flaggedPost = $(this).closest('.js-flagged-post');
+        const possibleDupeCommentIds = $(`#comments-${pid} .comment`).not('.deleted-comment')
+            .filter(function (i, el) {
+                const cmmtText = $(el).find('.comment-copy').text().toLowerCase();
+                return cmmtText.indexOf('possible duplicate of ') === 0;
+            })
+            .map((i, el) => el.dataset.commentId).get();
+
+        $(this).remove();
+
+        moveCommentsOnPostToChat(pid)
+            .then(function (v) {
+                lockPost(pid, 21);
+                undeleteComments(pid, possibleDupeCommentIds);
+                flaggedPost.addClass('comments-handled');
+            });
+    });
+
+    // On purge all comments link click
+    d.on('click handle', 'a.js-purge-comments-link', function (e) {
+        e.preventDefault();
+        const post = $(this).closest('.answer, .question');
+        const pid = Number(this.dataset.postId) || null;
+        const flaggedPost = $(this).closest('.js-flagged-post');
+        const possibleDupeCommentIds = $(`#comments-${pid} .comment`).not('.deleted-comment')
+            .filter(function (i, el) {
+                const cmmtText = $(el).find('.comment-copy').text().toLowerCase();
+                return cmmtText.indexOf('possible duplicate of ') === 0 || cmmtText.indexOf('let us continue this discussion ') === 0;
+            })
+            .map((i, el) => el.dataset.commentId).get();
+
+        deleteCommentsOnPost(pid)
+            .then(function (v) {
+                undeleteComments(pid, possibleDupeCommentIds);
+                flaggedPost.addClass('comments-handled');
+            });
     });
 }
 
 
 // On page load
 doPageLoad();
+initPostCommentsModLinksEvents();
 listenToPageUpdates();
 
 
@@ -336,14 +367,9 @@ styles.innerHTML = `
 .js-post-body,
 .post-taglist,
 .js-post-flag-options input,
-.dismiss-options,
+.js-delete-post,
 .mod-message {
     display: none !important;
-}
-.js-flagged-post.too-many-deleted .immediate-dismiss-all,
-.js-flagged-post.already-closed .immediate-dismiss-all,
-.js-flagged-post.comments-handled .immediate-dismiss-all {
-    display: inline-block !important;
 }
 .tagged-ignored {
     opacity: 1 !important;
