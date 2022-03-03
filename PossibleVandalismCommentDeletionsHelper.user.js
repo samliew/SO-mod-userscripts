@@ -3,7 +3,7 @@
 // @description  Display deleted comments and user who deleted the comments
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.1
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=commentvandalismdeletionsauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=commentvandalismdeletionsauto*
@@ -142,6 +142,8 @@ function doPageLoad() {
 
                 // Get post's deleted comments
                 getPostDeletedComments(pid).then(function (v) {
+                    // Add the post id so we can reference it in CommentUndeleter userscript
+                    [...v].forEach(el => el.dataset.postId = pid);
                     cmmtsContainer.append(v);
                 });
             });
