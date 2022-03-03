@@ -3,7 +3,7 @@
 // @description  Increase max-width of sites to 1440px
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -100,4 +100,4 @@ body > .wrapper > #content {
     box-sizing: border-box;
 }
 `.replace(/;/g, ' !important;');
-document.body.appendChild(styles);
+document.head.appendChild(styles);
