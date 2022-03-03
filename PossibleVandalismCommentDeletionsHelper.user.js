@@ -3,7 +3,7 @@
 // @description  Display deleted comments and user who deleted the comments
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      3.0
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=commentvandalismdeletionsauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=commentvandalismdeletionsauto*
@@ -124,15 +124,15 @@ function processFlags(flags) {
 
 function doPageLoad() {
 
-    const flags = $('.flagged-post-row span.revision-comment.active-flag')
-        .filter((i, el) => el.innerText.indexOf('possible vandalism: comment deletions (auto)') >= 0)
+    const flags = $('.js-flagged-post .js-post-flags .js-flag-text')
+        .filter((i, el) => el.innerText.includes('Possible vandalism: Comment deletions (auto):'))
         .each(function () {
-            const post = $(this).closest('.flagged-post-row');
-            const modMessageContent = $(this).closest('td');
-            const cmmtsContainer = $(`<ul class="comments comments-list"></ul>`).appendTo($(this).parents('.js-dashboard-row '));
+            const post = $(this).closest('.js-flagged-post');
+            const modMessageContent = $(this).closest('.js-post-flags');
+            const cmmtsContainer = $(`<ul class="comments comments-list"></ul>`).appendTo($(this).parents('.js-flagged-post'));
 
-            // Move action buttons
-            cmmtsContainer.before(post.find('.post-options.keep'));
+            // Hide post delete buttons
+            $('.js-post-flag-options').hide();
 
             // For each post in list
             post.find('ul.post-list').hide().children().each(function () {
