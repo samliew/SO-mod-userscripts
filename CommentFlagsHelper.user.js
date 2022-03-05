@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      7.1
+// @version      7.3
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -52,7 +52,7 @@ let $eventsTable, $eventsContainer, $events;
 let ajaxTimeout;
 
 
-let siteModerators; // auto-populated later
+let siteModerators = []; // populated later
 function getSiteModerators() {
     const storekey = 'CFH:moderators';
     let v = JSON.parse(store.getItem(storekey));
@@ -72,7 +72,7 @@ function getSiteModerators() {
 }
 $.fn.moderatorsOnly = function () {
     return this.filter(function (i, el) {
-        return el.href.includes('/users/') && siteModerators.includes(Number(el.dataset.uid || el.href.match(/\d+/)));
+        return el.href && el.href.includes('/users/') && siteModerators.includes(Number( el.dataset.uid || el.href.match(/\d+/) ));
     });
 };
 
@@ -128,7 +128,7 @@ function dismissCommentFlags(cid) {
 
 
 // Delete all comments on post
-function deleteCommentsOnPost(pid) {
+function deleteCommentsOnPost(pid, removeWrapper = false) {
     return new Promise(function (resolve, reject) {
         if (typeof pid === 'undefined' || pid == null) { reject(); return; }
 
@@ -140,11 +140,37 @@ function deleteCommentsOnPost(pid) {
             }
         })
             .done(function (data) {
-                $('#comments-' + pid).remove();
-                $('#comments-link-' + pid).html('<b>Comments deleted.</b>');
+                const commentsWrapper = $('#comments-' + pid);
+                if (removeWrapper) {
+                    commentsWrapper.remove();
+                    $('#comments-link-' + pid).html('<b>Comments deleted.</b>');
+                }
+                else {
+                    commentsWrapper.removeClass('js-del-loaded').children('ul.comments-list').empty();
+                }
                 resolve();
             })
             .fail(reject);
+    });
+}
+
+
+// Load all comments on post
+function loadCommentsOnPost(pid, loadDeletedComments = false) {
+    return new Promise(function (resolve, reject) {
+        if (typeof pid === 'undefined' || pid == null) { reject(); return; }
+
+        const commentsWrapper = $('#comments-' + pid);
+
+        // Remove default comment expander
+        const elems = $(this).next().find('.js-show-link.comments-link').prev().addBack();
+
+        // Get all including deleted comments
+        const commentsUrl = `/posts/${pid}/comments?includeDeleted=true&_=${Date.now()}`;
+        commentsWrapper.children('ul.comments-list').load(commentsUrl, function () {
+            elems.remove();
+            resolve();
+        });
     });
 }
 
@@ -500,29 +526,11 @@ function doPageLoad() {
         return false;
     });
 
-    // On purge all comments link click
-    $('.js-flagged-post').on('click', '.purge-comments-link', function () {
-
+    // On purge all comments link click, hide flagged post
+    $('.js-flagged-post').on('click', '.js-purge-comments-link', function () {
         const pid = this.dataset.postId;
         const $post = $(this).parents('.js-flagged-post');
-
-        if (confirm('Delete ALL comments? (mark as helpful)')) {
-
-            // Delete comments
-            $.post({
-                url: `https://${location.hostname}/admin/posts/${pid}/delete-comments`,
-                data: {
-                    'fkey': fkey,
-                    'mod-actions': 'delete-comments'
-                },
-                success: function () {
-                    $post.remove();
-                }
-            });
-
-            // Hide post immediately so we can move on
-            $post.hide();
-        }
+        $post.hide();
     });
 
     // On skip post link click
@@ -598,7 +606,7 @@ function recurseDeleteUserComments(filter, pageNum) {
 function listenToPageUpdates() {
 
     // On any page update
-    $(document).ajaxComplete(function (event, xhr, settings) {
+    $(document).ajaxStop(function () {
 
         // Highlight flagged comments in expanded posts
         const $flaggedComms = $('.js-flagged-comment .js-comment').not('.roa-comment');
@@ -631,9 +639,7 @@ function listenToPageUpdates() {
             window.scrollTo(scrLeft, 999999);
         }
 
-        // Simple throttle
-        if (typeof ajaxTimeout !== undefined) clearTimeout(ajaxTimeout);
-        ajaxTimeout = setTimeout(addPostCommentsModLinks, 500);
+        setTimeout(addPostCommentsModLinks, 100);
     });
 }
 
