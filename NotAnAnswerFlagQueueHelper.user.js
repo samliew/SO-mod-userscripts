@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.1
+// @version      4.1.4
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/NotAnAnswerFlagQueueHelper.user.js
@@ -447,6 +447,11 @@ function doPageLoad() {
             const btn = flagOpts.find('.js-submit-btn').focus();
         }, 100);
     });
+
+    // Hide post immediately on delete click
+    $('.js-delete-post').on('click', function () {
+        $(this).closest('.js-flagged-post').hide();
+    });
 }
 
 
@@ -468,7 +473,7 @@ function listenToPageUpdates() {
 
         // Flagger stats loaded, allow sorting by
         if (settings.url.includes('/users/flag-summary/')) {
-            $('#flag-queue-tabs #flagger-rank').removeClass('dno');
+            $('#flag-queue-tabs #flagger-rank').removeClass('dno').click();
         }
     });
 }
@@ -579,6 +584,9 @@ input.js-helpful-purge {
 }
 .js-admin-dashboard span[title]:hover {
     cursor: help !important;
+}
+.js-flagged-post > div:first-child {
+    min-height: 155px;
 }
 
 /* Split helpful and decline out of popup to save a click */
