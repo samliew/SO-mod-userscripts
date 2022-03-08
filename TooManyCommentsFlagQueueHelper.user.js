@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      5.2
+// @version      5.3
 // 
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/TooManyCommentsFlagQueueHelper.user.js
@@ -181,7 +181,7 @@ function doPageLoad() {
         $('<button class="s-btn s-btn__danger s-btn__filled s-btn__xs">Move ALL to chat</button>')
             .on('click', function () {
             $(this).remove();
-            const moveLinks = $('.move-comments-link:visible');
+            const moveLinks = $('.js-move-comments-link:visible');
             $('body').showAjaxProgress(moveLinks.length, { position: 'fixed' });
             moveLinks.trigger('handle');
         }).appendTo(actionBtns);
@@ -203,7 +203,7 @@ function listenToPageUpdates() {
 
         // Closed questions
         $('.question-status').each(function () {
-            $(this).closest('.js-flagged-post').addClass('already-closed');
+            $(this).closest('.js-flagged-post').addClass('already-closed comments-handled');
         });
 
         // Always expand comments if post is expanded, if comments have not been expanded yet
@@ -300,7 +300,10 @@ function addPostCommentsModLinks() {
 
 function initPostCommentsModLinksEvents() {
 
-    const d = $('body').not('.js-comments-menu-events').addClass('js-comments-menu-events');
+    const d = $('body').addClass('js-comments-menu-events')
+        .off('click handle', 'a.js-show-deleted-comments-link')
+        .off('click handle', 'a.js-move-comments-link')
+        .off('click handle', 'a.js-purge-comments-link');
 
     d.on('click', 'a.js-show-deleted-comments-link', function (e) {
         e.preventDefault();
