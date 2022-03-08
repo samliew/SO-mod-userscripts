@@ -3,7 +3,7 @@
 // @description  On pagination dots "..." mouseover, adds more page links (max 30 per hover), keyboard shortcuts for jumping to prev/next pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -41,7 +41,7 @@ function doPageLoad() {
 
         let baseurl = this.previousElementSibling.pathname || '';
         let prevNum = +(this.previousElementSibling.innerText);
-        let nextNum = +(this.nextElementSibling.innerText);
+        let nextNum = +(this.nextElementSibling?.innerText);
         let removeWhenDone = true;
         if (nextNum - prevNum > 30) {
             nextNum = prevNum + 30;
