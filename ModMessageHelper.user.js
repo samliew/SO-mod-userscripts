@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -64,7 +64,7 @@ Please only edit your post to correct errors, to include additional insights, or
         templateName: "minor suggested edits",
         suspensionReason: "for rule violations",
         suspensionDefaultDays: 0,
-        templateBody: `We have noticed that your recent suggested edits are just correcting a typo in the title and haven't handled any of the other problems with a question. Please note that we expect suggested edits to fix all issues with a post, rather than correcting only a single thing. From "[How does editing work?](http://stackoverflow.com/help/editing)":
+        templateBody: `We have noticed that your recent suggested edits are just correcting a typo in the title and haven't handled any of the other problems with a question. Please note that we expect suggested edits to fix all issues with a post, rather than correcting only a single thing. From [How does editing work?](${parentUrl}/help/editing):
 
 > **Edits are expected to be substantial and to leave the post better than you found it.**
 
@@ -91,6 +91,19 @@ Thank you, and we look forward to your contributions in the future.`,
 You have recently removed many tags from questions without following the burnination process. Do not do that. This message is a warning. If you do this again, with this or any other tag, then there will be further consequences.
 
 The edits you made will be reverted. Some of the edits have other beneficial changes, which you are welcome to reapply. However, you are not permitted to systematically remove tags from questions without following the burnination process.`,
+    },
+    {
+        templateName: "shared account",
+        suspensionReason: "for rule violations",
+        suspensionDefaultDays: 0,
+        addSuffix: false,
+        templateBody: `Company-owned/shared accounts is not permitted as stated in the [Terms of Service](${parentUrl}/legal/terms-of-service/public):
+
+> To access some of the public Network features you will need to **register for an account as an individual** and consent to these Public Network Terms. If you do not consent to these Public Network Terms, Stack Overflow reserves the right to refuse, suspend or terminate your access to the public Network.
+
+Unfortunately as this account is in breach of this policy, it will be deleted. You are welcome to register as an individual, subject to the Terms of Service.
+
+Should you wish to appeal this decision, you can contact the company using [this form](${parentUrl}/contact?referrer=${parentUrl}) or at .`,
     },
     {
         templateName: "upon request",
