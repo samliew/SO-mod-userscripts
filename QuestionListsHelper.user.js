@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.1
+// @version      1.1.2
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -67,6 +67,8 @@ const doPageLoad = async function() {
         console.log('Not a question list page.');
         return;
     }
+
+    document.body.classList.add('SOMU-QuestionListsHelper');
 
     // Transform old question lists to new style
     let oldQuestionList = document.querySelector('.js-search-results, #qlist-wrapper');
