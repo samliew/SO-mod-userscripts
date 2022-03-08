@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.2
+// @version      1.2
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -19,7 +19,7 @@
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
-/* globals StackExchange, GM_info, hasBackoff, addBackoff */
+/* globals StackExchange, hasBackoff, addBackoff */
 
 'use strict';
 
@@ -219,7 +219,7 @@ const doPageLoad = async function() {
                 // Convert HTML descriptions to text
                 const tempEl = document.createElement('div');
                 tempEl.innerHTML = description.replace('StackOverflow.StackHtmlContent', '');
-                const descriptionText = reason.includes('Not suitable') ? tempEl.innerText.split('. ').replace(/^"/, '') : '';
+                const descriptionText = reason.includes('Not suitable') ? tempEl.innerText.split('. ')[0].replace(/^"/, '') : '';
 
                 moreStats.innerHTML += `<div>closed_reason: <strong>${reason}</strong><div class="fs-fine">${descriptionText}</div></div>`;
 
@@ -281,6 +281,7 @@ styles.innerHTML = `
 .search-result .excerpt pre,
 .search-result .excerpt .snippet,
 .s-post-summary--content-excerpt pre,
+.s-post-summary--content-excerpt .s-table-container,
 .s-post-summary--content-excerpt .snippet {
   max-width: 100%;
   max-height: 100px;
@@ -289,6 +290,12 @@ styles.innerHTML = `
   overflow: hidden;
   white-space: break-spaces;
   font-size: 4px;
+}
+.s-post-summary--content-excerpt .s-table-container {
+  zoom: 0.1;
+}
+.s-post-summary--content-excerpt .s-table-container table {
+  width: auto;
 }
 .s-post-summary--content b,
 .s-post-summary--content strong {
