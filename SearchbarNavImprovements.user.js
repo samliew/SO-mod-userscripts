@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      6.1
+// @version      6.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -40,7 +40,7 @@ const metaUrl = StackExchange.options.site.childUrl || 'https://' + location.hos
 const siteslug = location.hostname.split('.')[0];
 const currentSiteSlug = location.hostname.replace('.stackexchange', '').replace(/\.\w+$/, ''); // for SEDE
 const hasSearchResults = (location.pathname === '/search' && location.search.length > 2) || location.pathname.indexOf('/questions/tagged/') == 0;
-const mixed = isSO ? '&mixed=0' : '';
+const mixed = isSO ? '&searchOn=1' : '';
 
 const store = window.localStorage;
 const searchSelector = $(`<div class="flex--item s-select wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
@@ -198,6 +198,7 @@ const ssKeyRoot = 'SavedSearch';
 // Sanitize: strip mixed, strip page, convert to lowercase
 function sanitizeQuery(value) {
   return value.toLowerCase()
+    .replace(/[?&]searchon=\d+/, '')
     .replace(/[?&]mixed=[10]/, '')
     .replace(/[?&]page=\d+/, '')
     .replace(/[?&]pagesize=\d+/, '')
@@ -426,7 +427,7 @@ function initQuickfilters() {
 
   function removeParam(query, param) {
     const re = new RegExp('\\+?' + param + '%3a[a-z0-9]+');
-    return query.toLowerCase().replace(re, '');
+    return query.toLowerCase().replace(/&(searchon|mixed)=[^&]+/gi, '').replace(re, '');
   }
 
 }
