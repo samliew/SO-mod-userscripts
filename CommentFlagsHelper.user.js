@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      7.2
+// @version      7.3
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -52,7 +52,7 @@ let $eventsTable, $eventsContainer, $events;
 let ajaxTimeout;
 
 
-let siteModerators; // auto-populated later
+let siteModerators = []; // populated later
 function getSiteModerators() {
     const storekey = 'CFH:moderators';
     let v = JSON.parse(store.getItem(storekey));
@@ -72,7 +72,7 @@ function getSiteModerators() {
 }
 $.fn.moderatorsOnly = function () {
     return this.filter(function (i, el) {
-        return el.href.includes('/users/') && siteModerators.includes(Number(el.dataset.uid || el.href.match(/\d+/)));
+        return el.href && el.href.includes('/users/') && siteModerators.includes(Number( el.dataset.uid || el.href.match(/\d+/) ));
     });
 };
 
