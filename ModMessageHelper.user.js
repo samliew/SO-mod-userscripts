@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -93,7 +93,7 @@ You have recently removed many tags from questions without following the burnina
 The edits you made will be reverted. Some of the edits have other beneficial changes, which you are welcome to reapply. However, you are not permitted to systematically remove tags from questions without following the burnination process.`,
     },
     {
-        templateName: "shared account",
+        templateName: "account sharing",
         suspensionReason: "for rule violations",
         suspensionDefaultDays: 0,
         addSuffix: false,
@@ -106,7 +106,7 @@ As this account appears to be in breach of this policy, it will be deleted. You 
 Should you wish to appeal this decision, you can contact the company using [this form](${parentUrl}/contact?referrer=${parentUrl}) or at community@stackexchange.com`,
     },
     {
-        templateName: "upon request",
+        templateName: "voluntary suspension",
         suspensionReason: "upon request",
         suspensionDefaultDays: 30,
         templateBody: `We have temporarily suspended your account for {suspensionDurationDays} days upon request.
