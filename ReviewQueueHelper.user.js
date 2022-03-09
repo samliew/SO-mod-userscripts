@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.2
+// @version      4.3
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -31,7 +31,7 @@
 // @exclude      https://stackoverflow.blog*
 // ==/UserScript==
 
-/* globals StackExchange, GM_info */
+/* globals StackExchange */
 
 'use strict';
 
@@ -898,12 +898,12 @@ function listenToPageUpdates() {
         // Close dialog loaded
         if (settings.url.includes('/close/popup')) {
             const postId = Number(settings.url.match(/\/(\d+)\//)[1]);
-            
+
             setTimeout(function (postId) {
 
                 const popup = $('#popup-close-question');
                 const reviewKeywords = $('#review-keywords').text();
-                    
+
                 // If post object not populated (i.e.: from question page)
                 if (!post?.content) {
                     post = {
@@ -1287,7 +1287,7 @@ function listenToPageUpdates() {
                         table.children('tbody').append('<tr><td class="label-key">&nbsp;</td><td class="label-value"></td></tr>');
                     }
                 });
-                
+
                 // Remove mod menu button since we already inserted it in the usual post menu, freeing up more space
                 $('.js-review-actions fieldset > div:last-child .flex--item:last-child').remove();
 
