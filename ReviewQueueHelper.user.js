@@ -836,8 +836,6 @@ function doPageLoad() {
             processReview = processReopenReview; break;
         case 'suggested-edits':
             processReview = processCloseReview; break;
-        case 'helper':
-            processReview = processCloseReview; break;
         case 'low-quality-posts':
             processReview = processLowQualityPostsReview; break;
         case 'triage':
@@ -1176,7 +1174,7 @@ function listenToPageUpdates() {
 
                 // If first-posts or late-answers queue, and not already reviewed (no Next button)
                 const reviewStatus = $('.review-status').text();
-                if ((queueType == 'first-posts' || queueType == 'late-answers' || queueType == 'helper') &&
+                if ((queueType == 'first-posts' || queueType == 'late-answers') &&
                     !reviewStatus.includes('This item is no longer reviewable.') && !reviewStatus.includes('This item is not reviewable.') && !reviewStatus.includes('Review completed')) {
 
                     // If question, insert "Close" option
@@ -1202,32 +1200,7 @@ function listenToPageUpdates() {
                             }
                             return false;
                         });
-                        $('.js-review-actions button').first().after(delBtn);
-                    }
-
-                    // Show post menu if in the H&I queue
-                    if (location.pathname.includes('/review/helper/')) {
-                        $('.close-question-link').show();
-                    }
-                }
-
-                // If we are in H&I
-                if (queueType == 'helper') {
-
-                    // If H&I review has been completed
-                    if (responseJson.isUnavailable) {
-                        // Remove edit button so only "Next" is displayed
-                        $('.js-review-actions button').first().remove();
-                    }
-
-                    // Display link to triage review if not already shown
-                    if ($('.reviewable-post-stats .js-triage-link').length === 0) {
-                        $.get(`https://${location.hostname}/posts/${responseJson.postId}/timeline`)
-                            .done(function (data) {
-                                const triageLink = $('[data-eventtype="review"] a', data).filter((i, el) => el.href.includes('/triage/')).attr('href');
-                                $('.reviewable-post-stats')
-                                    .append(`<a href="${triageLink}" class="s-btn s-btn__sm s-btn__primary mt16 js-triage-link" title="see who voted for requires editing" target="_blank">view triage</a>`);
-                            });
+                        $('.js-review-actions button').first().after(delBtn).after('<span>&nbsp;</span>');
                     }
                 }
 
@@ -1299,7 +1272,7 @@ function listenToPageUpdates() {
                     }
                 }
 
-                // finally remove sidebar table links
+                // Finally remove sidebar table links
                 $('.reviewable-post-stats').each(function () {
                     const table = $(this).children('table').first();
 
@@ -1314,6 +1287,9 @@ function listenToPageUpdates() {
                         table.children('tbody').append('<tr><td class="label-key">&nbsp;</td><td class="label-value"></td></tr>');
                     }
                 });
+                
+                // Remove mod menu button since we already inserted it in the usual post menu, freeing up more space
+                $('.js-review-actions fieldset > div:last-child .flex--item:last-child').remove();
 
                 // Remove "Delete" option for suggested-edits queue, if not already reviewed (no Next button)
                 if (queueType == 'suggested-edits' && !$('.review-status').text().includes('This item is no longer reviewable.')) {
