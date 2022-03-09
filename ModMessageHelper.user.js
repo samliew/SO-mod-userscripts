@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.4.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -894,6 +894,9 @@ styles.innerHTML = `
 /* Mod message page */
 .dbl, .dblock {
     display: block;
+}
+.action-list:not(.popup-condensed) li > label {
+    margin: -2px 0;
 }
 #msg-form label .inline-label {
     display: inline-block;
