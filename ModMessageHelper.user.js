@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -97,13 +97,13 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
         suspensionReason: "for rule violations",
         suspensionDefaultDays: 0,
         addSuffix: false,
-        templateBody: `Company-owned/shared accounts is not permitted as stated in the [Terms of Service](${parentUrl}/legal/terms-of-service/public):
+        templateBody: `Company-owned or accounts shared by multiple users are not permitted as stated in the [Terms of Service](${parentUrl}/legal/terms-of-service/public):
 
 > To access some of the public Network features you will need to **register for an account as an individual** and consent to these Public Network Terms. If you do not consent to these Public Network Terms, Stack Overflow reserves the right to refuse, suspend or terminate your access to the public Network.
 
-Unfortunately as this account is in breach of this policy, it will be deleted. You are welcome to register as an individual, subject to the Terms of Service.
+As this account appears to be in breach of this policy, it will be deleted. You are welcome to register again for an account as an individual user, subject to the Terms of Service.
 
-Should you wish to appeal this decision, you can contact the company using [this form](${parentUrl}/contact?referrer=${parentUrl}) or at .`,
+Should you wish to appeal this decision, you can contact the company using [this form](${parentUrl}/contact?referrer=${parentUrl}) or at community@stackexchange.com`,
     },
     {
         templateName: "upon request",
