@@ -3,7 +3,7 @@
 // @description  Display reputation in tooltip upon user link mouseover
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -90,10 +90,12 @@ function processUserlinks() {
             cachedResults[user.user_id] = user;
             processResults(user);
         });
+
+        $(document).one('ajaxStop', processUserlinks);
     });
 }
 
 
 // On page load
 processUserlinks();
-$(document).ajaxStop(processUserlinks);
+$(document).one('ajaxStop', processUserlinks);
