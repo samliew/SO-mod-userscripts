@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -284,7 +284,7 @@ styles.innerHTML = `
 .s-post-summary--content-excerpt .s-table-container,
 .s-post-summary--content-excerpt .snippet {
   max-width: 100%;
-  max-height: 100px;
+  max-height: 150px;
   margin: 4px 0;
   padding: 5px;
   overflow: hidden;
@@ -292,7 +292,7 @@ styles.innerHTML = `
   font-size: 4px;
 }
 .s-post-summary--content-excerpt .s-table-container {
-  zoom: 0.1;
+  zoom: 0.5;
 }
 .s-post-summary--content-excerpt .s-table-container table {
   width: auto;
