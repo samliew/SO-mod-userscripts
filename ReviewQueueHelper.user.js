@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.3
+// @version      4.3.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1501,10 +1501,10 @@ styles.innerHTML = `
 }
 .popup .migration-pane .action-list li.mt24:last-child:before,
 .popup .migration-pane .action-list script + li:last-child:before {
-    top: 15px;
+    top: 8px;
 }
 #popup-flag-post.popup .action-list li:before {
-    top: 14px;
+    top: 8px;
 }
 .popup .action-list li:nth-of-type(1):before {
     content: '1';
