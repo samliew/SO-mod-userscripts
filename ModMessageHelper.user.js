@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4.1
+// @version      2.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -216,7 +216,7 @@ function toShortLink(str, newdomain = null) {
 
 function getDeletedPosts(uid, type) {
 
-    const url = `https://${location.hostname}/search?q=user%3a${uid}%20is%3a${type}%20deleted%3a1%20score%3a..0&tab=newest`;
+    const url = `https://${location.hostname}/search?q=user%3a${uid}%20is%3a${type}%20deleted%3a1%20score%3a..0&pagesize=30&tab=newest`;
     $.get(url).done(function (data) {
         const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
         const stats = $(`

@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1
+// @version      3.2
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -123,7 +123,7 @@ function doPageLoad() {
 
     function getDeletedPosts(uid, type) {
 
-        const url = `https://${mainDomain}/search?q=user%3a${uid}%20is%3a${type}%20deleted%3a1%20score%3a..0&tab=newest`;
+        const url = `https://${mainDomain}/search?q=user%3a${uid}%20is%3a${type}%20deleted%3a1%20score%3a..0&pagesize=30&tab=newest`;
         ajaxPromise(url).then(function (data) {
             const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
             const stats = $(`
