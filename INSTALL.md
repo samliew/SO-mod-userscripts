@@ -40,7 +40,7 @@ Direct installation links (raw files)
 
 [Downvote Posts in Search Results](https://github.com/samliew/SO-mod-userscripts/raw/master/DownvotePostsInSearchResults.user.js)
 
-[Fetch Question Stats](https://github.com/samliew/SO-mod-userscripts/raw/master/FetchQuestionStats.user.js)
+[Question Lists Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/QuestionListsHelper.user.js)
 
 [Fetch Vote Counts Again](https://github.com/samliew/SO-mod-userscripts/raw/master/FetchVoteCountsAgain.user.js)
 

@@ -187,14 +187,12 @@ Recommended chat userscripts:
 - When searching for not locked posts (`locked:0` or `locked:no`), adds button in bottom right to downvote all displayed results
 
 
-### [Fetch Question Stats](https://github.com/samliew/SO-mod-userscripts/blob/master/FetchQuestionStats.user.js)
+### [Question Lists Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/QuestionListsHelper.user.js)
 
-- Display number of recent comments (in the last 30 days) on each post in question lists
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-10-01_121056.png)
-- For mod queues, additional info (30-day revision history) is also retrieved
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-10-01_121036.png)
-- Detects if post has any revisions after being flagged
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-10-01_121058.png)
+- Fetch details about questions from the API
+- See who hammer-duped a question, or which mod closed it, and which close reason
+- Comments preview on hover
+- Mini images, tables, code snippet
 
 
 ### [Fetch Vote Counts Again](https://github.com/samliew/SO-mod-userscripts/blob/master/FetchVoteCountsAgain.user.js)
