@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.1
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -143,7 +143,7 @@ function initStickyPostHeaders() {
         if (isWiki) {
             postUserHtml = `<span>${postUserText}</span>`;
         }
-        else if (postUser.length == 2) {
+        else if (postUser.length > 1) {
             postUserHtml = postUser.filter('a')[0].outerHTML;
         }
         else if (isElectionPage) {
