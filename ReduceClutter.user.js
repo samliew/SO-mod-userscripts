@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.4
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -413,6 +413,7 @@ function betterDuplicatesEditedList() {
 function revertVotecellTooltips() {
 
     function findAndRevertTooltips() {
+
         $('.js-voting-container, .js-post-menu').find('[aria-describedby^="--stacks-s-tooltip"]').each(function () {
             const tooltipId = $(this).attr('aria-describedby');
             const tooltip = $('#' + $(this).attr('aria-describedby'));
@@ -420,6 +421,12 @@ function revertVotecellTooltips() {
 
             $(this).attr('aria-describedby', '');
             //tooltip.remove(); // looks like this breaks the follow link now :(
+        });
+
+        // Remove "title" attributes from elements that have an attached "s-popover__tooltip"
+        //  so you don't have both showing at the same time
+        $('.s-popover__tooltip').each(function() {
+            $(this).prev('[data-controller="s-tooltip"]').attr('title', '');
         });
     }
 
