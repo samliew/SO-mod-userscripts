@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -34,6 +34,17 @@ const blacklistedBlogWords = ['the loop', 'podcast', 'worst', 'bad', 'surprise',
 const styles = document.createElement('style');
 styles.setAttribute('data-somu', GM_info?.script.name);
 styles.innerHTML = `
+
+/*
+   Fix all Q&A links having same colour even when visited
+*/
+body .s-link {
+    color: var(--theme-link-color) !important;
+}
+body .s-link:visited {
+    color: var(--theme-link-color-visited) !important;
+}
+
 
 /*
    Fix comment upvote and flag always showing
