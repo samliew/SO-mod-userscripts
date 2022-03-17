@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.3.1
+// @version      4.4
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -1289,7 +1289,8 @@ function listenToPageUpdates() {
                 });
 
                 // Remove mod menu button since we already inserted it in the usual post menu, freeing up more space
-                $('.js-review-actions fieldset > div:last-child .flex--item:last-child').remove();
+                const menuSections = $('.js-review-actions fieldset > div:last-child .flex--item');
+                if(menuSections.length > 1) menuSections.last().remove();
 
                 // Remove "Delete" option for suggested-edits queue, if not already reviewed (no Next button)
                 if (queueType == 'suggested-edits' && !$('.review-status').text().includes('This item is no longer reviewable.')) {
