@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.3.1
+// @version      4.5
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -331,7 +331,7 @@ function displayPostKeywords() {
 
     // Display post keywords
     post.issues = [];
-    const header = $('.reviewable-post .subheader').first();
+    const header = $('.s-post-summary--stats').first();
     const resultsDiv = $(`<div id="review-keywords"></div>`).appendTo(header);
 
     const keywords = [
@@ -867,12 +867,9 @@ function repositionReviewDialogs(scrollTop = true) {
     scrollTop ? setTimeout(() => window.scrollTo(0, 0), 100) : 0;
 
     // position dialog
-    $('.popup').css(isSuperuser ? {
-        top: -50,
-        left: 730
-    } : {
+    $('.popup').css({
         top: 100,
-        left: 0
+        left: 680
     });
 }
 
@@ -1156,13 +1153,13 @@ function listenToPageUpdates() {
             setTimeout(function () {
 
                 // Get post type
-                const reviewablePost = $('.reviewable-post, .suggested-edit').first();
+                const reviewablePost = $('.js-review-content, .suggested-edit').first();
                 const pid = responseJson.postId;
                 const isQuestion = reviewablePost.find('.answers-subheader').text().includes('Question') || reviewablePost.find('.question-hyperlink').length > 0;
 
                 // Get post status
                 const isDeleted = reviewablePost.find('.deleted-answer').length > 0;
-                const isClosedOrDeleted = reviewablePost.find('.question-status, .deleted-answer').length > 0;
+                const isClosedOrDeleted = reviewablePost.find('.js-post-notice, .deleted-answer').length > 0;
                 console.log('isClosedOrDeleted', isClosedOrDeleted);
 
                 // If no more reviews, refresh page every 10 seconds
@@ -1272,24 +1269,9 @@ function listenToPageUpdates() {
                     }
                 }
 
-                // Finally remove sidebar table links
-                $('.reviewable-post-stats').each(function () {
-                    const table = $(this).children('table').first();
-
-                    const links = table.find('tbody td[colspan="2"]').parent();
-                    const tfooter = $('<tfoot></tfoot>').append(links).appendTo(table);
-
-                    // add padding text for cells that do not have content
-                    table.find('.label-key').filter((i, v) => v.textContent.trim() == '').html('&nbsp;');
-                    // if less than six rows, add more
-                    const tableRows = table.find('.label-key').length;
-                    for (let i = tableRows; i < 6; i++) {
-                        table.children('tbody').append('<tr><td class="label-key">&nbsp;</td><td class="label-value"></td></tr>');
-                    }
-                });
-
                 // Remove mod menu button since we already inserted it in the usual post menu, freeing up more space
-                $('.js-review-actions fieldset > div:last-child .flex--item:last-child').remove();
+                const menuSections = $('.js-review-actions fieldset > div:last-child .flex--item');
+                if(menuSections.length > 1) menuSections.last().remove();
 
                 // Remove "Delete" option for suggested-edits queue, if not already reviewed (no Next button)
                 if (queueType == 'suggested-edits' && !$('.review-status').text().includes('This item is no longer reviewable.')) {
@@ -1683,9 +1665,12 @@ pre {
 
 /* Review keywords */
 #review-keywords {
-    float: right;
-    margin: 7px 20px 0 0;
+    margin: 0px 0px 3px 10px;
     font-style: italic;
+    position: absolute;
+    right: 0;
+    top: -35px;
+    background-color: var(--yellow-100);
 }
 #review-keywords > span:after {
     content: ', ';
