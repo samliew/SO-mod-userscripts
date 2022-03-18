@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table. Also provides support for SEDE query https://data.stackexchange.com/stackoverflow/query/968803
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -465,7 +465,7 @@ function doPageLoad() {
     // User dashboard
     else if (location.pathname.includes('/users/account-info/')) {
         const uid = location.pathname.match(/\/(\d+)/)[1];
-        const networkUid = $('#profiles-menu ul li a:contains("Network profile")').attr('href').match(/\/(\d+)\/?/)[1];
+        const networkUid = $('.account-info a[href^="https://stackexchange.com/users/"]').attr('href').match(/\/(\d+)\/?/)[1];
 
         const dateNetworkRegContainer = $(` <span class="d-inline-block ml12"></span>`);
         $('#mod-content .details .col-4').eq(0).append(dateNetworkRegContainer);
