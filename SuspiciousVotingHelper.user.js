@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table. Also provides support for SEDE query https://data.stackexchange.com/stackoverflow/query/968803
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -47,7 +47,7 @@ function mapVotePatternItemsToObject() {
     const vtypeText = vtype === 'dn' ? 'down' : (vtype === 'up' ? 'up' : 'acc');
     const vPct = Math.round(vNum / vTotal * 100);
     return link.length == 0 ? null : {
-        uid: link.attr('href').match(/\/(\d+)\//)[0],
+        uid: link.attr('href').match(/\/(-?\d+)\//)[0],
         userlink: link.attr('href'),
         username: link.text(),
         userrep: strToRep(uRep.text()),
