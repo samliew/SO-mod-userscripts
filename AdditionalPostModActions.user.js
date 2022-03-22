@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2.1
+// @version      3.2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -1251,6 +1251,11 @@ body.js-spam-mode .post-layout.expandable-question-summary {
 }
 body.js-spam-mode .visited-post {
     opacity: 1 !important;
+}
+
+/* Sidebar has too high of a z-index */
+#left-sidebar {
+    z-index: 1;
 }
 `;
 document.body.appendChild(styles);
