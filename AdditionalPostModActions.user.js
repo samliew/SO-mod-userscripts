@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3
+// @version      3.3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -280,6 +280,7 @@ function unprotectPost(pid) {
 
 
 // Edit individual post to remove more than one @ symbols to be able to convert to comment without errors
+// Will fail if there is already a pending edit
 function tryRemoveMultipleAtFromPost(pid) {
     return new Promise(function(resolve, reject) {
         if(typeof pid === 'undefined' || pid === null) { reject(); return; }
