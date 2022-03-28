@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.3.1
+// @version      4.4
 //
 // @include      https://*stackoverflow.com/users/*
 // @include      https://*serverfault.com/users/*
@@ -43,7 +43,22 @@ function calculateFlagTier(fTotal = 0, fPerc = 0) {
 
     // Elite Tier
     if ((fPerc < 0.2 && fTotal >= 10000) || (fPerc < 0.1 && fTotal >= 5000)) {
+        v = { tier: 5, name: 'elite' };
+    }
+
+    // "Master" Tier (accurate gold flagger, but not many flags compared to elites)
+    else if ((fPerc < 0.5 && fTotal >= 2000) || (fPerc < 0.2 && fTotal >= 1000)) {
         v = { tier: 4, name: 'elite' };
+    }
+
+    // "Diamond" Tier (accurate silver flagger, but not many flags compared to elites)
+    else if ((fPerc < 0.5 && fTotal >= 1000) || (fPerc < 0.3 && fTotal >= 500)) {
+        v = { tier: 1, name: 'gold' };
+    }
+
+    // "Rising Star" Tier (accurate bronze flagger, but not many flags compared to elites)
+    else if ((fPerc < 0.5 && fTotal >= 500) || (fPerc < 0.4 && fTotal >= 200)) {
+        v = { tier: 1, name: 'silver' };
     }
 
     // Gold Tier
@@ -62,17 +77,17 @@ function calculateFlagTier(fTotal = 0, fPerc = 0) {
     }
 
     // Wtf Tier
-    else if (fPerc >= 30 && fTotal >= 5) {
+    else if (fPerc >= 30 && fTotal >= 1) {
         v = { tier: -3, name: 'wtf' };
     }
 
     // Horrible Tier
-    else if (fPerc >= 20 && fTotal >= 5) {
+    else if (fPerc >= 15 && fTotal >= 1) {
         v = { tier: -2, name: 'horrible' };
     }
 
     // Hmmm Tier
-    else if (fPerc >= 10 && fTotal >= 5) {
+    else if (fPerc >= 5 && fTotal >= 1) {
         v = { tier: -1, name: 'hmmm' };
     }
 
