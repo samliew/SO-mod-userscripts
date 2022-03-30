@@ -57,12 +57,12 @@ unsafeWindow.initRefresh = initRefresh;
 function doPageLoad() {
 
     // If no mod flags, insert mod flags indicator in header anyway...
-    if ($('.flag-count-item').length === 0) {
-        $('.js-mod-inbox-button').parent().after(`<li class="-item flag-count-item" data-remove-order="3">
-            <a href="/admin/dashboard" class="-link _text-only" title="no flags!">
-                <span class="indicator-badge _regular">0</span>
+    if ($('.js-admin-dashboard-button').length === 0) {
+        $('.js-mod-inbox-button').parent().after(`<li>
+            <a href="/admin/dashboard" class="s-topbar--item px4 js-admin-dashboard-button" aria-label="no flagged posts" title="no posts flagged for moderator attention">
+                <span class="s-badge s-badge__bounty">0</span>
             </a>
-        </li>`);
+         </li>`);
     }
 
     // If not on mod flag pages, ignore rest of script
