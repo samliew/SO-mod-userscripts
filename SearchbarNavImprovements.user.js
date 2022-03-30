@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      6.2
+// @version      6.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -909,7 +909,7 @@ function initAdvancedSearch() {
   let clearOpen = () => searchhelper.removeClass('open');
   $(document).on('click', function (evt) {
     // Any click on page except header
-    if ($(evt.target).closest('.top-bar').length === 0) {
+    if ($(evt.target).closest('.js-top-bar').length === 0) {
       clearOpen();
     }
   }).on('keydown', function (evt) {
@@ -1087,10 +1087,11 @@ function doPageLoad() {
   }
   // If using new search bar
   else {
-    $('#search-channel-selector option[selected]')
+    $('.js-search-channel-selector option:last-child')
       .after(`<option data-url="https://${mseDomain}/search">Meta Stack Exchange</option>`)
       .after(`<option data-url="${metaUrl}/search">Meta ${mainName}</option>`);
   }
+
   // Update form action
   $('#search-channel-selector').on('change', function () {
     const url = $(this).children().filter(':selected').attr('data-url');
@@ -1194,7 +1195,7 @@ button, .button,
 .unselectable {
   user-select: none;
 }
-.top-bar .js-searchbar .grid {
+.js-top-bar .js-searchbar .grid {
   display: flex;
 }
 .wmn1 {
@@ -1203,7 +1204,7 @@ button, .button,
 .w20 {
   width: 20% !important;
 }
-.top-bar .js-searchbar .s-select select {
+.js-top-bar .js-searchbar .s-select select {
   max-width: 140px;
 }
 .channels-page .search-channel-switcher-select {
@@ -1221,7 +1222,7 @@ button, .button,
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;
 }
-.top-bar .js-searchbar .btn-topbar-primary {
+.js-top-bar .js-searchbar .btn-topbar-primary {
   transition: none;
   opacity: 1;
   z-index: 1;
@@ -1305,8 +1306,12 @@ styles_advsearch.innerHTML = `
 
   font-size: 12px;
 }
-.top-bar .js-searchbar {
+.js-top-bar .js-searchbar {
   max-width: none;
+}
+#search,
+.js-top-bar .js-searchbar {
+  position: relative;
 }
 @media screen and (max-width: 980px) {
   .search-helper {
@@ -1315,7 +1320,7 @@ styles_advsearch.innerHTML = `
 }
 /* Only works on large-enough screens */
 @media screen and (min-width: 791px) {
-  .top-bar._search-open #search .search-helper,
+  .js-top-bar._search-open #search .search-helper,
   #search input[name="q"]:focus ~ .search-helper,
   #search-helper.open {
       display: block;
