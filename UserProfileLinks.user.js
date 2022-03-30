@@ -3,7 +3,7 @@
 // @description  Expands user network links menu and add chat profile links
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -17,7 +17,7 @@
 // @exclude      https://stackoverflow.com/c/*
 // ==/UserScript==
 
-/* globals StackExchange, GM_info */
+/* globals StackExchange */
 
 'use strict';
 
@@ -26,7 +26,7 @@
     // Check if profile menu exists
     const isUserPage = document.body.classList.contains('user-page');
     const profilesMenu = document.getElementById('profiles-menu');
-    if(!isUserPage && !profilesMenu) {
+    if(!isUserPage || !profilesMenu) {
         console.log('User network profile dropdown not found.');
         return;
     }

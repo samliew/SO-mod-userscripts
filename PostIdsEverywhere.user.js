@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -98,6 +98,8 @@ styles.innerHTML = `
 .count-cell + td,
 .user-page .s-card .flex--item,
 .user-page .js-user-tab .flex--item,
+.js-user-panel .d-flex,
+.js-user-panel .fl-grow1,
 .question-link,
 .answer-link,
 .question-summary,

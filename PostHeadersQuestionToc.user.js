@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1
+// @version      3.2
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -30,7 +30,7 @@
 // @run-at       document-end
 // ==/UserScript==
 
-/* globals StackExchange, GM_info */
+/* globals StackExchange */
 
 'use strict';
 
@@ -40,6 +40,7 @@ const isElectionPage = document.body.classList.contains('election-page');
 const modflair = '<span class="mod-flair" title="moderator">♦</span>';
 const hasFixedHeader = $('.top-bar').hasClass('_fixed');
 const postBaseUrl = $('#question-header h1 a').attr('href');
+const sortDropdown = $('#answer-sort-dropdown-select-menu');
 
 
 // Fetch and store option
@@ -237,7 +238,15 @@ function initTableOfContentsSidebar() {
 
     const postsOnPage = $('#answers > .answer');
     const qid = $('#question').attr('data-questionid');
-    const sortby = $('#answers-header .js-filter-btn .youarehere, #answers-header #tabs .youarehere').text().toLowerCase().trim();
+    let sortby = 'score';
+
+    // New answer sort dropdown is used
+    if(sortDropdown.length) {
+        sortby = sortDropdown.val();
+    }
+    else {
+        sortby = $('#answers-header .js-filter-btn .youarehere, #answers-header #tabs .youarehere').text().toLowerCase().trim();
+    }
 
     if (isElectionPage) {
 
@@ -304,9 +313,11 @@ function initTableOfContentsSidebar() {
     if (postsOnPage.length == 0) return;
 
     getPostAnswers(qid).then(function (v) {
+        v = v.get();
 
-        if (sortby == 'score' || sortby == 'votes') {
-            v = v.get().sort(function (a, b) {
+        // Sorting
+        if (sortby == 'score' || sortby == 'scoredesc' || sortby == 'votes') {
+            v = v.sort((a, b) => {
                 const ax = Number($(a).find('.event-comment span:not(.badge-earned-check)').last().text().match(/[-0-9]+$/)[0]);
                 const bx = Number($(b).find('.event-comment span:not(.badge-earned-check)').last().text().match(/[-0-9]+$/)[0]);
 
@@ -317,11 +328,11 @@ function initTableOfContentsSidebar() {
                 return (adel && bdel) || (!adel && !bdel) ? bx - ax : (adel ? 1 : -1); // desc
             });
         }
-        else if (sortby == 'oldest') {
-            v = v.get().reverse();
+        else if (sortby == 'oldest' || sortby == 'createdasc') {
+            v = v.reverse();
         }
-        else if (sortby == 'active') {
-            v = v.get().sort(function (a, b) {
+        else if (sortby == 'active' || sortby == 'modifieddesc') {
+            v = v.sort((a, b) => {
                 const aid = $(a).find('.event-comment a.timeline').attr('href').match(/[0-9]+/)[0];
                 const bid = $(b).find('.event-comment a.timeline').attr('href').match(/[0-9]+/)[0];
                 const apost = $('#answer-' + aid).get(0);
@@ -331,10 +342,20 @@ function initTableOfContentsSidebar() {
                 return apost.offsetTop - bpost.offsetTop;
             });
         }
-        const answers = $(v);
 
+        // Move deleted posts to the end
+        v = v.sort((a, b) => {
+            const aDel = a.classList.contains('deleted-event');
+            const bDel = b.classList.contains('deleted-event');
+
+            if (!aDel && !bDel) return 0;
+            return aDel ? 1 : -1;
+        });
+
+        const answers = $(v);
         let answerlist = '';
         let deletedCount = 0;
+
         answers.each(function () {
             const isDel = $(this).hasClass('deleted-event');
             const postUserCell = $(this).children('td').eq(4);

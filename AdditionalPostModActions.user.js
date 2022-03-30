@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2.1
+// @version      3.3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -280,6 +280,7 @@ function unprotectPost(pid) {
 
 
 // Edit individual post to remove more than one @ symbols to be able to convert to comment without errors
+// Will fail if there is already a pending edit
 function tryRemoveMultipleAtFromPost(pid) {
     return new Promise(function(resolve, reject) {
         if(typeof pid === 'undefined' || pid === null) { reject(); return; }
@@ -778,7 +779,7 @@ function appendPostModMenus() {
         const isClosed = postStatus.includes('closed') || postStatus.includes('on hold') || postStatus.includes('duplicate') || postStatus.includes('already has');
         const isProtected = post.find('.js-post-notice b').text().includes('Highly active question');
         const isMigrated = postStatus.includes('migrated to');
-        const isLocked = isMigrated || postStatus.includes('locked');
+        const isLocked = isMigrated || postStatus.includes('locked') || postStatus.includes('community effort');
         const isOldDupe = isQuestion && post.find('.js-post-body blockquote').first().find('strong').text().includes('Possible Duplicate');
         const needsRedupe = postStatus.match(/This question already has( an)? answers? here:(\s|\n|\r)+Closed/i) != null;
         const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
@@ -1251,6 +1252,11 @@ body.js-spam-mode .post-layout.expandable-question-summary {
 }
 body.js-spam-mode .visited-post {
     opacity: 1 !important;
+}
+
+/* Sidebar has too high of a z-index */
+#left-sidebar {
+    z-index: 1;
 }
 `;
 document.body.appendChild(styles);

@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -360,7 +360,7 @@ function formatDeletedUserPage() {
 
 function showDetailsFieldWhenPiiClicked() {
     const d = new Date();
-    const year = d.getFullYear().toString().slice(2);
+    const year = d.getFullYear().toString();
     const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()];
     const piidiv = $('#mod-content .mod-credentials').parent();
     const piisection = piidiv.closest('.mod-section');
@@ -369,7 +369,7 @@ function showDetailsFieldWhenPiiClicked() {
     const regdate = '\n' + $('.details .row').first().find('span').remove().end().text().trim().replace(/\s+/g, ' ').replace('Joined network:', 'Joined network: ').replace('Joined site:', '\nJoined site:    ').split(/\s*\n\s*/).map(function (v) {
         if (v.contains('ago')) v = v.split(':')[0] + ':  ' + month + " " + d.getDate() + " '" + year;
         else if (v.contains('yesterday')) v = v.split(':')[0] + ':  ' + month + ' ' + d.getDate() + " '" + year;
-        else if (!v.contains("'")) v = v + " '" + year;
+        else if (!v.contains(", ")) v = v + ", " + year;
         return v;
     }).join('\n');
     const str = piidiv.children('div').slice(0, 2).text().trim().replace(/\s+/g, ' ').replace('Email:', 'Email:     ').replace(' Real Name:', '\nReal Name: ').replace(' IP Address:', '\nIP Address:');
