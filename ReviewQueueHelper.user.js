@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.5
+// @version      4.5.1
 //
 // @include      https://*stackoverflow.com/review*
 // @include      https://*serverfault.com/review*
@@ -987,7 +987,7 @@ function listenToPageUpdates() {
                         skipReview();
                         return;
                     }
-                    else if (currentReview.instructions.toLowerCase().includes('duplicate') || flaggedReason.toLowerCase().includes('duplicate')) {
+                    else if (currentReview.instructions?.toLowerCase().includes('duplicate') || flaggedReason.toLowerCase().includes('duplicate')) {
                         toastMessage('AUTO SKIP - ignore dupe closure');
                         skipReview();
                         return;
