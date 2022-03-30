@@ -3,7 +3,7 @@
 // @description  Displays your sent mod messages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -27,7 +27,8 @@
 if (typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator) return;
 
 
-const displayName = $('.my-profile').first().children().attr('title');
+const displayName = $('.s-topbar--item.s-user-card .s-user-card--avatar').attr('title');
+let inboxLink;
 
 
 function getModMessages(pageNum = 1, pagesize = 100) {
@@ -40,6 +41,7 @@ function getModMessages(pageNum = 1, pagesize = 100) {
         success: function (data) {
 
             // Parse messages
+            let html = '';
             const $messages = $('<span></span>').html(data).find('table:first tr');
             $messages.filter((i, el) => $(el).find('.annotime').get(0).childNodes[0].nodeValue.indexOf(displayName) > -1).each(function () {
                 const text = $(this).find('.textcell a:first').text().replace(/^[\w',.:\s]+(https:\/\/[\w.\/-]+)\s+/, '');
@@ -53,8 +55,10 @@ function getModMessages(pageNum = 1, pagesize = 100) {
                 msg.find('.item-location').text('You sent ' + user.text() + ':');
                 msg.find('.item-summary').text(text);
 
-                msg.appendTo($modMessagesList);
+                html += msg[0].outerHTML;
             });
+
+            $modMessagesList.html(html);
         }
     });
 }
@@ -64,14 +68,14 @@ function togglePersonalModHistory() {
     // Add mod history results if not added yet
     if ($('.modInbox-dialog .your-history').length == 0) {
         const $yourHistory = $('.modInbox-dialog').append('<div class="modal-content your-history"><ul></ul></div>');
-        getModMessages(1, 500);
+        getModMessages(1, 1000);
     }
 
     // Toggle display
     $('.modInbox-dialog .modal-content').first().toggleClass('hidden');
 
     // Toggle link text
-    $('#js-personalModInboxLink').text((i, t) => t === 'your messages' ? 'all messages' : 'your messages');
+    inboxLink.text((i, t) => t === 'Your messages' ? 'All messages' : 'Your messages');
 
     // Toggle mod inbox header text
     $('.modInbox-dialog .header h3').first().text((i, t) => t === 'mod messages' ? 'your messages' : 'mod messages');
@@ -95,9 +99,10 @@ function listenToPageUpdates() {
         if (settings.url.indexOf('/topbar/mod-inbox') >= 0) {
 
             // Add link once if mod inbox has loaded
-            if ($('#js-personalModInboxLink').length == 0) {
-                $('.modInbox-dialog .-right:last').prepend('<span><a id="js-personalModInboxLink">your messages</a> | </span>')
-                $('#js-personalModInboxLink').on('click', togglePersonalModHistory);
+            if (!inboxLink) {
+                const modInboxDialog = $('.modInbox-dialog .-right:last').prepend('<span> •</span>');
+                inboxLink = $('<a id="js-personalModInboxLink" href="#">Your messages</a>').prependTo(modInboxDialog);
+                inboxLink.on('click', togglePersonalModHistory);
             }
         }
     });
@@ -118,6 +123,13 @@ styles.innerHTML = `
 }
 .modInbox-dialog .modal-content.hidden + .modal-content {
     display: block;
+}
+.topbar-dialog.modInbox-dialog {
+    max-height: 50vh;
+    width: 500px;
+}
+.topbar-dialog.modInbox-dialog .modal-content {
+    max-height: calc(50vh - 32px);
 }
 `;
 document.body.appendChild(styles);
