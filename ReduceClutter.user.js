@@ -90,7 +90,10 @@ ul.comments-list .comment-up-on {
    Remove Products menu in the top bar
    https://meta.stackoverflow.com/q/386393
 */
-.top-bar .-marketing-link {
+.s-topbar--logo + ol,
+.s-topbar--logo + [role="presentation"],
+.s-topbar ol.s-navigation[role="presentation"],
+.js-top-bar ol.s-navigation[role="presentation"] {
     display: none !important;
 }
 

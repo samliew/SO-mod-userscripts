@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5
+// @version      2.5.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -752,8 +752,8 @@ styles.innerHTML = `
 .s-user-card:hover {
     /*border-color: var(--black-200);*/
 }
-.user-info.js-mod-message-menu:not(.js-mod-quicklinks),
-.s-user-card.js-mod-message-menu:not(.js-mod-quicklinks) {
+.user-info.js-mod-message-menu:not(.js-mod-quicklinks):not(.s-topbar--item),
+.s-user-card.js-mod-message-menu:not(.js-mod-quicklinks):not(.s-topbar--item) {
     padding-bottom: 25px;
 }
 .user-action-time {
