@@ -189,7 +189,7 @@ function initDeleteUserHelper() {
             const uid = Number(settings.url.match(/\/admin\/users\/(\d+)\//)[1]);
 
             getUserPii(uid).then(v => {
-                const userDetails = `\n\nEmail:     ${v.email}\nReal Name: ${v.name}`;
+                const userDetails = `Email:     ${v.email}\nReal Name: ${v.name}`;
                 const deleteReasonDetails = userDetails;
                 $('#deleteReasonDetails, #destroyReasonDetails').val('\n\n' + userDetails);
             });
