@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -142,24 +142,25 @@ ul.comments-list .comment-up-on {
 
 /*
    Better "duplicates edited list" in question revisions page
+   Works with "betterDuplicatesEditedList()" function below
    https://meta.stackoverflow.com/q/400817
 */
-.revision-page .revision-comment.somu-duplicates-edited {
+.js-revisions .js-revision-comment.somu-duplicates-edited {
     display: block;
     padding-top: 5px;
 }
-.revision-page .revision-comment.somu-duplicates-edited ul {
+.js-revisions .js-revision-comment.somu-duplicates-edited ul {
     margin-bottom: 0;
 }
-.revision-page .revision-comment.somu-duplicates-edited li {
+.js-revisions .js-revision-comment.somu-duplicates-edited li {
     padding-top: 0;
 }
-.revision-page .originals-of-duplicate li {
+.js-revisions .originals-of-duplicate li {
     position: relative;
     cursor: initial;
     list-style-type: none;
 }
-.revision-page .originals-of-duplicate li:before {
+.js-revisions .originals-of-duplicate li:before {
     display: block;
     position: absolute;
     top: 0;
@@ -169,16 +170,19 @@ ul.comments-list .comment-up-on {
     content: '•';
     color: var(--black-300);
 }
-.revision-page .revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-added:before {
+.js-revisions .js-revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-added:before {
     content: '+';
     color: var(--green-600);
     left: -18px;
 }
-.revision-page .revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-removed:before {
+.js-revisions .js-revision-comment.somu-duplicates-edited .originals-of-duplicate li.somu-dupe-removed:before {
     content: '–';
     color: var(--red-600);
     top: -2px;
     left: -18px;
+}
+.js-revisions .d-flex.ai-center.fw-wrap {
+    display: block !important;
 }
 
 
@@ -379,7 +383,7 @@ function stripUnnecessaryTracking() {
 
 function betterDuplicatesEditedList() {
 
-    $('#revisions .revcell3 .revision-comment').not('.somu-duplicates-edited').each(function (i, el) {
+    $('.js-revisions .js-revision-comment').not('.somu-duplicates-edited').each(function (i, el) {
 
         // Duplicates list edit revisions
         if (el.innerText.includes('duplicates list edited from')) {
