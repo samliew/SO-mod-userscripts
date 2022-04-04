@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8
+// @version      2.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -50,8 +50,6 @@ const modMenuOnClick = true;
  * addPrefix false:    no pleasantries and userlink
  * addSuffix false:    no suspension auto message
  * addSignature false: no regards and sign off
- *
- * Note: Do not use double-quotes in the templateBody
  */
 const customModMessages = [
     {
@@ -457,7 +455,7 @@ ${sitename} Moderation Team`;
         customModMessages.forEach(function (item, i) {
             const templateNumber = numberOfItems + i;
             const templateBodyText = (item.addPrefix !== false ? messagePrefix : '') + item.templateBody + (item.addSuffix !== false ? messageSuffix : '') + (item.addSignature !== false ? messageSignature : '');
-            const templateBodyProcessed = templateBodyText.replace(/[\u00A0-\u9999<>\&]/gim, function (i) {
+            const templateBodyProcessed = templateBodyText.replace(/["\u00A0-\u9999<>\&]/gim, function (i) {
                 return '&#' + i.charCodeAt(0) + ';';
             }).replace('Regards,', 'Regards,  '); // always needs two spaces after for a line break
             const templateShortText = item.templateBody.length > 400 ? item.templateBody.replace(/(\n|\r)+/g, ' ').substr(0, 397) + '...' : item.templateBody;
