@@ -50,8 +50,6 @@ const modMenuOnClick = true;
  * addPrefix false:    no pleasantries and userlink
  * addSuffix false:    no suspension auto message
  * addSignature false: no regards and sign off
- *
- * Note: Do not use double-quotes in the templateBody
  */
 const customModMessages = [
     {
@@ -120,7 +118,7 @@ The edits you made will be reverted. Some of the edits have other beneficial cha
         suspensionDefaultDays: 30,
         templateBody: `All system and moderator-imposed limits/blocks/bans/suspensions/etc. apply to the user, not just a single account. You are not permitted to create one or more new accounts in order to get around such limitations. If you are hitting a limit on one account, then you should act as if you were hitting that limit on each of your accounts. The additional accounts which have been used to evade such limitations will be removed.
 
-The most common limitations for people to attempt to evade are the system imposed question and answer bans. When you're getting the message 'We are no longer accepting questions/answers from this account', then you should act as if you are getting that message on all of your accounts and not post additional questions or answers (whichever you're hitting), even if you have an alternate account which is not banned. Question and answer bans are not the only restrictions which apply to all of a user's accounts, but it's the most common one which you might be, or might have been, attempting to get around. For more detail about question and answer bans and what you can do to get out of them, please see [What can I do when getting “We are no longer accepting questions/answers from this account”?](https://meta.stackoverflow.com/a/255584#255584)
+The most common limitations for people to attempt to evade are the system imposed question and answer bans. When you're getting the message "We are no longer accepting questions/answers from this account", then you should act as if you are getting that message on all of your accounts and not post additional questions or answers (whichever you're hitting), even if you have an alternate account which is not banned. Question and answer bans are not the only restrictions which apply to all of a user's accounts, but it's the most common one which you might be, or might have been, attempting to get around. For more detail about question and answer bans and what you can do to get out of them, please see [What can I do when getting “We are no longer accepting questions/answers from this account”?](https://meta.stackoverflow.com/a/255584#255584)
 
 Having more than one account is permitted, if the additional account is not used to circumvent such limitations and the accounts do not interact with each other, or otherwise allow you to do things which you would not be permitted to do with a single account. If you are interested in more information about having more than one account, please see [What are the rules governing multiple accounts (i.e. sockpuppets)?](https://meta.stackoverflow.com/q/388984)`,
     },
@@ -455,7 +453,7 @@ ${sitename} Moderation Team`;
         customModMessages.forEach(function (item, i) {
             const templateNumber = numberOfItems + i;
             const templateBodyText = (item.addPrefix !== false ? messagePrefix : '') + item.templateBody + (item.addSuffix !== false ? messageSuffix : '') + (item.addSignature !== false ? messageSignature : '');
-            const templateBodyProcessed = templateBodyText.replace(/[\u00A0-\u9999<>\&]/gim, function (i) {
+            const templateBodyProcessed = templateBodyText.replace(/["\u00A0-\u9999<>\&]/gim, function (i) {
                 return '&#' + i.charCodeAt(0) + ';';
             }).replace('Regards,', 'Regards,  '); // always needs two spaces after for a line break
             const templateShortText = item.templateBody.length > 400 ? item.templateBody.replace(/(\n|\r)+/g, ' ').substr(0, 397) + '...' : item.templateBody;
