@@ -22,6 +22,11 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
+
 function getDeletedMessagesHistory(mid) {
     const msgDiv = $(`#message-${mid}`);
     const contentDiv = msgDiv.find('.content');

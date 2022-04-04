@@ -25,6 +25,12 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
+
+
 const store = window.localStorage;
 const fkey = document.getElementById('fkey') ? document.getElementById('fkey').value : '';
 

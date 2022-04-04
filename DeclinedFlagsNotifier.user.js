@@ -21,6 +21,10 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
 
 // jQuery plugin to support an array of deferreds for jQuery.when
 // With thanks from https://stackoverflow.com/a/16208232

@@ -17,6 +17,10 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
 
 const fkey = StackExchange.options.user.fkey;
 const params = {

@@ -19,6 +19,11 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
+
 function getUserColor(uid, username) {
     if (typeof uid === 'string') uid = Number(uid) || 0;
     const colorCode = (uid * 99999999 % 16777216).toString(16) + '000000'; // 16777216 = 16^6

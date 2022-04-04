@@ -25,6 +25,10 @@
 // Run only when search results has filter for "not locked" posts
 if (!/locked%3a(no|0)/.test(location.search)) return;
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
 
 const fkey = StackExchange.options.user.fkey;
 let noMoreVotes = false;

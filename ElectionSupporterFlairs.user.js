@@ -23,6 +23,11 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
+
 const store = window.localStorage;
 const myUserId = StackExchange.options.user.userId || 0;
 let electionNum, constituentBadgeId;

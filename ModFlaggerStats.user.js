@@ -28,6 +28,11 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
+
 const superusers = [584192];
 const isSuperuser = superusers.includes(StackExchange.options.user.userId);
 

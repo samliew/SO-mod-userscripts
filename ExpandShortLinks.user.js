@@ -17,6 +17,10 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
 
 function expandShortLinks() {
     $('.js-post-body, .comment-copy').find('a').not('.post-tag').not('.shortlink').filter((i, el) => el.innerText.length > 0 && el.innerText.length <= 2 && el.children.length == 0).addClass('shortlink');

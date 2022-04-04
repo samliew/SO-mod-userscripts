@@ -20,6 +20,11 @@
 // Moderator check
 if (typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator) return;
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
+
 const uid = Number(location.pathname.match(/\/(\d+)/)[1]);
 
 

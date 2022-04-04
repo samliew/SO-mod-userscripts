@@ -19,6 +19,11 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
+
 const ipRegex = /(\d{1,3})(\.\d{1,3}){3}(?=(?:\b|"|'))/g;
 const emailRegex = /([^@\s]{1,3})([^@\s]+)@(\S+)\.([a-z]+)(?=(?:\b|"|'))/gi;
 

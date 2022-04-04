@@ -24,6 +24,11 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
+
 function convertChatLinksToTranscript() {
 
     // For each link in comments, where url matches chat + rooms

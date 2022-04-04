@@ -20,6 +20,11 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
+
 const toInt = v => v == null || isNaN(Number(v)) ? null : Number(v);
 const toBool = v => v == null ? null : v === true || v.toLowerCase() === 'true';
 const toSlug = str => (str || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');

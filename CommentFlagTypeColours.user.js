@@ -1,4 +1,4 @@
-// ==UserScript==
+e/ ==UserScript==
 // @name         Comment Flag Type Colours
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
@@ -43,6 +43,11 @@
 /* globals StackExchange, GM_info */
 
 'use strict';
+
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
 
 function doPageLoad() {
 

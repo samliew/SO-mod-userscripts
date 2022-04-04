@@ -23,6 +23,11 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
+
 // Show announcement bar if it does not contain these keywords
 const blacklistedAnnouncementWords = ['podcast', 'listen', 'tune', 'survey', 'research', 'blog'];
 

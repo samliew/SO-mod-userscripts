@@ -22,6 +22,10 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
 
 /* Call hideOneboxes() from other scripts to hide all new oneboxes on any page update
  * Params:

@@ -20,6 +20,11 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
+
 const goToMain = () => location.href = '/admin/dashboard?filtered=false';
 const reloadPage = () => location.search.contains('filtered=false') ? location.reload() : location.search += (location.search.length == 0 ? '' : '&') + 'filtered=false';
 let timeoutSecs = unsafeWindow.modRefreshInterval || 10;

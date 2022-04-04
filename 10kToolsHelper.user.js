@@ -18,6 +18,10 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.$ = unsafeWindow.jQuery;
+}
+
 const currentTab = document.querySelector('.tools-rev .js-filter-btn .youarehere');
 const currentTabName = currentTab.dataset.value;
 
