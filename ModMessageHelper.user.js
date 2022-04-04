@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.5.1
+// @version      2.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -52,6 +52,25 @@ const modMenuOnClick = true;
  * addSignature false: no regards and sign off
  */
 const customModMessages = [
+    {
+        templateName: "soliciting votes",
+        suspensionReason: "for rule violations",
+        suspensionDefaultDays: 0,
+        templateBody: `We noticed that you've been posting numerous comments asking other users for upvotes and/or accepts. This is not an appropriate use of comments.
+
+Quoting from the [comment privilege page](${parentUrl}/help/privileges/comment):
+
+> You should submit a comment if you want to:
+> * Request **clarification** from the author;
+> * Leave **constructive criticism** that guides the author in improving the post;
+> * Add relevant but **minor or transient information** to a post (e.g. a link to a related question, or an alert to the author that the question has been updated).
+
+Please refrain from leaving comments urging users to accept answers in the future. Such comments may be perceived as begging by other users. The system does have built-in contextual help that recommends new users accept an answer to their question at an appropriate time. Having the message come from the software itself, rather than a comment from a specific user, is preferable for several reasons:
+
+First, it reduces the amount of noise on the site, since the message is displayed only on that user's screen, not as content that every future viewer to the Q&A will see. Second, it eliminates the possibility that your comment comes across as pressuring the user into accepting and/or upvoting your post. The reality is, no matter how politely and neutrally you phrase the comment, if you have also posted an answer to the question, the receiving user is extremely likely to interpret that comment as pressuring them to accept your answer.
+
+In the best case, comments like these are merely noise, redundant with system-level notifications; in the worst case, they may be perceived as an attempt to pressure someone to do something that is, after all, completely optional.`,
+    },
     {
         templateName: "minor edits bumping post",
         suspensionReason: "for rule violations",
@@ -752,8 +771,8 @@ styles.innerHTML = `
 .s-user-card:hover {
     /*border-color: var(--black-200);*/
 }
-.user-info.js-mod-message-menu:not(.js-mod-quicklinks):not(.s-topbar--item),
-.s-user-card.js-mod-message-menu:not(.js-mod-quicklinks):not(.s-topbar--item) {
+.user-info.js-mod-message-menu:not(.js-mod-quicklinks),
+.s-user-card.js-mod-message-menu:not(.js-mod-quicklinks) {
     padding-bottom: 25px;
 }
 .user-action-time {
