@@ -3,7 +3,7 @@
 // @description  Display revision count and post age
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/admin/dashboard?flagtype=postvandalismeditsauto*
 // @include      https://*serverfault.com/admin/dashboard?flagtype=postvandalismeditsauto*

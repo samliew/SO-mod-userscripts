@@ -3,7 +3,7 @@
 // @description  When PII is loaded, add links to social media profile
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://*stackoverflow.com/users/account-info/*
 // @include      https://*serverfault.com/users/account-info/*

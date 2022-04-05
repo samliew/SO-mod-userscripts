@@ -3,7 +3,7 @@
 // @description  Adds right sidebar to modify options of installed userscripts from the Stack Overflow Moderation Userscripts repo
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
