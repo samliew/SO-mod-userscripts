@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -109,6 +109,7 @@ styles.innerHTML = `
 .mod-section table.table td,
 .post-container,
 .reviewable-post h1,
+.js-flag-text li,
 .originals-of-duplicate li {
     position: relative;
 }
@@ -165,6 +166,9 @@ styles.innerHTML = `
 }
 .js-admin-dashboard .js-flagged-post .post-id {
     transform: translate(0, -90%);
+}
+.js-admin-dashboard .js-flagged-post .js-flag-text li .post-id {
+    transform: translate(0, 0);
 }
 #question .post-id,
 #answers .post-id,
