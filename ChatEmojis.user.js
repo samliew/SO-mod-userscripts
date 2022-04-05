@@ -30,7 +30,8 @@
 
 'use strict';
 
-(function ($) {
+(function (jQuery) {
+    const $ = jQuery;
 
     jQuery.getCachedScript = function (url, callback) {
         return $.ajax({
@@ -191,4 +192,4 @@
     // On page load
     doPageLoad();
 
-})(jQuery);
+})(jQuery || unsafeWindow.jQuery);

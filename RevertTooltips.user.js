@@ -21,6 +21,11 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
+
 function findAndRevertTooltips() {
     $('.js-voting-container, .js-post-menu').find('[aria-describedby^="--stacks-s-tooltip"]').each(function () {
         const tooltipId = $(this).attr('aria-describedby');

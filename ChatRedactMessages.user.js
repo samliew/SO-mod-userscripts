@@ -16,6 +16,7 @@
 
 const _window = window || unsafeWindow;
 const store = _window.localStorage;
+const $ = _window.jQuery;
 let cachedfkey = store.getItem('fkey');
 let redactText = `[message redacted by moderator]`;
 

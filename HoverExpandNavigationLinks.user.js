@@ -20,6 +20,10 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
 
 function doPageLoad() {
 

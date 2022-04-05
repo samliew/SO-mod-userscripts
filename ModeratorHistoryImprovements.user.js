@@ -12,6 +12,11 @@
 
 'use strict';
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
+
 const hour = 3600000;
 const day = hour * 24;
 const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

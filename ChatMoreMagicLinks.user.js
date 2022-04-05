@@ -8,13 +8,16 @@
 // @include      https://chat.stackoverflow.com/rooms/*
 // ==/UserScript==
 
-/* globals StackExchange, GM_info */
-
 'use strict';
+
+    if (unsafeWindow !== undefined && window !== unsafeWindow) {
+        window.jQuery = unsafeWindow.jQuery;
+        window.$ = unsafeWindow.jQuery;
+    }
+
 
     const mainDomain = 'https://' + location.hostname.replace('chat.', '');
     const _fkey = $('#fkey').val();
-    const _uid = CHAT.CURRENT_USER_ID;
 
 
     function updateMessage(mid, message) {
@@ -98,4 +101,3 @@
 // On page load
 doPageLoad();
 
-})();

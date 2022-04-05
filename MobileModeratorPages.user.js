@@ -25,6 +25,10 @@ const isModPage = () => document.body.classList.contains('mod-page');
 
 if (!isMobile() || !isModPage()) return;
 
+if (unsafeWindow !== undefined && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+}
 
 // Transform page
 $('html').addClass('html__responsive');
