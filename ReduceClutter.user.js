@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.6
+// @version      2.7
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -22,11 +22,6 @@
 /* globals StackExchange, GM_info */
 
 'use strict';
-
-if (unsafeWindow !== undefined && window !== unsafeWindow) {
-    window.jQuery = unsafeWindow.jQuery;
-    window.$ = unsafeWindow.jQuery;
-}
 
 // Show announcement bar if it does not contain these keywords
 const blacklistedAnnouncementWords = ['podcast', 'listen', 'tune', 'survey', 'research', 'blog'];
