@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.1
+// @version      3.0
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -139,34 +139,69 @@ function doPageLoad() {
     // Fix history
     $('#user-history thead td').first().attr('width', '130');
     $('#user-history tbody tr').each(function () {
+        const action = this.children[1];
         const comment = this.children[2];
         const link = $(comment).children('a').last();
         comment.classList.add('history-comment');
 
         // Remove community
-        if (link.length && link.attr('href').includes('-1')) {
+        if (link.length && link.attr('href')?.includes('-1')) {
             comment.classList.add('hide-by');
             link.remove();
         }
 
-        // Formatting
-        const firstText = comment.childNodes[0];
-        if (firstText.nodeType === 3) {
-            const html = firstText.textContent.trim()
-                .replace('Scheduled: old rep = ', 'Scheduled: ').replace('InvalidateVotes old rep = ', 'InvalidateVotes: ').replace(', new rep = ', ' &gt; ')
-                .replace(/\s*by\s*/, '<span class="user-by"> by </span>') + ' ';
-            comment.removeChild(firstText);
-            $(comment).prepend(`<span>${html}</span>`);
+        // Easier to read name changes
+        if (action.innerText === 'edit displayname') {
+            $(comment).html((i, v) => v.replace(/from ([Uu]ser\d+|.+) to (.+)/, '<em>from:</em> <span class="from-name">$1</span><br /><em>to:</em> <span class="to-name">$2</span>'));
         }
 
-        // Count number of newlines
-        const isNewReviewSusp = comment.textContent.includes('{"Duration":');
-        const newlines = comment.textContent.match(/\n/g);
-        if (isNewReviewSusp) {
-            comment.classList.add('new-review-susp');
+        // Linkify user ids
+        else if (/^moderator (merges|deletes|destroys) users?$/.test(action.innerText)) {
+            $(comment).html((i, v) => v.replace(/id = (\d+)/, 'id: <a href="/users/$1" target="_blank">$1</a>'));
         }
-        else if (newlines && newlines.length > 2) {
-            comment.classList.add('pre');
+
+        // Linkify post ids
+        else if (/^moderator (removes bounty|merges questions|deletes flag votes)$/.test(action.innerText)) {
+            $(comment).html((i, v) => v.replace(/from (post|question|answer) id = (\d+)/, '$1: <a href="/q/$2" target="_blank">$2</a>'));
+        }
+
+        // Linkify comment ids
+        else if (/^moderator edits comment$/.test(action.innerText)) {
+            $(comment).html((i, v) => v.replace(/on post id = (\d+), comment id = (\d+)/, 'comment: <a href="/q/$1/#comment$2_$1" target="_blank">$2</a>'));
+        }
+
+        // Linkify bounty post ids
+        else if (/^bounty$/.test(action.innerText)) {
+            $(comment).html((i, v) => v.trim().replace(/(,)?\s*[\n\r]+\s*/g, '$1 ').replace(/ ,/, ',').replace(/on (question|answer) (\d+)/, 'on $1: <a href="/q/$2" target="_blank">$2</a>'));
+        }
+
+        // Linkify tags
+        else if (/^moderator merges tags$/.test(action.innerText)) {
+            $(comment).html((i, v) => v.trim().replace(/(,)?\s*[\n\r]+\s*/g, '$1 ').replace(/\[([\w+.-]+)\]/g, '[<a href="/tags/$1/info" target="_blank">$1</a>]'));
+        }
+
+        // Linkify tags (format change)
+        else if (/^moderator updates tag language format$/.test(action.innerText)) {
+            $(comment).html((i, v) => v.trim().replace(/(,)?\s*[\n\r]+\s*/g, '$1 ').replace(/tag([\w+.-]+),/, 'tag [<a href="/tags/$1/info" target="_blank">$1</a>] : '));
+        }
+
+        // Image preview for avatar changes
+        else if (/profile image/.test(action.innerText)) {
+            const src = $(comment).find('a').attr('href');
+            $(comment).html(`<a href="${src}" class="s-avatar s-avatar__32" target="_blank"><img src="${src}" class="s-avatar--image" /></a>`);
+        }
+
+        // Recalc rep
+        else if(/^moderator recalcs rep$/.test(action.innerText)) {
+            const $comment = $(comment).html((i, v) => v.trim().replace(/(,)?\s*[\n\r]+\s*/g, '$1 ').replace(/Scheduled: /, '')
+                .replace(/old rep = (\d+), new rep = (\d+) by/, '<span class="from-rep">$1</span> » <span class="to-rep">$2</span> <span class="rep-change"></span> <span class="user-by"> by </span>'));
+
+            // Calculate change
+            const from = Number($comment.children('.from-rep').text());
+            const to = Number($comment.children('.to-rep').text());
+            const change = to - from;
+
+            if(change !== 0) $comment.children('.rep-change').text('(' + (change >= 0 ? `+${change}` : change) + ')');
         }
     });
 }
@@ -205,6 +240,7 @@ styles.innerHTML = `
 }
 #annotations th,
 #annotations td {
+    padding: 3px;
     text-overflow: ellipsis;
     overflow: hidden;
     vertical-align: top;
