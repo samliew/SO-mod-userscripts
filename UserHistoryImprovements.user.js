@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.3.1
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -80,7 +80,7 @@ function doPageLoad() {
     $('tbody tr', table).each(function () {
 
         // Shorten type
-        const type = $('tr', table).children('td:first-child').text((i, v) => v.trim().slice(0, 4)).text();
+        const type = $(this).children('td').first().text((i, v) => v.trim().slice(0, 4)).text();
 
         // Shorten timestamps, pad single digits
         $(this).find('.relativetime').text((i, v) => v.replace(/ at .+$/, '').replace(/ (\d),/, ' 0$1,'));
