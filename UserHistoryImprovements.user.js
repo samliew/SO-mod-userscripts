@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.1
 //
 // @include      https://*stackoverflow.com/users/history/*
 // @include      https://*serverfault.com/users/history/*
@@ -89,8 +89,8 @@ function doPageLoad() {
         const td = $(this).children('td').eq(3);
 
         // Special class for message/suspension rows
-        const msgLink = $(this).children().eq(3).find('a');
-        const aHasLink = $(this).children().eq(3).find('a').length === 1;
+        const msgLink = td.find('a');
+        const aHasLink = msgLink.length === 1;
         if (/^\s?(susp|mess)/i.test(type) && aHasLink) {
             $(this).addClass('user-message');
 
@@ -107,7 +107,7 @@ function doPageLoad() {
                 const numModMessages = modMessages.length;
                 const numReadModMessages = readModMessages.length;
 
-                console.log(messages, numModMessages, numReadModMessages);
+                //console.log(messages, numModMessages, numReadModMessages);
 
                 const color = numModMessages !== numReadModMessages ? 'fc-red-600' : '';
                 status.text(`${numReadModMessages}/${numModMessages}`);
@@ -130,8 +130,60 @@ function doPageLoad() {
         td.html(str);
     });
 
-    // Links in annotations open in new window
-    $('#annotations a').attr('target', '_blank');
+    // Prettify CM message table
+    const cMessages = $('#cm-messages table').addClass('s-table');
+
+    // Read indicator
+    cMessages.find('thead th').last().text('Status');
+    cMessages.find('thead tr').append('<th>Last Responder</th><th>Last Activity</th>');
+
+    // Message
+    $('tbody tr', cMessages).each(function () {
+
+        // Timestamps, pad single digits
+        $(this).find('.relativetime').text((i, v) => v.replace(/ (\d),/, ' 0$1,'));
+
+        // Get reason
+        const td = $(this).children('td').eq(2);
+
+        // Each row
+        const msgLink = td.find('a');
+        const aHasLink = msgLink.length === 1;
+
+        // Add status cell
+        const statusCell = $('<td></td>').appendTo(this);
+        const status = $('<span class="num-msgs"></span>').appendTo(statusCell);
+
+        // Add response cell
+        const responseUserCell = $('<td></td>').appendTo(this);
+        const responseDateCell = $('<td></td>').appendTo(this);
+
+        // Get message and update status
+        const url = msgLink.attr('href');
+        $.get(url).done(function(page) {
+            const messages = $('#mainbar .msg', page);
+            const modMessages = messages.filter('.msg-moderator', page);
+            const cmMessages = messages.filter('.msg-user', page);
+
+            const numModMessages = modMessages.length;
+            const numCmMessages = cmMessages.length;
+
+            //console.log(messages, numModMessages, numCmMessages);
+
+            const color = numCmMessages === 0 ? 'fc-red-600' : '';
+            status.text(`mod ${numModMessages} / cm ${numCmMessages}`);
+            status.addClass(color);
+
+            const lastResponse = messages.last();
+            const lastResponseUser = lastResponse.find('.user-details').first().clone(true, true);
+            const lastResponseTime = lastResponse.find('.relativetime').clone(true, true).text((i, v) => v.replace(/ (\d),/, ' 0$1,'));
+            responseUserCell.append(lastResponseUser);
+            responseDateCell.append(lastResponseTime);
+        });
+    });
+
+    // Links in annotations and CM messages tables open in new window
+    $('a', '#annotations, #cm-messages').attr('target', '_blank');
 
     // Move history filters to sidebar
     moveHistoryFilters();
@@ -185,10 +237,11 @@ function doPageLoad() {
             $(comment).html((i, v) => v.trim().replace(/(,)?\s*[\n\r]+\s*/g, '$1 ').replace(/tag([\w+.-]+),/, 'tag [<a href="/tags/$1/info" target="_blank">$1</a>] : '));
         }
 
-        // Image preview for avatar changes
+        // Image preview for avatar changes, make compatible with LightboxImages
         else if (/profile image/.test(action.innerText)) {
-            const src = $(comment).find('a').attr('href');
-            $(comment).html(`<a href="${src}" class="s-avatar s-avatar__32" target="_blank"><img src="${src}" class="s-avatar--image" /></a>`);
+            const origSrc = $(comment).find('a').attr('href');
+            const src = origSrc.includes('imgur.com') ? origSrc.replace(/\?.+$/, '') : origSrc.replace(/s=\d+/, 's=512');
+            $(comment).html(`<a href="${src}" class="s-avatar s-avatar__32 image-lightbox" target="_blank"><img src="${src}" class="s-avatar--image" /></a>`);
         }
 
         // Recalc rep
@@ -234,21 +287,28 @@ styles.innerHTML = `
 #annotations span.mod-flair {
     display: none;
 }
-#annotations th {
-    font-weight: bold;
+#cm-messages table {
+
+}
+#annotations th,
+#cm-messages th {
     font-size: 1em;
 }
 #annotations th,
-#annotations td {
+#annotations td,
+#cm-messages th,
+#cm-messages td {
     padding: 3px;
     text-overflow: ellipsis;
     overflow: hidden;
     vertical-align: top;
 }
-#annotations td {
+#annotations td,
+#cm-messages td {
     font-size: 0.9em;
 }
-#annotations td:nth-child(-n + 3) {
+#annotations td:nth-child(-n + 3),
+#cm-messages td {
     white-space: nowrap;
 }
 #annotations td:nth-child(1) {
@@ -264,11 +324,16 @@ styles.innerHTML = `
 #annotations td:nth-child(4) {
     width: 100%;
 }
+#cm-messages td:nth-child(3) {
+    width: 200px;
+}
 #annotations td:nth-child(5) {
     min-width: 200px;
     max-width: 200px;
 }
-#annotations td:nth-child(6) {
+#annotations td:nth-child(6),
+#cm-messages td:nth-child(4) {
+    min-width: 40px;
     text-align: center;
 }
 .s-table tbody tr:nth-child(even),
