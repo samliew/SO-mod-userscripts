@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.2.2
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -134,17 +134,17 @@ const doPageLoad = async function() {
             if(!isNaN(favorite_count)) {
                 statsHtml += `
 <div class="s-post-summary--stats-item ${favorite_count >= 1000 ? 'is-supernova' : ''}" title="${favorite_count} favorited this question">
-  <span class="s-post-summary--stats-item-number mr4">${favorite_count}</span><span class="s-post-summary--stats-item-unit">favorited</span>
+  <span class="s-post-summary--stats-item-number">${favorite_count}</span><span class="s-post-summary--stats-item-unit">favorited</span>
 </div>`;
             }
 
             statsHtml += `
 <div class="s-post-summary--stats-item ${comment_count >= 10 ? 'is-supernova' : ''}">
-  <span class="s-post-summary--stats-item-number mr4">${comment_count}</span><span class="s-post-summary--stats-item-unit">comments</span>
+  <span class="s-post-summary--stats-item-number">${comment_count}</span><span class="s-post-summary--stats-item-unit">comments</span>
   <div class="somu-comments-preview ${comment_count ? '' : 'd-none'}"><ol class="mb0"><li>${commentsHtml}</li></ol></div>
 </div>
 <div class="s-post-summary--stats-item ${postLength < 200 || postLength >= 10000 ? 'is-supernova' : ''}" title="length of post text">
-  <span class="s-post-summary--stats-item-number mr4">${postLength}</span><span class="s-post-summary--stats-item-unit">chars</span>
+  <span class="s-post-summary--stats-item-number">${postLength}</span><span class="s-post-summary--stats-item-unit">chars</span>
 </div>`;
 
             // Append to post stats
