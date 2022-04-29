@@ -3,7 +3,8 @@
 // @description  Adds right sidebar to modify options of installed userscripts from the Stack Overflow Moderation Userscripts repo
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.3.1
+// @grant        unsafeWindow
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -31,7 +32,7 @@ const toSlug = str => (str || '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
 
 
 // Any way to avoid using a global variable?
-var SOMU = unsafeWindow.SOMU || /** @type {SOMU} */ ({
+unsafeWindow.SOMU = unsafeWindow.SOMU || /** @type {SOMU} */ ({
 
     keyPrefix: 'SOMU:',
     hasInit: false,
@@ -322,6 +323,3 @@ var SOMU = unsafeWindow.SOMU || /** @type {SOMU} */ ({
 });
 
 SOMU.init();
-
-// For testing purposes
-// SOMU.addOption('Test Script', 'Testing Option', 'default value');
