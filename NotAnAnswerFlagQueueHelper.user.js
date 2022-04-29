@@ -477,7 +477,7 @@ function listenToPageUpdates() {
 
         // Flagger stats loaded, allow sorting by
         if (settings.url.includes('/users/flag-summary/')) {
-            $('#flag-queue-tabs #flagger-rank').removeClass('dno').click();
+            $('#flag-queue-tabs #flagger-rank').removeClass('dno');
         }
     });
 }
