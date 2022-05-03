@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9
+// @version      2.10
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -52,6 +52,18 @@ const modMenuOnClick = true;
  * addSignature false: no regards and sign off
  */
 const customModMessages = [
+    {
+        templateName: "closing spam",
+        suspensionReason: "for rule violations",
+        suspensionDefaultDays: 0,
+        templateBody: `As you may have noticed, Stack Overflow is currently under a spam wave, receiving a lot of "support number" spam posts.
+
+While we appreciate your willingness to help us out with these as you see them, we noticed that you recently voted to close one or more of these questions. That is not very useful. **Instead of voting to close spam, you should flag it as spam.** You'll find that option at the very top of the "flag" dialog.
+
+Flagging as spam is much more expedient than voting to close, and actually allows spam to be nuked from the site without moderator intervention even being required.
+
+Thank you for your attention to this matter in the future. If you have any questions, please let us know!`
+    },
     {
         templateName: "soliciting votes",
         suspensionReason: "for rule violations",
