@@ -1,4 +1,4 @@
-e/ ==UserScript==
+// ==UserScript==
 // @name         Comment Flag Type Colours
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
