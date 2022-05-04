@@ -1,4 +1,4 @@
-e/ ==UserScript==
+// ==UserScript==
 // @name         Comment Flag Type Colours
 // @description  Background colours for each comment flag type
 // @homepage     https://github.com/samliew/SO-mod-userscripts
@@ -44,7 +44,7 @@ e/ ==UserScript==
 
 'use strict';
 
-if (unsafeWindow !== undefined && window !== unsafeWindow) {
+if (typeof unsafeWindow !== 'undefined' && window !== unsafeWindow) {
     window.jQuery = unsafeWindow.jQuery;
     window.$ = unsafeWindow.jQuery;
 }

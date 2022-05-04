@@ -20,9 +20,11 @@
 
 'use strict';
 
-if (unsafeWindow !== undefined && window !== unsafeWindow) {
+if (typeof unsafeWindow !== 'undefined' && window !== unsafeWindow) {
     window.jQuery = unsafeWindow.jQuery;
     window.$ = unsafeWindow.jQuery;
+} else {
+    unsafeWindow = window;
 }
 
 const goToMain = () => location.href = '/admin/dashboard?filtered=false';

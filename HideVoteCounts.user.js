@@ -28,7 +28,7 @@
 // If rep is too low, do nothing. Rep for guests is 0, so this covers not logged-in users.
 if (StackExchange.options.user.rep < 125) return;
 
-if (unsafeWindow !== undefined && window !== unsafeWindow) {
+if (typeof unsafeWindow !== 'undefined' && window !== unsafeWindow) {
     window.jQuery = unsafeWindow.jQuery;
     window.$ = unsafeWindow.jQuery;
 }

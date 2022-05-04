@@ -18,7 +18,7 @@
 
 'use strict';
 
-if (unsafeWindow !== undefined && window !== unsafeWindow) {
+if (typeof unsafeWindow !== 'undefined' && window !== unsafeWindow) {
     window.$ = unsafeWindow.jQuery;
 }
 
