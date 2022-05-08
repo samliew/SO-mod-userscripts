@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10
+// @version      2.11
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -656,7 +656,11 @@ ${sitename} moderator`;
 function appendModMessageMenu() {
 
     // Append link to post sidebar if it doesn't exist yet
-    $('.user-info, .s-user-card').not('.js-mod-message-menu').addClass('js-mod-message-menu').each(function () {
+    $('.user-info, .s-user-card')
+        .filter(function() {
+            // Do not add links to users in sidebar
+            return $(this).closest('#sidebar').length === 0;
+        }).not('.js-mod-message-menu').addClass('js-mod-message-menu').each(function () {
 
         let uid = 0;
         try {
