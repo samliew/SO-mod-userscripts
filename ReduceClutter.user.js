@@ -450,7 +450,7 @@ function initShortUsernames() {
             .filter((i, el) => el.children.length === 0)
             .addClass('js-shortusernames').text((i, v) => {
                 return v.trim()
-                    .replace(/[\s-_]+(-|_|says|wants|likes|loves|supports|has|is|is.at|stands|reinstate)[\s-_]*.+$/i, '');
+                    .replace(/[\s-_]+(-|_|says|wants|likes|loves|supports|has|is|stands|reinstate)[\s-_].+$/i, '');
             });
     }
 
