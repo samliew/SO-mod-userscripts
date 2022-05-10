@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      8.1
+// @version      8.2
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -11,7 +11,8 @@
 // @include      */review/helper*
 // @include      */review/low-quality-posts*
 // @include      */review/triage*
-// @include      */review/first-posts*
+// @include      */review/first-questions*
+// @include      */review/first-answers*
 // @include      */review/late-answers*
 //
 // @include      */users/account-info/*
@@ -194,7 +195,8 @@ function initFailedAuditsByUserPage() {
 
     const queues = [
         ['Close Review', 'close'],
-        ['First Posts', 'first-posts'],
+        ['First Questions', 'first-questions'],
+        ['First Answers', 'first-answers'],
         ['Late Answers', 'late-answers'],
         ['Low Quality Posts', 'low-quality-posts'],
         ['Reopen Votes', 'reopen'],
@@ -245,7 +247,7 @@ function initFailedAuditsByUserPage() {
         cont.append(`<h3 class="s-subheader mt32 py8 bb bc-black-5"><a href="https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=true" target="_blank">${q[0]}</a></h3>`);
 
         let numPages = 3;
-        if (q[1] === 'first-posts') numPages = 6;
+        if (q[1] === 'first-questions') numPages = 5; // add more pages for first questions and first answers queues
 
         for (let i = 1; i <= numPages; i++) {
             $(`<div id="${q[1]}-review-${i}"><i>loading...</i></div>`).appendTo(cont).load(`https://${location.hostname}/admin/review/audits?queue=${q[1]}&daterange=${dateRange}&failuresOnly=true&page=${i} #content .s-table`, function () {
