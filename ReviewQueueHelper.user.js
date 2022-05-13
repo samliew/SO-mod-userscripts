@@ -5,12 +5,12 @@
 // @author       @samliew
 // @version      4.6
 //
-// @include      https://*stackoverflow.com/review*
-// @include      https://*serverfault.com/review*
-// @include      https://*superuser.com/review*
-// @include      https://*askubuntu.com/review*
-// @include      https://*mathoverflow.net/review*
-// @include      https://*.stackexchange.com/review*
+// @include      https://*stackoverflow.com/review/*
+// @include      https://*serverfault.com/review/*
+// @include      https://*superuser.com/review/*
+// @include      https://*askubuntu.com/review/*
+// @include      https://*mathoverflow.net/review/*
+// @include      https://*.stackexchange.com/review/*
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
