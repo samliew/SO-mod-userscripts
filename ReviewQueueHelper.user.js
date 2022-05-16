@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.7
+// @version      4.8
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -1209,10 +1209,14 @@ function listenToPageUpdates() {
 
                 // For suggested edits
                 if (queueType === 'suggested-edits') {
-
-                    // Add post timeline link to post
-                    reviewablePost.find('.votecell').addClass('grid fd-column ai-stretch gs4')
-                        .append(`<a class="js-post-issue flex--item s-btn s-btn__unset c-pointer py8 mx-auto mt16 fc-black-200" href="/posts/${pid}/timeline" data-shortcut="T" title="Timeline"><svg aria-hidden="true" class="mln2 mr0 svg-icon iconHistory" width="19" height="18" viewBox="0 0 19 18"><path d="M3 9a8 8 0 113.73 6.77L8.2 14.3A6 6 0 105 9l3.01-.01-4 4-4-4h3L3 9zm7-4h1.01L11 9.36l3.22 2.1-.6.93L10 10V5z"></path></svg></a>`);
+                    // unless timeline link is already present
+                    if(!document.querySelector("a[data-ks-title=timeline]")) {
+                        // Add post timeline link to post
+                        reviewablePost
+                            .find('.votecell')
+                            .addClass('grid fd-column ai-stretch gs4')
+                            .append(`<a class="js-post-issue flex--item s-btn s-btn__unset c-pointer py8 mx-auto mt16 fc-black-200" href="/posts/${pid}/timeline" data-shortcut="T" title="Timeline"><svg aria-hidden="true" class="mln2 mr0 svg-icon iconHistory" width="19" height="18" viewBox="0 0 19 18"><path d="M3 9a8 8 0 113.73 6.77L8.2 14.3A6 6 0 105 9l3.01-.01-4 4-4-4h3L3 9zm7-4h1.01L11 9.36l3.22 2.1-.6.93L10 10V5z"></path></svg></a>`);
+                    }
                 }
 
 
