@@ -1,6 +1,6 @@
 **Type of change**
-- [X] Bugfix (change which fixes an issue)
-- [ ] New Feature (change which adds functionality)
+- [X] Bugfix
+- [ ] New feature
 
 **Pre-review checklist**
 - [ ] I have commented my code
@@ -8,7 +8,7 @@
 
 **Brief description of the change:**
 
-
+- 
 
 **Is this feature/update deployment associated with any issues?**
 
