@@ -137,12 +137,12 @@ function doPageLoad() {
             if (isNaN(count) || count <= 0) return;
 
             // Add deleted posts to the stats element
-            const results = $('.search-results .search-result, .js-search-results .search-result', data);
+            const results = $('.search-results .search-result, .js-search-results .s-card', data);
             stats.find('.meta-mentions').append(results);
 
             // Add copyable element to the results
             const hyperlinks = results.find('a').attr('href', (i, v) => 'https://' + mainDomain + v).attr('target', '_blank');
-            const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1 + i}](${toShortLink(el.href)})`).get();
+            const hyperlinks2 = hyperlinks.filter('.s-link[data-searchsession^="/"],.answer-hyperlink').map((i, el) => `[${1 + i}](${toShortLink(el.href)})`).get();
             const comment = `Deleted ${type}${hyperlinks2.length == 1 ? '' : 's'}, score <= 0, contributing to the [${type} ban](https://${location.hostname}/help/${type}-bans): ${hyperlinks2.join(' ')}`;
             const commentArea = $(`<textarea readonly="readonly"></textarea>`).val(comment).appendTo(stats);
 
