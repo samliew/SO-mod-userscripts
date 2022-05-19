@@ -29,6 +29,14 @@
 // @exclude      *chat.*
 // @exclude      https://stackoverflow.com/c/*
 // @exclude      https://stackoverflow.blog*
+//
+// @exclude      https://*stackoverflow.com/review/*/stats
+// @exclude      https://*serverfault.com/review/*/stats
+// @exclude      https://*superuser.com/review/*/stats
+// @exclude      https://*askubuntu.com/review/*/stats
+// @exclude      https://*mathoverflow.net/review/*/stats
+// @exclude      https://*.stackexchange.com/review/*/stats
+//
 // ==/UserScript==
 
 /* globals StackExchange */
