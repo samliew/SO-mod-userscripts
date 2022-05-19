@@ -92,6 +92,28 @@ function getCloseVotesQuota(viewablePostId = 1) {
             .fail(reject);
     });
 }
+
+/**
+ * @summary requests and parses a list of post ids from /questions page
+ * @returns {Promise<number[]>}
+ */
+const getFirstQuestionPagePostIds = async () => {
+    /** @type {number[]} */
+    const ids = [];
+
+    const res = await fetch(`https://${location.hostname}/questions`);
+    if (!res.ok) return ids;
+
+    const html = await res.text();
+
+    $(html).find(".js-post-summary").each((_, el) => {
+        const { postId } = el.dataset;
+        if (postId) ids.push(+postId);
+    });
+
+    return ids;
+};
+
 function getFlagsQuota(viewablePostId = 1) {
     return new Promise(function (resolve, reject) {
         $.get(`https://${location.hostname}/flags/posts/${viewablePostId}/popup`)
@@ -103,7 +125,7 @@ function getFlagsQuota(viewablePostId = 1) {
             .fail(reject);
     });
 }
-function displayRemainingQuota() {
+async function displayRemainingQuota() {
 
     // Ignore mods, since we have unlimited power
     if (StackExchange.options.user.isModerator) {
@@ -111,7 +133,7 @@ function displayRemainingQuota() {
         remainingPostFlags = 0;
     }
 
-    const viewableQuestionId = post.postId || 11227809; // an open question on SO
+   const [viewableQuestionId] = await getFirstQuestionPagePostIds();
 
     // Oops, we don't have values yet, callback when done fetching
     if (remainingCloseVotes == null || remainingPostFlags == null) {
@@ -811,7 +833,7 @@ function doPageLoad() {
                 $('.history-table tbody tr').show();
 
                 // Update active tab highlight class
-                $(this).removeClass('youarehere')
+                $(this).removeClass('youarehere');
             }
             else {
 
@@ -920,7 +942,7 @@ function listenToPageUpdates() {
                         content: $('#question .js-post-body').text(),
                         answers: $('#answers .answer').length,
                         votes: Number($('#question .js-vote-count').text()),
-                    }
+                    };
                 }
 
                 if (queueType != null) repositionReviewDialogs(true);
@@ -954,7 +976,7 @@ function listenToPageUpdates() {
                     // Select general flagged close reason
                     if (["needs more focus", "needs details or clarity", "opinion-based"].includes(flaggedReason)) {
                         const labels = popup.find('.js-action-name');
-                        const selectedLabel = labels.filter((i, el) => el.textContent.toLowerCase() == flaggedReason)
+                        const selectedLabel = labels.filter((i, el) => el.textContent.toLowerCase() == flaggedReason);
                         const selectedRadio = selectedLabel.closest('li').find('input:radio').click();
 
                         toastMessage('DETECTED - ' + flaggedReason);
@@ -1218,7 +1240,7 @@ function listenToPageUpdates() {
                 // For suggested edits
                 if (queueType === 'suggested-edits') {
                     // unless timeline link is already present
-                    if(!document.querySelector("a[data-ks-title=timeline]")) {
+                    if (!document.querySelector("a[data-ks-title=timeline]")) {
                         // Add post timeline link to post
                         reviewablePost
                             .find('.votecell')
@@ -1268,7 +1290,7 @@ function listenToPageUpdates() {
                     }
 
                     // if following feature is missing, add our own
-                    if(!document.getElementById(`btnFollowPost-${pid}`)) {
+                    if (!document.getElementById(`btnFollowPost-${pid}`)) {
                         postmenu.prepend(`<button data-pid="${pid}" data-post-type="${isQuestion ? 'question' : 'answer'}" class="js-somu-follow-post s-btn s-btn__link fc-black-400 h:fc-black-700 pb2" role="button">follow</button>`);
                     }
 
@@ -1290,7 +1312,7 @@ function listenToPageUpdates() {
 
                 // Remove mod menu button since we already inserted it in the usual post menu, freeing up more space
                 const menuSections = $('.js-review-actions fieldset > div:last-child .flex--item');
-                if(menuSections.length > 1) menuSections.last().remove();
+                if (menuSections.length > 1) menuSections.last().remove();
 
                 // Remove "Delete" option for suggested-edits queue, if not already reviewed (no Next button)
                 if (queueType == 'suggested-edits' && !$('.review-status').text().includes('This item is no longer reviewable.')) {
