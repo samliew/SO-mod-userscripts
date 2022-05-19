@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.8
+// @version      4.9
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -1259,8 +1259,10 @@ function listenToPageUpdates() {
                         }
                     }
 
-                    // follow
-                    postmenu.prepend(`<button data-pid="${pid}" data-post-type="${isQuestion ? 'question' : 'answer'}" class="js-somu-follow-post s-btn s-btn__link fc-black-400 h:fc-black-700 pb2" role="button">follow</button>`);
+                    // if following feature is missing, add our own
+                    if(!document.getElementById(`btnFollowPost-${pid}`)) {
+                        postmenu.prepend(`<button data-pid="${pid}" data-post-type="${isQuestion ? 'question' : 'answer'}" class="js-somu-follow-post s-btn s-btn__link fc-black-400 h:fc-black-700 pb2" role="button">follow</button>`);
+                    }
 
                     // edit
                     if (queueType !== 'suggested-edits') {
