@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.10
+// @version      4.11
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -242,26 +242,41 @@ function loadOptions() {
 
 
 let toastTimeout, defaultDuration = 2;
-function toastMessage(msg, duration = defaultDuration) {
+
+/**
+ * @summary displays a toast message
+ * @param {string} msg message text
+ * @param {number} [durationSeconds] for how long to show it (seconds)
+ * @returns {void}
+ */
+const toastMessage = (msg, durationSeconds = defaultDuration) => {
+    const toast = document.getElementById("toasty");
+    if(!toast) {
+        const newToast = document.createElement("div");
+        newToast.id = "toasty";
+        newToast.textContent = msg;
+        document.body.append(newToast);
+        return toastMessage(msg, durationSeconds);
+    }
+
     // Validation
-    duration = Number(duration);
+    durationSeconds = Number(durationSeconds);
     if (typeof (msg) !== 'string') return;
-    if (isNaN(duration)) duration = defaultDuration;
+    if (isNaN(durationSeconds)) durationSeconds = defaultDuration;
 
     // Clear existing timeout
     if (toastTimeout) clearTimeout(toastTimeout);
 
-    // Reuse or create new
-    let div = $('#toasty').html(msg).show();
-    if (div.length == 0) div = $(`<div id="toasty">${msg}</div>`).appendTo(document.body);
+    // update toast message
+    toast.textContent = msg;
+
+    $(toast).show();
 
     // Log in browser console as well
-    console.log(msg);
+    console.debug(`[${scriptName}] ${msg}`);
 
     // Hide div
-    toastTimeout = setTimeout(function (div) {
-        div.hide();
-    }, duration * 1000, div);
+    toastTimeout = setTimeout(() => $(toast).hide(), durationSeconds * 1000);
 }
 
 
@@ -543,7 +558,7 @@ function processReopenReview() {
     }
     // Question has some edits with no bad images, ignore
     else if ((subs > 200 || adds > 200) && badImageLinks === 0) {
-        toastMessage('skipping minor edits', 3000);
+        toastMessage('skipping minor edits', 3);
         setTimeout(skipReview, 4000);
         return;
     }
@@ -1397,7 +1412,7 @@ function listenToPageUpdates() {
                         skipReview();
                     }
                     else {
-                        toastMessage('this is a review audit', 10000);
+                        toastMessage('this is a review audit', 5);
                     }
 
                     return;
