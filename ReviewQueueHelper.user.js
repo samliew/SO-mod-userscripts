@@ -125,6 +125,30 @@ function getFlagsQuota(viewablePostId = 1) {
             .fail(reject);
     });
 }
+
+/**
+ * @summary builds a post summary stats item
+ * @param {...(string | Node)} content
+ * @returns {HTMLElement}
+ */
+const makePostSummaryItem = (...content) => {
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("s-post-summary--stats-item");
+    wrapper.append(...content);
+    return wrapper;
+};
+
+/**
+ * @param {string} text
+ * @param {...string} classes
+ */
+const makeIndicator = (text, ...classes) => {
+    const wrapper = document.createElement("span");
+    wrapper.classList.add("bounty-indicator-tab", ...classes);
+    wrapper.textContent = text;
+    return wrapper;
+};
+
 async function displayRemainingQuota() {
 
     // Ignore mods, since we have unlimited power
@@ -150,15 +174,17 @@ async function displayRemainingQuota() {
     // Clear old values
     $('.remaining-quota').remove();
 
-    // Display number of CVs and flags remaining
-    const quota = $(`<table class="remaining-quota"><tr><td colspan="2">
-                  <span class="remaining-votes"><span class="bounty-indicator-tab">${remainingCloseVotes}</span> <span>close votes left</span></span>
-                </td></tr>
-                <tr><td colspan="2">
-                  <span class="flag-remaining-inform" style="padding-right:20px"><span class="bounty-indicator-tab supernovabg">${remainingPostFlags}</span> flags left</span>
-                </td></tr></table>`);
+    const postStats = document.querySelector(".s-post-summary--stats");
+    if(!postStats) {
+        console.debug(`[${scriptName}] missing post stats`);
+        return;
+    }
 
-    $('.reviewable-post-stats > table').after(quota);
+    // Display number of CVs and flags remaining
+    postStats.append(
+        makePostSummaryItem(makeIndicator(remainingCloseVotes), " close votes left"),
+        makePostSummaryItem(makeIndicator(remainingPostFlags, "supernovabg"), " flags left")
+    );
 }
 
 
@@ -859,9 +885,6 @@ function doPageLoad() {
 
     // Add additional class to body based on review queue
     document.body.classList.add(queueType + '-review-queue');
-
-    // Display remaining CV and flag quota for non-mods
-    setTimeout(displayRemainingQuota, 3000);
 
     // Detect queue type and set appropriate process function
     switch (queueType) {
