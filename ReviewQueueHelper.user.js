@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.9
+// @version      4.12
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -29,6 +29,14 @@
 // @exclude      *chat.*
 // @exclude      https://stackoverflow.com/c/*
 // @exclude      https://stackoverflow.blog*
+//
+// @exclude      https://*stackoverflow.com/review/*/stats
+// @exclude      https://*serverfault.com/review/*/stats
+// @exclude      https://*superuser.com/review/*/stats
+// @exclude      https://*askubuntu.com/review/*/stats
+// @exclude      https://*mathoverflow.net/review/*/stats
+// @exclude      https://*.stackexchange.com/review/*/stats
+//
 // ==/UserScript==
 
 /* globals StackExchange */
@@ -84,6 +92,28 @@ function getCloseVotesQuota(viewablePostId = 1) {
             .fail(reject);
     });
 }
+
+/**
+ * @summary requests and parses a list of post ids from /questions page
+ * @returns {Promise<number[]>}
+ */
+const getFirstQuestionPagePostIds = async () => {
+    /** @type {number[]} */
+    const ids = [];
+
+    const res = await fetch(`https://${location.hostname}/questions`);
+    if (!res.ok) return ids;
+
+    const html = await res.text();
+
+    $(html).find(".js-post-summary").each((_, el) => {
+        const { postId } = el.dataset;
+        if (postId) ids.push(+postId);
+    });
+
+    return ids;
+};
+
 function getFlagsQuota(viewablePostId = 1) {
     return new Promise(function (resolve, reject) {
         $.get(`https://${location.hostname}/flags/posts/${viewablePostId}/popup`)
@@ -95,7 +125,31 @@ function getFlagsQuota(viewablePostId = 1) {
             .fail(reject);
     });
 }
-function displayRemainingQuota() {
+
+/**
+ * @summary builds a post summary stats item
+ * @param {...(string | Node)} content
+ * @returns {HTMLElement}
+ */
+const makePostSummaryItem = (...content) => {
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("s-post-summary--stats-item");
+    wrapper.append(...content);
+    return wrapper;
+};
+
+/**
+ * @param {string} text
+ * @param {...string} classes
+ */
+const makeIndicator = (text, ...classes) => {
+    const wrapper = document.createElement("span");
+    wrapper.classList.add("bounty-indicator-tab", ...classes);
+    wrapper.textContent = text;
+    return wrapper;
+};
+
+async function displayRemainingQuota() {
 
     // Ignore mods, since we have unlimited power
     if (StackExchange.options.user.isModerator) {
@@ -103,7 +157,7 @@ function displayRemainingQuota() {
         remainingPostFlags = 0;
     }
 
-    const viewableQuestionId = post.postId || 11227809; // an open question on SO
+   const [viewableQuestionId] = await getFirstQuestionPagePostIds();
 
     // Oops, we don't have values yet, callback when done fetching
     if (remainingCloseVotes == null || remainingPostFlags == null) {
@@ -120,15 +174,17 @@ function displayRemainingQuota() {
     // Clear old values
     $('.remaining-quota').remove();
 
-    // Display number of CVs and flags remaining
-    const quota = $(`<table class="remaining-quota"><tr><td colspan="2">
-                  <span class="remaining-votes"><span class="bounty-indicator-tab">${remainingCloseVotes}</span> <span>close votes left</span></span>
-                </td></tr>
-                <tr><td colspan="2">
-                  <span class="flag-remaining-inform" style="padding-right:20px"><span class="bounty-indicator-tab supernovabg">${remainingPostFlags}</span> flags left</span>
-                </td></tr></table>`);
+    const postStats = document.querySelector(".s-post-summary--stats");
+    if(!postStats) {
+        console.debug(`[${scriptName}] missing post stats`);
+        return;
+    }
 
-    $('.reviewable-post-stats > table').after(quota);
+    // Display number of CVs and flags remaining
+    postStats.append(
+        makePostSummaryItem(makeIndicator(remainingCloseVotes), " close votes left"),
+        makePostSummaryItem(makeIndicator(remainingPostFlags, "supernovabg"), " flags left")
+    );
 }
 
 
@@ -186,26 +242,41 @@ function loadOptions() {
 
 
 let toastTimeout, defaultDuration = 2;
-function toastMessage(msg, duration = defaultDuration) {
+
+/**
+ * @summary displays a toast message
+ * @param {string} msg message text
+ * @param {number} [durationSeconds] for how long to show it (seconds)
+ * @returns {void}
+ */
+const toastMessage = (msg, durationSeconds = defaultDuration) => {
+    const toast = document.getElementById("toasty");
+    if(!toast) {
+        const newToast = document.createElement("div");
+        newToast.id = "toasty";
+        newToast.textContent = msg;
+        document.body.append(newToast);
+        return toastMessage(msg, durationSeconds);
+    }
+
     // Validation
-    duration = Number(duration);
+    durationSeconds = Number(durationSeconds);
     if (typeof (msg) !== 'string') return;
-    if (isNaN(duration)) duration = defaultDuration;
+    if (isNaN(durationSeconds)) durationSeconds = defaultDuration;
 
     // Clear existing timeout
     if (toastTimeout) clearTimeout(toastTimeout);
 
-    // Reuse or create new
-    let div = $('#toasty').html(msg).show();
-    if (div.length == 0) div = $(`<div id="toasty">${msg}</div>`).appendTo(document.body);
+    // update toast message
+    toast.textContent = msg;
+
+    $(toast).show();
 
     // Log in browser console as well
-    console.log(msg);
+    console.debug(`[${scriptName}] ${msg}`);
 
     // Hide div
-    toastTimeout = setTimeout(function (div) {
-        div.hide();
-    }, duration * 1000, div);
+    toastTimeout = setTimeout(() => $(toast).hide(), durationSeconds * 1000);
 }
 
 
@@ -487,7 +558,7 @@ function processReopenReview() {
     }
     // Question has some edits with no bad images, ignore
     else if ((subs > 200 || adds > 200) && badImageLinks === 0) {
-        toastMessage('skipping minor edits', 3000);
+        toastMessage('skipping minor edits', 3);
         setTimeout(skipReview, 4000);
         return;
     }
@@ -803,7 +874,7 @@ function doPageLoad() {
                 $('.history-table tbody tr').show();
 
                 // Update active tab highlight class
-                $(this).removeClass('youarehere')
+                $(this).removeClass('youarehere');
             }
             else {
 
@@ -829,9 +900,6 @@ function doPageLoad() {
 
     // Add additional class to body based on review queue
     document.body.classList.add(queueType + '-review-queue');
-
-    // Display remaining CV and flag quota for non-mods
-    setTimeout(displayRemainingQuota, 3000);
 
     // Detect queue type and set appropriate process function
     switch (queueType) {
@@ -912,7 +980,7 @@ function listenToPageUpdates() {
                         content: $('#question .js-post-body').text(),
                         answers: $('#answers .answer').length,
                         votes: Number($('#question .js-vote-count').text()),
-                    }
+                    };
                 }
 
                 if (queueType != null) repositionReviewDialogs(true);
@@ -946,7 +1014,7 @@ function listenToPageUpdates() {
                     // Select general flagged close reason
                     if (["needs more focus", "needs details or clarity", "opinion-based"].includes(flaggedReason)) {
                         const labels = popup.find('.js-action-name');
-                        const selectedLabel = labels.filter((i, el) => el.textContent.toLowerCase() == flaggedReason)
+                        const selectedLabel = labels.filter((i, el) => el.textContent.toLowerCase() == flaggedReason);
                         const selectedRadio = selectedLabel.closest('li').find('input:radio').click();
 
                         toastMessage('DETECTED - ' + flaggedReason);
@@ -1106,6 +1174,10 @@ function listenToPageUpdates() {
                 }, 1000);
             }
 
+            // display "flag" and "close" buttons
+            const hiddenMenuItems = document.querySelectorAll(".js-post-menu .flex--item.d-none");
+            hiddenMenuItems.forEach((item) => item.classList.remove("d-none"));
+
             // If reviewing a suggested edit from Q&A (outside of review queues)
             if (location.href.includes('/questions/')) {
 
@@ -1210,7 +1282,7 @@ function listenToPageUpdates() {
                 // For suggested edits
                 if (queueType === 'suggested-edits') {
                     // unless timeline link is already present
-                    if(!document.querySelector("a[data-ks-title=timeline]")) {
+                    if (!document.querySelector("a[data-ks-title=timeline]")) {
                         // Add post timeline link to post
                         reviewablePost
                             .find('.votecell')
@@ -1260,7 +1332,7 @@ function listenToPageUpdates() {
                     }
 
                     // if following feature is missing, add our own
-                    if(!document.getElementById(`btnFollowPost-${pid}`)) {
+                    if (!document.getElementById(`btnFollowPost-${pid}`)) {
                         postmenu.prepend(`<button data-pid="${pid}" data-post-type="${isQuestion ? 'question' : 'answer'}" class="js-somu-follow-post s-btn s-btn__link fc-black-400 h:fc-black-700 pb2" role="button">follow</button>`);
                     }
 
@@ -1282,7 +1354,7 @@ function listenToPageUpdates() {
 
                 // Remove mod menu button since we already inserted it in the usual post menu, freeing up more space
                 const menuSections = $('.js-review-actions fieldset > div:last-child .flex--item');
-                if(menuSections.length > 1) menuSections.last().remove();
+                if (menuSections.length > 1) menuSections.last().remove();
 
                 // Remove "Delete" option for suggested-edits queue, if not already reviewed (no Next button)
                 if (queueType == 'suggested-edits' && !$('.review-status').text().includes('This item is no longer reviewable.')) {
@@ -1344,7 +1416,7 @@ function listenToPageUpdates() {
                         skipReview();
                     }
                     else {
-                        toastMessage('this is a review audit', 10000);
+                        toastMessage('this is a review audit', 5);
                     }
 
                     return;
