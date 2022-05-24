@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.14
+// @version      4.15
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -1758,12 +1758,12 @@ pre {
 
 /* Review keywords */
 #review-keywords {
-    margin: 0px 0px 3px 10px;
-    font-style: italic;
+    border: 1px solid var(--black-200);
+    border-radius: 0.25em;
+    padding: 0.5em;
     position: absolute;
     right: 0;
-    top: -35px;
-    background-color: var(--yellow-100);
+    top: -43px;
 }
 #review-keywords > span:after {
     content: ', ';
