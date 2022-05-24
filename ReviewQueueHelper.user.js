@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.11
+// @version      4.12
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -1173,6 +1173,10 @@ function listenToPageUpdates() {
                     $('.js-review-actions button[title*="done reviewing"]').click();
                 }, 1000);
             }
+
+            // display "flag" and "close" buttons
+            const hiddenMenuItems = document.querySelectorAll(".js-post-menu .flex--item.d-none");
+            hiddenMenuItems.forEach((item) => item.classList.remove("d-none"));
 
             // If reviewing a suggested edit from Q&A (outside of review queues)
             if (location.href.includes('/questions/')) {
