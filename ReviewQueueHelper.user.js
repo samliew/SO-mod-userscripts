@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.12
+// @version      4.13
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -43,6 +43,10 @@
 
 'use strict';
 
+/**
+ * @typedef {"close"|"first-answers"|"first-questions"|"late-answers"|"low-quality-posts"|"reopen"|"suggested-edits"|"triage"} QueueType
+ */
+
 if (typeof unsafeWindow !== 'undefined' && window !== unsafeWindow) {
     window.jQuery = unsafeWindow.jQuery;
     window.$ = unsafeWindow.jQuery;
@@ -65,7 +69,9 @@ const isSO = site === 'stackoverflow.com';
 const superusers = [584192];
 const isSuperuser = superusers.includes(StackExchange.options.user.userId);
 
+/** @type {QueueType|null} */
 const queueType = /^\/review/.test(location.pathname) ? location.pathname.replace(/\/\d+$/, '').split('/').pop() : null;
+
 const filteredTypesElem = document.querySelector('.review-filter-summary');
 const filteredTypes = filteredTypesElem ? (filteredTypesElem.innerText || '').replace(/; \[.*$/, '').split('; ') : [''];
 const filteredElem = document.querySelector('.review-filter-tags');
@@ -1175,8 +1181,10 @@ function listenToPageUpdates() {
             }
 
             // display "flag" and "close" buttons
-            const hiddenMenuItems = document.querySelectorAll(".js-post-menu .flex--item.d-none");
-            hiddenMenuItems.forEach((item) => item.classList.remove("d-none"));
+            if(queueType === "suggested-edits") {
+                const hiddenMenuItems = document.querySelectorAll(".js-post-menu .flex--item.d-none");
+                hiddenMenuItems.forEach((item) => item.classList.remove("d-none"));
+            }
 
             // If reviewing a suggested edit from Q&A (outside of review queues)
             if (location.href.includes('/questions/')) {
