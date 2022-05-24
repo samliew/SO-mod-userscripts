@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.13
+// @version      4.14
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -1351,8 +1351,10 @@ function listenToPageUpdates() {
                     }
 
                     // share
-                    postmenu.prepend(`<a href="/${isQuestion ? 'q' : 'a'}/${pid}" rel="nofollow" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this ${isQuestion ? 'question' : 'answer'}" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this ${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-subtitle="(includes your user id)" data-se-share-sheet-post-type="${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-social="facebook twitter devto" data-se-share-sheet-location="1" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-0" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show->se-share-sheet#willShow s-popover:shown->se-share-sheet#didShow">share</a>`);
-                    StackExchange.question.initShareLinks();
+                    if(!document.querySelector(".js-share-link")) {
+                        postmenu.prepend(`<a href="/${isQuestion ? 'q' : 'a'}/${pid}" rel="nofollow" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this ${isQuestion ? 'question' : 'answer'}" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this ${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-subtitle="(includes your user id)" data-se-share-sheet-post-type="${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-social="facebook twitter devto" data-se-share-sheet-location="1" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-0" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show->se-share-sheet#willShow s-popover:shown->se-share-sheet#didShow">share</a>`);
+                        StackExchange.question.initShareLinks();
+                    }
 
                     // mod
                     if (StackExchange.options.user.isModerator) {
