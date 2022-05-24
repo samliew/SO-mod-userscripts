@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.15
+// @version      4.16
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -86,17 +86,39 @@ let skipAudits = true, skipAccepted = false, skipUpvoted = false, skipMultipleAn
 // Keywords to detect opinion-based questions
 const opinionKeywords = ['fastest', 'best', 'recommended'];
 
+/**
+ * @summary waits for a specified number of milliseconds
+ * @param {number} ms milliseconds to wait
+ * @returns {Promise<void>}
+ */
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-function getCloseVotesQuota(viewablePostId = 1) {
-    return new Promise(function (resolve, reject) {
-        $.get(`https://${location.hostname}/flags/questions/${viewablePostId}/close/popup`)
-            .done(function (data) {
-                const num = Number($('.bounty-indicator-tab, .popup-actions .ml-auto.fc-light', data).last().text().replace(/\D+/g, ''));
-                console.log(num, 'votes');
-                resolve(num);
-            })
-            .fail(reject);
-    });
+/**
+ * @summary gets current close votes quota for the user
+ * @param {number[]} idPool ids of posts to open the popup on
+ * @returns {Promise<number>}
+ */
+const getCloseVotesQuota = async (idPool) => {
+    const firstId = idPool[0];
+
+    const res = await fetch(`https://${location.hostname}/flags/questions/${firstId}/close/popup`);
+    if(!res.ok) {
+        console.debug(`[${scriptName}] failed to get VTC quota`);
+        return 0;
+    }
+
+    const data = await res.text();
+
+    if( /this question is now closed/i.test(data) ) {
+        console.debug(`[${scriptName}] question ${firstId} is closed, attempting ${idPool[1]}`);
+        await delay(3e3 + 1); // close popups are rate-limited to once in 3 seconds;
+        return getCloseVotesQuota(idPool.slice(1));
+    }
+
+    const num = Number($('.bounty-indicator-tab, .popup-actions .ml-auto.fc-light', data).last().text().replace(/\D+/g, ''));
+    console.debug(`[${scriptName}] fetched VTC quota: ${num}`);
+
+    return num;
 }
 
 /**
@@ -163,17 +185,25 @@ async function displayRemainingQuota() {
         remainingPostFlags = 0;
     }
 
-   const [viewableQuestionId] = await getFirstQuestionPagePostIds();
+   const idPool = await getFirstQuestionPagePostIds();
 
     // Oops, we don't have values yet, callback when done fetching
     if (remainingCloseVotes == null || remainingPostFlags == null) {
+        try {
+            const [cvQuota,fQuota] = await Promise.all([
+                getCloseVotesQuota(idPool),
+                getFlagsQuota(idPool[0])
+            ]);
 
-        Promise.all([getCloseVotesQuota(viewableQuestionId), getFlagsQuota(viewableQuestionId)]).then(v => {
-            remainingCloseVotes = v[0];
-            remainingPostFlags = v[1];
+            remainingCloseVotes = cvQuota;
+            remainingPostFlags = fQuota;
             displayRemainingQuota();
-        })
-            .catch(error => console.log(`Error in promises ${error}`));
+
+        } catch (error) {
+            console.debug(`[${scriptName}] failed to fetch quotas:\n${error}`);
+            return;
+        }
+
         return;
     }
 
