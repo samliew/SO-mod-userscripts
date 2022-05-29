@@ -1810,6 +1810,10 @@ pre {
     content: '';
 }
 
+#review-keywords:empty {
+    display: none;
+}
+
 /* Visited links on review history page need to be in a different colour so we can see which reviews have been handled */
 .history-table a[href^="/review/"]:visited {
     color: var(--black-300);
