@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.17
+// @version      4.18
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -111,13 +111,13 @@ const getCloseVotesQuota = async (idPool) => {
 
     if( /this question is now closed/i.test(data) ) {
         console.debug(`[${scriptName}] question ${firstId} is closed, attempting ${idPool[1]}`);
-        await delay(3e3 + 10); // close popups are rate-limited to once in 3 seconds;
+        await delay(3e3 + 100); // close popups are rate-limited to once in 3 seconds;
         return getCloseVotesQuota(idPool.slice(1));
     }
 
     if( $(data).find(".js-retract-close-vote").length ) {
         console.debug(`[${scriptName}] voted on question ${firstId}, attempting ${idPool[1]}`);
-        await delay(3e3 + 10); // close popups are rate-limited to once in 3 seconds;
+        await delay(3e3 + 100); // close popups are rate-limited to once in 3 seconds;
         return getCloseVotesQuota(idPool.slice(1));
     }
 
@@ -173,12 +173,14 @@ const makePostSummaryItem = (...content) => {
 };
 
 /**
- * @param {string} text
- * @param {...string} classes
+ * @summary builds a badge indicator
+ * @param {string} text badge text
+ * @param {...string} classes additional CSS classes
+ * @returns {HTMLElement}
  */
 const makeIndicator = (text, ...classes) => {
     const wrapper = document.createElement("span");
-    wrapper.classList.add("bounty-indicator-tab", ...classes);
+    wrapper.classList.add("s-badge", "s-badge__sm", ...classes);
     wrapper.textContent = text;
     return wrapper;
 };
@@ -224,7 +226,7 @@ async function displayRemainingQuota() {
 
     // Display number of CVs and flags remaining
     postStats.append(
-        makePostSummaryItem(makeIndicator(remainingCloseVotes), " close votes left"),
+        makePostSummaryItem(makeIndicator(remainingCloseVotes, "coolbg"), " close votes left"),
         makePostSummaryItem(makeIndicator(remainingPostFlags, "supernovabg"), " flags left")
     );
 }
