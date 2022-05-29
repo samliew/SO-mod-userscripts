@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.18
+// @version      4.19
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -1526,18 +1526,18 @@ styles.innerHTML = `
     position: absolute;
     top: -5px;
     left: -5px;
-    width: 14px;
-    height: 14px;
-    padding-right: 1px;
-    border-radius: 50%;
-    font-size: 0.85em;
+    width: 1.3em;
+    height: 1.3em;
+    font-size: 0.8em;
     text-align: center;
     display: flex;
     justify-content: center;
     align-items: center;
     pointer-events: none;
-    background: var(--blue-900);
-    color: var(--white);
+    background-color: var(--theme-background-color);
+    color: var(--theme-button-outlined-border-color);
+    border: 1px solid var(--theme-button-outlined-border-color);
+    border-radius: 50%;
 }
 .js-review-actions button.js-temporary-action-button:before,
 .js-review-actions button.js-review-cancel-button:before {
