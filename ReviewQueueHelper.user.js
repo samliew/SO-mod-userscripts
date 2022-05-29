@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.19
+// @version      4.20
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -102,20 +102,20 @@ const getCloseVotesQuota = async (idPool) => {
     const firstId = idPool[0];
 
     const res = await fetch(`https://${location.hostname}/flags/questions/${firstId}/close/popup`);
-    if(!res.ok) {
+    if (!res.ok) {
         console.debug(`[${scriptName}] failed to get VTC quota`);
         return 0;
     }
 
     const data = await res.text();
 
-    if( /this question is now closed/i.test(data) ) {
+    if (/this question is now closed/i.test(data)) {
         console.debug(`[${scriptName}] question ${firstId} is closed, attempting ${idPool[1]}`);
         await delay(3e3 + 100); // close popups are rate-limited to once in 3 seconds;
         return getCloseVotesQuota(idPool.slice(1));
     }
 
-    if( $(data).find(".js-retract-close-vote").length ) {
+    if ($(data).find(".js-retract-close-vote").length) {
         console.debug(`[${scriptName}] voted on question ${firstId}, attempting ${idPool[1]}`);
         await delay(3e3 + 100); // close popups are rate-limited to once in 3 seconds;
         return getCloseVotesQuota(idPool.slice(1));
@@ -125,7 +125,7 @@ const getCloseVotesQuota = async (idPool) => {
     console.debug(`[${scriptName}] fetched VTC quota: ${num}`);
 
     return num;
-}
+};
 
 /**
  * @summary requests and parses a list of post ids from /questions page
@@ -185,6 +185,58 @@ const makeIndicator = (text, ...classes) => {
     return wrapper;
 };
 
+/**
+ * @summary waits for an element to appear in DOM
+ * @param {string} selector CSS selector to wait for
+ * @param {Element|Document} [context] observation context
+ * @returns {Promise<NodeListOf<Element>>}
+ */
+const waitFor = (selector, context = document) => {
+    return new Promise((resolve) => {
+        const immediate = document.querySelectorAll(selector);
+        if(immediate.length) resolve(immediate);
+
+        const observer = new MutationObserver((_, obs) => {
+            const observed = document.querySelectorAll(selector);
+            if(observed.length) {
+                obs.disconnect();
+                resolve(observed);
+            }
+        });
+
+        observer.observe(context, {
+            attributes: true,
+            childList: true,
+            subtree: true
+        });
+    });
+};
+
+/**
+ * @summary appends a "Back" button to the review sidebar
+ * @returns {Promise<HTMLElement>}
+ */
+const addGoBackButton = async () => {
+    const goBackBtn = document.createElement("button");
+    goBackBtn.classList.add("s-btn", "s-btn__outlined");
+    goBackBtn.textContent = "Back";
+    goBackBtn.type = "button";
+
+    goBackBtn.addEventListener("click", () => history.back());
+
+    const [{
+        parentElement: reviewActionContainer
+    }] = await waitFor(".js-review-submit");
+
+    if (!reviewActionContainer) {
+        console.debug(`[${scriptName}] missing review action container`);
+        return goBackBtn;
+    }
+
+    reviewActionContainer.append(goBackBtn);
+    return goBackBtn;
+};
+
 async function displayRemainingQuota() {
 
     // Ignore mods, since we have unlimited power
@@ -193,12 +245,12 @@ async function displayRemainingQuota() {
         remainingPostFlags = 0;
     }
 
-   const idPool = await getFirstQuestionPagePostIds();
+    const idPool = await getFirstQuestionPagePostIds();
 
     // Oops, we don't have values yet, callback when done fetching
     if (remainingCloseVotes == null || remainingPostFlags == null) {
         try {
-            const [cvQuota,fQuota] = await Promise.all([
+            const [cvQuota, fQuota] = await Promise.all([
                 getCloseVotesQuota(idPool),
                 getFlagsQuota(idPool[0])
             ]);
@@ -219,7 +271,7 @@ async function displayRemainingQuota() {
     $('.remaining-quota').remove();
 
     const postStats = document.querySelector(".s-post-summary--stats");
-    if(!postStats) {
+    if (!postStats) {
         console.debug(`[${scriptName}] missing post stats`);
         return;
     }
@@ -295,7 +347,7 @@ let toastTimeout, defaultDuration = 2;
  */
 const toastMessage = (msg, durationSeconds = defaultDuration) => {
     const toast = document.getElementById("toasty");
-    if(!toast) {
+    if (!toast) {
         const newToast = document.createElement("div");
         newToast.id = "toasty";
         newToast.textContent = msg;
@@ -321,7 +373,7 @@ const toastMessage = (msg, durationSeconds = defaultDuration) => {
 
     // Hide div
     toastTimeout = setTimeout(() => $(toast).hide(), durationSeconds * 1000);
-}
+};
 
 
 // Close individual post
@@ -1209,6 +1261,7 @@ function listenToPageUpdates() {
 
         // Next review loaded, transform UI and pre-process review
         else if (settings.url.includes('/review/next-task') || settings.url.includes('/review/task-reviewed/')) {
+            addGoBackButton();
 
             // If reviewing reopen votes, click "I'm done"
             if (queueType === 'first-posts') {
@@ -1219,7 +1272,7 @@ function listenToPageUpdates() {
             }
 
             // display "flag" and "close" buttons
-            if(queueType === "suggested-edits") {
+            if (queueType === "suggested-edits") {
                 const hiddenMenuItems = document.querySelectorAll(".js-post-menu .flex--item.d-none");
                 hiddenMenuItems.forEach((item) => item.classList.remove("d-none"));
             }
@@ -1389,7 +1442,7 @@ function listenToPageUpdates() {
                     }
 
                     // share
-                    if(!document.querySelector(".js-share-link")) {
+                    if (!document.querySelector(".js-share-link")) {
                         postmenu.prepend(`<a href="/${isQuestion ? 'q' : 'a'}/${pid}" rel="nofollow" itemprop="url" class="js-share-link js-gps-track" title="short permalink to this ${isQuestion ? 'question' : 'answer'}" data-controller="se-share-sheet s-popover" data-se-share-sheet-title="Share a link to this ${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-subtitle="(includes your user id)" data-se-share-sheet-post-type="${isQuestion ? 'question' : 'answer'}" data-se-share-sheet-social="facebook twitter devto" data-se-share-sheet-location="1" data-s-popover-placement="bottom-start" aria-controls="se-share-sheet-0" data-action=" s-popover#toggle se-share-sheet#preventNavigation s-popover:show->se-share-sheet#willShow s-popover:shown->se-share-sheet#didShow">share</a>`);
                         StackExchange.question.initShareLinks();
                     }
