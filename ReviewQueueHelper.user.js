@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.20
+// @version      4.21
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -194,11 +194,11 @@ const makeIndicator = (text, ...classes) => {
 const waitFor = (selector, context = document) => {
     return new Promise((resolve) => {
         const immediate = document.querySelectorAll(selector);
-        if(immediate.length) resolve(immediate);
+        if (immediate.length) resolve(immediate);
 
         const observer = new MutationObserver((_, obs) => {
             const observed = document.querySelectorAll(selector);
-            if(observed.length) {
+            if (observed.length) {
                 obs.disconnect();
                 resolve(observed);
             }
@@ -1046,7 +1046,8 @@ function repositionReviewDialogs(scrollTop = true) {
 function listenToPageUpdates() {
 
     // On any page update
-    $(document).ajaxComplete(function (event, xhr, settings) {
+    $(document).ajaxComplete((event, xhr, settings) => {
+        const { responseJSON } = xhr;
 
         // Do nothing with fetching vote counts
         if (settings.url.includes('/vote-counts')) return;
@@ -1261,7 +1262,9 @@ function listenToPageUpdates() {
 
         // Next review loaded, transform UI and pre-process review
         else if (settings.url.includes('/review/next-task') || settings.url.includes('/review/task-reviewed/')) {
-            addGoBackButton();
+            if(!responseJSON.isUnavailable) {
+                addGoBackButton();
+            }
 
             // If reviewing reopen votes, click "I'm done"
             if (queueType === 'first-posts') {
