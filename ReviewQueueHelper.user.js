@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.21
+// @version      4.22
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -894,10 +894,10 @@ function listenToKeyboardEvents() {
             //console.log('review action', 'keyCode', evt.keyCode, 'index', index);
 
             const btns = $('.js-review-actions button');
+
             // If there is only one button and is "Next", click it
-            if (btns.length === 1) {
-                index = 0;
-            }
+            const nextBtn = document.querySelector(".js-review-instructions button[value='254']");
+            if( nextBtn ) nextBtn.click();
 
             // Default to clicking review buttons based on index
             btns.eq(index).click();
