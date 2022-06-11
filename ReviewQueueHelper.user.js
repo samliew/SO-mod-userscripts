@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.22
+// @version      4.23
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -153,7 +153,7 @@ function getFlagsQuota(viewablePostId = 1) {
         $.get(`https://${location.hostname}/flags/posts/${viewablePostId}/popup`)
             .done(function (data) {
                 const num = Number($('.bounty-indicator-tab, .popup-actions .ml-auto.fc-light', data).last().text().replace(/\D+/g, ''));
-                console.log(num, 'flags');
+                console.debug(`[${scriptName}] flags quota: ${num}`);
                 resolve(num);
             })
             .fail(reject);
@@ -389,7 +389,7 @@ function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', offtopicRe
         if (closeReasonId === 'Duplicate') offtopicReasonId = null;
 
         // Logging actual action
-        console.log(`%c Closing ${pid} as ${closeReasonId}, reason ${offtopicReasonId}.`, 'font-weight: bold');
+        console.debug(`[${scriptName}] %c Closing ${pid} as ${closeReasonId}, reason ${offtopicReasonId}.`, 'font-weight: bold');
 
         $.post({
             url: `https://${location.hostname}/flags/questions/${pid}/close/add`,
@@ -454,7 +454,7 @@ function skipReview() {
 
     // If referred from meta or post timeline, and is first review, do not automatically skip
     if ((document.referrer.includes('meta.') || /\/posts\/\d+\/timeline/.test(document.referrer)) && numOfReviews <= 1) {
-        console.log('Not skipping review as it was opened from Meta or post timeline page.');
+        console.debug(`[${scriptName}] review opened from Meta or post timeline page, not skipping`);
         return;
     }
 
@@ -493,7 +493,7 @@ function isAudit() {
         if (!error && votes !== post.votes) audit = true;
     }
 
-    console.log("audit:", audit);
+    console.debug(`[${scriptName}] is audit: ${audit}`);
     return audit;
 }
 
@@ -564,8 +564,6 @@ function displayPostKeywords() {
         $('<span>long</span>').prependTo(resultsDiv);
         post.issues.unshift('long');
     }
-
-    //console.log('post issues:', post.issues);
 }
 
 
@@ -679,14 +677,14 @@ function processLowQualityPostsReview() {
         // If is a short answer and there is a link in the post, select "link-only answer" option in delete dialog
         if (postText.length < 300 && /https?:\/\//.test(postHtml)) {
             isLinkOnlyAnswer = true;
-            console.log('Possible link-only answer detected.');
+            console.debug(`[${scriptName}] detected a possible link-only answer`);
         }
 
         // Try to detect if the post contains mostly code
         else if (postEl.find('pre, code').length > 0 &&
             (postNoCodeHtml.length < 50 || postHtml.length / postNoCodeHtml.length > 0.9)) {
             isCodeOnlyAnswer = true;
-            console.log('Possible code-only answer detected.');
+            console.debug(`[${scriptName}] detected a possible code-only answer`);
         }
     }
 }
@@ -797,14 +795,10 @@ function listenToKeyboardEvents() {
 
     // Keyboard shortcuts event handler
     $(document).on('keyup', function (evt) {
-
-        //console.trace('RQH', 'keyup', evt);
-
         // Back buttons: escape (27)
         // Unable to use tilde (192) as on the UK keyboard it is swapped the single quote keycode
         const cancel = evt.keyCode === 27;
         const goback = evt.keyCode === 27;
-        //console.log("cancel", cancel, "goback", goback);
 
         // Get numeric key presses
         let index = evt.keyCode - 49; // 49 = number 1 = 0 (index)
@@ -822,7 +816,6 @@ function listenToKeyboardEvents() {
                 index = null;
             }
         }
-        //console.log("keypress", evt.keyCode, "index", index);
 
         // Do nothing if key modifiers were pressed
         if (evt.shiftKey || evt.ctrlKey || evt.altKey) return;
@@ -891,8 +884,6 @@ function listenToKeyboardEvents() {
 
         // Review action buttons
         if (index != null && index <= 4) {
-            //console.log('review action', 'keyCode', evt.keyCode, 'index', index);
-
             const btns = $('.js-review-actions button');
 
             // If there is only one button and is "Next", click it
@@ -905,8 +896,6 @@ function listenToKeyboardEvents() {
         }
         // Instant action buttons
         else if (index != null && index >= 5) {
-            //console.log('instant action', 'keyCode', evt.keyCode, 'index', index);
-
             const btns = $('.instant-actions button');
             btns.eq(index - 5).click();
             return false;
@@ -992,7 +981,7 @@ function doPageLoad() {
 
     // Not in a review queue, do nothing. Required for ajaxComplete function below
     if (queueType == null) return;
-    console.log('Review queue:', queueType);
+    console.debug(`[${scriptName}] queue type: ${queueType}`);
 
     // Add additional class to body based on review queue
     document.body.classList.add(queueType + '-review-queue');
@@ -1089,7 +1078,6 @@ function listenToPageUpdates() {
                 let opts = popup.find('.s-badge__mini').not('.offtopic-indicator').get().sort((a, b) => Number(a.innerText) - Number(b.innerText));
                 const selOptCount = Number($(opts).last().text()) || 0;
                 const selOpt = $(opts).last().closest('li').find('input:radio').click();
-                //console.log(opts, selOpt); debugger;
 
                 // If selected option is in a subpane, display off-topic subpane instead
                 const pane = selOpt.closest('.popup-subpane');
@@ -1140,9 +1128,6 @@ function listenToPageUpdates() {
 
                 // Experimental
                 if (isSuperuser) {
-
-                    //console.log('filteredTypes', filteredTypes);debugger;
-
                     // If only filtering by "Duplicate", do nothing
                     if ((filteredTypes.length === 1 && filteredTypes.includes('Duplicate')) === true) return;
 
@@ -1255,7 +1240,7 @@ function listenToPageUpdates() {
 
             // If downvoteAfterClose option enabled, and score >= 0
             if (downvoteAfterClose && post.isQuestion && post.votes >= 0) {
-                console.log('post downvoted', post.id);
+                console.debug(`[${scriptName}] downvoted post ${post.id}`);
                 downvotePost(post.id);
             }
         }
@@ -1306,7 +1291,7 @@ function listenToPageUpdates() {
             let responseJson = {};
             try {
                 responseJson = JSON.parse(xhr.responseText);
-                console.log(responseJson);
+                console.debug(`[${scriptName}] intercepted XHR\n`, responseJSON);
             }
             catch (e) {
                 console.error('error parsing JSON', xhr.responseText);
@@ -1327,7 +1312,7 @@ function listenToPageUpdates() {
 
             // Parse flagged reason (to select as default if no popular vote)
             flaggedReason = (responseJson.instructions.toLowerCase().match(/(needs more focus|needs details or clarity|opinion-based|not suitable for this site)/i) || ['-']).pop().replace('&#39;', "'");
-            console.log('flaggedReason:', flaggedReason);
+            console.debug(`[${scriptName}] flagged reason: ${flaggedReason}`);
 
             setTimeout(function () {
 
@@ -1339,7 +1324,7 @@ function listenToPageUpdates() {
                 // Get post status
                 const isDeleted = reviewablePost.find('.deleted-answer').length > 0;
                 const isClosedOrDeleted = reviewablePost.find('.js-post-notice, .deleted-answer').length > 0;
-                console.log('isClosedOrDeleted', isClosedOrDeleted);
+                console.debug(`[${scriptName}] is closed/deleted: ${isClosedOrDeleted}`);
 
                 // If no more reviews, refresh page every 10 seconds
                 // Can't use responseJson.isUnavailable here, as it can also refer to current completed review
@@ -1510,7 +1495,7 @@ function listenToPageUpdates() {
 
                     post[k] = v;
                 });
-                console.log(post);
+                console.debug(`[${scriptName}] post info:\n`, post);
 
                 // Check for audits and skip them
                 if (responseJson.isAudit) {
@@ -1526,7 +1511,6 @@ function listenToPageUpdates() {
                     return;
                 }
                 //else if(isAudit()) {
-                //    console.log('skipping review audit via manual check');
                 //    skipReview();
                 //    return;
                 //}
