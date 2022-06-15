@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2
+// @version      3.3
 //
 // @include      https://*stackoverflow.com/questions/*
 // @include      https://*serverfault.com/questions/*
@@ -358,8 +358,8 @@ function initTableOfContentsSidebar() {
 
         answers.each(function () {
             const isDel = $(this).hasClass('deleted-event');
-            const postUserCell = $(this).children('td').eq(4);
-            const postuser = $(this).find('a').first();
+            const postUserCell = $(this).children('td').eq(3);
+            const postuser = postUserCell.find('a').first();
             const isPostuserDeleted = postuser.length === 0;
             const postusername = postuser.text().replace('♦', ' ♦');
             const pid = $(this).find('.event-comment a.timeline').attr('href').match(/[0-9]+/)[0];
