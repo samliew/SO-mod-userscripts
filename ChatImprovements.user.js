@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2
+// @version      3.3
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -651,7 +651,7 @@ function initBetterMessageLinks() {
         // Check if message is on page
         if (parentMsg.length) {
             $('html, body').animate({ scrollTop: (parentMsg.offset().top - topbarOffset) + 'px' }, 400, function () {
-                window.hiTimeout = setTimeout(() => { parentMsg.removeClass('highlight') }, 3000);
+                window.hiTimeout = setTimeout(() => { parentMsg.removeClass('highlight'); }, 3000);
             });
             return false;
         }
@@ -905,7 +905,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
 
     // Functions
     function addInboxCount(num) {
-        const btn = $('#topbar .js-inbox-button').children('.unread-count').remove().end()
+        const btn = $('#topbar .js-inbox-button').children('.unread-count').remove().end();
         if (num > 0) {
             btn.prepend(`<span class="unread-count">${num}</span>`);
             btn.children('.topbar-dialog').remove();
@@ -913,7 +913,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
         }
     }
     function addRepCount(num) {
-        const btn = $('#topbar .js-achievements-button').children('.unread-count').remove().end()
+        const btn = $('#topbar .js-achievements-button').children('.unread-count').remove().end();
         if (num > 0) {
             btn.prepend(`<span class="unread-count">+${num}</span>`);
             btn.children('.topbar-dialog').remove();
@@ -1261,7 +1261,10 @@ function initLiveChat() {
     const roomId = CHAT.CURRENT_ROOM_ID;
 
     initMessageParser();
-    setTimeout(unfreezeRooms, 5000); // not important, run after a delay
+
+    if (CHAT.user.canModerate()) {
+        setTimeout(unfreezeRooms, 5000);
+    }
 
     // Rejoin favourite rooms on link click
     let rejoinFavsBtn = $(`<a href="#">rejoin starred</a><span class="divider"> / </span>`).prependTo($('#my-rooms').parent('.sidebar-widget').find('.msg-small').first());
@@ -2595,7 +2598,7 @@ body.dragging #dropTarget {
     styles_print.setAttribute('data-somu', GM_info?.script.name);
     styles_print.innerHTML = printStyles;
     document.body.appendChild(styles_print);
-    
+
 
     // Add device-specific styles
     const styles_device = document.createElement('style');
