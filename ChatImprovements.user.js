@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3
+// @version      3.4
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -712,15 +712,188 @@ function initBetterMessageLinks() {
     });
 }
 
+const chatHostnames = {
+    "chat.stackoverflow.com": "Chat.SO",
+    "chat.stackexchange.com": "Chat.SE",
+    "chat.meta.stackexchange.com": "Chat.MSE",
+};
 
+/**
+ * @summary creates a chat hostname switcher button set for the top bar
+ * @param {Record<string, string>} hostnames list of valid chat hostnames
+ */
+const makeChatHostnameSwitcher = (hostnames) => {
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("network-chat-links");
+    wrapper.id = "network-chat-links";
+
+    wrapper.append(
+        ...Object.entries(hostnames).map(([hostname, name], i) => {
+            const switcher = document.createElement("a");
+            switcher.classList.add("button");
+            switcher.href = `https://${hostname}`;
+            switcher.id = `allrooms${i + 1}`;
+            switcher.rel = "noopener noreferrer";
+            switcher.textContent = name;
+
+            if (location.hostname === hostname) {
+                switcher.classList.add("current-site");
+            }
+
+            return switcher;
+        })
+    );
+
+    return wrapper;
+};
+
+/**
+ * @summary inserts topbar shared and script-specific styles
+ */
+const addTopbarStyles = () => {
+    const chromeExternalStyles = document.createElement("link");
+    chromeExternalStyles.rel = "stylesheet";
+    chromeExternalStyles.type = "text/css";
+    chromeExternalStyles.href = "https://cdn.sstatic.net/shared/chrome/chrome.css";
+    document.head.append(chromeExternalStyles);
+
+    const style = document.createElement("style");
+    document.head.append(style);
+
+    const sheet = style.sheet;
+    if (!sheet) {
+        console.debug(`[Chat Improvements] failed to add topbar styles`);
+        return;
+    }
+
+    const rules = [
+        `#info > .fl,
+        #info > .fl + .clear-both,
+        #sidebar-menu .button {
+            display: none;
+        }`,
+        `#sidebar {
+            padding-top: 40px;
+        }`,
+        `#chat-body #container {
+            padding-top: 50px;
+        }`,
+        `#sidebar #info #sound {
+            margin-top: 3px;
+        }`,
+        `#sidebar ul, #sidebar ol {
+            margin-left: 0;
+        }`,
+        `.topbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: black;
+        }`,
+        `.topbar > * {
+            opacity: 1;
+            transition: opacity 0.4s ease;
+        }`,
+        `.topbar.js-loading-assets > * {
+            opacity: 0;
+        }`,
+        `.topbar .topbar-wrapper {
+            width: auto;
+            height: 34px;
+            padding: 0 20px;
+        }`,
+        `.topbar .topbar-links {
+            right: 20px;
+        }`,
+        `.topbar .topbar-icon {
+            position: relative;
+            cursor: pointer;
+        }`,
+        `a.topbar-icon .topbar-dialog {
+            display: none;
+            position: absolute;
+            top: 100%;
+            cursor: initial;
+        }`,
+        `a.topbar-icon.topbar-icon-on .topbar-dialog,
+        .topbar .topbar-icon.topbar-icon-on .js-loading-indicator {
+            display: block !important;
+        }`,
+        `.topbar .network-chat-links {
+            display: inline-flex;
+            flex-direction: row;
+            align-items: center;
+            height: 34px;
+            margin-left: 10px;
+        }`,
+        `.topbar .network-chat-links > a {
+            flex: 0 0 auto;
+            margin: 0 3px;
+            padding: 3px 7px;
+            color: white;
+            background: #666;
+            font-weight: normal;
+            text-shadow: none !important;
+            border: none;
+            border-radius: 4px;
+        }`,
+        `.topbar .network-chat-links > a:active,
+        .topbar .network-chat-links > a:hover {
+            background: #444;
+            border: none;
+        }`,
+        `.topbar .network-chat-links > a.current-site {
+            background: #3667af !important;
+        }`,
+        `.topbar .topbar-icon .js-loading-indicator {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: -12px;
+            background: white;
+            padding: 15px 20px 20px;
+        }`,
+        `.topbar .topbar-icon .js-loading-indicator img {
+            float: left;
+        }`,
+        `#chat-body #searchbox {
+            float: none;
+            width: 194px;
+            margin: 3px 0 0 20px;
+            padding: 2px 3px 2px 24px !important;
+            font-size: 13px;
+        }`,
+        `.topbar-dialog .s-input.s-input__search {
+            box-sizing: border-box;
+            padding: .6em .7em !important;
+            padding-left: 32px !important;
+        }`,
+        `@media screen and (max-width: 960px) {
+            .topbar .network-chat-links {
+                display: none;
+            }
+        }`
+    ];
+
+    rules.forEach((rule) => sheet.insertRule(rule));
+};
 
 function initTopBar() {
 
-    // If existing topbar exists, do nothing
-    if ($('#topbar, .topbar').length > 0) return;
-
     // If mobile, ignore
     if (CHAT.IS_MOBILE) return;
+
+    addTopbarStyles();
+
+    // If existing topbar exists, only add chat domain switchers
+    const existingTopbars = $('#topbar, .topbar');
+    if (existingTopbars.length) {
+        $(existingTopbars).find(".network-items").after(
+            makeChatHostnameSwitcher(chatHostnames)
+        );
+        return;
+    }
 
     const roomId = CHAT.CURRENT_ROOM_ID;
     const user = CHAT.RoomUsers.current();
@@ -735,121 +908,6 @@ function initTopBar() {
 
     // Add class to body
     $('#chat-body').addClass('has-topbar');
-
-    const topbarStyles = $(`
-<link rel="stylesheet" type="text/css" href="https://cdn.sstatic.net/shared/chrome/chrome.css" />
-<style>
-#info > .fl,
-#info > .fl + .clear-both,
-#sidebar-menu .button {
-    display: none;
-}
-#sidebar {
-    padding-top: 40px;
-}
-#chat-body #container {
-    padding-top: 50px;
-}
-#sidebar #info #sound {
-    margin-top: 3px;
-}
-#sidebar ul, #sidebar ol {
-    margin-left: 0;
-}
-
-.topbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    background: black;
-}
-.topbar > * {
-    opacity: 1;
-    transition: opacity 0.4s ease;
-}
-.topbar.js-loading-assets > * {
-    opacity: 0;
-}
-.topbar .topbar-wrapper {
-    width: auto;
-    height: 34px;
-    padding: 0 20px;
-}
-.topbar .topbar-links {
-    right: 20px;
-}
-.topbar .topbar-icon {
-    position: relative;
-    cursor: pointer;
-}
-a.topbar-icon .topbar-dialog {
-    display: none;
-    position: absolute;
-    top: 100%;
-    cursor: initial;
-}
-a.topbar-icon.topbar-icon-on .topbar-dialog,
-.topbar .topbar-icon.topbar-icon-on .js-loading-indicator {
-    display: block !important;
-}
-.topbar .network-chat-links {
-    display: inline-flex;
-    flex-direction: row;
-    align-items: center;
-    height: 34px;
-    margin-left: 10px;
-}
-.topbar .network-chat-links > a {
-    flex: 0 0 auto;
-    margin: 0 3px;
-    padding: 3px 7px;
-    color: white;
-    background: #666;
-    font-weight: normal;
-    text-shadow: none !important;
-    border: none;
-    border-radius: 4px;
-}
-.topbar .network-chat-links > a:active,
-.topbar .network-chat-links > a:hover {
-    background: #444;
-    border: none;
-}
-.topbar .network-chat-links > a.current-site {
-    background: #3667af !important;
-}
-.topbar .topbar-icon .js-loading-indicator {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: -12px;
-    background: white;
-    padding: 15px 20px 20px;
-}
-.topbar .topbar-icon .js-loading-indicator img {
-    float: left;
-}
-#chat-body #searchbox {
-    float: none;
-    width: 194px;
-    margin: 3px 0 0 20px;
-    padding: 2px 3px 2px 24px !important;
-    font-size: 13px;
-}
-.topbar-dialog .s-input.s-input__search {
-    box-sizing: border-box;
-    padding: .6em .7em !important;
-    padding-left: 32px !important;
-}
-
-@media screen and (max-width: 960px) {
-    .topbar .network-chat-links {
-        display: none;
-    }
-}
-</style>
-`).appendTo(document.body);
 
     const topbar = $(`
 <div class="topbar js-loading-assets" id="topbar">
@@ -873,11 +931,7 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
                 <span class="js-loading-indicator"><img src="https://stackoverflow.com/content/img/progress-dots.gif" /></span>
             </a>
         </div>
-        <div class="network-chat-links" id="network-chat-links">
-            <a rel="noopener noreferrer" id="allrooms1"  class="button" href="https://chat.stackoverflow.com">Chat.SO</a>
-            <a rel="noopener noreferrer" id="allrooms2" class="button" href="https://chat.stackexchange.com">Chat.SE</a>
-            <a rel="noopener noreferrer" id="allrooms3" class="button" href="https://chat.meta.stackexchange.com">Chat.MSE</a>
-        </div>
+        ${makeChatHostnameSwitcher(chatHostnames).outerHTML}
         <div class="topbar-links">
             <div class="links-container">
                 <span class="topbar-menu-links">
@@ -1306,7 +1360,6 @@ function initLiveChat() {
     /* ===== DESKTOP ONLY ===== */
 
     // Move stuff around
-    initTopBar();
     $('#footer-legal').prepend('<span> | </span>').prepend($('#toggle-notify'));
     $('#room-tags').appendTo('#roomdesc');
     $('#roomtitle + div').not('#roomdesc').appendTo('#roomdesc');
@@ -1423,6 +1476,7 @@ function doPageLoad() {
         appendMobileUserStyles();
     }
 
+    initTopBar();
 
     // When joining a chat room
     if (location.pathname.includes('/rooms/') && !location.pathname.includes('/info/')) {
