@@ -753,6 +753,37 @@ const makeChatHostnameSwitcher = (hostnames) => {
 };
 
 /**
+ * @summary makes a user profile link for the topbar
+ * @param {{ id: string, is_moderator: boolean, name: string }} user current user
+ */
+const makeUserProfileLink = (user) => {
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("links-container");
+
+    const linkWrapper = document.createElement("span");
+    linkWrapper.classList.add("topbar-menu-links");
+
+    const modDiamond = user.is_moderator ? '&nbsp;&#9830;' : '';
+
+    const userAnchor = document.createElement("a");
+    userAnchor.href = `/users/${user.id}`;
+    userAnchor.title = `${user.name + modDiamond}`;
+    userAnchor.textContent = `${user.name + modDiamond}`;
+
+    linkWrapper.append(userAnchor);
+
+    if (user.is_moderator) {
+        const modAnchor = document.createElement("a");
+        modAnchor.href = `/admin`;
+        modAnchor.textContent = "mod";
+        linkWrapper.append(modAnchor);
+    }
+
+    wrapper.append(linkWrapper);
+    return wrapper;
+};
+
+/**
  * @summary inserts topbar shared and script-specific styles
  */
 const addTopbarStyles = () => {
