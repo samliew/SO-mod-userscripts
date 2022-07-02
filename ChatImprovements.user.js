@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4
+// @version      3.5
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -969,12 +969,7 @@ function initTopBar() {
         </div>
         ${makeChatHostnameSwitcher(chatHostnames).outerHTML}
         <div class="topbar-links">
-            <div class="links-container">
-                <span class="topbar-menu-links">
-                    <a href="/users/${user.id}" title="${user.name + modDiamond}">${user.name + modDiamond}</a>
-                    ${isMod ? '<a href="/admin">mod</a>' : ''}
-                </span>
-            </div>
+            ${isTranscriptPage() ? "" : makeUserProfileLink(user).outerHTML}
             <div class="search-container">
                 <form action="/search" method="get" autocomplete="off">
                     <input name="q" id="searchbox" type="text" placeholder="search" size="28" maxlength="80" />
