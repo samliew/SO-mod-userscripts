@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4
+// @version      3.5
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -50,6 +50,11 @@ let messageEvents = [];
 // Helper functions
 jQuery.fn.reverse = [].reverse;
 
+/**
+ * @summary checks if the userscript is running on a transcript page
+ * @returns {boolean}
+ */
+const isTranscriptPage = () => window.location.href.includes("transcript");
 
 // Never unfreeze room 4 - old teacher's lounge
 const doNotUnfreeze = [4];
@@ -748,6 +753,37 @@ const makeChatHostnameSwitcher = (hostnames) => {
 };
 
 /**
+ * @summary makes a user profile link for the topbar
+ * @param {{ id: string, is_moderator: boolean, name: string }} user current user
+ */
+const makeUserProfileLink = (user) => {
+    const wrapper = document.createElement("div");
+    wrapper.classList.add("links-container");
+
+    const linkWrapper = document.createElement("span");
+    linkWrapper.classList.add("topbar-menu-links");
+
+    const modDiamond = user.is_moderator ? '&nbsp;&#9830;' : '';
+
+    const userAnchor = document.createElement("a");
+    userAnchor.href = `/users/${user.id}`;
+    userAnchor.title = `${user.name + modDiamond}`;
+    userAnchor.textContent = `${user.name + modDiamond}`;
+
+    linkWrapper.append(userAnchor);
+
+    if (user.is_moderator) {
+        const modAnchor = document.createElement("a");
+        modAnchor.href = `/admin`;
+        modAnchor.textContent = "mod";
+        linkWrapper.append(modAnchor);
+    }
+
+    wrapper.append(linkWrapper);
+    return wrapper;
+};
+
+/**
  * @summary inserts topbar shared and script-specific styles
  */
 const addTopbarStyles = () => {
@@ -933,12 +969,7 @@ function initTopBar() {
         </div>
         ${makeChatHostnameSwitcher(chatHostnames).outerHTML}
         <div class="topbar-links">
-            <div class="links-container">
-                <span class="topbar-menu-links">
-                    <a href="/users/${user.id}" title="${user.name + modDiamond}">${user.name + modDiamond}</a>
-                    ${isMod ? '<a href="/admin">mod</a>' : ''}
-                </span>
-            </div>
+            ${isTranscriptPage() ? "" : makeUserProfileLink(user).outerHTML}
             <div class="search-container">
                 <form action="/search" method="get" autocomplete="off">
                     <input name="q" id="searchbox" type="text" placeholder="search" size="28" maxlength="80" />
@@ -948,7 +979,7 @@ function initTopBar() {
         </div>
     </div>
 </div>
-`).prependTo('#chat-body');
+`).prependTo(`#${isTranscriptPage() ? "transcript" : "chat"}-body`);
 
     // Highlight current chat domain
     $('#network-chat-links a').filter((i, el) => el.href.includes(location.hostname)).addClass('current-site').attr('title', 'you are here');
@@ -1462,14 +1493,7 @@ function initLiveChat() {
 
 
 function doPageLoad() {
-
-    // If on mobile chat
-    if (document.body.classList.contains('mob')) {
-        appendStyles(false); // append mobile styles
-    }
-    else {
-        appendStyles();
-    }
+    appendStyles(!document.body.classList.contains('mob'));
 
     // When viewing user info page in mobile widths
     if (location.pathname.includes('/users/') && $('body').width() < 768) {
