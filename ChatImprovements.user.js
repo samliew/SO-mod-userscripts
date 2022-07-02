@@ -1462,14 +1462,7 @@ function initLiveChat() {
 
 
 function doPageLoad() {
-
-    // If on mobile chat
-    if (document.body.classList.contains('mob')) {
-        appendStyles(false); // append mobile styles
-    }
-    else {
-        appendStyles();
-    }
+    appendStyles(!document.body.classList.contains('mob'));
 
     // When viewing user info page in mobile widths
     if (location.pathname.includes('/users/') && $('body').width() < 768) {
