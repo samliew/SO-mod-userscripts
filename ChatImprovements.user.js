@@ -50,6 +50,11 @@ let messageEvents = [];
 // Helper functions
 jQuery.fn.reverse = [].reverse;
 
+/**
+ * @summary checks if the userscript is running on a transcript page
+ * @returns {boolean}
+ */
+const isTranscriptPage = () => window.location.href.includes("transcript");
 
 // Never unfreeze room 4 - old teacher's lounge
 const doNotUnfreeze = [4];
@@ -948,7 +953,7 @@ function initTopBar() {
         </div>
     </div>
 </div>
-`).prependTo('#chat-body');
+`).prependTo(`#${isTranscriptPage() ? "transcript" : "chat"}-body`);
 
     // Highlight current chat domain
     $('#network-chat-links a').filter((i, el) => el.href.includes(location.hostname)).addClass('current-site').attr('title', 'you are here');
