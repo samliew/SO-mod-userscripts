@@ -461,7 +461,7 @@ Better comments layout for easier readability and moderation.
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/mod-batch-comments-deleter.gif)
 
 
-### [Mod Flagger Stats](https://github.com/samliew/SO-mod-userscripts/blob/master/ModFlaggerStats.user.js)
+### [Mod Flagger Stats](https://github.com/samliew/SO-mod-userscripts/blob/master/ModFlaggerStats.user.js) ♦
 
 - On post hover in mod flag queue, get and display flaggers stats (via tooltip on flag badge):<br>
   Reputation, Total Flags, Declined Flags, % Declined
