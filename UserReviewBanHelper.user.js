@@ -828,12 +828,13 @@ async function doPageLoad() {
         const pastWeek = rows.filter((i, el) => new Date(el.children[1].children[0].title) > weekAgo).length;
         const unbanDay = rows.filter((i, el) => el.children[2].innerText.match(/(just|min|hour)/)).length;
         const unbanWeek = rows.filter((i, el) => new Date(el.children[2].children[0].title) < weekAhead).length;
+        
+        // Grab constant stats; the usernames of the reviewers (without the "Bot" label or the diamond), plus the length for stats
         const banners = rows.map((i, el) => el.children[4].children[0].innerText);
-      
         const totalBans = rows.length;
       
+        // Count elements
         let bannerMap = {};
-        
         for (let username of banners) {
             bannerMap[username] = (bannerMap[username] + 1) || 1;
         }
@@ -844,6 +845,7 @@ async function doPageLoad() {
         }
         bannerHtml += "</ul></div>";
       
+        // This gets added to the end of bannedStats, after copyTable if it's loaded
         const bannerStats = $(bannerHtml);
       
         const durations = rows.map((i, el) => Number(el.children[3].innerText)).get();
