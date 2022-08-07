@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3
+// @version      3.4
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
