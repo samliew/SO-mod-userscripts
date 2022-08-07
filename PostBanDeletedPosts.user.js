@@ -123,7 +123,7 @@ function doPageLoad() {
 
     function getDeletedPosts(uid, type) {
 
-        const url = `https://${mainDomain}/search?q=user%3a${uid}%20is%3a${type}%20deleted%3a1%20score%3a..0&pagesize=30&tab=newest`;
+        const url = `https://${mainDomain}/search?q=user%3a${uid}%20is%3a${type}%20deleted%3a1%20score%3a..0&pagesize=50&tab=newest`;
         ajaxPromise(url).then(function (data) {
             const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
             const stats = $(`
