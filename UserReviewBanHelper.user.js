@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      8.2
+// @version      8.3
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -828,7 +828,26 @@ async function doPageLoad() {
         const pastWeek = rows.filter((i, el) => new Date(el.children[1].children[0].title) > weekAgo).length;
         const unbanDay = rows.filter((i, el) => el.children[2].innerText.match(/(just|min|hour)/)).length;
         const unbanWeek = rows.filter((i, el) => new Date(el.children[2].children[0].title) < weekAhead).length;
+        
+        // Grab constant stats; the usernames of the reviewers (without the "Bot" label or the diamond), plus the length for stats
+        const banners = rows.map((i, el) => el.children[4].children[0].innerText);
+        const totalBans = rows.length;
+      
+        // Count elements
+        let bannerMap = {};
+        for (let username of banners) {
+            bannerMap[username] = (bannerMap[username] + 1) || 1;
+        }
 
+        let bannerHtml = "<div><br>Mod stats:<br><ul>";
+        for (let [username, count] of Object.entries(bannerMap)) {
+            bannerHtml += `<li>${username}: ${count} (${(count / totalBans * 100.0).toFixed(2)}%)</li>`;
+        }
+        bannerHtml += "</ul></div>";
+      
+        // This gets added to the end of bannedStats, after copyTable if it's loaded
+        const bannerStats = $(bannerHtml);
+      
         const durations = rows.map((i, el) => Number(el.children[3].innerText)).get();
         const tally = {
             'count4': durations.filter(v => v <= 4).length,
@@ -891,11 +910,15 @@ Breakdown:<br>
 <td class="pl4">${tally.count365}</td>
 <td class="pl4">${tally.count366}</td>
 </tr></table>`);
+      
+      
 
         // Add a table that we can copy into a spreadsheet
         if (isSuperuser) {
             copyTable.appendTo(bannedStats);
         }
+      
+        bannerStats.appendTo(bannedStats);
 
         table.before(bannedStats);
         bannedStats.prepend(`<span>Currently, there are ${rows.length} banned reviewers, out of which:</span>`).parent().addClass('banned-reviewers-section');
