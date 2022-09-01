@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -86,6 +86,7 @@ const filterQuestions = function () {
 
   // Toggle display of each question based on active filters
   qListItems.forEach(q => {
+    const postTitle = q.querySelector('.s-post-summary--content-title a').innerText;
     const codeBlockCount = q.querySelectorAll('pre').length;
     const authorRep = Number(q.querySelector('.s-user-card--rep').innerText.replace(/\D/g, ''));
     const postLength = Number(q.querySelector('.post-length').innerText);
@@ -95,6 +96,7 @@ const filterQuestions = function () {
 
     // Hide question if it doesn't match any active filters
     const isHidden =
+      (activeFilters.includes('open-only') && (postTitle.includes('[closed]') || postTitle.includes('[duplicate]'))) ||
       (activeFilters.includes('no-code') && codeBlockCount > 0) ||
       (activeFilters.includes('low-rep') && authorRep >= 200) ||
       (activeFilters.includes('too-short') && postLength >= 500) ||
@@ -282,6 +284,7 @@ const initQuestionListFilter = async function () {
   if (!sidebar) return;
 
   const filterOptions = [
+    'open-only',
     'no-code',
     'low-rep',
     'too-short',
