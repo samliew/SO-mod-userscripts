@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.1
+// @version      2.2
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -88,7 +88,7 @@ const filterQuestions = function () {
   qListItems.forEach(q => {
     const postTitle = q.querySelector('.s-post-summary--content-title a').innerText;
     const codeBlockCount = q.querySelectorAll('pre').length;
-    const authorRep = Number(q.querySelector('.s-user-card--rep').innerText.replace(/\D/g, ''));
+    const authorRep = Number(q.querySelector('.s-user-card--rep').innerText.replace(/(\.\d*)?k$/, '000').replace(/(\.\d*)?m$/, '000000').replace(/\D/g, ''));
     const postLength = Number(q.querySelector('.post-length').innerText);
     const commentCount = Number(q.querySelector('.comment-count').innerText);
     const answerCount = Number(q.querySelectorAll('.s-post-summary--stats-item-number')[1].innerText);
