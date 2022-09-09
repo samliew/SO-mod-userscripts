@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3
+// @version      3.4
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -915,11 +915,6 @@ body > div[style*="absolute"].ui-widget {
 }
 .list-originals .post-link a {
     font-weight: normal;
-}
-nav a *,
-.subcommunity-avatar * {
-    color: inherit;
-    background-color: inherit;
 }
 .s-post-summary__watched:not(.s-post-summary__ignored) {
     border-left: 5px solid #a58700;
