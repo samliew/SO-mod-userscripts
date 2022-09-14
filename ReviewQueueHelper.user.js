@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      4.23
+// @version      4.24
 //
 // @include      https://*stackoverflow.com/review/*
 // @include      https://*serverfault.com/review/*
@@ -376,35 +376,45 @@ const toastMessage = (msg, durationSeconds = defaultDuration) => {
 };
 
 
-// Close individual post
-// closeReasonId: 'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
-// if closeReasonId is 'SiteSpecific', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
-function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', offtopicReasonId = 3, offTopicOtherText = 'I’m voting to close this question because ', duplicateOfQuestionId = null) {
+/**
+ * @summary Close a question
+ * @param {Number} pid question id
+ * @param {String} closeReasonId close reason id
+ * @param {Number} siteSpecificCloseReasonId off-topic reason id
+ * @param {String} siteSpecificOtherText custom close reason text
+ * @param {Number|null} duplicateOfQuestionId duplicate question id
+ * @returns {Promise<void>}
+ */
+// closeReasonId:  'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
+// (SO) If closeReasonId is 'SiteSpecific', siteSpecificCloseReasonId:  18-notsoftwaredev, 16-toolrec, 13-nomcve, 11-norepro, 3-custom, 2-migration
+function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', siteSpecificCloseReasonId = 3, siteSpecificOtherText = 'I’m voting to close this question because ', duplicateOfQuestionId = null) {
+    const fkey = StackExchange.options.user.fkey;
+    const isSO = location.hostname === 'stackoverflow.com';
     return new Promise(function (resolve, reject) {
         if (!isSO) { reject(); return; }
         if (typeof pid === 'undefined' || pid === null) { reject(); return; }
         if (typeof closeReasonId === 'undefined' || closeReasonId === null) { reject(); return; }
-        if (closeReasonId === 'SiteSpecific' && (typeof offtopicReasonId === 'undefined' || offtopicReasonId === null)) { reject(); return; }
+        if (closeReasonId === 'SiteSpecific' && (typeof siteSpecificCloseReasonId === 'undefined' || siteSpecificCloseReasonId === null)) { reject(); return; }
 
-        if (closeReasonId === 'Duplicate') offtopicReasonId = null;
+        if (closeReasonId === 'Duplicate') siteSpecificCloseReasonId = null;
 
         // Logging actual action
-        console.debug(`[${scriptName}] %c Closing ${pid} as ${closeReasonId}, reason ${offtopicReasonId}.`, 'font-weight: bold');
+        console.debug(`[${scriptName}] %c Closing ${pid} as ${closeReasonId}, reason ${siteSpecificCloseReasonId}.`, 'font-weight: bold');
 
         $.post({
-            url: `https://${location.hostname}/flags/questions/${pid}/close/add`,
-            data: {
-                'fkey': fkey,
-                'closeReasonId': closeReasonId,
-                'duplicateOfQuestionId': duplicateOfQuestionId,
-                'siteSpecificCloseReasonId': offtopicReasonId,
-                'siteSpecificOtherText': offtopicReasonId == 3 && isSO ? 'This question does not appear to be about programming within the scope defined in the [help]' : offTopicOtherText,
-                //'offTopicOtherCommentId': '',
-                'originalSiteSpecificOtherText': 'I’m voting to close this question because ',
-            }
+        url: `https://${location.hostname}/flags/questions/${pid}/close/add`,
+        data: {
+            'fkey': fkey,
+            'closeReasonId': closeReasonId,
+            'duplicateOfQuestionId': duplicateOfQuestionId,
+            'siteSpecificCloseReasonId': siteSpecificCloseReasonId,
+            'siteSpecificOtherText': siteSpecificCloseReasonId == 3 && isSO ? 'This question does not appear to be about programming within the scope defined in the [help]' : siteSpecificOtherText,
+            //'offTopicOtherCommentId': '',
+            'originalSiteSpecificOtherText': 'I’m voting to close this question because ',
+        }
         })
-            .done(resolve)
-            .fail(reject);
+        .done(resolve)
+        .fail(reject);
     });
 }
 
