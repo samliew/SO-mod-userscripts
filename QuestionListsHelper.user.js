@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      3.0
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -44,6 +44,50 @@ async function waitForSOMU() {
  * @returns {Promise<void>}
  */
 const wait = (seconds = 1) => new Promise((r) => setTimeout(r, seconds * 1e3));
+
+
+/**
+ * @summary Close a question
+ * @param {Number} pid question id
+ * @param {String} closeReasonId close reason id
+ * @param {Number} siteSpecificCloseReasonId off-topic reason id
+ * @param {String} siteSpecificOtherText custom close reason text
+ * @param {Number|null} duplicateOfQuestionId duplicate question id
+ * @returns {Promise<void>}
+ */
+// closeReasonId:  'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
+// (SO) If closeReasonId is 'SiteSpecific', siteSpecificCloseReasonId:  18-notsoftwaredev, 16-toolrec, 13-nomcve, 11-norepro, 3-custom, 2-migration
+function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', siteSpecificCloseReasonId = 3, siteSpecificOtherText = 'I’m voting to close this question because ', duplicateOfQuestionId = null) {
+  const fkey = StackExchange.options.user.fkey;
+  const isSO = location.hostname === 'stackoverflow.com';
+  return new Promise(function (resolve, reject) {
+    if (!isSO) { reject(); return; }
+    if (typeof pid === 'undefined' || pid === null) { reject(); return; }
+    if (typeof closeReasonId === 'undefined' || closeReasonId === null) { reject(); return; }
+    if (closeReasonId === 'SiteSpecific' && (typeof siteSpecificCloseReasonId === 'undefined' || siteSpecificCloseReasonId === null)) { reject(); return; }
+
+    if (closeReasonId === 'Duplicate') siteSpecificCloseReasonId = null;
+
+    // Logging actual action
+    console.debug(`[${scriptName}] %c Closing ${pid} as ${closeReasonId}, reason ${siteSpecificCloseReasonId}.`, 'font-weight: bold');
+
+    $.post({
+      url: `https://${location.hostname}/flags/questions/${pid}/close/add`,
+      data: {
+        'fkey': fkey,
+        'closeReasonId': closeReasonId,
+        'duplicateOfQuestionId': duplicateOfQuestionId,
+        'siteSpecificCloseReasonId': siteSpecificCloseReasonId,
+        'siteSpecificOtherText': siteSpecificCloseReasonId == 3 && isSO ? 'This question does not appear to be about programming within the scope defined in the [help]' : siteSpecificOtherText,
+        //'offTopicOtherCommentId': '',
+        'originalSiteSpecificOtherText': 'I’m voting to close this question because ',
+      }
+    })
+    .done(resolve)
+    .fail(reject);
+  });
+}
+
 
 /**
  * @summary Get questions
@@ -92,13 +136,12 @@ const filterQuestions = function () {
     const postLength = Number(q.querySelector('.post-length').innerText);
     const commentCount = Number(q.querySelector('.comment-count').innerText);
     const answerCount = Number(q.querySelectorAll('.s-post-summary--stats-item-number')[1].innerText);
-    console.log(codeBlockCount, authorRep, postLength, commentCount, answerCount);
 
     // Hide question if it doesn't match any active filters
     const isHidden =
       (activeFilters.includes('open-only') && (postTitle.includes('[closed]') || postTitle.includes('[duplicate]'))) ||
       (activeFilters.includes('no-code') && codeBlockCount > 0) ||
-      (activeFilters.includes('low-rep') && authorRep >= 200) ||
+      (activeFilters.includes('low-rep') && authorRep >= 500) ||
       (activeFilters.includes('too-short') && postLength >= 500) ||
       (activeFilters.includes('no-comments') && commentCount > 0) ||
       (activeFilters.includes('no-answers') && answerCount > 0);
@@ -127,7 +170,7 @@ const processQuestionLists = async function () {
 
   // Each item from API
   questions?.forEach(question => {
-    const { question_id, body, comments, comment_count, favorite_count, closed_reason, closed_details, notice } = question;
+    const { question_id, body, comments, comment_count, favorite_count, close_vote_count, closed_date, locked_date, closed_reason, closed_details, notice } = question;
 
     const qElem = document.getElementById(`question-summary-${question_id}`);
     if (!qElem) return; // not a question, do nothing
@@ -164,6 +207,7 @@ const processQuestionLists = async function () {
 </div>`;
     }
 
+    // Add comment and post length stats
     statsHtml += `
 <div class="s-post-summary--stats-item ${comment_count >= 10 ? 'is-supernova' : ''}">
   <span class="s-post-summary--stats-item-number comment-count">${comment_count}</span><span class="s-post-summary--stats-item-unit">comments</span>
@@ -172,6 +216,16 @@ const processQuestionLists = async function () {
 <div class="s-post-summary--stats-item ${postLength < 200 || postLength >= 10000 ? 'is-supernova' : ''}" title="length of post text">
   <span class="s-post-summary--stats-item-number post-length">${postLength}</span><span class="s-post-summary--stats-item-unit">chars</span>
 </div>`;
+
+    // Add close button
+    const canClose = !closed_date && !locked_date;
+    if(canClose) {
+      statsHtml += `
+        <button type="button" class="js-close-question-link s-btn s-btn__link" title="Vote to close this question" data-is-closed="false" data-has-active-vote="${close_vote_count}" data-question-id="${question_id}">
+          Close ${close_vote_count ? "(" + close_vote_count + ")" : ""}
+        </button>
+      `;
+    }
 
     // Append to post stats
     qStats.innerHTML += statsHtml;
@@ -339,6 +393,274 @@ const initQuestionListFilter = async function () {
 
 
 /**
+ * @summary Handle duplicate search event in close dialog
+ */
+function doDupeSearch(closeModal) {
+  const qid = closeModal.dataset.questionid || closeModal.dataset.postid;
+  const dupeSearch = closeModal.querySelector('#duplicate-search, .js-duplicate-search-field');
+  const searchQuery = dupeSearch.value.trim();
+  const dupeNavi = closeModal.querySelector('.navi-container');
+  const resultElem = closeModal.querySelector('.original-display .list-container');
+  const previewElem = closeModal.querySelector('.preview');
+  const errorElem = closeModal.querySelector('.search-errors');
+  const dupeIdField = closeModal.querySelector('#original-question-id');
+  const modalSubmit = closeModal.querySelector('.js-popup-submit');
+
+  if (!searchQuery) {
+    return;
+  }
+
+  // Clear search error message
+  errorElem.innerText = '';
+
+  fetch(`https://${location.hostname}/posts/popup/close/search-originals/${qid}?q=${searchQuery}`).then(
+    response => response.text()
+  ).then(async html => {
+    // Single result preview
+    if (html && html.startsWith('<div class="show-original">')) {
+      previewElem.innerHTML = html;
+      previewElem.style.display = 'block';
+      resultElem.style.display = 'none';
+      modalSubmit.disabled = false;
+
+      dupeIdField.value = previewElem.querySelector('.js-question').dataset.questionid;
+
+      if (dupeNavi.children.length) {
+        dupeNavi.children[0].innerHTML = `<a>${dupeNavi.children[0].dataset.abbr}</a>`;
+
+        // Add event listener to return to results
+        dupeNavi.querySelector('a').addEventListener('click', function (evt) {
+          dupeIdField.value = '';
+          previewElem.style.display = 'none';
+          resultElem.style.display = 'block';
+          modalSubmit.disabled = true;
+          dupeNavi.children[0].innerText = dupeNavi.children[0].dataset.text;
+          dupeSearch.value = dupeSearch.dataset.originalSearch ?? '';
+        });
+      }
+      return;
+    }
+
+    // List of results
+    resultElem.innerHTML = html;
+    await wait(0.01);
+    dupeNavi.innerHTML = resultElem.querySelector('.navi').outerHTML;
+
+    // No suggestions, clear
+    if (!dupeNavi.children.length) {
+      errorElem.innerText = 'Your search returned no matches; please try a different search';
+      resultElem.innerHTML = '';
+      return;
+    }
+
+    dupeNavi.children[0].innerText = dupeNavi.children[0].dataset.text;
+
+    // Add event listener to preview result
+    resultElem.querySelectorAll('.item').forEach(el => el.addEventListener('click', evt => {
+      evt.preventDefault();
+      const url = evt.currentTarget.querySelector('.post-link a').href;
+      dupeSearch.dataset.originalSearch = searchQuery;
+      dupeSearch.value = url;
+      doDupeSearch(closeModal);
+    }));
+
+  }).catch(error => {
+    errorElem.innerText = 'Your search returned no matches; please try a different search';
+    resultElem.innerHTML = '';
+  });
+}
+
+
+/**
+ * @summary Add event listeners (close buttons)
+ */
+const initEventListeners = async function () {
+  document.addEventListener('click', function (evt) {
+    const closeBtn = evt.target;
+    if (!closeBtn?.classList?.contains('js-close-question-link')) return;
+
+    const qid = closeBtn.dataset.questionId;
+    if (!qid) return;
+
+    // Fetch close reason dialog
+    fetch(`https://${location.hostname}/flags/questions/${qid}/close/popup?loadedTimestamp=1663118348686`).then(
+      response => response.text()
+    ).then(html => {
+      // Insert close reason dialog after close button
+      const closeWrapper = document.createElement('div');
+      closeWrapper.innerHTML = html;
+      closeBtn.parentNode.insertBefore(closeWrapper, null);
+
+      // Remove dialog wrapper on click
+      closeWrapper.addEventListener('click', function (evt) {
+        closeWrapper.remove();
+      });
+
+      // Get elements in dialog
+      const closeModal = closeWrapper.querySelector('#popup-close-question');
+      const modalTitle = closeModal.querySelector('.popup-title');
+      const modalBreadcrumbs = closeModal.querySelector('.js-breadcrumbs');
+      const form = closeWrapper.querySelector('form');
+      const mainPane = closeModal.querySelector('#pane-main');
+      const submitBtn = closeModal.querySelector('.js-popup-submit');
+      const backBtn = closeModal.querySelector('.js-popup-back');
+      const cancelBtn = closeModal.querySelector('.js-popup-cancel');
+      const radios = closeModal.querySelectorAll('input');
+      const dupeSearch = closeModal.querySelector('#duplicate-search, .js-duplicate-search-field');
+      const dupeNavi = closeModal.querySelector('.navi-container');
+
+      // Center dialog in window
+      setTimeout(closeModal => {
+        closeModal.style.position = 'fixed';
+        closeModal.style.top = (window.innerHeight / 2) - (closeModal.offsetHeight / 2) + 'px';
+        closeModal.style.left = (window.innerWidth / 2) - (closeModal.offsetWidth / 2) + 'px';
+      }, 10, closeModal);
+
+      // Add name to duplicate question field
+      form.querySelector('#original-question-id').name = 'duplicateOfQuestionId';
+
+      // Add breadcrumbs
+      const bcDivider = `<svg aria-hidden="true" class="svg-icon iconArrowRightAltSm s-breadcrumbs--divider d-none" width="13" height="14" viewBox="0 0 13 14"><path d="m4.38 4.62 1.24-1.24L9.24 7l-3.62 3.62-1.24-1.24L6.76 7 4.38 4.62Z"></path></svg>`
+      modalBreadcrumbs.innerHTML = `<div class="s-breadcrumbs--item"><span class="s-breadcrumbs--link c-pointer" tabindex="0" role="button">Closing</span>${bcDivider}</div>`;
+      modalBreadcrumbs.classList.remove('d-none');
+
+      // Event listeners for close dialog
+      closeModal.classList.add('d-block');
+      closeModal.addEventListener('click', function (evt) {
+        // Don't bubble up to parent
+        evt.stopPropagation();
+      });
+
+      // Event listeners for close buttons
+      const btns = closeModal.querySelectorAll('.popup-close a, .js-popup-close');
+      btns.forEach(btn => btn.addEventListener('click', function (evt) {
+        closeWrapper.remove();
+      }));
+
+      // Event listeners for back buttons to toggle subpanes
+      const homeLink = closeModal.querySelector('.s-breadcrumbs--item:first-child');
+      [homeLink, backBtn].forEach(btn => btn.addEventListener('click', function (evt) {
+        // Hide all subpanes
+        const subpanes = closeModal.querySelectorAll('.popup-subpane');
+        subpanes.forEach(pane => pane.classList.add('dno'));
+
+        // Show main pane
+        mainPane.classList.remove('dno');
+
+        // Hide back button and show cancel button
+        backBtn.classList.add('d-none');
+        cancelBtn.classList.remove('d-none');
+
+        // Clear radio buttons checked state
+        radios.forEach(radio => radio.checked = false);
+
+        // Disable close button
+        submitBtn.disabled = true;
+
+        // Change title
+        modalTitle.innerText = 'Why should this question be closed?';
+      }));
+
+      // Event listeners for radio buttons to toggle subpanes
+      radios.forEach(radio => radio.addEventListener('change', function (evt) {
+        const subpane = closeWrapper.querySelector(`.popup-subpane[data-subpane-name="${this.dataset.subpaneName}"]`);
+        if (!subpane) {
+          // Enable close button
+          submitBtn.disabled = false;
+          return;
+        }
+
+        // Disable close button
+        submitBtn.disabled = true;
+
+        // Hide all subpanes
+        const subpanes = closeModal.querySelectorAll('.popup-subpane');
+        subpanes.forEach(pane => pane.classList.add('dno'));
+
+        // Hide main pane
+        mainPane.classList.add('dno');
+
+        // Show selected subpane
+        subpane.classList.remove('dno');
+
+        // Show back button and hide cancel button
+        backBtn.classList.remove('d-none');
+        cancelBtn.classList.add('d-none');
+
+        // If duplicate search selected
+        if (this.value === 'Duplicate' || this.dataset.subpaneName === 'duplicate') {
+
+          // Change title
+          modalTitle.innerText = 'What question is this a duplicate of?';
+
+          // Focus duplicate search field
+          form.querySelector('#duplicate-search, .js-duplicate-search-field').focus();
+
+          // Load initial duplicate search suggestions if not already loaded
+          if (dupeSearch.value) return;
+          const resultElem = subpane.querySelector('.original-display .list-container');
+          fetch(resultElem.dataset.loadUrl).then(
+            response => response.text()
+          ).then(async html => {
+            resultElem.innerHTML = html;
+            await wait(0.01);
+            dupeNavi.innerHTML = resultElem.querySelector('.navi').outerHTML;
+
+            // No suggestions, clear
+            if (!dupeNavi.children.length) {
+              resultElem.innerHTML = '';
+              return;
+            }
+
+            dupeNavi.children[0].innerText = dupeNavi.children[0].dataset.text ?? '';
+
+            // Add event listener to preview result
+            resultElem.querySelectorAll('.item').forEach(el => el.addEventListener('click', evt => {
+              evt.preventDefault();
+              const url = evt.currentTarget.querySelector('.post-link a').href;
+              dupeSearch.value = url;
+              doDupeSearch(closeModal);
+            }));
+          });
+        }
+      }));
+
+      // Event listeners for duplicate search field
+      let searchDebounceTimeout;
+      dupeSearch.addEventListener('input', evt => {
+        if(searchDebounceTimeout) clearTimeout(searchDebounceTimeout);
+        searchDebounceTimeout = setTimeout(doDupeSearch, 1000, closeModal);
+      });
+
+      // Event listeners for form submit
+      form.addEventListener('submit', function (evt) {
+        const closeReasonId = form.closeReasonId.value ?? undefined;
+        const siteSpecificCloseReasonId = form.siteSpecificCloseReasonId.value ?? undefined;
+        const siteSpecificOtherText = form.siteSpecificOtherText.value ?? undefined;
+        const duplicateOfQuestionId = form.duplicateOfQuestionId.value ?? undefined;
+        const belongsOnBaseHostAddress = form.belongsOnBaseHostAddress.value ?? undefined;
+
+        // TODO: Test migration
+        if (belongsOnBaseHostAddress) {
+          return; // Use normal form submit action
+        }
+
+        // We do our own AJAX submission to avoid page reload
+        evt.preventDefault();
+        closeQuestionAsOfftopic(qid, closeReasonId, siteSpecificCloseReasonId, siteSpecificOtherText, duplicateOfQuestionId).then(() => {
+          // Remove dialog wrapper
+          closeWrapper.remove();
+          // Rename close button and disable it
+          closeBtn.innerText = 'Closed';
+          closeBtn.disabled = true;
+        });
+      });
+    });
+  });
+};
+
+
+/**
  * @summary Main async function
  */
 const doPageLoad = async function () {
@@ -380,6 +702,9 @@ const doPageLoad = async function () {
 
   // Do once on page load
   await processQuestionLists();
+
+  // Add event listeners
+  initEventListeners();
 };
 
 
