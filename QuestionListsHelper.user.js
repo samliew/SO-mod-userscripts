@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1
+// @version      3.2
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -653,11 +653,12 @@ const initEventListeners = async function () {
           return; // Use normal form submit action
         }
 
+        // Remove dialog wrapper
+        closeWrapper.remove();
+
         // We do our own AJAX submission to avoid page reload
         evt.preventDefault();
         closeQuestionAsOfftopic(qid, closeReasonId, siteSpecificCloseReasonId, siteSpecificOtherText, duplicateOfQuestionId).then(() => {
-          // Remove dialog wrapper
-          closeWrapper.remove();
           // Rename close button and disable it
           closeBtn.innerText = 'Closed';
           closeBtn.disabled = true;
