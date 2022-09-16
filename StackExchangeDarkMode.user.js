@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.5
+// @version      3.6
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -1493,17 +1493,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const chatLogoLinks = $('#footer-logo, #transcript-logo, #header-logo').children('a');
     const chatLogoUrl = chatLogoLinks.attr('href') || '';
     if (location.hostname === "stackoverflow.com") {
-        $('.top-bar .-logo .-img').replaceWith(soLogo);
+        $('.s-topbar .s-topbar--logo .-img').replaceWith(soLogo);
     }
     else if (location.hostname === "chat.stackoverflow.com" || chatLogoUrl.includes('stackoverflow.com')) {
         chatLogoImages.replaceWith(soLogo);
     }
     else if (location.hostname === "superuser.com" || chatLogoUrl.includes('superuser.com')) {
-        $('.site-header .site-header--link img').replaceWith(suLogo);
+        $('.s-topbar .s-topbar--logo .-img').replaceWith(suLogo);
         chatLogoImages.replaceWith(suLogo);
     }
     else if (location.hostname === "serverfault.com" || chatLogoUrl.includes('serverfault.com')) {
-        $('.site-header .site-header--link img').replaceWith(sfLogo);
+        $('.s-topbar .s-topbar--logo .-img').replaceWith(sfLogo);
         chatLogoImages.replaceWith(sfLogo);
     }
     else if (location.hostname === "stackapps.com") {
