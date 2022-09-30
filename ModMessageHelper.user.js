@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11
+// @version      2.12
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -265,19 +265,19 @@ function getDeletedPosts(uid, type) {
     $.get(url).done(function (data) {
         const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
         const stats = $(`
-                <div class="post-ban-deleted-posts">
-                    User has <a href="${url}" target="_blank">${count} deleted ${type}s</a>, score &lt;= 0
-                </div>`).appendTo('#sidebar');
+            <div class="post-ban-deleted-posts">
+                User has <a href="${url}" target="_blank">${count} deleted ${type}s</a>, score &lt;= 0
+            </div>`).appendTo('#sidebar');
 
         // If no deleted posts, do nothing
         if (isNaN(count) || count <= 0) return;
 
         // Add deleted posts to the stats element
-        const results = $('.js-search-results .search-result', data);
+        const results = $('.search-results .search-result, .js-search-results .s-card', data);
 
         // Add copyable element to the results
         const hyperlinks = results.find('a').attr('href', (i, v) => 'https://' + location.hostname + v).attr('target', '_blank');
-        const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1 + i}](${toShortLink(el.href)})`).get();
+        const hyperlinks2 = hyperlinks.filter('.s-link[data-searchsession^="/"], .answer-hyperlink').map((i, el) => `[${1 + i}](${toShortLink(el.href)})`).get();
         const comment = `Additionally, you have ${hyperlinks2.length} deleted ${type}${hyperlinks2.length == 1 ? '' : 's'}, which may be contributing to the [${type} ban](https://${location.hostname}/help/${type}-bans): ${hyperlinks2.join(' ')}`;
         const commentArea = $(`<textarea readonly="readonly" class="h128 s-textarea"></textarea>`).val(comment).appendTo(stats);
     });
