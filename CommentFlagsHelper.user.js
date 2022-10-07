@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      7.5
+// @version      7.6
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -91,7 +91,7 @@ const rudeKeywords = [
     'read[\\w\\s]+(tutorial|docs|manual)', 'lack[\\w\\s]+research', 'https?:\\/\\/idownvotedbecau.se/\\w+/?',
     'googl(ed?|ing)\\s?', 'https:\\/\\/www.google[^\\s]+',
 ];
-const rudeRegex = new RegExp('\\s?(' + rudeKeywords.join('|') + ')(?![/-])', 'gi');
+const rudeRegex = new RegExp('(\\s*)(' + rudeKeywords.join('|') + ')(?![/-])', 'gi');
 
 // Special characters must be escaped with \\
 const chattyKeywords = [
