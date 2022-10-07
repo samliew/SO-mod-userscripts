@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      7.4
+// @version      7.5
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
@@ -83,14 +83,15 @@ $.fn.moderatorsOnly = function () {
 
 // Special characters must be escaped with \\
 const rudeKeywords = [
-    'fuck\\w*', 'arse', 'cunts?', 'dick', 'cock', 'pussy', 'hell', 'stupid', 'idiot', '!!+', '\\?\\?+',
+    'fuck\\w*', 'arse', 'cunts?', 'dick', 'cock', 'pussy', 'hell', 'stupid', 'idiot',
     'grow up', 'shame', 'wtf', 'garbage', 'trash', 'spam', 'damn', 'horrible', '(in)?ability',
     'nonsense', 'never work', 'illogical', 'fraud', 'crap', '(bull|cow|horse)?\\s?shit', 'screw',
     'reported', 'get lost', 'useless', 'deleted?', 'delete[\\w\\s]+(answer|question|comment)',
     'gay', 'lesbian', 'sissy', 'brain', 'rtfm', 'blind', 'retard(ed)?', 'jerks?', 'bitch\\w*', 'silly',
     'read[\\w\\s]+(tutorial|docs|manual)', 'lack[\\w\\s]+research', 'https?:\\/\\/idownvotedbecau.se/\\w+/?',
+    'googl(ed?|ing)\\s?', 'https:\\/\\/www.google[^\\s]+',
 ];
-const rudeRegex = new RegExp('\\s(' + rudeKeywords.join('|') + ')(?![/-])', 'gi');
+const rudeRegex = new RegExp('\\s?(' + rudeKeywords.join('|') + ')(?![/-])', 'gi');
 
 // Special characters must be escaped with \\
 const chattyKeywords = [
@@ -100,16 +101,23 @@ const chattyKeywords = [
     'exactly', 'check', 'lol', 'ha(ha)+', 'women', 'girl', 'dude', 'effort', 'understand', 'want', 'need', 'little',
     'give up', 'documentation', 'what[\\w\\s]+(try|tried)[\\w\\s]*\\?*', 'free', 'obvious', 'tried',
     'move on', 'go away', 'stop', 'bad', 'bother', 'no sense', 'sense', 'learn', 'ugly', 'read', 'pay(ing)?',
-    '(down|up)[-\\s]?vot(er|ed|e|ing)', '\\w+ off', 'jesus', 'allah', 'unnecessary', 'code(-\s)writing',
-    'googl(ed?|ing)\\s?', 'https:\\/\\/www.google[^\\s]+',
+    '(down|up)[-\\s]?vot(er|ed|e|ing)', '\\w{2,} off', 'jesus', 'allah', 'unnecessary', 'code(-\s)writing',
+     '!!+', '\\?\\?+',
 ];
-const chattyRegex = new RegExp('\\s(' + chattyKeywords.join('|') + ')(?![/-])', 'gi');
+const chattyRegex = new RegExp('(\\s*)(' + chattyKeywords.join('|') + ')(?![/-])', 'gi');
+
+// Special characters must be escaped with \\
+const ignoreKeywords = [
+    'attribution', 'plagiari[sz]ed?',
+];
+const ignoreRegex = new RegExp('(\\s*)(' + ignoreKeywords.join('|') + ')(?![/-])', 'gi');
 
 
 function replaceKeywords(jqElem) {
     let text = ' ' + this.innerHTML;
-    text = text.replace(/[*]+/g, ' * ').replace(rudeRegex, ' <mark class="cmmt-rude">$1</mark>');
-    text = text.replace(/[*]+/g, ' * ').replace(chattyRegex, ' <mark class="cmmt-chatty">$1</mark>');
+    text = text.replace(/[*]+/g, ' * ').replace(rudeRegex, '$1<mark class="cmmt-rude">$2</mark>');
+    text = text.replace(/[*]+/g, ' * ').replace(chattyRegex, '$1<mark class="cmmt-chatty">$2</mark>');
+    text = text.replace(/[*]+/g, ' * ').replace(ignoreRegex, '$1<mark class="cmmt-ignore">$2</mark>');
     this.innerHTML = text;
 }
 
@@ -406,6 +414,16 @@ function doPageLoad() {
                     .appendTo(actionBtns)
                     .click(); // auto
             }
+
+            // Delete R/A comments on page
+            $('<button class="s-btn s-btn__xs s-btn__filled s-btn__danger" title="Delete comments with rude/offensive keywords">Rude</button>')
+                .on('click', function () {
+                    $(this).remove();
+                    const rudeComments = $('.cmmt-rude').filter(':visible').parents('.js-flagged-comment').find('.js-comment-delete');
+                    $('body').showAjaxProgress(rudeComments.length, { position: 'fixed' });
+                    rudeComments.click();
+                })
+                .appendTo(actionBtns);
 
             // Delete chatty comments on page
             $('<button class="s-btn s-btn__xs s-btn__filled s-btn__danger" title="Delete comments with chatty keywords">Chatty</button>')
@@ -894,6 +912,10 @@ mark {
 .cmmt-chatty {
     background-color: var(--orange-200);
     font-weight: bold;
+}
+.cmmt-ignore {
+    font-weight: normal;
+    font-style: italic;
 }
 
 #actionBtns {
