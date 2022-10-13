@@ -448,9 +448,9 @@ function initModMessageHelper() {
     function addCustomModMessageTemplates() {
 
         // Make the popup draggable!
-        const popup = $('#show-templates').siblings('.popup').first();
+        const popup = $('.s-modal--dialog').first();
         popup.attr('data-controller', 'se-draggable');
-        popup.find('h2').first().attr('data-target', 'se-draggable.handle');
+        popup.find('h1').first().attr('data-target', 'se-draggable.handle');
 
         const actionList = popup.find('.action-list');
         if (actionList.length === 0) return;
@@ -463,7 +463,7 @@ function initModMessageHelper() {
             $(this).addClass('action-selected').find('.action-desc').slideDown(200);
             $(this).find('input:radio').prop('checked', true);
             $(this).siblings().removeClass('action-selected').find('.action-desc').slideUp(200);
-            $('.popup-submit').prop('disabled', false);
+            $('.js-popup-submit').prop('disabled', false);
         });
 
         // Message vars (should not be edited here)
