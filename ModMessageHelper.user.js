@@ -317,6 +317,34 @@ function initModMessageHelper() {
     // The rest of this function is for creating new messages
     if (!location.pathname.includes('/users/message/create/')) return;
 
+    const onPageReady = () => {
+        // click select template link on page load
+        $('.js-load-modal').click();
+    };
+
+    // Based on Henry Ecker's code for hooking onCreated in prepareEditor:
+    // https://chat.stackoverflow.com/transcript/message/55366767#55366767
+    const addProxies = () => {
+        StackExchange.prepareEditor = new Proxy(StackExchange.prepareEditor, {
+            apply: (target, thisArg, [options]) => {
+                if (options?.onCreated !== undefined) {
+                    const oldOnCreated = options.onCreated;
+                    options.onCreated = (editor) => {
+                        oldOnCreated(editor);
+                        onPageReady();
+                    };
+                } else {
+                    options.onCreated = onPageReady;
+                }
+                target(options);
+            }
+        });
+    };
+
+    StackExchange.ready(() => {
+        addProxies();
+    });
+
     const template = getQueryParam('action');
 
     // If low-quality-questions template was selected, fetch deleted questions
@@ -348,12 +376,9 @@ function initModMessageHelper() {
         }
     });
 
-    // click select template link on page load
-    $('#show-templates').click();
-
 
     function selectModMessage(template) {
-        const popup = $('#show-templates').siblings('.popup').first();
+        const popup = $('.s-modal--dialog').first();
         const actionList = popup.find('.action-list');
         const hr = actionList.children('hr').index();
         const numberOfItems = hr > 0 ? hr : actionList.children('li').length;
@@ -414,7 +439,7 @@ function initModMessageHelper() {
             }
         }
 
-        const popupSubmit = popup.find('.popup-submit');
+        const popupSubmit = popup.find('.js-popup-submit');
         if (!popupSubmit.prop('disabled')) popupSubmit.click();
     }
 
