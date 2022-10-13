@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.12
+// @version      3.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -289,28 +289,29 @@ function initModMessageHelper() {
     if (location.pathname.includes('/users/message/')) {
 
         // We do not need chat in the sidebar, thanks.
-        $('.js-chat-ad-rooms').closest('.s-sidebarwidget').remove();
+        $('.js-chat-ad-link').closest('.s-sidebarwidget').remove();
 
         // Move generic warning to sidebar
-        $('#mainbar > .module.system-alert').prependTo($('#sidebar')).find('#confirm-new').text((i, v) => v.trim());
+        $('#mainbar > .s-notice.s-notice__warning').prependTo($('#sidebar')).find('#confirm-new').text((i, v) => v.trim());
 
         // Show hidden email field
-        $('#send-email').attr('type', 'checkbox').prop('checked', true).change(function () {
-            $('#to_warning').toggleClass('hidden', !this.checked);
+        $('#js-send-email, input[name="email"]').attr('type', 'checkbox').prop('checked', true).change(function () {
+            $('#js-to-warning').toggleClass('hidden', !this.checked);
         }).wrap('<label for="send-email" class="dblock">send email: </label>');
-        // Show alternate message if no email
-        $('#to_warning').after(`<div id="to_warning_2" class="system-alert">The user will only receive this message on Stack Overflow.</div>`);
 
-        $('#copyPanel > table').first().addClass('mb12');
+        // Show alternate message if no email
+        $('#js-to-warning').after(`<div id="js-to-warning_2" class="s-notice s-notice__info mt8">The user will <em>only</em> receive this message on Stack Overflow.</div>`);
+
+        $('#js-copy-panel > table').first().addClass('mb12');
 
         if (showHiddenFields) {
 
             // Show hidden fields
-            $('#templateName, #suspendReason, #templateEdited').attr('type', 'text').addClass('d-inline-block s-input s-input__sm w70');
+            $('#js-template-name, #js-suspend-reason, #js-template-edited').attr('type', 'text').addClass('d-inline-block s-input s-input__sm w70');
 
-            $('#templateName').wrap('<label for="templateName" class="dblock"></label>').before(`<span class="inline-label">template name:</span>`);
-            $('#suspendReason').wrap('<label for="suspendReason" class="dblock"></label>').before(`<span class="inline-label" title="publicly displayed as 'This account is temporarily suspended ___'"><span style="border-bottom: 1px dotted #000">suspend reason:</span></span>`);
-            $('#templateEdited').wrap('<label for="templateEdited" class="dblock"></label>').before(`<span class="inline-label">template edited:</span>`);
+            $('#js-template-name').wrap('<label for="js-template-name" class="dblock"></label>').before(`<span class="inline-label">template name:</span>`);
+            $('#js-suspend-reason').wrap('<label for="js-suspend-reason" class="dblock"></label>').before(`<span class="inline-label" title="publicly displayed as 'This account is temporarily suspended _____'"><span style="border-bottom: 1px dotted #000">suspend reason:</span></span>`);
+            $('#js-template-edited').wrap('<label for="js-template-edited" class="dblock"></label>').before(`<span class="inline-label">template edited:</span>`);
         }
     }
 
@@ -319,7 +320,7 @@ function initModMessageHelper() {
 
     const onPageReady = () => {
         // click select template link on page load
-        $('.js-load-modal').click();
+        $('.js-load-modal').trigger('click');
     };
 
     // Based on Henry Ecker's code for hooking onCreated in prepareEditor:
@@ -354,7 +355,7 @@ function initModMessageHelper() {
     }
 
     // Restrict max suspension days to 365, otherwise it fails rudely
-    $('#suspendDays').attr('type', 'number').attr('max', '365');
+    $('#js-suspend-days').attr('type', 'number').attr('max', '365');
 
     // On any page update
     let hasRun = false;
@@ -375,7 +376,7 @@ function initModMessageHelper() {
             }
         }
     });
-
+    
 
     function selectModMessage(template) {
         const popup = $('.s-modal--dialog').first();
@@ -433,7 +434,7 @@ function initModMessageHelper() {
                         actionListItem.click().triggerHandler('click');
 
                         // Set custom susp duration to template default days
-                        if (defaultSuspendDurationDays > 0) $('#suspendDays').val(defaultSuspendDurationDays);
+                        if (defaultSuspendDurationDays > 0) $('#js-suspend-days').val(defaultSuspendDurationDays);
                     }
                 });
             }
@@ -469,7 +470,7 @@ function initModMessageHelper() {
         const numberOfItems = actionList.children('li').length;
         const sitename = StackExchange.options.site.name;
         const userId = $('#aboutUserId').val();
-        const userLink = 'https://' + location.hostname + $('#msg-form .user-details a').first().attr('href');
+        const userLink = 'https://' + location.hostname + $('#js-msg-form .user-details a').first().attr('href');
 
         const messagePrefix = `Hello,
 
@@ -521,9 +522,9 @@ function initCmMessageHelper() {
         if (showHiddenFields) {
 
             // Show hidden fields
-            $('#templateName').attr('type', 'text').addClass('d-inline-block s-input s-input__sm w70');
+            $('#js-template-name').attr('type', 'text').addClass('d-inline-block s-input s-input__sm w70');
 
-            $('#templateName').wrap('<label for="templateName" class="dblock"></label>').before(`<span class="inline-label">template name:</span>`);
+            $('#js-template-name').wrap('<label for="templateName" class="dblock"></label>').before(`<span class="inline-label">template name:</span>`);
         }
     }
 
@@ -639,9 +640,9 @@ function initCmMessageHelper() {
         // Message vars (should not be edited here)
         const numberOfItems = actionList.children('li').length;
         const sitename = StackExchange.options.site.name;
-        const modName = $('#msg-form a').first().text();
+        const modName = $('#js-msg-form a').first().text();
         const userId = $('#aboutUserId').val();
-        const userLink = 'https://' + location.hostname + $('#msg-form .user-details a').first().attr('href');
+        const userLink = 'https://' + location.hostname + $('#js-msg-form .user-details a').first().attr('href');
 
         const messagePrefix = `Hello,
 
@@ -735,6 +736,7 @@ function appendModMessageMenu() {
         menuitems += `<a target="_blank" href="${modMessageLink}?action=sockpuppet-upvoting">sockpuppet upvoting</a>`;
         menuitems += `<a target="_blank" href="${modMessageLink}?action=targeted-votes">targeted votes</a>`;
         menuitems += `<a target="_blank" href="${modMessageLink}?action=revenge-downvoting">revenge downvoting</a>`;
+        menuitems += `<a target="_blank" href="${modMessageLink}?action=ban-evasion">ban evasion</a>`;
 
         // Add custom reasons
         if (customModMessages.length > 0) {
@@ -827,8 +829,8 @@ styles.innerHTML = `
 .s-user-card:hover {
     /*border-color: var(--black-200);*/
 }
-.user-info.js-mod-message-menu:not(.js-mod-quicklinks),
-.s-user-card.js-mod-message-menu:not(.js-mod-quicklinks) {
+.user-info.js-mod-message-menu:not(.js-mod-quicklinks):not(.s-topbar--item),
+.s-user-card.js-mod-message-menu:not(.js-mod-quicklinks):not(.s-topbar--item) {
     padding-bottom: 25px;
 }
 .user-action-time {
@@ -973,35 +975,34 @@ styles.innerHTML = `
 .action-list:not(.popup-condensed) li > label {
     margin: -2px 0;
 }
-#msg-form label .inline-label {
+#js-msg-form label .inline-label {
     display: inline-block;
     width: 110px;
 }
-#msg-form #addressing {
+#js-msg-form #addressing {
     margin-bottom: 15px;
 }
-#msg-form #to_warning + #to_warning_2 {
+#js-msg-form #js-to-warning + #js-to-warning_2 {
     display: none;
-    line-height: 100%;
 }
-#msg-form #to_warning,
-#msg-form #to_warning.hidden + #to_warning_2 {
+#js-msg-form #js-to-warning,
+#js-msg-form #js-to-warning.hidden + #js-to-warning_2 {
     display: inline-block;
 }
-#msg-form #copyPanel > span + table > tbody > tr:first-child td:first-child {
+#js-msg-form #js-copy-panel > span + table > tbody > tr:first-child td:first-child {
     width: 170px;
 }
-#msg-form #suspendDays {
+#js-msg-form #js-suspend-days {
     width: 70px;
 }
-#msg-form #copyPanel > .suspend-info {
+#js-msg-form #js-copy-panel > .suspend-info {
     padding: 10px;
     font-weight: bold;
     margin-bottom: 10px;
     margin-top: 5px;
     border: 1px dotted #AE0000;
 }
-#msg-form #copyPanel textarea#wmd-input {
+#js-msg-form #js-copy-panel textarea#wmd-input {
     min-height: 550px;
 }
 #sidebar .module {
