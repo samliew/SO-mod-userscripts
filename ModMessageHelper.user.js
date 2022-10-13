@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1
+// @version      3.1.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -377,6 +377,7 @@ function initModMessageHelper() {
         }
     });
 
+
     function selectModMessage(template) {
         const popup = $('.s-modal--dialog').first();
         const actionList = popup.find('.action-list');
@@ -442,6 +443,7 @@ function initModMessageHelper() {
         const popupSubmit = popup.find('.js-popup-submit');
         if (!popupSubmit.prop('disabled')) popupSubmit.click();
     }
+
 
     function addCustomModMessageTemplates() {
 
@@ -959,6 +961,12 @@ styles.innerHTML = `
 }
 
 /* Mod/CM message template popup */
+.s-modal--dialog {
+    max-width: 1200px;
+}
+.s-modal--header {
+    font-size: var(--fs-title);
+}
 #show-templates + .popup .action-list > li > label {
     margin: 0;
 }
@@ -1000,6 +1008,7 @@ styles.innerHTML = `
     margin-top: 5px;
     border: 1px dotted #AE0000;
 }
+#msg-form #copyPanel textarea#wmd-input,
 #js-msg-form #js-copy-panel textarea#wmd-input {
     min-height: 550px;
 }
