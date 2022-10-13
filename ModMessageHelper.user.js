@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -376,7 +376,6 @@ function initModMessageHelper() {
             }
         }
     });
-    
 
     function selectModMessage(template) {
         const popup = $('.s-modal--dialog').first();
@@ -444,7 +443,6 @@ function initModMessageHelper() {
         if (!popupSubmit.prop('disabled')) popupSubmit.click();
     }
 
-
     function addCustomModMessageTemplates() {
 
         // Make the popup draggable!
@@ -460,9 +458,9 @@ function initModMessageHelper() {
 
         // Add description expand/collapse events for custom templates
         actionList.append('<hr />').on('click', '.js-custom-template', function () {
-            $(this).addClass('action-selected').find('.action-desc').slideDown(200);
+            $(this).addClass('js-action-selected').find('.js-action-desc').removeClass('d-none');
             $(this).find('input:radio').prop('checked', true);
-            $(this).siblings().removeClass('action-selected').find('.action-desc').slideUp(200);
+            $(this).siblings().find('.js-action-desc').addClass('d-none');
             $('.js-popup-submit').prop('disabled', false);
         });
 
@@ -499,11 +497,11 @@ ${sitename} Moderation Team`;
             const templateShortText = item.templateBody.length > 400 ? item.templateBody.replace(/(\n|\r)+/g, ' ').substr(0, 397) + '...' : item.templateBody;
 
             const messageTemplate = `
-<li style="width: auto" class="js-custom-template"><label>
+<li class="js-custom-template"><label>
 <input type="radio" id="template-${templateNumber}" name="mod-template" value="${templateBodyProcessed}">
-<input type="hidden" id="template-${templateNumber}-reason" value="${item.suspensionReason || ''}" data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}">
-<span class="action-name">${item.templateName}</span>
-<span class="action-desc" style="display: none;"><div style="margin-left: 18px; line-height: 130%; margin-bottom: 5px;">${templateShortText}</div></span>
+<input type="hidden" id="template-${templateNumber}-reason" data-suspension-description="${item.suspensionReason || ''}" value="${item.suspensionReason || ''}" data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}">
+<span class="js-action-name fw-bold">${item.templateName}</span>
+<span class="js-action-desc d-none"><div class="ml16 mb6">${templateShortText}</div></span>
 </label></li>`;
 
             actionList.append(messageTemplate);
