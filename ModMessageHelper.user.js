@@ -827,84 +827,84 @@ function appendModMessageMenu() {
             return $(this).closest('#sidebar').length === 0;
         }).not('.js-mod-message-menu').addClass('js-mod-message-menu').each(function () {
 
-        let uid = 0;
-        try {
-            uid = ($(this).find('a[href^="/users/"]').attr('href') || '/0/').match(/\/(\d+)\//)[1];
-            uid = Number(uid);
-            this.dataset.uid = uid;
-        }
-        catch (ex) { } // can't put return statements in catch blocks?
-        if (typeof uid === 'undefined' || uid == 0) return; // e.g.: deleted user
+            let uid = 0;
+            try {
+                uid = ($(this).find('a[href^="/users/"]').attr('href') || '/0/').match(/\/(\d+)\//)[1];
+                uid = Number(uid);
+                this.dataset.uid = uid;
+            }
+            catch (ex) { } // can't put return statements in catch blocks?
+            if (typeof uid === 'undefined' || uid == 0) return; // e.g.: deleted user
 
-        // if user is self, ignore
-        if (uid == StackExchange.options.user.userId) return;
+            // if user is self, ignore
+            if (uid == StackExchange.options.user.userId) return;
 
-        const post = $(this).closest('.question, .answer');
-        const pid = post.attr('data-questionid') || post.attr('data-answerid');
+            const post = $(this).closest('.question, .answer');
+            const pid = post.attr('data-questionid') || post.attr('data-answerid');
 
-        const userbox = $(this);
-        const userlink = userbox.find('a').attr('href');
-        const userrep = userbox.find('.reputation-score').text();
-        const username = userbox.find('.user-details a').first().text();
-        const modFlair = $(this).find('.mod-flair');
+            const userbox = $(this);
+            const userlink = userbox.find('a').attr('href');
+            const userrep = userbox.find('.reputation-score').text();
+            const username = userbox.find('.user-details a').first().text();
+            const modFlair = $(this).find('.mod-flair');
 
-        if (uid == -1 || modFlair.length == 1) return;
+            if (uid == -1 || modFlair.length == 1) return;
 
-        const postIdParam = pid ? '&' + (!isMeta ? `pid=${pid}` : `metapid=${pid}`) : '';
+            const postIdParam = pid ? '&' + (!isMeta ? `pid=${pid}` : `metapid=${pid}`) : '';
 
-        const modMessageLink = parentUrl + '/users/message/create/' + uid;
-        const cmMessageLink = parentUrl + '/admin/cm-message/create/' + uid;
+            const modMessageLink = parentUrl + '/users/message/create/' + uid;
+            const cmMessageLink = parentUrl + '/admin/cm-message/create/' + uid;
 
-        // Create menu based on post type and state
-        let menuitems = '';
+            // Create menu based on post type and state
+            let menuitems = '';
 
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=low-quality-questions">low quality questions</a>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=question-repetition">question repetition</a>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=promotion">excessive self-promotion</a>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=signatures-taglines">using signatures</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=low-quality-questions">low quality questions</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=question-repetition">question repetition</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=promotion">excessive self-promotion</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=signatures-taglines">using signatures</a>`;
 
-        menuitems += `<div class="separator"></div>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=excessive-discussion">excessive comments</a>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=abusive">abusive to others</a>`;
-
-        menuitems += `<div class="separator"></div>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=vandalism">vandalism</a>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=plagiarism">plagiarism</a>`;
-
-        menuitems += `<div class="separator"></div>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=sockpuppet-upvoting">sockpuppet upvoting</a>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=targeted-votes">targeted votes</a>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=revenge-downvoting">revenge downvoting</a>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=ban-evasion">ban evasion</a>`;
-
-        // Add custom reasons
-        if (customModMessages.length > 0) {
             menuitems += `<div class="separator"></div>`;
-            customModMessages.forEach(v => {
-                if(v.soOnly === true && !isSO) return; // Don't add menu item if SO-only template and not SO
-                menuitems += `<a target="_blank" href="${modMessageLink}?action=${v.templateName.replace(/\W/g, '').toLowerCase()}">${v.templateName}</a>`;
-            });
-        }
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=excessive-discussion">excessive comments</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=abusive">abusive to others</a>`;
 
-        menuitems += `<div class="separator"></div>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=other">other...</a>`;
+            menuitems += `<div class="separator"></div>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=vandalism">vandalism</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=plagiarism">plagiarism</a>`;
+
+            menuitems += `<div class="separator"></div>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=sockpuppet-upvoting">sockpuppet upvoting</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=targeted-votes">targeted votes</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=revenge-downvoting">revenge downvoting</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=ban-evasion">ban evasion</a>`;
+
+            // Add custom reasons
+            if (customModMessages.length > 0) {
+                menuitems += `<div class="separator"></div>`;
+                customModMessages.forEach(v => {
+                    if(v.soOnly === true && !isSO) return; // Don't add menu item if SO-only template and not SO
+                    menuitems += `<a target="_blank" href="${modMessageLink}?action=${v.templateName.replace(/\W/g, '').toLowerCase()}">${v.templateName}</a>`;
+                });
+            }
+
+            menuitems += `<div class="separator"></div>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=other">other...</a>`;
 
 
-        // Create CM menu
-        let cmMenuitems = '';
+            // Create CM menu
+            let cmMenuitems = '';
 
-        cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=post-dissociation${postIdParam}">post dissociation</a>`;
-        cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suspicious-voting">suspicious voting</a>`;
-        cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suicidal-user">suicidal user</a>`;
-        cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=underage-user&info=Underage+user.">underage user</a>`;
-        cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=profile-merge">user profile merge</a>`;
-        cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=spam">spam</a>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=post-dissociation${postIdParam}">post dissociation</a>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suspicious-voting">suspicious voting</a>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suicidal-user">suicidal user</a>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=underage-user&info=Underage+user.">underage user</a>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=profile-merge">user profile merge</a>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=spam">spam</a>`;
 
-        cmMenuitems += `<div class="separator"></div>`;
-        cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=other">other...</a>`;
+            cmMenuitems += `<div class="separator"></div>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=other">other...</a>`;
 
 
-        $(this).append(`
+            $(this).append(`
 <div class="js-mod-message-link flex--item s-btn ta-center py8 somu-mod-message-link ${modMenuOnClick ? 'click-only' : ''}" data-shortcut="O" title="Contact...">
   <svg aria-hidden="true" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-icon mln1 mr0">
     <path fill="currentColor" d="M464 64H48C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h416c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zM48 96h416c8.8 0 16 7.2 16 16v41.4c-21.9 18.5-53.2 44-150.6 121.3-16.9 13.4-50.2 45.7-73.4 45.3-23.2.4-56.6-31.9-73.4-45.3C85.2 197.4 53.9 171.9 32 153.4V112c0-8.8 7.2-16 16-16zm416 320H48c-8.8 0-16-7.2-16-16V195c22.8 18.7 58.8 47.6 130.7 104.7 20.5 16.4 56.7 52.5 93.3 52.3 36.4.3 72.3-35.5 93.3-52.3 71.9-57.1 107.9-86 130.7-104.7v205c0 8.8-7.2 16-16 16z" class="" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path>
@@ -921,7 +921,7 @@ function appendModMessageMenu() {
   </div>
 </a>`);
 
-    });
+        });
 
     // Show menu on click only
     if (modMenuOnClick) {
