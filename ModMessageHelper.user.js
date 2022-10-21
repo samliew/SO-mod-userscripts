@@ -1108,9 +1108,9 @@ styles.innerHTML = `
     overflow: unset;
 }
 
-/* Mod/CM message template popup */
-.s-modal--dialog {
-    max-width: 1200px;
+/* Mod message template popup */
+#js-msg-form[action="/users/message/save"] .s-modal--dialog {
+    max-width: 95vw;
 }
 .s-modal--header {
     font-size: var(--fs-title);
