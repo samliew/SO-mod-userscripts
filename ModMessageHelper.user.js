@@ -627,27 +627,7 @@ Regards,  \n${sitename} Moderation Team`;
 
 
         customModMessages.forEach(function (item, i) {
-            const templateNumber = numberOfItems + i;
-            const templateBodyText = (item.addPrefix !== false ? messagePrefix : '') + item.templateBody + (item.addSuffix !== false ? messageSuffix : '') + (item.addSignature !== false ? messageSignature : '');
-            const templateBodyProcessed = templateBodyText.replace(/["\u00A0-\u9999<>\&]/gim, function (i) {
-                return '&#' + i.charCodeAt(0) + ';';
-            }).replace('Regards,', 'Regards,  '); // always needs two spaces after for a line break
-            const templateShortText = item.templateBody.length > 400 ? item.templateBody.replace(/(\n|\r)+/g, ' ').substr(0, 397) + '...' : item.templateBody;
-
-            const messageTemplate = `
-<li class="js-custom-template"><label>
-<input type="radio" id="template-${templateNumber}" name="mod-template" value="${templateBodyProcessed}">
-<input type="hidden" id="template-${templateNumber}-reason"
-    value="${item.suspensionReason || ''}"
-    data-suspension-description="${item.suspensionReason || ''}"
-    data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}"
-    ${item.sendEmail === false ? 'data-send-email="false"' :''}
->
-<span class="js-action-name fw-bold">${item.templateName}</span>
-<span class="js-action-desc d-none"><div class="ml16 mb6">${templateShortText}</div></span>
-</label></li>`;
-
-            actionList.append(messageTemplate);
+            actionList.append(generateCmOrModMessageTemplate(false, item, i, numberOfItems, messagePrefix, messageSuffix, messageSignature));
         });
     }
 }
@@ -797,23 +777,52 @@ ${userLink}
 Regards,  \n${modName}  \n${sitename} moderator`;
 
         customCmMessages.forEach(function (item, i) {
-            const templateNumber = numberOfItems + i;
-            const templateBodyText = (item.addPrefix !== false ? messagePrefix : '') + item.templateBody + (item.addSuffix !== false ? messageSuffix : '');
-            const templateBodyProcessed = templateBodyText.replace(/[\u00A0-\u9999<>\&]/gim, function (i) {
-                return '&#' + i.charCodeAt(0) + ';';
-            }).replace('Regards,', 'Regards,  '); // always needs two spaces after for a line break
-            const templateShortText = item.templateBody.length > 400 ? item.templateBody.replace(/(\n|\r)+/g, ' ').substr(0, 397) + '...' : item.templateBody;
+            actionList.append(generateCmOrModMessageTemplate(true, item, i, numberOfItems, messagePrefix, messageSuffix));
+        });
+    }
+}
 
-            const messageTemplate = `
+function escapeText(text) {
+    return text.replace(/[\u00A0-\u9999<">\\&]/gim, function (i) {
+        return `&#${i.charCodeAt(0)};`;
+    });
+}
+
+function generateCmOrModMessageTemplate(isCmMessage, item, i, numberOfItems, messagePrefix, messageSuffix, messageSignature="") {
+    const templateNumber = numberOfItems + i;
+    const templateBodyText = (item.addPrefix !== false ? messagePrefix : '') + item.templateBody + (item.addSuffix !== false ? messageSuffix : '') + (item.addSignature !== false ? messageSignature : '');
+    const templateBodyProcessed = escapeText(templateBodyText);
+    const templateShortText = item.templateBody.length > 400 ? item.templateBody.replace(/(\n|\r)+/g, ' ').substr(0, 397) + '...' : item.templateBody;
+    const templateSuspensionReason = escapeText(item.suspensionReason || '');
+    const templateName = escapeText(item.templateName || '');
+
+    // 2022-10: The HTML for the mod-message templates changed substantially, so it's no longer the same as for CM escalations.
+    // So, we return distictly different HTML. OTOH, there are currently no custom mod message templates.
+    if (isCmMessage) {
+        // CM message template, maybe (untested)
+        return `
 <li style="width: auto" class="js-custom-template"><label>
 <input type="radio" id="template-${templateNumber}" name="mod-template" value="${templateBodyProcessed}">
-<input type="hidden" id="template-${templateNumber}-reason" value="${item.suspensionReason || ''}" data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}">
+<input type="hidden" id="template-${templateNumber}-reason"
+    value="${item.suspensionReason || ''}"
+    ${item.sendEmail === false ? 'data-send-email="false"' :''}
+    data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}">
 <span class="action-name">${item.templateName}</span>
 <span class="action-desc" style="display: none;"><div style="margin-left: 18px; line-height: 130%; margin-bottom: 5px;">${templateShortText}</div></span>
 </label></li>`;
-
-            actionList.append(messageTemplate);
-        });
+    } else {
+        // Mod message template
+        return `
+<li class="js-custom-template"><label>
+<input type="radio" id="template-${templateNumber}" name="mod-template" value="${templateBodyProcessed}">
+<input type="hidden" id="template-${templateNumber}-reason"
+    value="${templateSuspensionReason}"
+    data-suspension-description="${templateSuspensionReason}"
+    ${item.sendEmail === false ? 'data-send-email="false"' :''}
+    data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}">
+<span class="js-action-name fw-bold">${templateName}</span>
+<span class="js-action-desc d-none"><div class="ml16 mb6">${templateShortText}</div></span>
+</label></li>`;
     }
 }
 
