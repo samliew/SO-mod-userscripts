@@ -970,6 +970,8 @@ function doPageLoad() {
     appendModMessageMenu();
     initModMessageHelper();
     initCmMessageHelper();
+    // 2022-10 SE mod message page update: Fix a new bug in replying when the previous message was recent, which will, hopefully, be fixed quickly.
+    $('.hidemsg').addClass('js-hide-msg');
 
     // After requests have completed
     $(document).ajaxStop(nowAndDelayedAppendModMessageMenu);
