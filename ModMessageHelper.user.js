@@ -22,8 +22,8 @@
 //
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
-
-/* globals StackExchange, GM_info */
+/* globals $, StackExchange, jQuery */
+/* globals isModerator, ajaxPromise, jQueryXhrOverride, _w, hasBackoff, addBackoff, htmlDecode, hasInvalidIds, getPostId */ /* Defined in https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js */
 
 'use strict';
 
