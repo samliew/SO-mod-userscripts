@@ -5,12 +5,13 @@
 // @author       @samliew
 // @version      3.2
 //
-// @include      https://*stackoverflow.com/*
-// @include      https://*serverfault.com/*
-// @include      https://*superuser.com/*
-// @include      https://*askubuntu.com/*
-// @include      https://*mathoverflow.net/*
-// @include      https://*.stackexchange.com/*
+// @match        *://*.askubuntu.com/*
+// @match        *://*.mathoverflow.net/*
+// @match        *://*.serverfault.com/*
+// @match        *://*.stackapps.com/*
+// @match        *://*.stackexchange.com/*
+// @match        *://*.stackoverflow.com/*
+// @match        *://*.superuser.com/*
 //
 // @exclude      *chat.*
 // @exclude      *blog.*
