@@ -454,7 +454,7 @@ function initModMessageHelper() {
     }
 
     // Restrict max suspension days to 365, otherwise it fails rudely
-    $('#js-suspend-days').attr('type', 'number').attr('max', '365');
+    $('#js-suspend-days').attr('type', 'number').attr('max', '365').attr('min', 1);
 
     // On any page update
     let hasRun = false;
