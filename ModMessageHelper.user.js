@@ -39,17 +39,26 @@ const isSOMeta = location.hostname == 'meta.stackoverflow.com';
 const isMeta = typeof StackExchange.options.site.parentUrl !== 'undefined';
 const parentUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
 const additionalInfo = getQueryParam('info') ? newlines + decodeURIComponent(getQueryParam('info')) : '';
+const pupupSubmitButtonsSelector = 'button.js-popup-submit, button.popup-submit';
 
 
 const modMenuOnClick = true;
 
 
 /* CUSTOM MOD MESSAGE TEMPLATES
- * This may be edited to add more custom templates to mod messages
- * Dyanamic variables: {suspensionDurationDays} , {optionalSuspensionAutoMessage}
+ * This may be edited to add more custom templates to mod messages.
  * addPrefix false:    no pleasantries and userlink
  * addSuffix false:    no suspension auto message
  * addSignature false: no regards and sign off
+ * soOnly true:        Only use the template on Stack Overflow
+ * sendEmail false:    Don't send email to the user.
+ *
+ * In the template, the following text is used to indicate something or automatically substituted:
+ *             text                         What
+ *       {todo:suspend}                     User is suspended by default. User is expected to replace with appropriate text.
+ *       {suspensionDurationDays}           User is suspended by default. Is replaced by the currently selected number of days.
+ *       {todo}                             Just used as a indicator that the moderator is to enter text.
+ *       {optionalSuspensionAutoMessage}    Is automatically replaced by a suspension message, if the moderator selects suspension in the UI.
  */
 const customModMessages = [
     {
@@ -205,7 +214,8 @@ Please do not post any more of these comments. They add noise for moderators to 
         templateBody: `Account removed for spamming and/or abusive behavior. You\'re no longer welcome to participate here.`,
         addPrefix: false,
         addSuffix: false,
-        addSignature: false
+        addSignature: false,
+        sendEmail: false,
     },
     /* EXAMPLE
     {
@@ -216,7 +226,8 @@ Please do not post any more of these comments. They add noise for moderators to 
         //addPrefix: false,
         //addSuffix: false,
         //addSignature: false,
-        // soOnly: false, // if template has SO-only meta links
+        //soOnly: false, // if template has SO-only meta links
+        //sendEmail: false,
     },
     */
 ];
@@ -342,9 +353,12 @@ function initModMessageHelper() {
         $('#mainbar > .s-notice.s-notice__warning').prependTo($('#sidebar')).find('#confirm-new').text((i, v) => v.trim());
 
         // Show hidden email field
-        $('#js-send-email, input[name="email"]').attr('type', 'checkbox').prop('checked', true).change(function () {
-            $('#js-to-warning').toggleClass('hidden', !this.checked);
-        }).wrap('<label for="send-email" class="dblock">send email: </label>');
+        $('#js-send-email, input[name="email"]')
+            .attr('type', 'checkbox')
+            .change(function () {
+                $('#js-to-warning').toggleClass('hidden', !this.checked);
+            })
+            .wrap('<label for="send-email" class="dblock">send email: </label>');
 
         // Show alternate message if no email
         $('#js-to-warning').after(`<div id="js-to-warning_2" class="s-notice s-notice__info mt8">The user will <em>only</em> receive this message on Stack Overflow.</div>`);
@@ -487,10 +501,45 @@ function initModMessageHelper() {
             }
         }
 
-        const popupSubmit = popup.find('.js-popup-submit');
+        const popupSubmit = popup.find(pupupSubmitButtonsSelector);
         if (!popupSubmit.prop('disabled')) popupSubmit.click();
     }
 
+
+    function watchForPopupSubmitClick() {
+        // When a template is selected, the correct values for send email and suspend length are not correctly applied.
+        // This watches for when the submit is clicked, and sets the email and suspend values to the correct values for the template.
+        const popup = getPopup();
+        const selectedEl = popup.find(':checked').first();
+        const reasonEl = popup.find(`#${selectedEl.attr('id')}-reason`);
+        const newReasonText = selectedEl.val();
+        const days = reasonEl.attr('data-days');
+        const email = reasonEl.attr('data-send-email');
+
+        function setSEcheckboxById(id, toState) {
+            // SE's in-page code does additional things when these are clicked, so we set the checkbox state
+            // to the oposite of what we want and then set the desired state with a click().
+            return $(`#${id}`).prop('checked', !toState).click();
+        }
+
+        setTimeout(() => {
+            // Fill in the custom suspension length and select the appropriate length, preferring the predefined lengths.
+            setSEcheckboxById('js-suspend-user', days || newReasonText.match(/\{todo:suspend/i) || newReasonText.match(/\{suspensionDurationDays\}/i));
+            const useDays = days || 7; // Reset the value to 7 days, if there isn't any value chosen for days in the template, or if it's 0.
+            if (useDays) {
+                // Always put the length of the suspension in the custom field.
+                $('#js-suspend-days').val(useDays);
+                // Also click these, as that triggers additional SE things.
+                const preExistingDaysEl = setSEcheckboxById(`js-days-${useDays}`, true);
+                if (!preExistingDaysEl.length) {
+                    setSEcheckboxById('js-days-other', true);
+                }
+            }
+            // Apply the template's selection for sending email
+            setSEcheckboxById('js-send-email', email !== 'false');
+            $('#wmd-input').prop('selectionEnd', 0).focus();
+        }, 25);
+    }
 
     function addCustomModMessageTemplates() {
 
@@ -498,6 +547,9 @@ function initModMessageHelper() {
         const popup = $('.s-modal--dialog').first();
         popup.attr('data-controller', 'se-draggable');
         popup.find('h1').first().attr('data-target', 'se-draggable.handle');
+
+        // Watch for the popup to be submitted.
+        popup.find(pupupSubmitButtonsSelector).on('click input', watchForPopupSubmitClick);
 
         const actionList = popup.find('.action-list');
         if (actionList.length === 0) return;
@@ -510,7 +562,7 @@ function initModMessageHelper() {
             $(this).addClass('js-action-selected').find('.js-action-desc').removeClass('d-none');
             $(this).find('input:radio').prop('checked', true);
             $(this).siblings().find('.js-action-desc').addClass('d-none');
-            $('.js-popup-submit').prop('disabled', false);
+            $(pupupSubmitButtonsSelector).prop('disabled', false);
         });
 
         // Message vars (should not be edited here)
@@ -548,7 +600,12 @@ ${sitename} Moderation Team`;
             const messageTemplate = `
 <li class="js-custom-template"><label>
 <input type="radio" id="template-${templateNumber}" name="mod-template" value="${templateBodyProcessed}">
-<input type="hidden" id="template-${templateNumber}-reason" data-suspension-description="${item.suspensionReason || ''}" value="${item.suspensionReason || ''}" data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}">
+<input type="hidden" id="template-${templateNumber}-reason"
+    value="${item.suspensionReason || ''}"
+    data-suspension-description="${item.suspensionReason || ''}"
+    data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}"
+    ${item.sendEmail === false ? 'data-send-email="false"' :''}
+>
 <span class="js-action-name fw-bold">${item.templateName}</span>
 <span class="js-action-desc d-none"><div class="ml16 mb6">${templateShortText}</div></span>
 </label></li>`;
@@ -603,7 +660,7 @@ function initCmMessageHelper() {
             }
 
             // Make the popup draggable!
-            const popup = $('#show-templates').siblings('.popup').first();
+            const popup = getPopup();
             popup.attr('data-controller', 'se-draggable');
             popup.find('h2').first().attr('data-target', 'se-draggable.handle');
         }
@@ -614,7 +671,7 @@ function initCmMessageHelper() {
 
 
     function selectCmMessage(template) {
-        const popup = $('#show-templates').siblings('.popup').first();
+        const popup = getPopup();
         const actionList = popup.find('.action-list');
         const hr = actionList.children('hr').index();
         const numberOfItems = hr > 0 ? hr : actionList.children('li').length;
@@ -653,7 +710,7 @@ function initCmMessageHelper() {
             }
         }
 
-        const popupSubmit = popup.find('.popup-submit');
+        const popupSubmit = popup.find(pupupSubmitButtonsSelector);
         if (!popupSubmit.prop('disabled')) popupSubmit.click();
     }
 
@@ -661,7 +718,7 @@ function initCmMessageHelper() {
     function addCustomCmMessageTemplates() {
 
         // Make the popup draggable!
-        const popup = $('#show-templates').siblings('.popup').first();
+        const popup = getPopup();
         popup.attr('data-controller', 'se-draggable');
         popup.find('h2').first().attr('data-target', 'se-draggable.handle');
 
@@ -681,7 +738,7 @@ function initCmMessageHelper() {
             $(this).addClass('action-selected').find('.action-desc').slideDown(200);
             $(this).find('input:radio').prop('checked', true);
             $(this).siblings().removeClass('action-selected').find('.action-desc').slideUp(200);
-            $('.popup-submit').prop('disabled', false);
+            $(pupupSubmitButtonsSelector).prop('disabled', false);
         });
 
         // Message vars (should not be edited here)
@@ -841,6 +898,11 @@ function appendModMessageMenu() {
             evt.stopPropagation();
         });
     }
+}
+
+
+function getPopup() {
+    return $('#show-templates').siblings('.popup').add($('.s-modal--dialog')).first();
 }
 
 
