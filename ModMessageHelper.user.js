@@ -822,10 +822,14 @@ function appendModMessageMenu() {
 
     // Append link to post sidebar if it doesn't exist yet
     $('.user-info, .s-user-card')
-        .filter(function() {
-            // Do not add links to users in sidebar
-            return $(this).closest('#sidebar').length === 0;
-        }).not('.js-mod-message-menu').addClass('js-mod-message-menu').each(function () {
+        .filter(function () {
+            // Do not add links/classes to users in sidebar or on user tabs without actual links to users.
+            const $this = $(this);
+            return !($this.closest('#sidebar, .s-topbar').length > 0 || ($this.closest('.js-user-tab').length > 0 && $this.find('.s-user-card--link') === 0));
+        })
+        .not('.js-mod-message-menu')
+        .addClass('js-mod-message-menu')
+        .each(function () {
 
             let uid = 0;
             try {
@@ -974,7 +978,7 @@ styles.innerHTML = `
     /*border-color: var(--black-200);*/
 }
 .user-info.js-mod-message-menu:not(.js-mod-quicklinks):not(.s-topbar--item),
-.s-user-card.js-mod-message-menu:not(.js-mod-quicklinks):not(.s-topbar--item) {
+.s-user-card.js-mod-message-menu:not(.js-mod-quicklinks):not(.s-topbar--item):not(.s-user-card__minimal) {
     padding-bottom: 25px;
 }
 .user-action-time {
