@@ -42,6 +42,7 @@ const additionalInfo = getQueryParam('info') ? newlines + decodeURIComponent(get
 const pupupSubmitButtonsSelector = 'button.js-popup-submit, button.popup-submit';
 
 
+
 const modMenuOnClick = true;
 
 
@@ -376,36 +377,73 @@ function initModMessageHelper() {
         }
     }
 
-    // The rest of this function is for creating new messages
+    // The rest of this function is for creating new moderator messages
     if (!location.pathname.includes('/users/message/create/')) return;
 
-    const onPageReady = () => {
-        // click select template link on page load
-        $('.js-load-modal').trigger('click');
-    };
+    let modalFetchStarted = false;
+    $(document).ajaxSend(function (event, xhr, settings) {
+        // We want to know when the page starts fetching the template popup.
+        if (settings.url.includes('/admin/contact-user/template-popup/') || settings.url.includes('/admin/contact-cm/template-popup')) {
+            modalFetchStarted = true;
+        }
+    });
 
-    // Based on Henry Ecker's code for hooking onCreated in prepareEditor:
-    // https://chat.stackoverflow.com/transcript/message/55366767#55366767
-    const addProxies = () => {
-        StackExchange.prepareEditor = new Proxy(StackExchange.prepareEditor, {
-            apply: (target, thisArg, [options]) => {
-                if (options?.onCreated !== undefined) {
-                    const oldOnCreated = options.onCreated;
-                    options.onCreated = (editor) => {
-                        oldOnCreated(editor);
-                        onPageReady();
-                    };
-                } else {
-                    options.onCreated = onPageReady;
-                }
-                target(options);
-            }
-        });
-    };
+    /* The goal is to click the .js-load-modal button to start loading the template popup
+     * for the first time upon page load.  That click now needs to be after SE's code calls
+     * StackExchange.prepareEditor().  There's no guarantee that this userscript executes
+     * both after StackExchange.prepareEditor() exists and prior to the in-page code calling
+     * that function, so wrapping the function isn't guaranteed to work (the button can end
+     * up never clicked).  In addition, we haven't found a method to deterministically
+     * identify that the function has been called.  As a result of that, we're basically
+     * stuck clicking the button, potentially multiple times, until we detect the effects of
+     * clicking the button.  The first effect, which is synchronous with the click, is that
+     * SE starts an AJAX call to fetch the template popup.  Thus, we wath for that to happen
+     * after we click and not click again once that AJAX call is in process.
+     *
+     * In order to reduce the number of times we click and be more responsive without
+     * clicking rapidly, we don't start clicking until we go through the same asynchonous
+     * execution path that SE's in-page code does.  Under most conditions, this results in
+     * our clicking the button for the first time almost immediately after the page is ready
+     * for the button to be clicked.
+     */
 
     StackExchange.ready(() => {
-        addProxies();
+        StackExchange.using("externalEditor", () => {
+            if (StackExchange.settings.snippets.snippetsEnabled) {
+                StackExchange.using("snippets", () => {
+                    StackExchange.using("editor", () => {
+                        delayedClickForFirstLoadPopupAtIntervalUntilLoading(25, 500);
+                    });
+                });
+            }
+            else {
+                StackExchange.using("editor", () => {
+                    delayedClickForFirstLoadPopupAtIntervalUntilLoading(25, 500);
+                });
+            }
+        });
     });
+
+    function delayedClickForFirstLoadPopupAtIntervalUntilLoading(delay, interval) {
+        /* It's possible, but quite unlikely, for this to be called after something else
+         * clicks the load popup button which did trigger a load and for that load to have
+         * been started prior to our watching for ajaxSend (above) and for the response not
+         * to have been received, so the popup isn't in the DOM.  The timing would have to
+         * be fairly contrived for that to end up being the case.
+         *
+         * The outer setTimeout is to delay a short bit after completing the wait for SE to
+         * be ready.  This puts us after any code SE has that's on the same callback list.
+         */
+        setTimeout(() => {
+            const popup = getPopup();
+            if (!modalFetchStarted && popup.length === 0){
+                // click select template link on page load
+                $('#show-templates, .js-load-modal').first().trigger('click');
+                setTimeout(delayedClickForFirstLoadPopupAtIntervalUntilLoading, interval);
+            }
+        }, delay);
+    }
+
 
     const template = getQueryParam('action');
 
