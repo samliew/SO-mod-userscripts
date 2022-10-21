@@ -209,7 +209,7 @@ Of course, Stack Overflow is *also* not a free application design and developmen
 Please do not post any more of these comments. They add noise for moderators to remove, may be perceived as demanding or unfriendly, and don't assist with our goal of creating a knowledge base.`,
     },
     {
-        templateName: "generic year-long ban",
+        templateName: "spam/abuse year-long ban",
         suspensionReason: "for rule violations",
         suspensionDefaultDays: 365,
         templateBody: `Account removed for spamming and/or abusive behavior. You\'re no longer welcome to participate here.`,
