@@ -83,14 +83,14 @@ Thank you for your attention to this matter in the future. If you have any quest
         suspensionReason: "for promotional content",
         suspensionDefaultDays: 0,
         // The \n characters used below are to get around a Tampermonkey default setting which automatically removes trailing whitespace from changed lines.
-        templateBody: `**Promotional content:**  \nWe noticed that at least some of your posts seem to promote and/or link to a product, website, blog, library, YouTube channel/videos, project, source code repository, etc. Per the [help center](https://stackoverflow.com/help/behavior):
+        templateBody: `**Promotional content:**  \nWe noticed that at least some of your posts seem to promote and/or link to a product, website, blog, library, YouTube channel/videos, project, source code repository, etc. Per the [help center](${parentUrl}/help/behavior):
 
-> Be careful, because the community frowns on overt self-promotion and tends to vote it down and flag it as spam. Post good, relevant answers, and if some (but not all) happen to be about your product or website, so be it. However, you _must_ disclose your affiliation in your answers. Also, if a huge percentage of your posts include a mention of your product or website, you're probably here for the wrong reasons. Our advertising rates are quite reasonable; [contact our ad sales team for details](https://stackoverflow.com/advertising).
+> Be careful, because the community frowns on overt self-promotion and tends to vote it down and flag it as spam. Post good, relevant answers, and if some (but not all) happen to be about your product or website, so be it. However, you _must_ disclose your affiliation in your answers. Also, if a huge percentage of your posts include a mention of your product or website, you're probably here for the wrong reasons. Our advertising rates are quite reasonable; [contact our ad sales team for details](${parentUrl}/advertising).
 
 You should also review the content at the following links:
 
 - [**What signifies "Good" self promotion?**](https://meta.stackexchange.com/q/182212),
-- [some tips and advice about self-promotion](https://stackoverflow.com/help/promotion),
+- [some tips and advice about self-promotion](${parentUrl}/help/promotion),
 - [What is the exact definition of "spam" for Stack Overflow?](https://meta.stackoverflow.com/q/260638), and
 - [What makes something spam](https://meta.stackexchange.com/a/58035).
 
@@ -98,7 +98,7 @@ Any type of "astroturfing" promotion is not acceptable, regardless of if it's fo
 
 If you do include a link to something, then the link needs to be directly relevant to the question and/or answer (i.e. a specific page that is about the issue(s) in the question and/or answer). It should not be just a general link to your site, product, blog, YouTube channel, etc. If the link is to something you are affiliated with, then you _must_ include explicit disclosure of your affiliation in your post, unless the link is to official documentation for a product/library that is explicitly asked about in the question.
 
-**Answers must be a self-contained answer to the question:**  \nYour answers need to be actual, complete answers to the question. Just a link to something off-site doesn't make for an answer. [Answers must actually answer the question](https://meta.stackexchange.com/q/225370), without requiring the user to click to some other site to get enough information to solve the problem / answer the question. Please [add context around links](https://meta.stackoverflow.com/a/8259). _[Always quote](https://stackoverflow.com/help/referencing) the most relevant part of an important link, in case the target site is unreachable or goes permanently offline._ If you are linking to a library or framework, then [explain _why_ and _how_ it solves the problem, _and provide code on how to use it_](https://meta.stackoverflow.com/a/251605). Take into account that being _barely more than a link to an external site_ is a reason as to [Why and how are some answers deleted?](https://stackoverflow.com/help/deleted-answers).
+**Answers must be a self-contained answer to the question:**  \nYour answers need to be actual, complete answers to the question. Just a link to something off-site doesn't make for an answer. [Answers must actually answer the question](https://meta.stackexchange.com/q/225370), without requiring the user to click to some other site to get enough information to solve the problem / answer the question. Please [add context around links](https://meta.stackoverflow.com/a/8259). _[Always quote](${parentUrl}/help/referencing) the most relevant part of an important link, in case the target site is unreachable or goes permanently offline._ If you are linking to a library or framework, then [explain _why_ and _how_ it solves the problem, _and provide code on how to use it_](https://meta.stackoverflow.com/a/251605). Take into account that being _barely more than a link to an external site_ is a reason as to [Why and how are some answers deleted?](${parentUrl}/help/deleted-answers).
 `
     },
     {
