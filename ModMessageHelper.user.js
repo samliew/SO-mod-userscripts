@@ -945,15 +945,22 @@ function getPopup() {
 }
 
 
+let delayedAppendModMessageMenuTimer;
+function nowAndDelayedAppendModMessageMenu() {
+    appendModMessageMenu();
+    clearTimeout(delayedAppendModMessageMenuTimer);
+    // SE uses a 150ms animation to fade out the old post when doing a realtime.reloadPosts(), so we need to be after that.
+    delayedAppendModMessageMenuTimer = setTimeout(appendModMessageMenu, 175);
+}
+
+
 function doPageLoad() {
     appendModMessageMenu();
     initModMessageHelper();
     initCmMessageHelper();
 
     // After requests have completed
-    $(document).ajaxStop(function () {
-        appendModMessageMenu();
-    });
+    $(document).ajaxStop(nowAndDelayedAppendModMessageMenu);
 }
 
 
