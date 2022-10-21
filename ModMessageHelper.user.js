@@ -13,9 +13,12 @@
 // @match        *://*.stackoverflow.com/*
 // @match        *://*.superuser.com/*
 //
-// @exclude      *chat.*
-// @exclude      *blog.*
-// @exclude      https://stackoverflow.com/c/*
+// @exclude      *://api.*
+// @exclude      *://blog.*
+// @exclude      *://chat.*
+// @exclude      *://data.*
+// @exclude      *://*/tour
+// @exclude      *://stackoverflow.com/c/*
 //
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
