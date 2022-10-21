@@ -623,8 +623,7 @@ ${userLink}
 
         const messageSignature = `
 
-Regards,
-${sitename} Moderation Team`;
+Regards,  \n${sitename} Moderation Team`;
 
 
         customModMessages.forEach(function (item, i) {
@@ -795,9 +794,7 @@ ${userLink}
 `;
         const messageSuffix = additionalInfo + `
 
-Regards,
-${modName}
-${sitename} moderator`;
+Regards,  \n${modName}  \n${sitename} moderator`;
 
         customCmMessages.forEach(function (item, i) {
             const templateNumber = numberOfItems + i;
