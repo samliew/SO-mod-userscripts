@@ -834,7 +834,7 @@ function appendModMessageMenu() {
 
             let uid = 0;
             try {
-                uid = (userbox.find('a[href^="/users/"]').attr('href') || '/0/').match(/\/(\d+)\//)[1];
+                uid = (userbox.find('a[href^="/users/"]:not(.deleted-user)').attr('href') || '/0/').match(/\/(\d+)/)[1];
                 uid = Number(uid);
                 this.dataset.uid = uid;
             }
