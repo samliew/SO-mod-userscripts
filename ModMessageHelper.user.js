@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3.0
+// @version      3.3.1
 //
 // @match        *://*.askubuntu.com/*
 // @match        *://*.mathoverflow.net/*
@@ -43,7 +43,7 @@ const isSOMeta = location.hostname == 'meta.stackoverflow.com';
 const isMeta = typeof StackExchange.options.site.parentUrl !== 'undefined';
 const parentUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
 const additionalInfo = getQueryParam('info') ? newlines + decodeURIComponent(getQueryParam('info')) : '';
-const pupupSubmitButtonsSelector = 'button.js-popup-submit, button.popup-submit';
+const popupSubmitButtonsSelector = 'button.js-popup-submit, button.popup-submit';
 
 
 
@@ -294,8 +294,8 @@ function modMessage(uid, message = '', sendEmail = true, suspendDays = 0) {
                 'author': null,
             }
         })
-            .done(resolve)
-            .fail(reject);
+        .done(resolve)
+        .fail(reject);
     });
 }
 
@@ -542,7 +542,7 @@ function initModMessageHelper() {
             }
         }
 
-        const popupSubmit = popup.find(pupupSubmitButtonsSelector);
+        const popupSubmit = popup.find(popupSubmitButtonsSelector);
         if (!popupSubmit.prop('disabled')) popupSubmit.click();
     }
 
@@ -590,7 +590,7 @@ function initModMessageHelper() {
         popup.find('h1').first().attr('data-target', 'se-draggable.handle');
 
         // Watch for the popup to be submitted.
-        popup.find(pupupSubmitButtonsSelector).on('click input', watchForPopupSubmitClick);
+        popup.find(popupSubmitButtonsSelector).on('click input', watchForPopupSubmitClick);
 
         const actionList = popup.find('.action-list');
         if (actionList.length === 0) return;
@@ -603,7 +603,7 @@ function initModMessageHelper() {
             $(this).addClass('js-action-selected').find('.js-action-desc').removeClass('d-none');
             $(this).find('input:radio').prop('checked', true);
             $(this).siblings().find('.js-action-desc').addClass('d-none');
-            $(pupupSubmitButtonsSelector).prop('disabled', false);
+            $(popupSubmitButtonsSelector).prop('disabled', false);
         });
 
         // Message vars (should not be edited here)
@@ -612,6 +612,7 @@ function initModMessageHelper() {
         const userId = $('#aboutUserId').val();
         const userLink = 'https://' + location.hostname + $('#js-msg-form .user-details a').first().attr('href');
 
+        // Please preserve the line breaks in these string templates
         const messagePrefix = `Hello,
 
 We're writing in reference to your ${sitename} account:
@@ -730,7 +731,7 @@ function initCmMessageHelper() {
             }
         }
 
-        const popupSubmit = popup.find(pupupSubmitButtonsSelector);
+        const popupSubmit = popup.find(popupSubmitButtonsSelector);
         if (!popupSubmit.prop('disabled')) popupSubmit.click();
     }
 
@@ -758,7 +759,7 @@ function initCmMessageHelper() {
             $(this).addClass('action-selected').find('.action-desc').slideDown(200);
             $(this).find('input:radio').prop('checked', true);
             $(this).siblings().removeClass('action-selected').find('.action-desc').slideUp(200);
-            $(pupupSubmitButtonsSelector).prop('disabled', false);
+            $(popupSubmitButtonsSelector).prop('disabled', false);
         });
 
         // Message vars (should not be edited here)
@@ -768,6 +769,7 @@ function initCmMessageHelper() {
         const userId = $('#aboutUserId').val();
         const userLink = 'https://' + location.hostname + $('#js-msg-form .user-details a').first().attr('href');
 
+        // Please preserve the line breaks in these string templates
         const messagePrefix = `Hello,
 
 I'm writing in reference to the ${sitename} account:
@@ -970,6 +972,7 @@ function doPageLoad() {
     appendModMessageMenu();
     initModMessageHelper();
     initCmMessageHelper();
+
     // 2022-10 SE mod message page update: Fix a new bug in replying when the previous message was recent, which will, hopefully, be fixed quickly.
     $('.hidemsg').addClass('js-hide-msg');
 
