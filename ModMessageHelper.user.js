@@ -940,6 +940,17 @@ function appendModMessageMenu() {
 </a>`);
 
         });
+        // If we didn't add an actual mod message link, then remove the js-mod-message-menu class.
+        $('.js-mod-message-menu')
+            .filter(function() {return $(this).find('.js-mod-message-link').length === 0;})
+            .removeClass('js-mod-message-menu');
+        // Let CSS know that the .user-action-time is blank
+        $('.js-mod-message-menu .user-action-time')
+            .filter(function() {
+                const $this = $(this);
+                return $this.children().length === 0 && $this.text().trim().length === 0;
+            })
+            .addClass('user-action-time-is-blank');
 
     // Show menu on click only
     if (modMenuOnClick) {
@@ -989,34 +1000,37 @@ doPageLoad();
 const styles = document.createElement('style');
 styles.setAttribute('data-somu', GM_info?.script.name);
 styles.innerHTML = `
-.user-info,
-.s-user-card {
+.user-info.js-mod-message-menu,
+.s-user-card.js-mod-message-menu {
     position: relative;
     border: 1px solid transparent;
 }
-.user-info,
+.user-info.js-mod-message-menu,
     min-height: 88px;
 }
-.user-info:hover,
-.s-user-card:hover {
+.user-info.js-mod-message-menu:hover,
+.s-user-card.js-mod-message-menu:hover {
     /*border-color: var(--black-200);*/
 }
 .user-info.js-mod-message-menu:not(.js-mod-quicklinks):not(.s-topbar--item),
 .s-user-card.js-mod-message-menu:not(.js-mod-quicklinks):not(.s-topbar--item):not(.s-user-card__minimal) {
     padding-bottom: 25px;
 }
-.user-action-time {
+.js-mod-message-menu .user-action-time {
     min-height: 15px;
 }
+.js-mod-message-menu .user-action-time.user-action-time-is-blank {
+    display: none;
+}
 
-.mod-summary .user-info,
-.mod-summary .s-user-card,
-.mod-summary .user-action-time,
-.single-badge-user .user-info,
-.single-badge-user .s-user-card,
-.single-badge-user .user-action-time,
-.cast-votes .user-info,
-.cast-votes .s-user-card {
+.mod-summary .user-info.js-mod-message-menu,
+.mod-summary .s-user-card.js-mod-message-menu,
+.mod-summary .js-mod-message-menu .user-action-time,
+.single-badge-user .user-info.js-mod-message-menu,
+.single-badge-user .s-user-card.js-mod-message-menu,
+.single-badge-user .js-mod-message-menu .user-action-time,
+.cast-votes .user-info.js-mod-message-menu,
+.cast-votes .s-user-card.js-mod-message-menu {
     min-height: 0;
 }
 
