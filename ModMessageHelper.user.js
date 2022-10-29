@@ -54,7 +54,7 @@ const modMenuOnClick = true;
  * This may be edited to add more custom templates to mod messages.
  * addPrefix false:    no pleasantries and userlink
  * addSuffix false:    no suspension auto message
- * addSignature false: no regards and sign off
+ * addSignature true:  Add regards and sign off. SE now adds this by default.
  * soOnly true:        Only use the template on Stack Overflow
  * sendEmail false:    Don't send email to the user.
  *
@@ -795,7 +795,7 @@ function escapeText(text) {
 
 function generateCmOrModMessageTemplate(isCmMessage, item, i, numberOfItems, messagePrefix, messageSuffix, messageSignature="") {
     const templateNumber = numberOfItems + i;
-    const templateBodyText = (item.addPrefix !== false ? messagePrefix : '') + item.templateBody + (item.addSuffix !== false ? messageSuffix : '') + (item.addSignature !== false ? messageSignature : '');
+    const templateBodyText = (item.addPrefix !== false ? messagePrefix : '') + item.templateBody + (item.addSuffix !== false ? messageSuffix : '') + (item.addSignature === true ? messageSignature : '');
     const templateBodyProcessed = escapeText(templateBodyText);
     const templateShortText = item.templateBody.length > 400 ? item.templateBody.replace(/(\n|\r)+/g, ' ').substr(0, 397) + '...' : item.templateBody;
     const templateSuspensionReason = escapeText(item.suspensionReason || '');
