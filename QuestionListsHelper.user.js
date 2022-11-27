@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.2
+// @version      3.3
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -646,12 +646,6 @@ const initEventListeners = async function () {
         const siteSpecificCloseReasonId = form.siteSpecificCloseReasonId.value ?? undefined;
         const siteSpecificOtherText = form.siteSpecificOtherText.value ?? undefined;
         const duplicateOfQuestionId = form.duplicateOfQuestionId.value ?? undefined;
-        const belongsOnBaseHostAddress = form.belongsOnBaseHostAddress.value ?? undefined;
-
-        // TODO: Test migration
-        if (belongsOnBaseHostAddress) {
-          return; // Use normal form submit action
-        }
 
         // Remove dialog wrapper
         closeWrapper.remove();
