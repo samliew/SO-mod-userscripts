@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.6
+// @version      3.6.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -687,6 +687,9 @@ body > div[style*="absolute"],
 .SOMU-SEDM .bounty-indicator-tab {
     background-color: ${bountyblue};
     color: var(--black);
+}
+.s-badge {
+    color: var(--black-700);
 }
 #post-filters,
 .post-tag *,

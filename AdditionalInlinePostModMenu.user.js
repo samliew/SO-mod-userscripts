@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.3
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -409,13 +409,14 @@ function modUndelDelete(pid) {
 }
 
 
-// Spam flag individual post
-function spamFlagPost(pid) {
+// Spam/rude flag individual post
+function flagPost(pid, rudeFlag) {
     return new Promise(function (resolve, reject) {
         if (typeof pid === 'undefined' || pid === null) { reject(); return; }
 
+        const flagType = rudeFlag ? 'PostOffensive' : 'PostSpam';
         $.post({
-            url: `https://${location.hostname}/flags/posts/${pid}/add/PostSpam`,
+            url: `https://${location.hostname}/flags/posts/${pid}/add/${flagType}`,
             data: {
                 'otherText': null,
                 'overrideWarning': true,
@@ -499,190 +500,94 @@ function modMessage(uid, message = '', sendEmail = true, suspendDays = 0, templa
 }
 
 
-// Delete user (no longer welcome)
-function deleteUser(uid, deleteDetails = null) {
-    return new Promise(function (resolve, reject) {
-        if (typeof uid === 'undefined' || uid === null) { reject(); return; }
+const MODE_SUSPEND = 'suspend';
+// Note: "delete" and "destroy" are used for both user-visible strings and URL-building.
+const MODE_DELETE = 'delete';
+const MODE_DESTROY = 'destroy';
 
-        // If details is null or whitespace, get optional details
-        if (deleteDetails == null || deleteDetails.trim().length == 0) {
+// Suspend and optionally delete/destroy user
+async function banUser(uid, mode, modMessageName, suspensionReason) {
+    if (typeof uid === 'undefined' || uid === null) { throw new Error('null or undefined uid'); return; }
 
-            // Prompt for additional details if userscript is not under spam attack mode
-            if (underSpamAttackMode) deleteDetails = '';
-            else deleteDetails = prompt('Additional details for deleting user (if any). Cancel button terminates delete action.');
+    // Action-specific strings
+    let actionPastTense;
+    let actionCapitalized;
+    let actionGerund;
 
-            // If still null, reject promise and return early
-            if (deleteDetails == null) { alert('Delete cancelled. User was not deleted.'); reject(); return; }
+    // Other mode-specific config
+    let removeUser;
+    
+    switch (mode) {
+        case MODE_SUSPEND:
+            removeUser = false;
+            break;
+        case MODE_DELETE:
+            removeUser = true;
+            actionGerund = 'deleting';
+            actionCapitalized = "Delete";
+            actionPastTense = 'deleted';
+            break;
+        case MODE_DESTROY:
+            removeUser = true;
+            actionGerund = 'destroying';
+            actionCapitalized = "Destroy"
+            actionPastTense = 'destroyed';
+            break;
+        default:
+            throw new Error(`Invalid mode: ${mode}`);
+    }
+
+    // Get optional details if we're destroying the user
+    let userRemovalDetails;
+    if (removeUser) {
+        // Prompt for additional details if userscript is not under spam attack mode
+        if (underSpamAttackMode) {
+            userRemovalDetails = '';
+        } else {
+            userRemovalDetails = prompt(`Additional details for ${actionGerund} user (if any). Cancel button terminates ${mode} action.`);
         }
 
-        // Apply max suspension before deletion
-        modMessage(uid,
-            'Account removed for spamming and/or abusive behavior. You\'re no longer welcome to participate here.',
-            false,
-            365,
-            'no longer welcome',
-            'because of low-quality contributions');
-
-        getUserPii(uid).then(v => {
-
-            const userDetails = `\n\nEmail:     ${v.email}\nReal Name: ${v.name}`;
-            const deleteReasonDetails = deleteDetails.trim() + userDetails;
-            debugger;
-
-            // Delete user
-            $.post({
-                url: `https://${location.hostname}/admin/users/${uid}/delete`,
-                data: {
-                    'annotation': '',
-                    'deleteReasonDetails': '',
-                    'mod-actions': 'delete',
-                    'deleteReason': 'This user is no longer welcome to participate on the site',
-                    'deleteReasonDetails': deleteReasonDetails,
-                    'fkey': fkey
-                }
-            })
-                .done(resolve)
-                .fail(reject);
-        });
-    });
-}
-
-
-// Destroy spammer
-function destroySpammer(uid, destroyDetails = null) {
-    return new Promise(function (resolve, reject) {
-        if (typeof uid === 'undefined' || uid === null) { reject(); return; }
-
-        // If details is null or whitespace, get optional details
-        if (destroyDetails == null || destroyDetails.trim().length == 0) {
-
-            // Prompt for additional details if userscript is not under spam attack mode
-            if (underSpamAttackMode) destroyDetails = '';
-            else destroyDetails = prompt('Additional details for destroying user (if any). Cancel button terminates destroy action.');
-
-            // If still null, reject promise and return early
-            if (destroyDetails == null) { alert('Destroy cancelled. User was not destroyed.'); reject(); return; }
+        // If still null, reject promise and return early
+        if (userRemovalDetails == null) {
+            const errMsg = `${actionCapitalized} cancelled. User was not ${actionPastTense}.`;
+            alert(errMsg);
+            throw new Error(errMsg);
         }
 
-        // Apply max suspension before deletion
-        modMessage(uid,
-            'Account removed for spamming and/or abusive behavior. You\'re no longer welcome to participate here.',
-            false,
-            365,
-            'destroy spammer',
-            'for promotional content');
+        // If removing the user, use a long title to suppress the mod-inbox notification
+        modMessageName += '                                                                                                        ';
+    }
 
-        getUserPii(uid).then(v => {
+    // Apply max suspension
+    await modMessage(uid,
+        'Account removed for spamming and/or abusive behavior. You\'re no longer welcome to participate here.',
+        false,
+        365,
+        modMessageName,
+        suspensionReason
+    );
 
-            const userDetails = `\n\nEmail:     ${v.email}\nReal Name: ${v.name}`;
-            const destroyReasonDetails = destroyDetails.trim() + userDetails;
-            debugger;
-
-            // Destroy user
-            $.post({
-                url: `https://${location.hostname}/admin/users/${uid}/destroy`,
-                data: {
-                    'annotation': '',
-                    'deleteReasonDetails': '',
-                    'mod-actions': 'destroy',
-                    'destroyReason': 'This user was created to post spam or nonsense and has no other positive participation',
-                    'destroyReasonDetails': destroyReasonDetails,
-                    'fkey': fkey
-                }
-            })
-                .done(resolve)
-                .fail(reject);
-        });
-    });
-}
-
-
-function updateModTemplates() {
-
-    const template = $('.popup input[name=mod-template]').filter((i, el) => $(el).next().text().includes('post disassociation'));
-    let addstr = '';
-
-    // Build list of posts
-    const pids = getQueryParam('pid').split('|');
-    pids.forEach(function (v) {
-        if (v.length === 0) return;
-        addstr += `https://${location.hostname}/a/${v}` + newlines;
-    });
-
-    // Build list of meta posts
-    const metapids = getQueryParam('metapid').split('|');
-    metapids.forEach(function (v) {
-        if (v.length === 0) return;
-        addstr += `${metaUrl}/a/${v}` + newlines;
-    });
-
-    if (addstr === '') addstr = newlines;
-
-    // Insert to template
-    template.val(template.val()
-        .replace(/:\s+{todo}/, ':<br>\n' + addstr + '**Requested via custom flag.**' + newlines) // replace todo with additional information
-    ).click();
-
-    $('.popup-submit').click();
-
-    // Failsafe
-    $('#templateName').val('post disassociation');
-}
-
-
-function initPostDissociationHelper() {
-
-    // Only on main sites
-    if (isMeta) return;
-
-    // Run once, whether on AdditionalPostModActions or AdditionalInlinePostModMenu
-    if (document.body.classList.contains('SOMU-PostDissociationHelper')) return;
-    else document.body.classList.add('SOMU-PostDissociationHelper');
-
-    // If on contact CM page and action = dissocciate
-    if (location.pathname.includes('/admin/cm-message/create/') && getQueryParam('action') == 'post-dissociation') {
-
-        // On any page update
-        $(document).ajaxComplete(function (event, xhr, settings) {
-
-            // If CM templates loaded on contact CM page, and action = dissocciate, update templates
-            if (settings.url.includes('/admin/contact-cm/template-popup/')) {
-
-                // Run once only. Unbind ajaxComplete event
-                $(event.currentTarget).unbind('ajaxComplete');
-
-                // Update CM mod templates
-                setTimeout(updateModTemplates, 500);
-            }
-        });
-
-        // click template link
-        $('#show-templates').click();
-
+    if (!removeUser) {
         return;
     }
 
-    // If on mod flag queues, remove close question and convert to comment buttons when flag message contains "di(sa)?ssociate", and add "dissociate" button
-    if (location.pathname.includes('/admin/dashboard')) {
-        const dissocFlags = $('.revision-comment.active-flag').filter((i, v) => v.innerText.match(/di(sa)?ssociate/));
-        const dissocPosts = dissocFlags.closest('.js-flagged-post');
-        dissocPosts.each(function () {
-            const post = $(this);
-            const userlink = post.find('.mod-audit-user-info a').attr('href');
+    const v = await getUserPii(uid);
 
-            // User not found, prob already deleted
-            if (userlink == null) return;
+    const userDetails = `\n\nEmail:     ${v.email}\nReal Name: ${v.name}`;
+    const destroyReasonDetails = userRemovalDetails.trim() + userDetails;
 
-            const uid = Number(userlink.match(/\/(\d+)\//)[0].replace(/\//g, ''));
-            const pid = post.attr('data-post-id') || post.attr('data-questionid') || post.attr('data-answerid');
-            $('.js-post-flag-options', this).prepend(`<a href="https://${location.hostname}/admin/cm-message/create/${uid}?action=post-dissociation&pid=${pid}" class="btn" target="_blank">dissociate</a>`);
-
-            $('.close-question-button, .js-convert-to-comment', this).hide();
-        });
-        return;
-    }
+    // Delete/destroy user
+    await $.post({
+        url: `https://${location.hostname}/admin/users/${uid}/${mode}`,
+        data: {
+            'annotation': '',
+            'mod-actions': mode,
+            [`${mode}Reason`]: 'This user was created to post spam or nonsense and has no other positive participation',
+            [`${mode}ReasonDetails`]: destroyReasonDetails,
+            'fkey': fkey
+        }
+    });
 }
-
 
 function addPostCommentsModLinks() {
 
@@ -841,23 +746,22 @@ function appendInlinePostModMenus() {
             menuitems += `<a data-action="unlock" class="inline-link">unlock</a>`;
         }
 
-        // CM message and destroy options won't work on Meta
+        // Need a user link for delete/destroy
         if (userlink && /.*\/\d+\/.*/.test(userlink)) {
-            const uid = Number(userlink.match(/\/\d+\//)[0].replace(/\D+/g, ''));
-
-            menuitems += '<div class="block-clear"></div>';
-            menuitems += '<span class="inline-label user-label">user: </span>';
-
-            const postIdParam = pid ? '&' + (!isMeta ? `pid=${pid}` : `metapid=${pid}`) : '';
-            menuitems += `<a href="${parentUrl}/admin/cm-message/create/${uid}?action=post-dissociation${postIdParam}" target="_blank" class="inline-link" title="compose CM dissociation message in a new window">dissociate...</a>`; // non-deleted user only
-
-            // Allow destroy option only if < 60 days and not on Meta site
+            // Allow delete/destroy options only if < 60 days and not on Meta site
             if (!isMeta && (postage < 60 || isSuperuser)) {
+                const uid = Number(userlink.match(/\/\d+\//)[0].replace(/\D+/g, ''));
 
-                // Allow destroy option only if user < 200 rep
+                // Allow delete/destroy options only if user < 200 rep
                 if (/^\d+$/.test(userrep) && Number(userrep) < 200) {
-                    menuitems += `<a data-action="suspend-delete" data-uid="${uid}" data-username="${username}" class="inline-link danger" title="confirms whether you want to suspend-delete the account">delete...</a>`; // non-deleted user only
-                    menuitems += `<a data-action="destroy-spammer" data-uid="${uid}" data-username="${username}" class="inline-link danger" title="confirms whether you want to suspend-destroy the spammer">destroy...</a>`; // non-deleted user only
+                    menuitems += '<div class="block-clear"></div>';
+                    menuitems += '<span class="inline-label post-label">troll/sock: </span>';
+                    menuitems += `<a data-action="suspend-delete" data-uid="${uid}" data-username="${username}" class="inline-link danger" title="delete post, suspend for 365 for rule violations,  and delete">delete...</a>`; // non-deleted user only
+                    menuitems += `<a data-action="destroy-troll" data-uid="${uid}" data-username="${username}" class="inline-link danger" title="nuke post, suspend for 365 for rule violations, and destroy">destroy...</a>`; // non-deleted user only
+                    menuitems += '<div class="block-clear"></div>';
+                    menuitems += '<span class="inline-label post-label">spammer: </span>';
+                    menuitems += `<a data-action="suspend-spammer" data-uid="${uid}" data-username="${username}" class="inline-link danger" title="nuke post, suspend for 365 for promotional content">suspend...</a>`; // non-deleted user only
+                    menuitems += `<a data-action="destroy-spammer" data-uid="${uid}" data-username="${username}" class="inline-link danger" title="nuke post, suspend for 365 for promotional content, and destroy">destroy...</a>`; // non-deleted user only
                 }
             }
         }
@@ -896,6 +800,28 @@ function initPostModMenuLinkActions() {
         function removePostFromModQueue() {
             if (location.pathname.includes('/admin/dashboard')) {
                 post.parents('.js-flagged-post').remove();
+            }
+        }
+
+        function flagPostAndBanUser(prompt, rudeFlag, destroyUser, modMessageName, suspensionReason) {
+            if (
+                confirm(`${prompt} "${uName}" (id: ${uid})???`) &&
+                (underSpamAttackMode ||
+                    !destroyUser ||
+                    confirm(`Are you VERY SURE you want to DESTROY the account "${uName}"???`))
+            ) {
+                flagPost(pid, rudeFlag);
+                banUser(
+                    uid,
+                    destroyUser ? MODE_DESTROY : MODE_SUSPEND,
+                    modMessageName,
+                    suspensionReason
+                ).then(function () {
+                    debugger;
+                    if (!isSuperuser && !underSpamAttackMode) window.open(`https://${location.hostname}/users/${uid}`);
+                    removePostFromModQueue();
+                    reloadPage();
+                });
             }
         }
 
@@ -980,23 +906,39 @@ function initPostModMenuLinkActions() {
                 if (confirm(`Suspend for 365, and DELETE the user "${uName}" (id: ${uid})???`) &&
                     (underSpamAttackMode || confirm(`Are you VERY SURE you want to DELETE the account "${uName}"???`))) {
                     deletePost(pid);
-                    deleteUser(uid).then(function () {
+                    banUser(uid, MODE_DELETE, 'no longer welcome', 'for rule violations').then(function () {
                         if (!isSuperuser && !underSpamAttackMode) window.open(`https://${location.hostname}/users/${uid}`);
                         removePostFromModQueue();
                         reloadPage();
                     });
                 }
                 break;
+            case 'suspend-spammer':
+                flagPostAndBanUser(
+                    'Spam-nuke the post and SUSPEND for 365',
+                    /* rudeFlag */ false,
+                    /* alsoDestroy */ false,
+                    /* modMessageName */ 'suspend spammer',
+                    /* suspensionReason */ 'for promotional content'
+                );
+                break;
             case 'destroy-spammer':
-                if (confirm(`Spam-nuke the post, suspend for 365, and DESTROY the spammer "${uName}" (id: ${uid})???`) &&
-                    (underSpamAttackMode || confirm(`Are you VERY SURE you want to DESTROY the account "${uName}"???`))) {
-                    spamFlagPost(pid);
-                    destroySpammer(uid).then(function () {
-                        if (!isSuperuser && !underSpamAttackMode) window.open(`https://${location.hostname}/users/${uid}`);
-                        removePostFromModQueue();
-                        reloadPage();
-                    });
-                }
+                flagPostAndBanUser(
+                    'Spam-nuke the post, suspend for 365, and DESTROY the spammer',
+                    /* rudeFlag */ false,
+                    /* alsoDestroy */ true,
+                    /* modMessageName */ 'destroy spammer',
+                    /* suspensionReason */ 'for promotional content'
+                );
+                break;
+            case 'destroy-troll':
+                flagPostAndBanUser(
+                    'R/A-nuke the post, suspend for 365, and DESTROY the troll',
+                    /* rudeFlag */ true,
+                    /* alsoDestroy */ true,
+                    /* modMessageName */ 'destroy troll',
+                    /* suspensionReason */ 'for rule violations'
+                );
                 break;
             default:
                 return true;
@@ -1005,7 +947,6 @@ function initPostModMenuLinkActions() {
         return false;
     });
 }
-
 
 function doPageLoad() {
 
@@ -1040,8 +981,6 @@ function doPageLoad() {
 
     initPostModMenuLinkActions();
     appendInlinePostModMenus();
-
-    initPostDissociationHelper();
 
     // After requests have completed
     $(document).ajaxStop(function () {

@@ -3,14 +3,14 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.4
 //
-// @include      https://*stackoverflow.com/*
-// @include      https://*serverfault.com/*
-// @include      https://*superuser.com/*
-// @include      https://*askubuntu.com/*
-// @include      https://*mathoverflow.net/*
-// @include      https://*.stackexchange.com/*
+// @match      https://*stackoverflow.com/*
+// @match      https://*serverfault.com/*
+// @match      https://*superuser.com/*
+// @match      https://*askubuntu.com/*
+// @match      https://*mathoverflow.net/*
+// @match      https://*.stackexchange.com/*
 //
 // @exclude      https://stackoverflow.com/c/*
 // @exclude      https://stackoverflow.blog*
@@ -227,6 +227,13 @@ function findDeletedUsers() {
     $('.post-signature .user-details').each(linkifyDeletedUser);
     $('span.comment-user').each(linkifyDeletedUser);
     $('.msg.msg-moderator .user-details').each(linkifyDeletedUser);
+    if(location.href.indexOf('post-comments-by-deleted-user') !== -1) {
+        const header = document.querySelector('div.subheader h1');
+        if(!header) return;
+        let user = header.innerText.match(/\d+/);
+        let text = header.innerText.substring(0, user.index);
+        header.innerHTML = text + '<a href="/users/' + user + '" title="deleted user" class="deleted-user" data-uid="' + user + '" target="_blank">' + user + '</a>';
+    }
 }
 
 
