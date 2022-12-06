@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3.3
+// @version      3.4.0
 //
 // @match        *://*.askubuntu.com/*
 // @match        *://*.mathoverflow.net/*
