@@ -994,8 +994,23 @@ function appendModMessageMenu() {
             $('.somu-mod-message-link.active').removeClass('active');
         });
         $('.js-mod-message-menu').on('click', '.somu-mod-message-link', function (evt) {
-            $(this).addClass('active');
+            const $this = $(this);
+            $this.addClass('active');
             evt.stopPropagation();
+            const menu = $this.find('.somu-mod-message-menu');
+            const menuRect = menu[0].getBoundingClientRect();
+            const menuLeftPosition = menuRect.left;
+            if (menuLeftPosition < 0) {
+                // The menu is currently off the viewport to the left, so adjust it to be inside.
+                const menuCssLeftPx = Number((menu.css('left').match(/\d+/) || [0])[0]);
+                menu.css('left', `calc(${menuCssLeftPx - menuLeftPosition}px + 1vw)`);
+            }
+            const menuRightPosition = menuRect.right;
+            if (menuRightPosition > window.innerWidth) {
+                // The menu is currently off the viewport to the right, so adjust it to be inside.
+                const menuCssLeftPx = Number((menu.css('left').match(/\d+/) || [0])[0]);
+                menu.css('left', `calc(${menuCssLeftPx - (menuRightPosition - window.innerWidth)}px - 1vw)`);
+            }
         });
     }
 }
@@ -1124,6 +1139,7 @@ styles.innerHTML = `
 
     user-select: none;
     white-space: nowrap;
+    max-width: 98vw;
 }
 #somu-mod-message-menu {
     background: var(--white) !important;
