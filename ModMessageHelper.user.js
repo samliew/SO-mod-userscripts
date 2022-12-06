@@ -212,6 +212,20 @@ Of course, Stack Overflow is *also* not a free application design and developmen
 Please do not post any more of these comments. They add noise for moderators to remove, may be perceived as demanding or unfriendly, and don't assist with our goal of creating a knowledge base.`,
     },
     {
+        templateName: "reset inappropriate username",
+        suspensionReason: "for rule violations",
+        suspensionDefaultDays: 0,
+        addSuffix: false,
+        templateBody: `It has been brought to our attention that your username may be offensive to some people.
+
+Because all of your contributions to this site include showing your username, we require that usernames be appropriate for professional discourse, in keeping with our [Code of Conduct](${parentUrl}/conduct).
+
+As such, we've reset your username to the default. Please do not change it back to the previous username without checking with us first.
+
+In case there's been a misunderstanding about what your username means, you can get in touch with us to clear it up by replying to this message. Or, if you'd like to change it to something else that's reasonable, but you're having issues doing so, please let us know and we'll assist.
+`,
+    },
+    {
         templateName: "spam/abuse year-long ban",
         suspensionReason: "for rule violations",
         suspensionDefaultDays: 365,
