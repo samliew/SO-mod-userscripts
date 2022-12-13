@@ -14,7 +14,6 @@
 //
 // @exclude      *chat.*
 // @exclude      *blog.*
-// @exclude      https://stackoverflow.com/c/*
 // ==/UserScript==
 
 /* globals StackExchange */

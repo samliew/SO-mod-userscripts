@@ -12,7 +12,6 @@
 // @match      https://*mathoverflow.net/*
 // @match      https://*.stackexchange.com/*
 //
-// @exclude      https://stackoverflow.com/c/*
 // @exclude      https://stackoverflow.blog*
 // @exclude      *chat.*
 // @exclude      */tour
@@ -409,7 +408,7 @@ function doPageLoad() {
     // 404 on user page or mod page with an ID in the URL
     if ((document.body.classList.contains('user-page') || document.body.classList.contains('mod-page')) &&
         !isNaN(uid) && is404) {
-        
+
         // Redirect to user profile page if not already on it
         if (location.pathname !== userUrl) location = userUrl;
         return;

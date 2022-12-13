@@ -16,7 +16,6 @@
 // @include      https://chat.meta.stackexchange.com/*
 // @include      https://chat.stackoverflow.com/*
 //
-// @exclude      https://stackoverflow.com/c/*
 // @exclude      */admin/user-activity*
 // @exclude      */admin/dashboard*
 //

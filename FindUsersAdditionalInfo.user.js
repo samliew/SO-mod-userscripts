@@ -14,7 +14,6 @@
 // @include      https://*.stackexchange.com/admin/find-users?*
 //
 // @exclude      *chat.*
-// @exclude      https://stackoverflow.com/c/*
 // @exclude      https://stackoverflow.blog*
 //
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js

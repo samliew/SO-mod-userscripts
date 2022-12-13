@@ -14,7 +14,6 @@
 //
 // @exclude      *chat.*
 // @exclude      *blog.*
-// @exclude      https://stackoverflow.com/c/*
 //
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==

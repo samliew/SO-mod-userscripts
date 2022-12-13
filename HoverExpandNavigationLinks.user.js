@@ -13,7 +13,6 @@
 // @include      https://*stackexchange.com/*
 //
 // @exclude      *chat.*
-// @exclude      https://stackoverflow.com/c/*
 // ==/UserScript==
 
 /* globals StackExchange, GM_info */

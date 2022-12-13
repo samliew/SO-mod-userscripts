@@ -14,7 +14,6 @@
 //
 // @exclude      *chat.*
 // @exclude      *blog.*
-// @exclude      https://stackoverflow.com/c/*
 //
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
@@ -516,7 +515,7 @@ async function banUser(uid, mode, modMessageName, suspensionReason) {
 
     // Other mode-specific config
     let removeUser;
-    
+
     switch (mode) {
         case MODE_SUSPEND:
             removeUser = false;

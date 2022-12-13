@@ -27,7 +27,6 @@
 // @include      https://*.stackexchange.com/admin/dashboard?flagtype=*
 //
 // @exclude      *chat.*
-// @exclude      https://stackoverflow.com/c/*
 // @exclude      https://stackoverflow.blog*
 //
 // @exclude      https://*stackoverflow.com/review/*/stats
