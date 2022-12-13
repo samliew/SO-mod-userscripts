@@ -3,25 +3,25 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4.1
+// @version      3.5
 //
-// @match        *://*.askubuntu.com/*
-// @match        *://*.mathoverflow.net/*
-// @match        *://*.serverfault.com/*
-// @match        *://*.stackapps.com/*
-// @match        *://*.stackexchange.com/*
-// @match        *://*.stackoverflow.com/*
-// @match        *://*.superuser.com/*
+// @match        https://*.stackoverflow.com/*
+// @match        https://*.superuser.com/*
+// @match        https://*.serverfault.com/*
+// @match        https://*.mathoverflow.net/*
+// @match        https://*.askubuntu.com/*
+// @match        https://*.stackapps.com/*
+// @match        https://*.stackexchange.com/*
 //
-// @exclude      *://api.*
-// @exclude      *://blog.*
-// @exclude      *://chat.*
-// @exclude      *://data.*
-// @exclude      *://*/tour
-// @exclude      *://stackoverflow.com/c/*
+// @exclude      https://api.*
+// @exclude      https://blog.*
+// @exclude      https://chat.*
+// @exclude      https://data.*
+// @exclude      https://*/tour
 //
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
+
 /* globals $, StackExchange, jQuery */
 /* globals isModerator, ajaxPromise, jQueryXhrOverride, _w, hasBackoff, addBackoff, htmlDecode, hasInvalidIds, getPostId */ /* Defined in https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js */
 
@@ -371,12 +371,12 @@ function getDeletedPosts(uid, type) {
         if (isNaN(count) || count <= 0) return;
 
         // Add deleted posts to the stats element
-        const results = $('.search-results .search-result, .js-search-results .s-card', data);
+        const results = $('.js-search-results .s-post-summary', data);
 
         // Add copyable element to the results
-        const hyperlinks = results.find('a').attr('href', (i, v) => 'https://' + location.hostname + v).attr('target', '_blank');
-        const hyperlinks2 = hyperlinks.filter('.s-link[data-searchsession^="/"], .answer-hyperlink').map((i, el) => `[${1 + i}](${toShortLink(el.href)})`).get();
-        const comment = `Additionally, you have ${hyperlinks2.length} deleted ${type}${hyperlinks2.length == 1 ? '' : 's'}, which may be contributing to the [${type} ban](https://${location.hostname}/help/${type}-bans): ${hyperlinks2.join(' ')}`;
+        const hyperlinks = results.find('.s-post-summary--content-title a').attr('href', (i, v) => 'https://' + location.hostname + v).attr('target', '_blank');
+        const hyperlinksMarkdown = hyperlinks.map((i, el) => `[${1 + i}](${toShortLink(el.href)})`).get();
+        const comment = `Additionally, you have ${hyperlinksMarkdown.length} deleted ${type}${hyperlinksMarkdown.length == 1 ? '' : 's'}, which may be contributing to the [${type} ban](https://${location.hostname}/help/${type}-bans): ${hyperlinksMarkdown.join(' ')}`;
         const commentArea = $(`<textarea readonly="readonly" class="h128 s-textarea"></textarea>`).val(comment).appendTo(stats);
     });
 }
