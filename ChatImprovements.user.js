@@ -32,7 +32,6 @@ if (typeof unsafeWindow !== 'undefined' && window !== unsafeWindow) {
     unsafeWindow = window;
 }
 
-
 const store = window.localStorage;
 const fkey = document.getElementById('fkey') ? document.getElementById('fkey').value : '';
 
@@ -616,14 +615,44 @@ function initUserHighlighter() {
     });
 }
 
+/**
+ * @summary factory for chat top navigation bar buttons
+ * @param {string} id button id
+ * @param {string} text button text
+ * @param {{
+ *  onClick?: (event: MouseEvent) => void | Promise<void>,
+ *  url?: string
+ * }} options configuration options
+ */
+const makeChatTopNavButton = (id, text, options) => {
+    const { url, onClick } = options;
 
+    const button = document.createElement('a');
+    button.classList.add('button')
+    button.rel = 'noopener noreferrer';
+    button.id = id;
+    button.textContent = text;
+
+    if(url) button.href = url;
+
+    if(typeof onClick === 'function') {
+        button.addEventListener('click', onClick);
+    }
+
+    return button;
+}
 
 function addLinksToOtherChatDomains() {
 
     // Add links to other chat domains when on Chat.SO
     const allrooms = $('#allrooms, #info a:first');
     if (allrooms[0].href.includes('stackoverflow.com')) {
-        allrooms.after(`<a rel="noopener noreferrer" id="allrooms2" class="button" href="https://chat.stackexchange.com">Chat.SE</a> <a rel="noopener noreferrer" id="allrooms3" class="button" href="https://chat.meta.stackexchange.com">Chat.MSE</a>`);
+        const buttons = [
+            makeChatTopNavButton('allrooms2', 'Chat.SE', { url: 'https://chat.stackexchange.com' }),
+            makeChatTopNavButton('allrooms3', 'Chat.MSE', { url: 'https://chat.meta.stackexchange.com' }),
+        ]
+
+        allrooms.after(...buttons)
     }
 }
 
