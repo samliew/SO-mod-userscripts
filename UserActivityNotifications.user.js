@@ -13,7 +13,6 @@
 // @include      https://*.stackexchange.com/*
 //
 // @exclude      *chat.*
-// @exclude      https://stackoverflow.com/c/*
 //
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
@@ -106,7 +105,7 @@ function notify(title, link, options = {}, dismissAfter = 15) {
         try { n.close(); }
         catch (e) { }
     });
-    
+
     return n;
 }
 

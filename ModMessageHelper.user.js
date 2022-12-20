@@ -3,23 +3,27 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11
+// @version      3.6
 //
-// @include      https://*stackoverflow.com/*
-// @include      https://*serverfault.com/*
-// @include      https://*superuser.com/*
-// @include      https://*askubuntu.com/*
-// @include      https://*mathoverflow.net/*
-// @include      https://*.stackexchange.com/*
+// @match        https://*.stackoverflow.com/*
+// @match        https://*.superuser.com/*
+// @match        https://*.serverfault.com/*
+// @match        https://*.mathoverflow.net/*
+// @match        https://*.askubuntu.com/*
+// @match        https://*.stackapps.com/*
+// @match        https://*.stackexchange.com/*
 //
-// @exclude      *chat.*
-// @exclude      *blog.*
-// @exclude      https://stackoverflow.com/c/*
+// @exclude      https://api.*
+// @exclude      https://blog.*
+// @exclude      https://chat.*
+// @exclude      https://data.*
+// @exclude      https://*/tour
 //
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
-/* globals StackExchange, GM_info */
+/* globals $, StackExchange, jQuery */
+/* globals isModerator, ajaxPromise, jQueryXhrOverride, _w, hasBackoff, addBackoff, htmlDecode, hasInvalidIds, getPostId */ /* Defined in https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js */
 
 'use strict';
 
@@ -39,17 +43,27 @@ const isSOMeta = location.hostname == 'meta.stackoverflow.com';
 const isMeta = typeof StackExchange.options.site.parentUrl !== 'undefined';
 const parentUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
 const additionalInfo = getQueryParam('info') ? newlines + decodeURIComponent(getQueryParam('info')) : '';
+const popupSubmitButtonsSelector = 'button.js-popup-submit, button.popup-submit';
+
 
 
 const modMenuOnClick = true;
 
 
 /* CUSTOM MOD MESSAGE TEMPLATES
- * This may be edited to add more custom templates to mod messages
- * Dyanamic variables: {suspensionDurationDays} , {optionalSuspensionAutoMessage}
+ * This may be edited to add more custom templates to mod messages.
  * addPrefix false:    no pleasantries and userlink
  * addSuffix false:    no suspension auto message
- * addSignature false: no regards and sign off
+ * addSignature true:  Add regards and sign off. SE now adds this by default.
+ * soOnly true:        Only use the template on Stack Overflow
+ * sendEmail false:    Don't send email to the user.
+ *
+ * In the template, the following text is used to indicate something or automatically substituted:
+ *             text                         What
+ *       {todo:suspend}                     User is suspended by default. User is expected to replace with appropriate text.
+ *       {suspensionDurationDays}           User is suspended by default. Is replaced by the currently selected number of days.
+ *       {todo}                             Just used as a indicator that the moderator is to enter text.
+ *       {optionalSuspensionAutoMessage}    Is automatically replaced by a suspension message, if the moderator selects suspension in the UI.
  */
 const customModMessages = [
     {
@@ -63,6 +77,29 @@ While we appreciate your willingness to help us out with these as you see them, 
 Flagging as spam is much more expedient than voting to close, and actually allows spam to be nuked from the site without moderator intervention even being required.
 
 Thank you for your attention to this matter in the future. If you have any questions, please let us know!`
+    },
+    {
+        templateName: "promotional content; answers not self-contained",
+        suspensionReason: "for promotional content",
+        suspensionDefaultDays: 0,
+        // The \n characters used below are to get around a Tampermonkey default setting which automatically removes trailing whitespace from changed lines.
+        templateBody: `**Promotional content:**  \nWe noticed that at least some of your posts seem to promote and/or link to a product, website, blog, library, YouTube channel/videos, project, source code repository, etc. Per the [help center](${parentUrl}/help/behavior):
+
+> Be careful, because the community frowns on overt self-promotion and tends to vote it down and flag it as spam. Post good, relevant answers, and if some (but not all) happen to be about your product or website, so be it. However, you _must_ disclose your affiliation in your answers. Also, if a huge percentage of your posts include a mention of your product or website, you're probably here for the wrong reasons. Our advertising rates are quite reasonable; [contact our ad sales team for details](${parentUrl}/advertising).
+
+You should also review the content at the following links:
+
+- [**What signifies "Good" self promotion?**](https://meta.stackexchange.com/q/182212),
+- [some tips and advice about self-promotion](${parentUrl}/help/promotion),
+- [What is the exact definition of "spam" for Stack Overflow?](https://meta.stackoverflow.com/q/260638), and
+- [What makes something spam](https://meta.stackexchange.com/a/58035).
+
+Any type of "astroturfing" promotion is not acceptable, regardless of if it's for profit or not. It brings down the overall value of genuine content and recommendations for everyone on the site.
+
+If you do include a link to something, then the link needs to be directly relevant to the question and/or answer (i.e. a specific page that is about the issue(s) in the question and/or answer). It should not be just a general link to your site, product, blog, YouTube channel, etc. If the link is to something you are affiliated with, then you _must_ include explicit disclosure of your affiliation in your post, unless the link is to official documentation for a product/library that is explicitly asked about in the question.
+
+**Answers must be a self-contained answer to the question:**  \nYour answers need to be actual, complete answers to the question. Just a link to something off-site doesn't make for an answer. [Answers must actually answer the question](https://meta.stackexchange.com/q/225370), without requiring the user to click to some other site to get enough information to solve the problem / answer the question. Please [add context around links](https://meta.stackoverflow.com/a/8259). _[Always quote](${parentUrl}/help/referencing) the most relevant part of an important link, in case the target site is unreachable or goes permanently offline._ If you are linking to a library or framework, then [explain _why_ and _how_ it solves the problem, _and provide code on how to use it_](https://meta.stackoverflow.com/a/251605). Take into account that being _barely more than a link to an external site_ is a reason as to [Why and how are some answers deleted?](${parentUrl}/help/deleted-answers).
+`
     },
     {
         templateName: "soliciting votes",
@@ -160,6 +197,66 @@ Since this suspension is fully voluntary, you are welcome to reply to this messa
 We wish you a pleasant vacation from the site, and we look forward to your return!`,
         addSuffix: false,
     },
+    {
+        templateName: "demands to show effort/\"not a code-writing service\"",
+        suspensionReason: "for rule violations",
+        suspensionDefaultDays: 0,
+        templateBody: `It has come to our attention that you've left one or more comments similar to the following:
+
+>
+
+[Stack Overflow *is* a code-writing service](https://meta.stackoverflow.com/a/408565), in the sense that it is a programming Q&A site, and most questions here are solved by writing code in the answer. It is [not a debugging helpdesk for askers](https://meta.stackexchange.com/a/364585)&mdash;we do not require that askers provide existing code to debug. Lack of problem-solving effort is not a reason to close or otherwise object to questions. [The only type of effort we require is the effort required to ask a clear, focused, non-duplicate question](https://meta.stackoverflow.com/a/260909). Including an attempt often adds noise and results in answers that are applicable to just the original asker, rather than anyone doing the same thing.  Many of the most useful questions on the site do not include an existing attempt at solving the problem.
+
+Of course, Stack Overflow is *also* not a free application design and development service. Questions may still be closed as too broad (or unclear) if that is the problem. But please do not try to limit the questions asked here to problems with *existing* code. Instead, focus on the scope and clarity of questions. The goal should be to encourage questions that might help the next person with the same problem.
+
+Please do not post any more of these comments. They add noise for moderators to remove, may be perceived as demanding or unfriendly, and don't assist with our goal of creating a knowledge base.`,
+    },
+    {
+        templateName: "reset inappropriate username",
+        suspensionReason: "for rule violations",
+        suspensionDefaultDays: 0,
+        templateBody: `It has been brought to our attention that your username may be offensive to some people.
+
+Because all of your contributions to this site include showing your username, we require that usernames be appropriate for professional discourse, in keeping with our [Code of Conduct](${parentUrl}/conduct).
+
+As such, we've reset your username to the default. Please do not change it back to the previous username without checking with us first.
+
+In case there's been a misunderstanding about what your username means, you can get in touch with us to clear it up by replying to this message. Or, if you'd like to change it to something else that's reasonable, but you're having issues doing so, please let us know and we'll assist.
+`,
+    },
+    {
+        templateName: "ChatGPT while it's banned; plagiarism/refs (AI); AI content w/o regard to accuracy",
+        suspensionReason: "for rule violations",
+        suspensionDefaultDays: 7,
+        templateBody: `**Use of ChatGPT for content while its use is banned:**  \nThe use of ChatGPT as a source for content on Stack Overflow is currently banned. Please see the Meta Stack Overflow question "[Temporary policy: ChatGPT is banned](https://meta.stackoverflow.com/q/421831)". It is not permitted for you to use ChatGPT to create content on Stack Overflow during this ban.
+
+**Plagiarism / failure to indicate or attribute work that's not your own (AI generated text):**  \nWe’ve noticed that at least one of your posts contains text for which you are not the author, which includes AI generated text. Current consensus is that AI generated text requires attribution. See "[Is it acceptable to post answers generated by an AI, such as GitHub Copilot?](https://meta.stackoverflow.com/q/412696)" for more information.
+
+As a general rule, posts should be **your** original work, but including a small passage of text from another source can be a great way to support your post. Please note that **we require full attribution** with a citation/link indicating the original source, and make sure that you **clearly distinguish quoted text from text written by you**. For more information, please see [how to reference material written by others](https://stackoverflow.com/help/referencing).
+
+**Posting AI generated content without regard to accuracy:**  \nIt is our experience that many users who rapidly obtain content which is AI generated and then copy and paste it into answers are not vetting that content for quality. Using AI as a *tool* to *assist* generating good quality content *might be* reasonable.
+
+Using AI, or other tools, to generate a large quantity of answers without regard to if those answers are *correct and actually answer* the question on which they are posted is not acceptable. Relying solely on readers to judge the correctness of the answer, or even that the answer actually answers the question, is not permitted. It brings down the overall quality of the site. It is *harmful* to your fellow users, burdening them with having to wade through a substantial amount of poor answers. It is often harmful to the question authors on whose questions the answers are posted, as the answers often superficially look reasonable, so the question author spends time on trying to understand the answer, thinking that the person who posted it actually knows what they are talking about, when in reality the answer doesn't really answer the question or is substantially incorrect.
+
+The policies for what, if any, use will be acceptable of AI or similar technologies as a *tool* to **assist** *you* creating content, particularly answers, on Stack Overflow are currently in flux. The restrictions which were in place prior to the existence of ChatGPT were:
+1. *You* confirm that what is posted as an answer *actually answers the question*;
+2. *You* have sufficient subject matter expertise in the topic of the question to be able to assure that any answer you post is correct (as if you wrote it); and
+3. The content copied from such tools is indicated as not your own work by following the requirements for referencing the work of others in [how to reference material written by others](https://stackoverflow.com/help/referencing), including, but not limited to, that the text which you copy from the AI is indicated as a quote by being in blockquote formatting, and you explicitly attribute the text.
+
+It's expected that whatever is decided upon as the new policy for using such tools will have *at least* the above requirements, if not be even more stringent, perhaps prohibiting the use of such technologies altogether.
+
+**Some, many, or all of your posts have been deleted:**  \nSome, many, or all of your posts may have been or will be deleted, because we believe they violate the rules and guidelines mentioned above. If you believe we are in error regarding a specific post, then feel free to raise an "in need of moderator intervention" flag on that post explaining the issue and request the post be reevaluated. You can find links to your deleted posts from your "[deleted questions](https://stackoverflow.com/users/deleted-questions/current)" and your "[deleted answers](https://stackoverflow.com/users/deleted-answers/current)" pages. Links to the above mentioned deleted post pages can be found at the bottom of the respective [questions](https://stackoverflow.com/users/current?tab=questions) and [answers](https://stackoverflow.com/users/current?tab=answers) tabs in your profile.`,
+    },
+    {
+        templateName: "spam/abuse year-long ban",
+        suspensionReason: "for rule violations",
+        suspensionDefaultDays: 365,
+        templateBody: `Account removed for spamming and/or abusive behavior. You\'re no longer welcome to participate here.`,
+        addPrefix: false,
+        addSuffix: false,
+        addSignature: false,
+        sendEmail: false,
+    },
     /* EXAMPLE
     {
         templateName: "a farewell",
@@ -169,7 +266,8 @@ We wish you a pleasant vacation from the site, and we look forward to your retur
         //addPrefix: false,
         //addSuffix: false,
         //addSignature: false,
-        // soOnly: false, // if template has SO-only meta links
+        //soOnly: false, // if template has SO-only meta links
+        //sendEmail: false,
     },
     */
 ];
@@ -232,8 +330,8 @@ function modMessage(uid, message = '', sendEmail = true, suspendDays = 0) {
                 'author': null,
             }
         })
-            .done(resolve)
-            .fail(reject);
+        .done(resolve)
+        .fail(reject);
     });
 }
 
@@ -261,24 +359,24 @@ function toShortLink(str, newdomain = null) {
 
 function getDeletedPosts(uid, type) {
 
-    const url = `https://${location.hostname}/search?q=user%3a${uid}%20is%3a${type}%20deleted%3a1%20score%3a..0&pagesize=30&tab=newest`;
+    const url = `https://${location.hostname}/search?q=user%3a${uid}%20is%3a${type}%20deleted%3a1%20score%3a..0&tab=newest`;
     $.get(url).done(function (data) {
         const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
         const stats = $(`
-                <div class="post-ban-deleted-posts">
-                    User has <a href="${url}" target="_blank">${count} deleted ${type}s</a>, score &lt;= 0
-                </div>`).appendTo('#sidebar');
+            <div class="post-ban-deleted-posts">
+                User has <a href="${url}" target="_blank">${count} deleted ${type}s</a>, score &lt;= 0
+            </div>`).appendTo('#sidebar');
 
         // If no deleted posts, do nothing
         if (isNaN(count) || count <= 0) return;
 
         // Add deleted posts to the stats element
-        const results = $('.js-search-results .search-result', data);
+        const results = $('.js-search-results .s-post-summary', data);
 
         // Add copyable element to the results
-        const hyperlinks = results.find('a').attr('href', (i, v) => 'https://' + location.hostname + v).attr('target', '_blank');
-        const hyperlinks2 = hyperlinks.filter('.question-hyperlink').map((i, el) => `[${1 + i}](${toShortLink(el.href)})`).get();
-        const comment = `Additionally, you have ${hyperlinks2.length} deleted ${type}${hyperlinks2.length == 1 ? '' : 's'}, which may be contributing to the [${type} ban](https://${location.hostname}/help/${type}-bans): ${hyperlinks2.join(' ')}`;
+        const hyperlinks = results.find('.s-post-summary--content-title a').attr('href', (i, v) => 'https://' + location.hostname + v).attr('target', '_blank');
+        const hyperlinksMarkdown = hyperlinks.map((i, el) => `[${1 + i}](${toShortLink(el.href)})`).get();
+        const comment = `Additionally, you have ${hyperlinksMarkdown.length} deleted ${type}${hyperlinksMarkdown.length == 1 ? '' : 's'}, which may be contributing to the [${type} ban](https://${location.hostname}/help/${type}-bans): ${hyperlinksMarkdown.join(' ')}`;
         const commentArea = $(`<textarea readonly="readonly" class="h128 s-textarea"></textarea>`).val(comment).appendTo(stats);
     });
 }
@@ -289,33 +387,100 @@ function initModMessageHelper() {
     if (location.pathname.includes('/users/message/')) {
 
         // We do not need chat in the sidebar, thanks.
-        $('.js-chat-ad-rooms').closest('.s-sidebarwidget').remove();
+        $('.js-chat-ad-link').closest('.s-sidebarwidget').remove();
 
         // Move generic warning to sidebar
-        $('#mainbar > .module.system-alert').prependTo($('#sidebar')).find('#confirm-new').text((i, v) => v.trim());
+        $('#mainbar > .s-notice.s-notice__warning').prependTo($('#sidebar')).find('#confirm-new').text((i, v) => v.trim());
 
         // Show hidden email field
-        $('#send-email').attr('type', 'checkbox').prop('checked', true).change(function () {
-            $('#to_warning').toggleClass('hidden', !this.checked);
-        }).wrap('<label for="send-email" class="dblock">send email: </label>');
-        // Show alternate message if no email
-        $('#to_warning').after(`<div id="to_warning_2" class="system-alert">The user will only receive this message on Stack Overflow.</div>`);
+        $('#js-send-email, input[name="email"]')
+            .attr('type', 'checkbox')
+            .change(function () {
+                $('#js-to-warning').toggleClass('hidden', !this.checked);
+            })
+            .wrap('<label for="send-email" class="dblock">send email: </label>');
 
-        $('#copyPanel > table').first().addClass('mb12');
+        // Show alternate message if no email
+        $('#js-to-warning').after(`<div id="js-to-warning_2" class="s-notice s-notice__info mt8">The user will <em>only</em> receive this message on Stack Overflow.</div>`);
 
         if (showHiddenFields) {
 
             // Show hidden fields
-            $('#templateName, #suspendReason, #templateEdited').attr('type', 'text').addClass('d-inline-block s-input s-input__sm w70');
+            $('#js-template-name, #js-suspend-reason, #js-template-edited').attr('type', 'text').addClass('d-inline-block s-input s-input__sm w70');
 
-            $('#templateName').wrap('<label for="templateName" class="dblock"></label>').before(`<span class="inline-label">template name:</span>`);
-            $('#suspendReason').wrap('<label for="suspendReason" class="dblock"></label>').before(`<span class="inline-label" title="publicly displayed as 'This account is temporarily suspended ___'"><span style="border-bottom: 1px dotted #000">suspend reason:</span></span>`);
-            $('#templateEdited').wrap('<label for="templateEdited" class="dblock"></label>').before(`<span class="inline-label">template edited:</span>`);
+            $('#js-template-name').wrap('<label for="js-template-name" class="dblock"></label>').before(`<span class="inline-label">template name:</span>`);
+            $('#js-suspend-reason').wrap('<label for="js-suspend-reason" class="dblock"></label>').before(`<span class="inline-label" title="publicly displayed as 'This account is temporarily suspended _____'"><span style="border-bottom: 1px dotted #000">suspend reason:</span></span>`);
+            $('#js-template-edited').wrap('<label for="js-template-edited" class="dblock"></label>').before(`<span class="inline-label">template edited:</span>`);
         }
     }
 
-    // The rest of this function is for creating new messages
+    // The rest of this function is for creating new moderator messages
     if (!location.pathname.includes('/users/message/create/')) return;
+
+    let modalFetchStarted = false;
+    $(document).ajaxSend(function (event, xhr, settings) {
+        // We want to know when the page starts fetching the template popup.
+        if (settings.url.includes('/admin/contact-user/template-popup/') || settings.url.includes('/admin/contact-cm/template-popup')) {
+            modalFetchStarted = true;
+        }
+    });
+
+    /* The goal is to click the .js-load-modal button to start loading the template popup
+     * for the first time upon page load.  That click now needs to be after SE's code calls
+     * StackExchange.prepareEditor().  There's no guarantee that this userscript executes
+     * both after StackExchange.prepareEditor() exists and prior to the in-page code calling
+     * that function, so wrapping the function isn't guaranteed to work (the button can end
+     * up never clicked).  In addition, we haven't found a method to deterministically
+     * identify that the function has been called.  As a result of that, we're basically
+     * stuck clicking the button, potentially multiple times, until we detect the effects of
+     * clicking the button.  The first effect, which is synchronous with the click, is that
+     * SE starts an AJAX call to fetch the template popup.  Thus, we wath for that to happen
+     * after we click and not click again once that AJAX call is in process.
+     *
+     * In order to reduce the number of times we click and be more responsive without
+     * clicking rapidly, we don't start clicking until we go through the same asynchonous
+     * execution path that SE's in-page code does.  Under most conditions, this results in
+     * our clicking the button for the first time almost immediately after the page is ready
+     * for the button to be clicked.
+     */
+
+    StackExchange.ready(() => {
+        StackExchange.using("externalEditor", () => {
+            if (StackExchange.settings.snippets.snippetsEnabled) {
+                StackExchange.using("snippets", () => {
+                    StackExchange.using("editor", () => {
+                        delayedClickForFirstLoadPopupAtIntervalUntilLoading(25, 500);
+                    });
+                });
+            }
+            else {
+                StackExchange.using("editor", () => {
+                    delayedClickForFirstLoadPopupAtIntervalUntilLoading(25, 500);
+                });
+            }
+        });
+    });
+
+    function delayedClickForFirstLoadPopupAtIntervalUntilLoading(delay, interval) {
+        /* It's possible, but quite unlikely, for this to be called after something else
+         * clicks the load popup button which did trigger a load and for that load to have
+         * been started prior to our watching for ajaxSend (above) and for the response not
+         * to have been received, so the popup isn't in the DOM.  The timing would have to
+         * be fairly contrived for that to end up being the case.
+         *
+         * The outer setTimeout is to delay a short bit after completing the wait for SE to
+         * be ready.  This puts us after any code SE has that's on the same callback list.
+         */
+        setTimeout(() => {
+            const popup = getPopup();
+            if (!modalFetchStarted && popup.length === 0){
+                // click select template link on page load
+                $('#show-templates, .js-load-modal').first().trigger('click');
+                setTimeout(delayedClickForFirstLoadPopupAtIntervalUntilLoading, interval);
+            }
+        }, delay);
+    }
+
 
     const template = getQueryParam('action');
 
@@ -326,7 +491,7 @@ function initModMessageHelper() {
     }
 
     // Restrict max suspension days to 365, otherwise it fails rudely
-    $('#suspendDays').attr('type', 'number').attr('max', '365');
+    $('#js-suspend-days').attr('type', 'number').attr('max', '365').attr('min', 1);
 
     // On any page update
     let hasRun = false;
@@ -348,12 +513,9 @@ function initModMessageHelper() {
         }
     });
 
-    // click select template link on page load
-    $('#show-templates').click();
-
 
     function selectModMessage(template) {
-        const popup = $('#show-templates').siblings('.popup').first();
+        const popup = $('.s-modal--dialog').first();
         const actionList = popup.find('.action-list');
         const hr = actionList.children('hr').index();
         const numberOfItems = hr > 0 ? hr : actionList.children('li').length;
@@ -408,23 +570,61 @@ function initModMessageHelper() {
                         actionListItem.click().triggerHandler('click');
 
                         // Set custom susp duration to template default days
-                        if (defaultSuspendDurationDays > 0) $('#suspendDays').val(defaultSuspendDurationDays);
+                        if (defaultSuspendDurationDays > 0) $('#js-suspend-days').val(defaultSuspendDurationDays);
                     }
                 });
             }
         }
 
-        const popupSubmit = popup.find('.popup-submit');
+        const popupSubmit = popup.find(popupSubmitButtonsSelector);
         if (!popupSubmit.prop('disabled')) popupSubmit.click();
     }
 
 
+    function watchForPopupSubmitClick() {
+        // When a template is selected, the correct values for send email and suspend length are not correctly applied.
+        // This watches for when the submit is clicked, and sets the email and suspend values to the correct values for the template.
+        const popup = getPopup();
+        const selectedEl = popup.find(':checked').first();
+        const reasonEl = popup.find(`#${selectedEl.attr('id')}-reason`);
+        const newReasonText = selectedEl.val();
+        const days = reasonEl.attr('data-days');
+        const email = reasonEl.attr('data-send-email');
+
+        function setSEcheckboxById(id, toState) {
+            // SE's in-page code does additional things when these are clicked, so we set the checkbox state
+            // to the oposite of what we want and then set the desired state with a click().
+            return $(`#${id}`).prop('checked', !toState).click();
+        }
+
+        setTimeout(() => {
+            // Fill in the custom suspension length and select the appropriate length, preferring the predefined lengths.
+            setSEcheckboxById('js-suspend-user', days || newReasonText.match(/\{todo:suspend/i) || newReasonText.match(/\{suspensionDurationDays\}/i));
+            const useDays = days || 7; // Reset the value to 7 days, if there isn't any value chosen for days in the template, or if it's 0.
+            if (useDays) {
+                // Always put the length of the suspension in the custom field.
+                $('#js-suspend-days').val(useDays);
+                // Also click these, as that triggers additional SE things.
+                const preExistingDaysEl = setSEcheckboxById(`js-days-${useDays}`, true);
+                if (!preExistingDaysEl.length) {
+                    setSEcheckboxById('js-days-other', true);
+                }
+            }
+            // Apply the template's selection for sending email
+            setSEcheckboxById('js-send-email', email !== 'false');
+            $('#wmd-input').prop('selectionEnd', 0).focus();
+        }, 25);
+    }
+
     function addCustomModMessageTemplates() {
 
         // Make the popup draggable!
-        const popup = $('#show-templates').siblings('.popup').first();
+        const popup = $('.s-modal--dialog').first();
         popup.attr('data-controller', 'se-draggable');
-        popup.find('h2').first().attr('data-target', 'se-draggable.handle');
+        popup.find('h1').first().attr('data-target', 'se-draggable.handle');
+
+        // Watch for the popup to be submitted.
+        popup.find(popupSubmitButtonsSelector).on('click input', watchForPopupSubmitClick);
 
         const actionList = popup.find('.action-list');
         if (actionList.length === 0) return;
@@ -434,18 +634,19 @@ function initModMessageHelper() {
 
         // Add description expand/collapse events for custom templates
         actionList.append('<hr />').on('click', '.js-custom-template', function () {
-            $(this).addClass('action-selected').find('.action-desc').slideDown(200);
+            $(this).addClass('js-action-selected').find('.js-action-desc').removeClass('d-none');
             $(this).find('input:radio').prop('checked', true);
-            $(this).siblings().removeClass('action-selected').find('.action-desc').slideUp(200);
-            $('.popup-submit').prop('disabled', false);
+            $(this).siblings().find('.js-action-desc').addClass('d-none');
+            $(popupSubmitButtonsSelector).prop('disabled', false);
         });
 
         // Message vars (should not be edited here)
         const numberOfItems = actionList.children('li').length;
         const sitename = StackExchange.options.site.name;
         const userId = $('#aboutUserId').val();
-        const userLink = 'https://' + location.hostname + $('#msg-form .user-details a').first().attr('href');
+        const userLink = 'https://' + location.hostname + $('#js-msg-form .user-details a').first().attr('href');
 
+        // Please preserve the line breaks in these string templates
         const messagePrefix = `Hello,
 
 We're writing in reference to your ${sitename} account:
@@ -460,27 +661,11 @@ ${userLink}
 
         const messageSignature = `
 
-Regards,
-${sitename} Moderation Team`;
+Regards,  \n${sitename} Moderation Team`;
 
 
         customModMessages.forEach(function (item, i) {
-            const templateNumber = numberOfItems + i;
-            const templateBodyText = (item.addPrefix !== false ? messagePrefix : '') + item.templateBody + (item.addSuffix !== false ? messageSuffix : '') + (item.addSignature !== false ? messageSignature : '');
-            const templateBodyProcessed = templateBodyText.replace(/["\u00A0-\u9999<>\&]/gim, function (i) {
-                return '&#' + i.charCodeAt(0) + ';';
-            }).replace('Regards,', 'Regards,  '); // always needs two spaces after for a line break
-            const templateShortText = item.templateBody.length > 400 ? item.templateBody.replace(/(\n|\r)+/g, ' ').substr(0, 397) + '...' : item.templateBody;
-
-            const messageTemplate = `
-<li style="width: auto" class="js-custom-template"><label>
-<input type="radio" id="template-${templateNumber}" name="mod-template" value="${templateBodyProcessed}">
-<input type="hidden" id="template-${templateNumber}-reason" value="${item.suspensionReason || ''}" data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}">
-<span class="action-name">${item.templateName}</span>
-<span class="action-desc" style="display: none;"><div style="margin-left: 18px; line-height: 130%; margin-bottom: 5px;">${templateShortText}</div></span>
-</label></li>`;
-
-            actionList.append(messageTemplate);
+            actionList.append(generateCmOrModMessageTemplate(false, item, i, numberOfItems, messagePrefix, messageSuffix, messageSignature));
         });
     }
 }
@@ -496,9 +681,9 @@ function initCmMessageHelper() {
         if (showHiddenFields) {
 
             // Show hidden fields
-            $('#templateName').attr('type', 'text').addClass('d-inline-block s-input s-input__sm w70');
+            $('#js-template-name').attr('type', 'text').addClass('d-inline-block s-input s-input__sm w70');
 
-            $('#templateName').wrap('<label for="templateName" class="dblock"></label>').before(`<span class="inline-label">template name:</span>`);
+            $('#js-template-name').wrap('<label for="templateName" class="dblock"></label>').before(`<span class="inline-label">template name:</span>`);
         }
     }
 
@@ -530,7 +715,7 @@ function initCmMessageHelper() {
             }
 
             // Make the popup draggable!
-            const popup = $('#show-templates').siblings('.popup').first();
+            const popup = getPopup();
             popup.attr('data-controller', 'se-draggable');
             popup.find('h2').first().attr('data-target', 'se-draggable.handle');
         }
@@ -541,7 +726,7 @@ function initCmMessageHelper() {
 
 
     function selectCmMessage(template) {
-        const popup = $('#show-templates').siblings('.popup').first();
+        const popup = getPopup();
         const actionList = popup.find('.action-list');
         const hr = actionList.children('hr').index();
         const numberOfItems = hr > 0 ? hr : actionList.children('li').length;
@@ -580,7 +765,7 @@ function initCmMessageHelper() {
             }
         }
 
-        const popupSubmit = popup.find('.popup-submit');
+        const popupSubmit = popup.find(popupSubmitButtonsSelector);
         if (!popupSubmit.prop('disabled')) popupSubmit.click();
     }
 
@@ -588,7 +773,7 @@ function initCmMessageHelper() {
     function addCustomCmMessageTemplates() {
 
         // Make the popup draggable!
-        const popup = $('#show-templates').siblings('.popup').first();
+        const popup = getPopup();
         popup.attr('data-controller', 'se-draggable');
         popup.find('h2').first().attr('data-target', 'se-draggable.handle');
 
@@ -608,16 +793,17 @@ function initCmMessageHelper() {
             $(this).addClass('action-selected').find('.action-desc').slideDown(200);
             $(this).find('input:radio').prop('checked', true);
             $(this).siblings().removeClass('action-selected').find('.action-desc').slideUp(200);
-            $('.popup-submit').prop('disabled', false);
+            $(popupSubmitButtonsSelector).prop('disabled', false);
         });
 
         // Message vars (should not be edited here)
         const numberOfItems = actionList.children('li').length;
         const sitename = StackExchange.options.site.name;
-        const modName = $('#msg-form a').first().text();
+        const modName = $('#js-msg-form a').first().text();
         const userId = $('#aboutUserId').val();
-        const userLink = 'https://' + location.hostname + $('#msg-form .user-details a').first().attr('href');
+        const userLink = 'https://' + location.hostname + $('#js-msg-form .user-details a').first().attr('href');
 
+        // Please preserve the line breaks in these string templates
         const messagePrefix = `Hello,
 
 I'm writing in reference to the ${sitename} account:
@@ -627,28 +813,55 @@ ${userLink}
 `;
         const messageSuffix = additionalInfo + `
 
-Regards,
-${modName}
-${sitename} moderator`;
+Regards,  \n${modName}  \n${sitename} moderator`;
 
         customCmMessages.forEach(function (item, i) {
-            const templateNumber = numberOfItems + i;
-            const templateBodyText = (item.addPrefix !== false ? messagePrefix : '') + item.templateBody + (item.addSuffix !== false ? messageSuffix : '');
-            const templateBodyProcessed = templateBodyText.replace(/[\u00A0-\u9999<>\&]/gim, function (i) {
-                return '&#' + i.charCodeAt(0) + ';';
-            }).replace('Regards,', 'Regards,  '); // always needs two spaces after for a line break
-            const templateShortText = item.templateBody.length > 400 ? item.templateBody.replace(/(\n|\r)+/g, ' ').substr(0, 397) + '...' : item.templateBody;
+            actionList.append(generateCmOrModMessageTemplate(true, item, i, numberOfItems, messagePrefix, messageSuffix));
+        });
+    }
+}
 
-            const messageTemplate = `
+function escapeText(text) {
+    return text.replace(/[\u00A0-\u9999<">\\&]/gim, function (i) {
+        return `&#${i.charCodeAt(0)};`;
+    });
+}
+
+function generateCmOrModMessageTemplate(isCmMessage, item, i, numberOfItems, messagePrefix, messageSuffix, messageSignature="") {
+    const templateNumber = numberOfItems + i;
+    const templateBodyText = (item.addPrefix !== false ? messagePrefix : '') + item.templateBody + (item.addSuffix !== false ? messageSuffix : '') + (item.addSignature === true ? messageSignature : '');
+    const templateBodyProcessed = escapeText(templateBodyText);
+    const templateShortText = item.templateBody.length > 400 ? item.templateBody.replace(/(\n|\r)+/g, ' ').substr(0, 397) + '...' : item.templateBody;
+    const templateSuspensionReason = escapeText(item.suspensionReason || '');
+    const templateName = escapeText(item.templateName || '');
+
+    // 2022-10: The HTML for the mod-message templates changed substantially, so it's no longer the same as for CM escalations.
+    // So, we return distictly different HTML. OTOH, there are currently no custom mod message templates.
+    if (isCmMessage) {
+        // CM message template, maybe (untested)
+        return `
 <li style="width: auto" class="js-custom-template"><label>
 <input type="radio" id="template-${templateNumber}" name="mod-template" value="${templateBodyProcessed}">
-<input type="hidden" id="template-${templateNumber}-reason" value="${item.suspensionReason || ''}" data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}">
+<input type="hidden" id="template-${templateNumber}-reason"
+    value="${item.suspensionReason || ''}"
+    ${item.sendEmail === false ? 'data-send-email="false"' :''}
+    data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}">
 <span class="action-name">${item.templateName}</span>
 <span class="action-desc" style="display: none;"><div style="margin-left: 18px; line-height: 130%; margin-bottom: 5px;">${templateShortText}</div></span>
 </label></li>`;
-
-            actionList.append(messageTemplate);
-        });
+    } else {
+        // Mod message template
+        return `
+<li class="js-custom-template"><label>
+<input type="radio" id="template-${templateNumber}" name="mod-template" value="${templateBodyProcessed}">
+<input type="hidden" id="template-${templateNumber}-reason"
+    value="${templateSuspensionReason}"
+    data-suspension-description="${templateSuspensionReason}"
+    ${item.sendEmail === false ? 'data-send-email="false"' :''}
+    data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}">
+<span class="js-action-name fw-bold">${templateName}</span>
+<span class="js-action-desc d-none"><div class="ml16 mb6">${templateShortText}</div></span>
+</label></li>`;
     }
 }
 
@@ -657,88 +870,93 @@ function appendModMessageMenu() {
 
     // Append link to post sidebar if it doesn't exist yet
     $('.user-info, .s-user-card')
-        .filter(function() {
-            // Do not add links to users in sidebar
-            return $(this).closest('#sidebar').length === 0;
-        }).not('.js-mod-message-menu').addClass('js-mod-message-menu').each(function () {
+        .filter(function () {
+            // Do not add links/classes to users in sidebar or on user tabs without actual links to users.
+            const $this = $(this);
+            return !($this.closest('#sidebar, .s-topbar').length > 0 || ($this.closest('.js-user-tab').length > 0 && $this.find('.s-user-card--link') === 0));
+        })
+        .not('.js-mod-message-menu')
+        .addClass('js-mod-message-menu')
+        .each(function () {
+            const userbox = $(this);
 
-        let uid = 0;
-        try {
-            uid = ($(this).find('a[href^="/users/"]').attr('href') || '/0/').match(/\/(\d+)\//)[1];
-            uid = Number(uid);
-            this.dataset.uid = uid;
-        }
-        catch (ex) { } // can't put return statements in catch blocks?
-        if (typeof uid === 'undefined' || uid == 0) return; // e.g.: deleted user
+            let uid = 0;
+            try {
+                uid = (userbox.find('a[href^="/users/"]:not(.deleted-user)').attr('href') || '/0/').match(/\/(\d+)/)[1];
+                uid = Number(uid);
+                this.dataset.uid = uid;
+            }
+            catch (ex) { } // can't put return statements in catch blocks?
+            if (typeof uid === 'undefined' || uid == 0) return; // e.g.: deleted user
 
-        // if user is self, ignore
-        if (uid == StackExchange.options.user.userId) return;
+            // if user is self, ignore
+            if (uid == StackExchange.options.user.userId) return;
 
-        const post = $(this).closest('.question, .answer');
-        const pid = post.attr('data-questionid') || post.attr('data-answerid');
+            const post = userbox.closest('.question, .answer');
+            const pid = post.attr('data-questionid') || post.attr('data-answerid');
 
-        const userbox = $(this);
-        const userlink = userbox.find('a').attr('href');
-        const userrep = userbox.find('.reputation-score').text();
-        const username = userbox.find('.user-details a').first().text();
-        const modFlair = $(this).find('.mod-flair');
+            const userlink = userbox.find('a').attr('href');
+            const userrep = userbox.find('.reputation-score').text();
+            const username = userbox.find('.user-details a').first().text();
+            const modFlair = userbox.find('.mod-flair');
 
-        if (uid == -1 || modFlair.length == 1) return;
+            if (uid == -1 || modFlair.length == 1) return;
 
-        const postIdParam = pid ? '&' + (!isMeta ? `pid=${pid}` : `metapid=${pid}`) : '';
+            const postIdParam = pid ? '&' + (!isMeta ? `pid=${pid}` : `metapid=${pid}`) : '';
 
-        const modMessageLink = parentUrl + '/users/message/create/' + uid;
-        const cmMessageLink = parentUrl + '/admin/cm-message/create/' + uid;
+            const modMessageLink = parentUrl + '/users/message/create/' + uid;
+            const cmMessageLink = parentUrl + '/admin/cm-message/create/' + uid;
 
-        // Create menu based on post type and state
-        let menuitems = '';
+            // Create menu based on post type and state
+            let menuitems = '';
 
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=low-quality-questions">low quality questions</a>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=question-repetition">question repetition</a>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=promotion">excessive self-promotion</a>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=signatures-taglines">using signatures</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=low-quality-questions">low quality questions</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=question-repetition">question repetition</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=promotion">excessive self-promotion</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=signatures-taglines">using signatures</a>`;
 
-        menuitems += `<div class="separator"></div>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=excessive-discussion">excessive comments</a>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=abusive">abusive to others</a>`;
-
-        menuitems += `<div class="separator"></div>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=vandalism">vandalism</a>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=plagiarism">plagiarism</a>`;
-
-        menuitems += `<div class="separator"></div>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=sockpuppet-upvoting">sockpuppet upvoting</a>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=targeted-votes">targeted votes</a>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=revenge-downvoting">revenge downvoting</a>`;
-
-        // Add custom reasons
-        if (customModMessages.length > 0) {
             menuitems += `<div class="separator"></div>`;
-            customModMessages.forEach(v => {
-                if(v.soOnly === true && !isSO) return; // Don't add menu item if SO-only template and not SO
-                menuitems += `<a target="_blank" href="${modMessageLink}?action=${v.templateName.replace(/\W/g, '').toLowerCase()}">${v.templateName}</a>`;
-            });
-        }
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=excessive-discussion">excessive comments</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=abusive">abusive to others</a>`;
 
-        menuitems += `<div class="separator"></div>`;
-        menuitems += `<a target="_blank" href="${modMessageLink}?action=other">other...</a>`;
+            menuitems += `<div class="separator"></div>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=vandalism">vandalism</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=plagiarism">plagiarism</a>`;
+
+            menuitems += `<div class="separator"></div>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=sockpuppet-upvoting">sockpuppet upvoting</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=targeted-votes">targeted votes</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=revenge-downvoting">revenge downvoting</a>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=ban-evasion">ban evasion</a>`;
+
+            // Add custom reasons
+            if (customModMessages.length > 0) {
+                menuitems += `<div class="separator"></div>`;
+                customModMessages.forEach(v => {
+                    if(v.soOnly === true && !isSO) return; // Don't add menu item if SO-only template and not SO
+                    menuitems += `<a target="_blank" href="${modMessageLink}?action=${v.templateName.replace(/\W/g, '').toLowerCase()}">${v.templateName}</a>`;
+                });
+            }
+
+            menuitems += `<div class="separator"></div>`;
+            menuitems += `<a target="_blank" href="${modMessageLink}?action=other">other...</a>`;
 
 
-        // Create CM menu
-        let cmMenuitems = '';
+            // Create CM menu
+            let cmMenuitems = '';
 
-        cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=post-dissociation${postIdParam}">post dissociation</a>`;
-        cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suspicious-voting">suspicious voting</a>`;
-        cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suicidal-user">suicidal user</a>`;
-        cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=underage-user&info=Underage+user.">underage user</a>`;
-        cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=profile-merge">user profile merge</a>`;
-        cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=spam">spam</a>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=post-dissociation${postIdParam}">post dissociation</a>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suspicious-voting">suspicious voting</a>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suicidal-user">suicidal user</a>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=underage-user&info=Underage+user.">underage user</a>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=profile-merge">user profile merge</a>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=spam">spam</a>`;
 
-        cmMenuitems += `<div class="separator"></div>`;
-        cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=other">other...</a>`;
+            cmMenuitems += `<div class="separator"></div>`;
+            cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=other">other...</a>`;
 
 
-        $(this).append(`
+            userbox.append(`
 <div class="js-mod-message-link flex--item s-btn ta-center py8 somu-mod-message-link ${modMenuOnClick ? 'click-only' : ''}" data-shortcut="O" title="Contact...">
   <svg aria-hidden="true" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-icon mln1 mr0">
     <path fill="currentColor" d="M464 64H48C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h416c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zM48 96h416c8.8 0 16 7.2 16 16v41.4c-21.9 18.5-53.2 44-150.6 121.3-16.9 13.4-50.2 45.7-73.4 45.3-23.2.4-56.6-31.9-73.4-45.3C85.2 197.4 53.9 171.9 32 153.4V112c0-8.8 7.2-16 16-16zm416 320H48c-8.8 0-16-7.2-16-16V195c22.8 18.7 58.8 47.6 130.7 104.7 20.5 16.4 56.7 52.5 93.3 52.3 36.4.3 72.3-35.5 93.3-52.3 71.9-57.1 107.9-86 130.7-104.7v205c0 8.8-7.2 16-16 16z" class="" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path>
@@ -755,7 +973,18 @@ function appendModMessageMenu() {
   </div>
 </a>`);
 
-    });
+        });
+        // If we didn't add an actual mod message link, then remove the js-mod-message-menu class.
+        $('.js-mod-message-menu')
+            .filter(function() {return $(this).find('.js-mod-message-link').length === 0;})
+            .removeClass('js-mod-message-menu');
+        // Let CSS know that the .user-action-time is blank
+        $('.js-mod-message-menu .user-action-time')
+            .filter(function() {
+                const $this = $(this);
+                return $this.children().length === 0 && $this.text().trim().length === 0;
+            })
+            .addClass('user-action-time-is-blank');
 
     // Show menu on click only
     if (modMenuOnClick) {
@@ -763,10 +992,39 @@ function appendModMessageMenu() {
             $('.somu-mod-message-link.active').removeClass('active');
         });
         $('.js-mod-message-menu').on('click', '.somu-mod-message-link', function (evt) {
-            $(this).addClass('active');
+            const $this = $(this);
+            $this.addClass('active');
             evt.stopPropagation();
+            const menu = $this.find('.somu-mod-message-menu');
+            const menuRect = menu[0].getBoundingClientRect();
+            const menuLeftPosition = menuRect.left;
+            if (menuLeftPosition < 0) {
+                // The menu is currently off the viewport to the left, so adjust it to be inside.
+                const menuCssLeftPx = Number((menu.css('left').match(/\d+/) || [0])[0]);
+                menu.css('left', `calc(${menuCssLeftPx - menuLeftPosition}px + 1vw)`);
+            }
+            const menuRightPosition = menuRect.right;
+            if (menuRightPosition > window.innerWidth) {
+                // The menu is currently off the viewport to the right, so adjust it to be inside.
+                const menuCssLeftPx = Number((menu.css('left').match(/\d+/) || [0])[0]);
+                menu.css('left', `calc(${menuCssLeftPx - (menuRightPosition - window.innerWidth)}px - 1vw)`);
+            }
         });
     }
+}
+
+
+function getPopup() {
+    return $('#show-templates').siblings('.popup').add($('.s-modal--dialog')).first();
+}
+
+
+let delayedAppendModMessageMenuTimer;
+function nowAndDelayedAppendModMessageMenu() {
+    appendModMessageMenu();
+    clearTimeout(delayedAppendModMessageMenuTimer);
+    // SE uses a 150ms animation to fade out the old post when doing a realtime.reloadPosts(), so we need to be after that.
+    delayedAppendModMessageMenuTimer = setTimeout(appendModMessageMenu, 175);
 }
 
 
@@ -775,10 +1033,11 @@ function doPageLoad() {
     initModMessageHelper();
     initCmMessageHelper();
 
+    // 2022-10 SE mod message page update: Fix a new bug in replying when the previous message was recent, which will, hopefully, be fixed quickly.
+    $('.hidemsg').addClass('js-hide-msg');
+
     // After requests have completed
-    $(document).ajaxStop(function () {
-        appendModMessageMenu();
-    });
+    $(document).ajaxStop(nowAndDelayedAppendModMessageMenu);
 }
 
 
@@ -790,34 +1049,37 @@ doPageLoad();
 const styles = document.createElement('style');
 styles.setAttribute('data-somu', GM_info?.script.name);
 styles.innerHTML = `
-.user-info,
-.s-user-card {
+.user-info.js-mod-message-menu,
+.s-user-card.js-mod-message-menu {
     position: relative;
     border: 1px solid transparent;
 }
-.user-info,
+.user-info.js-mod-message-menu,
     min-height: 88px;
 }
-.user-info:hover,
-.s-user-card:hover {
+.user-info.js-mod-message-menu:hover,
+.s-user-card.js-mod-message-menu:hover {
     /*border-color: var(--black-200);*/
 }
-.user-info.js-mod-message-menu:not(.js-mod-quicklinks),
-.s-user-card.js-mod-message-menu:not(.js-mod-quicklinks) {
+.user-info.js-mod-message-menu:not(.js-mod-quicklinks):not(.s-topbar--item),
+.s-user-card.js-mod-message-menu:not(.js-mod-quicklinks):not(.s-topbar--item):not(.s-user-card__minimal) {
     padding-bottom: 25px;
 }
-.user-action-time {
+.js-mod-message-menu .user-action-time {
     min-height: 15px;
 }
+.js-mod-message-menu .user-action-time.user-action-time-is-blank {
+    display: none;
+}
 
-.mod-summary .user-info,
-.mod-summary .s-user-card,
-.mod-summary .user-action-time,
-.single-badge-user .user-info,
-.single-badge-user .s-user-card,
-.single-badge-user .user-action-time,
-.cast-votes .user-info,
-.cast-votes .s-user-card {
+.mod-summary .user-info.js-mod-message-menu,
+.mod-summary .s-user-card.js-mod-message-menu,
+.mod-summary .js-mod-message-menu .user-action-time,
+.single-badge-user .user-info.js-mod-message-menu,
+.single-badge-user .s-user-card.js-mod-message-menu,
+.single-badge-user .js-mod-message-menu .user-action-time,
+.cast-votes .user-info.js-mod-message-menu,
+.cast-votes .s-user-card.js-mod-message-menu {
     min-height: 0;
 }
 
@@ -875,6 +1137,7 @@ styles.innerHTML = `
 
     user-select: none;
     white-space: nowrap;
+    max-width: 98vw;
 }
 #somu-mod-message-menu {
     background: var(--white) !important;
@@ -933,7 +1196,13 @@ styles.innerHTML = `
     overflow: unset;
 }
 
-/* Mod/CM message template popup */
+/* Mod message template popup */
+#js-msg-form[action="/users/message/save"] .s-modal--dialog {
+    max-width: 95vw;
+}
+.s-modal--header {
+    font-size: var(--fs-title);
+}
 #show-templates + .popup .action-list > li > label {
     margin: 0;
 }
@@ -948,35 +1217,32 @@ styles.innerHTML = `
 .action-list:not(.popup-condensed) li > label {
     margin: -2px 0;
 }
-#msg-form label .inline-label {
+#js-msg-form label .inline-label {
     display: inline-block;
     width: 110px;
 }
-#msg-form #addressing {
+#js-msg-form #addressing {
     margin-bottom: 15px;
 }
-#msg-form #to_warning + #to_warning_2 {
+#js-msg-form #js-to-warning + #js-to-warning_2 {
     display: none;
-    line-height: 100%;
 }
-#msg-form #to_warning,
-#msg-form #to_warning.hidden + #to_warning_2 {
+#js-msg-form #js-to-warning,
+#js-msg-form #js-to-warning.hidden + #js-to-warning_2 {
     display: inline-block;
 }
-#msg-form #copyPanel > span + table > tbody > tr:first-child td:first-child {
-    width: 170px;
-}
-#msg-form #suspendDays {
+#js-msg-form #js-suspend-days {
     width: 70px;
 }
-#msg-form #copyPanel > .suspend-info {
+#js-msg-form .suspend-info {
     padding: 10px;
     font-weight: bold;
     margin-bottom: 10px;
     margin-top: 5px;
     border: 1px dotted #AE0000;
 }
-#msg-form #copyPanel textarea#wmd-input {
+#msg-form textarea#wmd-input,
+#js-msg-form textarea#wmd-input {
     min-height: 550px;
 }
 #sidebar .module {

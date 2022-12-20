@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3
+// @version      3.6.1
 //
 // @include      https://*stackexchange.com/*
 // @include      https://*stackoverflow.com/*
@@ -93,6 +93,7 @@ body {
     --black-800: #eff0f1;
     --black-900: #fafafb;
 
+    --orange-025: #0f0600;
     --orange-050: #0f0600;
     --orange-100: #321601;
     --orange-200: #542703;
@@ -104,6 +105,7 @@ body {
     --orange-800: #ffad5c;
     --orange-900: #ffbf7a;
 
+    --blue-025: #00080f;
     --blue-050: #00080f;
     --blue-100: #011d32;
     --blue-200: #033154;
@@ -115,6 +117,7 @@ body {
     --blue-800: #5cb0ff;
     --blue-900: #7abdff;
 
+    --powder-025: #04080b;
     --powder-050: #04080b;
     --powder-100: #0b161e;
     --powder-200: #0e232f;
@@ -138,6 +141,7 @@ body {
     --green-800: #9fd6b1;
     --green-900: #b7e1c5;
 
+    --yellow-025: #1d1602;
     --yellow-050: #1d1602;
     --yellow-100: #2a2104;
     --yellow-200: #43370e;
@@ -149,6 +153,7 @@ body {
     --yellow-800: #efd161;
     --yellow-900: #f4dc7c;
 
+    --red-025: #2d060a;
     --red-050: #2d060a;
     --red-100: #2d060a;
     --red-200: #4b0b13;
@@ -683,6 +688,9 @@ body > div[style*="absolute"],
     background-color: ${bountyblue};
     color: var(--black);
 }
+.s-badge {
+    color: var(--black-700);
+}
 #post-filters,
 .post-tag *,
 .s-badge__bounty * {
@@ -725,7 +733,9 @@ body .deleted-comment .comment-actions,
 body .deleted-comment .comment-text,
 body .deleted-comment .comment-flags,
 body td.deleted-answer,
-.search-result.bg-red-050 {
+.search-result.bg-red-050,
+.s-post-summary__deleted {
+    background-color: var(--red-025);
     box-shadow: inset 0 0 0 9999px #220000;
 }
 .tagged-interesting *,
@@ -757,6 +767,7 @@ body td.deleted-answer,
 .js-admin-dashboard .deleted-answer *,
 .search-result.bg-red-050 *,
 tr.bg-red-050 td,
+.s-post-summary__deleted *,
 blockquote > * {
     background-color: transparent;
 }
@@ -915,11 +926,6 @@ body > div[style*="absolute"].ui-widget {
 }
 .list-originals .post-link a {
     font-weight: normal;
-}
-nav a *,
-.subcommunity-avatar * {
-    color: inherit;
-    background-color: inherit;
 }
 .s-post-summary__watched:not(.s-post-summary__ignored) {
     border-left: 5px solid #a58700;
@@ -1490,17 +1496,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const chatLogoLinks = $('#footer-logo, #transcript-logo, #header-logo').children('a');
     const chatLogoUrl = chatLogoLinks.attr('href') || '';
     if (location.hostname === "stackoverflow.com") {
-        $('.top-bar .-logo .-img').replaceWith(soLogo);
+        $('.s-topbar .s-topbar--logo .-img').replaceWith(soLogo);
     }
     else if (location.hostname === "chat.stackoverflow.com" || chatLogoUrl.includes('stackoverflow.com')) {
         chatLogoImages.replaceWith(soLogo);
     }
     else if (location.hostname === "superuser.com" || chatLogoUrl.includes('superuser.com')) {
-        $('.site-header .site-header--link img').replaceWith(suLogo);
+        $('.s-topbar .s-topbar--logo .-img').replaceWith(suLogo);
         chatLogoImages.replaceWith(suLogo);
     }
     else if (location.hostname === "serverfault.com" || chatLogoUrl.includes('serverfault.com')) {
-        $('.site-header .site-header--link img').replaceWith(sfLogo);
+        $('.s-topbar .s-topbar--logo .-img').replaceWith(sfLogo);
         chatLogoImages.replaceWith(sfLogo);
     }
     else if (location.hostname === "stackapps.com") {

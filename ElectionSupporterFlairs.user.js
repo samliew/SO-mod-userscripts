@@ -3,7 +3,7 @@
 // @description  Flair users who voted in the elections when you were elected, or if non-mod, for the latest election
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.2
+// @version      2.3
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -119,7 +119,7 @@ function getUsersParticipationForElection(uids, electionNum) {
         getUserParticipationForElection(uid, electionNum).then(function (v) {
             // Flair user if voted in the elections
             if (v) {
-                $('.user-details, .comment-body, .question-status').find(`a[href^="/users/${uid}/"]`).addClass('election-supporter');
+                $('.user-details, .comment-body, .question-status').find(`a[href^="/users/${uid}/"]`).addClass('election-supporter').attr('title', 'election supporter!');
                 $('.user-page').find('.user-card-name .top-badge, h1 span').before(`<span class="election-supporter large" title="election supporter!"></span>`);
             }
         })

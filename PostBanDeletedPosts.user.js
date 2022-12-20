@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3
+// @version      3.4
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -137,25 +137,22 @@ function doPageLoad() {
             if (isNaN(count) || count <= 0) return;
 
             // Add deleted posts to the stats element
-            const results = $('.search-results .search-result, .js-search-results .s-card', data);
+            const results = $('.js-search-results .s-post-summary, .js-search-results .s-card', data);
             stats.find('.meta-mentions').append(results);
 
             // Add copyable element to the results
-            const hyperlinks = results.find('a').attr('href', (i, v) => 'https://' + mainDomain + v).attr('target', '_blank');
-            const hyperlinks2 = hyperlinks.filter('.s-link[data-searchsession^="/"],.answer-hyperlink').map((i, el) => `[${1 + i}](${toShortLink(el.href)})`).get();
-            const comment = `Deleted ${type}${hyperlinks2.length == 1 ? '' : 's'}, score <= 0, contributing to the [${type} ban](https://${location.hostname}/help/${type}-bans): ${hyperlinks2.join(' ')}`;
+            const hyperlinks = results.find('.s-post-summary--content-title a').attr('href', (i, v) => 'https://' + mainDomain + v).attr('target', '_blank');
+            const hyperlinksMarkdown = hyperlinks.map((i, el) => `[${1 + i}](${toShortLink(el.href)})`).get();
+            const comment = `Deleted ${type}${hyperlinksMarkdown.length == 1 ? '' : 's'}, score <= 0, contributing to the [${type} ban](https://${location.hostname}/help/${type}-bans): ${hyperlinksMarkdown.join(' ')}`;
             const commentArea = $(`<textarea readonly="readonly"></textarea>`).val(comment).appendTo(stats);
 
-
-            // If post is not within past three days, or has more than 20 links, do not auto-post anything!
-            if (!isSuperuser || !isRelativelyNew || hyperlinks2.length > 20) return;
+            // If post is not within past three days, or has more than 15 links, do not auto-post anything!
+            if (!isSuperuser || !isRelativelyNew || hyperlinksMarkdown.length > 15) return;
 
             // If there are more comments or comments by myself, or deleted comments, ignore
             const hasMyComments = post.find(`.comment-user[href*="/users/${StackExchange.options.user.userId}/"]`).length > 0;
             const hasDeletedComments = post.find('.js-fetch-deleted-comments, .js-show-deleted-comments-link').length > 0;
             if (post.find('.js-show-link:visible').length !== 0 || hasMyComments || hasDeletedComments) return;
-
-            debugger;
 
             // Check if no comments on post containing the post ban meta post
             const hasPostBanComment = post.find('.comment-copy').filter((i, el) => el.innerHTML.includes('/255583')).length > 0;

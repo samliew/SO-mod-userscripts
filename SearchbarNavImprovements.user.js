@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      6.4
+// @version      6.5
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -612,7 +612,7 @@ function initAdvancedSearch() {
 <a>Answers</a>
 <a>Status</a>
 <a>Author</a>
-<a>Bookmarks</a>
+<a>Saves</a>
 <a>Dates</a>
 <a>Other</a>
 </div>
@@ -777,14 +777,11 @@ function initAdvancedSearch() {
   <input name="user-id" id="user-id" class="input-small js-dnlookup" placeholder="username or id" data-clearbtn data-clears="#user-self" data-autofill data-prefix="user:" />
 </div>
 <div>
-  <label class="section-label">Bookmarks</label>
-  <em>(also known as favorites/starred questions)</em>
+  <label class="section-label">Saves</label>
+  <em>(also known as bookmarks/starred questions)</em>
   <div>
-    <label for="fav-self">my own bookmarks:</label>
-    <input type="checkbox" name="fav-self" id="fav-self" value="inbookmarks:mine" data-clears="#fav-id" data-autofill /><label for="fav-self">self</label>
+    <input type="checkbox" name="fav-self" id="fav-self" value="in:saves" data-clears="#fav-id" data-autofill /><label for="fav-self">in saved posts</label>
   </div>
-  <label for="fav-id">bookmarked by: (autocomplete)</label>
-  <input name="fav-id" id="fav-id" class="input-small js-dnlookup" placeholder="username or id" data-clearbtn data-clears="#fav-self" data-autofill data-prefix="inbookmarks:" />
 </div>
 <div>
   <label class="section-label">Post Date</label>

@@ -13,8 +13,6 @@
 // @include      https://*.stackexchange.com/*
 //
 // @exclude      *chat.*
-// @exclude      https://stackoverflow.com/c/*
-// @exclude      https://stackoverflow.com/jobs*
 //
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==

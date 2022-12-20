@@ -21,8 +21,6 @@
 // @include      https://*stackapps.com/election*
 // @include      https://*.stackexchange.com/election*
 //
-// @include      https://stackoverflow.com/c/*/questions/*
-//
 // @exclude      *chat.*
 //
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js

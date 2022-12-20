@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Mod Batch Comment Deleter
-// @description  Batch delete comments using comment permalinks from SEDE https://data.stackexchange.com/stackoverflow/query/1131935
+// @description  Batch delete comments using comment IDs or permalinks (e.g.: from SEDE https://data.stackexchange.com/stackoverflow/query/1131935)
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       @samliew
-// @version      3.2
+// @version      3.2.1
 //
 // @include      https://*stackoverflow.com/admin/deleter
 // @include      https://*serverfault.com/admin/deleter
@@ -32,6 +32,7 @@ let isRunning = false;
 let failures = 0, retryCount = 0;
 
 
+// In case the batch endpoint is removed, we can use this to delete one by one
 function deleteOne(url, callback = null) {
     $.ajax({
         url: url,
@@ -51,6 +52,7 @@ function deleteOne(url, callback = null) {
     });
 }
 
+// Bulk delete a batch of 1000 comments
 function bulkDeleteComments(commentIds) {
     return new Promise(function (resolve, reject) {
         if (typeof commentIds === 'undefined' || commentIds.length === 0) { reject(); return; }
@@ -67,7 +69,7 @@ function bulkDeleteComments(commentIds) {
     });
 }
 
-
+// Process queue
 let doDeleteAll = function () {
     const startTime = new Date();
     let linkElems = preview.find('a').hide();
@@ -154,12 +156,11 @@ let doDeleteAll = function () {
     doDeleteAll = function () { };
 }
 
-
+// Update params from input values
 function parseInputUpdatePreview(evt) {
 
     // Do nothing and wait for another event
     if (this.value.trim() == '') {
-        console.log('input empty!');
         $(this).one('change keyup', parseInputUpdatePreview);
         return false;
     }
@@ -180,7 +181,7 @@ function parseInputUpdatePreview(evt) {
     button.insertBefore(preview).text('Delete ALL ' + preview.find('a').length.toLocaleString());
 }
 
-
+// Main function
 function doPageLoad() {
 
     document.title = "Batch Comment Deleter - " + StackExchange.options.site.name;
@@ -191,7 +192,7 @@ function doPageLoad() {
     <div class="grid ai-center jc-space-between mb12 bb bc-black-3 pb12">
         <div class="fs-body3 flex--item fl1 mr12">Batch Comment Deleter</div>
     </div>
-    <div class="deleter-info">items per batch: <input type="number" min="1" max="100" class="inline" data-param-name="itemsPerBatch" value="${params.itemsPerBatch}" />; secs delay between batches: <input type="number" min="0" max="60" class="inline" data-param-name="delayPerBatch" data-multiplier="1000" value="${params.delayPerBatch / 1000}" /></div>
+    <div class="deleter-info">items per batch: <input type="number" min="1" max="${Math.max(100, params.itemsPerBatch)}" class="inline" data-param-name="itemsPerBatch" value="${params.itemsPerBatch}" />; secs delay between batches: <input type="number" min="0" max="60" class="inline" data-param-name="delayPerBatch" value="${params.delayPerBatch / 1000}" /></div>
 </div>
 `);
     button = $(`<button>Delete ALL</button>`).on('click', function () {
@@ -204,11 +205,10 @@ function doPageLoad() {
     // Events to update params
     content.on('change', 'input[data-param-name]', function (evt) {
         const paramName = this.dataset.paramName;
-        const num = Number(this.value) * (Number(this.dataset.multiplier) || 1);
+        const num = Number(this.value) * 1000;
         const isNum = !isNaN(num);
 
         if (this.value != '') params[paramName] = isNum ? num : this.value;
-        //console.log('params updated:', params);
     });
 }
 
