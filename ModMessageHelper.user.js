@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.5
+// @version      3.6
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.superuser.com/*
@@ -402,8 +402,6 @@ function initModMessageHelper() {
 
         // Show alternate message if no email
         $('#js-to-warning').after(`<div id="js-to-warning_2" class="s-notice s-notice__info mt8">The user will <em>only</em> receive this message on Stack Overflow.</div>`);
-
-        $('#js-copy-panel > table').first().addClass('mb12');
 
         if (showHiddenFields) {
 
@@ -1233,21 +1231,18 @@ styles.innerHTML = `
 #js-msg-form #js-to-warning.hidden + #js-to-warning_2 {
     display: inline-block;
 }
-#js-msg-form #js-copy-panel > span + table > tbody > tr:first-child td:first-child {
-    width: 170px;
-}
 #js-msg-form #js-suspend-days {
     width: 70px;
 }
-#js-msg-form #js-copy-panel > .suspend-info {
+#js-msg-form .suspend-info {
     padding: 10px;
     font-weight: bold;
     margin-bottom: 10px;
     margin-top: 5px;
     border: 1px dotted #AE0000;
 }
-#msg-form #copyPanel textarea#wmd-input,
-#js-msg-form #js-copy-panel textarea#wmd-input {
+#msg-form textarea#wmd-input,
+#js-msg-form textarea#wmd-input {
     min-height: 550px;
 }
 #sidebar .module {
