@@ -1705,6 +1705,36 @@ div.xxl-info-layout {
     $('head').append(`<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />`);
 }
 
+/**
+ * @summary adds styles specific to the "my rooms" section
+ */
+const appendMyRoomsStyles = () => {
+    const style = document.createElement('style');
+    style.setAttribute('data-somu', GM_info?.script.name);
+    document.body.append(style);
+
+    const { sheet } = style
+
+    const rules = [
+`ul#my-rooms {
+    column-gap: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 100%;
+}`,
+`ul#my-rooms li {
+    flex-basis: calc(50% - 4px);
+    overflow: auto;
+}`,
+`@media screen and (max-width: 1033px) {
+    ul#my-rooms#my-rooms li {
+        flex-basis: 100%;
+    }
+}`
+    ];
+
+    rules.forEach((rule) => sheet.insertRule(rule));
+}
 
 function appendStyles(desktop = true) {
 
@@ -2142,7 +2172,7 @@ div.message .meta {
 }
 @media screen and (max-width: 1600px) {
     #my-rooms {
-        max-height: 90px;
+        max-height: 180px;
         overflow-y: auto;
         margin-right: -10px;
         padding-right: 5px !important;
@@ -2712,6 +2742,8 @@ body.dragging #dropTarget {
     styles_device.setAttribute('data-somu', GM_info?.script.name);
     styles_device.innerHTML = desktop ? desktopStyles : mobileStyles;
     document.body.appendChild(styles_device);
+
+    appendMyRoomsStyles()
 }
 
 
