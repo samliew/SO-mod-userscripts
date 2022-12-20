@@ -3,7 +3,7 @@
 // @description  Better comments layout for easier readability and moderation
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -42,8 +42,10 @@ styles.innerHTML = `
 .comment-body .comment-date > a {
     color: var(--black-350);
 }
-.comment-body > button {
-    font-size: 0.9rem;
+.comment-body > button,
+.comment-body > .s-btn,
+.comment-body > .s-btn.s-btn__link {
+    font-size: ${commentsFontSize};
 }
 .comment-body > button.js-comment-delete {
     float: right;
