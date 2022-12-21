@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurances of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.6.1
+// @version      3.6.2
 //
 // @include      https://chat.stackoverflow.com/*
 // @include      https://chat.stackexchange.com/*
@@ -31,7 +31,6 @@ if (typeof unsafeWindow !== 'undefined' && window !== unsafeWindow) {
 } else {
     unsafeWindow = window;
 }
-
 
 const store = window.localStorage;
 const fkey = document.getElementById('fkey') ? document.getElementById('fkey').value : '';
@@ -616,14 +615,44 @@ function initUserHighlighter() {
     });
 }
 
+/**
+ * @summary factory for chat top navigation bar buttons
+ * @param {string} id button id
+ * @param {string} text button text
+ * @param {{
+ *  onClick?: (event: MouseEvent) => void | Promise<void>,
+ *  url?: string
+ * }} options configuration options
+ */
+const makeChatTopNavButton = (id, text, options) => {
+    const { url, onClick } = options;
 
+    const button = document.createElement('a');
+    button.classList.add('button')
+    button.rel = 'noopener noreferrer';
+    button.id = id;
+    button.textContent = text;
+
+    if(url) button.href = url;
+
+    if(typeof onClick === 'function') {
+        button.addEventListener('click', onClick);
+    }
+
+    return button;
+}
 
 function addLinksToOtherChatDomains() {
 
     // Add links to other chat domains when on Chat.SO
     const allrooms = $('#allrooms, #info a:first');
     if (allrooms[0].href.includes('stackoverflow.com')) {
-        allrooms.after(`<a rel="noopener noreferrer" id="allrooms2" class="button" href="https://chat.stackexchange.com">Chat.SE</a> <a rel="noopener noreferrer" id="allrooms3" class="button" href="https://chat.meta.stackexchange.com">Chat.MSE</a>`);
+        const buttons = [
+            makeChatTopNavButton('allrooms2', 'Chat.SE', { url: 'https://chat.stackexchange.com' }),
+            makeChatTopNavButton('allrooms3', 'Chat.MSE', { url: 'https://chat.meta.stackexchange.com' }),
+        ]
+
+        allrooms.after(...buttons)
     }
 }
 
@@ -1683,6 +1712,36 @@ div.xxl-info-layout {
     $('head').append(`<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />`);
 }
 
+/**
+ * @summary adds styles specific to the "my rooms" section
+ */
+const appendMyRoomsStyles = () => {
+    const style = document.createElement('style');
+    style.setAttribute('data-somu', GM_info?.script.name);
+    document.body.append(style);
+
+    const { sheet } = style
+
+    const rules = [
+`ul#my-rooms {
+    column-gap: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 100%;
+}`,
+`ul#my-rooms li {
+    flex-basis: calc(50% - 4px);
+    overflow: auto;
+}`,
+`@media screen and (max-width: 1033px) {
+    ul#my-rooms#my-rooms li {
+        flex-basis: 100%;
+    }
+}`
+    ];
+
+    rules.forEach((rule) => sheet.insertRule(rule));
+}
 
 function appendStyles(desktop = true) {
 
@@ -1830,6 +1889,10 @@ html.fixed-header body.with-footer main {
 .sidebar-widget *:hover::-webkit-scrollbar { width: 5px; }
 .sidebar-widget *:hover::-webkit-scrollbar-thumb { background-color: #aaa; }
 
+/* topbar styles */
+.topbar .topbar-links .search-container {
+    margin-top: 4px;
+}
 
 /* Other minor stuff */
 #loading #loading-message {
@@ -2120,7 +2183,7 @@ div.message .meta {
 }
 @media screen and (max-width: 1600px) {
     #my-rooms {
-        max-height: 90px;
+        max-height: 180px;
         overflow-y: auto;
         margin-right: -10px;
         padding-right: 5px !important;
@@ -2690,6 +2753,8 @@ body.dragging #dropTarget {
     styles_device.setAttribute('data-somu', GM_info?.script.name);
     styles_device.innerHTML = desktop ? desktopStyles : mobileStyles;
     document.body.appendChild(styles_device);
+
+    appendMyRoomsStyles()
 }
 
 
