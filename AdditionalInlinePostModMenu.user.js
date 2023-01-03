@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3.1
+// @version      2.3.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -694,7 +694,6 @@ function appendInlinePostModMenus() {
         //    menuitems += '<span class="inline-label comments-label">comments: </span>';
         //    menuitems += `<a data-action="move-comments" class="inline-link ${isDeleted || !hasComments ? 'disabled' : ''}">move</a>`;
         //    menuitems += `<a data-action="purge-comments" class="inline-link ${!hasComments ? 'disabled' : ''}">purge</a>`;
-        //    menuitems += '<div class="block-clear"></div>';
         //}
 
         if (isQuestion) { // Q-only
@@ -724,12 +723,10 @@ function appendInlinePostModMenus() {
             menuitems += `<a data-action="convert-comment" class="inline-link" title="convert only the post to a comment on the question">to-comment</a>`;
             menuitems += `<a data-action="convert-edit" class="inline-link" title="append the post as an edit to the question">to-edit</a>`;
 
-            menuitems += '<div class="block-clear"></div>';
             menuitems += '<span class="inline-label post-label">instant: </span>';
             menuitems += `<a data-action="mod-delete" class="inline-link" title="redelete post as moderator to prevent undeletion">redelete</a>`;
         }
 
-        menuitems += '<div class="block-clear"></div>';
         menuitems += '<span class="inline-label lock-label">lock: </span>';
         if (!isLocked) { // unlocked-only
             menuitems += `<a data-action="lock-dispute" class="inline-link" title="prompts for number of days to dispute lock">dispute...</a>`;
@@ -752,11 +749,9 @@ function appendInlinePostModMenus() {
 
                 // Allow delete/destroy options only if user < 200 rep
                 if (/^\d+$/.test(userrep) && Number(userrep) < 200) {
-                    menuitems += '<div class="block-clear"></div>';
                     menuitems += '<span class="inline-label post-label">troll/sock: </span>';
                     menuitems += `<a data-action="suspend-delete" data-uid="${uid}" data-username="${username}" class="inline-link danger" title="delete post, suspend for 365 for rule violations,  and delete">delete...</a>`; // non-deleted user only
                     menuitems += `<a data-action="destroy-troll" data-uid="${uid}" data-username="${username}" class="inline-link danger" title="nuke post, suspend for 365 for rule violations, and destroy">destroy...</a>`; // non-deleted user only
-                    menuitems += '<div class="block-clear"></div>';
                     menuitems += '<span class="inline-label post-label">spammer: </span>';
                     menuitems += `<a data-action="suspend-spammer" data-uid="${uid}" data-username="${username}" class="inline-link danger" title="nuke post, suspend for 365 for promotional content">suspend...</a>`; // non-deleted user only
                     menuitems += `<a data-action="destroy-spammer" data-uid="${uid}" data-username="${username}" class="inline-link danger" title="nuke post, suspend for 365 for promotional content, and destroy">destroy...</a>`; // non-deleted user only
@@ -1008,10 +1003,6 @@ styles.innerHTML = `
     width: auto;
 }
 
-.block-clear {
-    display: block !important;
-}
-
 .js-init-better-inline-menu {
     border-bottom: 1px solid var(--black-075);
 }
@@ -1020,11 +1011,13 @@ styles.innerHTML = `
 }
 
 .js-better-inline-menu {
-    display: block;
     clear: both;
     float: left;
     min-width: 200px;
     margin: 5px 0 10px;
+    display: grid;
+    grid-gap: 0;
+    grid-template-columns: repeat(4, 1fr);
 }
 .js-better-inline-menu.smaller {
     font-size: 0.88em;
@@ -1034,11 +1027,11 @@ styles.innerHTML = `
 .js-better-inline-menu .inline-label,
 .js-better-inline-menu a {
     padding: 3px 4px;
-    display: inline-block;
 }
 .js-better-inline-menu .inline-label {
     color: var(--black-700);
     padding-left: 0;
+    grid-column-start: 1;
 }
 .js-better-inline-menu a {
     color: var(--black-400);
