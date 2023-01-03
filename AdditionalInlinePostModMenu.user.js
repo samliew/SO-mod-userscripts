@@ -3,7 +3,7 @@
 // @description  Adds mod-only quick actions in existing post menu
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.3
+// @version      2.3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -698,7 +698,6 @@ function appendInlinePostModMenus() {
         //}
 
         if (isQuestion) { // Q-only
-            menuitems += '<div class="block-clear"></div>';
             menuitems += '<span class="inline-label post-label">instant: </span>';
 
             if (isProtected) {
@@ -765,7 +764,7 @@ function appendInlinePostModMenus() {
             }
         }
 
-        $(this).append(`<div class="block-clear"></div><div class="js-better-inline-menu smaller" data-pid="${pid}">${menuitems}</div>`);
+        $(this).append(`<div class="js-better-inline-menu smaller" data-pid="${pid}">${menuitems}</div>`);
     });
 }
 
@@ -998,22 +997,26 @@ const styles = document.createElement('style');
 styles.setAttribute('data-somu', GM_info?.script.name);
 styles.innerHTML = `
 /* Better post menu links */
-.js-post-menu .lsep {
-    display: none;
-}
-.js-post-menu > a,
-.js-post-menu > button {
-    font-size: 0.95em;
-    padding: 2px 0px;
-    margin-right: 5px;
+.js-post-menu .s-anchors > .flex--item button,
+.js-post-menu .s-anchors > .flex--item a {
+    font-size: 0.97em;
+    text-transform: lowercase;
 }
 
 .post-signature {
     min-width: 180px;
     width: auto;
 }
+
 .block-clear {
     display: block !important;
+}
+
+.js-init-better-inline-menu {
+    border-bottom: 1px solid var(--black-075);
+}
+.js-init-better-inline-menu .s-anchors {
+    padding-bottom: 5px;
 }
 
 .js-better-inline-menu {
@@ -1022,25 +1025,22 @@ styles.innerHTML = `
     float: left;
     min-width: 200px;
     margin: 5px 0 10px;
-    padding-top: 5px;
-    border-top: 1px solid var(--black-075);
 }
 .js-better-inline-menu.smaller {
-    margin: 5px 0 5px;
-    padding: 8px 6px 8px;
     font-size: 0.88em;
     line-height: 1;
 }
 
-.js-better-inline-menu .inline-label {
-    display: inline-block;
+.js-better-inline-menu .inline-label,
+.js-better-inline-menu a {
     padding: 3px 4px;
+    display: inline-block;
+}
+.js-better-inline-menu .inline-label {
     color: var(--black-700);
+    padding-left: 0;
 }
 .js-better-inline-menu a {
-    margin: 2px 2px;
-    padding: 0px 2px;
-    display: block;
     color: var(--black-400);
     text-decoration: none;
 }
@@ -1049,9 +1049,6 @@ styles.innerHTML = `
 }
 .js-better-inline-menu a:hover {
     color: var(--black-700);
-}
-.js-better-inline-menu a.inline-link {
-    display: inline-block;
 }
 .js-better-inline-menu a.disabled {
     display: none;
@@ -1062,11 +1059,6 @@ styles.innerHTML = `
 .js-better-inline-menu a.danger:hover {
     background-color: var(--red-500);
     color: var(--white);
-}
-.js-better-inline-menu .separator {
-    display: block;
-    border-top: 1px solid var(--black-075);
-    margin: 5px 0;
 }
 
 
