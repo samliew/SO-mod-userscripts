@@ -4,7 +4,7 @@
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
 // @author       Cody Gray
-// @version      3.0
+// @version      3.0.1
 //
 // @match        *://*.stackoverflow.com/*
 // @match        *://*.stackexchange.com/*
@@ -29,29 +29,29 @@
 // Moderator check
 if (!isModerator()) return;
 
-const newlines  = '\n\n';
-const seApiKey  = 'lSrVEbQTXrJ4eb4c3NEMXQ((';
-const fkey      = StackExchange.options.user.fkey;
-const isSO      = location.hostname == 'stackoverflow.com';
-const isSOMeta  = location.hostname == 'meta.stackoverflow.com';
-const isMeta    = typeof StackExchange.options.site.parentUrl !== 'undefined';
+const newlines = '\n\n';
+const seApiKey = 'lSrVEbQTXrJ4eb4c3NEMXQ((';
+const fkey = StackExchange.options.user.fkey;
+const isSO = location.hostname == 'stackoverflow.com';
+const isSOMeta = location.hostname == 'meta.stackoverflow.com';
+const isMeta = typeof StackExchange.options.site.parentUrl !== 'undefined';
 const parentUrl = StackExchange.options.site.parentUrl || `${location.origin}`;
-const metaUrl   = StackExchange.options.site.childUrl;
+const metaUrl = StackExchange.options.site.childUrl;
 
 // Add your user ID here (or set the corresponding value in your Local Storage) to promote yourself
 // to a "superuser", which enables rarely-used options and decreases the number of confirmations.
-const superusers  = [584192, 366904, 6451573];
+const superusers = [584192, 366904, 6451573];
 const isSuperuser = superusers.includes(StackExchange.options.user.userId) ||
-                    ((localStorage.getItem('samliew-aipmm.isSuperuser') ?? 'false') === 'true');
+    ((localStorage.getItem('SOMU-aipmm.isSuperuser') ?? 'false') === 'true');
 
 // This option defaults to "false". Manually set it to "true" (or set the corresponding value
 // in your Local Storage) to allow destroying spam accounts as fast as possible
 // without multiple confirmations.
-const underSpamAttackMode = (localStorage.getItem('samliew-aipmm.underSpamAttackMode') ?? 'false') === 'true';
+const underSpamAttackMode = (localStorage.getItem('SOMU-aipmm.underSpamAttackMode') ?? 'false') === 'true';
 
 // This option defaults to "true". Manually set it to "false" (or set the corresponding value
 // in your Local Storage) to make the size of the inserted quicklinks match the standard ones.
-const smallerQuicklinks = (localStorage.getItem('samliew-aipmm.smallerQuicklinks') ?? 'true') === 'true';
+const smallerQuicklinks = (localStorage.getItem('SOMU-aipmm.smallerQuicklinks') ?? 'true') === 'true';
 
 
 function goToPost(pid) {
@@ -75,13 +75,11 @@ function goToPost(pid) {
 
 function reloadPage() {
     // If in mod queues, do not reload
-    if (!location.pathname.includes('/admin/dashboard'))
-    {
+    if (!location.pathname.includes('/admin/dashboard')) {
         location.reload();
         return true;
     }
-    else
-    {
+    else {
         return false;
     }
 }
@@ -96,50 +94,52 @@ function reloadWhenDone() {
     });
 }
 
-
+/*
+ * Date helper functions
+ */
 function seApiDateToDate(apiDate) {
     return apiDate ? new Date(apiDate * 1000) : null;
 }
 
 function dateToIsoString(date) {
-    if (date)
-    {
-        return date.toJSON().replace(/\.\d+Z/, 'Z')
-                            .replace('T', ' ');
+    if (date) {
+        return date.toJSON()
+            .replace(/\.\d+Z/, 'Z')
+            .replace('T', ' ');
     }
-    else
-    {
+    else {
         return '<unknown>';
     }
 }
 
 function dateToRelativeString(date) {
-    if (date && date.getTime())
-    {
+    if (date && date.getTime()) {
         const delta = ((new Date()).getTime() - date.getTime()) / 1000;
-        if (delta <      2)  { return 'just now'; }
-        if (delta <     60)  { return Math.floor(delta) + ' secs ago'; }
-        if (delta <    120)  { return '1 min ago'; }
-        if (delta <   3600)  { return Math.floor(delta / 60) + ' mins ago'; }
-        if (delta <   7200)  { return '1 hour ago'; }
-        if (delta <  86400)  { return Math.floor(delta / 3600) + ' hours ago'; }
-        if (delta < 172800)  { return 'yesterday'; }
-        if (delta < 259200)  { return '2 days ago'; }
-        return date.toLocaleString(undefined, {month: 'short', timeZone: 'UTC'})
-             + ' '
-             + date.toLocaleString(undefined, {day: '2-digit', timeZone: 'UTC'})
-             + ((delta > 31536000) ? (' \'' + date.toLocaleString(undefined, {year: '2-digit', timeZone: 'UTC'})) : '')
-             + ' at '
-             + date.toLocaleString(undefined, {minute: '2-digit', hour: '2-digit', hour12: false, timeZone: 'UTC'});
+        if (delta < 2) { return 'just now'; }
+        if (delta < 60) { return Math.floor(delta) + ' secs ago'; }
+        if (delta < 120) { return '1 min ago'; }
+        if (delta < 3600) { return Math.floor(delta / 60) + ' mins ago'; }
+        if (delta < 7200) { return '1 hour ago'; }
+        if (delta < 86400) { return Math.floor(delta / 3600) + ' hours ago'; }
+        if (delta < 172800) { return 'yesterday'; }
+        if (delta < 259200) { return '2 days ago'; }
+        return date.toLocaleString(undefined, { month: 'short', timeZone: 'UTC' })
+            + ' '
+            + date.toLocaleString(undefined, { day: '2-digit', timeZone: 'UTC' })
+            + ((delta > 31536000) ? (' \'' + date.toLocaleString(undefined, { year: '2-digit', timeZone: 'UTC' })) : '')
+            + ' at '
+            + date.toLocaleString(undefined, { minute: '2-digit', hour: '2-digit', hour12: false, timeZone: 'UTC' });
     }
-    else
-    {
+    else {
         return '<unknown>';
     }
 }
 
 
 
+/*
+ * SE helper functions
+ */
 // Post comment on post
 function addComment(pid, commentText) {
     return new Promise(function (resolve, reject) {
@@ -149,7 +149,7 @@ function addComment(pid, commentText) {
         $.post({
             url: `${location.origin}/posts/${pid}/comments`,
             data: {
-                'fkey':    fkey,
+                'fkey': fkey,
                 'comment': commentText,
             }
         })
@@ -157,7 +157,6 @@ function addComment(pid, commentText) {
             .fail(reject);
     });
 }
-
 
 // Close individual post
 // closeReasonId: 'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
@@ -240,7 +239,6 @@ function reopenQuestion(pid) {
     });
 }
 
-
 // Delete individual post
 function deletePost(pid) {
     return new Promise(function (resolve, reject) {
@@ -256,7 +254,6 @@ function deletePost(pid) {
             .fail(reject);
     });
 }
-
 // Undelete individual post
 function undeletePost(pid) {
     return new Promise(function (resolve, reject) {
@@ -273,8 +270,7 @@ function undeletePost(pid) {
     });
 }
 
-
-// Locks individual post
+// Lock individual post
 // Type: 20 - content dispute
 //       21 - offtopic comments
 function lockPost(pid, type, hours = 24) {
@@ -295,7 +291,6 @@ function lockPost(pid, type, hours = 24) {
             .fail(reject);
     });
 }
-
 // Unlock individual post
 function unlockPost(pid) {
     return new Promise(function (resolve, reject) {
@@ -313,9 +308,8 @@ function unlockPost(pid) {
     });
 }
 
-
 // Protect/unprotect individual post
-function protectOrUnprotectPost(pid, protect) {
+function _protectOrUnprotectPost(pid, protect) {
     return new Promise(function (resolve, reject) {
         if (typeof pid === 'undefined' || pid === null) { reject(); return; }
 
@@ -331,17 +325,12 @@ function protectOrUnprotectPost(pid, protect) {
             .fail(reject);
     });
 }
-
-// Protect individual post
 function protectPost(pid) {
-    return protectOrUnprotectPost(pid, 'protect');
+    return _protectOrUnprotectPost(pid, 'protect');
 }
-
-// Unprotect individual post
 function unprotectPost(pid) {
-    return protectOrUnprotectPost(pid, 'unprotect');
+    return _protectOrUnprotectPost(pid, 'unprotect');
 }
-
 
 // Edit individual post to remove more than one @ symbols to be able to convert to comment without errors
 function tryRemoveMultipleAtFromPost(pid) {
@@ -368,8 +357,8 @@ function tryRemoveMultipleAtFromPost(pid) {
                         'fkey': fkey
                     }
                 })
-                    .done(resolve)
-                    .fail(reject);
+                .done(resolve)
+                .fail(reject);
             });
     });
 }
@@ -416,7 +405,6 @@ function convertToEdit(pid, targetId) {
     });
 }
 
-
 // Delete all comments on post
 function deleteCommentsOnPost(pid) {
     return new Promise(function (resolve, reject) {
@@ -438,7 +426,6 @@ function deleteCommentsOnPost(pid) {
     });
 }
 
-
 // Move all comments on post to chat
 function moveCommentsOnPostToChat(pid) {
     return new Promise(function (resolve, reject) {
@@ -451,15 +438,14 @@ function moveCommentsOnPostToChat(pid) {
                 'deleteMovedComments': 'true'
             }
         })
-            .done(function (data) {
-                $('#comments-' + pid).remove();
-                $('#comments-link-' + pid).html(`<span>${data.info}</span>`);
-                resolve();
-            })
-            .fail(reject);
+        .done(function (data) {
+            $('#comments-' + pid).remove();
+            $('#comments-link-' + pid).html(`<span>${data.info}</span>`);
+            resolve();
+        })
+        .fail(reject);
     });
 }
-
 
 // Undelete and re-delete post (prevent user from undeleting)
 function modUndelDelete(pid) {
@@ -472,7 +458,6 @@ function modUndelDelete(pid) {
     });
 }
 
-
 // Spam/rude flag individual post
 function flagPost(pid, rudeFlag) {
     return new Promise(function (resolve, reject) {
@@ -480,39 +465,37 @@ function flagPost(pid, rudeFlag) {
 
         const flagType = rudeFlag ? 'PostOffensive' : 'PostSpam';
         $.post({
-            url:                   `${location.origin}/flags/posts/${pid}/add/${flagType}`,
+            url: `${location.origin}/flags/posts/${pid}/add/${flagType}`,
             data: {
-                'otherText':       null,
+                'otherText': null,
                 'overrideWarning': true,
-                'fkey':            fkey
+                'fkey': fkey
             }
         })
-            .done(function (response) {
-                // Upon success, the returned object looks like the following:
-                //     {
-                //         "Success":            true,
-                //         "Message":            "Thanks, we'll take a look at it",
-                //         "FlagType":           2,
-                //         "ResultChangedState": true,
-                //         "Outcome":            0
-                //     }
-                // On failure, it may be an object, or it may be a string;
-                // the endpoint is frustratingly inconsistent.
-                if ((typeof response === 'object') && response?.Success)
-                {
-                    console.debug(`flagPost(${pid}) returned success: `, response);
-                    resolve(response);
-                }
-                else
-                {
-                    console.error(`flagPost(${pid}) returned an error: `, response);
-                    reject(response);
-                }
-            })
-            .fail(function (response) {
-                console.error(`flagPost(${pid}) failed: `, response);
+        .done(function (response) {
+            // Upon success, the returned object looks like the following:
+            //     {
+            //         "Success":            true,
+            //         "Message":            "Thanks, we'll take a look at it",
+            //         "FlagType":           2,
+            //         "ResultChangedState": true,
+            //         "Outcome":            0
+            //     }
+            // On failure, it may be an object, or it may be a string;
+            // the endpoint is frustratingly inconsistent.
+            if ((typeof response === 'object') && response?.Success) {
+                console.debug(`flagPost(${pid}) returned success: `, response);
+                resolve(response);
+            }
+            else {
+                console.error(`flagPost(${pid}) returned an error: `, response);
                 reject(response);
-            });
+            }
+        })
+        .fail(function (response) {
+            console.error(`flagPost(${pid}) failed: `, response);
+            reject(response);
+        });
     });
 }
 
@@ -523,27 +506,27 @@ function getUserInfoFromApi(uid) {
         if (typeof uid === 'undefined' || uid === null) { reject(); return; }
 
         const filter = '!)FjpQNE9lf-RoJb0rfiGOKfU(ZHPrHcs8)D5PMzzX*d(ctJO-';
-        const site   = location.hostname.replace(/(\.stackexchange)?\.com$/, '');
-        const url    = `https://api.stackexchange.com/2.3/users/${uid}?order=desc&sort=creation&site=${site}&filter=${filter}&key=${seApiKey ? seApiKey : ''}`;
+        const site = location.hostname.replace(/(\.stackexchange)?\.com$/, '');
+        const url = `https://api.stackexchange.com/2.3/users/${uid}?order=desc&sort=creation&site=${site}&filter=${filter}&key=${seApiKey ? seApiKey : ''}`;
         $.get(url)
             .done(function (response) {
-                if (!response                           ||
+                if (!response ||
                     Object.hasOwn(response, 'error_id') ||
                     !Object.hasOwn(response, 'items')) {
                     console.error(`Call to SE API to get user info failed in getUserInfoFromApi(${uid}): `,
-                                  response);
+                        response);
                     reject(response);
                 }
-                else if ((response.items.length !== 1)                ||
-                         !Object.hasOwn(response.items[0], 'user_id') ||
-                         (response.items[0].user_id !== uid)) {
+                else if ((response.items.length !== 1) ||
+                    !Object.hasOwn(response.items[0], 'user_id') ||
+                    (response.items[0].user_id !== uid)) {
                     console.error(`Call to SE API to get user info succeeded in getUserInfoFromApi(${uid}), but returned unexpected results.`,
-                                  response);
+                        response);
                     reject(response);
                 }
                 else {
                     console.debug(`Call to SE API to get user info in getUserInfoFromApi(${uid}) succeeded.`,
-                                  response);
+                        response);
                     resolve(response.items[0]);
                 }
             })
@@ -560,38 +543,37 @@ function getUserPii(uid) {
         if (typeof uid === 'undefined' || uid === null) { reject(); return; }
 
         $.post({
-            url:      `${location.origin}/admin/all-pii`,
+            url: `${location.origin}/admin/all-pii`,
             data: {
-                id:   uid,
+                id: uid,
                 fkey: fkey,
             }
         })
-            .done(function (response) {
-                // Upon success, the returned response is just a string containing some HTML.
-                // I don't know what failure looks like.
-                console.debug(`getUserPii(${uid}) succeeded: `, response);
-                const html = $(response);
-                const ip   = html.find('div:contains("IP Address:") + div > span.ip-address-lookup');
-                const pii  = { name  : html.find('div:contains("Real Name:") + div > a').text().trim(),
-                               email : html.find('div:contains("Email:") + div > a').text().trim(),
-                               ip    : ip.text().trim(),
-                               tor   : ip.data('tor').trim(),
-                             };
-                resolve(pii);
-            })
-            .fail(function (response) {
-                console.error(`getUserPii(${uid}) failed: `, response);
-                reject(response);
-            });
+        .done(function (response) {
+            // Upon success, the returned response is just a string containing some HTML.
+            // I don't know what failure looks like.
+            console.debug(`getUserPii(${uid}) succeeded: `, response);
+            const html = $(response);
+            const ip = html.find('div:contains("IP Address:") + div > span.ip-address-lookup');
+            const pii = {
+                name: html.find('div:contains("Real Name:") + div > a').text().trim(),
+                email: html.find('div:contains("Email:") + div > a').text().trim(),
+                ip: ip.text().trim(),
+                tor: ip.data('tor').trim(),
+            };
+            resolve(pii);
+        })
+        .fail(function (response) {
+            console.error(`getUserPii(${uid}) failed: `, response);
+            reject(response);
+        });
     });
 }
 
 
 // Edit user profile, setting specified fields
-async function editUserProfile(uid, data)
-{
-    if (typeof uid === 'undefined' || uid == null)
-    {
+async function editUserProfile(uid, data) {
+    if (typeof uid === 'undefined' || uid == null) {
         throw new Error('A required parameter is missing in a call to editUserProfile().');
     }
 
@@ -609,90 +591,84 @@ async function editUserProfile(uid, data)
 
     // Ensure that certain fields in the specified data are set properly.
     data.fkey = fkey;
-    data.i1l  = ticks;
+    data.i1l = ticks;
 
     // Submit the request to edit the user profile.
     let response;
-    try
-    {
+    try {
         response = await $.post({
-                                     url:  `${location.origin}/users/edit/${uid}/post`,
-                                     data: data,
-                                });
+            url: `${location.origin}/users/edit/${uid}/post`,
+            data: data,
+        });
 
         // Upon success, the returned object looks like the following:
         //     {
         //         redirect: "https://stackoverflow.com/users/XXX/userXXX"
         //     }
         // On failure, it is a string.
-        if (typeof response === 'object')
-        {
+        if (typeof response === 'object') {
             console.debug(`editUserProfile(${uid}) returned success: `, response);
             return response;
         }
-        else
-        {
+        else {
             console.error(`editUserProfile(${uid}) returned an error: `, response);
             throw new Error(response);
         }
     }
-    catch (e)
-    {
+    catch (e) {
         console.error(`editUserProfile(${uid}) failed: `, e);
         throw new Error(e);
     }
 }
 
 // Edit user profile to set/clear their display name
-async function resetUserDisplayName(uid, displayName = '')
-{
+async function resetUserDisplayName(uid, displayName = '') {
     return editUserProfile(uid,
-                           {
-                               'fields'         : '',
-                               'author'         : '',
-                               'push'           : true,         // copy changes to all sites
-                               'DisplayName'    : displayName,
-                             //'RealName'       : '',           // do not reset this field
-                             //'ProfileImageUrl': '',           // do not reset this field
-                             //'Location'       : '',           // do not reset this field
-                             //'LocationPlaceId': '',           // do not reset this field
-                             //'Title'          : '',           // do not reset this field
-                             //'WebsiteUrl'     : '',           // do not reset this field
-                             //'TwitterUrl'     : '',           // do not reset this field
-                             //'GitHubUrl'      : '',           // do not reset this field
-                             //'AboutMe'        : '',           // do not reset this field
-                           });
+    {
+        'fields': '',
+        'author': '',
+        'push': true,         // copy changes to all sites
+        'DisplayName': displayName,
+        //'RealName'       : '',           // do not reset this field
+        //'ProfileImageUrl': '',           // do not reset this field
+        //'Location'       : '',           // do not reset this field
+        //'LocationPlaceId': '',           // do not reset this field
+        //'Title'          : '',           // do not reset this field
+        //'WebsiteUrl'     : '',           // do not reset this field
+        //'TwitterUrl'     : '',           // do not reset this field
+        //'GitHubUrl'      : '',           // do not reset this field
+        //'AboutMe'        : '',           // do not reset this field
+    });
 }
 
 // Edit user profile, clearing all fields
-async function resetUserProfile(uid, displayName = '')
-{
+async function resetUserProfile(uid, displayName = '') {
     return editUserProfile(uid,
-                           {
-                               'fields'         : '',
-                               'author'         : '',
-                               'push'           : true,         // copy changes to all sites
-                               'DisplayName'    : displayName,
-                             //'RealName'       : '',           // do not reset this field
-                               'ProfileImageUrl': '',
-                               'Location'       : '',
-                               'LocationPlaceId': '',
-                               'Title'          : '',
-                               'WebsiteUrl'     : '',
-                               'TwitterUrl'     : '',
-                               'GitHubUrl'      : '',
-                               'AboutMe'        : '',
-                           });
+    {
+        'fields': '',
+        'author': '',
+        'push': true,         // copy changes to all sites
+        'DisplayName': displayName,
+        //'RealName'       : '',           // do not reset this field
+        'ProfileImageUrl': '',
+        'Location': '',
+        'LocationPlaceId': '',
+        'Title': '',
+        'WebsiteUrl': '',
+        'TwitterUrl': '',
+        'GitHubUrl': '',
+        'AboutMe': '',
+    });
 }
 
 
 // Send mod message + optional suspension
 function modMessageUser(uid,
-                        message       = '',
-                        sendEmail     = true,
-                        suspendDays   = 0,
-                        templateName  = 'something else...',
-                        suspendReason = 'for rule violations') {
+    message = '',
+    sendEmail = true,
+    suspendDays = 0,
+    templateName = 'something else...',
+    suspendReason = 'for rule violations') {
     return new Promise(function (resolve, reject) {
         if (typeof uid === 'undefined' || uid == null) { reject(); return; }
         if (suspendDays < 0 || suspendDays > 365) { reject(); return; }
@@ -704,120 +680,108 @@ function modMessageUser(uid,
         }
 
         $.post({
-            url:                   `${location.origin}/users/message/save`,
+            url: `${location.origin}/users/message/save`,
             data: {
-                'userId':          uid,
+                'userId': uid,
                 'lastMessageDate': 0,
-                'email':           sendEmail,
-                'suspendUser':     (suspendDays > 0),
-                'suspend-choice':  ((suspendDays > 0) ? suspendDays : 0),
-                'suspendDays':     suspendDays,
-                'templateName':    templateName,
-                'suspendReason':   suspendReason,
-                'templateEdited':  false,
-                'post-text':       message,
-                'fkey':            fkey,
-                'author':          null,
+                'email': sendEmail,
+                'suspendUser': (suspendDays > 0),
+                'suspend-choice': ((suspendDays > 0) ? suspendDays : 0),
+                'suspendDays': suspendDays,
+                'templateName': templateName,
+                'suspendReason': suspendReason,
+                'templateEdited': false,
+                'post-text': message,
+                'fkey': fkey,
+                'author': null,
             }
         })
-            .done(function (response) {
-                // Upon success, this returns a string of HTML for the message page.
-                // TODO: What does it return when an error occurs?
-                console.debug(`modMessageUser(${uid}) succeeded: `, response);
-                resolve(response);
-            })
-            .fail(function (response) {
-                console.error(`modMessageUser(${uid}) failed: `, response);
-                reject(response);
-            });
+        .done(function (response) {
+            // Upon success, this returns a string of HTML for the message page.
+            // TODO: What does it return when an error occurs?
+            console.debug(`modMessageUser(${uid}) succeeded: `, response);
+            resolve(response);
+        })
+        .fail(function (response) {
+            console.error(`modMessageUser(${uid}) failed: `, response);
+            reject(response);
+        });
     });
 }
 
 
 async function removeUser(uid, destroy, details, reason, userInfo = null, pii = null) {
-    if ((typeof uid     === 'undefined' || uid     == null) ||
+    if ((typeof uid === 'undefined' || uid == null) ||
         (typeof destroy === 'undefined' || destroy == null) ||
         (typeof details === 'undefined' || details == null) ||
-        (typeof reason  === 'undefined' || reason  == null))
-    {
+        (typeof reason === 'undefined' || reason == null)) {
         throw new Error('One or more required parameters are missing in a call to removeUser().');
     }
 
-    if (!userInfo)
-    {
-        try
-        {
+    if (!userInfo) {
+        try {
             userInfo = await getUserInfoFromApi(uid);
         }
-        catch (e)
-        {
+        catch (e) {
             console.warn(`getUserInfoFromApi(${uid}) failed in removeUser(): `, e);
             console.assert(userInfo == null);
         }
     }
 
-    if (!pii)
-    {
-        try
-        {
+    if (!pii) {
+        try {
             pii = await getUserPii(uid);
         }
-        catch (e)
-        {
+        catch (e) {
             console.warn(`getUserPii(${uid}) failed in removeUser(): `, e);
             console.assert(pii == null);
         }
     }
 
     let piiDetails = '';
-    if (pii)
-    {
+    if (pii) {
         piiDetails += `Real Name:          ${pii?.name ?? '-?-'}\n`;
         piiDetails += `Email Address:      ${pii?.email ?? '-?-'}\n`;
         piiDetails += `IP Address:         ${pii?.ip ?? '-?-'} (tor: ${pii?.tor ?? '-?-'})\n`;
     }
 
     let userDetails = '';
-    if (userInfo)
-    {
-        userDetails     += `Display Name:       ${userInfo?.display_name}\n`;
-        if (pii)
-        {
+    if (userInfo) {
+        userDetails += `Display Name:       ${userInfo?.display_name}\n`;
+        if (pii) {
             userDetails += piiDetails;
         }
-       userDetails      += `User Type:          ${userInfo?.user_type ?? '-?-'}\n`;
-       userDetails      += `Creation Date:      ${dateToIsoString(seApiDateToDate(userInfo?.creation_date)) ?? '-?-'}\n`;
-       userDetails      += `Last Modified Date: ${dateToIsoString(seApiDateToDate(userInfo?.last_modified_date)) ?? '-?-'}\n`;
-       userDetails      += `Last Access Date:   ${dateToIsoString(seApiDateToDate(userInfo?.last_access_date)) ?? '-?-'}\n`;
-       userDetails      += `Profile Location:   ${userInfo?.location ?? '-?-'}\n`;
-       userDetails      += `Website URL:        ${userInfo?.website_url ?? '-?-'}\n`;
-       userDetails      += `Avatar Image:       ${userInfo?.profile_image ?? '-?-'}\n`;
-       userDetails      += `Reputation:         ${userInfo?.reputation ?? '-?-'}\n`;
-       userDetails      += `Badges:             ${userInfo?.badge_counts?.bronze ?? '-?-'} bronze; ${userInfo?.badge_counts?.silver ?? '-?-'} silver; ${userInfo?.badge_counts?.gold ?? '-?-'} gold\n`;
-       userDetails      += `Upvote Count:       ${userInfo?.up_vote_count ?? '-?-'}\n`;
-       userDetails      += `Downvote Count:     ${userInfo?.down_vote_count ?? '-?-'}\n`;
+        userDetails += `User Type:          ${userInfo?.user_type ?? '-?-'}\n`;
+        userDetails += `Creation Date:      ${dateToIsoString(seApiDateToDate(userInfo?.creation_date)) ?? '-?-'}\n`;
+        userDetails += `Last Modified Date: ${dateToIsoString(seApiDateToDate(userInfo?.last_modified_date)) ?? '-?-'}\n`;
+        userDetails += `Last Access Date:   ${dateToIsoString(seApiDateToDate(userInfo?.last_access_date)) ?? '-?-'}\n`;
+        userDetails += `Profile Location:   ${userInfo?.location ?? '-?-'}\n`;
+        userDetails += `Website URL:        ${userInfo?.website_url ?? '-?-'}\n`;
+        userDetails += `Avatar Image:       ${userInfo?.profile_image ?? '-?-'}\n`;
+        userDetails += `Reputation:         ${userInfo?.reputation ?? '-?-'}\n`;
+        userDetails += `Badges:             ${userInfo?.badge_counts?.bronze ?? '-?-'} bronze; ${userInfo?.badge_counts?.silver ?? '-?-'} silver; ${userInfo?.badge_counts?.gold ?? '-?-'} gold\n`;
+        userDetails += `Upvote Count:       ${userInfo?.up_vote_count ?? '-?-'}\n`;
+        userDetails += `Downvote Count:     ${userInfo?.down_vote_count ?? '-?-'}\n`;
     }
-    else if (pii)
-    {
-        userDetails     += piiDetails;
+    else if (pii) {
+        userDetails += piiDetails;
     }
 
     const fullDetails = `\n${userDetails}\n${details ? `${details.trim()}\n` : ''}`;
-    const mode        = destroy ? 'destroy' : 'delete';
-    let   response;
-    try
-    {
+    const mode = destroy ? 'destroy' : 'delete';
+    let response;
+    try {
         response = await $.post({
-                                     url:                           `${location.origin}/admin/users/${uid}/${mode}`,
-                                     data:
-                                     {
-                                          'annotation':             '',
-                                          'mod-actions':            mode,
-                                          [`${mode}Reason`]:        reason,
-                                          [`${mode}ReasonDetails`]: fullDetails,
-                                          'fkey':                   fkey
-                                     }
-                                });
+            url: `${location.origin}/admin/users/${uid}/${mode}`,
+            data:
+            {
+                'annotation': '',
+                'mod-actions': mode,
+                [`${mode}Reason`]: reason,
+                [`${mode}ReasonDetails`]: fullDetails,
+                'fkey': fkey
+            }
+        });
 
         // Upon success, the returned object looks like the following:
         //     {
@@ -826,19 +790,16 @@ async function removeUser(uid, destroy, details, reason, userInfo = null, pii = 
         //     }
         // On failure, it may be an object, or it may be a string;
         // the endpoint is frustratingly inconsistent.
-        if ((typeof response === 'object') && response?.success)
-        {
+        if ((typeof response === 'object') && response?.success) {
             console.debug(`removeUser(${uid}) returned success: `, response);
             return response;
         }
-        else
-        {
+        else {
             console.error(`removeUser(${uid}) returned an error: `, response);
             throw new Error(response);
         }
     }
-    catch (e)
-    {
+    catch (e) {
         console.error(`removeUser(${uid}) failed: `, e);
         throw new Error(e);
     }
@@ -854,34 +815,32 @@ async function destroyUser(uid, details, reason, userInfo = null, pii = null) {
 
 
 async function promptToNukePostAndUser(pid, isQuestion, isDeleted, uid, uName, spammer, usercardHtml = null) {
-   if (typeof uid === 'undefined' || uid === null) { throw new Error('null or undefined uid'); return; }
+    if (typeof uid === 'undefined' || uid === null) { throw new Error('null or undefined uid'); return; }
 
-   const postType = spammer ? 'spam'    : 'trolling/abusive';
-   const userType = spammer ? 'spammer' : 'troll';
-   const nukePost = pid && !isDeleted;
-   const userInfo = (await Promise.allSettled([getUserInfoFromApi(uid)]))[0].value;
+    const postType = spammer ? 'spam' : 'trolling/abusive';
+    const userType = spammer ? 'spammer' : 'troll';
+    const nukePost = pid && !isDeleted;
+    const userInfo = (await Promise.allSettled([getUserInfoFromApi(uid)]))[0].value;
 
-   // Display the confirmation and options dialog.
-   let swalContentHtml = `<div class="group">
+    // Display the confirmation and options dialog.
+    let swalContentHtml = `<div class="group">
                             <div class="info">
                          `;
-   if (usercardHtml)
-   {
-      swalContentHtml += usercardHtml;
-   }
-   if (userInfo)
-   {
-      // To counteract information overload, only display what is not already displayed in the user-card
-      // (which is always visible on the page on the associated post, and also added inline to this dialog,
-      // if possible). Therefore, reputation and badge information is not included in this text.
-      // The user account name and ID are still displayed for double-checking purposes and for linkability
-      // (since clicking on links in the user-card under the post would dismiss the modal dialog).
-      const creationDate  = seApiDateToDate(userInfo?.creation_date);
-      const modifiedDate  = seApiDateToDate(userInfo?.last_modified_date);
-      const accessDate    = seApiDateToDate(userInfo?.last_access_date);
-      const hasOtherPosts = isQuestion ? (Number(userInfo?.question_count) > 1 || Number(userInfo?.answer_count) > 0)
-                                       : (Number(userInfo?.question_count) > 0 || Number(userInfo?.answer_count) > 1);
-      swalContentHtml    += `The <i>${userInfo.user_type}</i> user,
+    if (usercardHtml) {
+        swalContentHtml += usercardHtml;
+    }
+    if (userInfo) {
+        // To counteract information overload, only display what is not already displayed in the user-card
+        // (which is always visible on the page on the associated post, and also added inline to this dialog,
+        // if possible). Therefore, reputation and badge information is not included in this text.
+        // The user account name and ID are still displayed for double-checking purposes and for linkability
+        // (since clicking on links in the user-card under the post would dismiss the modal dialog).
+        const creationDate = seApiDateToDate(userInfo?.creation_date);
+        const modifiedDate = seApiDateToDate(userInfo?.last_modified_date);
+        const accessDate = seApiDateToDate(userInfo?.last_access_date);
+        const hasOtherPosts = isQuestion ? (Number(userInfo?.question_count) > 1 || Number(userInfo?.answer_count) > 0)
+            : (Number(userInfo?.question_count) > 0 || Number(userInfo?.answer_count) > 1);
+        swalContentHtml += `The <i>${userInfo.user_type}</i> user,
                              &quot;<a href="${userInfo.link}"><strong>${uName}</strong></a>&quot;
                              (ID&nbsp;<code>${uid}</code>${userInfo?.account_id ? `; <a href="https://stackexchange.com/users/${userInfo.account_id}?tab=accounts">network&nbsp;account</a>&nbsp;ID&nbsp;<code>${userInfo.account_id}</code>` : ''}),
                              was
@@ -892,11 +851,11 @@ async function promptToNukePostAndUser(pid, isQuestion, isDeleted, uid, uName, s
                              and
                              <a href="${userInfo.link}?tab=answers&sort=newest"><strong>${userInfo.answer_count}</strong>&nbsp;non&#8209;deleted&nbsp;answer${userInfo.answer_count !== 1 ? 's' : ''}</a>.
                             `;
-      if (hasOtherPosts > 0) {
-         swalContentHtml += `<div class="s-notice s-notice__warning" role="status">User has other non-deleted posts: be sure to check these before destroying the account!</div>`;
-      }
-   }
-   swalContentHtml       += `  </div>
+        if (hasOtherPosts > 0) {
+            swalContentHtml += `<div class="s-notice s-notice__warning" role="status">User has other non-deleted posts: be sure to check these before destroying the account!</div>`;
+        }
+    }
+    swalContentHtml += `  </div>
                              </div>
                              <div class="group">
                                <div class="header">
@@ -909,17 +868,16 @@ async function promptToNukePostAndUser(pid, isQuestion, isDeleted, uid, uName, s
                                  </label>
                                </div>
                             `;
-   if (spammer)
-   {
-      swalContentHtml    += `<div class="option">
+    if (spammer) {
+        swalContentHtml += `<div class="option">
                                <input type="checkbox" name="aipmm-noaudit-toggle" id="aipmm-noaudit-toggle" ${nukePost ? '' : 'disabled'}/>
                                <label for="aipmm-noaudit-toggle" title="Enabling this option will nuke the post as &quot;rude/abusive&quot;, thus preventing it from being automatically selected as an audit.&#13;Otherwise, if this option is not enabled, the post will be nuked as &quot;spam&quot, thus allowing it to be selected as an audit.">
                                  Prevent post from becoming a spam audit
                                </label>
                              </div>
                             `;
-   }
-   swalContentHtml       += `  <div class="option">
+    }
+    swalContentHtml += `  <div class="option">
                                  <input type="checkbox" name="aipmm-suspendonly-toggle" id="aipmm-suspendonly-toggle" />
                                  <label for="aipmm-suspendonly-toggle" title="Enabling this option will prevent the account from being destroyed. Instead, it will automatically send a message that suspends the user for the maximum duration that is permitted for moderators (365 days).&#13;This is intended to be used in situations where you'd prefer to keep the account around (e.g., for follow-up investigations or because staff has requested it).">
                                    Skip destroying user&mdash;only suspend for maximum duration of 1 year
@@ -937,174 +895,163 @@ async function promptToNukePostAndUser(pid, isQuestion, isDeleted, uid, uName, s
                              ></textarea>
                              </div>
                             `;
-   const swalContent     = document.createElement('div');
-   swalContent.innerHTML = swalContentHtml;
-   // TODO: Add option to report to Smokey before nuking, with checkbox and nested textbox, a la SIM.
-   //       (For spammer, default message to 'reported by site moderator as spam';
-   //        for troll, default message to 'reported by site moderator for training'.)
-   swalContent.querySelector('#aipmm-suspendonly-toggle').addEventListener('click', (event) =>
-   {
-      const suspendOnly = event.target.checked;
-      const modal       = event.target.closest('.swal-modal');
-      if (modal)
-      {
-         const textarea = modal.querySelector('textarea');
-         if (textarea)
-         {
-            textarea.disabled = suspendOnly;
-         }
+    const swalContent = document.createElement('div');
+    swalContent.innerHTML = swalContentHtml;
+    // TODO: Add option to report to Smokey before nuking, with checkbox and nested textbox, a la SIM.
+    //       (For spammer, default message to 'reported by site moderator as spam';
+    //        for troll, default message to 'reported by site moderator for training'.)
+    swalContent.querySelector('#aipmm-suspendonly-toggle').addEventListener('click', (event) => {
+        const suspendOnly = event.target.checked;
+        const modal = event.target.closest('.swal-modal');
+        if (modal) {
+            const textarea = modal.querySelector('textarea');
+            if (textarea) {
+                textarea.disabled = suspendOnly;
+            }
 
-         const submitBtn = modal.querySelector('.swal-button--confirm.swal-button--danger');
-         if (submitBtn)
-         {
-            let label = submitBtn.textContent;
-            if (suspendOnly)  label = label.replace('Destroy', 'Suspend');
-            else              label = label.replace('Suspend', 'Destroy');
-            submitBtn.textContent = label;
-         }
-      }
-   });
-   const confirmed = await swal({
-                                  title:               `Nuke ${nukePost ? `this post as ${postType} and ` : ''} the user "${uName}" as a ${userType}?`,
-                                  buttons:
-                                  {
-                                     confirm:
-                                     {
-                                        text:          `Destroy "${uName}" as ${userType}`,
-                                        value:         true,
-                                        visible:       true,
-                                        closeModal:    false,
-                                        className:     's-btn s-btn__filled s-btn__danger',
-                                     },
-                                     cancel:
-                                     {
-                                        text:          'Cancel',
-                                        value:         null,
-                                        visible:       true,
-                                        closeModal:    true,
-                                        className:     's-btn s-btn__muted',
-                                     }
-                                  },
-                                  dangerMode:          true,
-                                  closeOnEsc:          true,
-                                  closeOnClickOutside: true,
-                                  backdrop:            false,
-                                  content:             swalContent,
-                                });
-   let   succeeded = false;
-   if (confirmed)
-   {
-       const bowdlerize  = document.querySelector('#aipmm-bowdlerize-toggle').checked;
-       const rudeFlag    = !spammer || document.querySelector('#aipmm-noaudit-toggle').checked;
-       const suspendOnly = document.querySelector('#aipmm-suspendonly-toggle').checked;
-       const details     = document.querySelector('.swal-content textarea').value.trim();
-       if ((spammer && underSpamAttackMode) ||
-           isSuperuser                      ||
-           confirm(`Are you certain that you want to${nukePost ? ' nuke this post and ' : ' '}${suspendOnly ? 'SUSPEND' : 'DESTROY'} the account "${uName}" as a ${userType}?`))
-       {
-          // TODO: If post has already been flag-nuked as spam, but "rudeFlag" is set, change it.
-          //       (This requires undeleting the post, unlocking it, and then re-flagging it.
-          //       But, more importantly, it requires determining how the post has been flagged.)
-          //       For now, if the post has already been deleted, just don't do anything.
-          //       (The option to raise a rude flag instead will have been disabled.)
-          if (nukePost)
-          {
-              await flagPost(pid, rudeFlag);
-          }
+            const submitBtn = modal.querySelector('.swal-button--confirm.swal-button--danger');
+            if (submitBtn) {
+                let label = submitBtn.textContent;
+                if (suspendOnly) label = label.replace('Destroy', 'Suspend');
+                else label = label.replace('Suspend', 'Destroy');
+                submitBtn.textContent = label;
+            }
+        }
+    });
+    const confirmed = await swal({
+        title: `Nuke ${nukePost ? `this post as ${postType} and ` : ''} the user "${uName}" as a ${userType}?`,
+        buttons:
+        {
+            confirm:
+            {
+                text: `Destroy "${uName}" as ${userType}`,
+                value: true,
+                visible: true,
+                closeModal: false,
+                className: 's-btn s-btn__filled s-btn__danger',
+            },
+            cancel:
+            {
+                text: 'Cancel',
+                value: null,
+                visible: true,
+                closeModal: true,
+                className: 's-btn s-btn__muted',
+            }
+        },
+        dangerMode: true,
+        closeOnEsc: true,
+        closeOnClickOutside: true,
+        backdrop: false,
+        content: swalContent,
+    });
+    let succeeded = false;
+    if (confirmed) {
+        const bowdlerize = document.querySelector('#aipmm-bowdlerize-toggle').checked;
+        const rudeFlag = !spammer || document.querySelector('#aipmm-noaudit-toggle').checked;
+        const suspendOnly = document.querySelector('#aipmm-suspendonly-toggle').checked;
+        const details = document.querySelector('.swal-content textarea').value.trim();
+        if ((spammer && underSpamAttackMode) ||
+            isSuperuser ||
+            confirm(`Are you certain that you want to${nukePost ? ' nuke this post and ' : ' '}${suspendOnly ? 'SUSPEND' : 'DESTROY'} the account "${uName}" as a ${userType}?`)) {
+            // TODO: If post has already been flag-nuked as spam, but "rudeFlag" is set, change it.
+            //       (This requires undeleting the post, unlocking it, and then re-flagging it.
+            //       But, more importantly, it requires determining how the post has been flagged.)
+            //       For now, if the post has already been deleted, just don't do anything.
+            //       (The option to raise a rude flag instead will have been disabled.)
+            if (nukePost) {
+                await flagPost(pid, rudeFlag);
+            }
 
-          // If we are to suspend the user, then do so first. This ensures that their *current*
-          // name appears in the mod message, not what it gets reset to after bowdlerization.
-          // Note that we no longer send a suspension before destroying the account. This is because:
-          // (1) a recent system change makes it obsolete (accounts destroyed for the reason we use
-          // are blocked for 365 days, instead of 14 days), and (2) doing so without the workaround
-          // to prevent the message from showing up in the global mod inbox (padding the message name
-          // out with spaces to make it extremely long), which is virtually necessary to keep the
-          // mod inbox usable on Stack Overflow, generates exceptions, causing staff to request that
-          // we stop using it. Sending the suspension first does marginally improve the UX for users
-          // who recreate the account (which is stupidly easy to do), in that the reason why their
-          // old account was destroyed appears in their inbox (although they cannot actually view it,
-          // only see the preview), but (1) it is not all that important to improve the UX for users
-          // whose account has been destroyed, (2) this is not a big enough improvement to justify
-          // irritating staff/devs, and (3) if this is actually desirable (which it probably is), it
-          // should simply be implemented at the system level when any account that has been destroyed
-          // or deleted for the reasons that automatically suspend upon re-creation is re-created.
-          if (suspendOnly)
-          {
-             await modMessageUser(uid,
-                                  'Account disabled for spamming and/or abusive behavior. You\'re no longer welcome to participate here.',
-                                  false,  // do not email (show message on-site only)
-                                  365,    // suspend for 365 days (maximum duration)
-                                  `suspend ${userType}`,
-                                  spammer ? 'for promotional content' : 'no longer welcome');
-          }
+            // If we are to suspend the user, then do so first. This ensures that their *current*
+            // name appears in the mod message, not what it gets reset to after bowdlerization.
+            // Note that we no longer send a suspension before destroying the account. This is because:
+            // (1) a recent system change makes it obsolete (accounts destroyed for the reason we use
+            // are blocked for 365 days, instead of 14 days), and (2) doing so without the workaround
+            // to prevent the message from showing up in the global mod inbox (padding the message name
+            // out with spaces to make it extremely long), which is virtually necessary to keep the
+            // mod inbox usable on Stack Overflow, generates exceptions, causing staff to request that
+            // we stop using it. Sending the suspension first does marginally improve the UX for users
+            // who recreate the account (which is stupidly easy to do), in that the reason why their
+            // old account was destroyed appears in their inbox (although they cannot actually view it,
+            // only see the preview), but (1) it is not all that important to improve the UX for users
+            // whose account has been destroyed, (2) this is not a big enough improvement to justify
+            // irritating staff/devs, and (3) if this is actually desirable (which it probably is), it
+            // should simply be implemented at the system level when any account that has been destroyed
+            // or deleted for the reasons that automatically suspend upon re-creation is re-created.
+            if (suspendOnly) {
+                await modMessageUser(uid,
+                    'Account disabled for spamming and/or abusive behavior. You\'re no longer welcome to participate here.',
+                    false,  // do not email (show message on-site only)
+                    365,    // suspend for 365 days (maximum duration)
+                    `suspend ${userType}`,
+                    spammer ? 'for promotional content' : 'no longer welcome');
+            }
 
-          // Before bowdlerizing, which will reset some of the PII fields, retrieve the current PII
-          // so that it can be recorded in the deletion record (this info is inaccessible or perhaps
-          // removed entirely for deleted/destroyed accounts, so this step is critical to preserve
-          // the information for later investigations, if necessary). Of course, we don't want to
-          // retrieve PII unnecessary, not only for information-privacy reasons, but also for speed
-          // and rate-limiting concerns. Therefore, we only retrieve the PII if we are actually
-          // going to destroy the account (i.e., if we are not only suspending).
-          const pii = !suspendOnly ? await getUserPii(uid) : null;
-          if (bowdlerize)
-          {
-             await resetUserProfile(uid);
-          }
+            // Before bowdlerizing, which will reset some of the PII fields, retrieve the current PII
+            // so that it can be recorded in the deletion record (this info is inaccessible or perhaps
+            // removed entirely for deleted/destroyed accounts, so this step is critical to preserve
+            // the information for later investigations, if necessary). Of course, we don't want to
+            // retrieve PII unnecessary, not only for information-privacy reasons, but also for speed
+            // and rate-limiting concerns. Therefore, we only retrieve the PII if we are actually
+            // going to destroy the account (i.e., if we are not only suspending).
+            const pii = !suspendOnly ? await getUserPii(uid) : null;
+            if (bowdlerize) {
+                await resetUserProfile(uid);
+            }
 
-          // If we are to destroy the user, then do so now, after everything else has been done.
-          // Pass in the user information and PII that we cached in order for it to be recorded.
-          if (!suspendOnly)
-          {
-             await destroyUser(uid,
-                               details,
-                               'This user was created to post spam or nonsense and has no other positive participation',
-                               userInfo,
-                               pii);
-          }
+            // If we are to destroy the user, then do so now, after everything else has been done.
+            // Pass in the user information and PII that we cached in order for it to be recorded.
+            if (!suspendOnly) {
+                await destroyUser(uid,
+                    details,
+                    'This user was created to post spam or nonsense and has no other positive participation',
+                    userInfo,
+                    pii);
+            }
 
-          // If the account was bowdlerized and/or destroyed, show the user profile page
-          // in a new pop-up window. (Exception: don't do it when destroying a spammer's
-          // account when the site is under a spam attack, or ever for superusers.)
-          if ((bowdlerize || !suspendOnly) && (!underSpamAttackMode || !spammer) && !isSuperuser)
-          {
-             window.open(`${location.origin}/users/${uid}`,
-                         '_blank',
-                         'popup=true');
-          }
+            // If the account was bowdlerized and/or destroyed, show the user profile page
+            // in a new pop-up window. (Exception: don't do it when destroying a spammer's
+            // account when the site is under a spam attack, or ever for superusers.)
+            if ((bowdlerize || !suspendOnly) && (!underSpamAttackMode || !spammer) && !isSuperuser) {
+                window.open(`${location.origin}/users/${uid}`,
+                    '_blank',
+                    'popup=true');
+            }
 
-          succeeded = true;
-       }
-   }
-   swal.stopLoading();
-   swal.close();
-   return succeeded;
+            succeeded = true;
+        }
+    }
+    swal.stopLoading();
+    swal.close();
+    return succeeded;
 }
 
 
 function addPostModMenuLinks() {
     // If it doesn't exist yet, append the menu of mod quicklinks to each post
     $('.js-post-menu').not('.preview-options').not('.js-init-better-inline-menu').addClass('js-init-better-inline-menu').each(function () {
-        const $this        = $(this);
-        const post         = $this.closest('.question, .answer');
-        const postScore    = Number(post.find('.js-vote-count').text());
-        const postStatus   = post.find('.js-post-notice, .special-status, .question-status').text().toLowerCase();
-        const isQuestion   = post.hasClass('question');
-        const isDeleted    = post.hasClass('deleted-answer');
+        const $this = $(this);
+        const post = $this.closest('.question, .answer');
+        const postScore = Number(post.find('.js-vote-count').text());
+        const postStatus = post.find('.js-post-notice, .special-status, .question-status').text().toLowerCase();
+        const isQuestion = post.hasClass('question');
+        const isDeleted = post.hasClass('deleted-answer');
         const isModDeleted = post.find('.deleted-answer-info').text().includes('?') || (postStatus.includes('deleted') && postStatus.includes('?'));
-        const isClosed     = postStatus.includes('closed') || postStatus.includes('on hold') || postStatus.includes('duplicate') || postStatus.includes('already has');
-        const isProtected  = post.find('.js-post-notice b').text().includes('Highly active question');
-        const isMigrated   = postStatus.includes('migrated to');
-        const isLocked     = isMigrated || postStatus.includes('locked');
-        const isOldDupe    = isQuestion && post.find('.js-post-body blockquote').first().find('strong').text().includes('Possible Duplicate');
-        const needsRedupe  = postStatus.match(/This question already has( an)? answers? here:(\s|\n|\r)+Closed/i) != null;
-        const hasComments  = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
-        const pid          = post.attr('data-questionid') || post.attr('data-answerid');
-        const userbox      = post.find('.post-layout .user-info:last .user-action-time').filter((i, el) => el.innerText.includes('answered') || el.innerText.includes('asked')).parent();
-        const userlink     = userbox.find('a').attr('href');
-        const userrep      = userbox.find('.reputation-score').text();
-        const username     = userbox.find('.user-details a').first().text();
-        const postdate     = userbox.find('.relativetime').attr('title');
-        const postage      = (Date.now() - new Date(postdate)) / 86400000;
+        const isClosed = postStatus.includes('closed') || postStatus.includes('on hold') || postStatus.includes('duplicate') || postStatus.includes('already has');
+        const isProtected = post.find('.js-post-notice b').text().includes('Highly active question');
+        const isMigrated = postStatus.includes('migrated to');
+        const isLocked = isMigrated || postStatus.includes('locked');
+        const isOldDupe = isQuestion && post.find('.js-post-body blockquote').first().find('strong').text().includes('Possible Duplicate');
+        const needsRedupe = postStatus.match(/This question already has( an)? answers? here:(\s|\n|\r)+Closed/i) != null;
+        const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
+        const pid = post.attr('data-questionid') || post.attr('data-answerid');
+        const userbox = post.find('.post-layout .user-info:last .user-action-time').filter((i, el) => el.innerText.includes('answered') || el.innerText.includes('asked')).parent();
+        const userlink = userbox.find('a').attr('href');
+        const userrep = userbox.find('.reputation-score').text();
+        const username = userbox.find('.user-details a').first().text();
+        const postdate = userbox.find('.relativetime').attr('title');
+        const postage = (Date.now() - new Date(postdate)) / 86400000;
 
         // .js-post-menu is also found on the post revisions page, but we don't want to touch that
         if (typeof pid === 'undefined') return;
@@ -1123,57 +1070,57 @@ function addPostModMenuLinks() {
         if (isQuestion) {
             const protectVerb = !isProtected ? 'protect' : 'unprotect';
             menuitems += makeItem(protectVerb,
-                                  protectVerb,
-                                  isDeleted ? 'question is deleted!' : '',
-                                  !isDeleted);
+                protectVerb,
+                isDeleted ? 'question is deleted!' : '',
+                !isDeleted);
             if (isSO) {
                 menuitems += makeItem('close-offtopic',
-                                      'close',
-                                      'close with default off-topic reason',
-                                      !isClosed && !isDeleted);
+                    'close',
+                    'close with default off-topic reason',
+                    !isClosed && !isDeleted);
             }
             if (isSOMeta) {
                 menuitems += makeItem('close-meta',
-                                      'close+delete',
-                                      'close and delete as not a Meta question',
-                                      !isDeleted);
+                    'close+delete',
+                    'close and delete as not a Meta question',
+                    !isDeleted);
             }
         }
         menuitems += makeItem('mod-delete',
-                              !isDeleted ? 'delete' : 'redelete',
-                              '(re-)delete post as moderator to prevent undeletion');
+            !isDeleted ? 'delete' : 'redelete',
+            '(re-)delete post as moderator to prevent undeletion');
 
         if (!isQuestion) {
             menuitems += makeLabel('convert');
             menuitems += makeItem('convert-comment',
-                                  'to-comment',
-                                  'convert this answer to a comment on the question');
+                'to-comment',
+                'convert this answer to a comment on the question');
             menuitems += makeItem('convert-edit',
-                                  'to-edit',
-                                  'append this answer as an edit to the question');
+                'to-edit',
+                'append this answer as an edit to the question');
         }
 
         menuitems += makeLabel('lock');
         if (!isLocked) {
             menuitems += makeItem('lock-dispute',
-                                  'dispute&hellip;',
-                                  'prompt for number of days to apply a content-dispute lock');
+                'dispute&hellip;',
+                'prompt for number of days to apply a content-dispute lock');
             menuitems += makeItem('lock-comments',
-                                  'cmnts&hellip;',
-                                  'prompt for number of days to apply a comment lock');
+                'cmnts&hellip;',
+                'prompt for number of days to apply a comment lock');
             menuitems += makeItem('lock-wiki',
-                                  'wiki&hellip;',
-                                  'prompt for confirmation to apply a permanent wiki lock');
+                'wiki&hellip;',
+                'prompt for confirmation to apply a permanent wiki lock');
             if (isMeta) {
                 menuitems += makeItem('lock-obsolete',
-                                      'obsolete&hellip;',
-                                      'prompt for confirmation to apply a permanent obsolete lock');
+                    'obsolete&hellip;',
+                    'prompt for confirmation to apply a permanent obsolete lock');
             }
             if (isQuestion) {  // old, good questions only
                 menuitems += makeItem('lock-historical',
-                                      'hist&hellip;',
-                                      'prompt for confirmation to apply a permanent historical lock',
-                                      (postage >= 60 && postScore >= 20) || isSuperuser);
+                    'hist&hellip;',
+                    'prompt for confirmation to apply a permanent historical lock',
+                    (postage >= 60 && postScore >= 20) || isSuperuser);
             }
         }
         else {
@@ -1182,9 +1129,9 @@ function addPostModMenuLinks() {
 
         // Add user-related links only if there is a user and this is not a Meta site
         if (!isMeta && userlink && /.*\/\d+\/.*/.test(userlink)) {
-            const uid          = Number(userlink.match(/\/\d+\//)[0].replace(/\D+/g, ''));
+            const uid = Number(userlink.match(/\/\d+\//)[0].replace(/\D+/g, ''));
             const allowDestroy = (postage < 60 || isSuperuser) &&
-                                 (/^\d+$/.test(userrep) && Number(userrep) < 500);
+                (/^\d+$/.test(userrep) && Number(userrep) < 500);
             menuitems += makeLabel('user');
             menuitems += makeItem('nuke-spammer', 'spammer&hellip;', 'prompt for options and confirmation to nuke post and user as a spammer (promotional content)', allowDestroy, true, `data-uid="${uid}" data-username="${username}"`);
             menuitems += makeItem('nuke-troll', 'troll&hellip;', 'prompt for options and confirmation to nuke post and user as a troll (generic)', allowDestroy, true, `data-uid="${uid}" data-username="${username}"`);
@@ -1204,21 +1151,21 @@ function initPostModMenuLinks() {
         if ($this.hasClass('disabled') || $this.hasClass('dno')) return false;
 
         // Get question link if in mod queue
-        const qlink      = $this.closest('.js-flagged-post').find('.js-body-loader a').first().attr('href');
+        const qlink = $this.closest('.js-flagged-post').find('.js-body-loader a').first().attr('href');
         const reviewlink = $('.question-hyperlink').attr('href');
 
         const menuEl = this.parentNode;
-        const pid    = Number(menuEl.dataset.postId || menuEl.dataset.pid);
-        const qid    = Number($('#question').attr('data-questionid') || getPostId(qlink) || getPostId(reviewlink)) || null;
-        const uid    = Number(this.dataset.uid);
-        const uName  = this.dataset.username;
+        const pid = Number(menuEl.dataset.postId || menuEl.dataset.pid);
+        const qid = Number($('#question').attr('data-questionid') || getPostId(qlink) || getPostId(reviewlink)) || null;
+        const uid = Number(this.dataset.uid);
+        const uName = this.dataset.username;
         //console.log(pid, qid);
         if (isNaN(pid) || isNaN(qid)) return false;
 
-        const post       = $this.closest('.answer, .question');
+        const post = $this.closest('.answer, .question');
         const isQuestion = post.hasClass('question');
-        const isDeleted  = post.hasClass('deleted-answer');
-        const action     = this.dataset.action;
+        const isDeleted = post.hasClass('deleted-answer');
+        const action = this.dataset.action;
         //console.log(action);
 
         function removePostFromModQueue() {
@@ -1297,13 +1244,13 @@ function initPostModMenuLinks() {
             case 'nuke-spammer':
             case 'nuke-troll':
                 promptToNukePostAndUser(pid,
-                                        isQuestion,
-                                        isDeleted,
-                                        uid,
-                                        uName,
-                                        action === 'nuke-spammer',
-                                        post.find('.post-signature:last .user-info')[0]?.outerHTML
-                                       ).then(function (result) {
+                    isQuestion,
+                    isDeleted,
+                    uid,
+                    uName,
+                    action === 'nuke-spammer',
+                    post.find('.post-signature:last .user-info')[0]?.outerHTML
+                ).then(function (result) {
                     if (result) {
                         //removePostFromModQueue();
                         //reloadPage();
@@ -1313,9 +1260,9 @@ function initPostModMenuLinks() {
             case 'no-longer-welcome':
                 if (confirm(`Are you sure you want to DELETE THE USER "${uName}" as "no longer welcome"?\n\n(Note that this post will not be affected, unless it is negatively-scored, in which case it will be implicitly deleted along with the user account.)`)) {
                     deleteUser(uid,
-                               '',
-                               'This user is no longer welcome to participate on the site'
-                              ).then(function () {
+                        '',
+                        'This user is no longer welcome to participate on the site'
+                    ).then(function () {
                         reloadPage();
                     });
                 }
@@ -1337,9 +1284,9 @@ function addPostCommentsModLinks() {
 
     // Init those that are not processed yet
     allCommentMenus.not('.js-comments-menu-init').addClass('js-comments-menu-init').each(function () {
-        const $this         = $(this);
-        const post          = $this.closest('.answer, .question');
-        const pid           = Number(post.attr('data-answerid') || post.attr('data-questionid')) || null;
+        const $this = $(this);
+        const post = $this.closest('.answer, .question');
+        const pid = Number(post.attr('data-answerid') || post.attr('data-questionid')) || null;
         this.dataset.postId = pid;
 
         // If there are deleted comments, move from sidebar to bottom
@@ -1371,7 +1318,7 @@ function addPostCommentsModLinks() {
 
     // Show move/purge links depending on comments
     allCommentMenus.each(function () {
-        const $this       = $(this);
+        const $this = $(this);
         const hasComments = $this.prev().find('.comment').length > 0;
         $this.find('.mod-action-links').toggle(hasComments);
     });
@@ -1383,7 +1330,7 @@ function initPostCommentsModLinks() {
     d.on('click', 'a.js-show-deleted-comments-link', function (e) {
         e.preventDefault();
         const $this = $(this);
-        const post  = $this.closest('.answer, .question');
+        const post = $this.closest('.answer, .question');
         post.find('.js-fetch-deleted-comments').click();
         $this.prev('.js-link-separator2').addBack().remove();
     });
@@ -1391,8 +1338,8 @@ function initPostCommentsModLinks() {
     d.on('click', 'a.js-move-comments-link', function (e) {
         e.preventDefault();
         const $this = $(this);
-        const post  = this.closest('.answer, .question');
-        const pid   = Number(this.dataset.postId) || null;
+        const post = this.closest('.answer, .question');
+        const pid = Number(this.dataset.postId) || null;
         $this.remove();
         moveCommentsOnPostToChat(pid);
     });
@@ -1400,8 +1347,8 @@ function initPostCommentsModLinks() {
     d.on('click', 'a.js-purge-comments-link', function (e) {
         e.preventDefault();
         const $this = $(this);
-        const post  = $this.closest('.answer, .question');
-        const pid   = Number(this.dataset.postId) || null;
+        const post = $this.closest('.answer, .question');
+        const pid = Number(this.dataset.postId) || null;
         deleteCommentsOnPost(pid);
     });
 }
@@ -1426,12 +1373,12 @@ function doPageLoad() {
     else {
         // Election page - allow loading of deleted comments under nominations
         $('#mainbar').find('.candidate-row').each(function () {
-            const $this     = $(this);
-            const pid       = this.id.match(/\d+$/)[0];
-            const cmmts     = $this.find('.js-comments-container');
+            const $this = $(this);
+            const pid = this.id.match(/\d+$/)[0];
+            const cmmts = $this.find('.js-comments-container');
             const cmmtlinks = $this.find('[id^="comments-link-"]');
-            const builtin   = $this.find('.js-fetch-deleted-comments');
-            const count     = builtin.text();
+            const builtin = $this.find('.js-fetch-deleted-comments');
+            const count = builtin.text();
             cmmtlinks.append(`<span class="js-link-separator">&nbsp;|&nbsp;</span>
                               <a class="js-show-link comments-link s-link__danger js-load-deleted-nomination-comments-link"
                                  data-pid="${pid}"
@@ -1442,8 +1389,8 @@ function doPageLoad() {
         });
 
         $('.js-load-deleted-nomination-comments-link').on('click', function () {
-            const pid         = this.dataset.pid;
-            const elems       = $(this).prevAll('.comments-link, .js-link-separator').addBack().not('.js-add-link');
+            const pid = this.dataset.pid;
+            const elems = $(this).prevAll('.comments-link, .js-link-separator').addBack().not('.js-add-link');
             const commentsUrl = `/posts/${pid}/comments?includeDeleted=true&_=${Date.now()}`;
             $('#comments-' + pid).show().children('ul.comments-list').load(commentsUrl, function () {
                 //elems.remove();
@@ -1454,9 +1401,9 @@ function doPageLoad() {
 
 
 function appendStyles() {
-   const styles = document.createElement('style');
-   styles.setAttribute('data-somu', GM_info?.script.name);
-   styles.innerHTML = `
+    const styles = document.createElement('style');
+    styles.setAttribute('data-somu', GM_info?.script.name);
+    styles.innerHTML = `
 /* Better post menu links */
 .js-post-menu .s-anchors > .flex--item {
     text-transform: lowercase;
@@ -1672,7 +1619,7 @@ body.theme-system .theme-dark__forced .swal-modal {
     background-color: var(--red-500);  /* Stacks' .bg-danger */
 }
 `;
-   document.body.appendChild(styles);
+    document.body.appendChild(styles);
 }
 
 
