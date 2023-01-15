@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.6
+// @version      3.7
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.superuser.com/*
@@ -225,7 +225,7 @@ In case there's been a misunderstanding about what your username means, you can 
 `,
     },
     {
-        templateName: "ChatGPT while it's banned; plagiarism/refs (AI); AI content w/o regard to accuracy",
+        templateName: "ChatGPT banned; plagiarism (AI); inaccurate AI content",
         suspensionReason: "for rule violations",
         suspensionDefaultDays: 7,
         templateBody: `**Use of ChatGPT for content while its use is banned:**  \nThe use of ChatGPT as a source for content on Stack Overflow is currently banned. Please see the Meta Stack Overflow question "[Temporary policy: ChatGPT is banned](https://meta.stackoverflow.com/q/421831)". It is not permitted for you to use ChatGPT to create content on Stack Overflow during this ban.
