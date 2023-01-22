@@ -4,7 +4,7 @@
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
 // @author       Cody Gray
-// @version      3.0.1
+// @version      3.0.2
 //
 // @match        *://*.stackoverflow.com/*
 // @match        *://*.stackexchange.com/*
@@ -94,6 +94,16 @@ function reloadWhenDone() {
     });
 }
 
+async function reloadPost(pid) {
+    if (pid && StackExchange?.realtime?.reloadPosts) {
+        const result = await StackExchange.realtime.reloadPosts(pid);
+        if (result) {
+            return true;
+        }
+    }
+   return reloadPage();
+}
+
 /*
  * Date helper functions
  */
@@ -161,7 +171,7 @@ function addComment(pid, commentText) {
 // Close individual post
 // closeReasonId: 'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
 // if closeReasonId is 'SiteSpecific', offtopicReasonId : 11-norepro, 13-nomcve, 16-toolrec, 3-custom
-function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', offtopicReasonId = 3, offTopicOtherText = 'I?m voting to close this question because ', duplicateOfQuestionId = null) {
+function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', offtopicReasonId = 3, offTopicOtherText = 'I\u2019m voting to close this question because ', duplicateOfQuestionId = null) {
 
     // OffTopic has been replaced with SiteSpecific
     if (closeReasonId === 'OffTopic') closeReasonId = 'SiteSpecific';
@@ -186,7 +196,7 @@ function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', offtopicRe
                 'siteSpecificCloseReasonId': offtopicReasonId,
                 'siteSpecificOtherText': offtopicReasonId == 3 && isSO ? 'This question does not appear to be about programming within the scope defined in the [help]' : offTopicOtherText,
                 //'offTopicOtherCommentId': '',
-                'originalSiteSpecificOtherText': 'I?m voting to close this question because ',
+                'originalSiteSpecificOtherText': 'I\u2019m voting to close this question because ',
             }
         })
             .done(resolve)
@@ -698,9 +708,28 @@ function modMessageUser(uid,
         })
         .done(function (response) {
             // Upon success, this returns a string of HTML for the message page.
-            // TODO: What does it return when an error occurs?
-            console.debug(`modMessageUser(${uid}) succeeded: `, response);
-            resolve(response);
+            // On failure, it is a string containing an error message.
+            // Unfortunately, this means there is no truly reliable way of detecting
+            // whether the action has succeeded, but we can get close by looking to
+            // see if the response string starts with "<html", since an error message
+            // should not. In addition, known possible response strings are checked
+            // explicitly at the beginning, both to improve the accuracy of detection
+            // and to allow better error-handling to be implemented in the future.
+            const responseTrimmed = response.trim();
+            if (responseTrimmed.trim() === 'A more recent message has been posted about this user; please review this and retry if appropriate') {
+                console.error(`modMessageUser(${uid}) returned an error: `, response);
+                reject(response);
+            }
+            else {
+                if (responseTrimmed.startsWith('<html')) {
+                    console.debug(`modMessageUser(${uid}) succeeded: `, response);
+                    resolve(response);
+                }
+                else {
+                    console.error(`modMessageUser(${uid}) returned an error: `, response);
+                    reject(response);
+                }
+            }
         })
         .fail(function (response) {
             console.error(`modMessageUser(${uid}) failed: `, response);
@@ -918,113 +947,120 @@ async function promptToNukePostAndUser(pid, isQuestion, isDeleted, uid, uName, s
             }
         }
     });
-    const confirmed = await swal({
-        title: `Nuke ${nukePost ? `this post as ${postType} and ` : ''} the user "${uName}" as a ${userType}?`,
-        buttons:
-        {
-            confirm:
+    let needsRefresh = false;
+    try {
+        const confirmed = await swal({
+            title: `Nuke ${nukePost ? `this post as ${postType} and ` : ''} the user "${uName}" as a ${userType}?`,
+            buttons:
             {
-                text: `Destroy "${uName}" as ${userType}`,
-                value: true,
-                visible: true,
-                closeModal: false,
-                className: 's-btn s-btn__filled s-btn__danger',
+                confirm:
+                {
+                    text: `Destroy "${uName}" as ${userType}`,
+                    value: true,
+                    visible: true,
+                    closeModal: false,
+                    className: 's-btn s-btn__filled s-btn__danger',
+                },
+                cancel:
+                {
+                    text: 'Cancel',
+                    value: null,
+                    visible: true,
+                    closeModal: true,
+                    className: 's-btn s-btn__muted',
+                }
             },
-            cancel:
-            {
-                text: 'Cancel',
-                value: null,
-                visible: true,
-                closeModal: true,
-                className: 's-btn s-btn__muted',
-            }
-        },
-        dangerMode: true,
-        closeOnEsc: true,
-        closeOnClickOutside: true,
-        backdrop: false,
-        content: swalContent,
-    });
-    let succeeded = false;
-    if (confirmed) {
-        const bowdlerize = document.querySelector('#aipmm-bowdlerize-toggle').checked;
-        const rudeFlag = !spammer || document.querySelector('#aipmm-noaudit-toggle').checked;
-        const suspendOnly = document.querySelector('#aipmm-suspendonly-toggle').checked;
-        const details = document.querySelector('.swal-content textarea').value.trim();
-        if ((spammer && underSpamAttackMode) ||
-            isSuperuser ||
-            confirm(`Are you certain that you want to${nukePost ? ' nuke this post and ' : ' '}${suspendOnly ? 'SUSPEND' : 'DESTROY'} the account "${uName}" as a ${userType}?`)) {
-            // TODO: If post has already been flag-nuked as spam, but "rudeFlag" is set, change it.
-            //       (This requires undeleting the post, unlocking it, and then re-flagging it.
-            //       But, more importantly, it requires determining how the post has been flagged.)
-            //       For now, if the post has already been deleted, just don't do anything.
-            //       (The option to raise a rude flag instead will have been disabled.)
-            if (nukePost) {
-                await flagPost(pid, rudeFlag);
-            }
+            dangerMode: true,
+            closeOnEsc: true,
+            closeOnClickOutside: true,
+            backdrop: false,
+            content: swalContent,
+        });
+        if (confirmed) {
+            const bowdlerize = document.querySelector('#aipmm-bowdlerize-toggle').checked;
+            const rudeFlag = !spammer || document.querySelector('#aipmm-noaudit-toggle').checked;
+            const suspendOnly = document.querySelector('#aipmm-suspendonly-toggle').checked;
+            const details = document.querySelector('.swal-content textarea').value.trim();
+            if ((spammer && underSpamAttackMode) ||
+                isSuperuser ||
+                confirm(`Are you certain that you want to${nukePost ? ' nuke this post and ' : ' '}${suspendOnly ? 'SUSPEND' : 'DESTROY'} the account "${uName}" as a ${userType}?`)) {
+                // TODO: If post has already been flag-nuked as spam, but "rudeFlag" is set, change it.
+                //       (This requires undeleting the post, unlocking it, and then re-flagging it.
+                //       But, more importantly, it requires determining how the post has been flagged.)
+                //       For now, if the post has already been deleted, just don't do anything.
+                //       (The option to raise a rude flag instead will have been disabled.)
+                if (nukePost) {
+                    await flagPost(pid, rudeFlag);
+                    needsRefresh = true;
+                }
 
-            // If we are to suspend the user, then do so first. This ensures that their *current*
-            // name appears in the mod message, not what it gets reset to after bowdlerization.
-            // Note that we no longer send a suspension before destroying the account. This is because:
-            // (1) a recent system change makes it obsolete (accounts destroyed for the reason we use
-            // are blocked for 365 days, instead of 14 days), and (2) doing so without the workaround
-            // to prevent the message from showing up in the global mod inbox (padding the message name
-            // out with spaces to make it extremely long), which is virtually necessary to keep the
-            // mod inbox usable on Stack Overflow, generates exceptions, causing staff to request that
-            // we stop using it. Sending the suspension first does marginally improve the UX for users
-            // who recreate the account (which is stupidly easy to do), in that the reason why their
-            // old account was destroyed appears in their inbox (although they cannot actually view it,
-            // only see the preview), but (1) it is not all that important to improve the UX for users
-            // whose account has been destroyed, (2) this is not a big enough improvement to justify
-            // irritating staff/devs, and (3) if this is actually desirable (which it probably is), it
-            // should simply be implemented at the system level when any account that has been destroyed
-            // or deleted for the reasons that automatically suspend upon re-creation is re-created.
-            if (suspendOnly) {
-                await modMessageUser(uid,
-                    'Account disabled for spamming and/or abusive behavior. You\'re no longer welcome to participate here.',
-                    false,  // do not email (show message on-site only)
-                    365,    // suspend for 365 days (maximum duration)
-                    `suspend ${userType}`,
-                    spammer ? 'for promotional content' : 'no longer welcome');
-            }
+                // If we are to suspend the user, then do so first. This ensures that their *current*
+                // name appears in the mod message, not what it gets reset to after bowdlerization.
+                // Note that we no longer send a suspension before destroying the account. This is because:
+                // (1) a recent system change makes it obsolete (accounts destroyed for the reason we use
+                // are blocked for 365 days, instead of 14 days), and (2) doing so without the workaround
+                // to prevent the message from showing up in the global mod inbox (padding the message name
+                // out with spaces to make it extremely long), which is virtually necessary to keep the
+                // mod inbox usable on Stack Overflow, generates exceptions, causing staff to request that
+                // we stop using it. Sending the suspension first does marginally improve the UX for users
+                // who recreate the account (which is stupidly easy to do), in that the reason why their
+                // old account was destroyed appears in their inbox (although they cannot actually view it,
+                // only see the preview), but (1) it is not all that important to improve the UX for users
+                // whose account has been destroyed, (2) this is not a big enough improvement to justify
+                // irritating staff/devs, and (3) if this is actually desirable (which it probably is), it
+                // should simply be implemented at the system level when any account that has been destroyed
+                // or deleted for the reasons that automatically suspend upon re-creation is re-created.
+                if (suspendOnly) {
+                    await modMessageUser(uid,
+                        'Account disabled for spamming and/or abusive behavior. You\'re no longer welcome to participate here.',
+                        false,  // do not email (show message on-site only)
+                        365,    // suspend for 365 days (maximum duration)
+                        `suspend ${userType}`,
+                        spammer ? 'for promotional content' : 'no longer welcome');
+                    needsRefresh = true;
+                }
 
-            // Before bowdlerizing, which will reset some of the PII fields, retrieve the current PII
-            // so that it can be recorded in the deletion record (this info is inaccessible or perhaps
-            // removed entirely for deleted/destroyed accounts, so this step is critical to preserve
-            // the information for later investigations, if necessary). Of course, we don't want to
-            // retrieve PII unnecessary, not only for information-privacy reasons, but also for speed
-            // and rate-limiting concerns. Therefore, we only retrieve the PII if we are actually
-            // going to destroy the account (i.e., if we are not only suspending).
-            const pii = !suspendOnly ? await getUserPii(uid) : null;
-            if (bowdlerize) {
-                await resetUserProfile(uid);
-            }
+                // Before bowdlerizing, which will reset some of the PII fields, retrieve the current PII
+                // so that it can be recorded in the deletion record (this info is inaccessible or perhaps
+                // removed entirely for deleted/destroyed accounts, so this step is critical to preserve
+                // the information for later investigations, if necessary). Of course, we don't want to
+                // retrieve PII unnecessary, not only for information-privacy reasons, but also for speed
+                // and rate-limiting concerns. Therefore, we only retrieve the PII if we are actually
+                // going to destroy the account (i.e., if we are not only suspending).
+                const pii = !suspendOnly ? await getUserPii(uid) : null;
+                if (bowdlerize) {
+                    await resetUserProfile(uid);
+                    needsRefresh = true;
+                }
 
-            // If we are to destroy the user, then do so now, after everything else has been done.
-            // Pass in the user information and PII that we cached in order for it to be recorded.
-            if (!suspendOnly) {
-                await destroyUser(uid,
-                    details,
-                    'This user was created to post spam or nonsense and has no other positive participation',
-                    userInfo,
-                    pii);
-            }
+                // If we are to destroy the user, then do so now, after everything else has been done.
+                // Pass in the user information and PII that we cached in order for it to be recorded.
+                if (!suspendOnly) {
+                    await destroyUser(uid,
+                        details,
+                        'This user was created to post spam or nonsense and has no other positive participation',
+                        userInfo,
+                        pii);
+                    needsRefresh = true;
+                }
 
-            // If the account was bowdlerized and/or destroyed, show the user profile page
-            // in a new pop-up window. (Exception: don't do it when destroying a spammer's
-            // account when the site is under a spam attack, or ever for superusers.)
-            if ((bowdlerize || !suspendOnly) && (!underSpamAttackMode || !spammer) && !isSuperuser) {
-                window.open(`${location.origin}/users/${uid}`,
-                    '_blank',
-                    'popup=true');
+                // If the account was bowdlerized and/or destroyed, show the user profile page
+                // in a new pop-up window. (Exception: don't do it when destroying a spammer's
+                // account when the site is under a spam attack, or ever for superusers.)
+                if ((bowdlerize || !suspendOnly) && (!underSpamAttackMode || !spammer) && !isSuperuser) {
+                    window.open(`${location.origin}/users/${uid}`,
+                        '_blank',
+                        'popup=true');
+                }
             }
-
-            succeeded = true;
         }
+    }
+    catch (e) {
+        alert('An error occurred; please see the console for details on exactly what failed.');
     }
     swal.stopLoading();
     swal.close();
-    return succeeded;
+    return needsRefresh;
 }
 
 
@@ -1037,7 +1073,7 @@ function addPostModMenuLinks() {
         const postStatus = post.find('.js-post-notice, .special-status, .question-status').text().toLowerCase();
         const isQuestion = post.hasClass('question');
         const isDeleted = post.hasClass('deleted-answer');
-        const isModDeleted = post.find('.deleted-answer-info').text().includes('?') || (postStatus.includes('deleted') && postStatus.includes('?'));
+        const isModDeleted = post.find('.deleted-answer-info').text().includes('\u2666') || (postStatus.includes('deleted') && postStatus.includes('?'));
         const isClosed = postStatus.includes('closed') || postStatus.includes('on hold') || postStatus.includes('duplicate') || postStatus.includes('already has');
         const isProtected = post.find('.js-post-notice b').text().includes('Highly active question');
         const isMigrated = postStatus.includes('migrated to');
@@ -1252,8 +1288,8 @@ function initPostModMenuLinks() {
                     post.find('.post-signature:last .user-info')[0]?.outerHTML
                 ).then(function (result) {
                     if (result) {
-                        //removePostFromModQueue();
-                        //reloadPage();
+                        removePostFromModQueue();
+                        reloadPage();
                     }
                 });
                 break;
@@ -1430,7 +1466,8 @@ function appendStyles() {
 
 .post-signature {
     min-width: 180px;
-    width: auto;
+    width: auto;       /* allow the usercard to shrink, if possible...          */
+    max-width: 200px;  /* ...but never allow to expand larger than default size */
 }
 
 .js-better-inline-menu {
