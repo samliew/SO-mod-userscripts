@@ -711,17 +711,18 @@ function modMessageUser(uid,
             // On failure, it is a string containing an error message.
             // Unfortunately, this means there is no truly reliable way of detecting
             // whether the action has succeeded, but we can get close by looking to
-            // see if the response string starts with "<html", since an error message
-            // should not. In addition, known possible response strings are checked
-            // explicitly at the beginning, both to improve the accuracy of detection
-            // and to allow better error-handling to be implemented in the future.
+            // see if the response string is HTML, since an error message should not.
+            // In addition, known possible response strings are checked explicitly
+            // at the beginning, both to improve the accuracy of detection and to
+            // allow better error-handling to be implemented in the future.
             const responseTrimmed = response.trim();
             if (responseTrimmed.trim() === 'A more recent message has been posted about this user; please review this and retry if appropriate') {
                 console.error(`modMessageUser(${uid}) returned an error: `, response);
                 reject(response);
             }
             else {
-                if (responseTrimmed.startsWith('<html')) {
+                if (responseTrimmed.startsWith('<!DOCTYPE html') ||
+                    responseTrimmed.startsWith('<html')) {
                     console.debug(`modMessageUser(${uid}) succeeded: `, response);
                     resolve(response);
                 }
@@ -842,6 +843,35 @@ async function destroyUser(uid, details, reason, userInfo = null, pii = null) {
     return removeUser(uid, true, details, reason, userInfo, pii);
 }
 
+
+async function promptToRedFlagPost(pid, postType, rudeFlag, isLocked, isDeleted, isFlagDeleted) {
+    if (typeof pid === 'undefined' || pid === null) { throw new Error('null or undefined pid'); return; }
+
+    const noun = rudeFlag ? 'rude/abusive' : 'spam';
+    const confirmMsg = !isFlagDeleted
+        ? `Are you sure you want to red-flag nuke this ${postType} (post\xa0ID\xa0${pid}) as ${noun.toUpperCase()}?\n\n(All penalties associated with a ${noun} flag will apply.)`
+        : `Are you sure you want to change the red flag on this ${postType} (post\xa0ID\xa0${pid}) to ${noun.toUpperCase()}?\n\n(This should only be done to change a spam flag to a rude/abusive flag in order to prevent the post from being chosen as an audit. Do not choose this option if you have already flagged the post as rude/abusive, as you cannot re-raise a flag of the same type, even as a moderator. All penalties associated with a ${noun} flag will still apply.)`;
+    let needsRefresh = false;
+    if (confirm(confirmMsg)) {
+        try {
+            if (isLocked || isFlagDeleted) {
+                await unlockPost(pid);
+                needsRefresh = true;
+            }
+            if (isLocked || isFlagDeleted || isDeleted) {
+                await undeletePost(pid);
+                needsRefresh = true;
+            }
+            await flagPost(pid, rudeFlag);
+            needsRefresh = true;
+        }
+        catch (e) {
+            alert('An error occurred; please see the console for details on exactly what failed.');
+            needsRefresh = false;  // unconditionally prevent refresh to avoid clearing the console
+        }
+    }
+    return needsRefresh;
+}
 
 async function promptToNukePostAndUser(pid, isQuestion, isDeleted, uid, uName, spammer, usercardHtml = null) {
     if (typeof uid === 'undefined' || uid === null) { throw new Error('null or undefined uid'); return; }
@@ -1016,7 +1046,7 @@ async function promptToNukePostAndUser(pid, isQuestion, isDeleted, uid, uName, s
                         false,  // do not email (show message on-site only)
                         365,    // suspend for 365 days (maximum duration)
                         `suspend ${userType}`,
-                        spammer ? 'for promotional content' : 'no longer welcome');
+                        spammer ? 'for promotional content' : 'for rule violations');
                     needsRefresh = true;
                 }
 
@@ -1057,6 +1087,7 @@ async function promptToNukePostAndUser(pid, isQuestion, isDeleted, uid, uName, s
     }
     catch (e) {
         alert('An error occurred; please see the console for details on exactly what failed.');
+        needsRefresh = false;  // unconditionally prevent refresh to avoid clearing the console
     }
     swal.stopLoading();
     swal.close();
@@ -1070,14 +1101,17 @@ function addPostModMenuLinks() {
         const $this = $(this);
         const post = $this.closest('.question, .answer');
         const postScore = Number(post.find('.js-vote-count').text());
-        const postStatus = post.find('.js-post-notice, .special-status, .question-status').text().toLowerCase();
+        const postStatusEl = post.find('.js-post-notice, .special-status, .question-status');
+        const postStatus = postStatusEl.text().toLowerCase();
         const isQuestion = post.hasClass('question');
-        const isDeleted = post.hasClass('deleted-answer');
-        const isModDeleted = post.find('.deleted-answer-info').text().includes('\u2666') || (postStatus.includes('deleted') && postStatus.includes('?'));
-        const isClosed = postStatus.includes('closed') || postStatus.includes('on hold') || postStatus.includes('duplicate') || postStatus.includes('already has');
-        const isProtected = post.find('.js-post-notice b').text().includes('Highly active question');
+        const isClosed = postStatusEl.find('b').text().toLowerCase().includes('closed') || postStatus.includes('on hold') || postStatus.includes('duplicate') || postStatus.includes('already has');
         const isMigrated = postStatus.includes('migrated to');
+        const isProtected = postStatusEl.find('b').text().toLowerCase().includes('highly active question');
         const isLocked = isMigrated || postStatus.includes('locked');
+        const isDeleted = post.hasClass('deleted-answer');
+        const isModDeleted = isDeleted && (postStatus.includes('deleted') && postStatus.includes('\u2666'));
+        const isBotDeleted = isDeleted && (postStatus.includes('deleted') && postStatusEl.html().toLowerCase().includes('/users/-1/community'));
+        const isFlagDeleted = isBotDeleted && isLocked && postStatus.includes('flagged as spam or offensive content');
         const isOldDupe = isQuestion && post.find('.js-post-body blockquote').first().find('strong').text().includes('Possible Duplicate');
         const needsRedupe = postStatus.match(/This question already has( an)? answers? here:(\s|\n|\r)+Closed/i) != null;
         const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
@@ -1088,6 +1122,7 @@ function addPostModMenuLinks() {
         const username = userbox.find('.user-details a').first().text();
         const postdate = userbox.find('.relativetime').attr('title');
         const postage = (Date.now() - new Date(postdate)) / 86400000;
+        const posttype = isQuestion ? 'question' : 'answer';
 
         // .js-post-menu is also found on the post revisions page, but we don't want to touch that
         if (typeof pid === 'undefined') return;
@@ -1096,8 +1131,8 @@ function addPostModMenuLinks() {
         function makeLabel(text) {
             return `<span class="inline-label post-label">${text}:&nbsp;</span>`
         }
-        function makeItem(action, text, title, enabled = true, danger = false, dataAttrib) {
-            return `<button type="button" class="s-btn s-btn__link ${!danger ? '' : 'danger'}" data-action="${action}" ${dataAttrib ? dataAttrib : ''} title="${title}" ${enabled ? '' : 'disabled'}>${text}</button>`;
+        function makeItem(action, text, title, enabled = true, style = '', dataAttrib) {
+            return `<button type="button" class="s-btn s-btn__link ${style}" data-action="${action}" ${dataAttrib ? dataAttrib : ''} title="${title}" ${enabled ? '' : 'disabled'}>${text}</button>`;
         }
 
         let menuitems = '';
@@ -1107,7 +1142,8 @@ function addPostModMenuLinks() {
             const protectVerb = !isProtected ? 'protect' : 'unprotect';
             menuitems += makeItem(protectVerb,
                 protectVerb,
-                isDeleted ? 'question is deleted!' : '',
+                !isProtected ? 'protect this question to prevent it from being answered by anonymous and low-rep users'
+                             : 'unprotect this question to allow it to be answered by anonymous and low-rep users',
                 !isDeleted);
             if (isSO) {
                 menuitems += makeItem('close-offtopic',
@@ -1124,7 +1160,22 @@ function addPostModMenuLinks() {
         }
         menuitems += makeItem('mod-delete',
             !isDeleted ? 'delete' : 'redelete',
-            '(re-)delete post as moderator to prevent undeletion');
+            `(re-)delete ${isQuestion ? 'question' : 'answer'} as moderator to prevent undeletion`,
+            true,
+            'warning');
+        menuitems += makeItem('spam-flag',
+            'spam&hellip;',
+            `prompt for confirmation to ${!isFlagDeleted ? 'flag-nuke' : 're-flag'} this ${posttype} as spam`,
+            !isFlagDeleted,
+            'warning',
+            `data-islocked="${isLocked}" data-isdeleted="${isDeleted}" data-isflagdeleted="${isFlagDeleted}"`);
+        // TODO: If post was already nuked with an R/A flag, disable the following item.
+        menuitems += makeItem('abusive-flag',
+            'abusive&hellip;',
+            `prompt for confirmation to ${!isFlagDeleted ? 'flag-nuke' : 're-flag'} this ${posttype} as rude/abusive`,
+            true,
+            'warning',
+            `data-islocked="${isLocked}" data-isdeleted="${isDeleted}" data-isflagdeleted="${isFlagDeleted}"`);
 
         if (!isQuestion) {
             menuitems += makeLabel('convert');
@@ -1140,27 +1191,25 @@ function addPostModMenuLinks() {
         if (!isLocked) {
             menuitems += makeItem('lock-dispute',
                 'dispute&hellip;',
-                'prompt for number of days to apply a content-dispute lock');
+                `prompt for number of days to apply a content-dispute lock to this ${posttype}`);
             menuitems += makeItem('lock-comments',
                 'cmnts&hellip;',
-                'prompt for number of days to apply a comment lock');
+                `prompt for number of days to apply a comment lock to this ${posttype}`);
             menuitems += makeItem('lock-wiki',
                 'wiki&hellip;',
-                'prompt for confirmation to apply a permanent wiki lock');
-            if (isMeta) {
-                menuitems += makeItem('lock-obsolete',
-                    'obsolete&hellip;',
-                    'prompt for confirmation to apply a permanent obsolete lock');
-            }
+                `prompt for confirmation to apply a permanent wiki lock to this ${posttype}`);
+            menuitems += makeItem('lock-obsolete',
+                'obsolete&hellip;',
+                `prompt for confirmation to apply a permanent obsolete lock to this ${posttype}`);
             if (isQuestion) {  // old, good questions only
                 menuitems += makeItem('lock-historical',
                     'hist&hellip;',
-                    'prompt for confirmation to apply a permanent historical lock',
+                    `prompt for confirmation to apply a permanent historical lock to this ${posttype}`,
                     (postage >= 60 && postScore >= 20) || isSuperuser);
             }
         }
         else {
-            menuitems += makeItem('unlock', 'unlock', '');
+            menuitems += makeItem('unlock', 'unlock', `unlock this ${posttype}`);
         }
 
         // Add user-related links only if there is a user and this is not a Meta site
@@ -1169,9 +1218,9 @@ function addPostModMenuLinks() {
             const allowDestroy = (postage < 60 || isSuperuser) &&
                 (/^\d+$/.test(userrep) && Number(userrep) < 500);
             menuitems += makeLabel('user');
-            menuitems += makeItem('nuke-spammer', 'spammer&hellip;', 'prompt for options and confirmation to nuke post and user as a spammer (promotional content)', allowDestroy, true, `data-uid="${uid}" data-username="${username}"`);
-            menuitems += makeItem('nuke-troll', 'troll&hellip;', 'prompt for options and confirmation to nuke post and user as a troll (generic)', allowDestroy, true, `data-uid="${uid}" data-username="${username}"`);
-            menuitems += makeItem('no-longer-welcome', 'nlw&hellip;', 'prompt for confirmation to delete user as &quot;no longer welcome&quot;', true, true, `data-uid="${uid}" data-username="${username}"`);
+            menuitems += makeItem('nuke-spammer', 'spammer&hellip;', `prompt for options and confirmation to nuke this ${posttype} and the user as a spammer (promotional content)`, allowDestroy, 'danger', `data-uid="${uid}" data-username="${username}"`);
+            menuitems += makeItem('nuke-troll', 'troll&hellip;', `prompt for options and confirmation to nuke this ${posttype} and the user as a troll/abusive`, allowDestroy, 'danger', `data-uid="${uid}" data-username="${username}"`);
+            menuitems += makeItem('no-longer-welcome', 'nlw&hellip;', `prompt for confirmation to delete the user as &quot;no longer welcome&quot;`, true, 'danger', `data-uid="${uid}" data-username="${username}"`);
         }
 
         $this.append(`<div class="js-better-inline-menu ${smallerQuicklinks ? 'smaller' : ''}" data-pid="${pid}">${menuitems}</div>`);
@@ -1201,6 +1250,7 @@ function initPostModMenuLinks() {
         const post = $this.closest('.answer, .question');
         const isQuestion = post.hasClass('question');
         const isDeleted = post.hasClass('deleted-answer');
+        const postType = isQuestion ? 'question' : 'answer';
         const action = this.dataset.action;
         //console.log(action);
 
@@ -1247,25 +1297,40 @@ function initPostModMenuLinks() {
             case 'mod-delete':
                 modUndelDelete(pid).then(reloadPage);
                 break;
+            case 'spam-flag':
+            case 'abusive-flag':
+                promptToRedFlagPost(pid,
+                    postType,
+                    action === 'abusive-flag',
+                    $this.data('islocked'),
+                    $this.data('isdeleted'),
+                    $this.data('isflagdeleted')
+                ).then(function (result) {
+                    if (result) {
+                        removePostFromModQueue();
+                        reloadPage();
+                    }
+                });
+                break;
             case 'lock-dispute': {
-                const d = Number(prompt('Apply a CONTENT-DISPUTE LOCK to this post for how many days?', '3').trim());
+                const d = Number(prompt(`Apply a CONTENT-DISPUTE LOCK to this ${postType} for how many days?`, '3').trim());
                 if (!isNaN(d)) lockPost(pid, 20, 24 * d).then(reloadPage);
                 else StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'Invalid number of days');
                 break;
             }
             case 'lock-comments': {
-                const d = Number(prompt('Apply a COMMENT LOCK to this post for how many days?', '1').trim());
+                const d = Number(prompt(`Apply a COMMENT LOCK to this ${postType} for how many days?`, '1').trim());
                 if (!isNaN(d)) lockPost(pid, 21, 24 * d).then(reloadPage);
                 else StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'Invalid number of days');
                 break;
             }
             case 'lock-wiki':
-                if (confirm('Are you sure you want to apply a PERMANENT WIKI LOCK to this post?')) {
+                if (confirm(`Are you sure you want to apply a PERMANENT WIKI LOCK to this ${postType}?`)) {
                     lockPost(pid, 23, -1).then(reloadPage);
                 }
                 break;
             case 'lock-obsolete':
-                if (confirm('Are you sure you want to apply a PERMANENT OBSOLETE LOCK to this post?')) {
+                if (confirm(`Are you sure you want to apply a PERMANENT OBSOLETE LOCK to this ${postType}?`)) {
                     lockPost(pid, 28, -1).then(reloadPage);
                 }
                 break;
@@ -1455,12 +1520,12 @@ function appendStyles() {
     margin-left:  calc(var(--su8) / 2);
     margin-right: calc(var(--su8) / 2);
 }
-.js-post-menu .s-anchors > div.flex--item .s-anchors.s-anchors__muted .s-btn.s-btn__link,
-.js-post-menu .s-anchors > div.flex--item .s-anchors.s-anchors__muted a:not(.s-link) {
+.js-post-menu .s-anchors.s-anchors__muted .s-btn.s-btn__link,
+.js-post-menu .s-anchors.s-anchors__muted a:not(.s-link) {
     color: var(--black-500);
 }
-.js-post-menu .s-anchors > div.flex--item .s-anchors.s-anchors__muted .s-btn.s-btn__link:hover,
-.js-post-menu .s-anchors > div.flex--item .s-anchors.s-anchors__muted a:not(.s-link):hover {
+.js-post-menu .s-anchors.s-anchors__muted .s-btn.s-btn__link:hover,
+.js-post-menu .s-anchors.s-anchors__muted a:not(.s-link):hover {
     color: var(--black-300);
 }
 
@@ -1502,6 +1567,10 @@ function appendStyles() {
 }
 .js-better-inline-menu button.s-btn.s-btn__link:hover {
     color: var(--black-300);
+}
+.js-better-inline-menu button.s-btn.s-btn__link.warning:hover,
+.js-post-menu .s-anchors.s-anchors__muted .s-btn.s-btn__link.js-delete-post:hover {
+    color: var(--red-600);
 }
 .js-better-inline-menu button.s-btn.s-btn__link.danger:hover {
     background-color: var(--red-500);
