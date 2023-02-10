@@ -3,24 +3,24 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      7.6
+// @version      7.6.1
 //
 // @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 // @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/CommentFlagsHelper.user.js
 //
-// @include      https://*stackoverflow.com/admin/dashboard*
-// @include      https://*serverfault.com/admin/dashboard*
-// @include      https://*superuser.com/admin/dashboard*
-// @include      https://*askubuntu.com/admin/dashboard*
-// @include      https://*mathoverflow.net/admin/dashboard*
-// @include      https://*.stackexchange.com/admin/dashboard*
+// @match      https://*stackoverflow.com/admin/dashboard*
+// @match      https://*serverfault.com/admin/dashboard*
+// @match      https://*superuser.com/admin/dashboard*
+// @match      https://*askubuntu.com/admin/dashboard*
+// @match      https://*mathoverflow.net/admin/dashboard*
+// @match      https://*.stackexchange.com/admin/dashboard*
 //
-// @include      https://*stackoverflow.com/admin/users/*/post-comments*
-// @include      https://*serverfault.com/admin/users/*/post-comments*
-// @include      https://*superuser.com/admin/users/*/post-comments*
-// @include      https://*askubuntu.com/admin/users/*/post-comments*
-// @include      https://*mathoverflow.net/admin/users/*/post-comments*
-// @include      https://*.stackexchange.com/admin/users/*/post-comments*
+// @match      https://*stackoverflow.com/admin/users/*/post-comments*
+// @match      https://*serverfault.com/admin/users/*/post-comments*
+// @match      https://*superuser.com/admin/users/*/post-comments*
+// @match      https://*askubuntu.com/admin/users/*/post-comments*
+// @match      https://*mathoverflow.net/admin/users/*/post-comments*
+// @match      https://*.stackexchange.com/admin/users/*/post-comments*
 //
 // @exclude      *?flagtype=posttoomanycommentsauto*
 //
@@ -888,6 +888,9 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
 .js-dismiss-flags:hover .js-cancel-delete-comment-flag {
     display: block;
 }
+.js-cancel-delete-comment-flag {
+    line-height:25px;
+}
 .comment.js-active-flag .js-comment-actions {
     position: relative;
 }
@@ -946,6 +949,10 @@ mark {
 .js-comment-flag-options {
     margin-left: 0 !important;
 }
+.js-comment-flag-options button {
+    padding: 8px !important;
+}
+
 .js-comment-flag-options button,
 .js-dismiss-flags {
     text-transform: lowercase;
