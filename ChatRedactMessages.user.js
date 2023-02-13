@@ -3,13 +3,11 @@
 // @description  Add "Redact + Purge + Delete" button to message history page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.1
 //
-// @match      https://chat.stackoverflow.com/*
-// @match      https://chat.stackexchange.com/*
-// @match      https://chat.meta.stackexchange.com/*
-// @updateURL  https://github.com/samliew/SO-mod-userscripts/raw/master/ChatRedactMessages.user.js
-// @downloadURL https://github.com/samliew/SO-mod-userscripts/raw/master/ChatRedactMessages.user.js
+// @match        https://chat.stackoverflow.com/*
+// @match        https://chat.stackexchange.com/*
+// @match        https://chat.meta.stackexchange.com/*
 // ==/UserScript==
 
 /* globals StackExchange, GM_info, window, unsafeWindow */
@@ -18,7 +16,9 @@
 
 const _window = window || unsafeWindow;
 const store = _window.localStorage;
-let cachedfkey = store.getItem('fkey');
+const storeKey = `fkey-${location.hostname}`;
+
+let cachedfkey = store.getItem(storeKey);
 let redactText = `[message redacted by moderator]`;
 
 function doPageLoad() {
@@ -82,12 +82,9 @@ function doPageLoad() {
     // Other chat pages
     else {
 
-        // Always re-cache latest fkey if available
-        if (typeof _window.fkey === 'function') {
-
-            // Cache fkey for use in message history page
-            store.setItem('fkey', _window.fkey().fkey);
-        }
+        // Cache fkey for use in message history page
+        const newfkey = typeof _window.fkey === 'function' ? _window.fkey().fkey : document.querySelector('#fkey').value;
+        if(newfkey) store.setItem(storeKey, newfkey);
 
         // When message actions link is clicked
         document.querySelectorAll('#chat .action-link, #transcript .action-link').forEach(elm => {
@@ -142,9 +139,8 @@ const styles = document.createElement('style');
 styles.setAttribute('data-somu', GM_info?.script.name);
 styles.innerHTML = `
 #redactpurge {
-position: relative;
-top: -2px;
-margin-left: 10px;
+    position: relative;
+    top: -2px;
 }
 `;
 document.body.appendChild(styles);
