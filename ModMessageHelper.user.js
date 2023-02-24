@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.6
+// @version      3.8
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.superuser.com/*
@@ -44,6 +44,12 @@ const isMeta = typeof StackExchange.options.site.parentUrl !== 'undefined';
 const parentUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
 const additionalInfo = getQueryParam('info') ? newlines + decodeURIComponent(getQueryParam('info')) : '';
 const popupSubmitButtonsSelector = 'button.js-popup-submit, button.popup-submit';
+const templateNameModInboxException = {
+    maxMessageLengthForNoException: 100,
+    reservedLength: 5, // "sent "
+    usernameMaxLength: 40, // Max username length on SE
+}
+templateNameModInboxException.maxTemplateNameLengthForNoException = templateNameModInboxException.maxMessageLengthForNoException - (templateNameModInboxException.usernameMaxLength + templateNameModInboxException.reservedLength);
 
 
 
@@ -225,7 +231,7 @@ In case there's been a misunderstanding about what your username means, you can 
 `,
     },
     {
-        templateName: "ChatGPT while it's banned; plagiarism/refs (AI); AI content w/o regard to accuracy",
+        templateName: "ChatGPT banned; plagiarism (AI); inaccurate AI content",
         suspensionReason: "for rule violations",
         suspensionDefaultDays: 7,
         templateBody: `**Use of ChatGPT for content while its use is banned:**  \nThe use of ChatGPT as a source for content on Stack Overflow is currently banned. Please see the Meta Stack Overflow question "[Temporary policy: ChatGPT is banned](https://meta.stackoverflow.com/q/421831)". It is not permitted for you to use ChatGPT to create content on Stack Overflow during this ban.
@@ -404,11 +410,24 @@ function initModMessageHelper() {
         $('#js-to-warning').after(`<div id="js-to-warning_2" class="s-notice s-notice__info mt8">The user will <em>only</em> receive this message on Stack Overflow.</div>`);
 
         if (showHiddenFields) {
+            const $userLink = $('#js-msg-form .user-details a').first();
+            const username = $userLink.text();
+            const maxTemplateNameLengthForNoException = templateNameModInboxException.maxMessageLengthForNoException - (username.length + templateNameModInboxException.reservedLength);
 
             // Show hidden fields
             $('#js-template-name, #js-suspend-reason, #js-template-edited').attr('type', 'text').addClass('d-inline-block s-input s-input__sm w70');
 
-            $('#js-template-name').wrap('<label for="js-template-name" class="dblock"></label>').before(`<span class="inline-label">template name:</span>`);
+            $('#js-template-name')
+                .on('input', function() {
+                    const $this = $(this);
+                    const label = $this.closest('label');
+                    const length = $this.val().length;
+                    const diffToMax = length - maxTemplateNameLengthForNoException;
+                    label.find('.somu-templateName-too-long-span').add(this).attr('title', `This message will ${diffToMax > 0 ? 'not ' : ''}be shown in the moderator inbox. Due to a bug, if ${length} (current template name length) is more than ${maxTemplateNameLengthForNoException} (max characters with this user's username), then this moderator message will not be shown in the moderator inbox.`);
+                    label.toggleClass('somu-templateName-too-long', length > maxTemplateNameLengthForNoException);
+                })
+                .wrap('<label for="js-template-name" class="dblock"></label>')
+                .before(`<span class="inline-label" title="The template name is displayed only to moderators and Community Managers. It's shown in the moderator inbox, the user's User History, and some other moderator-only pages which track moderator messages.">template name:<span class="somu-templateName-too-long-span">too long for mod inbox</span></span>`);
             $('#js-suspend-reason').wrap('<label for="js-suspend-reason" class="dblock"></label>').before(`<span class="inline-label" title="publicly displayed as 'This account is temporarily suspended _____'"><span style="border-bottom: 1px dotted #000">suspend reason:</span></span>`);
             $('#js-template-edited').wrap('<label for="js-template-edited" class="dblock"></label>').before(`<span class="inline-label">template edited:</span>`);
         }
@@ -613,6 +632,7 @@ function initModMessageHelper() {
             // Apply the template's selection for sending email
             setSEcheckboxById('js-send-email', email !== 'false');
             $('#wmd-input').prop('selectionEnd', 0).focus();
+            $('#js-template-name').trigger('input');
         }, 25);
     }
 
@@ -644,7 +664,9 @@ function initModMessageHelper() {
         const numberOfItems = actionList.children('li').length;
         const sitename = StackExchange.options.site.name;
         const userId = $('#aboutUserId').val();
-        const userLink = 'https://' + location.hostname + $('#js-msg-form .user-details a').first().attr('href');
+        const $userLink = $('#js-msg-form .user-details a').first();
+        const userLink = 'https://' + location.hostname + $userLink.attr('href');
+        const username = $userLink.text();
 
         // Please preserve the line breaks in these string templates
         const messagePrefix = `Hello,
@@ -665,6 +687,10 @@ Regards,  \n${sitename} Moderation Team`;
 
 
         customModMessages.forEach(function (item, i) {
+            if (item.templateName.length > templateNameModInboxException.maxTemplateNameLengthForNoException) {
+                const issue = `Template name "${item.templateName}" is ${item.templateName.length} characters long, which is longer than the "maximum" of 55. Template names which are longer than 55 characters may result in some mod messages that are sent not being seen in the moderator inbox if the user's username is long.`;
+                console.error(issue);
+            }
             actionList.append(generateCmOrModMessageTemplate(false, item, i, numberOfItems, messagePrefix, messageSuffix, messageSignature));
         });
     }
@@ -1251,6 +1277,21 @@ styles.innerHTML = `
 #sidebar .module #confirm-new {
     white-space: break-spaces;
     line-height: 1.2;
+}
+.user-info.somu-mod-message-is-open {
+    overflow: unset;
+}
+.somu-templateName-too-long input {
+    vertical-align: top;
+}
+.somu-templateName-too-long-span {
+    display: none;
+    color: red;
+    font-weight: bold;
+    margin-left: 10px;
+}
+.somu-templateName-too-long .somu-templateName-too-long-span {
+    display: block;
 }
 `;
 document.body.appendChild(styles);
