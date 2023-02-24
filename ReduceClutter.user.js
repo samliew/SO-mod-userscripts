@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.7
+// @version      2.8
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -275,7 +275,15 @@ ul.comments-list .comment-up-on {
 .js-post-menu > .grid > .flex--item > button {
     text-transform: lowercase;
 }
+
+
+/* Remove cookie consent banner */
+.js-consent-banner {
+    display: none;
+}
 `;
+
+
 document.head.appendChild(styles);
 
 
@@ -450,7 +458,7 @@ function initShortUsernames() {
             .filter((i, el) => el.children.length === 0)
             .addClass('js-shortusernames').text((i, v) => {
                 return v.trim()
-                    .replace(/[\s-_]+(-|_|says|wants|likes|loves|supports|has|is|stands|reinstate)[\s-_].+$/i, '');
+                    .replace(/[\s-_]+(-|_|says|wants|likes|loves|supports|has|is|is.at|stands|with|reinstate)[\s-_]*.+$/i, '');
             });
     }
 
