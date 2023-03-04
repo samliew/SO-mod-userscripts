@@ -3,14 +3,15 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.4
+// @version      2.5
 //
-// @match      https://*stackoverflow.com/*
-// @match      https://*serverfault.com/*
-// @match      https://*superuser.com/*
-// @match      https://*askubuntu.com/*
-// @match      https://*mathoverflow.net/*
-// @match      https://*.stackexchange.com/*
+// @include      https://*stackoverflow.com/*
+// @include      https://*stackoverflow.com/*
+// @include      https://*serverfault.com/*
+// @include      https://*superuser.com/*
+// @include      https://*askubuntu.com/*
+// @include      https://*mathoverflow.net/*
+// @include      https://*.stackexchange.com/*
 //
 // @exclude      https://stackoverflow.blog*
 // @exclude      *chat.*
