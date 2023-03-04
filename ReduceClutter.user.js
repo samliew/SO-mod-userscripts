@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.9
+// @version      2.10
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -269,7 +269,9 @@ ul.comments-list .comment-up-on {
 }
 
 
-/* Revert post menu to lowercase */
+/*
+   Revert post menu to lowercase
+*/
 #edit-tags,
 .js-post-menu > .grid > .flex--item > a,
 .js-post-menu > .grid > .flex--item > button {
@@ -277,13 +279,17 @@ ul.comments-list .comment-up-on {
 }
 
 
-/* Remove cookie consent banner */
+/*
+   Remove cookie consent banner
+*/
 .js-consent-banner {
     display: none;
 }
 
 
-/* Collectives - TylerH - https://meta.stackoverflow.com/a/423500 */
+/*
+   Collectives - TylerH - https://meta.stackoverflow.com/a/423500
+*/
 /* Hides the collective content on the right sidebar */
 #sidebar > div.s-sidebarwidget.js-join-leave-container {
     display: none;
@@ -291,23 +297,55 @@ ul.comments-list .comment-up-on {
 #sidebar > .sidebar-subcommunity {
     display: none;
 }
-/* hides the "recommended by <collective>" verbiage */
+/* Hides the "recommended by <collective>" verbiage */
 .js-endorsements {
     display: none;
 }
-/* hides the trophy for Collectives ranking next to usernames in user cards*/
+/* Hides the trophy for Collectives ranking next to usernames in user cards*/
 div.user-details > a[href^="/collectives"] {
     display: none;
 }
 ul.s-user-card--awards li a[href^="/collectives/"] {
     display: none;
 }
-/* hides collective buttons on the tag line */
+/* Hides collective buttons on the tag line */
+a.subcommunity-avatar,
 a.subcommunity-topic-avatar {
     display: none;
 }
 div.js-community-icons {
     display: none;
+}
+
+
+/*
+   Other Collectives elements
+*/
+/* Hides collectives in the question header */
+#question-header + div .flex--item.fc-light:last-child {
+    display: none;
+}
+/* Hides collectives in the left sidebar */
+.nav-links .nav-links li:has(.js-collectives-navcta-toggle),
+.nav-links .nav-links li:has(.js-collectives-navcta-toggle) + li {
+    display: none;
+}
+
+
+/*
+   Teams
+*/
+/* Hides teams in the left sidebar */
+.nav-links li:has(ol.nav-links .js-create-team-cta) {
+    display: none;
+}
+
+
+/*
+   Blocked ads still taking up 300px in right sidebar
+*/
+.js-sidebar-zone {
+    min-height: 0 !important;
 }
 `;
 
