@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.8
+// @version      2.9
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -279,6 +279,34 @@ ul.comments-list .comment-up-on {
 
 /* Remove cookie consent banner */
 .js-consent-banner {
+    display: none;
+}
+
+
+/* Collectives - TylerH - https://meta.stackoverflow.com/a/423500 */
+/* Hides the collective content on the right sidebar */
+#sidebar > div.s-sidebarwidget.js-join-leave-container {
+    display: none;
+}
+#sidebar > .sidebar-subcommunity {
+    display: none;
+}
+/* hides the "recommended by <collective>" verbiage */
+.js-endorsements {
+    display: none;
+}
+/* hides the trophy for Collectives ranking next to usernames in user cards*/
+div.user-details > a[href^="/collectives"] {
+    display: none;
+}
+ul.s-user-card--awards li a[href^="/collectives/"] {
+    display: none;
+}
+/* hides collective buttons on the tag line */
+a.subcommunity-topic-avatar {
+    display: none;
+}
+div.js-community-icons {
     display: none;
 }
 `;
