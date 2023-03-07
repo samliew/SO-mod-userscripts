@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Question Lists Helper
-// @description  Adds more information about questions to question lists
+// @description  Adds more information about questions to question lists, adds post filters to sidebar, adds delete buttons to posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.3
+// @version      3.4
 //
 // @include      https://stackoverflow.com/*
 // @include      https://serverfault.com/*
@@ -115,11 +115,10 @@ const getQuestions = async function (pids) {
  */
 const filterQuestions = function () {
   // Get question elements
-  const qListItems = [...qList.querySelectorAll('.s-post-summary, .search-result[id^="question-summary-"]')];
+  const qListItems = [...qList.querySelectorAll('.s-post-summary, .search-result[id^="question-summary-"]')].filter(el => el.dataset.postTypeId !== '2' && !el.id.startsWith('answer-id-'));
 
   // Get current active filters
   const activeFilters = [...filterButtons].filter(btn => btn.classList.contains('is-selected')).map(btn => btn.dataset.filter);
-  console.log(activeFilters);
 
   // No active filters, show all questions
   if (activeFilters.length === 0) {
@@ -132,9 +131,11 @@ const filterQuestions = function () {
     const postTitle = q.querySelector('.s-post-summary--content-title a').innerText;
     const codeBlockCount = q.querySelectorAll('pre').length;
     const authorRep = Number(q.querySelector('.s-user-card--rep').innerText.replace(/(\.\d*)?k$/, '000').replace(/(\.\d*)?m$/, '000000').replace(/\D/g, ''));
-    const postLength = Number(q.querySelector('.post-length').innerText);
-    const commentCount = Number(q.querySelector('.comment-count').innerText);
+    const postLength = Number(q.querySelector('.post-length')?.innerText);
+    const commentCount = Number(q.querySelector('.comment-count')?.innerText);
     const answerCount = Number(q.querySelectorAll('.s-post-summary--stats-item-number')[1].innerText);
+
+    if (!postLength || !commentCount || !answerCount) return;
 
     // Hide question if it doesn't match any active filters
     const isHidden =
@@ -218,7 +219,7 @@ const processQuestionLists = async function () {
 
     // Add close button
     const canClose = !closed_date && !locked_date;
-    if(canClose) {
+    if (canClose) {
       statsHtml += `
         <button type="button" class="js-close-question-link s-btn s-btn__link" title="Vote to close this question" data-is-closed="false" data-has-active-vote="${close_vote_count}" data-question-id="${question_id}">
           Close ${close_vote_count ? "(" + close_vote_count + ")" : ""}
@@ -320,9 +321,10 @@ const processQuestionLists = async function () {
     qSummary.appendChild(moreStats);
     qSummary.classList.add('s-post-summary--content');
 
-    // Update relative dates
-    StackExchange.realtime.updateRelativeDates();
-  });
+  }); // end each post
+
+  // Update relative dates
+  StackExchange.realtime.updateRelativeDates();
 
   filterQuestions();
 };
@@ -635,7 +637,7 @@ const initEventListeners = async function () {
       // Event listeners for duplicate search field
       let searchDebounceTimeout;
       dupeSearch.addEventListener('input', evt => {
-        if(searchDebounceTimeout) clearTimeout(searchDebounceTimeout);
+        if (searchDebounceTimeout) clearTimeout(searchDebounceTimeout);
         searchDebounceTimeout = setTimeout(doDupeSearch, 1000, closeModal);
       });
 
@@ -672,91 +674,91 @@ function listenToKeyboardEvents() {
 
   // Keyboard shortcuts event handler
   $(document).on('keyup', function (evt) {
-      // Back buttons: escape (27)
-      // Unable to use tilde (192) as on the UK keyboard it is swapped the single quote keycode
-      const cancel = evt.keyCode === 27;
-      const goback = evt.keyCode === 27;
+    // Back buttons: escape (27)
+    // Unable to use tilde (192) as on the UK keyboard it is swapped the single quote keycode
+    const cancel = evt.keyCode === 27;
+    const goback = evt.keyCode === 27;
 
-      // Get numeric key presses
-      let index = evt.keyCode - 49; // 49 = number 1 = 0 (index)
-      if (index == -1) index = 9; // remap zero to last index
-      if (index < 0 || index > 9) { // handle 1-0 number keys only (index 0-9)
+    // Get numeric key presses
+    let index = evt.keyCode - 49; // 49 = number 1 = 0 (index)
+    if (index == -1) index = 9; // remap zero to last index
+    if (index < 0 || index > 9) { // handle 1-0 number keys only (index 0-9)
 
-          // Try keypad keycodes instead
-          let altIndex = evt.keyCode - 97; // 97 = number 1 = 0 (index)
-          if (altIndex == -1) altIndex = 9; // remap zero to last index
-          if (altIndex >= 0 && altIndex <= 9) {
-              index = altIndex; // handle 1-0 number keys only (index 0-9)
-          }
-          else {
-              // Both are invalid
-              index = null;
-          }
+      // Try keypad keycodes instead
+      let altIndex = evt.keyCode - 97; // 97 = number 1 = 0 (index)
+      if (altIndex == -1) altIndex = 9; // remap zero to last index
+      if (altIndex >= 0 && altIndex <= 9) {
+        index = altIndex; // handle 1-0 number keys only (index 0-9)
+      }
+      else {
+        // Both are invalid
+        index = null;
+      }
+    }
+
+    // Do nothing if key modifiers were pressed
+    if (evt.shiftKey || evt.ctrlKey || evt.altKey) return;
+
+    // If edit mode, cancel if esc is pressed
+    if (cancel && $('.editing-review-content').length > 0) {
+      $('.js-review-cancel-button').click();
+      return;
+    }
+
+
+    // Get current popup
+    const currPopup = $('#delete-question-popup, #rejection-popup, #popup-flag-post, #popup-close-question').filter(':visible').last();
+
+    // #69 - If a textbox or textarea is focused, e.g.: comment box
+    // E.g.: if post is being edited or being commented on
+    if (document.activeElement.tagName == 'TEXTAREA' ||
+      (document.activeElement.tagName == 'INPUT' && document.activeElement.type == 'text') ||
+      document.getElementsByClassName('editing-review-content').length > 0) {
+
+      // Just unfocus the element if esc was pressed
+      if (currPopup.length && goback) document.activeElement.blur();
+      return;
+    }
+
+
+    // If there's an active popup
+    if (currPopup.length) {
+
+      // If escape key pressed, go back to previous pane, or dismiss popup if on main pane
+      if (goback) {
+
+        // If displaying a single duplicate post, go back to duplicates search
+        const dupeBack = currPopup.find('.original-display .navi a').filter(':visible');
+        if (dupeBack.length) {
+          dupeBack.click();
+          return false;
+        }
+
+        // Go back to previous pane if possible,
+        // otherwise default to dismiss popup
+        const link = currPopup.find('.popup-close a, .popup-breadcrumbs a, .js-popup-back').filter(':visible');
+        if (link.length) {
+          link.last().click();
+          // Always clear dupe closure search box on back action
+          $('#search-text').val('');
+          return false;
+        }
       }
 
-      // Do nothing if key modifiers were pressed
-      if (evt.shiftKey || evt.ctrlKey || evt.altKey) return;
-
-      // If edit mode, cancel if esc is pressed
-      if (cancel && $('.editing-review-content').length > 0) {
-          $('.js-review-cancel-button').click();
-          return;
+      // If valid index, click it
+      else if (index != null) {
+        const currPopup = $('.popup:visible').last();
+        // Get active (visible) pane
+        const pane = currPopup.find('form .action-list, .popup-active-pane').filter(':visible').last();
+        // Get options
+        const opts = pane.find('input:radio');
+        // Click option
+        const opt = opts.eq(index).click();
+        // Job is done here. Do not bubble if an option was clicked
+        return opt.length !== 1;
       }
 
-
-      // Get current popup
-      const currPopup = $('#delete-question-popup, #rejection-popup, #popup-flag-post, #popup-close-question').filter(':visible').last();
-
-      // #69 - If a textbox or textarea is focused, e.g.: comment box
-      // E.g.: if post is being edited or being commented on
-      if (document.activeElement.tagName == 'TEXTAREA' ||
-          (document.activeElement.tagName == 'INPUT' && document.activeElement.type == 'text') ||
-          document.getElementsByClassName('editing-review-content').length > 0) {
-
-          // Just unfocus the element if esc was pressed
-          if (currPopup.length && goback) document.activeElement.blur();
-          return;
-      }
-
-
-      // If there's an active popup
-      if (currPopup.length) {
-
-          // If escape key pressed, go back to previous pane, or dismiss popup if on main pane
-          if (goback) {
-
-              // If displaying a single duplicate post, go back to duplicates search
-              const dupeBack = currPopup.find('.original-display .navi a').filter(':visible');
-              if (dupeBack.length) {
-                  dupeBack.click();
-                  return false;
-              }
-
-              // Go back to previous pane if possible,
-              // otherwise default to dismiss popup
-              const link = currPopup.find('.popup-close a, .popup-breadcrumbs a, .js-popup-back').filter(':visible');
-              if (link.length) {
-                  link.last().click();
-                  // Always clear dupe closure search box on back action
-                  $('#search-text').val('');
-                  return false;
-              }
-          }
-
-          // If valid index, click it
-          else if (index != null) {
-              const currPopup = $('.popup:visible').last();
-              // Get active (visible) pane
-              const pane = currPopup.find('form .action-list, .popup-active-pane').filter(':visible').last();
-              // Get options
-              const opts = pane.find('input:radio');
-              // Click option
-              const opt = opts.eq(index).click();
-              // Job is done here. Do not bubble if an option was clicked
-              return opt.length !== 1;
-          }
-
-      } // end popup is active
+    } // end popup is active
   });
 }
 
