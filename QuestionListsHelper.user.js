@@ -3,14 +3,14 @@
 // @description  Adds more information about questions to question lists, adds post filters to sidebar, adds delete buttons to posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4
+// @version      3.5
 //
-// @include      https://stackoverflow.com/*
-// @include      https://serverfault.com/*
-// @include      https://superuser.com/*
-// @include      https://askubuntu.com/*
-// @include      https://mathoverflow.net/*
-// @include      https://*.stackexchange.com/*
+// @match        https://*.stackoverflow.com/*
+// @match        https://*.serverfault.com/*
+// @match        https://*.superuser.com/*
+// @match        https://*.askubuntu.com/*
+// @match        https://*.mathoverflow.net/*
+// @match        https://*.stackexchange.com/*
 //
 // @exclude      */admin/user-activity*
 // @exclude      */admin/dashboard*
@@ -134,8 +134,6 @@ const filterQuestions = function () {
     const postLength = Number(q.querySelector('.post-length')?.innerText);
     const commentCount = Number(q.querySelector('.comment-count')?.innerText);
     const answerCount = Number(q.querySelectorAll('.s-post-summary--stats-item-number')[1].innerText);
-
-    if (!postLength || !commentCount || !answerCount) return;
 
     // Hide question if it doesn't match any active filters
     const isHidden =
