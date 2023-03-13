@@ -3,7 +3,7 @@
 // @description  Batch-move Saved Questions between private lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.1
+// @version      1.0
 //
 // @match        *.stackoverflow.com/users/saves/*
 // @match        *.serverfault.com/users/saves/*
@@ -232,10 +232,11 @@ const addEventListeners = () => {
 
       // In all saves page, update text of ".js-saved-in" to new list name
       if (isAllSavesPage) {
+        const newListId = /^\d+$/.test(listId) ? listId : ''; // only for numerical list ids
         selectedCbs.forEach(cb => {
           const el = cb.parentElement.querySelector('.js-saved-in');
           el.innerText = listName;
-          el.href = el.href.replace(/\/\d*$/, `/${listId}`);
+          el.href = el.href.replace(/\/\d*$/, `/${newListId}`);
         });
       }
       // Not in "All saves page"
@@ -250,6 +251,7 @@ const addEventListeners = () => {
       }
 
       // Toast message
+      StackExchange?.helpers?.hideToasts();
       StackExchange?.helpers?.showToast(`${num} question${num > 1 ? 's' : ''} moved to <a href="/users/saves/current/${listId}">${listName}</a>.`, {
         type: 'success',
         useRawHtml: true,
