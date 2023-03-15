@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.10
+// @version      2.11
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -323,11 +323,6 @@ div.js-community-icons {
 */
 /* Hides collectives in the question header */
 #question-header + div .flex--item.fc-light:last-child {
-    display: none;
-}
-/* Hides collectives in the left sidebar */
-.nav-links .nav-links li:has(.js-collectives-navcta-toggle),
-.nav-links .nav-links li:has(.js-collectives-navcta-toggle) + li {
     display: none;
 }
 
