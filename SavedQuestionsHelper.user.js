@@ -3,7 +3,7 @@
 // @description  Batch-move Saved Questions between private lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1.2
+// @version      1.1.3
 //
 // @match        https://*.stackoverflow.com/users/saves/*
 // @match        https://*.serverfault.com/users/saves/*
@@ -297,7 +297,7 @@ const addEventListeners = () => {
 
       // Toast success message
       StackExchange?.helpers?.hideToasts();
-      StackExchange?.helpers?.showToast(`${num} question${num > 1 ? 's' : ''} moved to <a href="/users/saves/current/${listId}">${listName}</a>.`, {
+      StackExchange?.helpers?.showToast(`${num} post${num > 1 ? 's' : ''} moved to <a href="/users/saves/current/${listId}">${listName}</a>.`, {
         type: 'success',
         useRawHtml: true,
         transient: true,
@@ -307,7 +307,7 @@ const addEventListeners = () => {
     else {
       // Toast info message
       StackExchange?.helpers?.hideToasts();
-      StackExchange?.helpers?.showToast(`No questions were selected, so nothing was moved.`, {
+      StackExchange?.helpers?.showToast(`No posts were selected, so nothing was moved.`, {
         type: 'info',
         useRawHtml: false,
         transient: true,
@@ -362,10 +362,12 @@ const doPageLoad = async () => {
   elSavesHeader.appendChild(elSavesCount);
 
   savesList.querySelectorAll('.js-saves-post-summary').forEach(item => {
+    const answer = item.querySelector('.s-post-summary--answer'); // saved post may be an answer
+    const pid = answer?.dataset.postId || item.dataset.postId;
     const c = makeElem('input', {
       'type': 'checkbox',
       'class': 'saved-item-bulk-checkbox s-checkbox',
-      'value': item.dataset.postId
+      'value': pid
     });
     item.insertBefore(c, item.children[0]);
   });
