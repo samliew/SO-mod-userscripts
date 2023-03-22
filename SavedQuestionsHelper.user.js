@@ -3,14 +3,14 @@
 // @description  Batch-move Saved Questions between private lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.1
+// @version      1.0.2
 //
-// @match        *.stackoverflow.com/users/saves/*
-// @match        *.serverfault.com/users/saves/*
-// @match        *.superuser.com/users/saves/*
-// @match        *.askubuntu.com/users/saves/*
-// @match        *.mathoverflow.net/users/saves/*
-// @match        *.stackexchange.com/users/saves/*
+// @match        https://*.stackoverflow.com/users/saves/*
+// @match        https://*.serverfault.com/users/saves/*
+// @match        https://*.superuser.com/users/saves/*
+// @match        https://*.askubuntu.com/users/saves/*
+// @match        https://*.mathoverflow.net/users/saves/*
+// @match        https://*.stackexchange.com/users/saves/*
 // ==/UserScript==
 
 /* globals StackExchange */
@@ -402,6 +402,7 @@ styles.innerHTML = `
     left: -10px;
     bottom: -76px;
     right: -6px;
+    opacity: 0;
     z-index: 0;
 }
 .js-saves-post-list .js-post-tag-list-wrapper {
