@@ -3,7 +3,7 @@
 // @description  Batch-move Saved Questions between private lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.0.2
+// @version      1.1
 //
 // @match        https://*.stackoverflow.com/users/saves/*
 // @match        https://*.serverfault.com/users/saves/*
@@ -20,6 +20,8 @@
 const scriptName = GM_info.script.name.toLowerCase().replace(/\s+/g, '-');
 const siteApiSlug = location.hostname.replace(/(\.stackexchange)?\.(com|net|org)$/i, '');
 const apikey = '';
+
+const userId = StackExchange?.options?.user?.userId;
 const fkey = StackExchange?.options?.user?.fkey;
 
 const currListId = document.querySelector('.js-saves-sidebar-item .is-selected')?.parentElement.dataset.listId;
@@ -78,6 +80,36 @@ const makeElem = (tagName = 'div', attrs = {}, text = '', children = []) => {
 
 
 /**
+ * @summary Create saved list
+ * @param {string} [listName] new list name
+ * @returns {number} listId
+ */
+const createSavedList = async (listName) => {
+
+  // Validation
+  listName = listName.trim();
+  if(!listName) return false;
+
+  const formData = new FormData();
+  formData.append("fkey", fkey);
+  formData.append("listName", listName);
+
+  const resp = await fetch(`https://${location.host}/users/saves/${userId}/create-list`, {
+    "method": "POST",
+    "body": formData,
+  }).then(resp => resp.json());
+
+  // Toast success or error message
+  StackExchange?.helpers?.hideToasts();
+  StackExchange?.helpers?.showToast(resp.ToastMessage, {
+    type: resp?.Success ? 'success' : 'error',
+  });
+
+  return resp.ListId || false;
+};
+
+
+/**
  * @summary Move saved item
  * @param {number} [pid] post id
  * @param {number} [listId] list id
@@ -91,7 +123,7 @@ const moveSavedItem = async (pid, listId, listName = '') => {
   formData.append("listId", listId);
   if (listName) formData.append("listName", listName);
 
-  return await fetch("https://stackoverflow.com/posts/save/manage-save", {
+  return await fetch(`https://${location.host}/posts/save/manage-save`, {
     "method": "POST",
     "body": formData,
   }).then(resp => resp.json());
@@ -106,7 +138,7 @@ const moveSavedItem = async (pid, listId, listName = '') => {
  * @returns {string} html
  */
 const getSavesModal = async (pid = 1, isMove = false, currListId = null) => {
-  return await fetch(`https://stackoverflow.com/posts/${pid}/open-save-modal?isMoveTo=${isMove}&listId=${currListId}&_=${Date.now()}`, {
+  return await fetch(`https://${location.host}/posts/${pid}/open-save-modal?isMoveTo=${isMove}&listId=${currListId}&_=${Date.now()}`, {
     "method": "GET",
   }).then(resp => resp.text());
 };
@@ -160,9 +192,6 @@ const updateMoveDropdown = async () => {
     // Add saved lists to dropdown
     savedLists.forEach(v => {
 
-      // Skip "Create new list" item
-      if (v.id === 'create') return;
-
       // Build option text
       let text = v.name;
       if (v.count > 0) text += ` (${v.count})`;
@@ -180,6 +209,12 @@ const updateMoveDropdown = async () => {
 
       cAllSelect.appendChild(opt);
     });
+
+    // Insert group divider before last option (create new list)
+    const divider = makeElem('option', {
+      "disabled": "disabled",
+    }, '---');
+    cAllSelect.insertBefore(divider, cAllSelect.lastElementChild);
 
     // Re-enable dropdown
     cAllSelect.disabled = false;
@@ -211,11 +246,21 @@ const addEventListeners = () => {
 
   // Add event listener to bulk dropdown
   cAllSelect?.addEventListener('change', async evt => {
-    const listId = evt.target.value;
-    const listName = evt.target.selectedOptions[0].dataset.listName;
+    let listId = evt.target.value;
+    let listName = evt.target.selectedOptions[0].dataset.listName;
 
-    // TODO: Move to new list
-    if (listId === 'create' || !listId) return;
+    // Create new list
+    if(listId === 'create') {
+      listName = prompt('Enter new list name');
+      if(!listName) return;
+      listId = await createSavedList(listName);
+    }
+
+    // Validation
+    if (!listId) {
+      cAllSelect.selectedIndex = 0;
+      return;
+    }
 
     // Get selected checkboxes
     const selectedCbs = document.querySelectorAll('.saved-item-bulk-checkbox:checked');
@@ -232,11 +277,11 @@ const addEventListeners = () => {
 
       // In all saves page, update text of ".js-saved-in" to new list name
       if (isAllSavesPage) {
-        const newListId = /^\d+$/.test(listId) ? listId : ''; // only for numerical list ids
+        const updatedListId = /^\d+$/.test(listId) ? listId : ''; // only replace with numerical list ids or empty
         selectedCbs.forEach(cb => {
           const el = cb.parentElement.querySelector('.js-saved-in');
           el.innerText = listName;
-          el.href = el.href.replace(/\/\d*$/, `/${newListId}`);
+          el.href = el.href.replace(/\/\d*$/, `/${updatedListId}`);
         });
       }
       // Not in "All saves page"
