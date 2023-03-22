@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0
+// @version      3.0.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -529,7 +529,8 @@ function revertMainbarRelatedQuestions() {
     // module, move to sidebar
     module.removeClass('pt32 px16 d-none')
         .addClass('module sidebar-related')
-        .insertBefore($('.module, #feed-link', '#sidebar').last());
+        .insertBefore($('#feed-link, .zone-container-sidebar, #hireme', '#sidebar').first())
+        .insertAfter($('#sidebar .sidebar-linked')); // optimal position, but falls back to above slots
 
     // module title
     module.children('.fs-body3')
