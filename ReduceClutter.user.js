@@ -3,7 +3,7 @@
 // @description  Revert updates that makes the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.11
+// @version      3.0
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -27,7 +27,7 @@
 const blacklistedAnnouncementWords = ['podcast', 'listen', 'tune', 'survey', 'research', 'blog'];
 
 // Hide ads/clickbaity blog posts titles if they contain these keywords
-const blacklistedBlogWords = ['the loop', 'podcast', 'worst', 'bad', 'surprise', 'trick', 'terrible', 'will change', 'actually', 'team', 'try', 'free', 'easy', 'easier'];
+const blacklistedBlogWords = ['the loop', 'podcast', 'worst', 'bad', 'surprise', 'trick', 'terrible', 'will change', 'actually', 'team', 'try', 'free', 'easy', 'easier', 'e.p.', 'ep.'];
 
 
 // Append styles
@@ -361,6 +361,7 @@ document.addEventListener('DOMContentLoaded', function (evt) {
     hideClickbaityBlogPosts();
     setTimeout(stripUnnecessaryTracking, 2000);
 
+    revertMainbarRelatedQuestions();
     revertVotecellTooltips();
     initShortUsernames();
     initShortenBadgeCounts();
@@ -383,7 +384,7 @@ function showAnnouncementIfNotBlacklisted() {
             annBar.style.setProperty('display', 'block', 'important');
         }
         else {
-            console.log('Announcement bar has been blocked.', annText);
+            console.log('Reduce Clutter: Announcement bar has been blocked.', annText);
         }
     }
 }
@@ -401,7 +402,7 @@ function hideClickbaityBlogPosts() {
             if (isBlacklisted) {
                 $(this).parents('li').remove();
                 itemsRemoved++;
-                console.log('Featured blogpost has been blocked.', blogtext);
+                console.log('Reduce Clutter: Featured blogpost has been blocked.', blogtext);
             }
         });
 
@@ -434,19 +435,26 @@ function stripUnnecessaryTracking() {
 
         trackedElemCount++;
     });
-    console.log('Removed tracking data from ' + trackedElemCount + ' elements');
+    console.log('Reduce Clutter: Removed tracking data from ' + trackedElemCount + ' elements.');
 
     // Strip unnecessary query params from Q&A links
     let trackedQaCount = 0;
-    $('#content a').each(function (i, el) {
-        if (el.dataset.searchsession) {
+    const linkTrackingRegex = /[?&]((cb|lq|rq)=\d+|ref=.*)/i;
+    $('#content a, #sidebar a').each(function (i, el) {
+        let isTracking = false;
+        if (el.dataset.searchsession || el.dataset.tracker) {
             el.dataset.searchsession = '';
-            trackedQaCount++;
+            el.dataset.tracker = '';
+            isTracking = true;
         }
-        el.search ? el.href = el.getAttribute('href').replace(/[?&]((cb|lq|rq)=1|ref=.*)/i, '') : 0;
+        if (el.search && linkTrackingRegex.test(el.search)) {
+            el.href = el.getAttribute('href').replace(linkTrackingRegex, '');
+            isTracking = true;
+        }
+        if (isTracking) trackedQaCount++;
     });
     $('.js-search-results').off('mousedown touchstart');
-    console.log('Removed tracking data from ' + trackedQaCount + ' Q&A links');
+    console.log('Reduce Clutter: Removed tracking data from ' + trackedQaCount + ' Q&A links.');
 }
 
 
@@ -501,7 +509,7 @@ function revertVotecellTooltips() {
 
         // Remove "title" attributes from elements that have an attached "s-popover__tooltip"
         //  so you don't have both showing at the same time
-        $('.s-popover__tooltip').each(function() {
+        $('.s-popover__tooltip').each(function () {
             $(this).prev('[data-controller="s-tooltip"]').attr('title', '');
         });
     }
@@ -509,6 +517,59 @@ function revertVotecellTooltips() {
     findAndRevertTooltips();
     setTimeout(findAndRevertTooltips, 200);
     $(document).ajaxStop(() => setTimeout(findAndRevertTooltips, 200)); // on page update
+}
+
+
+function revertMainbarRelatedQuestions() {
+
+    const module = $('#inline_related_var_a_more');
+    if (!module.length) return;
+
+    // Set respective classes
+    // module, move to sidebar
+    module.removeClass('pt32 px16 d-none')
+        .addClass('module sidebar-related')
+        .insertBefore($('.module, #feed-link', '#sidebar').last());
+
+    // module title
+    module.children('.fs-body3')
+        .removeClass('pb8 fs-body3')
+        .addClass('fs-subheading mt16 mb16 pb2')
+        .text((i, v) => v.replace(' questions', ''));
+
+    // list
+    module.children().last()
+        .removeClass('bar-lg ba bc-black-150 js-gps-inline-related-questions')
+        .addClass('related');
+
+    // list items
+    module.find('.spacer')
+        .removeClass('bb bc-black-150');
+
+    // links
+    const links = module.find('.spacer > a')
+        .removeClass('p12')
+        .addClass('ai-start pr0');
+
+    // score
+    links.children('.s-badge')
+        .addClass('mr8');
+
+    // title wrapper
+    links.children('.fl-grow1, .pr12')
+        .removeClass('pr12')
+        .addClass('ml2 h100 ai-center');
+
+    // title (originally truncated)
+    module.find('.break-word, .fs-body1, .v-truncate1')
+        .removeClass('break-word fs-body1 m0 pl16 v-truncate1')
+        .attr('title', '');
+
+    // Remove expand link
+    $('#inline_related_var_a_less').remove();
+    $('#inline_related_see_more').parent().remove();
+
+    console.log('Reduce Clutter: Moved Related questions module back to sidebar.');
 }
 
 
