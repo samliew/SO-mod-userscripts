@@ -3,7 +3,7 @@
 // @description  Batch-move Saved Questions between private lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.1
+// @version      1.1.1
 //
 // @match        https://*.stackoverflow.com/users/saves/*
 // @match        https://*.serverfault.com/users/saves/*
@@ -101,7 +101,7 @@ const createSavedList = async (listName) => {
 
   // Toast success or error message
   StackExchange?.helpers?.hideToasts();
-  StackExchange?.helpers?.showToast(resp.ToastMessage, {
+  StackExchange?.helpers?.showToast(resp.ToastMessage || resp.ErrorMessage, {
     type: resp?.Success ? 'success' : 'error',
   });
 
