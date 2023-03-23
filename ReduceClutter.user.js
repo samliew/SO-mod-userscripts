@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Reduce Clutter
-// @description  Revert updates that makes the page more cluttered or less accessible
+// @description  Revert updates that make the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0.1
+// @version      3.0.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -24,7 +24,7 @@
 'use strict';
 
 // Show announcement bar if it does not contain these keywords
-const blacklistedAnnouncementWords = ['podcast', 'listen', 'tune', 'survey', 'research', 'blog'];
+const blacklistedAnnouncementWords = ['podcast', 'listen', 'tune', 'research', 'blog'];
 
 // Hide ads/clickbaity blog posts titles if they contain these keywords
 const blacklistedBlogWords = ['the loop', 'podcast', 'worst', 'bad', 'surprise', 'trick', 'terrible', 'will change', 'actually', 'team', 'try', 'free', 'easy', 'easier', 'e.p.', 'ep.'];
@@ -128,8 +128,8 @@ ul.comments-list .comment-up-on {
 
 
 /*
-   Hide new contributor popover
-   Hide new contributor displaying twice on a post (post author and when commenting)
+   Hide "new contributor" popover
+   Hide "new contributor" displaying twice on a post (post author and when commenting)
    https://meta.stackoverflow.com/q/372877
 */
 .js-new-contributor-popover {
@@ -206,7 +206,7 @@ ul.comments-list .comment-up-on {
 
 
 /*
-   Remove new edit button from question closed notice
+   Remove edit button from question closed notice
    https://meta.stackexchange.com/q/349479
 */
 .js-post-notice .mt24:last-child {
@@ -343,11 +343,10 @@ div.js-community-icons {
     min-height: 0 !important;
 }
 `;
-
-
 document.head.appendChild(styles);
 
 
+// On page load
 document.addEventListener('DOMContentLoaded', function (evt) {
 
     // If rep notification is displaying low values, remove it
@@ -361,7 +360,7 @@ document.addEventListener('DOMContentLoaded', function (evt) {
     hideClickbaityBlogPosts();
     setTimeout(stripUnnecessaryTracking, 2000);
 
-    revertMainbarRelatedQuestions();
+    revertRelatedQuestions();
     revertVotecellTooltips();
     initShortUsernames();
     initShortenBadgeCounts();
@@ -371,6 +370,10 @@ document.addEventListener('DOMContentLoaded', function (evt) {
 });
 
 
+/*
+ * [feature]
+ * Hide the announcement bar if it contains blacklisted keywords (usually used to promote podcasts or blog posts)
+ */
 function showAnnouncementIfNotBlacklisted() {
 
     const annBar = document.getElementById('announcement-banner');
@@ -390,6 +393,10 @@ function showAnnouncementIfNotBlacklisted() {
 }
 
 
+/*
+ * [feature]
+ * Hide click-baity blog posts from sidebar. If there are no remaining items, remove the blog section.
+ */
 function hideClickbaityBlogPosts() {
 
     // Hide clickbaity featured blog post titles from sidebar
@@ -414,6 +421,10 @@ function hideClickbaityBlogPosts() {
 }
 
 
+/*
+ * [feature]
+ * Remove tracking from elements (e.g.: links and buttons)
+ */
 function stripUnnecessaryTracking() {
 
     // Strip unnecessary tracking
@@ -458,6 +469,10 @@ function stripUnnecessaryTracking() {
 }
 
 
+/*
+ * [feature]
+ * Improve the display of duplicates edited list on the post revisions page
+ */
 function betterDuplicatesEditedList() {
 
     $('.js-revisions .js-revision-comment').not('.somu-duplicates-edited').each(function (i, el) {
@@ -494,6 +509,10 @@ function betterDuplicatesEditedList() {
 }
 
 
+/*
+ * [revert]
+ * Instead of using the s-popover__tooltip, use the title attribute
+ */
 function revertVotecellTooltips() {
 
     function findAndRevertTooltips() {
@@ -520,7 +539,12 @@ function revertVotecellTooltips() {
 }
 
 
-function revertMainbarRelatedQuestions() {
+/*
+ * [revert]
+ * Revert the "Related" questions module under unanswered questions back to the sidebar
+ * See https://meta.stackoverflow.com/q/423143 (2023-02-10)
+ */
+function revertRelatedQuestions() {
 
     const module = $('#inline_related_var_a_more');
     if (!module.length) return;
@@ -574,15 +598,21 @@ function revertMainbarRelatedQuestions() {
 }
 
 
+/*
+ * [feature]
+ * Try to truncate usernames that are too long and take up too much space causing wrapping
+ */
 function initShortUsernames() {
 
     function findAndShortenUsernames() {
-        $('a[href^="/users/"], #qtoc a.post-hyperlink').not('.my-profile').not('.js-shortusernames')
+        $('a[href^="/users/"], #qtoc a.post-hyperlink').not('.my-profile').not('[data-original-username]')
             .filter((i, el) => el.children.length === 0)
-            .addClass('js-shortusernames').text((i, v) => {
-                return v.trim()
-                    .replace(/[\s-_]+(-|_|says|wants|likes|loves|supports|has|is|is.at|stands|with|reinstate)[\s-_]*.+$/i, '');
-            });
+            .attr('data-original-username', function () {
+                return this.innerText;
+            })
+            .text((i, v) => v.trim()
+                .replace(/[\s-_]+(-|_|says|wants|likes|loves|supports|has|is|is.at|stands|with|reinstate)[\s-_]*.+$/i, '')
+            );
     }
 
     findAndShortenUsernames();
@@ -590,10 +620,14 @@ function initShortUsernames() {
 }
 
 
+/*
+ * [feature]
+ * Fix badge counts that are too long and take up too much space causing wrapping
+ */
 function initShortenBadgeCounts() {
 
     function findAndShortenBadgeCounts() {
-        $('.badgecount').not('.js-shortbadgecounts').addClass('js-shortbadgecounts').text((i, v) => v.length <= 3 ? v : v.replace(/\d{3}$/, 'k'));
+        $('.badgecount').not('[data-shortbadgecounts]').attr('data-shortbadgecounts', '').text((i, v) => v.length <= 3 ? v : v.replace(/\d{3}$/, 'k'));
     }
 
     findAndShortenBadgeCounts();
@@ -601,6 +635,10 @@ function initShortenBadgeCounts() {
 }
 
 
+/*
+ * [bugfix]
+ * Some images (e.g.: avatars) may be broken or blocked - this will replace them with a transparent image with a gray background
+ */
 function initFixBrokenImages() {
 
     function fixBrokenImages() {
@@ -610,7 +648,7 @@ function initFixBrokenImages() {
 
             const originalImg = img.src;
 
-            // When image throws an error, set to transparent with gray bgcolor
+            // When image throws an error, set to transparent svg with gray background
             img.addEventListener('error', function (evt) {
                 img.setAttribute('data-original-image', originalImg);
                 img.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E"; // https://stackoverflow.com/a/26896684
