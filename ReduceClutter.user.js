@@ -3,7 +3,7 @@
 // @description  Revert updates that make the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.0.2
+// @version      3.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -546,7 +546,7 @@ function revertVotecellTooltips() {
  */
 function revertRelatedQuestions() {
 
-    const module = $('#inline_related_var_a_more');
+    const module = $('#inline_related_var_a_more, #inline_related_var_a_less').first();
     if (!module.length) return;
 
     // Set respective classes
@@ -591,7 +591,7 @@ function revertRelatedQuestions() {
         .attr('title', '');
 
     // Remove expand link
-    $('#inline_related_var_a_less').remove();
+    if($('#inline_related_var_a_more').length > 1) $('#inline_related_var_a_less').remove();
     $('#inline_related_see_more').parent().remove();
 
     console.log('Reduce Clutter: Moved Related questions module back to sidebar.');
