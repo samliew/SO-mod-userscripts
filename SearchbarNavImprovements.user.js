@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      6.5
+// @version      6.6
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -45,11 +45,10 @@ const metaUrl = StackExchange.options.site.childUrl || 'https://' + location.hos
 const siteslug = location.hostname.split('.')[0];
 const currentSiteSlug = location.hostname.replace('.stackexchange', '').replace(/\.\w+$/, ''); // for SEDE
 const hasSearchResults = (location.pathname === '/search' && location.search.length > 2) || location.pathname.indexOf('/questions/tagged/') == 0;
-const mixed = isSO ? '&searchOn=1' : '';
 
 const store = window.localStorage;
 const searchSelector = $(`<div class="flex--item s-select wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
-<option data-url="${mainUrl}/search" ${!isChildMeta ? 'selected="selected"' : ''} data-mixed="0">${mainName}</option>
+<option data-url="${mainUrl}/search" ${!isChildMeta ? 'selected="selected"' : ''}>${mainName}</option>
 <option data-url="${metaUrl}/search" ${isChildMeta ? 'selected="selected"' : ''}>Meta</option>
 <option data-url="https://${mseDomain}/search">Meta Stack Exchange</option>
 </select></div>`);
@@ -200,11 +199,9 @@ jQuery.fn.tagLookup = function (multiple = false, delay = 800) {
 
 // Saved Search helper functions
 const ssKeyRoot = 'SavedSearch';
-// Sanitize: strip mixed, strip page, convert to lowercase
+// Sanitize: strip page, convert to lowercase
 function sanitizeQuery(value) {
   return value.toLowerCase()
-    .replace(/[?&]searchon=\d+/, '')
-    .replace(/[?&]mixed=[10]/, '')
     .replace(/[?&]page=\d+/, '')
     .replace(/[?&]pagesize=\d+/, '')
     .replace(/[?&]refresh=\d+/, '')
@@ -385,7 +382,6 @@ function initQuickfilters() {
   if (!hasSearchResults) return;
 
   let query = sanitizeQuery(location.search);
-  const querysuffix = mixed;
   const lastSort = getLastSort();
   const isOnTagPage = query == '';
 
@@ -399,19 +395,19 @@ function initQuickfilters() {
 <div id="res-quickfilter">Quick filters:
   <div class="grid tabs-filter tt-capitalize">
   <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap ${isOnTagPage ? 'is-selected' : ''}"
-    href="${removeParam(query, 'is')}+is%3aq${querysuffix}" data-onwhen="is%3aq"
-    data-toggleoff="${removeParam(query, 'is')}${querysuffix}">questions</a>
+    href="${removeParam(query, 'is')}+is%3aq" data-onwhen="is%3aq"
+    data-toggleoff="${removeParam(query, 'is')}">questions</a>
   <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
-    href="${removeParam(query, 'is')}+is%3aa${querysuffix}" data-onwhen="is%3aa"
-    data-toggleoff="${removeParam(query, 'is')}${querysuffix}">answers</a>
+    href="${removeParam(query, 'is')}+is%3aa" data-onwhen="is%3aa"
+    data-toggleoff="${removeParam(query, 'is')}">answers</a>
   </div>
   <div class="grid tabs-filter tt-capitalize">
   <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
-    href="${removeParam(query, 'deleted')}+deleted%3a1${querysuffix}" data-onwhen="deleted%3ayes"
-    data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany${querysuffix}">deleted</a>
+    href="${removeParam(query, 'deleted')}+deleted%3a1" data-onwhen="deleted%3ayes"
+    data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany">deleted</a>
   <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
-    href="${removeParam(query, 'deleted')}+deleted%3a0${querysuffix}" data-onwhen="deleted%3ano" data-onwhenmissing="deleted%3a"
-    data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany${querysuffix}">not deleted</a>
+    href="${removeParam(query, 'deleted')}+deleted%3a0" data-onwhen="deleted%3ano" data-onwhenmissing="deleted%3a"
+    data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany">not deleted</a>
   </div>
 </div>`).insertAfter('.js-advanced-tips');
 
@@ -432,7 +428,7 @@ function initQuickfilters() {
 
   function removeParam(query, param) {
     const re = new RegExp('\\+?' + param + '%3a[a-z0-9]+');
-    return query.toLowerCase().replace(/&(searchon|mixed)=[^&]+/gi, '').replace(re, '');
+    return query.toLowerCase().replace(re, '');
   }
 
 }
@@ -467,7 +463,7 @@ function initSavedSearch() {
       const sstemplate = $(`
 <div class="item" data-value="${v}">
   <span class="handle"></span>
-  <a href="${channel}/search${v}${mixed}">${readable}</a>
+  <a href="${channel}/search${v}">${readable}</a>
   <div class="actions">
     <a class="delete" data-svg="delete" title="Delete (no confirmation)"></a>
   </div>
@@ -1084,7 +1080,6 @@ function doPageLoad() {
       .find('.js-search-field, .js-search-submit').wrapAll('<div class="flex--item ps-relative fl1"></div>');
 
     searchform
-      .append('<input name="mixed" value="0" type="hidden" id="search-channel-mixed">')
       .find('.js-search-field').addClass('search-channel-switcher-field');
   }
   // If using new search bar
