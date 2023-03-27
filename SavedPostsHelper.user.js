@@ -3,7 +3,7 @@
 // @description  Batch-move saved posts between private lists, quick move after saving in Q&A
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2
+// @version      1.2.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -295,7 +295,7 @@ const handleMoveDropdownEvent = async evt => {
       });
     }
     // Not in "All saves page"
-    else {
+    else if(isOnSavesPages) {
       // Remove from display
       selectedCbs.forEach(cb => {
         cb.closest('.js-saves-post-summary').remove();
@@ -357,6 +357,11 @@ const postSavedEvent = async (postId, isQuestion = false) => {
     cb
   ]);
   $('.js-toast .js-toast-body').append(cAllSelectWrapper);
+
+  // Add event listener to move dropdown
+  cAllSelect?.addEventListener('change', handleMoveDropdownEvent);
+
+  // Load options
   await updateMoveDropdown(postId, isQuestion);
 };
 
@@ -376,6 +381,8 @@ const addEventListeners = () => {
       cbs?.forEach(box => { box.checked = checked });
     });
 
+    // Add event listener to move dropdown
+    cAllSelect?.addEventListener('change', handleMoveDropdownEvent);
   }
   else if (isOnQnaPages) {
 
@@ -394,9 +401,6 @@ const addEventListeners = () => {
       }
     });
   }
-
-  // Add event listener to move dropdown
-  cAllSelect?.addEventListener('change', handleMoveDropdownEvent);
 };
 
 
