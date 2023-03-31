@@ -3,7 +3,7 @@
 // @description  Batch-move saved posts between private lists, quick move after saving in Q&A
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.2.1
+// @version      1.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -20,6 +20,9 @@
 
 'use strict';
 
+const enableConsoleLog = false;
+let clog = enableConsoleLog ? console.log : () => {};
+
 const $ = jQuery;
 const scriptName = GM_info.script.name.toLowerCase().replace(/\s+/g, '-');
 const siteApiSlug = location.hostname.replace(/(\.stackexchange)?\.(com|net|org)$/i, '');
@@ -35,7 +38,7 @@ const isOnAllSavesPage = location.pathname.endsWith('/all');
 const isOnForLaterPage = !!document.querySelector('[data-is-forlater="True"]') || (!currListId && !isOnAllSavesPage);
 
 if(isOnSavesPages) {
-  console.log(`Current saves list: ${currListId ? currListId : (isOnForLaterPage ? 'For later' : 'All saves')}`);
+  clog(`Current saves list: ${currListId ? currListId : (isOnForLaterPage ? 'For later' : 'All saves')}`);
 }
 
 // Validation
@@ -94,6 +97,7 @@ const makeElem = (tagName = 'div', attrs = {}, text = '', children = []) => {
  * @returns {number} listId
  */
 const createSavedList = async (listName) => {
+  clog('createSavedList', listName);
 
   // Validation
   listName = listName.trim();
@@ -119,6 +123,27 @@ const createSavedList = async (listName) => {
 
 
 /**
+ * @summary Save item
+ * @param {number} [pid] post id
+ * @param {number} [listId] list id
+ * @param {string} [listName] list name (Optional)
+ * @returns {string} html
+ */
+const saveItem = async (pid, listName = '') => {
+  clog('saveItem', pid, listName);
+
+  const formData = new FormData();
+  formData.append("fkey", fkey);
+  if (listName) formData.append("listName", listName);
+
+  return await fetch(`https://${location.host}/posts/${pid}/save`, {
+    "method": "POST",
+    "body": formData,
+  }).then(resp => resp.json());
+};
+
+
+/**
  * @summary Move saved item
  * @param {number} [pid] post id
  * @param {number} [listId] list id
@@ -126,6 +151,8 @@ const createSavedList = async (listName) => {
  * @returns {string} html
  */
 const moveSavedItem = async (pid, listId, listName = '') => {
+  clog('moveSavedItem', pid, listId, listName);
+
   const formData = new FormData();
   formData.append("fkey", fkey);
   formData.append("postId", pid);
@@ -147,6 +174,9 @@ const moveSavedItem = async (pid, listId, listName = '') => {
  * @returns {string} html
  */
 const getSavesModal = async (pid = 1, isMove = false, currListId = null) => {
+  clog('getSavesModal', pid, isMove, currListId);
+
+  if(!pid) return;
   return await fetch(`https://${location.host}/posts/${pid}/open-save-modal?isMoveTo=${isMove}&listId=${currListId}&_=${Date.now()}`, {
     "method": "GET",
   }).then(resp => resp.text());
@@ -158,15 +188,19 @@ const getSavesModal = async (pid = 1, isMove = false, currListId = null) => {
  * @param {number} [pid] post id
  * @returns {object[]} list of { name, id, count }
  */
-const getSavesLists = async (postId = null) => {
+const getSavesLists = async (postId = 1) => {
+  clog('getSavesLists', postId);
+
   const modalBody = await getSavesModal(postId);
   const el = document.createElement('div');
   el.innerHTML = modalBody;
   const options = el.querySelectorAll('.js-save-manage-select option');
   const values = [...options].map(v => {
-    const hasCount = / \((\d+,)*\d+\)$/.test(v.innerText);
+    // there are newlines and spaces when loading save lists in Q&A pages for some reason
+    const hasCount = / \((\d+,)*\d+\)[\n\s]*$/.test(v.innerText);
     return {
-      name: v.innerText.replace(/\s*\(\d+\)$/, '').trim(),
+      // there are newlines and spaces when loading save lists in Q&A pages for some reason
+      name: v.innerText.replace(/[\n\s]*\(\d+\)[\n\s]*$/, '').trim(),
       id: v.value,
       count: hasCount ? v.innerText.match(/(?:\d+,)*\d+/g).pop() : 0
     }
@@ -184,12 +218,28 @@ const updateMoveDropdown = async (postId = null, isQuestion = false) => {
     cAllSelect.dataset.postId = postId;
     cAllSelect.dataset.isQuestion = isQuestion;
   }
+  else if(isOnQnaPages) {
+    // Get post id from url
+    postId = location.pathname.match(/\d+/)?.shift() ?? null;
+  }
+  else {
+    // Get a valid post id from anywhere on page
+    postId = document.querySelector('a[href^="/questions/"]')?.href.match(/\d+/)?.shift() ?? null;
+  }
+
+  clog('updateMoveDropdown', postId, isQuestion);
 
   // Get saved lists
   const savedLists = await getSavesLists(postId);
 
   // Update move dropdown list
   if (cAllSelect) {
+
+    if(postId) {
+      cAllSelect.dataset.postId = postId;
+      cAllSelect.dataset.isQuestion = isQuestion;
+    }
+
     cAllSelect.disabled = true;
 
     // Remove all existing options
@@ -281,7 +331,7 @@ const handleMoveDropdownEvent = async evt => {
     // Move to selected list
     selectedCbs.forEach(async cb => {
       const pid = cb.value;
-      await moveSavedItem(pid, listId);
+      const resp = await moveSavedItem(pid, listId);
       cb.checked = false;
     });
 
@@ -297,17 +347,18 @@ const handleMoveDropdownEvent = async evt => {
     // Not in "All saves page"
     else if(isOnSavesPages) {
       // Remove from display
-      selectedCbs.forEach(cb => {
+      selectedCbs?.forEach(cb => {
         cb.closest('.js-saves-post-summary').remove();
       });
 
       // Reduce count in header
-      elSavesCount.innerText = Number(elSavesCount.innerText) - num;
+      if(elSavesCount) elSavesCount.innerText = Number(elSavesCount.innerText) - num;
     }
 
     // Toast success message
+    const listUrl = Number(listId) ? `<a href="/users/saves/current/${listId}">${listName}</a>` : `<a href="/users/saves/current">For later</a>`;
     StackExchange?.helpers?.hideToasts();
-    StackExchange?.helpers?.showToast(`${num} post${num > 1 ? 's' : ''} moved to <a href="/users/saves/current/${listId}">${listName}</a>.`, {
+    StackExchange?.helpers?.showToast(`${num} post${num > 1 ? 's' : ''} moved to ${listUrl}.`, {
       type: 'success',
       useRawHtml: true,
       transient: true,
@@ -334,11 +385,11 @@ const handleMoveDropdownEvent = async evt => {
 
 
 /**
- * @summary Handle post saved on Q&A page event
+ * @summary Handle post saved event
  */
 const postSavedEvent = async (postId, isQuestion = false) => {
 
-  // Add dropdown to alert
+  // Add dropdown to toast
   cAllSelect = makeElem('select', {
     'class': 'saved-item-all-dropdown',
     'disabled': 'disabled',
@@ -366,12 +417,58 @@ const postSavedEvent = async (postId, isQuestion = false) => {
 };
 
 
+/**
+ * @summary Handle post UNsaved event
+ * Unfortunately we don't know which list the post was unsaved from so we can only "undo" to the default list (For later)
+ */
+const postUnsavedEvent = async (postId , isQuestion = false) => {
+
+  // When undo button is clicked
+  const handleUndoClickEvent = async (evt) => {
+    const postId = evt.target.value;
+    const resp = await saveItem(postId, currListId ?? null);
+    clog(`${isQuestion ? 'Question' : 'Answer'} was saved.`, postId, resp);
+
+    // Toast success message
+    const listName = document.querySelector('.js-saves-list-header')?.childNodes[0].textContent ?? 'For later';
+    const listUrl = Number(currListId) ? `<a href="/users/saves/current/${currListId}">${listName}</a>` : `<a href="/users/saves/current">For later</a>`;
+    StackExchange?.helpers?.hideToasts();
+    StackExchange?.helpers?.showToast(`${isQuestion ? 'Question' : 'Answer'} was resaved to ${listUrl}.`, {
+      type: 'success',
+      useRawHtml: true,
+      transient: true,
+      transientTimeout: 20e3,
+    });
+
+    // If on Q&A page, undo the saves button on the post
+    $(`#saves-btn-${postId} svg`).toggleClass('d-none');
+  };
+
+  // Add undo button to toast
+  const undoBtn = makeElem('button', {
+    'type': 'button',
+    'class': 's-btn s-btn__xs s-btn__danger s-btn__outlined',
+    'value': postId
+  }, 'Undo?');
+  const undoBtnWrapper = makeElem('span', {
+    'class': 's-select-wrapper d-inline-block ml4'
+  }, null, [
+    undoBtn
+  ]);
+  $('.js-toast .js-toast-body').append(undoBtnWrapper);
+
+  // Add event listener to undo button
+  undoBtn.addEventListener('click', handleUndoClickEvent);
+};
+
+
 
 /**
  * @summary Add event listeners
  */
 const addEventListeners = () => {
 
+  // Saved pages only
   if (isOnSavesPages) {
 
     // Add event listener to bulk checkbox
@@ -383,17 +480,21 @@ const addEventListeners = () => {
 
     // Add event listener to move dropdown
     cAllSelect?.addEventListener('change', handleMoveDropdownEvent);
+
   }
+
+  // Q&A pages only
   else if (isOnQnaPages) {
 
     // On page update
     $(document).ajaxComplete(async (evt, xhr, settings) => {
+      if(xhr.status !== 200) return; // capture successful requests only
 
       // Post was saved on Q&A page
       if (/\/posts\/\d+\/save$/.test(settings.url)) {
         const postId = Number(settings.url.match(/\/posts\/(\d+)\/save$/)?.pop());
-        const isQuestion = xhr.responseJSON?.NextTooltip.includes('question');
-        console.log('Post was saved', postId, xhr.responseJSON);
+        const isQuestion = xhr.responseJSON?.NextTooltip?.includes('question');
+        clog(`${isQuestion ? 'Question' : 'Answer'} was saved.`, postId, xhr.responseJSON);
 
         setTimeout(() => {
           postSavedEvent(postId, isQuestion);
@@ -401,6 +502,24 @@ const addEventListeners = () => {
       }
     });
   }
+
+  // On all pages,
+
+  // On page update
+  $(document).ajaxComplete(async (evt, xhr, settings) => {
+    if(xhr.status !== 200) return; // capture successful requests only
+
+    // Post was UNsaved
+    if (/\/posts\/\d+\/save\?isUndo=true$/.test(settings.url)) {
+      const postId = Number(settings.url.match(/\/posts\/(\d+)\/save\?isUndo=true$/)?.pop());
+      const isQuestion = xhr.responseJSON?.NextTooltip.includes('question');
+      clog(`${isQuestion ? 'Question' : 'Answer'} was unsaved.`, postId, xhr.responseJSON);
+
+      setTimeout(() => {
+        postUnsavedEvent(postId, isQuestion);
+      }, 100);
+    }
+  });
 };
 
 
