@@ -3,7 +3,7 @@
 // @description  Batch-move saved posts between private lists, quick move after saving in Q&A
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3
+// @version      1.3.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -129,11 +129,12 @@ const createSavedList = async (listName) => {
  * @param {string} [listName] list name (Optional)
  * @returns {string} html
  */
-const saveItem = async (pid, listName = '') => {
+const saveItem = async (pid, listId = '', listName = '') => {
   clog('saveItem', pid, listName);
 
   const formData = new FormData();
   formData.append("fkey", fkey);
+  if (listId) formData.append("listId", listId);
   if (listName) formData.append("listName", listName);
 
   return await fetch(`https://${location.host}/posts/${pid}/save`, {
@@ -214,11 +215,7 @@ const getSavesLists = async (postId = 1) => {
  */
 const updateMoveDropdown = async (postId = null, isQuestion = false) => {
 
-  if(postId) {
-    cAllSelect.dataset.postId = postId;
-    cAllSelect.dataset.isQuestion = isQuestion;
-  }
-  else if(isOnQnaPages) {
+  if(isOnQnaPages) {
     // Get post id from url
     postId = location.pathname.match(/\d+/)?.shift() ?? null;
   }
@@ -234,7 +231,6 @@ const updateMoveDropdown = async (postId = null, isQuestion = false) => {
 
   // Update move dropdown list
   if (cAllSelect) {
-
     if(postId) {
       cAllSelect.dataset.postId = postId;
       cAllSelect.dataset.isQuestion = isQuestion;
@@ -426,14 +422,20 @@ const postUnsavedEvent = async (postId , isQuestion = false) => {
   // When undo button is clicked
   const handleUndoClickEvent = async (evt) => {
     const postId = evt.target.value;
-    const resp = await saveItem(postId, currListId ?? null);
-    clog(`${isQuestion ? 'Question' : 'Answer'} was saved.`, postId, resp);
+    const resp = await saveItem(postId);
+    clog(`${isQuestion ? 'Question' : 'Answer'} was resaved.`, postId, resp);
+
+    // If we know the current list id, move it back there
+    if(Number(currListId)) {
+      const resp2 = await moveSavedItem(postId, currListId);
+      clog(`${isQuestion ? 'Question' : 'Answer'} was moved to ${currListId}.`, postId, currListId, resp);
+    }
 
     // Toast success message
     const listName = document.querySelector('.js-saves-list-header')?.childNodes[0].textContent ?? 'For later';
     const listUrl = Number(currListId) ? `<a href="/users/saves/current/${currListId}">${listName}</a>` : `<a href="/users/saves/current">For later</a>`;
     StackExchange?.helpers?.hideToasts();
-    StackExchange?.helpers?.showToast(`${isQuestion ? 'Question' : 'Answer'} was resaved to ${listUrl}.`, {
+    StackExchange?.helpers?.showToast(`${isQuestion ? 'Question' : 'Answer'} was resaved to ${listUrl}. Please refresh the page.`, {
       type: 'success',
       useRawHtml: true,
       transient: true,
