@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.4
+// @version      3.4.1
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -46,24 +46,24 @@ function getCurrentUserId() {
     // Mod & CM messages
     if (location.pathname.includes('/users/message/') || location.pathname.includes('/admin/cm-message/')) {
         const userLink = $('.msg-moderator:first a[href^="/users/"], #js-msg-form .user-details a, #msg-form .user-details a:first').last();
-        return userLink.attr('href').match(/\d+/)[0];
+        return userLink.attr('href').match(/\d+/)?.shift() ?? null;
     }
 
     // User & user admin pages
     if (document.body.classList.contains('user-page') || (/[/-]users?[/-]/.test(location.href)) && document.body.classList.contains('mod-page')) {
-        return location.href.match(/\d+/)[0];
+        return location.href.match(/\d+/)?.shift() ?? null;
     }
 
     // Chat
     if (isChat && location.pathname.includes('/users/')) {
         const parentuser = getChatParentUser();
-        return parentuser ? parentuser.match(/\d+/)[0] : null;
+        return parentuser?.match(/\d+/)?.shift() ?? null;
     }
 
     // Question asker
     const questionUser = $('#question .post-signature:last a[href*="/users/"]').first();
-    if (questionUser.length !== 0) {
-        return questionUser.attr('href').match(/\d+/)[0];
+    if (questionUser.length) {
+        return questionUser.attr('href').match(/\d+/)?.shift() ?? null;
     }
 
     // Default
@@ -151,6 +151,9 @@ function doChatSidebar() {
 
     // Handle resize
     $(window).on('load resize', function () {
+        $('body').toggleClass('usersidebar-open', $(document).width() >= 1400);
+    });
+    $(document).on('ready', function () {
         $('body').toggleClass('usersidebar-open', $(document).width() >= 1400);
     });
 }
