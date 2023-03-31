@@ -3,7 +3,7 @@
 // @description  Batch-move saved posts between private lists, quick move after saving in Q&A
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      1.3.1
+// @version      1.3.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -304,6 +304,7 @@ const updateMoveDropdown = async (postId = null, isQuestion = false) => {
 const handleMoveDropdownEvent = async evt => {
   let listId = evt.target.value;
   let listName = evt.target.selectedOptions[0].dataset.listName;
+  const isQuestion = evt.target.dataset.isQuestion === 'true';
 
   // Create new list
   if(listId === 'create') {
@@ -353,8 +354,9 @@ const handleMoveDropdownEvent = async evt => {
 
     // Toast success message
     const listUrl = Number(listId) ? `<a href="/users/saves/current/${listId}">${listName}</a>` : `<a href="/users/saves/current">For later</a>`;
+    const numberMoved = isOnQnaPages && num === 1 ? `${isQuestion ? 'Question' : 'Answer'}` : `${num} post${num > 1 ? 's' : ''}`;
     StackExchange?.helpers?.hideToasts();
-    StackExchange?.helpers?.showToast(`${num} post${num > 1 ? 's' : ''} moved to ${listUrl}.`, {
+    StackExchange?.helpers?.showToast(`${numberMoved} moved to ${listUrl}.`, {
       type: 'success',
       useRawHtml: true,
       transient: true,
