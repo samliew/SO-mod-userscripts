@@ -3,7 +3,7 @@
 // @description  Revert updates that make the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.1
+// @version      3.2
 //
 // @include      https://*stackoverflow.com/*
 // @include      https://*serverfault.com/*
@@ -406,7 +406,8 @@ function hideClickbaityBlogPosts() {
         let items = blogheader.nextAll('li').find('a[href^="https://stackoverflow.blog"]').each(function (i, el) {
             const blogtext = el.innerText.toLowerCase().trim();
             const isBlacklisted = blacklistedBlogWords && blacklistedBlogWords.some(v => blogtext.includes(v));
-            if (isBlacklisted) {
+            const isSponsored = el.nextElementSibling?.innerText.includes('sponsored');
+            if (isBlacklisted || isSponsored) {
                 $(this).parents('li').remove();
                 itemsRemoved++;
                 console.log('Reduce Clutter: Featured blogpost has been blocked.', blogtext);
