@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      3.8
+// @version      3.8.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.superuser.com/*
@@ -401,10 +401,12 @@ function initModMessageHelper() {
         // Show hidden email field
         $('#js-send-email, input[name="email"]')
             .attr('type', 'checkbox')
+            .addClass('s-checkbox ml4')
             .change(function () {
                 $('#js-to-warning').toggleClass('hidden', !this.checked);
+                $('#js-to-warning_2').toggleClass('hidden', this.checked);
             })
-            .wrap('<label for="send-email" class="dblock">send email: </label>');
+            .wrap('<label for="js-send-email" class="d-block">send email: </label>');
 
         // Show alternate message if no email
         $('#js-to-warning').after(`<div id="js-to-warning_2" class="s-notice s-notice__info mt8">The user will <em>only</em> receive this message on Stack Overflow.</div>`);
@@ -426,10 +428,10 @@ function initModMessageHelper() {
                     label.find('.somu-templateName-too-long-span').add(this).attr('title', `This message will ${diffToMax > 0 ? 'not ' : ''}be shown in the moderator inbox. Due to a bug, if ${length} (current template name length) is more than ${maxTemplateNameLengthForNoException} (max characters with this user's username), then this moderator message will not be shown in the moderator inbox.`);
                     label.toggleClass('somu-templateName-too-long', length > maxTemplateNameLengthForNoException);
                 })
-                .wrap('<label for="js-template-name" class="dblock"></label>')
+                .wrap('<label for="js-template-name" class="d-block"></label>')
                 .before(`<span class="inline-label" title="The template name is displayed only to moderators and Community Managers. It's shown in the moderator inbox, the user's User History, and some other moderator-only pages which track moderator messages.">template name:<span class="somu-templateName-too-long-span">too long for mod inbox</span></span>`);
-            $('#js-suspend-reason').wrap('<label for="js-suspend-reason" class="dblock"></label>').before(`<span class="inline-label" title="publicly displayed as 'This account is temporarily suspended _____'"><span style="border-bottom: 1px dotted #000">suspend reason:</span></span>`);
-            $('#js-template-edited').wrap('<label for="js-template-edited" class="dblock"></label>').before(`<span class="inline-label">template edited:</span>`);
+            $('#js-suspend-reason').wrap('<label for="js-suspend-reason" class="d-block"></label>').before(`<span class="inline-label" title="publicly displayed as 'This account is temporarily suspended _____'"><span style="border-bottom: 1px dotted #000">suspend reason:</span></span>`);
+            $('#js-template-edited').wrap('<label for="js-template-edited" class="d-block"></label>').before(`<span class="inline-label">template edited:</span>`);
         }
     }
 
@@ -709,7 +711,7 @@ function initCmMessageHelper() {
             // Show hidden fields
             $('#js-template-name').attr('type', 'text').addClass('d-inline-block s-input s-input__sm w70');
 
-            $('#js-template-name').wrap('<label for="templateName" class="dblock"></label>').before(`<span class="inline-label">template name:</span>`);
+            $('#js-template-name').wrap('<label for="templateName" class="d-block"></label>').before(`<span class="inline-label">template name:</span>`);
         }
     }
 
@@ -1237,9 +1239,6 @@ styles.innerHTML = `
 }
 
 /* Mod message page */
-.dbl, .dblock {
-    display: block;
-}
 .action-list:not(.popup-condensed) li > label {
     margin: -2px 0;
 }
@@ -1250,6 +1249,7 @@ styles.innerHTML = `
 #js-msg-form #addressing {
     margin-bottom: 15px;
 }
+#js-msg-form #js-to-warning.hidden,
 #js-msg-form #js-to-warning + #js-to-warning_2 {
     display: none;
 }
