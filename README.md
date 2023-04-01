@@ -245,12 +245,6 @@ Recommended chat userscripts:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-01_110648.png)
 
 
-### [Revert Tooltips](https://github.com/samliew/SO-mod-userscripts/blob/master/RevertTooltips.user.js)
-
-- Reverts the new instant stacks tooltips used in the post voting containers into native browser tooltips that appear after a short delay
-- Also changes the follow/unfollow stacks tooltip to native tooltips
-
-
 
 <br>
 
