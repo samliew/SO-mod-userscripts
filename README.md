@@ -118,7 +118,7 @@ Recommended chat userscripts:
 - **Auto Refresh**
   - Toggle from search results page
   <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-02_130815.png)
-  
+
 - **Instant Filter Toggles**
   - Toggle from search results page
   <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2022-01-27_112150.png)
@@ -182,11 +182,6 @@ Recommended chat userscripts:
 - Works for posts with IDs >= 100000 only to prevent false positives
 
 
-### [Downvote Posts in Search Results](https://github.com/samliew/SO-mod-userscripts/blob/master/DownvotePostsInSearchResults.user.js)
-
-- When searching for not locked posts (`locked:0` or `locked:no`), adds button in bottom right to downvote all displayed results
-
-
 ### [Question Lists Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/QuestionListsHelper.user.js)
 
 - Fetch details about questions from the API
@@ -220,7 +215,7 @@ Recommended chat userscripts:
 - Sticky post headers to help when scrolling long posts / comment threads
   - User, revision history, post timeline links
   - Clicking on empty middle area scrolls to start of post (replaces URL hash)
-  
+
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-07_150823.png)
 
 - Question Table of Contents of Answers in sidebar below Featured Posts module
@@ -229,7 +224,7 @@ Recommended chat userscripts:
   - Sorted by current answer sort order (active/oldest/votes)
   - Clicking on answer links scrolls to start of post (replaces URL hash)
   - Option to toggle visibility of deleted answers (visible to 10k rep users)
-  
+
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-07_150848.png)
 
 
@@ -265,15 +260,15 @@ Recommended chat userscripts:
 ### [Comment Flag Type Colours](https://github.com/samliew/SO-mod-userscripts/blob/master/CommentFlagTypeColours.user.js)
 
 - Works on user's comment flag history group page
-  
+
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-08_110813.png)
 
 - Works on user's mod comment history pages
-  
+
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-08_120852.png)
 
 - Works on mod comment flag queues
-  
+
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-08_120838.png)
 
 
@@ -469,12 +464,6 @@ Better comments layout for easier readability and moderation.
 - Badge links to user's flag history (opens in a new window)
 - **Non-mods:** Can view own flag badge on main profile page
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-01_110628.png)
-
-
-### [Mod Popup Dialog Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/ModPopupDialogImprovements.user.js) ♦
-
-- Delete moved comments is checked by default
-- Prevent Mod actions in Flag Queue redirecting to post - instead opens in a new tab
 
 
 ### [Moderator History Improvements](https://github.com/samliew/SO-mod-userscripts/blob/master/ModeratorHistoryImprovements.user.js) ♦

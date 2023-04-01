@@ -38,8 +38,6 @@ Direct installation links (raw files)
 
 [Discussed On Meta](https://github.com/samliew/SO-mod-userscripts/raw/master/DiscussedOnMeta.user.js)
 
-[Downvote Posts in Search Results](https://github.com/samliew/SO-mod-userscripts/raw/master/DownvotePostsInSearchResults.user.js)
-
 [Question Lists Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/QuestionListsHelper.user.js)
 
 [Fetch Vote Counts Again](https://github.com/samliew/SO-mod-userscripts/raw/master/FetchVoteCountsAgain.user.js)
@@ -121,8 +119,6 @@ Direct installation links (raw files)
 [Mod Batch Comment Deleter](https://github.com/samliew/SO-mod-userscripts/raw/master/ModBatchCommentDeleter.user.js) ♦
 
 [Mod Flagger Stats](https://github.com/samliew/SO-mod-userscripts/raw/master/ModFlaggerStats.user.js)
-
-[Mod Popup Dialog Improvements](https://github.com/samliew/SO-mod-userscripts/raw/master/ModPopupDialogImprovements.user.js) ♦
 
 [Moderator History Improvements](https://github.com/samliew/SO-mod-userscripts/raw/master/ModeratorHistoryImprovements.user.js) ♦
 
