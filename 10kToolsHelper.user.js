@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         10k Tools Helper
-// @description  Expand all sections, and adds additional filters
+// @description  Expand all sections, and adds additional post type filters
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      2.0
+// @version      2.0.1
 //
 // @match        https://*.stackoverflow.com/tools*
 // @match        https://*.serverfault.com/tools*
@@ -74,7 +74,7 @@ const callbackWhenPageLoaded = () => {
       else {
         const activeFilter = selectedButtons.attr('data-filter');
         console.log('show ' + activeFilter);
-        items.addClass('d-none').filter((i, el) => el.dataset.posttype == activeFilter).removeClass('dno');
+        items.addClass('d-none').filter((i, el) => el.dataset.posttype == activeFilter).removeClass('d-none');
       }
     });
   }
@@ -95,7 +95,7 @@ addStylesheet(`
       display: table-row;
   }
   .expander-arrow-small-hide,
-  .summary-table tr.dno {
+  .summary-table tr.d-none {
       display: none !important;
   }
 
