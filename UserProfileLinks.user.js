@@ -31,6 +31,9 @@
 
 'use strict';
 
+// This is a moderator-only userscript
+if (!isModerator()) return;
+
 // Check if profile menu exists
 const isUserPage = document.body.classList.contains('user-page');
 const profilesMenu = document.getElementById('profiles-menu');

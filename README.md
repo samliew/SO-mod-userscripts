@@ -146,6 +146,23 @@ Recommended chat userscripts:
 - Strips out unnecessary information from the page only when printing, leaving just the main content
 
 
+### [Flag Retractor](https://github.com/samliew/SO-mod-userscripts/blob/master/FlagRetractor.user.js)
+
+- Allows you to retract pending post flags from your flag history page
+
+
+### [Declined Flags Notifier](https://github.com/samliew/SO-mod-userscripts/blob/master/DeclinedFlagsNotifier.user.js)
+
+- Notifies you if you have any declined flags in the past few days
+
+
+### [Saved Posts Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/SavedPostsHelper.user.js)
+
+- Batch-move saved posts between private lists
+- Undo button when unsaving a post
+- Quick move dropdown after saving in Q&A
+
+
 
 <br>
 
@@ -163,6 +180,11 @@ Recommended chat userscripts:
 - Post dissociation link quickly composes a post dissociation request for post user with link of post inserted into dissociation message template
 - (Stack Overflow) assists with re-duping of old questions closed with the old duplicate notice
 - (Meta Stack Overflow) one-click closing, deleting questions as off-topic, and posting canned comment
+
+
+### [Additional Inline Post Mod Actions](https://github.com/samliew/SO-mod-userscripts/blob/master/AdditionalInlinePostModMenu.user.js) ♦
+
+- Similar to the above, but places the buttons under each post menu (above comments)
 
 
 
@@ -243,6 +265,16 @@ Recommended chat userscripts:
 - Hides daily summaries by default
 - Fixes display style on comment flags expansion (jQuery show/hide defaults to block, breaking table)
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-06-01_110648.png)
+
+
+### [HideReputation](https://github.com/samliew/SO-mod-userscripts/blob/master/HideReputation.user.js)
+
+- Hide all user reputation on the site
+
+
+### [No User Id Share Links](https://github.com/samliew/SO-mod-userscripts/blob/master/NoUserIdShareLinks.user.js)
+
+- Remove your referral user id when copying a post share link
 
 
 
@@ -374,6 +406,11 @@ Better comments layout for easier readability and moderation.
 ### [Userlink Tooltips](https://github.com/samliew/SO-mod-userscripts/blob/master/UserlinkTooltips.user.js)
 
 - On user link mouseover, display user's reputation
+
+
+### [User Profile Links](https://github.com/samliew/SO-mod-userscripts/blob/master/UserProfileLinks.user.js) ♦
+
+- On user profile pages, expands user network links menu and add chat profile links
 
 
 ### [Suspicious Voting Helper](https://github.com/samliew/SO-mod-userscripts/blob/master/SuspiciousVotingHelper.user.js) ♦

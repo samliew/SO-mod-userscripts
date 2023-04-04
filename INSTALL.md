@@ -26,6 +26,12 @@ Direct installation links (raw files)
 
 [Stack Print Styles](https://github.com/samliew/SO-mod-userscripts/raw/master/StackPrintStyles.user.js)
 
+[Flag Retractor](https://github.com/samliew/SO-mod-userscripts/raw/master/FlagRetractor.user.js)
+
+[Declined Flags Notifier](https://github.com/samliew/SO-mod-userscripts/raw/master/DeclinedFlagsNotifier.user.js)
+
+[Saved Posts Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/SavedPostsHelper.user.js)
+
 
 
 <br>
@@ -33,6 +39,8 @@ Direct installation links (raw files)
 ## Q&A userscripts
 
 [Additional Post Mod Actions](https://github.com/samliew/SO-mod-userscripts/raw/master/AdditionalPostModActions.user.js) ♦
+
+[Additional Inline Post Mod Actions](https://github.com/samliew/SO-mod-userscripts/raw/master/AdditionalInlinePostModMenu.user.js) ♦
 
 [Chat Transcripts By Default](https://github.com/samliew/SO-mod-userscripts/raw/master/ChatTranscriptsByDefault.user.js)
 
@@ -51,6 +59,10 @@ Direct installation links (raw files)
 [Post Ids Everywhere](https://github.com/samliew/SO-mod-userscripts/raw/master/PostIdsEverywhere.user.js)
 
 [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/raw/master/PostTimelineFilters.user.js)
+
+[Hide Reputation](https://github.com/samliew/SO-mod-userscripts/raw/master/HideReputation.user.js)
+
+[No User Id Share Links](https://github.com/samliew/SO-mod-userscripts/raw/master/NoUserIdShareLinks.user.js)
 
 
 
@@ -78,6 +90,8 @@ Direct installation links (raw files)
 
 [Find Users Additional Info](https://github.com/samliew/SO-mod-userscripts/raw/master/FindUsersAdditionalInfo.user.js) ♦
 
+[Mod Message Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/ModMessageHelper.user.js) ♦
+
 [Mod User Quicklinks Everywhere](https://github.com/samliew/SO-mod-userscripts/raw/master/ModUserQuicklinksEverywhere.user.js) ♦
 
 [Post Ban Deleted Posts](https://github.com/samliew/SO-mod-userscripts/raw/master/PostBanDeletedPosts.user.js) ♦
@@ -91,6 +105,8 @@ Direct installation links (raw files)
 [User Social Media Profile Links](https://github.com/samliew/SO-mod-userscripts/raw/master/UserSocialMediaProfileLinks.user.js) ♦
 
 [Userlink Tooltips](https://github.com/samliew/SO-mod-userscripts/raw/master/UserlinkTooltips.user.js)
+
+[User Profile Links](https://github.com/samliew/SO-mod-userscripts/raw/master/UserProfileLinks.user.js) ♦
 
 [Suspicious Voting Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/SuspiciousVotingHelper.user.js) ♦
 

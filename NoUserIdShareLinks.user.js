@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         No User Id in Share Links
-// @description  Adds option to remove your user ID from post share links
+// @description  Remove your referral user id when copying a post share link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
 // @version      2.0
