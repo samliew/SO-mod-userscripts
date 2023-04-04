@@ -180,7 +180,7 @@ function addPostModMenuLinks() {
   });
 
   // Append link to post sidebar if it doesn't exist yet
-  $('.question, .answer').find('.js-voting-container').not('.js-post-mod-menu').addClass('js-post-mod-menu').each(function () {
+  $('.question, .answer').find('.js-voting-container').not('.js-post-mod-menu-init').addClass('js-post-mod-menu-init').each(function () {
     const post = $(this).closest('.question, .answer');
     const postScore = Number($(this).find('.js-vote-count').text());
     const postStatus = post.find('.js-post-notice, .special-status').text().toLowerCase();
