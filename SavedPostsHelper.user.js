@@ -2,8 +2,8 @@
 // @name         Saved Posts Helper
 // @description  Batch-move saved posts between private lists, quick move after saving in Q&A
 // @homepage     https://github.com/samliew/SO-mod-userscripts
-// @author       @samliew
-// @version      1.3.2
+// @author       Samuel Liew
+// @version      2.0
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -12,24 +12,24 @@
 // @match        https://*.mathoverflow.net/*
 // @match        https://*.stackexchange.com/*
 //
-// @updateURL    https://github.com/samliew/SO-mod-userscripts/raw/master/SavedPostsHelper.user.js
-// @downloadURL  https://github.com/samliew/SO-mod-userscripts/raw/master/SavedPostsHelper.user.js
+// @exclude      https://api.stackexchange.com/*
+// @exclude      https://data.stackexchange.com/*
+// @exclude      https://contests.stackoverflow.com/*
+// @exclude      https://winterbash*.stackexchange.com/*
+// @exclude      *chat.*
+// @exclude      *blog.*
+//
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/se-ajax-common.js
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
-/* globals StackExchange, jQuery */
+/* globals StackExchange, scriptName, userId, fkey */
+/// <reference types="./globals" />
 
 'use strict';
 
 const enableConsoleLog = false;
-let clog = enableConsoleLog ? console.log : () => {};
-
-const $ = jQuery;
-const scriptName = GM_info.script.name.toLowerCase().replace(/\s+/g, '-');
-const siteApiSlug = location.hostname.replace(/(\.stackexchange)?\.(com|net|org)$/i, '');
-const apikey = '';
-
-const userId = StackExchange?.options?.user?.userId;
-const fkey = StackExchange?.options?.user?.fkey;
+let clog = enableConsoleLog ? console.log : () => { };
 
 const currListId = document.querySelector('.js-saves-sidebar-item .is-selected')?.parentElement.dataset.listId;
 const isOnQnaPages = location.pathname.startsWith('/questions/');
@@ -37,7 +37,7 @@ const isOnSavesPages = location.pathname.startsWith('/users/saves/');
 const isOnAllSavesPage = location.pathname.endsWith('/all');
 const isOnForLaterPage = !!document.querySelector('[data-is-forlater="True"]') || (!currListId && !isOnAllSavesPage);
 
-if(isOnSavesPages) {
+if (isOnSavesPages) {
   clog(`Current saves list: ${currListId ? currListId : (isOnForLaterPage ? 'For later' : 'All saves')}`);
 }
 
@@ -55,43 +55,6 @@ let savesList, cAll, cAllSelect, elSavesCount;
 
 
 /**
- * @summary Waits a specified number of seconds
- * @param {number} [seconds] seconds to wait
- * @returns {Promise<void>}
- */
-const wait = (seconds = 1) => new Promise((r) => setTimeout(r, seconds * 1e3));
-
-
-/**
- * @summary Element bulk setAttribute
- * @param {object} el element
- * @param {object} attrs attributes
- * @link https://stackoverflow.com/a/12274782
- */
-const setAttributes = (el, attrs) => {
-  for (var key in attrs) el.setAttribute(key, attrs[key]);
-};
-
-
-/**
- * @summary Create element
- * @param {string} [tagName] element tag name
- * @param {object} [attrs] element attributes
- * @param {string} [text] element text
- * @param {array} [children] element children
- * @returns {object} element
- * @link https://stackoverflow.com/a/12274782
- */
-const makeElem = (tagName = 'div', attrs = {}, text = '', children = []) => {
-  const el = document.createElement(tagName);
-  setAttributes(el, attrs);
-  if (text) el.innerText = text;
-  children?.forEach(child => el.appendChild(child));
-  return el;
-};
-
-
-/**
  * @summary Create saved list
  * @param {string} [listName] new list name
  * @returns {number} listId
@@ -101,13 +64,13 @@ const createSavedList = async (listName) => {
 
   // Validation
   listName = listName.trim();
-  if(!listName) return false;
+  if (!listName) return false;
 
   const formData = new FormData();
   formData.append("fkey", fkey);
   formData.append("listName", listName);
 
-  const resp = await fetch(`https://${location.host}/users/saves/${userId}/create-list`, {
+  const resp = await fetch(`${location.origin}/users/saves/${userId}/create-list`, {
     "method": "POST",
     "body": formData,
   }).then(resp => resp.json());
@@ -137,7 +100,7 @@ const saveItem = async (pid, listId = '', listName = '') => {
   if (listId) formData.append("listId", listId);
   if (listName) formData.append("listName", listName);
 
-  return await fetch(`https://${location.host}/posts/${pid}/save`, {
+  return await fetch(`${location.origin}/posts/${pid}/save`, {
     "method": "POST",
     "body": formData,
   }).then(resp => resp.json());
@@ -160,7 +123,7 @@ const moveSavedItem = async (pid, listId, listName = '') => {
   formData.append("listId", listId);
   if (listName) formData.append("listName", listName);
 
-  return await fetch(`https://${location.host}/posts/save/manage-save`, {
+  return await fetch(`${location.origin}/posts/save/manage-save`, {
     "method": "POST",
     "body": formData,
   }).then(resp => resp.json());
@@ -177,8 +140,8 @@ const moveSavedItem = async (pid, listId, listName = '') => {
 const getSavesModal = async (pid = 1, isMove = false, currListId = null) => {
   clog('getSavesModal', pid, isMove, currListId);
 
-  if(!pid) return;
-  return await fetch(`https://${location.host}/posts/${pid}/open-save-modal?isMoveTo=${isMove}&listId=${currListId}&_=${Date.now()}`, {
+  if (!pid) return;
+  return await fetch(`${location.origin}/posts/${pid}/open-save-modal?isMoveTo=${isMove}&listId=${currListId}&_=${Date.now()}`, {
     "method": "GET",
   }).then(resp => resp.text());
 };
@@ -215,7 +178,7 @@ const getSavesLists = async (postId = 1) => {
  */
 const updateMoveDropdown = async (postId = null, isQuestion = false) => {
 
-  if(isOnQnaPages) {
+  if (isOnQnaPages) {
     // Get post id from url
     postId = location.pathname.match(/\d+/)?.shift() ?? null;
   }
@@ -231,7 +194,7 @@ const updateMoveDropdown = async (postId = null, isQuestion = false) => {
 
   // Update move dropdown list
   if (cAllSelect) {
-    if(postId) {
+    if (postId) {
       cAllSelect.dataset.postId = postId;
       cAllSelect.dataset.isQuestion = isQuestion;
     }
@@ -277,7 +240,7 @@ const updateMoveDropdown = async (postId = null, isQuestion = false) => {
       }, '---');
       cAllSelect.insertBefore(divider, cAllSelect.lastElementChild);
     }
-    else if(isOnQnaPages) {
+    else if (isOnQnaPages) {
       // Remove last option (create), since it's harder to implement this as the toast message has a short timeout
       cAllSelect.lastElementChild?.remove();
     }
@@ -307,9 +270,9 @@ const handleMoveDropdownEvent = async evt => {
   const isQuestion = evt.target.dataset.isQuestion === 'true';
 
   // Create new list
-  if(listId === 'create') {
+  if (listId === 'create') {
     listName = prompt('Enter new list name');
-    if(!listName) return;
+    if (!listName) return;
     listId = await createSavedList(listName);
   }
 
@@ -342,14 +305,14 @@ const handleMoveDropdownEvent = async evt => {
       });
     }
     // Not in "All saves page"
-    else if(isOnSavesPages) {
+    else if (isOnSavesPages) {
       // Remove from display
       selectedCbs?.forEach(cb => {
         cb.closest('.js-saves-post-summary').remove();
       });
 
       // Reduce count in header
-      if(elSavesCount) elSavesCount.innerText = Number(elSavesCount.innerText) - num;
+      if (elSavesCount) elSavesCount.innerText = Number(elSavesCount.innerText) - num;
     }
 
     // Toast success message
@@ -377,7 +340,7 @@ const handleMoveDropdownEvent = async evt => {
   // Temporarily "clear" and disable dropdown while updating
   cAllSelect.disabled = true;
   cAllSelect.selectedIndex = 0;
-  await wait(1); // wait for database to update
+  await delay(1000); // wait 1s for database to update
   await updateMoveDropdown();
 };
 
@@ -419,7 +382,7 @@ const postSavedEvent = async (postId, isQuestion = false) => {
  * @summary Handle post UNsaved event
  * Unfortunately we don't know which list the post was unsaved from so we can only "undo" to the default list (For later)
  */
-const postUnsavedEvent = async (postId , isQuestion = false) => {
+const postUnsavedEvent = async (postId, isQuestion = false) => {
 
   // When undo button is clicked
   const handleUndoClickEvent = async (evt) => {
@@ -428,7 +391,7 @@ const postUnsavedEvent = async (postId , isQuestion = false) => {
     clog(`${isQuestion ? 'Question' : 'Answer'} was resaved.`, postId, resp);
 
     // If we know the current list id, move it back there
-    if(Number(currListId)) {
+    if (Number(currListId)) {
       const resp2 = await moveSavedItem(postId, currListId);
       clog(`${isQuestion ? 'Question' : 'Answer'} was moved to ${currListId}.`, postId, currListId, resp);
     }
@@ -492,7 +455,7 @@ const addEventListeners = () => {
 
     // On page update
     $(document).ajaxComplete(async (evt, xhr, settings) => {
-      if(xhr.status !== 200) return; // capture successful requests only
+      if (xhr.status !== 200) return; // capture successful requests only
 
       // Post was saved on Q&A page
       if (/\/posts\/\d+\/save$/.test(settings.url)) {
@@ -511,7 +474,7 @@ const addEventListeners = () => {
 
   // On page update
   $(document).ajaxComplete(async (evt, xhr, settings) => {
-    if(xhr.status !== 200) return; // capture successful requests only
+    if (xhr.status !== 200) return; // capture successful requests only
 
     // Post was UNsaved
     if (/\/posts\/\d+\/save\?isUndo=true$/.test(settings.url)) {
@@ -527,14 +490,93 @@ const addEventListeners = () => {
 };
 
 
-/**
- * @summary Main function
- */
-const doPageLoad = async () => {
+// Append styles
+addStylesheet(`
+.js-saves-page nav,
+.js-saves-page .filter-wrapper {
+  position: sticky;
+  top: 50px;
+  margin-top: -8px;
+  padding-top: 14px;
+  padding-bottom: 14px;
+  margin-bottom: -14px;
+  background: var(--white);
+  z-index: 2;
+}
+.js-saves-page .js-saves-sidebar-item a {
+  display: flex;
+  justify-content: space-between;
+}
+.js-saves-page nav .js-saves-sidebar-item a[data-count]:after {
+  content: "(" attr(data-count) ")";
+  display: inline-block;
+  margin-left: 0.25em;
+}
+.js-saves-page .filter-wrapper {
+  margin-bottom: -1px;
+  --_ps-bb: var(--su1) solid var(--bc-light);
+  border-bottom: var(--_ps-bb);
+}
+.js-saves-page .js-saves-count:not([data-saves-count="0"]) {
+  display: inline-block;
+  margin: 0 0 0 0.5em;
+}
+.js-saves-page .js-saves-count:not([data-saves-count="0"]):before {
+  content: '(';
+}
+.js-saves-page .js-saves-count:not([data-saves-count="0"]):after {
+  content: ')';
+}
+.js-saves-page .saved-item-all-label {
+  display: flex;
+  align-items: center;
+  cursor: auto;
+}
+.js-saves-page .saved-item-all-checkbox {
+  margin-left: calc(var(--su8) + 1px);
+  margin-right: 0.5em;
+  padding: 0.5rem;
+}
+.js-saves-lists-posts {
+  align-items: center;
+}
+.js-saves-post-list {
+  border-radius: 0 !important;
+}
+.js-saves-post-list .js-saves-post-summary {
+  padding-left: calc(var(--su16) + 1.2rem);
+}
+.js-saves-post-list .saved-item-bulk-checkbox {
+  position: absolute;
+  top: 20px;
+  left: var(--su8);
+  padding: 0.5rem;
+  z-index: 1;
+}
+.js-saves-post-list .saved-item-bulk-checkbox:hover {
+  box-shadow: var(--_ch-bs-focus);
+}
+.js-saves-post-list .saved-item-bulk-checkbox:after {
+  content: '';
+  position: absolute;
+  top: -21px;
+  left: -10px;
+  bottom: -76px;
+  right: -6px;
+  opacity: 0;
+  z-index: 0;
+}
+.js-saves-post-list .js-post-tag-list-wrapper {
+  margin-bottom: 0;
+}
+`); // end stylesheet
+
+
+// On script run
+(async function init() {
 
   // On saves pages
-  if(isOnSavesPages) {
-
+  if (isOnSavesPages) {
     savesList = document.querySelector('.js-saves-post-list');
     if (!savesList) return;
 
@@ -579,100 +621,11 @@ const doPageLoad = async () => {
       item.insertBefore(c, item.children[0]);
     });
   }
-
   // On Q&A pages
-  else if(isOnQnaPages) {
+  else if (isOnQnaPages) {
     // Nothing needed yet on page load
   }
-}
 
-
-// Append styles
-const styles = document.createElement('style');
-styles.setAttribute('data-somu', GM_info?.script.name);
-styles.innerHTML = `
-.js-saves-page nav,
-.js-saves-page .filter-wrapper {
-    position: sticky;
-    top: 50px;
-    margin-top: -8px;
-    padding-top: 14px;
-    padding-bottom: 14px;
-    margin-bottom: -14px;
-    background: var(--white);
-    z-index: 2;
-}
-.js-saves-page .js-saves-sidebar-item a {
-    display: flex;
-    justify-content: space-between;
-}
-.js-saves-page nav .js-saves-sidebar-item a[data-count]:after {
-    content: "(" attr(data-count) ")";
-    display: inline-block;
-    margin-left: 0.25em;
-}
-.js-saves-page .filter-wrapper {
-    margin-bottom: -1px;
-    --_ps-bb: var(--su1) solid var(--bc-light);
-    border-bottom: var(--_ps-bb);
-}
-.js-saves-page .js-saves-count:not([data-saves-count="0"]) {
-    display: inline-block;
-    margin: 0 0 0 0.5em;
-}
-.js-saves-page .js-saves-count:not([data-saves-count="0"]):before {
-    content: '(';
-}
-.js-saves-page .js-saves-count:not([data-saves-count="0"]):after {
-    content: ')';
-}
-.js-saves-page .saved-item-all-label {
-    display: flex;
-    align-items: center;
-    cursor: auto;
-}
-.js-saves-page .saved-item-all-checkbox {
-    margin-left: calc(var(--su8) + 1px);
-    margin-right: 0.5em;
-    padding: 0.5rem;
-}
-.js-saves-lists-posts {
-    align-items: center;
-}
-.js-saves-post-list {
-    border-radius: 0 !important;
-}
-.js-saves-post-list .js-saves-post-summary {
-    padding-left: calc(var(--su16) + 1.2rem);
-}
-.js-saves-post-list .saved-item-bulk-checkbox {
-    position: absolute;
-    top: 20px;
-    left: var(--su8);
-    padding: 0.5rem;
-    z-index: 1;
-}
-.js-saves-post-list .saved-item-bulk-checkbox:hover {
-    box-shadow: var(--_ch-bs-focus);
-}
-.js-saves-post-list .saved-item-bulk-checkbox:after {
-    content: '';
-    position: absolute;
-    top: -21px;
-    left: -10px;
-    bottom: -76px;
-    right: -6px;
-    opacity: 0;
-    z-index: 0;
-}
-.js-saves-post-list .js-post-tag-list-wrapper {
-    margin-bottom: 0;
-}
-`;
-document.body.appendChild(styles);
-
-
-// On page load
-await doPageLoad();
-await updateMoveDropdown();
-addEventListeners();
+  await updateMoveDropdown();
+  addEventListeners();
+})();

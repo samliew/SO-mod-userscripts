@@ -2,30 +2,34 @@
 // @name         Searchbar & Nav Improvements
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
-// @author       @samliew
-// @version      6.6
+// @author       Samuel Liew
+// @version      7.0
 //
-// @include      https://*stackoverflow.com/*
-// @include      https://*serverfault.com/*
-// @include      https://*superuser.com/*
-// @include      https://*askubuntu.com/*
-// @include      https://*mathoverflow.net/*
-// @include      https://*.stackexchange.com/*
+// @match        https://*.stackoverflow.com/*
+// @match        https://*.serverfault.com/*
+// @match        https://*.superuser.com/*
+// @match        https://*.askubuntu.com/*
+// @match        https://*.mathoverflow.net/*
+// @match        https://*.stackapps.com/*
+// @match        https://*.stackexchange.com/*
+// @match        https://stackoverflowteams.com/*
 //
+// @exclude      https://api.stackexchange.com/*
 // @exclude      https://data.stackexchange.com/*
 // @exclude      https://contests.stackoverflow.com/*
-//
+// @exclude      https://winterbash*.stackexchange.com/*
 // @exclude      *chat.*
+// @exclude      *blog.*
+// @exclude      */tour
+//
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/se-ajax-common.js
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
-/* globals StackExchange, GM_info */
+/* globals StackExchange, store, isMSE, parentUrl, metaUrl, siteApiSlug */
+/// <reference types="./globals" />
 
 'use strict';
-
-if (typeof unsafeWindow !== 'undefined' && window !== unsafeWindow) {
-    window.jQuery = unsafeWindow.jQuery;
-    window.$ = unsafeWindow.jQuery;
-}
 
 const svgicons = {
   delete: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M336 64l-33.6-44.8C293.3 7.1 279.1 0 264 0h-80c-15.1 0-29.3 7.1-38.4 19.2L112 64H24C10.7 64 0 74.7 0 88v2c0 3.3 2.7 6 6 6h26v368c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48V96h26c3.3 0 6-2.7 6-6v-2c0-13.3-10.7-24-24-24h-88zM184 32h80c5 0 9.8 2.4 12.8 6.4L296 64H152l19.2-25.6c3-4 7.8-6.4 12.8-6.4zm200 432c0 8.8-7.2 16-16 16H80c-8.8 0-16-7.2-16-16V96h320v368zm-176-44V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm-80 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12zm160 0V156c0-6.6 5.4-12 12-12h8c6.6 0 12 5.4 12 12v264c0 6.6-5.4 12-12 12h-8c-6.6 0-12-5.4-12-12z"/></svg>',
@@ -33,24 +37,14 @@ const svgicons = {
   refresh: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M481.162 164.326c19.478 25.678 30.997 57.709 30.836 92.388C511.61 340.638 442.361 408 358.436 408H176v64c-.001 10.683-12.949 16.021-20.485 8.485l-88-87.995c-4.686-4.686-4.687-12.284 0-16.971l88-88.005c7.58-7.58 20.485-2.14 20.485 8.485v64h182.668C415.933 360 464.06 313.154 464 255.889c-.023-22.372-7.149-43.111-19.237-60.082-3.431-4.817-2.962-11.387 1.223-15.564 8.269-8.255 13.592-13.545 17.137-17.104 5.131-5.152 13.645-4.605 18.039 1.187zM48 256.111C47.94 198.846 96.067 152 153.332 152H336v64c0 10.625 12.905 16.066 20.485 8.485l88-88.005c4.687-4.686 4.686-12.285 0-16.971l-88-87.995C348.949 23.979 336.001 29.317 336 40v64H153.564C69.639 104 .389 171.362.002 255.286c-.16 34.679 11.358 66.71 30.836 92.388 4.394 5.792 12.908 6.339 18.039 1.188 3.545-3.559 8.867-8.849 17.137-17.105 4.185-4.178 4.653-10.748 1.223-15.564-12.088-16.971-19.213-37.71-19.237-60.082z"/></svg>',
 };
 
-const mseDomain = 'meta.stackexchange.com';
-const isMSE = location.hostname === mseDomain;
-const isSO = location.hostname === 'stackoverflow.com';
-const channel = StackExchange.options.site.routePrefix || '';
-
-const isChildMeta = typeof StackExchange.options.site.isChildMeta !== 'undefined';
+const isChildMeta = typeof StackExchange !== 'undefined' && StackExchange.options?.site?.isChildMeta;
 const mainName = StackExchange.options.site.name.replace(/\bmeta\b/i, '').replace(/\bStack Exchange\b/, '').trim();
-const mainUrl = StackExchange.options.site.parentUrl || 'https://' + location.hostname;
-const metaUrl = StackExchange.options.site.childUrl || 'https://' + location.hostname;
-const siteslug = location.hostname.split('.')[0];
-const currentSiteSlug = location.hostname.replace('.stackexchange', '').replace(/\.\w+$/, ''); // for SEDE
 const hasSearchResults = (location.pathname === '/search' && location.search.length > 2) || location.pathname.indexOf('/questions/tagged/') == 0;
 
-const store = window.localStorage;
 const searchSelector = $(`<div class="flex--item s-select wmn1"><select id="search-channel-selector" class="search-channel-switcher w100 pr24">
-<option data-url="${mainUrl}/search" ${!isChildMeta ? 'selected="selected"' : ''}>${mainName}</option>
+<option data-url="${parentUrl}/search" ${!isChildMeta ? 'selected="selected"' : ''}>${mainName}</option>
 <option data-url="${metaUrl}/search" ${isChildMeta ? 'selected="selected"' : ''}>Meta</option>
-<option data-url="https://${mseDomain}/search">Meta Stack Exchange</option>
+<option data-url="https://meta.stackexchange.com/search">Meta Stack Exchange</option>
 </select></div>`);
 const lsidebar = $('#left-sidebar');
 const searchform = $('#search');
@@ -64,14 +58,6 @@ if (searchbtn.length === 0) {
 
 const autoRefreshDefaultSecs = 60;
 let searchhelper, orderby, autoRefreshTimeout;
-
-
-// Has value
-jQuery.fn.hasValue = function (i, v) {
-  return $(this).filter(function () {
-    return $(this).val() !== '';
-  });
-};
 
 
 // Fetch and store last sort option
@@ -122,7 +108,7 @@ jQuery.fn.dnLookup = function (multiple = false, delay = 800) {
     const query = encodeURIComponent(multiple ? el.value.trim().replace(/^.+\s/, '') : el.value.trim());
     const resultElem = $(el).nextAll('.aclookup_results').html('<li class="disabled" data-val>loading...</li>');
     const field = $(el).addClass('js-aclookup-complete');
-    $.get('https://api.stackexchange.com/2.2/users?filter=!)RwcIFN1JaCrhVpgyYeR_oO*&order=desc&sort=reputation&inname=' + query + '&site=' + siteslug, function (data) {
+    $.get('https://api.stackexchange.com/2.2/users?filter=!)RwcIFN1JaCrhVpgyYeR_oO*&order=desc&sort=reputation&inname=' + query + '&site=' + siteApiSlug, function (data) {
       const resultlist = data.items.map(v => `<li data-val="${v.user_id}"><img src="${v.profile_image.replace('=128', '=16')}" /> ${v.display_name}</li>`).join('');
       resultElem.html(resultlist);
     });
@@ -161,7 +147,7 @@ jQuery.fn.tagLookup = function (multiple = false, delay = 800) {
     const query = encodeURIComponent(multiple ? el.value.trim().replace(/^.+\s/, '') : el.value.trim());
     const resultElem = $(el).siblings('.aclookup_results').html('<li class="disabled" data-val>loading...</li>');
     const field = $(el).addClass('js-aclookup-complete');
-    $.get('https://api.stackexchange.com/2.2/tags?filter=!*MPoAL(KAgsdNw0T&order=desc&sort=popular&inname=' + query + '&site=' + siteslug, function (data) {
+    $.get('https://api.stackexchange.com/2.2/tags?filter=!*MPoAL(KAgsdNw0T&order=desc&sort=popular&inname=' + query + '&site=' + siteApiSlug, function (data) {
       const resultlist = data.items.map(v => `<li data-val="${v.name}">${v.name}</li>`).join('');
       resultElem.html(resultlist);
     });
@@ -332,7 +318,6 @@ function startAutoRefresh(duration = autoRefreshDefaultSecs) {
 
 
 function initAutoRefresh() {
-
   if (!hasSearchResults) return;
 
   // Has auto refresh?
@@ -340,20 +325,20 @@ function initAutoRefresh() {
   let refreshDurationSecs = currRefreshDurationSecs || autoRefreshDefaultSecs;
 
   const btnAutoRefresh = $(`
-<a id="btn-auto-refresh" class="s-btn" href="#" data-svg="refresh" tabindex="0" title="Auto Refresh (${refreshDurationSecs} seconds)">
-  <div class="radial-progress" data-progress="0">
-    <div class="circle">
-      <div class="mask full">
-        <div class="fill"></div>
+    <a id="btn-auto-refresh" class="s-btn" href="#" data-svg="refresh" tabindex="0" title="Auto Refresh (${refreshDurationSecs} seconds)">
+      <div class="radial-progress" data-progress="0">
+        <div class="circle">
+          <div class="mask full">
+            <div class="fill"></div>
+          </div>
+          <div class="mask half">
+            <div class="fill"></div>
+            <div class="fill fix"></div>
+          </div>
+        </div>
+        <div class="inset"></div>
       </div>
-      <div class="mask half">
-        <div class="fill"></div>
-        <div class="fill fix"></div>
-      </div>
-    </div>
-    <div class="inset"></div>
-  </div>
-</a>`)
+    </a>`)
     .on('click', function () {
       $(this).toggleClass('active');
       if ($(this).hasClass('active')) {
@@ -392,24 +377,24 @@ function initQuickfilters() {
   query = sanitizeQuery(query.toLowerCase());
 
   let quickfilter = $(`
-<div id="res-quickfilter">Quick filters:
-  <div class="grid tabs-filter tt-capitalize">
-  <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap ${isOnTagPage ? 'is-selected' : ''}"
-    href="${removeParam(query, 'is')}+is%3aq" data-onwhen="is%3aq"
-    data-toggleoff="${removeParam(query, 'is')}">questions</a>
-  <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
-    href="${removeParam(query, 'is')}+is%3aa" data-onwhen="is%3aa"
-    data-toggleoff="${removeParam(query, 'is')}">answers</a>
-  </div>
-  <div class="grid tabs-filter tt-capitalize">
-  <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
-    href="${removeParam(query, 'deleted')}+deleted%3a1" data-onwhen="deleted%3ayes"
-    data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany">deleted</a>
-  <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
-    href="${removeParam(query, 'deleted')}+deleted%3a0" data-onwhen="deleted%3ano" data-onwhenmissing="deleted%3a"
-    data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany">not deleted</a>
-  </div>
-</div>`).insertAfter('.js-advanced-tips');
+    <div id="res-quickfilter">Quick filters:
+      <div class="grid tabs-filter tt-capitalize">
+      <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap ${isOnTagPage ? 'is-selected' : ''}"
+        href="${removeParam(query, 'is')}+is%3aq" data-onwhen="is%3aq"
+        data-toggleoff="${removeParam(query, 'is')}">questions</a>
+      <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
+        href="${removeParam(query, 'is')}+is%3aa" data-onwhen="is%3aa"
+        data-toggleoff="${removeParam(query, 'is')}">answers</a>
+      </div>
+      <div class="grid tabs-filter tt-capitalize">
+      <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
+        href="${removeParam(query, 'deleted')}+deleted%3a1" data-onwhen="deleted%3ayes"
+        data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany">deleted</a>
+      <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap"
+        href="${removeParam(query, 'deleted')}+deleted%3a0" data-onwhen="deleted%3ano" data-onwhenmissing="deleted%3a"
+        data-toggleoff="${removeParam(query, 'deleted')}+deleted%3aany">not deleted</a>
+      </div>
+    </div>`).insertAfter('.js-advanced-tips');
 
   quickfilter.find('a[data-onwhen]').each(function () {
     let se = this.dataset.onwhen;
@@ -461,13 +446,13 @@ function initSavedSearch() {
     $.each(ssitems, function (i, v) {
       const readable = humanizeSearchQuery(v);
       const sstemplate = $(`
-<div class="item" data-value="${v}">
-  <span class="handle"></span>
-  <a href="${channel}/search${v}">${readable}</a>
-  <div class="actions">
-    <a class="delete" data-svg="delete" title="Delete (no confirmation)"></a>
-  </div>
-</div>`).appendTo(ss);
+        <div class="item" data-value="${v}">
+          <span class="handle"></span>
+          <a href="/search${v}">${readable}</a>
+          <div class="actions">
+            <a class="delete" data-svg="delete" title="Delete (no confirmation)"></a>
+          </div>
+        </div>`).appendTo(ss);
     });
     loadSvgIcons();
   }
@@ -867,23 +852,23 @@ function initAdvancedSearch() {
     <input type="checkbox" name="dupe-current" id="dupe-current" data-currentfor="#dupe-id" /><label for="dupe-current">current question</label>
     <label for="dupe-id">question id:</label>
     <input name="dupe-id" id="dupe-id" class="input-small" maxlength="12" data-clearbtn data-validate-numeric data-clears="#dupe-current" />
-    <a class="s-btn s-btn__sm extbutton" data-exturl="https://data.stackexchange.com/${currentSiteSlug}/query/874526/?QuestionId={dupe-id}">SEDE</a>
+    <a class="s-btn s-btn__sm extbutton" data-exturl="https://data.stackexchange.com/${siteApiSlug}/query/874526/?QuestionId={dupe-id}">SEDE</a>
   </div>
   <label class="section-label">Search comments</label>
   <div class="ext">
     <label for="comment-query">Text:</label>
     <input name="comment-query" id="comment-query" data-clearbtn />
-    <a class="s-btn s-btn__sm extbutton" data-exturl="https://data.stackexchange.com/${currentSiteSlug}/query/898774/?Query={comment-query}">SEDE</a>
+    <a class="s-btn s-btn__sm extbutton" data-exturl="https://data.stackexchange.com/${siteApiSlug}/query/898774/?Query={comment-query}">SEDE</a>
   </div>
   <div class="ext">
     <label for="comment-query2">Comments replying to username:</label>
     <input name="comment-query2" id="comment-query2" data-clearbtn placeholder="user display name without spaces (case-insensitive)" />
-    <a class="s-btn s-btn__sm extbutton" data-exturl="https://data.stackexchange.com/${currentSiteSlug}/query/1160376/?UsernameWithoutSpaces={comment-query2}">SEDE</a>
+    <a class="s-btn s-btn__sm extbutton" data-exturl="https://data.stackexchange.com/${siteApiSlug}/query/1160376/?UsernameWithoutSpaces={comment-query2}">SEDE</a>
   </div>
   <div class="ext">
     <label for="comment-query3">Comments by user: (autocomplete)</label>
     <input name="comment-query3" id="comment-query3" class="input-small js-dnlookup" data-clearbtn placeholder="username or id" />
-    <a class="s-btn s-btn__sm extbutton" data-exturl="https://data.stackexchange.com/${currentSiteSlug}/query/1160377/?UserId={comment-query3}">SEDE</a>
+    <a class="s-btn s-btn__sm extbutton" data-exturl="https://data.stackexchange.com/${siteApiSlug}/query/1160377/?UserId={comment-query3}">SEDE</a>
   </div>
   <label class="section-label">Archive for</label>
   <div class="ext">
@@ -899,7 +884,7 @@ function initAdvancedSearch() {
 
   // Get last search sort
   let lastSort = getLastSort();
-  if (lastSort) orderby.find('#tab-' + lastSort).click();
+  if (lastSort) orderby.find('#tab-' + lastSort).trigger('click');
 
 
   // Opened/closed state
@@ -1048,7 +1033,7 @@ function initAdvancedSearch() {
   // Intercept enter key on external inputs
   $('.ext').on('keypress', 'input', function (evt) {
     if (evt.key === 'Enter') {
-      $(this).closest('.ext').find('.extbutton').first().get(0).click();
+      $(this).closest('.ext').find('.extbutton').first().trigger('click');
       return false;
     }
   });
@@ -1058,127 +1043,8 @@ function initAdvancedSearch() {
 }
 
 
-function doPageLoad() {
-
-  // If on Stack Overflow, make logo go to /questions
-  if (location.hostname === 'stackoverflow.com') {
-    $('.-main .-logo').attr('href', '/questions');
-  }
-
-  // If using old search bar
-  const searchform = $('#search');
-  if (!searchform.hasClass('search-channel-context')) {
-
-    const grid = searchform.find('.ps-relative').first().removeClass('ps-relative').addClass('grid');
-
-    // If not on MSE, insert channel selector
-    if (!isMSE) {
-      grid.prepend(searchSelector);
-    }
-
-    searchform.addClass('search-channel-context')
-      .find('.js-search-field, .js-search-submit').wrapAll('<div class="flex--item ps-relative fl1"></div>');
-
-    searchform
-      .find('.js-search-field').addClass('search-channel-switcher-field');
-  }
-  // If using new search bar
-  else {
-    $('.js-search-channel-selector option:last-child')
-      .after(`<option data-url="https://${mseDomain}/search">Meta Stack Exchange</option>`)
-      .after(`<option data-url="${metaUrl}/search">Meta ${mainName}</option>`);
-  }
-
-  // Update form action
-  $('#search-channel-selector').on('change', function () {
-    const url = $(this).children().filter(':selected').attr('data-url');
-    $('form.js-searchbar').attr('action', url);
-  });
-
-  // Move new svg search icon before the search field
-  $('#search .svg-icon.s-input-icon__search.iconSearch').insertBefore('#search input[name="q"]');
-
-  // New left navigation, link to parent/meta site
-  if (isChildMeta) {
-    lsidebar.find('.pl8').removeClass('pl8');
-    $('ol.nav-links', lsidebar).first().prepend(`<li><a id="nav-main" href="${mainUrl}/questions" class="nav-links--link -link__with-icon pl8">
-<svg aria-hidden="true" class="svg-icon iconGlobe" width="16" height="16" viewBox="0 0 1000 1000">
-<path d="M570,318.4V173.2c0-26.8-14.2-51.4-37-64.1c-22.7-12.6-50.4-11.2-71.9,3.6l-420,290.5C21.7,416.7,10,439.4,10,463.7c0,24.3,11.7,47,31.2,60.4l420,290.5c21.5,14.9,49.1,16.3,71.9,3.6c22.7-12.7,37-37.2,37-64.1V608.9c182.8,0,337.9,121.4,395.6,290.5C981.1,854,990,805.2,990,754.2C990,513.5,802,318.4,570,318.4z"></path></svg>
-<span class="-link--channel-name">${mainName}</span></a></li>`);
-  }
-  // If on main site and has child site
-  else if (metaUrl !== mainUrl) {
-    $(lsidebar).find('#nav-users').parent().after(`<li><a id="nav-meta" href="${metaUrl}/questions" class="nav-links--link">Meta</a></li>`);
-  }
-
-  // Expand dropdown-container tab items
-  $('.dropdown-container').each(function () {
-    const itemClasses = $(this).siblings('a').get(0).className.replace(/(youarehere|is-selected)/g, '');
-    const items = $(this).find('li a').removeClass('disabled').addClass(itemClasses);
-    items.filter('.selected').addClass('is-selected');
-    $(this).before(items).remove();
-  });
-
-  // Post timeline buttons to open in new tab
-  $('.js-post-issues a[title="Timeline"]').attr('target', '_blank');
-
-  tryUpdateWatchedIgnoredTags();
-
-  initAdvancedSearch();
-  initSavedSearch();
-  initAutoRefresh();
-  initQuickfilters();
-
-  loadSvgIcons();
-
-  // If on search results page, and no results, try title search instead
-  if (location.pathname === '/search' && hasSearchResults && $('.js-search-results > .page-description').length === 1) {
-
-    // Can't filter title search
-    const searchResultsContainer = $('.js-search-results').removeClass('flush-left').addClass('ml0 bt btw0');
-
-    searchResultsContainer.prev('.grid.mb16').remove().end()
-    searchResultsContainer.prev('.mb12').text('no results. falling back to results from title search');
-
-    const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
-    const q = getQueryParam('q');
-    $.get(`https://${location.hostname}/search/titles?title=${q}`, function (data) {
-
-      searchResultsContainer.html('<div class="s-card p0">' + data.content + '</div>');
-
-      // Transform to original search results design
-      searchResultsContainer.find('.s-link').removeClass('s-link');
-      searchResultsContainer.find('.js-link p').addClass('fc-black-900');
-      searchResultsContainer.find('.js-question-summary-scroll').removeClass('overflow-y-scroll question-summary-scroll question-summary sm:fd-row narrow grid ai-start p0 bbw0 h100 sm:pl0 sm:pr0');
-      searchResultsContainer.find('.relativetime').unwrap();
-      searchResultsContainer.find('.started').removeClass('fc-black-300');
-    });
-  }
-}
-
-
-function listenToPageUpdates() {
-
-  // On any page update
-  $(document).ajaxComplete(function (event, xhr, settings) {
-    if (settings.url.indexOf('/users/save-preference') >= 0) {
-      tryUpdateWatchedIgnoredTags();
-      $('#user-watched-tags').val(getWatchedTags());
-      $('#user-ignored-tags').val(getIgnoredTags());
-    }
-  });
-}
-
-
-// On page load
-doPageLoad();
-listenToPageUpdates();
-
-
 // Append styles
-const styles = document.createElement('style');
-styles.setAttribute('data-somu', GM_info?.script.name);
-styles.innerHTML = `
+addStylesheet(`
 /* Left sidebar */
 .nav-links .nav-links--link.-link__with-icon {
   display: flex;
@@ -1278,14 +1144,11 @@ button, .button,
   border-top-right-radius: 3px !important;
   border-bottom-right-radius: 3px !important;
 }
-`;
-document.body.appendChild(styles);
+`); // end stylesheet
 
 
 // Append advanced search styles
-const styles_advsearch = document.createElement('style');
-styles_advsearch.setAttribute('data-somu', GM_info?.script.name);
-styles_advsearch.innerHTML = `
+addStylesheet(`
 .search-helper {
   display: none;
   position: absolute;
@@ -1680,476 +1543,586 @@ styles_advsearch.innerHTML = `
 
 /* Auto refresh button timer animation */
 #btn-auto-refresh.active .radial-progress {
-display: block;
+  display: block;
 }
 .radial-progress {
-display: none;
-position: absolute;
-top: 0;
-left: 0;
-width: 28px;
-height: 28px;
-background-color: var(--black-350);
-border-radius: 50%;
-pointer-events: none;
+  display: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 28px;
+  height: 28px;
+  background-color: var(--black-350);
+  border-radius: 50%;
+  pointer-events: none;
 }
 .radial-progress .circle .mask,
 .radial-progress .circle .fill {
-width: 28px;
-height: 28px;
-position: absolute;
-border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  position: absolute;
+  border-radius: 50%;
 }
 .radial-progress .circle .mask,
 .radial-progress .circle .fill {
--webkit-backface-visibility: hidden;
-transition: -webkit-transform .9s;
-transition: -ms-transform .9s;
-transition: transform .9s;
-border-radius: 50%;
+  -webkit-backface-visibility: hidden;
+  transition: -webkit-transform 0.9s;
+  transition: -ms-transform 0.9s;
+  transition: transform 0.9s;
+  border-radius: 50%;
 }
 .radial-progress .circle .mask {
-clip: rect(0px, 28px, 28px, 14px);
+  clip: rect(0px, 28px, 28px, 14px);
 }
 .radial-progress .circle .mask .fill {
-clip: rect(0px, 14px, 28px, 0px);
-background-color: var(--yellow-400) !important;
+  clip: rect(0px, 14px, 28px, 0px);
+  background-color: var(--yellow-400) !important;
 }
 .radial-progress .inset {
-width: 24px;
-height: 24px;
-position: absolute;
-margin-left: 2px;
-margin-top: 2px;
-background-color: var(--black-350);
-border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  position: absolute;
+  margin-left: 2px;
+  margin-top: 2px;
+  background-color: var(--black-350);
+  border-radius: 50%;
 }
 .radial-progress[data-progress="0"] .circle .mask.full,
 .radial-progress[data-progress="0"] .circle .fill {
-transform: rotate(0deg);
+  transform: rotate(0deg);
 }
 .radial-progress[data-progress="0"] .circle .fill.fix {
-transform: rotate(0deg);
+  transform: rotate(0deg);
 }
 .radial-progress[data-progress="1"] .circle .mask.full,
 .radial-progress[data-progress="1"] .circle .fill {
-transform: rotate(3deg);
+  transform: rotate(3deg);
 }
 .radial-progress[data-progress="1"] .circle .fill.fix {
-transform: rotate(6deg);
+  transform: rotate(6deg);
 }
 .radial-progress[data-progress="2"] .circle .mask.full,
 .radial-progress[data-progress="2"] .circle .fill {
-transform: rotate(6deg);
+  transform: rotate(6deg);
 }
 .radial-progress[data-progress="2"] .circle .fill.fix {
-transform: rotate(12deg);
+  transform: rotate(12deg);
 }
 .radial-progress[data-progress="3"] .circle .mask.full,
 .radial-progress[data-progress="3"] .circle .fill {
-transform: rotate(9deg);
+  transform: rotate(9deg);
 }
 .radial-progress[data-progress="3"] .circle .fill.fix {
-transform: rotate(18deg);
+  transform: rotate(18deg);
 }
 .radial-progress[data-progress="4"] .circle .mask.full,
 .radial-progress[data-progress="4"] .circle .fill {
-transform: rotate(12deg);
+  transform: rotate(12deg);
 }
 .radial-progress[data-progress="4"] .circle .fill.fix {
-transform: rotate(24deg);
+  transform: rotate(24deg);
 }
 .radial-progress[data-progress="5"] .circle .mask.full,
 .radial-progress[data-progress="5"] .circle .fill {
-transform: rotate(15deg);
+  transform: rotate(15deg);
 }
 .radial-progress[data-progress="5"] .circle .fill.fix {
-transform: rotate(30deg);
+  transform: rotate(30deg);
 }
 .radial-progress[data-progress="6"] .circle .mask.full,
 .radial-progress[data-progress="6"] .circle .fill {
-transform: rotate(18deg);
+  transform: rotate(18deg);
 }
 .radial-progress[data-progress="6"] .circle .fill.fix {
-transform: rotate(36deg);
+  transform: rotate(36deg);
 }
 .radial-progress[data-progress="7"] .circle .mask.full,
 .radial-progress[data-progress="7"] .circle .fill {
-transform: rotate(21deg);
+  transform: rotate(21deg);
 }
 .radial-progress[data-progress="7"] .circle .fill.fix {
-transform: rotate(42deg);
+  transform: rotate(42deg);
 }
 .radial-progress[data-progress="8"] .circle .mask.full,
 .radial-progress[data-progress="8"] .circle .fill {
-transform: rotate(24deg);
+  transform: rotate(24deg);
 }
 .radial-progress[data-progress="8"] .circle .fill.fix {
-transform: rotate(48deg);
+  transform: rotate(48deg);
 }
 .radial-progress[data-progress="9"] .circle .mask.full,
 .radial-progress[data-progress="9"] .circle .fill {
-transform: rotate(27deg);
+  transform: rotate(27deg);
 }
 .radial-progress[data-progress="9"] .circle .fill.fix {
-transform: rotate(54deg);
+  transform: rotate(54deg);
 }
 .radial-progress[data-progress="10"] .circle .mask.full,
 .radial-progress[data-progress="10"] .circle .fill {
-transform: rotate(30deg);
+  transform: rotate(30deg);
 }
 .radial-progress[data-progress="10"] .circle .fill.fix {
-transform: rotate(60deg);
+  transform: rotate(60deg);
 }
 .radial-progress[data-progress="11"] .circle .mask.full,
 .radial-progress[data-progress="11"] .circle .fill {
-transform: rotate(33deg);
+  transform: rotate(33deg);
 }
 .radial-progress[data-progress="11"] .circle .fill.fix {
-transform: rotate(66deg);
+  transform: rotate(66deg);
 }
 .radial-progress[data-progress="12"] .circle .mask.full,
 .radial-progress[data-progress="12"] .circle .fill {
-transform: rotate(36deg);
+  transform: rotate(36deg);
 }
 .radial-progress[data-progress="12"] .circle .fill.fix {
-transform: rotate(72deg);
+  transform: rotate(72deg);
 }
 .radial-progress[data-progress="13"] .circle .mask.full,
 .radial-progress[data-progress="13"] .circle .fill {
-transform: rotate(39deg);
+  transform: rotate(39deg);
 }
 .radial-progress[data-progress="13"] .circle .fill.fix {
-transform: rotate(78deg);
+  transform: rotate(78deg);
 }
 .radial-progress[data-progress="14"] .circle .mask.full,
 .radial-progress[data-progress="14"] .circle .fill {
-transform: rotate(42deg);
+  transform: rotate(42deg);
 }
 .radial-progress[data-progress="14"] .circle .fill.fix {
-transform: rotate(84deg);
+  transform: rotate(84deg);
 }
 .radial-progress[data-progress="15"] .circle .mask.full,
 .radial-progress[data-progress="15"] .circle .fill {
-transform: rotate(45deg);
+  transform: rotate(45deg);
 }
 .radial-progress[data-progress="15"] .circle .fill.fix {
-transform: rotate(90deg);
+  transform: rotate(90deg);
 }
 .radial-progress[data-progress="16"] .circle .mask.full,
 .radial-progress[data-progress="16"] .circle .fill {
-transform: rotate(48deg);
+  transform: rotate(48deg);
 }
 .radial-progress[data-progress="16"] .circle .fill.fix {
-transform: rotate(96deg);
+  transform: rotate(96deg);
 }
 .radial-progress[data-progress="17"] .circle .mask.full,
 .radial-progress[data-progress="17"] .circle .fill {
-transform: rotate(51deg);
+  transform: rotate(51deg);
 }
 .radial-progress[data-progress="17"] .circle .fill.fix {
-transform: rotate(102deg);
+  transform: rotate(102deg);
 }
 .radial-progress[data-progress="18"] .circle .mask.full,
 .radial-progress[data-progress="18"] .circle .fill {
-transform: rotate(54deg);
+  transform: rotate(54deg);
 }
 .radial-progress[data-progress="18"] .circle .fill.fix {
-transform: rotate(108deg);
+  transform: rotate(108deg);
 }
 .radial-progress[data-progress="19"] .circle .mask.full,
 .radial-progress[data-progress="19"] .circle .fill {
-transform: rotate(57deg);
+  transform: rotate(57deg);
 }
 .radial-progress[data-progress="19"] .circle .fill.fix {
-transform: rotate(114deg);
+  transform: rotate(114deg);
 }
 .radial-progress[data-progress="20"] .circle .mask.full,
 .radial-progress[data-progress="20"] .circle .fill {
-transform: rotate(60deg);
+  transform: rotate(60deg);
 }
 .radial-progress[data-progress="20"] .circle .fill.fix {
-transform: rotate(120deg);
+  transform: rotate(120deg);
 }
 .radial-progress[data-progress="21"] .circle .mask.full,
 .radial-progress[data-progress="21"] .circle .fill {
-transform: rotate(63deg);
+  transform: rotate(63deg);
 }
 .radial-progress[data-progress="21"] .circle .fill.fix {
-transform: rotate(126deg);
+  transform: rotate(126deg);
 }
 .radial-progress[data-progress="22"] .circle .mask.full,
 .radial-progress[data-progress="22"] .circle .fill {
-transform: rotate(66deg);
+  transform: rotate(66deg);
 }
 .radial-progress[data-progress="22"] .circle .fill.fix {
-transform: rotate(132deg);
+  transform: rotate(132deg);
 }
 .radial-progress[data-progress="23"] .circle .mask.full,
 .radial-progress[data-progress="23"] .circle .fill {
-transform: rotate(69deg);
+  transform: rotate(69deg);
 }
 .radial-progress[data-progress="23"] .circle .fill.fix {
-transform: rotate(138deg);
+  transform: rotate(138deg);
 }
 .radial-progress[data-progress="24"] .circle .mask.full,
 .radial-progress[data-progress="24"] .circle .fill {
-transform: rotate(72deg);
+  transform: rotate(72deg);
 }
 .radial-progress[data-progress="24"] .circle .fill.fix {
-transform: rotate(144deg);
+  transform: rotate(144deg);
 }
 .radial-progress[data-progress="25"] .circle .mask.full,
 .radial-progress[data-progress="25"] .circle .fill {
-transform: rotate(75deg);
+  transform: rotate(75deg);
 }
 .radial-progress[data-progress="25"] .circle .fill.fix {
-transform: rotate(150deg);
+  transform: rotate(150deg);
 }
 .radial-progress[data-progress="26"] .circle .mask.full,
 .radial-progress[data-progress="26"] .circle .fill {
-transform: rotate(78deg);
+  transform: rotate(78deg);
 }
 .radial-progress[data-progress="26"] .circle .fill.fix {
-transform: rotate(156deg);
+  transform: rotate(156deg);
 }
 .radial-progress[data-progress="27"] .circle .mask.full,
 .radial-progress[data-progress="27"] .circle .fill {
-transform: rotate(81deg);
+  transform: rotate(81deg);
 }
 .radial-progress[data-progress="27"] .circle .fill.fix {
-transform: rotate(162deg);
+  transform: rotate(162deg);
 }
 .radial-progress[data-progress="28"] .circle .mask.full,
 .radial-progress[data-progress="28"] .circle .fill {
-transform: rotate(84deg);
+  transform: rotate(84deg);
 }
 .radial-progress[data-progress="28"] .circle .fill.fix {
-transform: rotate(168deg);
+  transform: rotate(168deg);
 }
 .radial-progress[data-progress="29"] .circle .mask.full,
 .radial-progress[data-progress="29"] .circle .fill {
-transform: rotate(87deg);
+  transform: rotate(87deg);
 }
 .radial-progress[data-progress="29"] .circle .fill.fix {
-transform: rotate(174deg);
+  transform: rotate(174deg);
 }
 .radial-progress[data-progress="30"] .circle .mask.full,
 .radial-progress[data-progress="30"] .circle .fill {
-transform: rotate(90deg);
+  transform: rotate(90deg);
 }
 .radial-progress[data-progress="30"] .circle .fill.fix {
-transform: rotate(180deg);
+  transform: rotate(180deg);
 }
 .radial-progress[data-progress="31"] .circle .mask.full,
 .radial-progress[data-progress="31"] .circle .fill {
-transform: rotate(93deg);
+  transform: rotate(93deg);
 }
 .radial-progress[data-progress="31"] .circle .fill.fix {
-transform: rotate(186deg);
+  transform: rotate(186deg);
 }
 .radial-progress[data-progress="32"] .circle .mask.full,
 .radial-progress[data-progress="32"] .circle .fill {
-transform: rotate(96deg);
+  transform: rotate(96deg);
 }
 .radial-progress[data-progress="32"] .circle .fill.fix {
-transform: rotate(192deg);
+  transform: rotate(192deg);
 }
 .radial-progress[data-progress="33"] .circle .mask.full,
 .radial-progress[data-progress="33"] .circle .fill {
-transform: rotate(99deg);
+  transform: rotate(99deg);
 }
 .radial-progress[data-progress="33"] .circle .fill.fix {
-transform: rotate(198deg);
+  transform: rotate(198deg);
 }
 .radial-progress[data-progress="34"] .circle .mask.full,
 .radial-progress[data-progress="34"] .circle .fill {
-transform: rotate(102deg);
+  transform: rotate(102deg);
 }
 .radial-progress[data-progress="34"] .circle .fill.fix {
-transform: rotate(204deg);
+  transform: rotate(204deg);
 }
 .radial-progress[data-progress="35"] .circle .mask.full,
 .radial-progress[data-progress="35"] .circle .fill {
-transform: rotate(105deg);
+  transform: rotate(105deg);
 }
 .radial-progress[data-progress="35"] .circle .fill.fix {
-transform: rotate(210deg);
+  transform: rotate(210deg);
 }
 .radial-progress[data-progress="36"] .circle .mask.full,
 .radial-progress[data-progress="36"] .circle .fill {
-transform: rotate(108deg);
+  transform: rotate(108deg);
 }
 .radial-progress[data-progress="36"] .circle .fill.fix {
-transform: rotate(216deg);
+  transform: rotate(216deg);
 }
 .radial-progress[data-progress="37"] .circle .mask.full,
 .radial-progress[data-progress="37"] .circle .fill {
-transform: rotate(111deg);
+  transform: rotate(111deg);
 }
 .radial-progress[data-progress="37"] .circle .fill.fix {
-transform: rotate(222deg);
+  transform: rotate(222deg);
 }
 .radial-progress[data-progress="38"] .circle .mask.full,
 .radial-progress[data-progress="38"] .circle .fill {
-transform: rotate(114deg);
+  transform: rotate(114deg);
 }
 .radial-progress[data-progress="38"] .circle .fill.fix {
-transform: rotate(228deg);
+  transform: rotate(228deg);
 }
 .radial-progress[data-progress="39"] .circle .mask.full,
 .radial-progress[data-progress="39"] .circle .fill {
-transform: rotate(117deg);
+  transform: rotate(117deg);
 }
 .radial-progress[data-progress="39"] .circle .fill.fix {
-transform: rotate(234deg);
+  transform: rotate(234deg);
 }
 .radial-progress[data-progress="40"] .circle .mask.full,
 .radial-progress[data-progress="40"] .circle .fill {
-transform: rotate(120deg);
+  transform: rotate(120deg);
 }
 .radial-progress[data-progress="40"] .circle .fill.fix {
-transform: rotate(240deg);
+  transform: rotate(240deg);
 }
 .radial-progress[data-progress="41"] .circle .mask.full,
 .radial-progress[data-progress="41"] .circle .fill {
-transform: rotate(123deg);
+  transform: rotate(123deg);
 }
 .radial-progress[data-progress="41"] .circle .fill.fix {
-transform: rotate(246deg);
+  transform: rotate(246deg);
 }
 .radial-progress[data-progress="42"] .circle .mask.full,
 .radial-progress[data-progress="42"] .circle .fill {
-transform: rotate(126deg);
+  transform: rotate(126deg);
 }
 .radial-progress[data-progress="42"] .circle .fill.fix {
-transform: rotate(252deg);
+  transform: rotate(252deg);
 }
 .radial-progress[data-progress="43"] .circle .mask.full,
 .radial-progress[data-progress="43"] .circle .fill {
-transform: rotate(129deg);
+  transform: rotate(129deg);
 }
 .radial-progress[data-progress="43"] .circle .fill.fix {
-transform: rotate(258deg);
+  transform: rotate(258deg);
 }
 .radial-progress[data-progress="44"] .circle .mask.full,
 .radial-progress[data-progress="44"] .circle .fill {
-transform: rotate(132deg);
+  transform: rotate(132deg);
 }
 .radial-progress[data-progress="44"] .circle .fill.fix {
-transform: rotate(264deg);
+  transform: rotate(264deg);
 }
 .radial-progress[data-progress="45"] .circle .mask.full,
 .radial-progress[data-progress="45"] .circle .fill {
-transform: rotate(135deg);
+  transform: rotate(135deg);
 }
 .radial-progress[data-progress="45"] .circle .fill.fix {
-transform: rotate(270deg);
+  transform: rotate(270deg);
 }
 .radial-progress[data-progress="46"] .circle .mask.full,
 .radial-progress[data-progress="46"] .circle .fill {
-transform: rotate(138deg);
+  transform: rotate(138deg);
 }
 .radial-progress[data-progress="46"] .circle .fill.fix {
-transform: rotate(276deg);
+  transform: rotate(276deg);
 }
 .radial-progress[data-progress="47"] .circle .mask.full,
 .radial-progress[data-progress="47"] .circle .fill {
-transform: rotate(141deg);
+  transform: rotate(141deg);
 }
 .radial-progress[data-progress="47"] .circle .fill.fix {
-transform: rotate(282deg);
+  transform: rotate(282deg);
 }
 .radial-progress[data-progress="48"] .circle .mask.full,
 .radial-progress[data-progress="48"] .circle .fill {
-transform: rotate(144deg);
+  transform: rotate(144deg);
 }
 .radial-progress[data-progress="48"] .circle .fill.fix {
-transform: rotate(288deg);
+  transform: rotate(288deg);
 }
 .radial-progress[data-progress="49"] .circle .mask.full,
 .radial-progress[data-progress="49"] .circle .fill {
-transform: rotate(147deg);
+  transform: rotate(147deg);
 }
 .radial-progress[data-progress="49"] .circle .fill.fix {
-transform: rotate(294deg);
+  transform: rotate(294deg);
 }
 .radial-progress[data-progress="50"] .circle .mask.full,
 .radial-progress[data-progress="50"] .circle .fill {
-transform: rotate(150deg);
+  transform: rotate(150deg);
 }
 .radial-progress[data-progress="50"] .circle .fill.fix {
-transform: rotate(300deg);
+  transform: rotate(300deg);
 }
 .radial-progress[data-progress="51"] .circle .mask.full,
 .radial-progress[data-progress="51"] .circle .fill {
-transform: rotate(153deg);
+  transform: rotate(153deg);
 }
 .radial-progress[data-progress="51"] .circle .fill.fix {
-transform: rotate(306deg);
+  transform: rotate(306deg);
 }
 .radial-progress[data-progress="52"] .circle .mask.full,
 .radial-progress[data-progress="52"] .circle .fill {
-transform: rotate(156deg);
+  transform: rotate(156deg);
 }
 .radial-progress[data-progress="52"] .circle .fill.fix {
-transform: rotate(312deg);
+  transform: rotate(312deg);
 }
 .radial-progress[data-progress="53"] .circle .mask.full,
 .radial-progress[data-progress="53"] .circle .fill {
-transform: rotate(159deg);
+  transform: rotate(159deg);
 }
 .radial-progress[data-progress="53"] .circle .fill.fix {
-transform: rotate(318deg);
+  transform: rotate(318deg);
 }
 .radial-progress[data-progress="54"] .circle .mask.full,
 .radial-progress[data-progress="54"] .circle .fill {
-transform: rotate(162deg);
+  transform: rotate(162deg);
 }
 .radial-progress[data-progress="54"] .circle .fill.fix {
-transform: rotate(324deg);
+  transform: rotate(324deg);
 }
 .radial-progress[data-progress="55"] .circle .mask.full,
 .radial-progress[data-progress="55"] .circle .fill {
-transform: rotate(165deg);
+  transform: rotate(165deg);
 }
 .radial-progress[data-progress="55"] .circle .fill.fix {
-transform: rotate(330deg);
+  transform: rotate(330deg);
 }
 .radial-progress[data-progress="56"] .circle .mask.full,
 .radial-progress[data-progress="56"] .circle .fill {
-transform: rotate(168deg);
+  transform: rotate(168deg);
 }
 .radial-progress[data-progress="56"] .circle .fill.fix {
-transform: rotate(336deg);
+  transform: rotate(336deg);
 }
 .radial-progress[data-progress="57"] .circle .mask.full,
 .radial-progress[data-progress="57"] .circle .fill {
-transform: rotate(171deg);
+  transform: rotate(171deg);
 }
 .radial-progress[data-progress="57"] .circle .fill.fix {
-transform: rotate(342deg);
+  transform: rotate(342deg);
 }
 .radial-progress[data-progress="58"] .circle .mask.full,
 .radial-progress[data-progress="58"] .circle .fill {
-transform: rotate(174deg);
+  transform: rotate(174deg);
 }
 .radial-progress[data-progress="58"] .circle .fill.fix {
-transform: rotate(348deg);
+  transform: rotate(348deg);
 }
 .radial-progress[data-progress="59"] .circle .mask.full,
 .radial-progress[data-progress="59"] .circle .fill {
-transform: rotate(177deg);
+  transform: rotate(177deg);
 }
 .radial-progress[data-progress="59"] .circle .fill.fix {
-transform: rotate(354deg);
+  transform: rotate(354deg);
 }
 .radial-progress[data-progress="60"] .circle .mask.full,
 .radial-progress[data-progress="60"] .circle .fill {
-transform: rotate(180deg);
+  transform: rotate(180deg);
 }
 .radial-progress[data-progress="60"] .circle .fill.fix {
-transform: rotate(360deg);
+  transform: rotate(360deg);
 }
-`;
-document.body.appendChild(styles_advsearch);
+`); // end stylesheet
+
+
+// On script run
+(function init() {
+
+  // If on Stack Overflow, make logo go to /questions
+  if (location.hostname === 'stackoverflow.com') {
+    $('.-main .-logo').attr('href', '/questions');
+  }
+
+  // If using old search bar
+  const searchform = $('#search');
+  if (!searchform.hasClass('search-channel-context')) {
+
+    const grid = searchform.find('.ps-relative').first().removeClass('ps-relative').addClass('grid');
+
+    // If not on MSE, insert channel selector
+    if (!isMSE) {
+      grid.prepend(searchSelector);
+    }
+
+    searchform.addClass('search-channel-context')
+      .find('.js-search-field, .js-search-submit').wrapAll('<div class="flex--item ps-relative fl1"></div>');
+
+    searchform
+      .find('.js-search-field').addClass('search-channel-switcher-field');
+  }
+  // If using new search bar
+  else {
+    $('.js-search-channel-selector option:last-child')
+      .after(`<option data-url="https://meta.stackexchange.com/search">Meta Stack Exchange</option>`)
+      .after(`<option data-url="${metaUrl}/search">Meta ${mainName}</option>`);
+  }
+
+  // Update form action
+  $('#search-channel-selector').on('change', function () {
+    const url = $(this).children().filter(':selected').attr('data-url');
+    $('form.js-searchbar').attr('action', url);
+  });
+
+  // Move new svg search icon before the search field
+  $('#search .svg-icon.s-input-icon__search.iconSearch').insertBefore('#search input[name="q"]');
+
+  // New left navigation, link to parent/meta site
+  if (isChildMeta) {
+    lsidebar.find('.pl8').removeClass('pl8');
+    $('ol.nav-links', lsidebar).first().prepend(`
+      <li><a id="nav-main" href="${parentUrl}/questions" class="nav-links--link -link__with-icon pl8">
+        <svg aria-hidden="true" class="svg-icon iconGlobe" width="16" height="16" viewBox="0 0 1000 1000">
+        <path d="M570,318.4V173.2c0-26.8-14.2-51.4-37-64.1c-22.7-12.6-50.4-11.2-71.9,3.6l-420,290.5C21.7,416.7,10,439.4,10,463.7c0,24.3,11.7,47,31.2,60.4l420,290.5c21.5,14.9,49.1,16.3,71.9,3.6c22.7-12.7,37-37.2,37-64.1V608.9c182.8,0,337.9,121.4,395.6,290.5C981.1,854,990,805.2,990,754.2C990,513.5,802,318.4,570,318.4z"></path></svg>
+        <span class="-link--channel-name">${mainName}</span></a>
+      </li>`);
+  }
+  // If on main site and has child site
+  else if (metaUrl !== parentUrl) {
+    $(lsidebar).find('#nav-users').parent().after(`<li><a id="nav-meta" href="${metaUrl}/questions" class="nav-links--link">Meta</a></li>`);
+  }
+
+  // Expand dropdown-container tab items
+  $('.dropdown-container').each(function () {
+    const itemClasses = $(this).siblings('a').get(0).className.replace(/(youarehere|is-selected)/g, '');
+    const items = $(this).find('li a').removeClass('disabled').addClass(itemClasses);
+    items.filter('.selected').addClass('is-selected');
+    $(this).before(items).remove();
+  });
+
+  // Post timeline buttons to open in new tab
+  $('.js-post-issues a[title="Timeline"]').attr('target', '_blank');
+
+  tryUpdateWatchedIgnoredTags();
+
+  initAdvancedSearch();
+  initSavedSearch();
+  initAutoRefresh();
+  initQuickfilters();
+
+  loadSvgIcons();
+
+  // If on search results page, and no results, try title search instead
+  if (location.pathname === '/search' && hasSearchResults && $('.js-search-results > .page-description').length === 1) {
+
+    // Can't filter title search
+    const searchResultsContainer = $('.js-search-results').removeClass('flush-left').addClass('ml0 bt btw0');
+
+    searchResultsContainer.prev('.grid.mb16').remove().end()
+    searchResultsContainer.prev('.mb12').text('no results. falling back to results from title search');
+
+    const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
+    const q = getQueryParam('q');
+    $.get(`${location.origin}/search/titles?title=${q}`, function (data) {
+
+      searchResultsContainer.html('<div class="s-card p0">' + data.content + '</div>');
+
+      // Transform to original search results design
+      searchResultsContainer.find('.s-link').removeClass('s-link');
+      searchResultsContainer.find('.js-link p').addClass('fc-black-900');
+      searchResultsContainer.find('.js-question-summary-scroll').removeClass('overflow-y-scroll question-summary-scroll question-summary sm:fd-row narrow grid ai-start p0 bbw0 h100 sm:pl0 sm:pr0');
+      searchResultsContainer.find('.relativetime').unwrap();
+      searchResultsContainer.find('.started').removeClass('fc-black-300');
+    });
+  }
+
+  // On any page update
+  $(document).ajaxComplete(function (event, xhr, settings) {
+    if (settings.url.indexOf('/users/save-preference') >= 0) {
+      tryUpdateWatchedIgnoredTags();
+      $('#user-watched-tags').val(getWatchedTags());
+      $('#user-ignored-tags').val(getIgnoredTags());
+    }
+  });
+})();

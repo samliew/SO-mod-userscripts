@@ -2,28 +2,38 @@
 // @name         Question Lists Helper
 // @description  Adds more information about questions to question lists, adds post filters to sidebar, adds delete buttons to posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
-// @author       @samliew
-// @version      3.4.2
+// @author       Samuel Liew
+// @version      4.0
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
 // @match        https://*.superuser.com/*
 // @match        https://*.askubuntu.com/*
 // @match        https://*.mathoverflow.net/*
+// @match        https://*.stackapps.com/*
 // @match        https://*.stackexchange.com/*
+// @match        https://stackoverflowteams.com/*
 //
 // @exclude      */admin/user-activity*
 // @exclude      */admin/dashboard*
 //
+// @exclude      https://api.stackexchange.com/*
+// @exclude      https://data.stackexchange.com/*
+// @exclude      https://contests.stackoverflow.com/*
+// @exclude      https://winterbash*.stackexchange.com/*
+// @exclude      *chat.*
+// @exclude      *blog.*
+// @exclude      */tour
+//
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/se-ajax-common.js
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
-/* globals StackExchange, hasBackoff, addBackoff */
+/* globals StackExchange, fkey, isSO, siteApiSlug, scriptSlug */
+/// <reference types="./globals" />
 
 'use strict';
 
-const scriptName = GM_info.script.name.toLowerCase().replace(/\s+/g, '-');
-const siteApiSlug = location.hostname.replace(/(\.stackexchange)?\.(com|net|org)$/i, '');
 const apikey = 'ENmQ1YxlYnp725at*EkjEg((';
 
 let qList, filterButtons;
@@ -31,18 +41,10 @@ let qList, filterButtons;
 
 // Detect if SOMU is loaded
 const rafAsync = () => new Promise(resolve => { requestAnimationFrame(resolve); });
-async function waitForSOMU() {
+const waitForSOMU = async () => {
   while (typeof SOMU === 'undefined' || !SOMU.hasInit) { await rafAsync(); }
   return SOMU;
-}
-
-
-/**
- * @summary waits a specified number of seconds
- * @param {number} [seconds] seconds to wait
- * @returns {Promise<void>}
- */
-const wait = (seconds = 1) => new Promise((r) => setTimeout(r, seconds * 1e3));
+};
 
 
 /**
@@ -57,8 +59,6 @@ const wait = (seconds = 1) => new Promise((r) => setTimeout(r, seconds * 1e3));
 // closeReasonId:  'NeedMoreFocus', 'SiteSpecific', 'NeedsDetailsOrClarity', 'OpinionBased', 'Duplicate'
 // (SO) If closeReasonId is 'SiteSpecific', siteSpecificCloseReasonId:  18-notsoftwaredev, 16-toolrec, 13-nomcve, 11-norepro, 3-custom, 2-migration
 function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', siteSpecificCloseReasonId = 3, siteSpecificOtherText = 'I’m voting to close this question because ', duplicateOfQuestionId = null) {
-  const fkey = StackExchange.options.user.fkey;
-  const isSO = location.hostname === 'stackoverflow.com';
   return new Promise(function (resolve, reject) {
     if (!isSO) { reject(); return; }
     if (typeof pid === 'undefined' || pid === null) { reject(); return; }
@@ -68,10 +68,10 @@ function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', siteSpecif
     if (closeReasonId === 'Duplicate') siteSpecificCloseReasonId = null;
 
     // Logging actual action
-    console.debug(`[${scriptName}] %c Closing ${pid} as ${closeReasonId}, reason ${siteSpecificCloseReasonId}.`, 'font-weight: bold');
+    console.debug(`[${scriptSlug}] %c Closing ${pid} as ${closeReasonId}, reason ${siteSpecificCloseReasonId}.`, 'font-weight: bold');
 
     $.post({
-      url: `https://${location.hostname}/flags/questions/${pid}/close/add`,
+      url: `${location.origin}/flags/questions/${pid}/close/add`,
       data: {
         'fkey': fkey,
         'closeReasonId': closeReasonId,
@@ -79,11 +79,11 @@ function closeQuestionAsOfftopic(pid, closeReasonId = 'SiteSpecific', siteSpecif
         'siteSpecificCloseReasonId': siteSpecificCloseReasonId,
         'siteSpecificOtherText': siteSpecificCloseReasonId == 3 && isSO ? 'This question does not appear to be about programming within the scope defined in the [help]' : siteSpecificOtherText,
         //'offTopicOtherCommentId': '',
-        'originalSiteSpecificOtherText': 'I’m voting to close this question because ',
+        'originalSiteSpecificOtherText': 'I’m voting to close this question because '
       }
     })
-    .done(resolve)
-    .fail(reject);
+      .done(resolve)
+      .fail(reject);
   });
 }
 
@@ -276,7 +276,7 @@ const processQuestionLists = async function () {
         value = `+${value} / -${question['down_vote_count']}`;
       }
       else if (key.includes('accepted_answer_id')) {
-        value = `<a href="https://${location.hostname}/a/${value}" target="_blank">${value}</a>`;
+        value = `<a href="${location.origin}/a/${value}" target="_blank">${value}</a>`;
       }
       else if (key.includes('_date')) {
         const d = new Date(value * 1000).toISOString().replace('T', ' ').replace('.000', '');
@@ -306,12 +306,12 @@ const processQuestionLists = async function () {
 
       // Closed by mod
       if (closedByMods?.length) {
-        moreStats.innerHTML += `<div>closed_by_mod: ${closedByMods.map(({ user_id, display_name }) => `<a href="https://${location.hostname}/users/${user_id}" target="_blank">${display_name} ♦</a>`).join(', ')}</div>`;
+        moreStats.innerHTML += `<div>closed_by_mod: ${closedByMods.map(({ user_id, display_name }) => `<a href="${location.origin}/users/${user_id}" target="_blank">${display_name} ♦</a>`).join(', ')}</div>`;
       }
 
       // Hammered by gold
       else if (/Duplicate/i.test(closed_reason) && closedByHammer?.length < 3) {
-        moreStats.innerHTML += `<div>closed_by_hammer: ${closedByHammer.map(({ user_id, display_name }) => `<a href="https://${location.hostname}/users/${user_id}" target="_blank">${display_name}</a>`).pop()}</div>`;
+        moreStats.innerHTML += `<div>closed_by_hammer: ${closedByHammer.map(({ user_id, display_name }) => `<a href="${location.origin}/users/${user_id}" target="_blank">${display_name}</a>`).pop()}</div>`;
       }
     }
 
@@ -354,7 +354,7 @@ const initQuestionListFilter = async function () {
     <div class="s-btn-group-stacked ml4 pl8 pr8" id="somu-question-list-filter">`;
 
   filterOptions.forEach(opt => {
-    html += `<button class="s-btn s-btn-sm s-btn__muted s-btn__outlined ta-left" data-filter="${opt}" name="SOMU:${scriptName}:${opt}">${opt.replace(/-/g, ' ')}</button>`;
+    html += `<button class="s-btn s-btn-sm s-btn__muted s-btn__outlined ta-left" data-filter="${opt}" name="SOMU:${scriptSlug}:${opt}">${opt.replace(/-/g, ' ')}</button>`;
   });
   filterWrapper.innerHTML = html + '</div>';
 
@@ -380,9 +380,9 @@ const initQuestionListFilter = async function () {
   waitForSOMU().then(function (SOMU) {
     filterOptions.forEach(opt => {
       // Set option field in sidebar with current custom value; use default value if not set before
-      SOMU.addOption(scriptName, opt, false, 'bool');
+      SOMU.addOption(scriptSlug, opt, false, 'bool');
       // Get current custom value with default
-      const selected = SOMU.getOptionValue(scriptName, opt, false, 'bool');
+      const selected = SOMU.getOptionValue(scriptSlug, opt, false, 'bool');
       // Set initial button state
       filterWrapper.querySelector(`button[data-filter="${opt}"]`).classList.toggle('is-selected', selected);
     });
@@ -412,7 +412,7 @@ function doDupeSearch(closeModal) {
   // Clear search error message
   errorElem.innerText = '';
 
-  fetch(`https://${location.hostname}/posts/popup/close/search-originals/${qid}?q=${searchQuery}`).then(
+  fetch(`${location.origin}/posts/popup/close/search-originals/${qid}?q=${searchQuery}`).then(
     response => response.text()
   ).then(async html => {
     // Single result preview
@@ -442,7 +442,7 @@ function doDupeSearch(closeModal) {
 
     // List of results
     resultElem.innerHTML = html;
-    await wait(0.01);
+    await delay(10);
     dupeNavi.innerHTML = resultElem.querySelector('.navi').outerHTML;
 
     // No suggestions, clear
@@ -485,7 +485,7 @@ const initEventListeners = async function () {
     if (!qid) return;
 
     // Fetch close reason dialog
-    fetch(`https://${location.hostname}/flags/questions/${qid}/close/popup?loadedTimestamp=1663118348686`).then(
+    fetch(`${location.origin}/flags/questions/${qid}/close/popup?loadedTimestamp=1663118348686`).then(
       response => response.text()
     ).then(html => {
       // Insert close reason dialog after close button
@@ -610,7 +610,7 @@ const initEventListeners = async function () {
             response => response.text()
           ).then(async html => {
             resultElem.innerHTML = html;
-            await wait(0.01);
+            await delay(10);
             dupeNavi.innerHTML = resultElem.querySelector('.navi').outerHTML;
 
             // No suggestions, clear
@@ -699,7 +699,7 @@ function listenToKeyboardEvents() {
 
     // If edit mode, cancel if esc is pressed
     if (cancel && $('.editing-review-content').length > 0) {
-      $('.js-review-cancel-button').click();
+      $('.js-review-cancel-button').trigger('click');
       return;
     }
 
@@ -728,7 +728,7 @@ function listenToKeyboardEvents() {
         // If displaying a single duplicate post, go back to duplicates search
         const dupeBack = currPopup.find('.original-display .navi a').filter(':visible');
         if (dupeBack.length) {
-          dupeBack.click();
+          dupeBack.trigger('click');
           return false;
         }
 
@@ -736,7 +736,7 @@ function listenToKeyboardEvents() {
         // otherwise default to dismiss popup
         const link = currPopup.find('.popup-close a, .popup-breadcrumbs a, .js-popup-back').filter(':visible');
         if (link.length) {
-          link.last().click();
+          link.last().trigger('click');
           // Always clear dupe closure search box on back action
           $('#search-text').val('');
           return false;
@@ -751,7 +751,7 @@ function listenToKeyboardEvents() {
         // Get options
         const opts = pane.find('input:radio');
         // Click option
-        const opt = opts.eq(index).click();
+        const opt = opts.eq(index).trigger('click');
         // Job is done here. Do not bubble if an option was clicked
         return opt.length !== 1;
       }
@@ -761,63 +761,8 @@ function listenToKeyboardEvents() {
 }
 
 
-/**
- * @summary Main async function
- */
-const doPageLoad = async function () {
-
-  // Run on question lists and search results pages only
-  qList = document.querySelector('#questions, #question-mini-list, .js-search-results > div:last-child');
-  if (!qList) {
-    console.log('Not a question list page.');
-    return;
-  }
-
-  document.body.classList.add('SOMU-QuestionListsHelper');
-
-  // Transform old question lists to new style
-  let oldQuestionList = document.querySelector('.js-search-results, #qlist-wrapper');
-  if (oldQuestionList) {
-    oldQuestionList.classList.remove('ml0', 'bt', 's-card');
-    oldQuestionList.classList.add('flush-left');
-    oldQuestionList.querySelectorAll('.s-card').forEach(el => {
-      el.classList.remove('s-card');
-      el.classList.add('bb', 'bt', 'bc-black-100');
-    });
-  }
-  const mixedQuestionList = document.querySelector('.mixed-question-list');
-  if (mixedQuestionList) {
-    mixedQuestionList.classList.remove('ml0', 'bt', 's-card');
-    mixedQuestionList.classList.add('flush-left');
-  }
-
-  // When new questions are loaded
-  const observer = new MutationObserver((mutationsList, observer) => {
-    const hasNewChildElements = !!mutationsList.filter(m => m.type === 'childList').length;
-    if (hasNewChildElements) processQuestionLists();
-  });
-  observer.observe(qList, { attributes: false, childList: true, subtree: false });
-
-  // Init filters
-  await initQuestionListFilter();
-
-  // Do once on page load
-  await processQuestionLists();
-
-  // Add event listeners
-  initEventListeners();
-  listenToKeyboardEvents();
-};
-
-
-// On page load
-doPageLoad();
-
-
 // Append styles
-const styles = document.createElement('style');
-styles.setAttribute('data-somu', GM_info?.script.name);
-styles.innerHTML = `
+addStylesheet(`
 .s-post-summary--stats {
   --s-post-summary-stats-gap: 3px;
 }
@@ -962,5 +907,49 @@ styles.innerHTML = `
 .flush-left > .flush-left {
   margin-left: 0;
 }
-`;
-document.body.appendChild(styles);
+`); // end stylesheet
+
+
+// On script run
+(async function init() {
+
+  // Run on question lists and search results pages only
+  qList = document.querySelector('#questions, #question-mini-list, .js-search-results > div:last-child');
+  if (!qList) {
+    console.log('Not a question list page.');
+    return;
+  }
+
+  // Transform old question lists to new style
+  let oldQuestionList = document.querySelector('.js-search-results, #qlist-wrapper');
+  if (oldQuestionList) {
+    oldQuestionList.classList.remove('ml0', 'bt', 's-card');
+    oldQuestionList.classList.add('flush-left');
+    oldQuestionList.querySelectorAll('.s-card').forEach(el => {
+      el.classList.remove('s-card');
+      el.classList.add('bb', 'bt', 'bc-black-100');
+    });
+  }
+  const mixedQuestionList = document.querySelector('.mixed-question-list');
+  if (mixedQuestionList) {
+    mixedQuestionList.classList.remove('ml0', 'bt', 's-card');
+    mixedQuestionList.classList.add('flush-left');
+  }
+
+  // When new questions are loaded
+  const observer = new MutationObserver((mutationsList, observer) => {
+    const hasNewChildElements = !!mutationsList.filter(m => m.type === 'childList').length;
+    if (hasNewChildElements) processQuestionLists();
+  });
+  observer.observe(qList, { attributes: false, childList: true, subtree: false });
+
+  // Init filters
+  await initQuestionListFilter();
+
+  // Do once on page load
+  await processQuestionLists();
+
+  // Add event listeners
+  initEventListeners();
+  listenToKeyboardEvents();
+})();

@@ -2,76 +2,82 @@
 // @name         Comment User Colours
 // @description  Unique colour for each user in comments to make following users in long comment threads easier
 // @homepage     https://github.com/samliew/SO-mod-userscripts
-// @author       @samliew
-// @version      2.2
+// @author       Samuel Liew
+// @version      3.0
 //
-// @include      https://*stackoverflow.com/*
-// @include      https://*serverfault.com/*
-// @include      https://*superuser.com/*
-// @include      https://*askubuntu.com/*
-// @include      https://*mathoverflow.net/*
-// @include      https://*.stackexchange.com/*
+// @match        https://*.stackoverflow.com/*
+// @match        https://*.serverfault.com/*
+// @match        https://*.superuser.com/*
+// @match        https://*.askubuntu.com/*
+// @match        https://*.mathoverflow.net/*
+// @match        https://*.stackapps.com/*
+// @match        https://*.stackexchange.com/*
+// @match        https://stackoverflowteams.com/*
 //
+// @exclude      https://api.stackexchange.com/*
+// @exclude      https://data.stackexchange.com/*
+// @exclude      https://contests.stackoverflow.com/*
+// @exclude      https://winterbash*.stackexchange.com/*
 // @exclude      *chat.*
+// @exclude      *blog.*
+// @exclude      */tour
+//
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/se-ajax-common.js
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
-/* globals StackExchange, GM_info */
+/* globals StackExchange */
+/// <reference types="./globals" />
 
 'use strict';
 
-if (typeof unsafeWindow !== 'undefined' && window !== unsafeWindow) {
-    window.jQuery = unsafeWindow.jQuery;
-    window.$ = unsafeWindow.jQuery;
-}
-
 function getUserColor(uid, username) {
-    if (typeof uid === 'string') uid = Number(uid) || 0;
-    const colorCode = (uid * 99999999 % 16777216).toString(16) + '000000'; // 16777216 = 16^6
-    return colorCode.slice(0, 6);
+  if (typeof uid === 'string') uid = Number(uid) || 0;
+  const colorCode = (uid * 99999999 % 16777216).toString(16) + '000000'; // 16777216 = 16^6
+  return colorCode.slice(0, 6);
 }
 function setUserColor(i, el) {
-    el.style.setProperty("--usercolor", '#' + getUserColor(this.dataset.uid, this.innerText));
-    el.classList.add("js-usercolor");
+  el.style.setProperty("--usercolor", '#' + getUserColor(this.dataset.uid, this.innerText));
+  el.classList.add("js-usercolor");
 }
 
 function updateUsers() {
 
-    // Pre-parse user ids
-    $('.comment-user').not('[data-uid]').each(function () {
-        // No href if deleted user, fallback to innerText
-        this.dataset.uid = (this.href || this.innerText).match(/\d+/, '')[0];
-    });
+  // Pre-parse user ids
+  $('.comment-user').not('[data-uid]').each(function () {
+    // No href if deleted user, fallback to innerText
+    this.dataset.uid = (this.href || this.innerText).match(/\d+/, '')[0];
+  });
 
-    // If more than one comment per comment section, set user color
-    $('.comments').each(function (i, section) {
-        $('.comment-copy + div .comment-user', section).not('.js-usercolor').filter(function () {
-            return $(`.comment-user[data-uid=${this.dataset.uid}]`, section).length > 1;
-        }).each(setUserColor);
-    });
+  // If more than one comment per comment section, set user color
+  $('.comments').each(function (i, section) {
+    $('.comment-copy + div .comment-user', section).not('.js-usercolor').filter(function () {
+      return $(`.comment-user[data-uid=${this.dataset.uid}]`, section).length > 1;
+    }).each(setUserColor);
+  });
 }
-
-
-// On page load
-updateUsers();
-$(document).ajaxStop(updateUsers);
 
 
 // Append styles
-const styles = document.createElement('style');
-styles.setAttribute('data-somu', GM_info?.script.name);
-styles.innerHTML = `
+addStylesheet(`
 .js-usercolor {
-    position: relative;
-    --usercolor: transparent;
+  position: relative;
+  --usercolor: transparent;
 }
 .js-usercolor:after {
-    content: '';
-    position: absolute;
-    bottom: -1px;
-    left: 0;
-    right: 0;
-    border-bottom: 3px solid var(--usercolor) !important;
-    pointer-events: none;
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  border-bottom: 3px solid var(--usercolor) !important;
+  pointer-events: none;
 }
-`;
-document.body.appendChild(styles);
+`); // end stylesheet
+
+
+// On script run
+(function init() {
+  updateUsers();
+  $(document).ajaxStop(updateUsers);
+})();

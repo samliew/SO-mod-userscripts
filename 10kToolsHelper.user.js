@@ -2,8 +2,8 @@
 // @name         10k Tools Helper
 // @description  Expand all sections, and adds additional post type filters
 // @homepage     https://github.com/samliew/SO-mod-userscripts
-// @author       @samliew
-// @version      2.0.1
+// @author       Samuel Liew
+// @version      3.0
 //
 // @match        https://*.stackoverflow.com/tools*
 // @match        https://*.serverfault.com/tools*
@@ -27,6 +27,7 @@
 // ==/UserScript==
 
 /* globals StackExchange */
+/// <reference types="./globals" />
 
 'use strict';
 
@@ -81,45 +82,44 @@ const callbackWhenPageLoaded = () => {
 };
 
 
+// Append styles
+addStylesheet(`
+.summary-table tr.collapsing {
+  display: table-row;
+}
+.expander-arrow-small-hide,
+.summary-table tr.d-none {
+  display: none !important;
+}
+.modtools-filters,
+.modtools-filters-wrapper {
+  display: inline-flex;
+  align-items: center;
+}
+.modtools-filters .is-selected {
+  box-shadow: inset 1px 1px 2px 0px rgba(0,0,0,0.3);
+}
+.modtools-filters a {
+  float: none;
+  padding: .8em;
+  line-height: 1.15384615;
+}
+.modtools-filters a:first-child {
+  border-bottom-right-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+.modtools-filters a + a {
+  border-bottom-left-radius: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-left: 0;
+  margin-left: -1px;
+}
+`); // end stylesheet
+
+
 // On script run
 (function init() {
 
   // Once on page load only
   $(document).one('ajaxStop', callbackWhenPageLoaded);
 })();
-
-
-// Append styles
-addStylesheet(`
-  .summary-table tr.collapsing {
-      display: table-row;
-  }
-  .expander-arrow-small-hide,
-  .summary-table tr.d-none {
-      display: none !important;
-  }
-
-  .modtools-filters,
-  .modtools-filters-wrapper {
-      display: inline-flex;
-      align-items: center;
-  }
-  .modtools-filters .is-selected {
-      box-shadow: inset 1px 1px 2px 0px rgba(0,0,0,0.3);
-  }
-  .modtools-filters a {
-      float: none;
-      padding: .8em;
-      line-height: 1.15384615;
-  }
-  .modtools-filters a:first-child {
-      border-bottom-right-radius: 0 !important;
-      border-top-right-radius: 0 !important;
-  }
-  .modtools-filters a + a {
-      border-bottom-left-radius: 0 !important;
-      border-top-left-radius: 0 !important;
-      border-left: 0;
-      margin-left: -1px;
-  }
-`);

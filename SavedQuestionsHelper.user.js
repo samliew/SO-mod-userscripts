@@ -2,7 +2,7 @@
 // @name         Saved Questions Helper
 // @description  Batch-move Saved Questions between private lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
-// @author       @samliew
+// @author       Samuel Liew
 // @version      1.2
 //
 // @match        https://*.stackoverflow.com/users/saves/*

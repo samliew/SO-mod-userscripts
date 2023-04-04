@@ -8,8 +8,8 @@
 
 **Brief description of the change:**
 
-- 
+-
 
 **Is this feature/update deployment associated with any issues?**
 
-Closes #
+Closes #<issue_number>

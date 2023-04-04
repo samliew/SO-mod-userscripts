@@ -2,34 +2,45 @@
 // @name         Stack Exchange Wider Mode
 // @description  Increase max-width of sites to 1440px
 // @homepage     https://github.com/samliew/SO-mod-userscripts
-// @author       @samliew
-// @version      2.1
+// @author       Samuel Liew
+// @version      3.0
 //
-// @include      https://*stackexchange.com/*
-// @include      https://*stackoverflow.com/*
-// @include      https://*serverfault.com/*
-// @include      https://*superuser.com/*
-// @include      https://*askubuntu.com/*
-// @include      https://*mathoverflow.net/*
-// @include      https://*stackapps.com/*
-// @include      https://*.stackexchange.com/*
+// @match        https://*.stackoverflow.com/*
+// @match        https://*.serverfault.com/*
+// @match        https://*.superuser.com/*
+// @match        https://*.askubuntu.com/*
+// @match        https://*.mathoverflow.net/*
+// @match        https://*.stackapps.com/*
+// @match        https://*.stackexchange.com/*
+// @match        https://stackoverflowteams.com/*
 //
+// @exclude      https://api.stackexchange.com/*
+// @exclude      https://data.stackexchange.com/*
+// @exclude      https://contests.stackoverflow.com/*
+// @exclude      https://winterbash*.stackexchange.com/*
+// @exclude      *chat.*
+// @exclude      *blog.*
+// @exclude      */tour
 // @exclude      */transcript/*
+//
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/se-ajax-common.js
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 //
 // @run-at       document-start
 // ==/UserScript==
 
-/* globals StackExchange, GM_info */
+/* globals StackExchange */
+/// <reference types="./globals" />
 
 'use strict';
 
 const breakpoints = {
-    standard: 1264,
-    wide: 1440,
-    wider: 1580,
-    widerer: 1920,
-    widest: 2560,
-    full: 99999
+  standard: 1264,
+  wide: 1440,
+  wider: 1580,
+  widerer: 1920,
+  widest: 2560,
+  full: 99999
 };
 const maxWidth = breakpoints.wider;
 const leftSidebarWidth = 164;
@@ -44,60 +55,58 @@ styles.innerHTML = `
 .top-bar .-container,
 body > .container,
 body > #container {
-    max-width: ${maxWidth}px;
-    width: 100%;
+  max-width: ${maxWidth}px;
+  width: 100%;
 }
 body#chat-body #container {
-    max-width: none;
-    width: 100%;
+  max-width: none;
+  width: 100%;
 }
 #left-sidebar ~ #content {
-    max-width: ${maxWidth - leftSidebarWidth}px;
-    width: calc(100% - ${leftSidebarWidth}px);
-    margin-left: auto;
-    margin-right: auto;
+  max-width: ${maxWidth - leftSidebarWidth}px;
+  width: calc(100% - ${leftSidebarWidth}px);
+  margin-left: auto;
+  margin-right: auto;
 }
 html.html__unpinned-leftnav #content {
-    max-width: none;
-    width: 100%;
+  max-width: none;
+  width: 100%;
 }
-
 
 /* Mod pages */
 .flag-container {
-    width: calc(100% - 330px);
+  width: calc(100% - 330px);
 }
 .flagged-posts {
-    width: 100%;
+  width: 100%;
 }
-
 
 /* Stack Exchange */
 header.siteHeader {
-    padding: 0 20px;
+  padding: 0 20px;
 }
 body > .wrapper > #content {
-    max-width: none;
-    width: auto;
+  max-width: none;
+  width: auto;
 }
 #mainArea {
-    max-width: ${maxWidth - leftSidebarWidth}px;
-    width: calc(100% - 240px);
+  max-width: ${maxWidth - leftSidebarWidth}px;
+  width: calc(100% - 240px);
 }
 #mainArea + #sideBar {
-    width: 220px;
+  width: 220px;
 }
 #mainArea > * {
-    width: auto;
+  width: auto;
 }
 #mainArea #question-list,
 #mainArea #question-list .question-container {
-    width: 100%;
-    box-sizing: border-box;
+  width: 100%;
+  box-sizing: border-box;
 }
 #mainArea #question-list .question-container .question {
-    width: calc(100% - 70px);
-    box-sizing: border-box;
+  width: calc(100% - 70px);
+  box-sizing: border-box;
 }
 `.replace(/;/g, ' !important;');
 document.head.appendChild(styles);

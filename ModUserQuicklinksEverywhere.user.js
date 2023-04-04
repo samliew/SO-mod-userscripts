@@ -2,135 +2,135 @@
 // @name         Mod User Quicklinks Everywhere
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
-// @author       @samliew
-// @version      3.3
+// @author       Samuel Liew
+// @version      4.0
 //
-// @include      https://*stackoverflow.com/*
-// @include      https://*serverfault.com/*
-// @include      https://*superuser.com/*
-// @include      https://*askubuntu.com/*
-// @include      https://*mathoverflow.net/*
-// @include      https://*.stackexchange.com/*
+// @match        https://*.stackoverflow.com/*
+// @match        https://*.serverfault.com/*
+// @match        https://*.superuser.com/*
+// @match        https://*.askubuntu.com/*
+// @match        https://*.mathoverflow.net/*
+// @match        https://*.stackapps.com/*
+// @match        https://*.stackexchange.com/*
+// @match        https://stackoverflowteams.com/*
 //
+// @exclude      https://api.stackexchange.com/*
+// @exclude      https://data.stackexchange.com/*
+// @exclude      https://contests.stackoverflow.com/*
+// @exclude      https://winterbash*.stackexchange.com/*
 // @exclude      *chat.*
+// @exclude      *blog.*
+// @exclude      */tour
+//
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/se-ajax-common.js
+// @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
-/* globals StackExchange, GM_info */
+/* globals StackExchange, parentUrl */
+/// <reference types="./globals" />
 
 'use strict';
 
-// Moderator check
-if (typeof StackExchange == "undefined" || !StackExchange.options || !StackExchange.options.user || !StackExchange.options.user.isModerator) return;
+// This is a moderator-only userscript
+if (!isModerator()) return;
 
-if (typeof unsafeWindow !== 'undefined' && window !== unsafeWindow) {
-    window.jQuery = unsafeWindow.jQuery;
-    window.$ = unsafeWindow.jQuery;
-}
-
-const isChildMeta = StackExchange.options.site.isChildMeta;
-const parentUrl = isChildMeta ? StackExchange.options.site.parentUrl : '';
+const isChildMeta = typeof StackExchange !== 'undefined' && StackExchange.options?.site?.isChildMeta;
 const showOnHover = false;
 
 
 function addUserLinks() {
 
-    $('.post-user-info, .s-user-card, .user-details, .js-body-loader div.ai-center.fw-wrap')
-        .filter(function() {
-            // Do not add links to users in sidebar
-            return $(this).closest('#sidebar').length === 0;
-        })
-        .not('.js-mod-quicklinks')
-        .addClass('js-mod-quicklinks')
-        .find('a[href^="/users/"]:first').each(function () {
+  $('.post-user-info, .s-user-card, .user-details, .js-body-loader div.ai-center.fw-wrap')
+    .filter(function () {
+      // Do not add links to users in sidebar
+      return $(this).closest('#sidebar').length === 0;
+    })
+    .not('.js-mod-quicklinks')
+    .addClass('js-mod-quicklinks')
+    .find('a[href^="/users/"]:first').each(function () {
 
-            // Add Votes and IP-xref links after mod-flair if mod, or after the user link
-            const uid = Number(this.href.match(/-?\d+/));
-            const modFlair = $(this).next('.mod-flair');
-            if (uid == -1 || modFlair.length == 1) return;
+      // Add Votes and IP-xref links after mod-flair if mod, or after the user link
+      const uid = Number(this.href.match(/-?\d+/));
+      const modFlair = $(this).next('.mod-flair');
+      if (uid == -1 || modFlair.length == 1) return;
 
-            const userlinks = `<div class="somu-mod-userlinks ${showOnHover ? 'show-on-hover' : ''}">` +
-                `<a href="${parentUrl}/users/account-info/${uid}" target="_blank">mod</a>` +
-                `<a href="/admin/users/${uid}/post-comments" target="_blank">cmnts</a>` +
-                `<a href="${parentUrl}/admin/show-user-votes/${uid}" target="_blank">votes</a>` +
-                `<a href="${parentUrl}/admin/xref-user-ips/${uid}?daysback=30&threshold=2" target="_blank">xref</a>` +
-                (!isChildMeta ? `<a href="${parentUrl}/admin/cm-message/create/${uid}?action=suspicious-voting" target="_blank">cm</a>` : '') +
-                `</div>`;
+      const userlinks = `
+        <div class="somu-mod-userlinks ${showOnHover ? 'show-on-hover' : ''}">
+          <a href="${parentUrl}/users/account-info/${uid}" target="_blank">mod</a>
+          <a href="/admin/users/${uid}/post-comments" target="_blank">cmnts</a>
+          <a href="${parentUrl}/admin/show-user-votes/${uid}" target="_blank">votes</a>
+          <a href="${parentUrl}/admin/xref-user-ips/${uid}?daysback=30&threshold=2" target="_blank">xref</a>
+          <a href="${parentUrl}/admin/cm-message/create/${uid}?action=suspicious-voting" target="_blank" class="${isChildMeta ? 'd-none' : ''}">cm</a>
+        </div>`;
 
-            $(this).closest('.user-info, .s-user-card, .js-mod-quicklinks').append($(userlinks));
-        });
+      $(this).closest('.user-info, .s-user-card, .js-mod-quicklinks').append($(userlinks));
+    });
 
-    $('.user-info').addClass('js-mod-quicklinks');
+  $('.user-info').addClass('js-mod-quicklinks');
 }
-
-function doPageLoad() {
-    $('.task-stat-leaderboard').removeClass('user-info');
-    addUserLinks();
-}
-
-function listenToPageUpdates() {
-    $(document).ajaxStop(addUserLinks);
-    $(document).on('moduserquicklinks', addUserLinks);
-}
-
-
-// On page load
-doPageLoad();
-listenToPageUpdates();
 
 
 // Append styles
-const styles = document.createElement('style');
-styles.setAttribute('data-somu', GM_info?.script.name);
-styles.innerHTML = `
+addStylesheet(`
 .user-info .user-details {
-    position: relative;
+  position: relative;
 }
 .somu-mod-userlinks {
-    display: block;
-    clear: both;
-    white-space: nowrap;
-    font-size: 0.95em;
+  display: block;
+  clear: both;
+  white-space: nowrap;
+  font-size: 0.95em;
 }
 #questions .somu-mod-userlinks {
-    /* No quicklinks in question lists */
-    display: none;
+  /* No quicklinks in question lists */
+  display: none;
 }
 .s-user-card .somu-mod-userlinks {
-    /* New s-user-card uses grid, we want it in last position */
-    order: 999;
-    grid-column-start: 2;
-    text-align: right;
+  /* New s-user-card uses grid, we want it in last position */
+  order: 999;
+  grid-column-start: 2;
+  text-align: right;
 }
 .somu-mod-userlinks.show-on-hover {
-    display: none;
+  display: none;
 }
 .somu-mod-userlinks,
 .somu-mod-userlinks a,
 .started .somu-mod-userlinks a {
-    color: var(--black-400);
+  color: var(--black-400);
 }
 .somu-mod-userlinks > a {
-    display: inline-block;
-    margin-right: 3px;
+  display: inline-block;
+  margin-right: 3px;
 }
 .somu-mod-userlinks a:hover,
 .started .somu-mod-userlinks a:hover {
-    color: var(--black);
+  color: var(--black);
 }
 .post-user-info:hover .somu-mod-userlinks,
 .user-info:hover .somu-mod-userlinks {
-    display: block;
+  display: block;
 }
 .flex--item + .somu-mod-userlinks {
-    position: initial !important;
-    display: inline-block;
-    width: auto;
-    background: none;
-    margin-top: 1px;
+  position: initial !important;
+  display: inline-block;
+  width: auto;
+  background: none;
+  margin-top: 1px;
 }
 /* review stats/leaderboard */
 .stats-mainbar .task-stat-leaderboard .user-details {
-    line-height: inherit;
+  line-height: inherit;
 }
-`;
-document.body.appendChild(styles);
+`); // end stylesheet
+
+
+// On script run
+(function init() {
+  $('.task-stat-leaderboard').removeClass('user-info');
+  addUserLinks();
+
+  // Page updates
+  $(document).ajaxStop(addUserLinks);
+  $(document).on('moduserquicklinks', addUserLinks);
+})();

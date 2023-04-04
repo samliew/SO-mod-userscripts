@@ -1,17 +1,17 @@
 {
-    "compilerOptions": {
-        "checkJs": true,
-        "allowJs": true,
-        "lib": ["ESNext","DOM","DOM.Iterable"],
-        "types": [
-            "@userscripters/stackexchange-global-types",
-            "@userscripters/storage",
-            "gapi",
-            "gapi.auth2",
-            "jquery",
-            "tampermonkey",
-            "./globals"
-        ]
-    },
-    "include": ["./SOMU-*","UserReviewBan*"]
+  "compilerOptions": {
+    "checkJs": true,
+    "allowJs": true,
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "types": [
+      "@userscripters/stackexchange-global-types",
+      "@userscripters/storage",
+      "gapi",
+      "gapi.auth2",
+      "jquery",
+      "tampermonkey",
+      "./globals"
+    ]
+  },
+  "include": ["./SOMU-*", "UserReviewBan*"]
 }
