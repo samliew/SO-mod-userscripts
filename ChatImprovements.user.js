@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurrences of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0.1
+// @version      4.0.2
 //
 // @match        https://chat.stackoverflow.com/*
 // @match        https://chat.stackexchange.com/*
@@ -812,69 +812,63 @@ const addTopbarStyles = () => {
 #info > .fl + .clear-both,
 #sidebar-menu .button {
   display: none;
-},
+}
 .transcript-nav {
   position: sticky;
   top: 33px;
   margin-top: 23px;
   z-index: 1;
   background: linear-gradient(180deg, white, transparent);
-},
+}
 #sidebar {
   padding-top: 40px;
-},
+}
 #chat-body #container {
   padding-top: 50px;
-},
-#sidebar #info #sound {
-  margin-top: 3px;
-},
-#sidebar ul, #sidebar ol {
-  margin-left: 0;
-},
+}
 .topbar {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   background: black;
-},
+}
 .topbar > * {
   opacity: 1;
   transition: opacity 0.4s ease;
-},
+}
 .topbar.js-loading-assets > * {
   opacity: 0;
-},
+}
 .topbar .topbar-wrapper {
   width: auto;
   height: 34px;
   padding: 0 20px;
-},
+}
 .topbar .topbar-links {
   right: 20px;
-},
+}
 .topbar .topbar-icon {
   position: relative;
   cursor: pointer;
-},
+}
 a.topbar-icon .topbar-dialog {
   display: none;
   position: absolute;
   top: 100%;
   cursor: initial;
-},
+}
 a.topbar-icon.topbar-icon-on .topbar-dialog,
 .topbar .topbar-icon.topbar-icon-on .js-loading-indicator {
   display: block !important;
-},
+}
 .topbar .network-chat-links {
   display: inline-flex;
   flex-direction: row;
   align-items: center;
   height: 34px;
   margin-left: 10px;
-},
+}
 .topbar .network-chat-links > a {
   flex: 0 0 auto;
   margin: 0 3px;
@@ -885,15 +879,15 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
   text-shadow: none !important;
   border: none;
   border-radius: 4px;
-},
+}
 .topbar .network-chat-links > a:active,
 .topbar .network-chat-links > a:hover {
   background: #444;
   border: none;
-},
+}
 .topbar .network-chat-links > a.current-site {
   background: #3667af !important;
-},
+}
 .topbar .topbar-icon .js-loading-indicator {
   display: none;
   position: absolute;
@@ -901,22 +895,22 @@ a.topbar-icon.topbar-icon-on .topbar-dialog,
   left: -12px;
   background: white;
   padding: 15px 20px 20px;
-},
+}
 .topbar .topbar-icon .js-loading-indicator img {
   float: left;
-},
+}
 #chat-body #searchbox {
   float: none;
   width: 194px;
   margin: 3px 0 0 20px;
   padding: 2px 3px 2px 24px !important;
   font-size: 13px;
-},
+}
 .topbar-dialog .s-input.s-input__search {
   box-sizing: border-box;
   padding: .6em .7em !important;
   padding-left: 32px !important;
-},
+}
 @media screen and (max-width: 960px) {
   .topbar .network-chat-links {
       display: none;
@@ -1558,6 +1552,9 @@ body.outside #container {
   margin: 3px 0 0 5px;
   width: 120px;
 }
+.topbar-dialog.siteSwitcher-dialog .site-desc {
+  margin-left: 0;
+}
 #header {
   margin-top: 72px;
 }
@@ -1944,6 +1941,10 @@ body.dragging #dropTarget {
 .topbar .topbar-links .search-container {
   margin-top: 4px;
 }
+.topbar-dialog .site-icon {
+  display: inline-block;
+  float: left;
+}
 
 /* Other minor stuff */
 #loading #loading-message {
@@ -1959,6 +1960,12 @@ body.dragging #dropTarget {
   padding-left: 10px;
   padding-right: 10px;
   box-sizing: border-box;
+}
+#sidebar #info #sound {
+  margin-top: 3px;
+}
+#sidebar ul, #sidebar ol {
+  margin-left: 0;
 }
 #sidebar #info #roomtitle #toggle-favorite {
   position: absolute;
