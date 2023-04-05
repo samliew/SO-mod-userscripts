@@ -613,7 +613,8 @@ function initPostModMenuLinks() {
         break;
       case 'no-longer-welcome':
         if (confirm(`Are you sure you want to DELETE THE USER "${uName}" as "no longer welcome"?\n\n(Note that this post will not be affected, unless it is negatively-scored, in which case it will be implicitly deleted along with the user account.)`)) {
-          deleteUser(uid,
+          deleteUser(
+            uid,
             '', // no details needed
             'This user is no longer welcome to participate on the site'
           ).then(function () {

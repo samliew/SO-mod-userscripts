@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      4.0.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -303,7 +303,7 @@ function initPostModMenuLinkActions() {
 
   // Handle mod actions menu link click
   // have to use tag "main" for mobile web doesn't contain wrapping elem "#content"
-  $('#content, main').on('click', '.js-post-mod-menu a', function () {
+  $('#content, main').on('click', '.js-post-mod-menu a', async function () {
 
     if ($(this).hasClass('disabled')) return false;
 
@@ -416,8 +416,15 @@ function initPostModMenuLinkActions() {
         if (confirm(`Suspend for 365, and DELETE the user "${uName}" (id: ${uid})???`) &&
           (underSpamAttackMode || confirm(`Are you VERY SURE you want to DELETE the account "${uName}"???`))) {
           deletePost(pid);
-          deleteUser(uid).then(function () {
-            if (!isSuperuser && !underSpamAttackMode) window.open(`${location.origin}/users/${uid}`);
+          deleteUser(
+            uid,
+            '', // no details needed
+            'This user is no longer welcome to participate on the site'
+          ).then(function () {
+            // Show deleted user page in new window
+            if (!isSuperuser && !underSpamAttackMode) {
+              window.open(`${location.origin}/users/${uid}`);
+            }
             removePostFromModQueue();
             reloadPage();
           });
@@ -427,8 +434,18 @@ function initPostModMenuLinkActions() {
         if (confirm(`Spam-nuke the post, suspend for 365, and DESTROY the spammer "${uName}" (id: ${uid})???`) &&
           (underSpamAttackMode || confirm(`Are you VERY SURE you want to DESTROY the account "${uName}"???`))) {
           spamFlagPost(pid);
-          destroyUser(uid).then(function () {
-            if (!isSuperuser && !underSpamAttackMode) window.open(`${location.origin}/users/${uid}`);
+          const pii = await getUserPii(uid);
+          destroyUser(
+            uid,
+            details,
+            'This user was created to post spam or nonsense and has no other positive participation',
+            userInfo,
+            pii
+          ).then(function () {
+            // Show deleted user page in new window
+            if (!isSuperuser && !underSpamAttackMode) {
+              window.open(`${location.origin}/users/${uid}`);
+            }
             removePostFromModQueue();
             reloadPage();
           });
