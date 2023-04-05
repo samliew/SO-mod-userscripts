@@ -3,7 +3,7 @@
 // @description  Better comments layout for easier readability and moderation
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0
+// @version      3.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -33,19 +33,20 @@
 
 'use strict';
 
-const commentsFontSize = '0.94rem';
+const commentsFontSize = '12.4px';
 
 
-// Append styles
+// Append styles to header
 addStylesheet(`
 /* Main comments UI changes */
 .comment-body {
-  font-size: 0;
+  --comment-font-size: ${commentsFontSize};
+  font-size: var(--comment-font-size);
 }
 .comment-body > * {
   display: inline-block;
   margin: 0 10px 0 0;
-  font-size: ${commentsFontSize};
+  font-size: var(--comment-font-size);
 }
 .comment-body .comment-date,
 .comment-body .comment-date > a {
@@ -54,7 +55,7 @@ addStylesheet(`
 .comment-body > button,
 .comment-body > .s-btn,
 .comment-body > .s-btn.s-btn__link {
-  font-size: ${commentsFontSize};
+  font-size: var(--comment-font-size);
 }
 .comment-body > button.js-comment-delete {
   float: right;
@@ -62,7 +63,7 @@ addStylesheet(`
 }
 ul.comments-list .comment-score span,
 .comment-copy {
-  font-size: ${commentsFontSize};
+  font-size: var(--comment-font-size);
 }
 .comment-form .comment-copy,
 .comment-body .comment-copy {
@@ -72,8 +73,8 @@ ul.comments-list .comment-score span,
   color: var(--black);
 
   font-family: Helvetica, Arial, sans-serif;
-  font-size: ${commentsFontSize};
-  letter-spacing: 0.1px;
+  font-size: var(--comment-font-size);
+  letter-spacing: 0.02em;
 }
 
 /* Minor comments UI changes */

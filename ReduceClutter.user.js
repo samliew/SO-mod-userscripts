@@ -3,7 +3,7 @@
 // @description  Revert updates that make the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      4.0.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -40,7 +40,7 @@ const blacklistedAnnouncementWords = ['podcast', 'listen', 'tune', 'research', '
 const blacklistedBlogWords = ['the loop', 'podcast', 'worst', 'bad', 'surprise', 'trick', 'terrible', 'will change', 'actually', 'team', 'try', 'free', 'easy', 'easier', 'e.p.', 'ep.'];
 
 
-// Append styles
+// Append styles to header
 addStylesheet(`
 /*
   Fix all Q&A links having same colour even when visited
@@ -347,11 +347,18 @@ div.js-community-icons {
 .js-sidebar-zone {
   min-height: 0 !important;
 }
-`); // end stylesheet
+`, false); // end stylesheet
 
 
 // On page load
 document.addEventListener('DOMContentLoaded', function (evt) {
+
+  // Make jQuery available when running in a userscript sandbox
+  // See https://github.com/samliew/SO-mod-userscripts/issues/112
+  if (typeof unsafeWindow !== 'undefined' && window !== unsafeWindow) {
+    window.jQuery = unsafeWindow.jQuery;
+    window.$ = unsafeWindow.jQuery;
+  }
 
   // If rep notification is displaying low values, remove it
   let repBadge = document.querySelector('.js-achievements-button .indicator-badge');
