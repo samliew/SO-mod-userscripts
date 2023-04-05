@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.0.1
+// @version      5.0.2
 //
 // @match        https://*.stackoverflow.com/review/*
 // @match        https://*.serverfault.com/review/*
@@ -74,6 +74,14 @@ let skipAudits = true, skipAccepted = false, skipUpvoted = false, skipMultipleAn
 
 // Keywords to detect opinion-based questions
 const opinionKeywords = ['fastest', 'best', 'recommended'];
+
+
+// Helper functions to wait for SOMU options to load
+const rafAsync = () => new Promise(resolve => { requestAnimationFrame(resolve); });
+const waitForSOMU = async () => {
+  while (typeof SOMU === 'undefined' || !SOMU?.hasInit) { await rafAsync(); }
+  return SOMU;
+};
 
 
 /**
@@ -1807,16 +1815,10 @@ pre {
 // On script run
 (async function init() {
 
-  // Helper functions to wait for SOMU options to load
-  const rafAsync = () => new Promise(resolve => { requestAnimationFrame(resolve); });
-  const waitForSOMU = async () => {
-    while (typeof SOMU === 'undefined' || !SOMU?.hasInit) { await rafAsync(); }
-    return SOMU;
-  };
-
   // Wait for options script to load
-  const SOMU = await waitForSOMU();
-  loadOptions(SOMU);
+  waitForSOMU().then(SOMU => {
+    loadOptions(SOMU);
+  })
 
   doPageLoad();
   listenToKeyboardEvents();

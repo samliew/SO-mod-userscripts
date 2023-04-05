@@ -3,7 +3,7 @@
 // @description  Add action button to delete AND insert duplicate comment at the same time
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      4.0.1
 //
 // @match        https://*.stackoverflow.com/admin/dashboard?flagtype=answerduplicateanswerauto*
 // @match        https://*.serverfault.com/admin/dashboard?flagtype=answerduplicateanswerauto*
@@ -41,6 +41,14 @@ const superusers = [584192];
 let duplicateComment = `Please [don't post identical answers to multiple questions](https://meta.stackexchange.com/q/104227). Instead, tailor the answer to the question asked. If the questions are exact duplicates of each other, please vote/flag to close instead.`;
 
 
+// Helper functions to wait for SOMU options to load
+const rafAsync = () => new Promise(resolve => { requestAnimationFrame(resolve); });
+const waitForSOMU = async () => {
+  while (typeof SOMU === 'undefined' || !SOMU?.hasInit) { await rafAsync(); }
+  return SOMU;
+};
+
+
 // Append styles
 addStylesheet(`
 #actionBtns {
@@ -64,22 +72,6 @@ addStylesheet(`
 
 // On script run
 (async function init() {
-
-  // Helper functions to wait for SOMU options to load
-  const rafAsync = () => new Promise(resolve => { requestAnimationFrame(resolve); });
-  const waitForSOMU = async () => {
-    while (typeof SOMU === 'undefined' || !SOMU?.hasInit) { await rafAsync(); }
-    return SOMU;
-  };
-
-  // Wait for options script to load
-  const SOMU = await waitForSOMU();
-
-  // Set option field in sidebar with current custom value; use default value if not set before
-  SOMU.addOption(scriptName, 'Duplicate Comment', duplicateComment);
-
-  // Get current custom value with default
-  duplicateComment = SOMU.getOptionValue(scriptName, 'Duplicate Comment', duplicateComment);
 
   // Remove convert to comment buttons
   $('.convert-to-comment').remove();
@@ -126,5 +118,15 @@ addStylesheet(`
       const visibleItems = $('.js-delete-and-comment:visible');
       $('body').showAjaxProgress(visibleItems.length * 2, { position: 'fixed' });
       visibleItems.trigger('click');
+    });
+
+    // Wait for options script to load
+    waitForSOMU().then(SOMU => {
+
+      // Set option field in sidebar with current custom value; use default value if not set before
+      SOMU.addOption(scriptName, 'Duplicate Comment', duplicateComment);
+
+      // Get current custom value with default
+      duplicateComment = SOMU.getOptionValue(scriptName, 'Duplicate Comment', duplicateComment);
     });
 })();
