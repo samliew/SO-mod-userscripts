@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table. Also provides support for SEDE query https://data.stackexchange.com/stackoverflow/query/968803
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0
+// @version      3.0.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -35,15 +35,7 @@
 if (!isModerator()) return;
 
 const newlines = '\n\n';
-const strToRep = str => Number(str.replace(/\.(\d)k/, '$100').replace(/k/, '000').replace(/[^\d]+/g, ''));
-const getQueryParam = key => new URLSearchParams(window.location.search).get(key) || '';
 const apikey = 'yZcUvuGAMj25rYZ)a5YNqg((';
-
-
-// Helper functions
-function toSeDateFormat(dateObj) {
-  return dateObj.toISOString().replace('T', ' ').replace('.000', '');
-}
 
 
 // Mapper functions
@@ -490,11 +482,11 @@ function doPageLoad() {
           return a.creation_date > b.creation_date ? 1 : -1;
         });
         const networkSiteTimestamp = new Date(accounts[0].creation_date * 1000);
-        dateNetworkRegContainer.text(toSeDateFormat(networkSiteTimestamp));
+        dateNetworkRegContainer.text(dateToIsoString(networkSiteTimestamp));
 
         const currSite = accounts.filter(v => v.site_url.includes(location.hostname))[0];
         const currSiteTimestamp = new Date(currSite.creation_date * 1000);
-        dateSiteRegContainer.text(toSeDateFormat(currSiteTimestamp));
+        dateSiteRegContainer.text(dateToIsoString(currSiteTimestamp));
       });
   }
 }

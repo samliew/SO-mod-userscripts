@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      7.0
+// @version      7.0.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -2102,7 +2102,6 @@ addStylesheet(`
     searchResultsContainer.prev('.grid.mb16').remove().end()
     searchResultsContainer.prev('.mb12').text('no results. falling back to results from title search');
 
-    const getQueryParam = key => new URLSearchParams(window.location.search).get(key);
     const q = getQueryParam('q');
     $.get(`${location.origin}/search/titles?title=${q}`, function (data) {
 
