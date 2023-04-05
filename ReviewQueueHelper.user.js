@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.0
+// @version      5.0.1
 //
 // @match        https://*.stackoverflow.com/review/*
 // @match        https://*.serverfault.com/review/*
@@ -75,12 +75,6 @@ let skipAudits = true, skipAccepted = false, skipUpvoted = false, skipMultipleAn
 // Keywords to detect opinion-based questions
 const opinionKeywords = ['fastest', 'best', 'recommended'];
 
-/**
- * @summary waits for a specified number of milliseconds
- * @param {number} ms milliseconds to wait
- * @returns {Promise<void>}
- */
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * @summary gets current close votes quota for the user
