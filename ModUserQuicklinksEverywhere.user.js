@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      4.0.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -76,8 +76,7 @@ addStylesheet(`
   position: relative;
 }
 .somu-mod-userlinks {
-  display: block;
-  clear: both;
+  display: flex;
   white-space: nowrap;
   font-size: 0.95em;
 }
@@ -101,7 +100,7 @@ addStylesheet(`
 }
 .somu-mod-userlinks > a {
   display: inline-block;
-  margin-right: 3px;
+  margin-right: 4px;
 }
 .somu-mod-userlinks a:hover,
 .started .somu-mod-userlinks a:hover {
@@ -109,7 +108,7 @@ addStylesheet(`
 }
 .post-user-info:hover .somu-mod-userlinks,
 .user-info:hover .somu-mod-userlinks {
-  display: block;
+  display: flex;
 }
 .flex--item + .somu-mod-userlinks {
   position: initial !important;
