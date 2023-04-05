@@ -104,8 +104,6 @@ Direct installation links (raw files)
 
 [User Social Media Profile Links](https://github.com/samliew/SO-mod-userscripts/raw/master/UserSocialMediaProfileLinks.user.js) ♦
 
-[Userlink Tooltips](https://github.com/samliew/SO-mod-userscripts/raw/master/UserlinkTooltips.user.js)
-
 [User Profile Links](https://github.com/samliew/SO-mod-userscripts/raw/master/UserProfileLinks.user.js) ♦
 
 [Suspicious Voting Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/SuspiciousVotingHelper.user.js) ♦

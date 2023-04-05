@@ -403,11 +403,6 @@ Better comments layout for easier readability and moderation.
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-08_200748.png)
 
 
-### [Userlink Tooltips](https://github.com/samliew/SO-mod-userscripts/blob/master/UserlinkTooltips.user.js)
-
-- On user link mouseover, display user's reputation
-
-
 ### [User Profile Links](https://github.com/samliew/SO-mod-userscripts/blob/master/UserProfileLinks.user.js) ♦
 
 - On user profile pages, expands user network links menu and add chat profile links
