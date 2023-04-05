@@ -3,7 +3,7 @@
 // @description  Allows users to insert emojis into chat. If chat message contains just an emoji, increase display size
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      2.0
+// @version      2.0.1
 //
 // @match        https://chat.stackoverflow.com/rooms/*
 // @match        https://chat.stackexchange.com/rooms/*
@@ -45,7 +45,7 @@ function initEmojiPicker() {
 
   // Load emojionearea - https://github.com/mervick/emojionearea/tree/version2
   const libCdn = 'https://cdn.jsdelivr.net/gh/mervick/emojionearea@2';
-  addExternalStylesheet(`${libCdn}/css/emojionearea.min.css" />`);
+  addExternalStylesheet(`${libCdn}/css/emojionearea.min.css`);
 
   $.getCachedScript(`${libCdn}/js/emojionearea.min.js`, function () {
 
