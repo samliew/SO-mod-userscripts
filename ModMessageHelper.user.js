@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      4.0.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -542,40 +542,40 @@ function initModMessageHelper() {
 
     switch (template) {
       case 'low-quality-questions':
-        $('#template-0').trigger('click');
+        $('#template-0').trigger('click').triggerHandler('click');
         break;
       case 'question-repetition':
-        $('#template-1').trigger('click');
+        $('#template-1').trigger('click').triggerHandler('click');
         break;
       case 'sockpuppet-upvoting':
-        $('#template-2').trigger('click');
+        $('#template-2').trigger('click').triggerHandler('click');
         break;
       case 'targeted-votes':
-        $('#template-3').trigger('click');
+        $('#template-3').trigger('click').triggerHandler('click');
         break;
       case 'abusive':
-        $('#template-4').trigger('click');
+        $('#template-4').trigger('click').triggerHandler('click');
         break;
       case 'revenge-downvoting':
-        $('#template-5').trigger('click');
+        $('#template-5').trigger('click').triggerHandler('click');
         break;
       case 'vandalism':
-        $('#template-6').trigger('click');
+        $('#template-6').trigger('click').triggerHandler('click');
         break;
       case 'signatures-taglines':
-        $('#template-7').trigger('click');
+        $('#template-7').trigger('click').triggerHandler('click');
         break;
       case 'promotion':
-        $('#template-8').trigger('click');
+        $('#template-8').trigger('click').triggerHandler('click');
         break;
       case 'excessive-discussion':
-        $('#template-9').trigger('click');
+        $('#template-9').trigger('click').triggerHandler('click');
         break;
       case 'plagiarism':
-        $('#template-10').trigger('click');
+        $('#template-10').trigger('click').triggerHandler('click');
         break;
       case 'other':
-        $('#template-11').trigger('click');
+        $('#template-11').trigger('click').triggerHandler('click');
         break;
       default: {
         // Try to match a custom template
@@ -760,25 +760,25 @@ function initCmMessageHelper() {
 
     switch (template) {
       case 'profile-merge':
-        $('#template-0').trigger('click');
+        $('#template-0').trigger('click').triggerHandler('click');
         break;
       case 'post-dissociation':
-        $('#template-1').trigger('click');
+        $('#template-1').trigger('click').triggerHandler('click');
         break;
       case 'suspicious-voting':
-        $('#template-2').trigger('click');
+        $('#template-2').trigger('click').triggerHandler('click');
         break;
       case 'spam':
-        $('#template-3').trigger('click');
+        $('#template-3').trigger('click').triggerHandler('click');
         break;
       case 'suicidal-user':
-        $('#template-4').trigger('click');
+        $('#template-4').trigger('click').triggerHandler('click');
         break;
       case 'underage-user':
-        $('#template-5').trigger('click');
+        $('#template-5').trigger('click').triggerHandler('click');
         break;
       case 'other':
-        $('#template-6').trigger('click');
+        $('#template-6').trigger('click').triggerHandler('click');
         break;
       default: {
         // Try to match a custom template
