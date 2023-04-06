@@ -97,6 +97,7 @@ declare function addBackoff(sec: number): void;
 declare function htmlDecode(input: string): string;
 declare function pluralize(amount: number, pluralSuffix?: string, singularSuffix?: string): string;
 declare function strToRep(str: string): number;
+declare function tryGetNumber(v: any): number;
 
 /**
  * ================================
