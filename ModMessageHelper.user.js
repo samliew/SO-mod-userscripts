@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0.1
+// @version      4.0.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -368,9 +368,9 @@ function getDeletedPosts(uid, type) {
   $.get(url).done(function (data) {
     const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
     const stats = $(`
-            <div class="post-ban-deleted-posts">
-                User has <a href="${url}" target="_blank">${count} deleted ${type}s</a>, score &lt;= 0
-            </div>`).appendTo('#sidebar');
+      <div class="post-ban-deleted-posts mt24">
+          User has <a href="${url}" target="_blank">${count} deleted ${type}s</a>, score &lt;= 0
+      </div>`).appendTo('#sidebar');
 
     // If no deleted posts, do nothing
     if (isNaN(count) || count <= 0) return;
@@ -381,7 +381,7 @@ function getDeletedPosts(uid, type) {
     // Add copyable element to the results
     const hyperlinks = results.find('.s-post-summary--content-title a').attr('href', (i, v) => location.origin + v).attr('target', '_blank');
     const hyperlinksMarkdown = hyperlinks.map((i, el) => `[${1 + i}](${toShortLink(el.href)})`).get();
-    const comment = `Additionally, you have ${hyperlinksMarkdown.length} deleted ${type}${hyperlinksMarkdown.length == 1 ? '' : 's'}, which may be contributing to the [${type} ban](${location.origin}/help/${type}-bans): ${hyperlinksMarkdown.join(' ')}`;
+    const comment = `Specifically, we would like to highlight these ${hyperlinksMarkdown.length} deleted ${type}${hyperlinksMarkdown.length == 1 ? '' : 's'}, which you should try to improve as they are contributing to the [${type} ban](${location.origin}/help/${type}-bans):<br>\n${hyperlinksMarkdown.join(' ')}`;
     const commentArea = $(`<textarea readonly="readonly" class="h128 s-textarea"></textarea>`).val(comment).appendTo(stats);
   });
 }
