@@ -3,7 +3,7 @@
 // @description  Revert updates that make the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0.1
+// @version      4.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -369,8 +369,7 @@ document.addEventListener('DOMContentLoaded', function (evt) {
 
   showAnnouncementIfNotBlacklisted();
   hideClickbaityBlogPosts();
-  setTimeout(stripUnnecessaryTracking, 2000);
-
+  stripUnnecessaryTracking();
   revertRelatedQuestions();
   initShortenBadgeCounts();
   initFixBrokenImages();
@@ -433,49 +432,82 @@ function hideClickbaityBlogPosts() {
 
 /*
  * [feature]
- * Remove tracking from elements (e.g.: links and buttons)
+ * Remove tracking from elements (e.g.: links and buttons) and abort tracking requests
  */
 function stripUnnecessaryTracking() {
 
-  // Strip unnecessary tracking
-  let trackedElemCount = 0;
-  $('.js-gps-track, [data-ga], [data-gps-track], a[href*="utm_"]').each(function (i, el) {
-    this.classList.remove('js-gps-track');
-    el.dataset.ga = '';
-    el.dataset.gpsTrack = '';
-    el.removeAttribute('data-ga');
-    el.removeAttribute('data-gps-track');
+  // Remove Google analytics tracking
+  window.ga = function () { };
+  window.GoogleAnalyticsObject = ga;
 
-    // Specify which query params to remove from link
-    let params = new URLSearchParams(el.search);
-    params.delete('utm_source');
-    params.delete('utm_medium');
-    params.delete('utm_campaign');
-    params.delete('utm_content');
-    el.search = params.toString();
+  // Remove Facebook tracking
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon = function () { };
+  }
 
-    trackedElemCount++;
+  // Abort tracking requests
+  if (typeof $.ajaxPrefilter === 'function') {
+    $.ajaxPrefilter(function (options) {
+      const isTrackingRequest = [
+        '/gps/event',
+        '/jobs/n/prizm/event',
+      ].some(url => options.url.startsWith(url));
+
+      if (isTrackingRequest) options.abort();
+    });
+  }
+
+  const doFindAndStrip = () => {
+    // Strip unnecessary tracking
+    let trackedElemCount = 0;
+    $('.js-gps-track, [data-ga], [data-gps-track], a[href*="utm_"], a[href*="_medium"], a[href*="_source"]').each(function (i, el) {
+      this.classList.remove('js-gps-track');
+      el.dataset.ga = '';
+      el.dataset.gpsTrack = '';
+      el.removeAttribute('data-ga');
+      el.removeAttribute('data-gps-track');
+
+      // Specify which query params to remove from link
+      let params = new URLSearchParams(el.search);
+      params.delete('utm_source');
+      params.delete('utm_medium');
+      params.delete('utm_campaign');
+      params.delete('utm_content');
+      params.delete('so_source');
+      params.delete('so_medium');
+      el.search = params.toString();
+
+      trackedElemCount++;
+    });
+    if(trackedElemCount) console.log('Reduce Clutter: Removed tracking data from ' + trackedElemCount + ' elements.');
+
+    // Strip unnecessary query params from Q&A links in search results
+    let trackedQaCount = 0;
+    const linkTrackingRegex = /[?&]((cb|lq|rq)=\d+|ref=.*)/i;
+    $('#content a, #sidebar a').each(function (i, el) {
+      let isTracking = false;
+      if (el.dataset.searchsession || el.dataset.tracker) {
+        el.dataset.searchsession = '';
+        el.dataset.tracker = '';
+        isTracking = true;
+      }
+      if (el.search && linkTrackingRegex.test(el.search)) {
+        el.href = el.getAttribute('href').replace(linkTrackingRegex, '');
+        isTracking = true;
+      }
+      if (isTracking) trackedQaCount++;
+    });
+    $('.js-search-results').off('mousedown touchstart');
+    if(trackedQaCount) console.log('Reduce Clutter: Removed tracking data from ' + trackedQaCount + ' Q&A links.');
+  };
+
+  // Once on page load, after a short delay
+  setTimeout(doFindAndStrip, 2000);
+
+  // Strip tracking data from elements that are added dynamically
+  $(document).ajaxStop(function () {
+    doFindAndStrip();
   });
-  console.log('Reduce Clutter: Removed tracking data from ' + trackedElemCount + ' elements.');
-
-  // Strip unnecessary query params from Q&A links
-  let trackedQaCount = 0;
-  const linkTrackingRegex = /[?&]((cb|lq|rq)=\d+|ref=.*)/i;
-  $('#content a, #sidebar a').each(function (i, el) {
-    let isTracking = false;
-    if (el.dataset.searchsession || el.dataset.tracker) {
-      el.dataset.searchsession = '';
-      el.dataset.tracker = '';
-      isTracking = true;
-    }
-    if (el.search && linkTrackingRegex.test(el.search)) {
-      el.href = el.getAttribute('href').replace(linkTrackingRegex, '');
-      isTracking = true;
-    }
-    if (isTracking) trackedQaCount++;
-  });
-  $('.js-search-results').off('mousedown touchstart');
-  console.log('Reduce Clutter: Removed tracking data from ' + trackedQaCount + ' Q&A links.');
 }
 
 
