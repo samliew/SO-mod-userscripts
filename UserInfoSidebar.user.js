@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      4.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -159,13 +159,16 @@ function doChatSidebar() {
     $('body').append(quickLinks);
   });
 
-  // Handle resize
-  $(window).on('load resize', function () {
-    $('body').toggleClass('usersidebar-open', $(document).width() >= 1400);
-  });
-  $(document).on('ready', function () {
-    $('body').toggleClass('usersidebar-open', $(document).width() >= 1400);
-  });
+  // Show sidebar on desktop
+  const isDesktop = () => $(document).width() >= 1400;
+  const updateOpenSidebar = () => {
+    $('body').toggleClass('usersidebar-open', isDesktop());
+  };
+
+  // On page load and resize
+  updateOpenSidebar();
+  $(document).on('ready', updateOpenSidebar);
+  $(window).on('load resize', updateOpenSidebar);
 }
 
 
