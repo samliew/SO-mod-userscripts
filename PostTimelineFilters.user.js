@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0
+// @version      3.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -203,7 +203,7 @@ function filterPosts(filter) {
     case 'only-votes':
       filterFn = function (i, el) {
         const eType = $(el).find('span.event-type').text();
-        return eType == 'votes';
+        return eType === 'votes' || eType === 'close' || eType === 'reopen' || eType === 'delete' || eType === 'undelete';
       };
       break;
 
