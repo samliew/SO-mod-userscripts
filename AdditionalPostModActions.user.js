@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0.1
+// @version      4.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -434,10 +434,11 @@ function initPostModMenuLinkActions() {
         if (confirm(`Spam-nuke the post, suspend for 365, and DESTROY the spammer "${uName}" (id: ${uid})???`) &&
           (underSpamAttackMode || confirm(`Are you VERY SURE you want to DESTROY the account "${uName}"???`))) {
           spamFlagPost(pid);
+          const userInfo = (await Promise.allSettled([getUserInfoFromApi(uid)]))[0].value;
           const pii = await getUserPii(uid);
           destroyUser(
             uid,
-            details,
+            '', // TODO: no details no swal popup implemented
             'This user was created to post spam or nonsense and has no other positive participation',
             userInfo,
             pii
