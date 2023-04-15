@@ -3,7 +3,7 @@
 // @description  Revert updates that make the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1
+// @version      4.1.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -447,13 +447,13 @@ function stripUnnecessaryTracking() {
 
   // Abort tracking requests
   if (typeof $.ajaxPrefilter === 'function') {
-    $.ajaxPrefilter(function (options) {
+    $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
       const isTrackingRequest = [
         '/gps/event',
         '/jobs/n/prizm/event',
       ].some(url => options.url.startsWith(url));
 
-      if (isTrackingRequest) options.abort();
+      if (isTrackingRequest) jqXHR.abort();
     });
   }
 
