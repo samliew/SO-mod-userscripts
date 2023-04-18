@@ -173,6 +173,7 @@ declare function convertToEdit(pid:number, targetId:number): Promise<object>;
  * ================================
  */
 declare function addComment(pid:number, commentText:string): Promise<object>;
+declare function deleteComment(cid:number, sendCommentBackInMessage:boolean): Promise<object>;
 declare function deleteCommentsOnPost(pid:number): Promise<object>;
 declare function moveCommentsOnPostToChat(pid:number): Promise<object>;
 
