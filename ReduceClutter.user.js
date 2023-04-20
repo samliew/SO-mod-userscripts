@@ -3,7 +3,7 @@
 // @description  Revert updates that make the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1.1
+// @version      4.1.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -33,10 +33,10 @@
 
 'use strict';
 
-// Show announcement bar if it does not contain these keywords
+// Show announcement bar if it does not contain these keywords (lowercase)
 const blacklistedAnnouncementWords = ['podcast', 'listen', 'tune', 'research', 'blog'];
 
-// Hide ads/clickbaity blog posts titles if they contain these keywords
+// Hide ads/clickbaity blog posts titles if they contain these keywords (lowercase)
 const blacklistedBlogWords = ['the loop', 'podcast', 'worst', 'bad', 'surprise', 'trick', 'terrible', 'will change', 'actually', 'team', 'try', 'free', 'easy', 'easier', 'e.p.', 'ep.'];
 
 
@@ -412,13 +412,13 @@ function hideClickbaityBlogPosts() {
   if (blogheader.length) {
     let itemsRemoved = 0;
     let items = blogheader.nextAll('li').find('a[href^="https://stackoverflow.blog"]').each(function (i, el) {
-      const blogtext = el.innerText.toLowerCase().trim();
-      const isBlacklisted = blacklistedBlogWords && blacklistedBlogWords.some(v => blogtext.includes(v));
+      const blogTitle = (el.title || el.innerText).toLowerCase().trim();
+      const isBlacklisted = blacklistedBlogWords && blacklistedBlogWords.some(v => blogTitle.includes(v));
       const isSponsored = el.nextElementSibling?.innerText.includes('sponsored');
       if (isBlacklisted || isSponsored) {
         $(this).parents('li').remove();
         itemsRemoved++;
-        console.log('Reduce Clutter: Featured blogpost has been blocked.', blogtext);
+        console.log('Reduce Clutter: Featured blogpost has been blocked.', blogTitle);
       }
     });
 
