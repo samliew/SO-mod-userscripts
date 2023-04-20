@@ -166,6 +166,9 @@ declare function unprotectPost(pid:number): Promise<object>;
 declare function tryRemoveMultipleAtFromPost(pid:number): Promise<object>;
 declare function convertToComment(pid:number, targetId:number): Promise<object>;
 declare function convertToEdit(pid:number, targetId:number): Promise<object>;
+declare function deleteAsPlagiarism(pid: number): Promise<object>;
+declare function flagAsPlagiarism(pid:number, flagText:string, source:string): Promise<object>;
+declare function flagAndDeleteAsPlagiarism(pid:number, flagText:string, source:string): Promise<object>;
 
 /**
  * ================================
