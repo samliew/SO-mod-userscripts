@@ -3,7 +3,7 @@
 // @description  Revert updates that make the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1.2
+// @version      4.1.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -14,6 +14,7 @@
 // @match        https://*.stackexchange.com/*
 // @match        https://stackoverflowteams.com/*
 //
+// @exclude      https://stackoverflow.com/admin/dashboard
 // @exclude      https://api.stackexchange.com/*
 // @exclude      https://data.stackexchange.com/*
 // @exclude      https://contests.stackoverflow.com/*
