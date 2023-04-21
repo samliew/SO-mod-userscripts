@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0
+// @version      3.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -54,6 +54,17 @@ function insertPostIds() {
       const input = $(`<input class="post-id" title="double click to view timeline" value="${pid}" readonly />`).insertBefore($(el).find('.post-layout'));
       input.dynamicWidth();
     });
+
+  // Flagged Comments (mod-page)
+  $('.js-comments-table-container a[href^="https://stackoverflow.com/questions/"]')
+    .each((i, el) => {
+      if (el.href.includes('/election')) return; // ignore election pages
+      const pid = getPostId(el.href);
+      const lastDiv = $(el).closest('td').children('div').last().css('position', 'relative');
+      const input = $(`<input class="post-id" title="double click to view timeline" value="${pid}" readonly />`).appendTo(lastDiv);
+      input.dynamicWidth();
+    });
+
 
   // Remove duplicates just in case duplicates were added somehow
   $('.post-id ~ .post-id').remove();
