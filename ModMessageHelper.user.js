@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0.2
+// @version      4.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -26,9 +26,7 @@
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
-/* globals StackExchange, $, jQuery */
-/// <reference types="./globals" />
-/* globals isModerator, ajaxPromise, jQueryXhrOverride, _w, hasBackoff, addBackoff, htmlDecode, hasInvalidIds, getPostId, isSO, isSOMeta, isMetaSite, parentUrl, fkey */ /* Defined in https://github.com/samliew/SO-mod-userscripts/raw/master/lib/common.js */
+/* globals StackExchange, $, jQuery, isModerator, ajaxPromise, jQueryXhrOverride, _w, hasBackoff, addBackoff, htmlDecode, hasInvalidIds, getPostId, isSO, isSOMeta, isMetaSite, parentUrl, fkey */
 /// <reference types="./globals" />
 
 'use strict';
@@ -59,9 +57,9 @@ const modMenuOnClick = true;
  * This may be edited to add more custom templates to mod messages.
  * addPrefix false:    no pleasantries and userlink
  * addSuffix false:    no suspension auto message
- * addSignature true:  Add regards and sign off. SE now adds this by default.
- * soOnly true:        Only use the template on Stack Overflow
- * sendEmail false:    Don't send email to the user.
+ * addSignature true:  add regards and sign off. SE now adds this by default.
+ * soOnly true:        use only if template has SO-only meta links, so other sites will not be able to use this template to avoid confusion.
+ * sendEmail false:    don't send email to the user, mod message can only be read on-site
  *
  * In the template, the following text is used to indicate something or automatically substituted:
  *             text                         What
@@ -75,15 +73,16 @@ const customModMessages = [
     templateName: "closing spam",
     suspensionReason: "for rule violations",
     suspensionDefaultDays: 0,
-    templateBody: `As you may have noticed, Stack Overflow is currently under a spam wave, receiving a lot of "support number" spam posts.
+    templateBody: `As you may have noticed, ${parentName} is currently under a spam wave, receiving a lot of "support number" spam posts.
 
 While we appreciate your willingness to help us out with these as you see them, we noticed that you recently voted to close one or more of these questions. That is not very useful. **Instead of voting to close spam, you should flag it as spam.** You'll find that option at the very top of the "flag" dialog.
 
 Flagging as spam is much more expedient than voting to close, and actually allows spam to be nuked from the site without moderator intervention even being required.
 
-Thank you for your attention to this matter in the future. If you have any questions, please let us know!`
+Thank you for your attention to this matter in the future. If you have any questions, please let us know!`,
   },
   {
+    soOnly: true, // because template has SO-only meta links
     templateName: "promotional content; answers not self-contained",
     suspensionReason: "for promotional content",
     suspensionDefaultDays: 0,
@@ -103,8 +102,7 @@ Any type of "astroturfing" promotion is not acceptable, regardless of if it's fo
 
 If you do include a link to something, then the link needs to be directly relevant to the question and/or answer (i.e. a specific page that is about the issue(s) in the question and/or answer). It should not be just a general link to your site, product, blog, YouTube channel, etc. If the link is to something you are affiliated with, then you _must_ include explicit disclosure of your affiliation in your post, unless the link is to official documentation for a product/library that is explicitly asked about in the question.
 
-**Answers must be a self-contained answer to the question:**  \nYour answers need to be actual, complete answers to the question. Just a link to something off-site doesn't make for an answer. [Answers must actually answer the question](https://meta.stackexchange.com/q/225370), without requiring the user to click to some other site to get enough information to solve the problem / answer the question. Please [add context around links](https://meta.stackoverflow.com/a/8259). _[Always quote](${parentUrl}/help/referencing) the most relevant part of an important link, in case the target site is unreachable or goes permanently offline._ If you are linking to a library or framework, then [explain _why_ and _how_ it solves the problem, _and provide code on how to use it_](https://meta.stackoverflow.com/a/251605). Take into account that being _barely more than a link to an external site_ is a reason as to [Why and how are some answers deleted?](${parentUrl}/help/deleted-answers).
-`
+**Answers must be a self-contained answer to the question:**  \nYour answers need to be actual, complete answers to the question. Just a link to something off-site doesn't make for an answer. [Answers must actually answer the question](https://meta.stackexchange.com/q/225370), without requiring the user to click to some other site to get enough information to solve the problem / answer the question. Please [add context around links](https://meta.stackoverflow.com/a/8259). _[Always quote](${parentUrl}/help/referencing) the most relevant part of an important link, in case the target site is unreachable or goes permanently offline._ If you are linking to a library or framework, then [explain _why_ and _how_ it solves the problem, _and provide code on how to use it_](https://meta.stackoverflow.com/a/251605). Take into account that being _barely more than a link to an external site_ is a reason as to [Why and how are some answers deleted?](${parentUrl}/help/deleted-answers).`,
   },
   {
     templateName: "soliciting votes",
@@ -126,24 +124,58 @@ First, it reduces the amount of noise on the site, since the message is displaye
 In the best case, comments like these are merely noise, redundant with system-level notifications; in the worst case, they may be perceived as an attempt to pressure someone to do something that is, after all, completely optional.`,
   },
   {
-    templateName: "minor edits bumping post",
+    templateName: "author minor edits bumping post",
     suspensionReason: "for rule violations",
-    suspensionDefaultDays: 0,
-    templateBody: `You appear to be editing your post to attract attention, rather than to improve it. Periodic cosmetic edits are not constructive and needlessly bump your post, displacing actually active posts that require more community attention.
+    suspensionDefaultDays: 3,
+    templateBody: `You appear to be editing your post to attract attention, rather than to improve it. Periodic cosmetic edits are not constructive and needlessly bump your post, displacing actually active posts that require more community attention. To quote the Help Center [How does editing work?](${parentUrl}/help/editing):
+
+> **Tiny, trivial edits are discouraged**; try to make the post significantly better when you edit, correcting all problems that you observe.
 
 Please only edit your post to correct errors, to include additional insights, or to update the question for changing circumstances. If you continue to only edit it for cosmetic reasons only, we'll have to lock your post from all further edits.`,
   },
   {
-    templateName: "minor suggested edits",
+    templateName: "minor/trivial suggested edits",
     suspensionReason: "for rule violations",
-    suspensionDefaultDays: 0,
-    templateBody: `We have noticed that your recent suggested edits are just correcting a typo in the title and haven't handled any of the other problems with a question. Please note that we expect suggested edits to fix all issues with a post, rather than correcting only a single thing. From [How does editing work?](${parentUrl}/help/editing):
+    suspensionDefaultDays: 3,
+    templateBody: `We have noticed that your recent suggested edits are just correcting a typo in the title and haven't handled any of the other problems with a question. Please note that we expect suggested edits to fix all issues with a post, rather than correcting only a single thing. To quote the Help Center [How does editing work?](${parentUrl}/help/editing):
 
-> **Edits are expected to be substantial and to leave the post better than you found it.**
+> **Tiny, trivial edits are discouraged**; try to make the post significantly better when you edit, correcting all problems that you observe.
 
 Do keep in mind to clean up all the problems with the post, while you are proposing edits to it. Suggested edits must also be approved by at least two other users prior to being accepted. We therefore ask users to only make edits which make substantial improvements to posts.
 
-We have removed your ability to suggest edits for a few days, to ensure this message reaches you first.`,
+Your ability to suggest edits has been revoked for {suspensionDurationDays} days. We encourage you to use this time to review the [relevant guidelines](${parentUrl}/help/editing) about how to edit posts.`,
+    addSuffix: false,
+  },
+  {
+    soOnly: true, // because template has SO-only meta links
+    templateName: "mass plagiarism",
+    suspensionReason: "for plagiarism",
+    suspensionDefaultDays: 30,
+    templateBody: `It has come to our attention that some of your answers contain text copied from other answers or websites without giving credit to the source of the text.  This is considered plagiarism, and it is a violation of our Terms of Service and the license agreement.
+
+You are not allowed to copy content already available elsewhere and claim it as your own.  That is, you must _at least_ provide [clear attribution](/help/referencing).
+
+**Posts containing content from other sources must:**
+
+  - Include the name of the original author.
+  - Include a link to the original source.
+  - Make it clear (using [quote formatting](/editing-help#simple-blockquotes)) **which parts of the answer are copied, and from where.** *Just putting a link to the original source somewhere in the post is not enough*, because it does not make it clear that it is the source of the content.  For more information, see [this answer](https://meta.stackoverflow.com/a/321326).
+  - Add your own content to the post.  It should not be entirely (or almost entirely) copied content.
+
+Even if you change some of the wording or code a bit, you still must credit the original source.  As a general rule, if it's recognizable when you compare the two side-by-side, it needs to give credit.
+
+Any answers that we found with copied content that did not reference its source have been deleted.  If you wish to review them, you can view the [list of all of your deleted answers](/users/deleted-answers/current) (which may also have answers deleted for other reasons).  If you have other answers that do not properly credit their sources, and you want to avoid them being removed, please edit them to follow the above requirements.
+
+<!-- Remove if not suspending -->
+
+Due to the large number of plagiarized posts (requiring large amounts of volunteer moderator time to check), **your account has been temporarily suspended for {suspensionDurationDays} days.** While you're suspended, your reputation will show as 1 but will be restored once the suspension ends.
+
+<!-- Remove the following if not bulk deleting -->
+
+Due to the large percentage of plagiarized content, we have also opted to delete many of your answers that we were not able to check for copied content in a reasonable amount of time. While there may be some of your answers that were not plagiarized, we simply don't have the time to check every individual answer that you have posted to this site.
+
+If there are specific answers of yours that you believe were not plagiarized (that is, they are your own, original work), and you would like to have these specific answers undeleted, you may reply to this message with a list of such answers, or raise an "In need of moderator intervention" flag on the answers with an explanation. We will verify those individual answers and consider them for undeletion.`,
+    addSuffix: false,
   },
   {
     templateName: "tag-wiki plagiarism",
@@ -159,14 +191,38 @@ Thank you, and we look forward to your contributions in the future.`,
     soOnly: true, // because template has SO-only meta links
     templateName: "self tag burnination",
     suspensionReason: "for rule violations",
-    suspensionDefaultDays: 0,
-    templateBody: `As you should be aware, there is [a process for mass tag removal](https://meta.stackoverflow.com/questions/324070), also known as burnination. The [policy from Stack Exchange](https://meta.stackoverflow.com/questions/356963) is that the process **must** be followed and that burninations of tags which are used on more than 50 questions **must** be discussed on Meta Stack Overflow *prior* to beginning to edit to remove the tag.
+    suspensionDefaultDays: 7,
+    templateBody: `As you should be aware, there is [a process for mass tag removal](https://meta.stackoverflow.com/q/324070), also known as burnination. The [policy from Stack Exchange](https://meta.stackoverflow.com/q/356963) is that the process **must** be followed and that burninations of tags which are used on more than 50 questions **must** be discussed on Meta Stack Overflow *prior* to beginning to edit to remove the tag.
 
 You have recently removed many tags from questions without following the burnination process. Do not do that. This message is a warning. If you do this again, with this or any other tag, then there will be further consequences.
 
 The edits you made will be reverted. Some of the edits have other beneficial changes, which you are welcome to reapply. However, you are not permitted to systematically remove tags from questions without following the burnination process.`,
   },
   {
+    templateName: "gold badge abuse",
+    suspensionReason: "for rule violations",
+    suspensionDefaultDays: 0,
+    templateBody: `We have noticed you have used your {todo} [tag:some-tag] gold badge privilege to reopen a question closed as duplicate, answer it and immediately close it again.
+
+Please note that this is not how you are supposed to use a gold tag badge.
+
+As you may know, gold badges grant the privilege to single-handedly close and reopen questions as duplicates. This is unlocked after reaching a demanding threshold of answer score in a certain tag and number of answers, under the assumption that you can be **trusted to**:
+
+- recognize when a question is a duplicate of another one, and close it accordingly;
+- recognize when a question that is already closed as duplicate is not a duplicate, and reopen it accordingly
+
+By reopening a duplicate with your gold badge you are essentially saying: "this question was incorrectly closed". You can answer a question that you reopen this way. However if you immediately proceed to re-close it against the same canonical, we must question your original motivations for reopening. In fact, it doesn't look good at all because you are effectively **disallowing answers to that question except yours**.
+
+There are a few other appropriate actions that we ask you to consider:
+
+- If you think that the question is not a duplicate, just leave it open. You may add links to other Q&As that are related or complement your own answer.
+
+- If you think that the question is a duplicate, then just leave it closed. If you think the asker might have a hard time understanding how the canonical applies to their question, you may leave an explanatory comment.
+
+- If you think that the question is a duplicate but the available canonical has inadequate answers, you either close as duplicate and then post a new answer to the canonical; or you answer this question and close the canonical as duplicate of this question, and this question becomes the new canonical.`,
+  },
+  {
+    soOnly: true, // because template has SO-only meta links
     templateName: "ban evasion, multiple accounts",
     suspensionReason: "for rule violations",
     suspensionDefaultDays: 30,
@@ -176,7 +232,7 @@ All system and moderator-imposed limits/blocks/bans/suspensions/etc. apply to th
 
 The most common limitations for people to attempt to evade are the system imposed question and answer bans. When you're getting the message 'We are no longer accepting questions/answers from this account', then you should act as if you are getting that message on all of your accounts and not post additional questions or answers (whichever you're hitting), even if you have an alternate account which is not banned. For more detail about question and answer bans and what you can do to get out of them, please see [What can I do when getting “We are no longer accepting questions/answers from this account”?](https://meta.stackoverflow.com/a/255584#255584)
 
-Having more than one account is permitted, if the additional account is not used to circumvent such limitations and the accounts do not interact with each other, or otherwise allow you to do things which you would not be permitted to do with a single account. If you are interested in more information about having more than one account, please see [What are the rules governing multiple accounts (i.e. sockpuppets)?](https://meta.stackoverflow.com/q/388984)`,
+Having more than one account is permitted, if the additional account is not used to circumvent such limitations and the accounts do not interact with each other, or otherwise allow you to do things which you would not be permitted to do with a single account. If you are interested in more information about having more than one account, please see [What are the rules governing multiple accounts (i.e. sockpuppets)?](https://meta.stackoverflow.com/q/388984).`,
   },
   {
     templateName: "account sharing",
@@ -185,11 +241,11 @@ Having more than one account is permitted, if the additional account is not used
     addSuffix: false,
     templateBody: `Company-owned or accounts shared by multiple users are not permitted as stated in the [Terms of Service](${parentUrl}/legal/terms-of-service/public):
 
-> To access some of the public Network features you will need to **register for an account as an individual** and consent to these Public Network Terms. If you do not consent to these Public Network Terms, Stack Overflow reserves the right to refuse, suspend or terminate your access to the public Network.
+> To access some of the public Network features you will need to **register for an account as an individual** and consent to these Public Network Terms. If you do not consent to these Public Network Terms, ${parentName} reserves the right to refuse, suspend or terminate your access to the public Network.
 
 As this account appears to be in breach of this policy, it will be deleted. You are welcome to register again for an account as an individual user, subject to the Terms of Service.
 
-Should you wish to appeal this decision, you can contact the company using [this form](${parentUrl}/contact?referrer=${parentUrl}) or at community@stackexchange.com`,
+Should you wish to appeal this decision, you can use the [Contact Us](${parentUrl}/contact) form and explaining your situation to the Community Management Team.`,
   },
   {
     templateName: "voluntary suspension",
@@ -203,12 +259,13 @@ We wish you a pleasant vacation from the site, and we look forward to your retur
     addSuffix: false,
   },
   {
+    soOnly: true, // because template has SO-only meta links
     templateName: "demands to show effort/\"not a code-writing service\"",
     suspensionReason: "for rule violations",
     suspensionDefaultDays: 0,
     templateBody: `It has come to our attention that you've left one or more comments similar to the following:
 
->
+> Please show some effort. This is not a code-writing service.
 
 [Stack Overflow *is* a code-writing service](https://meta.stackoverflow.com/a/408565), in the sense that it is a programming Q&A site, and most questions here are solved by writing code in the answer. It is [not a debugging helpdesk for askers](https://meta.stackexchange.com/a/364585)&mdash;we do not require that askers provide existing code to debug. Lack of problem-solving effort is not a reason to close or otherwise object to questions. [The only type of effort we require is the effort required to ask a clear, focused, non-duplicate question](https://meta.stackoverflow.com/a/260909). Including an attempt often adds noise and results in answers that are applicable to just the original asker, rather than anyone doing the same thing.  Many of the most useful questions on the site do not include an existing attempt at solving the problem.
 
@@ -220,37 +277,37 @@ Please do not post any more of these comments. They add noise for moderators to 
     templateName: "reset inappropriate username",
     suspensionReason: "for rule violations",
     suspensionDefaultDays: 0,
-    templateBody: `It has been brought to our attention that your username may be offensive to some people.
+    templateBody: `We have received reports that your username may be considered offensive to some members of our community. Our [Code of Conduct](${parentUrl}/conduct) requires that all usernames be appropriate for professional discourse and in keeping with our community standards.
 
-Because all of your contributions to this site include showing your username, we require that usernames be appropriate for professional discourse, in keeping with our [Code of Conduct](${parentUrl}/conduct).
+As a result we have reset your username to the default setting. We kindly request that you do not change your username back to the previous one without first consulting with us.
 
-As such, we've reset your username to the default. Please do not change it back to the previous username without checking with us first.
+If there has been any misunderstanding regarding the meaning of the username you used, please feel free to reach out to us and provide clarification by responding to this message. Additionally, if you would like to change your username to something else that is appropriate and are experiencing any issues in doing so, please let us know and we will be happy to assist.
 
-In case there's been a misunderstanding about what your username means, you can get in touch with us to clear it up by replying to this message. Or, if you'd like to change it to something else that's reasonable, but you're having issues doing so, please let us know and we'll assist.
-`,
+Thank you for your understanding and cooperation.`,
   },
   {
     templateName: "ChatGPT banned; plagiarism (AI); inaccurate AI content",
     suspensionReason: "for rule violations",
     suspensionDefaultDays: 7,
-    templateBody: `**Use of ChatGPT for content while its use is banned:**  \nThe use of ChatGPT as a source for content on Stack Overflow is currently banned. Please see the Meta Stack Overflow question "[Temporary policy: ChatGPT is banned](https://meta.stackoverflow.com/q/421831)". It is not permitted for you to use ChatGPT to create content on Stack Overflow during this ban.
+    templateBody: `**Use of ChatGPT for content while its use is banned:**  \nThe use of ChatGPT as a source for content on ${parentName} is currently banned. Please see the Meta Stack Overflow question "[Temporary policy: ChatGPT is banned](https://meta.stackoverflow.com/q/421831)". It is not permitted for you to use ChatGPT to create content on ${parentName} during this ban.
 
 **Plagiarism / failure to indicate or attribute work that's not your own (AI generated text):**  \nWe’ve noticed that at least one of your posts contains text for which you are not the author, which includes AI generated text. Current consensus is that AI generated text requires attribution. See "[Is it acceptable to post answers generated by an AI, such as GitHub Copilot?](https://meta.stackoverflow.com/q/412696)" for more information.
 
-As a general rule, posts should be **your** original work, but including a small passage of text from another source can be a great way to support your post. Please note that **we require full attribution** with a citation/link indicating the original source, and make sure that you **clearly distinguish quoted text from text written by you**. For more information, please see [how to reference material written by others](https://stackoverflow.com/help/referencing).
+As a general rule, posts should be **your** original work, but including a small passage of text from another source can be a great way to support your post. Please note that **we require full attribution** with a citation/link indicating the original source, and make sure that you **clearly distinguish quoted text from text written by you**. For more information, please see [how to reference material written by others](${parentUrl}/help/referencing).
 
 **Posting AI generated content without regard to accuracy:**  \nIt is our experience that many users who rapidly obtain content which is AI generated and then copy and paste it into answers are not vetting that content for quality. Using AI as a *tool* to *assist* generating good quality content *might be* reasonable.
 
 Using AI, or other tools, to generate a large quantity of answers without regard to if those answers are *correct and actually answer* the question on which they are posted is not acceptable. Relying solely on readers to judge the correctness of the answer, or even that the answer actually answers the question, is not permitted. It brings down the overall quality of the site. It is *harmful* to your fellow users, burdening them with having to wade through a substantial amount of poor answers. It is often harmful to the question authors on whose questions the answers are posted, as the answers often superficially look reasonable, so the question author spends time on trying to understand the answer, thinking that the person who posted it actually knows what they are talking about, when in reality the answer doesn't really answer the question or is substantially incorrect.
 
-The policies for what, if any, use will be acceptable of AI or similar technologies as a *tool* to **assist** *you* creating content, particularly answers, on Stack Overflow are currently in flux. The restrictions which were in place prior to the existence of ChatGPT were:
+The policies for what, if any, use will be acceptable of AI or similar technologies as a *tool* to **assist** *you* creating content, particularly answers, on ${parentName} are currently in flux. The restrictions which were in place prior to the existence of ChatGPT were:
+
 1. *You* confirm that what is posted as an answer *actually answers the question*;
 2. *You* have sufficient subject matter expertise in the topic of the question to be able to assure that any answer you post is correct (as if you wrote it); and
-3. The content copied from such tools is indicated as not your own work by following the requirements for referencing the work of others in [how to reference material written by others](https://stackoverflow.com/help/referencing), including, but not limited to, that the text which you copy from the AI is indicated as a quote by being in blockquote formatting, and you explicitly attribute the text.
+3. The content copied from such tools is indicated as not your own work by following the requirements for referencing the work of others in [how to reference material written by others](${parentUrl}/help/referencing), including, but not limited to, that the text which you copy from the AI is indicated as a quote by being in blockquote formatting, and you explicitly attribute the text.
 
 It's expected that whatever is decided upon as the new policy for using such tools will have *at least* the above requirements, if not be even more stringent, perhaps prohibiting the use of such technologies altogether.
 
-**Some, many, or all of your posts have been deleted:**  \nSome, many, or all of your posts may have been or will be deleted, because we believe they violate the rules and guidelines mentioned above. If you believe we are in error regarding a specific post, then feel free to raise an "in need of moderator intervention" flag on that post explaining the issue and request the post be reevaluated. You can find links to your deleted posts from your "[deleted questions](https://stackoverflow.com/users/deleted-questions/current)" and your "[deleted answers](https://stackoverflow.com/users/deleted-answers/current)" pages. Links to the above mentioned deleted post pages can be found at the bottom of the respective [questions](https://stackoverflow.com/users/current?tab=questions) and [answers](https://stackoverflow.com/users/current?tab=answers) tabs in your profile.`,
+**Some, many, or all of your posts have been deleted:**  \nSome, many, or all of your posts may have been or will be deleted, because we believe they violate the rules and guidelines mentioned above. If you believe we are in error regarding a specific post, then feel free to raise an "in need of moderator intervention" flag on that post explaining the issue and request the post be reevaluated. You can find links to your deleted posts from your "[deleted questions](${parentUrl}/users/deleted-questions/current)" and your "[deleted answers](${parentUrl}/users/deleted-answers/current)" pages. Links to the above mentioned deleted post pages can be found at the bottom of the respective [questions](${parentUrl}/users/current?tab=questions) and [answers](${parentUrl}/users/current?tab=answers) tabs in your profile.`,
   },
   {
     templateName: "spam/abuse year-long ban",
@@ -268,11 +325,11 @@ It's expected that whatever is decided upon as the new policy for using such too
       suspensionReason: "for rule violations",
       suspensionDefaultDays: 365,
       templateBody: `goodbye`,
-      //addPrefix: false,
-      //addSuffix: false,
-      //addSignature: false,
-      //soOnly: false, // if template has SO-only meta links
-      //sendEmail: false,
+      //addPrefix: false,     // no pleasantries and userlink
+      //addSuffix: false,     // no suspension auto message
+      //addSignature: false,  // add regards and sign off. SE now adds this by default.
+      //soOnly: true,         // use only if template has SO-only meta links
+      //sendEmail: false,     // don't send email to the user, mod message can only be read on-site
   },
   */
 ];
@@ -408,7 +465,7 @@ function initModMessageHelper() {
       .wrap('<label for="js-send-email" class="d-block">send email: </label>');
 
     // Show alternate message if no email
-    $('#js-to-warning').after(`<div id="js-to-warning_2" class="s-notice s-notice__info mt8">The user will <em>only</em> receive this message on Stack Overflow.</div>`);
+    $('#js-to-warning').after(`<div id="js-to-warning_2" class="s-notice s-notice__info mt8">The user will <em>only</em> receive this message on ${parentName}.</div>`);
 
     if (showHiddenFields) {
       const $userLink = $('#js-msg-form .user-details a').first();
