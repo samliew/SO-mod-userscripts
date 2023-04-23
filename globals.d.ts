@@ -55,6 +55,7 @@ declare var isMSE: boolean;
 declare var isSO: boolean;
 declare var isSOMeta: boolean;
 declare var isMetaSite: boolean;
+declare var parentName: string;
 declare var parentUrl: string;
 declare var metaUrl: string | undefined;
 declare var siteApiSlug: string;
