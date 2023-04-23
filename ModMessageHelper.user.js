@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1
+// @version      4.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -82,29 +82,6 @@ Flagging as spam is much more expedient than voting to close, and actually allow
 Thank you for your attention to this matter in the future. If you have any questions, please let us know!`,
   },
   {
-    soOnly: true, // because template has SO-only meta links
-    templateName: "promotional content; answers not self-contained",
-    suspensionReason: "for promotional content",
-    suspensionDefaultDays: 0,
-    // The \n characters used below are to get around a Tampermonkey default setting which automatically removes trailing whitespace from changed lines.
-    templateBody: `**Promotional content:**  \nWe noticed that at least some of your posts seem to promote and/or link to a product, website, blog, library, YouTube channel/videos, project, source code repository, etc. Per the [help center](${parentUrl}/help/behavior):
-
-> Be careful, because the community frowns on overt self-promotion and tends to vote it down and flag it as spam. Post good, relevant answers, and if some (but not all) happen to be about your product or website, so be it. However, you _must_ disclose your affiliation in your answers. Also, if a huge percentage of your posts include a mention of your product or website, you're probably here for the wrong reasons. Our advertising rates are quite reasonable; [contact our ad sales team for details](${parentUrl}/advertising).
-
-You should also review the content at the following links:
-
-- [**What signifies "Good" self promotion?**](https://meta.stackexchange.com/q/182212),
-- [some tips and advice about self-promotion](${parentUrl}/help/promotion),
-- [What is the exact definition of "spam" for Stack Overflow?](https://meta.stackoverflow.com/q/260638), and
-- [What makes something spam](https://meta.stackexchange.com/a/58035).
-
-Any type of "astroturfing" promotion is not acceptable, regardless of if it's for profit or not. It brings down the overall value of genuine content and recommendations for everyone on the site.
-
-If you do include a link to something, then the link needs to be directly relevant to the question and/or answer (i.e. a specific page that is about the issue(s) in the question and/or answer). It should not be just a general link to your site, product, blog, YouTube channel, etc. If the link is to something you are affiliated with, then you _must_ include explicit disclosure of your affiliation in your post, unless the link is to official documentation for a product/library that is explicitly asked about in the question.
-
-**Answers must be a self-contained answer to the question:**  \nYour answers need to be actual, complete answers to the question. Just a link to something off-site doesn't make for an answer. [Answers must actually answer the question](https://meta.stackexchange.com/q/225370), without requiring the user to click to some other site to get enough information to solve the problem / answer the question. Please [add context around links](https://meta.stackoverflow.com/a/8259). _[Always quote](${parentUrl}/help/referencing) the most relevant part of an important link, in case the target site is unreachable or goes permanently offline._ If you are linking to a library or framework, then [explain _why_ and _how_ it solves the problem, _and provide code on how to use it_](https://meta.stackoverflow.com/a/251605). Take into account that being _barely more than a link to an external site_ is a reason as to [Why and how are some answers deleted?](${parentUrl}/help/deleted-answers).`,
-  },
-  {
     templateName: "soliciting votes",
     suspensionReason: "for rule violations",
     suspensionDefaultDays: 0,
@@ -147,6 +124,103 @@ Your ability to suggest edits has been revoked for {suspensionDurationDays} days
     addSuffix: false,
   },
   {
+    templateName: "tag-wiki plagiarism",
+    suspensionReason: "for plagiarism",
+    suspensionDefaultDays: 0,
+    templateBody: `It has come to our attention that your recent suggested tag wiki edits consisted primarily or entirely of text copied from other websites. We prefer not to simply copy content already available elsewhere in lieu of creating something that adds value to this site, and where possible we prefer that content be your own original work.
+
+Please note that we still require full attribution with a link to the external source, and citing the name of the original author if you are quoting an excerpt. You should also make an effort to seek permission before copying content.
+
+Thank you, and we look forward to your contributions in the future.`,
+  },
+  {
+    templateName: "gold badge abuse",
+    suspensionReason: "for rule violations",
+    suspensionDefaultDays: 0,
+    templateBody: `We have noticed you have used your {todo} [tag:some-tag] gold badge privilege to reopen a question closed as duplicate, answer it and immediately close it again.
+
+Please note that this is not how you are supposed to use a gold tag badge.
+
+As you may know, gold badges grant the privilege to single-handedly close and reopen questions as duplicates. This is unlocked after reaching a demanding threshold of answer score in a certain tag and number of answers, under the assumption that you can be **trusted to**:
+
+- recognize when a question is a duplicate of another one, and close it accordingly;
+- recognize when a question that is already closed as duplicate is not a duplicate, and reopen it accordingly
+
+By reopening a duplicate with your gold badge you are essentially saying: "this question was incorrectly closed". You can answer a question that you reopen this way. However if you immediately proceed to re-close it against the same canonical, we must question your original motivations for reopening. In fact, it doesn't look good at all because you are effectively **disallowing answers to that question except yours**.
+
+There are a few other appropriate actions that we ask you to consider:
+
+- If you think that the question is not a duplicate, just leave it open. You may add links to other Q&As that are related or complement your own answer.
+
+- If you think that the question is a duplicate, then just leave it closed. If you think the asker might have a hard time understanding how the canonical applies to their question, you may leave an explanatory comment.
+
+- If you think that the question is a duplicate but the available canonical has inadequate answers, you either close as duplicate and then post a new answer to the canonical; or you answer this question and close the canonical as duplicate of this question, and this question becomes the new canonical.`,
+  },
+  {
+    templateName: "reset inappropriate username",
+    suspensionReason: "for rule violations",
+    suspensionDefaultDays: 0,
+    templateBody: `We have received reports that your username may be considered offensive to some members of our community. Our [Code of Conduct](${parentUrl}/conduct) requires that all usernames be appropriate for professional discourse and in keeping with our community standards.
+
+As a result we have reset your username to the default setting. We kindly request that you do not change your username back to the previous one without first consulting with us.
+
+If there has been any misunderstanding regarding the meaning of the username you used, please feel free to reach out to us and provide clarification by responding to this message. Additionally, if you would like to change your username to something else that is appropriate and are experiencing any issues in doing so, please let us know and we will be happy to assist.
+
+Thank you for your understanding and cooperation.`,
+  },
+  {
+    templateName: "account sharing",
+    suspensionReason: "for rule violations",
+    suspensionDefaultDays: 0,
+    addSuffix: false,
+    templateBody: `Company-owned or accounts shared by multiple users are not permitted as stated in the [Terms of Service](${parentUrl}/legal/terms-of-service/public):
+
+> To access some of the public Network features you will need to **register for an account as an individual** and consent to these Public Network Terms. If you do not consent to these Public Network Terms, ${parentName} reserves the right to refuse, suspend or terminate your access to the public Network.
+
+As this account appears to be in breach of this policy, it will be deleted. You are welcome to register again for an account as an individual user, subject to the Terms of Service.
+
+Should you wish to appeal this decision, you can use the [Contact Us](${parentUrl}/contact) form and explaining your situation to the Community Management Team.`,
+  },
+  {
+    soOnly: true, // because template has SO-only meta links
+    templateName: "ban evasion, multiple accounts",
+    suspensionReason: "for rule violations",
+    suspensionDefaultDays: 30,
+    templateBody: `It has come to our attention that you have been using multiple accounts to work around system limitations. The extra accounts will be removed together with any unanswered questions. Please refrain from using secondary accounts to circumvent our systems in the future.
+
+All system and moderator-imposed limits/blocks/bans/suspensions/etc. apply to the user, not just a single account. You are not permitted to create one or more new accounts in order to get around such limitations. If you are hitting a limit on one account, then you should act as if you were hitting that limit on each of your accounts.
+
+The most common limitations for people to attempt to evade are the system imposed question and answer bans. When you're getting the message 'We are no longer accepting questions/answers from this account', then you should act as if you are getting that message on all of your accounts and not post additional questions or answers (whichever you're hitting), even if you have an alternate account which is not banned. For more detail about question and answer bans and what you can do to get out of them, please see [What can I do when getting “We are no longer accepting questions/answers from this account”?](https://meta.stackoverflow.com/a/255584#255584)
+
+Having more than one account is permitted, if the additional account is not used to circumvent such limitations and the accounts do not interact with each other, or otherwise allow you to do things which you would not be permitted to do with a single account. If you are interested in more information about having more than one account, please see [What are the rules governing multiple accounts (i.e. sockpuppets)?](https://meta.stackoverflow.com/q/388984).`,
+  },
+  {
+    soOnly: true, // because template has SO-only meta links
+    templateName: "demands to show effort/\"not a code-writing service\"",
+    suspensionReason: "for rule violations",
+    suspensionDefaultDays: 0,
+    templateBody: `It has come to our attention that you've left one or more comments similar to the following:
+
+> Please show some effort. This is not a code-writing service.
+
+[Stack Overflow *is* a code-writing service](https://meta.stackoverflow.com/a/408565), in the sense that it is a programming Q&A site, and most questions here are solved by writing code in the answer. It is [not a debugging helpdesk for askers](https://meta.stackexchange.com/a/364585)&mdash;we do not require that askers provide existing code to debug. Lack of problem-solving effort is not a reason to close or otherwise object to questions. [The only type of effort we require is the effort required to ask a clear, focused, non-duplicate question](https://meta.stackoverflow.com/a/260909). Including an attempt often adds noise and results in answers that are applicable to just the original asker, rather than anyone doing the same thing.  Many of the most useful questions on the site do not include an existing attempt at solving the problem.
+
+Of course, Stack Overflow is *also* not a free application design and development service. Questions may still be closed as too broad (or unclear) if that is the problem. But please do not try to limit the questions asked here to problems with *existing* code. Instead, focus on the scope and clarity of questions. The goal should be to encourage questions that might help the next person with the same problem.
+
+Please do not post any more of these comments. They add noise for moderators to remove, may be perceived as demanding or unfriendly, and don't assist with our goal of creating a knowledge base. Please vote to close questions that you think are off-topic, unclear, or otherwise not appropriate for Stack Overflow.`,
+  },
+  {
+    soOnly: true, // because template has SO-only meta links
+    templateName: "self tag burnination",
+    suspensionReason: "for rule violations",
+    suspensionDefaultDays: 7,
+    templateBody: `As you should be aware, there is [a process for mass tag removal](https://meta.stackoverflow.com/q/324070), also known as burnination. The [policy from Stack Exchange](https://meta.stackoverflow.com/q/356963) is that the process **must** be followed and that burninations of tags which are used on more than 50 questions **must** be discussed on Meta Stack Overflow *prior* to beginning to edit to remove the tag.
+
+You have recently removed many tags from questions without following the burnination process. Do not do that. This message is a warning. If you do this again, with this or any other tag, then there will be further consequences.
+
+The edits you made will be reverted. Some of the edits have other beneficial changes, which you are welcome to reapply. However, you are not permitted to systematically remove tags from questions without following the burnination process.`,
+  },
+  {
     soOnly: true, // because template has SO-only meta links
     templateName: "mass plagiarism",
     suspensionReason: "for plagiarism",
@@ -178,114 +252,30 @@ If there are specific answers of yours that you believe were not plagiarized (th
     addSuffix: false,
   },
   {
-    templateName: "tag-wiki plagiarism",
-    suspensionReason: "for plagiarism",
+    soOnly: true, // because template has SO-only meta links
+    templateName: "promotional content; answers not self-contained",
+    suspensionReason: "for promotional content",
     suspensionDefaultDays: 0,
-    templateBody: `It has come to our attention that your recent suggested tag wiki edits consisted primarily or entirely of text copied from other websites. We prefer not to simply copy content already available elsewhere in lieu of creating something that adds value to this site, and where possible we prefer that content be your own original work.
+    // The \n characters used below are to get around a Tampermonkey default setting which automatically removes trailing whitespace from changed lines.
+    templateBody: `**Promotional content:**  \nWe noticed that at least some of your posts seem to promote and/or link to a product, website, blog, library, YouTube channel/videos, project, source code repository, etc. Per the [help center](${parentUrl}/help/behavior):
 
-Please note that we still require full attribution with a link to the external source, and citing the name of the original author if you are quoting an excerpt. You should also make an effort to seek permission before copying content.
+> Be careful, because the community frowns on overt self-promotion and tends to vote it down and flag it as spam. Post good, relevant answers, and if some (but not all) happen to be about your product or website, so be it. However, you _must_ disclose your affiliation in your answers. Also, if a huge percentage of your posts include a mention of your product or website, you're probably here for the wrong reasons. Our advertising rates are quite reasonable; [contact our ad sales team for details](${parentUrl}/advertising).
 
-Thank you, and we look forward to your contributions in the future.`,
+You should also review the content at the following links:
+
+- [**What signifies "Good" self promotion?**](https://meta.stackexchange.com/q/182212),
+- [some tips and advice about self-promotion](${parentUrl}/help/promotion),
+- [What is the exact definition of "spam" for Stack Overflow?](https://meta.stackoverflow.com/q/260638), and
+- [What makes something spam](https://meta.stackexchange.com/a/58035).
+
+Any type of "astroturfing" promotion is not acceptable, regardless of if it's for profit or not. It brings down the overall value of genuine content and recommendations for everyone on the site.
+
+If you do include a link to something, then the link needs to be directly relevant to the question and/or answer (i.e. a specific page that is about the issue(s) in the question and/or answer). It should not be just a general link to your site, product, blog, YouTube channel, etc. If the link is to something you are affiliated with, then you _must_ include explicit disclosure of your affiliation in your post, unless the link is to official documentation for a product/library that is explicitly asked about in the question.
+
+**Answers must be a self-contained answer to the question:**  \nYour answers need to be actual, complete answers to the question. Just a link to something off-site doesn't make for an answer. [Answers must actually answer the question](https://meta.stackexchange.com/q/225370), without requiring the user to click to some other site to get enough information to solve the problem / answer the question. Please [add context around links](https://meta.stackoverflow.com/a/8259). _[Always quote](${parentUrl}/help/referencing) the most relevant part of an important link, in case the target site is unreachable or goes permanently offline._ If you are linking to a library or framework, then [explain _why_ and _how_ it solves the problem, _and provide code on how to use it_](https://meta.stackoverflow.com/a/251605). Take into account that being _barely more than a link to an external site_ is a reason as to [Why and how are some answers deleted?](${parentUrl}/help/deleted-answers).`,
   },
   {
     soOnly: true, // because template has SO-only meta links
-    templateName: "self tag burnination",
-    suspensionReason: "for rule violations",
-    suspensionDefaultDays: 7,
-    templateBody: `As you should be aware, there is [a process for mass tag removal](https://meta.stackoverflow.com/q/324070), also known as burnination. The [policy from Stack Exchange](https://meta.stackoverflow.com/q/356963) is that the process **must** be followed and that burninations of tags which are used on more than 50 questions **must** be discussed on Meta Stack Overflow *prior* to beginning to edit to remove the tag.
-
-You have recently removed many tags from questions without following the burnination process. Do not do that. This message is a warning. If you do this again, with this or any other tag, then there will be further consequences.
-
-The edits you made will be reverted. Some of the edits have other beneficial changes, which you are welcome to reapply. However, you are not permitted to systematically remove tags from questions without following the burnination process.`,
-  },
-  {
-    templateName: "gold badge abuse",
-    suspensionReason: "for rule violations",
-    suspensionDefaultDays: 0,
-    templateBody: `We have noticed you have used your {todo} [tag:some-tag] gold badge privilege to reopen a question closed as duplicate, answer it and immediately close it again.
-
-Please note that this is not how you are supposed to use a gold tag badge.
-
-As you may know, gold badges grant the privilege to single-handedly close and reopen questions as duplicates. This is unlocked after reaching a demanding threshold of answer score in a certain tag and number of answers, under the assumption that you can be **trusted to**:
-
-- recognize when a question is a duplicate of another one, and close it accordingly;
-- recognize when a question that is already closed as duplicate is not a duplicate, and reopen it accordingly
-
-By reopening a duplicate with your gold badge you are essentially saying: "this question was incorrectly closed". You can answer a question that you reopen this way. However if you immediately proceed to re-close it against the same canonical, we must question your original motivations for reopening. In fact, it doesn't look good at all because you are effectively **disallowing answers to that question except yours**.
-
-There are a few other appropriate actions that we ask you to consider:
-
-- If you think that the question is not a duplicate, just leave it open. You may add links to other Q&As that are related or complement your own answer.
-
-- If you think that the question is a duplicate, then just leave it closed. If you think the asker might have a hard time understanding how the canonical applies to their question, you may leave an explanatory comment.
-
-- If you think that the question is a duplicate but the available canonical has inadequate answers, you either close as duplicate and then post a new answer to the canonical; or you answer this question and close the canonical as duplicate of this question, and this question becomes the new canonical.`,
-  },
-  {
-    soOnly: true, // because template has SO-only meta links
-    templateName: "ban evasion, multiple accounts",
-    suspensionReason: "for rule violations",
-    suspensionDefaultDays: 30,
-    templateBody: `It has come to our attention that you have been using multiple accounts to work around system limitations. The extra accounts will be removed together with any unanswered questions. Please refrain from using secondary accounts to circumvent our systems in the future.
-
-All system and moderator-imposed limits/blocks/bans/suspensions/etc. apply to the user, not just a single account. You are not permitted to create one or more new accounts in order to get around such limitations. If you are hitting a limit on one account, then you should act as if you were hitting that limit on each of your accounts.
-
-The most common limitations for people to attempt to evade are the system imposed question and answer bans. When you're getting the message 'We are no longer accepting questions/answers from this account', then you should act as if you are getting that message on all of your accounts and not post additional questions or answers (whichever you're hitting), even if you have an alternate account which is not banned. For more detail about question and answer bans and what you can do to get out of them, please see [What can I do when getting “We are no longer accepting questions/answers from this account”?](https://meta.stackoverflow.com/a/255584#255584)
-
-Having more than one account is permitted, if the additional account is not used to circumvent such limitations and the accounts do not interact with each other, or otherwise allow you to do things which you would not be permitted to do with a single account. If you are interested in more information about having more than one account, please see [What are the rules governing multiple accounts (i.e. sockpuppets)?](https://meta.stackoverflow.com/q/388984).`,
-  },
-  {
-    templateName: "account sharing",
-    suspensionReason: "for rule violations",
-    suspensionDefaultDays: 0,
-    addSuffix: false,
-    templateBody: `Company-owned or accounts shared by multiple users are not permitted as stated in the [Terms of Service](${parentUrl}/legal/terms-of-service/public):
-
-> To access some of the public Network features you will need to **register for an account as an individual** and consent to these Public Network Terms. If you do not consent to these Public Network Terms, ${parentName} reserves the right to refuse, suspend or terminate your access to the public Network.
-
-As this account appears to be in breach of this policy, it will be deleted. You are welcome to register again for an account as an individual user, subject to the Terms of Service.
-
-Should you wish to appeal this decision, you can use the [Contact Us](${parentUrl}/contact) form and explaining your situation to the Community Management Team.`,
-  },
-  {
-    templateName: "voluntary suspension",
-    suspensionReason: "upon request",
-    suspensionDefaultDays: 30,
-    templateBody: `We have temporarily suspended your account for {suspensionDurationDays} days upon request.
-
-Since this suspension is fully voluntary, you are welcome to reply to this message and request that the suspension be lifted early. Otherwise it will automatically expire in {suspensionDurationDays} days, upon which time your full reputation and privileges will be restored.
-
-We wish you a pleasant vacation from the site, and we look forward to your return!`,
-    addSuffix: false,
-  },
-  {
-    soOnly: true, // because template has SO-only meta links
-    templateName: "demands to show effort/\"not a code-writing service\"",
-    suspensionReason: "for rule violations",
-    suspensionDefaultDays: 0,
-    templateBody: `It has come to our attention that you've left one or more comments similar to the following:
-
-> Please show some effort. This is not a code-writing service.
-
-[Stack Overflow *is* a code-writing service](https://meta.stackoverflow.com/a/408565), in the sense that it is a programming Q&A site, and most questions here are solved by writing code in the answer. It is [not a debugging helpdesk for askers](https://meta.stackexchange.com/a/364585)&mdash;we do not require that askers provide existing code to debug. Lack of problem-solving effort is not a reason to close or otherwise object to questions. [The only type of effort we require is the effort required to ask a clear, focused, non-duplicate question](https://meta.stackoverflow.com/a/260909). Including an attempt often adds noise and results in answers that are applicable to just the original asker, rather than anyone doing the same thing.  Many of the most useful questions on the site do not include an existing attempt at solving the problem.
-
-Of course, Stack Overflow is *also* not a free application design and development service. Questions may still be closed as too broad (or unclear) if that is the problem. But please do not try to limit the questions asked here to problems with *existing* code. Instead, focus on the scope and clarity of questions. The goal should be to encourage questions that might help the next person with the same problem.
-
-Please do not post any more of these comments. They add noise for moderators to remove, may be perceived as demanding or unfriendly, and don't assist with our goal of creating a knowledge base.`,
-  },
-  {
-    templateName: "reset inappropriate username",
-    suspensionReason: "for rule violations",
-    suspensionDefaultDays: 0,
-    templateBody: `We have received reports that your username may be considered offensive to some members of our community. Our [Code of Conduct](${parentUrl}/conduct) requires that all usernames be appropriate for professional discourse and in keeping with our community standards.
-
-As a result we have reset your username to the default setting. We kindly request that you do not change your username back to the previous one without first consulting with us.
-
-If there has been any misunderstanding regarding the meaning of the username you used, please feel free to reach out to us and provide clarification by responding to this message. Additionally, if you would like to change your username to something else that is appropriate and are experiencing any issues in doing so, please let us know and we will be happy to assist.
-
-Thank you for your understanding and cooperation.`,
-  },
-  {
     templateName: "ChatGPT banned; plagiarism (AI); inaccurate AI content",
     suspensionReason: "for rule violations",
     suspensionDefaultDays: 7,
@@ -308,6 +298,17 @@ The policies for what, if any, use will be acceptable of AI or similar technolog
 It's expected that whatever is decided upon as the new policy for using such tools will have *at least* the above requirements, if not be even more stringent, perhaps prohibiting the use of such technologies altogether.
 
 **Some, many, or all of your posts have been deleted:**  \nSome, many, or all of your posts may have been or will be deleted, because we believe they violate the rules and guidelines mentioned above. If you believe we are in error regarding a specific post, then feel free to raise an "in need of moderator intervention" flag on that post explaining the issue and request the post be reevaluated. You can find links to your deleted posts from your "[deleted questions](${parentUrl}/users/deleted-questions/current)" and your "[deleted answers](${parentUrl}/users/deleted-answers/current)" pages. Links to the above mentioned deleted post pages can be found at the bottom of the respective [questions](${parentUrl}/users/current?tab=questions) and [answers](${parentUrl}/users/current?tab=answers) tabs in your profile.`,
+  },
+  {
+    templateName: "voluntary suspension",
+    suspensionReason: "upon request",
+    suspensionDefaultDays: 30,
+    templateBody: `We have temporarily suspended your account for {suspensionDurationDays} days upon request.
+
+Since this suspension is fully voluntary, you are welcome to reply to this message and request that the suspension be lifted early. Otherwise it will automatically expire in {suspensionDurationDays} days, upon which time your full reputation and privileges will be restored.
+
+We wish you a pleasant vacation from the site, and we look forward to your return!`,
+    addSuffix: false,
   },
   {
     templateName: "spam/abuse year-long ban",
@@ -711,7 +712,8 @@ function initModMessageHelper() {
     if (customModMessages.length === 0) return;
 
     // Add description expand/collapse events for custom templates
-    actionList.append('<hr />').on('click', '.js-custom-template', function () {
+    actionList.append('<hr><div class="mb4">Custom Templates:</div>');
+    actionList.on('click', '.js-custom-template', function () {
       $(this).addClass('js-action-selected').find('.js-action-desc').removeClass('d-none');
       $(this).find('input:radio').prop('checked', true);
       $(this).siblings().find('.js-action-desc').addClass('d-none');
@@ -918,6 +920,7 @@ function generateCmOrModMessageTemplate(isCmMessage, item, i, numberOfItems, mes
   const templateShortText = item.templateBody.length > 400 ? item.templateBody.replace(/(\n|\r)+/g, ' ').substr(0, 397) + '...' : item.templateBody;
   const templateSuspensionReason = escapeText(item.suspensionReason || '');
   const templateName = escapeText(item.templateName || '');
+  const soText = item.soOnly ? ' <em class="fc-orange-500">(SO-only)</em>' : '';
 
   // 2022-10: The HTML for the mod-message templates changed substantially, so it's no longer the same as for CM escalations.
   // So, we return distinctly different HTML. OTOH, there are currently no custom mod message templates.
@@ -933,9 +936,9 @@ function generateCmOrModMessageTemplate(isCmMessage, item, i, numberOfItems, mes
       <span class="action-name">${item.templateName}</span>
       <span class="action-desc" style="display: none;"><div style="margin-left: 18px; line-height: 130%; margin-bottom: 5px;">${templateShortText}</div></span>
       </label></li>`;
-        } else {
-          // Mod message template
-          return `
+  } else {
+    // Mod message template
+    return `
       <li class="js-custom-template"><label>
       <input type="radio" id="template-${templateNumber}" name="mod-template" value="${templateBodyProcessed}">
       <input type="hidden" id="template-${templateNumber}-reason"
@@ -943,7 +946,7 @@ function generateCmOrModMessageTemplate(isCmMessage, item, i, numberOfItems, mes
         data-suspension-description="${templateSuspensionReason}"
         ${item.sendEmail === false ? 'data-send-email="false"' : ''}
         data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}">
-      <span class="js-action-name fw-bold">${templateName}</span>
+      <span class="js-action-name fw-bold">${templateName} ${soText}</span>
       <span class="js-action-desc d-none"><div class="ml16 mb6">${templateShortText}</div></span>
       </label></li>`;
   }
