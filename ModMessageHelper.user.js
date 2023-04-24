@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.2
+// @version      4.2.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -920,7 +920,6 @@ function generateCmOrModMessageTemplate(isCmMessage, item, i, numberOfItems, mes
   const templateShortText = item.templateBody.length > 400 ? item.templateBody.replace(/(\n|\r)+/g, ' ').substr(0, 397) + '...' : item.templateBody;
   const templateSuspensionReason = escapeText(item.suspensionReason || '');
   const templateName = escapeText(item.templateName || '');
-  const soText = item.soOnly ? ' <em class="fc-orange-500">(SO-only)</em>' : '';
 
   // 2022-10: The HTML for the mod-message templates changed substantially, so it's no longer the same as for CM escalations.
   // So, we return distinctly different HTML. OTOH, there are currently no custom mod message templates.
@@ -946,7 +945,7 @@ function generateCmOrModMessageTemplate(isCmMessage, item, i, numberOfItems, mes
         data-suspension-description="${templateSuspensionReason}"
         ${item.sendEmail === false ? 'data-send-email="false"' : ''}
         data-days="${isNaN(item.suspensionDefaultDays) || item.suspensionDefaultDays <= 0 ? '' : item.suspensionDefaultDays}">
-      <span class="js-action-name fw-bold">${templateName} ${soText}</span>
+      <span class="js-action-name fw-bold ${item.soOnly ? 'so-only' : ''}">${templateName}</span>
       <span class="js-action-desc d-none"><div class="ml16 mb6">${templateShortText}</div></span>
       </label></li>`;
   }
@@ -1276,6 +1275,11 @@ addStylesheet(`
 }
 #show-templates + .popup .action-list > hr {
   margin: 5px 0;
+}
+.js-action-name.so-only:after {
+  content: ' (SO-only)';
+  font-style: italic;
+  color: var(--orange-500);
 }
 
 /* Mod message page */
