@@ -4,7 +4,7 @@
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
 // @author       Cody Gray
-// @version      4.0
+// @version      4.0.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -737,11 +737,11 @@ addStylesheet(`
   clear: both;
   float: left;
   min-width: 200px;
-  margin: 6px 0 10px;
+  margin: 8px 0 10px;
   font-size: 0.97em;
 }
 .js-better-inline-menu.smaller {
-  margin-top: 4px;
+  margin-top: 8px;
   font-size: 0.88em;
   line-height: 1;
 }
@@ -775,7 +775,6 @@ addStylesheet(`
 }
 .js-better-inline-menu button.s-btn.s-btn__link:disabled {
   cursor: not-allowed;
-  color: var(--black-200);
 }
 
 
