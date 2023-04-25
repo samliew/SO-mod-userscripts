@@ -3,7 +3,7 @@
 // @description  Revert updates that make the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1.3
+// @version      4.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -47,10 +47,10 @@ addStylesheet(`
   Fix all Q&A links having same colour even when visited
 */
 body .s-link {
-  color: var(--theme-link-color) !important;
+  color: var(--theme-link-color);
 }
 body .s-link:visited {
-  color: var(--theme-link-color-visited) !important;
+  color: var(--theme-link-color-visited);
 }
 
 
@@ -68,7 +68,7 @@ ul.comments-list .comment-up-on {
   visibility: visible;
 }
 .popup-flag-comment {
-  visibility: visible !important;
+  visibility: visible;
 }
 
 
@@ -78,7 +78,7 @@ ul.comments-list .comment-up-on {
 */
 .s-link,
 .iconPencilSm {
-  color: #9199a1 !important;
+  color: #9199a1;
 }
 
 
@@ -102,7 +102,7 @@ ul.comments-list .comment-up-on {
 .s-topbar--logo + [role="presentation"],
 .s-topbar ol.s-navigation[role="presentation"],
 .js-top-bar ol.s-navigation[role="presentation"] {
-  display: none !important;
+  display: none;
 }
 
 
@@ -112,7 +112,7 @@ ul.comments-list .comment-up-on {
   https://meta.stackoverflow.com/q/390709
 */
 #announcement-banner {
-  display: none !important;
+  display: none;
 }
 
 
@@ -121,7 +121,7 @@ ul.comments-list .comment-up-on {
   https://meta.stackoverflow.com/q/360450
 */
 #newsletter-ad {
-  display: none !important;
+  display: none;
 }
 
 
@@ -131,10 +131,10 @@ ul.comments-list .comment-up-on {
   https://meta.stackoverflow.com/q/372877
 */
 .js-new-contributor-popover {
-  display: none !important;
+  display: none;
 }
 .comments .new-contributor-indicator {
-  display: none !important;
+  display: none;
 }
 
 
@@ -180,7 +180,7 @@ ul.comments-list .comment-up-on {
   left: -18px;
 }
 .js-revisions .d-flex.ai-center.fw-wrap {
-  display: block !important;
+  display: block;
 }
 
 
@@ -189,7 +189,7 @@ ul.comments-list .comment-up-on {
   https://meta.stackexchange.com/q/345661
 */
 .js-follow-post ~ .s-popover {
-  display: none !important;
+  display: none;
 }
 
 
@@ -225,7 +225,7 @@ ul.comments-list .comment-up-on {
   line-height: 1.4em;
 }
 .s-prose:not(.reason) > * {
-  margin-bottom: 1em !important;
+  margin-bottom: 1em;
 }
 
 
@@ -239,7 +239,7 @@ ul.comments-list .comment-up-on {
   margin-right: 0;
   padding: 1em;
   padding-left: 1.2em;
-  background-color: var(--yellow-050) !important;
+  background-color: var(--yellow-050);
   color: inherit;
 }
 
@@ -248,7 +248,7 @@ ul.comments-list .comment-up-on {
   Fix some z-indexes to prevent them from being in front of (close) dialogs
 */
 .s-btn-group .s-btn.is-selected {
-  z-index: unset !important;
+  z-index: unset;
 }
 
 
@@ -256,7 +256,7 @@ ul.comments-list .comment-up-on {
 #user-card .profile-user--about {
   max-height: auto;
   height: auto;
-  overflow: hidden !important;
+  overflow: hidden;
 }
 #user-card .profile-user--bio {
   height: 240px;
@@ -330,14 +330,15 @@ div.js-community-icons {
   https://meta.stackoverflow.com/q/398367
 */
 .js-reactions {
-  display: none !important;
+  display: none;
 }
 
 
 /*
   Hides teams in the left sidebar
 */
-.nav-links li:has(ol.nav-links .js-create-team-cta) {
+.nav-links .js-create-team-cta,
+.nav-links .js-create-team-cta ~ li {
   display: none;
 }
 
@@ -346,9 +347,9 @@ div.js-community-icons {
   Hide blocked ads still taking up 300px in right sidebar
 */
 .js-sidebar-zone {
-  min-height: 0 !important;
+  min-height: 0;
 }
-`, false); // end stylesheet
+`.replace(/ !important;/g, ';').replace(/;/g, ' !important;'), false); // end stylesheet
 
 
 // On page load
