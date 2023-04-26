@@ -250,6 +250,12 @@ Recommended chat userscripts:
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-08-07_150848.png)
 
 
+### [Smart Post Links](https://github.com/samliew/SO-mod-userscripts/blob/master/SmartPostLinks.user.js)
+
+- Replaces the link text in comments and posts with the full question title, and adds post info in the title attribute
+- Works in chat & chat transcripts too
+
+
 ### [Post Ids Everywhere](https://github.com/samliew/SO-mod-userscripts/blob/master/PostIdsEverywhere.user.js)
 
 - Inserts post IDs everywhere where there's a post or post link (for copying/easier x-referencing/etc)

@@ -56,6 +56,8 @@ Direct installation links (raw files)
 
 [Post Headers & Question TOC](https://github.com/samliew/SO-mod-userscripts/raw/master/PostHeadersQuestionToc.user.js)
 
+[Smart Post Links](https://github.com/samliew/SO-mod-userscripts/raw/master/SmartPostLinks.user.js)
+
 [Post Ids Everywhere](https://github.com/samliew/SO-mod-userscripts/raw/master/PostIdsEverywhere.user.js)
 
 [Post Timeline Filters](https://github.com/samliew/SO-mod-userscripts/raw/master/PostTimelineFilters.user.js)
