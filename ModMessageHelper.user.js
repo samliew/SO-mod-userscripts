@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.4
+// @version      4.4.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -137,9 +137,9 @@ Thank you, and we look forward to your contributions in the future.`,
     templateName: "gold badge abuse (redupe to add answer)",
     suspensionReason: "for rule violations",
     suspensionDefaultDays: 0,
-    templateBody: `We have noticed you have used your {todo} [tag:some-tag] gold badge privilege to reopen a question closed as duplicate, answer it and immediately close it again.
+    templateBody: `We have noticed you have used your gold badge privilege to reopen a question closed as duplicate, answer it, and immediately close it again.
 
-- {todo} Add examples of questions that user have reopened
+- <!-- Add examples of question(s) that user have reopened -->
 
 Please note that this is not how you are supposed to use a gold tag badge.
 
@@ -162,9 +162,9 @@ There are a few other appropriate actions that we ask you to consider:
     templateName: "gold badge abuse (reopen when answered)",
     suspensionReason: "for rule violations",
     suspensionDefaultDays: 0,
-    templateBody: `We have noticed you have used your {todo} [tag:some-tag] gold badge privilege to reopen a question closed as duplicate, when you have a stake in the question.
+    templateBody: `We have noticed you have used your gold badge privilege to reopen a question others have closed as duplicate, when you have a stake in the question.
 
-- {todo} Add examples of questions that user have reopened
+- <!-- Add examples of question(s) that user have reopened -->
 
 Please note that this is not how you are supposed to use a gold tag badge.
 
