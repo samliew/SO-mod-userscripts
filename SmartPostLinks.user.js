@@ -3,7 +3,7 @@
 // @description  Replaces the link text in comments and posts with the full question title, and adds post info in the title attribute
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.0.1
+// @version      1.0.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -114,9 +114,11 @@ last activity ${dateToIsoString(seApiDateToDate(postData.last_activity_date))}`;
       // Update link with short permalink
       this.href = postData.link;
     });
-  }
 
-  await delay(500); // short delay before processing next group
+    // Short delay before processing next group
+    await delay(500);
+
+  } // End group loop
 }
 
 
