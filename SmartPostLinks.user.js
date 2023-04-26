@@ -3,7 +3,7 @@
 // @description  Replaces the link text in comments and posts with the full question title, and adds post info in the title attribute
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.0
+// @version      1.0.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -54,8 +54,8 @@ const groupBySiteApiSlug = arr => {
 async function processLinksOnPage() {
 
   const postLinksToProcess = $('a[href!="#"]', '#mainbar, #chat, #transcript, #content').filter(function () {
-    return /\/(?:questions|q|a)\/\d+/.test(this.href) && // only post links
-      !$(this).closest('.post-menu, .votecell, .post-signature, .user-info, .post-stickyheader').length; // not a child element of these containers
+    return /\/(questions|q|a)\/\d+/.test(this.href) && // only post links
+      !$(this).closest('.s-post-summary--content-title, .votecell, .post-menu, .post-signature, .user-info, .post-stickyheader').length; // not a child element of these containers
   }).not('.js-smart-link').addClass('js-smart-link');
 
   // Extract siteApiSlug and postId from links
@@ -88,7 +88,6 @@ async function processLinksOnPage() {
       // Find post data from response
       const postData = postsData.find(v => v.post_id === postId && urlToSiteApiSlug(v.link) === linkSiteApiSlug);
       if (!postData) {
-        console.error('getPostsFromApi - No post data found.', linkSiteApiSlug, postId, this);
         this.title = '(deleted post)';
         return;
       }
@@ -99,7 +98,7 @@ async function processLinksOnPage() {
       this.dataset.originalHref = this.href;
 
       const decodedPostTitle = htmlDecode(postData.title);
-      const postOwnerInfo = postData.owner ? `${postData.owner.display_name} (${postData.owner.reputation.toLocaleString('en-AU')} reputation)` : '(deleted user)';
+      const postOwnerInfo = postData.owner ? `${htmlDecode(postData.owner.display_name)} (${postData.owner.reputation.toLocaleString('en-AU')} reputation)` : '(deleted user)';
 
       // If link text contains a post URL, replace with full question title
       if (/\/(questions|q|a)\//.test(this.innerText)) {
@@ -126,5 +125,7 @@ last activity ${dateToIsoString(seApiDateToDate(postData.last_activity_date))}`;
   processLinksOnPage();
 
   // After requests have completed
-  $(document).ajaxStop(processLinksOnPage);
+  $(document).ajaxStop(function () {
+    setTimeout(processLinksOnPage, 200);
+  });
 })();
