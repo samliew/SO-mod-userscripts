@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.1
+// @version      3.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -88,7 +88,8 @@ addStylesheet(`
 .post-container,
 .reviewable-post h1,
 .js-flag-text li,
-.originals-of-duplicate li {
+.originals-of-duplicate li,
+.js-expandable-posts .break-word {
   position: relative;
 }
 .popup[data-questionid],
