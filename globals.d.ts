@@ -154,6 +154,7 @@ declare async function destroyUser(uid: number, details: string, reason: string,
  * SE: Posts
  * ================================
  */
+declare function getPostsFromApi(postIds: number[]): Promise<object>;
 declare function closeQuestionAsOfftopic(pid:number, closeReasonId?:string, offtopicReasonId?:number, offTopicOtherText?:string, duplicateOfQuestionId?:number): Promise<object>;
 declare function closeQuestionAsDuplicate(pid:number, targetPid:number): Promise<object>;
 declare function closeSOMetaQuestionAsOfftopic(pid:number, closeReason?: string, offtopicReasonId?:number): Promise<object>;
