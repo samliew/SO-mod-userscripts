@@ -3,7 +3,7 @@
 // @description  Replaces the link text in comments and posts with the full question title, and adds post info in the title attribute
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.0.2
+// @version      1.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -34,7 +34,8 @@
 
 'use strict';
 
-const seApiKey = 'lSrVEbQTXrJ4eb4c3NEMXQ((';
+// Yes, you can declare the variable apikey here and have it picked up by the functions in se-ajax-common.js
+const apikey = 'lSrVEbQTXrJ4eb4c3NEMXQ((';
 
 
 const urlToSiteApiSlug = url => new URL(url).hostname.replace(/(\.stackexchange)?\.(com|net|org)$/, '').trim();

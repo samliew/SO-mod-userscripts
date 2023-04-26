@@ -4,7 +4,7 @@
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
 // @author       Cody Gray
-// @version      4.0.1
+// @version      4.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -43,8 +43,9 @@
 // This is a moderator-only userscript
 if (!isModerator()) return;
 
+// Yes, you can declare the variable apikey here and have it picked up by the functions in se-ajax-common.js
+const apikey = 'lSrVEbQTXrJ4eb4c3NEMXQ((';
 const newlines = '\n\n';
-const seApiKey = 'lSrVEbQTXrJ4eb4c3NEMXQ((';
 
 // Add your user ID here (or set the corresponding value in your Local Storage) to promote yourself
 // to a "superuser", which enables rarely-used options and decreases the number of confirmations.

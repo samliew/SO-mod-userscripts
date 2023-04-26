@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1
+// @version      4.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -35,8 +35,9 @@
 // This is a moderator-only userscript
 if (!isModerator()) return;
 
+// Yes, you can declare the variable apikey here and have it picked up by the functions in se-ajax-common.js
+const apikey = 'lSrVEbQTXrJ4eb4c3NEMXQ((';
 const newlines = '\n\n';
-const seApiKey = 'lSrVEbQTXrJ4eb4c3NEMXQ((';
 
 const superusers = [584192, 366904, 6451573];
 const isSuperuser = superusers.includes(StackExchange.options.user.userId);
