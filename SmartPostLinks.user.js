@@ -123,6 +123,7 @@ last activity ${dateToIsoString(seApiDateToDate(postData.last_activity_date))}`;
 
 // On script run
 (function init() {
+  processLinksOnPage();
 
   // After requests have completed
   $(document).ajaxStop(processLinksOnPage);
