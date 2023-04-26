@@ -3,7 +3,7 @@
 // @description  Revert updates that make the page more cluttered or less accessible
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.2
+// @version      4.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -485,7 +485,7 @@ function stripUnnecessaryTracking() {
 
     // Strip unnecessary query params from Q&A links in search results
     let trackedQaCount = 0;
-    const linkTrackingRegex = /[?&]((cb|lq|rq)=\d+|ref=.*)/i;
+    const linkTrackingRegex = /[?&]((cb|lq|rq)=\d+|ref=.*|r=SearchResults)/i;
     $('#content a, #sidebar a').each(function (i, el) {
       let isTracking = false;
       if (el.dataset.searchsession || el.dataset.tracker) {
