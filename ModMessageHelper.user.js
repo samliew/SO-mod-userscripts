@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.2.1
+// @version      4.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -954,6 +954,78 @@ function generateCmOrModMessageTemplate(isCmMessage, item, i, numberOfItems, mes
 
 function appendModMessageMenu() {
 
+  // Create menu based on post type and state
+  function _createMenu(opts) {
+    const { elem, uid, pid = null } = opts;
+
+    const modMessageLink = `${parentUrl}/users/message/create/${uid}`;
+    const cmMessageLink = `${parentUrl}/admin/cm-message/create/${uid}`;
+    const postIdParam = pid ? '&' + (!isMetaSite ? `pid=${pid}` : `metapid=${pid}`) : '';
+
+    let menuitems = '';
+
+    menuitems += `<a target="_blank" href="${modMessageLink}?action=low-quality-questions">low quality questions</a>`;
+    menuitems += `<a target="_blank" href="${modMessageLink}?action=question-repetition">question repetition</a>`;
+    menuitems += `<a target="_blank" href="${modMessageLink}?action=promotion">excessive self-promotion</a>`;
+    menuitems += `<a target="_blank" href="${modMessageLink}?action=signatures-taglines">using signatures</a>`;
+
+    menuitems += `<div class="separator"></div>`;
+    menuitems += `<a target="_blank" href="${modMessageLink}?action=excessive-discussion">excessive comments</a>`;
+    menuitems += `<a target="_blank" href="${modMessageLink}?action=abusive">abusive to others</a>`;
+
+    menuitems += `<div class="separator"></div>`;
+    menuitems += `<a target="_blank" href="${modMessageLink}?action=vandalism">vandalism</a>`;
+    menuitems += `<a target="_blank" href="${modMessageLink}?action=plagiarism">plagiarism</a>`;
+
+    menuitems += `<div class="separator"></div>`;
+    menuitems += `<a target="_blank" href="${modMessageLink}?action=sockpuppet-upvoting">sockpuppet upvoting</a>`;
+    menuitems += `<a target="_blank" href="${modMessageLink}?action=targeted-votes">targeted votes</a>`;
+    menuitems += `<a target="_blank" href="${modMessageLink}?action=revenge-downvoting">revenge downvoting</a>`;
+    menuitems += `<a target="_blank" href="${modMessageLink}?action=ban-evasion">ban evasion</a>`;
+
+    // Add custom reasons
+    if (customModMessages.length > 0) {
+      menuitems += `<div class="separator"></div>`;
+      customModMessages.forEach(v => {
+        if (v.soOnly === true && !(isSO || isSOMeta)) return; // Don't add menu item if not SO-only (including SO meta) template
+        menuitems += `<a target="_blank" href="${modMessageLink}?action=${v.templateName.replace(/\W/g, '').toLowerCase()}" class="${v.soOnly ? 'so-only' : ''}">${v.templateName}</a>`;
+      });
+    }
+
+    menuitems += `<div class="separator"></div>`;
+    menuitems += `<a target="_blank" href="${modMessageLink}?action=other">other...</a>`;
+
+    // Create CM menu
+    let cmMenuitems = '';
+
+    cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=post-dissociation${postIdParam}">post dissociation</a>`;
+    cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suspicious-voting">suspicious voting</a>`;
+    cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suicidal-user">suicidal user</a>`;
+    cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=underage-user&info=Underage+user.">underage user</a>`;
+    cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=profile-merge">user profile merge</a>`;
+    cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=spam">spam</a>`;
+
+    cmMenuitems += `<div class="separator"></div>`;
+    cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=other">other...</a>`;
+
+    $(elem).append(`
+      <div class="js-mod-message-link flex--item s-btn ta-center py8 somu-mod-message-link ${modMenuOnClick ? 'click-only' : ''}" data-shortcut="O" title="Contact...">
+        <svg aria-hidden="true" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-icon mln1 mr0">
+          <path fill="currentColor" d="M464 64H48C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h416c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zM48 96h416c8.8 0 16 7.2 16 16v41.4c-21.9 18.5-53.2 44-150.6 121.3-16.9 13.4-50.2 45.7-73.4 45.3-23.2.4-56.6-31.9-73.4-45.3C85.2 197.4 53.9 171.9 32 153.4V112c0-8.8 7.2-16 16-16zm416 320H48c-8.8 0-16-7.2-16-16V195c22.8 18.7 58.8 47.6 130.7 104.7 20.5 16.4 56.7 52.5 93.3 52.3 36.4.3 72.3-35.5 93.3-52.3 71.9-57.1 107.9-86 130.7-104.7v205c0 8.8-7.2 16-16 16z" class="" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path>
+        </svg>
+        <div class="somu-mod-message-menu" id="somu-mod-message-menu" data-pid="${pid}" role="dialog">
+          <div class="flex--item fl0 br bc-black-3">
+            <div class="somu-mod-message-header">Message user:</div>
+            ${menuitems}
+          </div>
+          <div class="flex--item fl0">
+          <div class="somu-mod-message-header">Contact CM:</div>
+            ${cmMenuitems}
+          </div>
+        </div>
+      </a>`);
+  }
+
   // Append link to post sidebar if it doesn't exist yet
   $('.user-info, .s-user-card')
     .filter(function () {
@@ -976,7 +1048,7 @@ function appendModMessageMenu() {
       if (typeof uid === 'undefined' || uid == 0) return; // e.g.: deleted user
 
       // if user is self, ignore
-      if (uid == StackExchange.options.user.userId) return;
+      //if (uid == StackExchange.options.user.userId) return;
 
       const post = userbox.closest('.question, .answer');
       const pid = post.attr('data-questionid') || post.attr('data-answerid');
@@ -986,80 +1058,33 @@ function appendModMessageMenu() {
       const username = userbox.find('.user-details a').first().text();
       const modFlair = userbox.find('.mod-flair');
 
-      if (uid == -1 || modFlair.length == 1) return;
+      // if user is mod, ignore
+      //if (uid == -1 || modFlair.length == 1) return;
 
-      const postIdParam = pid ? '&' + (!isMetaSite ? `pid=${pid}` : `metapid=${pid}`) : '';
-
-      const modMessageLink = parentUrl + '/users/message/create/' + uid;
-      const cmMessageLink = parentUrl + '/admin/cm-message/create/' + uid;
-
-      // Create menu based on post type and state
-      let menuitems = '';
-
-      menuitems += `<a target="_blank" href="${modMessageLink}?action=low-quality-questions">low quality questions</a>`;
-      menuitems += `<a target="_blank" href="${modMessageLink}?action=question-repetition">question repetition</a>`;
-      menuitems += `<a target="_blank" href="${modMessageLink}?action=promotion">excessive self-promotion</a>`;
-      menuitems += `<a target="_blank" href="${modMessageLink}?action=signatures-taglines">using signatures</a>`;
-
-      menuitems += `<div class="separator"></div>`;
-      menuitems += `<a target="_blank" href="${modMessageLink}?action=excessive-discussion">excessive comments</a>`;
-      menuitems += `<a target="_blank" href="${modMessageLink}?action=abusive">abusive to others</a>`;
-
-      menuitems += `<div class="separator"></div>`;
-      menuitems += `<a target="_blank" href="${modMessageLink}?action=vandalism">vandalism</a>`;
-      menuitems += `<a target="_blank" href="${modMessageLink}?action=plagiarism">plagiarism</a>`;
-
-      menuitems += `<div class="separator"></div>`;
-      menuitems += `<a target="_blank" href="${modMessageLink}?action=sockpuppet-upvoting">sockpuppet upvoting</a>`;
-      menuitems += `<a target="_blank" href="${modMessageLink}?action=targeted-votes">targeted votes</a>`;
-      menuitems += `<a target="_blank" href="${modMessageLink}?action=revenge-downvoting">revenge downvoting</a>`;
-      menuitems += `<a target="_blank" href="${modMessageLink}?action=ban-evasion">ban evasion</a>`;
-
-      // Add custom reasons
-      if (customModMessages.length > 0) {
-        menuitems += `<div class="separator"></div>`;
-        customModMessages.forEach(v => {
-          if (v.soOnly === true && !isSO) return; // Don't add menu item if SO-only template and not SO
-          menuitems += `<a target="_blank" href="${modMessageLink}?action=${v.templateName.replace(/\W/g, '').toLowerCase()}">${v.templateName}</a>`;
-        });
-      }
-
-      menuitems += `<div class="separator"></div>`;
-      menuitems += `<a target="_blank" href="${modMessageLink}?action=other">other...</a>`;
-
-
-      // Create CM menu
-      let cmMenuitems = '';
-
-      cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=post-dissociation${postIdParam}">post dissociation</a>`;
-      cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suspicious-voting">suspicious voting</a>`;
-      cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=suicidal-user">suicidal user</a>`;
-      cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=underage-user&info=Underage+user.">underage user</a>`;
-      cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=profile-merge">user profile merge</a>`;
-      cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=spam">spam</a>`;
-
-      cmMenuitems += `<div class="separator"></div>`;
-      cmMenuitems += `<a target="_blank" href="${cmMessageLink}?action=other">other...</a>`;
-
-
-      userbox.append(`
-        <div class="js-mod-message-link flex--item s-btn ta-center py8 somu-mod-message-link ${modMenuOnClick ? 'click-only' : ''}" data-shortcut="O" title="Contact...">
-          <svg aria-hidden="true" role="img" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="svg-icon mln1 mr0">
-            <path fill="currentColor" d="M464 64H48C21.5 64 0 85.5 0 112v288c0 26.5 21.5 48 48 48h416c26.5 0 48-21.5 48-48V112c0-26.5-21.5-48-48-48zM48 96h416c8.8 0 16 7.2 16 16v41.4c-21.9 18.5-53.2 44-150.6 121.3-16.9 13.4-50.2 45.7-73.4 45.3-23.2.4-56.6-31.9-73.4-45.3C85.2 197.4 53.9 171.9 32 153.4V112c0-8.8 7.2-16 16-16zm416 320H48c-8.8 0-16-7.2-16-16V195c22.8 18.7 58.8 47.6 130.7 104.7 20.5 16.4 56.7 52.5 93.3 52.3 36.4.3 72.3-35.5 93.3-52.3 71.9-57.1 107.9-86 130.7-104.7v205c0 8.8-7.2 16-16 16z" class="" data-darkreader-inline-fill="" style="--darkreader-inline-fill:currentColor;"></path>
-          </svg>
-          <div class="somu-mod-message-menu grid" id="somu-mod-message-menu" data-pid="${pid}" role="dialog">
-            <div class="flex--item fl0 br bc-black-3">
-              <div class="somu-mod-message-header">Message user:</div>
-              ${menuitems}
-            </div>
-            <div class="flex--item fl0">
-            <div class="somu-mod-message-header">Contact CM:</div>
-              ${cmMenuitems}
-            </div>
-          </div>
-        </a>`);
-
+      _createMenu({
+        elem: userbox,
+        uid,
+        username,
+        userlink,
+        userrep,
+        pid
+      });
     });
+
+  // Append link to user header in profile pages
+  $('.js-user-header .s-navigation').last()
+    .not('.js-mod-message-menu')
+    .addClass('js-mod-message-menu')
+    .each(function () {
+      const userHeader = $(this);
+      if (!currentUserId) return;
+
+      _createMenu({
+        elem: userHeader,
+        uid: currentUserId
+      });
+    });
+
   // If we didn't add an actual mod message link, then remove the js-mod-message-menu class.
   $('.js-mod-message-menu')
     .filter(function () { return $(this).find('.js-mod-message-link').length === 0; })
@@ -1087,13 +1112,20 @@ function appendModMessageMenu() {
       if (menuLeftPosition < 0) {
         // The menu is currently off the viewport to the left, so adjust it to be inside.
         const menuCssLeftPx = Number((menu.css('left').match(/\d+/) || [0])[0]);
-        menu.css('left', `calc(${menuCssLeftPx - menuLeftPosition}px + 1vw)`);
+        menu.css({
+          'left': `calc(${menuCssLeftPx - menuLeftPosition}px + 1vw)`,
+          'right': 'unset',
+          'transform': 'translate(-50%, 0)',
+        });
       }
       const menuRightPosition = menuRect.right;
       if (menuRightPosition > window.innerWidth) {
         // The menu is currently off the viewport to the right, so adjust it to be inside.
-        const menuCssLeftPx = Number((menu.css('left').match(/\d+/) || [0])[0]);
-        menu.css('left', `calc(${menuCssLeftPx - (menuRightPosition - window.innerWidth)}px - 1vw)`);
+        menu.css({
+          'left': 'unset',
+          'right': `0`,
+          'transform': 'none',
+        });
       }
     });
   }
@@ -1139,6 +1171,17 @@ addStylesheet(`
   display: none;
 }
 
+.so-only:after,
+.js-action-name .so-only:after,
+.js-mod-message-menu .so-only:after {
+  content: '(SO-only)';
+  display: inline-block;
+  margin-left: 0.5em;
+  font-style: italic;
+  font-size: 0.8em;
+  color: var(--orange-500);
+}
+
 .mod-summary .user-info.js-mod-message-menu,
 .mod-summary .s-user-card.js-mod-message-menu,
 .mod-summary .js-mod-message-menu .user-action-time,
@@ -1162,6 +1205,10 @@ addStylesheet(`
   line-height: 0;
   color: inherit;
   cursor: pointer;
+}
+.js-user-header .s-navigation,
+.js-user-header .somu-mod-message-link {
+  position: relative !important;
 }
 .s-user-card .somu-mod-message-link {
   /* New s-user-card uses grid */
@@ -1188,8 +1235,13 @@ addStylesheet(`
   left: 36px;
   padding: 0;
   transform: translate(-50%, 0);
-  z-index: 3;
   cursor: auto;
+
+  max-width: calc(100vw - 24px);
+  z-index: 99999;
+
+  user-select: none;
+  white-space: nowrap;
 
   background: var(--white);
   border-radius: 2px;
@@ -1201,25 +1253,26 @@ addStylesheet(`
   font-family: Roboto,RobotoDraft,Helvetica,Arial,sans-serif;
   letter-spacing: .2px;
   line-height: 20px;
-
-  user-select: none;
-  white-space: nowrap;
-  max-width: 98vw;
 }
 #somu-mod-message-menu {
   background: var(--white) !important;
 }
 .somu-mod-message-link .somu-mod-message-menu > div {
   min-width: 170px;
+  /*max-height: min(70vh, 650px);*/
   padding: 0 0 6px;
+  overflow: auto;
 }
 .somu-mod-message-header {
+  position: sticky;
+  top: 0;
+
   display: block !important;
   margin-top: 12px;
   margin-bottom: 5px;
-  padding: 8px 0;
-  padding-left: 26px;
-  padding-right: 26px;
+  padding: 0.5rem 0;
+  padding-left: 1.5rem;
+  padding-right: 1rem;
   background-color: var(--yellow-050);
   border-bottom: 1px solid var(--yellow-100);
   color: var(--black);
@@ -1231,11 +1284,16 @@ addStylesheet(`
 .somu-mod-message-menu a {
   display: block;
   min-width: 120px;
-  padding: 2px 0;
-  padding-left: 22px;
-  padding-right: 22px;
+  padding: 5px 0;
+  padding-left: 1.5rem;
+  padding-right: 1rem;
+  line-height: 1.15;
   cursor: pointer;
   color: var(--black-900) !important;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 .somu-mod-message-menu a.dno {
   display: none;
@@ -1275,11 +1333,6 @@ addStylesheet(`
 }
 #show-templates + .popup .action-list > hr {
   margin: 5px 0;
-}
-.js-action-name.so-only:after {
-  content: ' (SO-only)';
-  font-style: italic;
-  color: var(--orange-500);
 }
 
 /* Mod message page */
