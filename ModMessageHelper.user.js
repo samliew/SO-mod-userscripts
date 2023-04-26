@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.3
+// @version      4.4
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -134,10 +134,12 @@ Please note that we still require full attribution with a link to the external s
 Thank you, and we look forward to your contributions in the future.`,
   },
   {
-    templateName: "gold badge abuse",
+    templateName: "gold badge abuse (redupe to add answer)",
     suspensionReason: "for rule violations",
     suspensionDefaultDays: 0,
     templateBody: `We have noticed you have used your {todo} [tag:some-tag] gold badge privilege to reopen a question closed as duplicate, answer it and immediately close it again.
+
+- {todo} Add examples of questions that user have reopened
 
 Please note that this is not how you are supposed to use a gold tag badge.
 
@@ -146,7 +148,7 @@ As you may know, gold badges grant the privilege to single-handedly close and re
 - recognize when a question is a duplicate of another one, and close it accordingly;
 - recognize when a question that is already closed as duplicate is not a duplicate, and reopen it accordingly
 
-By reopening a duplicate with your gold badge you are essentially saying: "this question was incorrectly closed". You can answer a question that you reopen this way. However if you immediately proceed to re-close it against the same canonical, we must question your original motivations for reopening. In fact, it doesn't look good at all because you are effectively **disallowing answers to that question except yours**.
+By reopening a duplicate with your gold badge you are essentially saying: "this question is not a duplicate and was incorrectly closed". You can answer a question that you reopen this way. However if you immediately proceed to re-close it against the same canonical, we must question your original motivations for reopening. In fact, it doesn't look good at all because you are effectively **disallowing answers to that question except yours**, and **going against others' curation efforts to self-serve your contribution**.
 
 There are a few other appropriate actions that we ask you to consider:
 
@@ -155,6 +157,27 @@ There are a few other appropriate actions that we ask you to consider:
 - If you think that the question is a duplicate, then just leave it closed. If you think the asker might have a hard time understanding how the canonical applies to their question, you may leave an explanatory comment.
 
 - If you think that the question is a duplicate but the available canonical has inadequate answers, you either close as duplicate and then post a new answer to the canonical; or you answer this question and close the canonical as duplicate of this question, and this question becomes the new canonical.`,
+  },
+  {
+    templateName: "gold badge abuse (reopen when answered)",
+    suspensionReason: "for rule violations",
+    suspensionDefaultDays: 0,
+    templateBody: `We have noticed you have used your {todo} [tag:some-tag] gold badge privilege to reopen a question closed as duplicate, when you have a stake in the question.
+
+- {todo} Add examples of questions that user have reopened
+
+Please note that this is not how you are supposed to use a gold tag badge.
+
+As you may know, gold badges grant the privilege to single-handedly close and reopen questions as duplicates. This is unlocked after reaching a demanding threshold of answer score in a certain tag and number of answers, under the assumption that you can be **trusted to**:
+
+- recognize when a question is a duplicate of another one, and close it accordingly;
+- recognize when a question that is already closed as duplicate is not a duplicate, and reopen it accordingly
+
+By reopening a duplicate with your gold badge you are essentially saying: "this question is not a duplicate and was incorrectly closed". However if you had a stake in the question and later you or others have to re-vote to close the question against the same canonical, we must question your original motivations for reopening. In fact, it doesn't look good at all because you are effectively **going against others' curation efforts to self-serve your contribution**.
+
+There are a few other appropriate actions that we ask you to consider:
+
+- If you think that the question is not a duplicate when **you have already answered the question**, we request that you raise a reopen discussion on [Meta](${parentUrl}/questions/ask?tags=discussion+specific-question+duplicate-questions).`,
   },
   {
     templateName: "reset inappropriate username",
