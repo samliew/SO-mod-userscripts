@@ -306,7 +306,7 @@ Recommended chat userscripts:
 
 ### [Comment Undeleter](https://github.com/samliew/SO-mod-userscripts/blob/master/CommentUndeleter.user.js) ♦
 
-- Allows moderators to undelete comments deleted by any user, including ex-mods and Communnity user
+- Allows moderators to undelete comments deleted by any user, including ex-mods and Community user
 
 
 ### [Comment User Colors](https://github.com/samliew/SO-mod-userscripts/blob/master/CommentUserColours.user.js)
@@ -401,12 +401,6 @@ Better comments layout for easier readability and moderation.
 
 - Adds user moderation collapsable left-sidebar to user-specific pages: quick links & selection of user details from Mod Dashboard
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-04-12_210450.png)
-
-
-### [User Social Media Profile Links](https://github.com/samliew/SO-mod-userscripts/blob/master/UserSocialMediaProfileLinks.user.js) ♦
-
-- When user PII is loaded, add links to social media profile
-<br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-08_200748.png)
 
 
 ### [User Profile Links](https://github.com/samliew/SO-mod-userscripts/blob/master/UserProfileLinks.user.js) ♦
