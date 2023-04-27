@@ -6,6 +6,7 @@
     "@types/jquery": "^3.5.11",
     "@types/tampermonkey": "^4.0.5",
     "@userscripters/stackexchange-global-types": "^2.4.0",
-    "@userscripters/storage": "^0.1.2"
+    "@userscripters/storage": "^0.1.2",
+    "eslint": "^8.39.0"
   }
 }
