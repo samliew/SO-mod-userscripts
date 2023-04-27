@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1.1
+// @version      4.1.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -202,7 +202,8 @@ function doMainSidebar() {
     const modContent = $('#mod-content', data);
 
     // Get username
-    const username = $('h1', modContent).first().get(0).childNodes[0].nodeValue.trim();
+    const username = $('h1', modContent).first().get(0)?.childNodes[0].nodeValue.trim();
+    if(!username) return; // deleted user
 
     // Modify quicklinks and user details, then append to page
     const quickLinks = $('div.mod-links', modContent).attr('id', 'usersidebar');

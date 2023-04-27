@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.1
+// @version      3.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -321,11 +321,10 @@ function formatDeletedUserPage() {
       this.select();
     });
 
-  // Show Google account avatar
-  $('unknown a[href*="googleusercontent.com/a/"]').each(function() {
+  // Show gravatar and Google account avatar
+  $('a[href^="https://www.gravatar.com/avatar/"], a[href*="googleusercontent.com/a/"]', ".del-reason").each(function() {
     $(this).html(`<img src="${this.href}" style="max-width:128px; max-height:128px;">`);
   });
-
 
   // Format links section
   const userlinks = $('#mainbar-full').next('ul').attr('id', 'del-user-links');
@@ -336,7 +335,7 @@ function formatDeletedUserPage() {
   // Note: can't use https://api.stackexchange.com/docs/associated-users#pagesize=100&ids=851&types=main_site&filter=!mxdR15FV-W&run=true as max-page size limit is 100
   const networkaccsList = $(`<ul id="del-user-networkaccs" class="js-loading"></ul>`).insertAfter(userlinks);
   ajaxPromise(networkAccountsUrl)
-    .then(function (data) {
+    .then(function (data) {1
       networkaccsList.removeClass('js-loading');
       const accounts = $('.account-container', data);
       if (accounts.length > 0) {
