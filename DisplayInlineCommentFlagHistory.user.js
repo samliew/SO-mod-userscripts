@@ -3,7 +3,7 @@
 // @description  Grabs post timelines and display comment flag counts beside post comments, on comment hover displays flags
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      4.0.1
 //
 // @match        https://*.stackoverflow.com/questions/*
 // @match        https://*.serverfault.com/questions/*
@@ -69,8 +69,7 @@ const loadCommentsFlagsFromTimeline = function () {
       const cmmtUserId = cmmtUser ? (cmmtUser.href || cmmtUser.innerText).match(/\d+/)[0] || -1 : -1;
       const cmmtFlagIds = $(this).find('.js-toggle-comment-flags').attr('data-flag-ids').split(';');
       const cmmtFlagsDiv = $('<div class="comment-flags"></div>').appendTo(`#comment-${cmmtId} .comment-text`);
-      const cmmtFlagcountDiv = $(`<a class="comment-flagcount supernovabg" title="comment flags" href="${postsUrl}/${postId}/timeline#comment_${cmmtId}" target="_blank">${cmmtFlagIds.length}</a>`)
-        .appendTo(`#comment-${cmmtId} .comment-actions`);
+      const cmmtFlagcountDiv = $(`<a class="comment-flagcount supernovabg" title="comment flags" href="${postsUrl}/${postId}/timeline#comment_${cmmtId}" target="_blank">${cmmtFlagIds.length}</a>`).insertBefore(`#comment-${cmmtId} .comment-actions .comment-flagging`);
       $(`#comment-${cmmtId}`).addClass('hasflags');
 
       // Each flag on comment
