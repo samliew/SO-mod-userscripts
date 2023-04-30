@@ -3,7 +3,7 @@
 // @description  Replaces the link text in comments and posts with the full question title, and adds post info in the title attribute
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.3
+// @version      1.3.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -81,9 +81,11 @@ async function processLinksOnPage() {
 
     // Duplicate ids will be handled by getPostsFromApi()
     const postsData = await getPostsFromApi(postIds, 'default', 'creation', 'desc', siteApiSlug);
-    if (!postsData?.length) {
-      console.error('getPostsFromApi - No posts data found.', siteApiSlug, postIds);
-      return;
+    if (!postsData) return;
+
+    if (postsData.length === 0) {
+      // likely because all queried posts are deleted
+      // don't return here, so we can set the title attribute for deleted posts
     }
 
     // Update links from same site as group
