@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0.1
+// @version      4.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -56,11 +56,11 @@ function addUserLinks() {
 
       const userlinks = `
         <div class="somu-mod-userlinks ${showOnHover ? 'show-on-hover' : ''}">
-          <a href="${parentUrl}/users/account-info/${uid}" target="_blank">mod</a>
-          <a href="/admin/users/${uid}/post-comments" target="_blank">cmnts</a>
-          <a href="${parentUrl}/admin/show-user-votes/${uid}" target="_blank">votes</a>
-          <a href="${parentUrl}/admin/xref-user-ips/${uid}?daysback=30&threshold=2" target="_blank">xref</a>
-          <a href="${parentUrl}/admin/cm-message/create/${uid}?action=suspicious-voting" target="_blank" class="${isChildMeta ? 'd-none' : ''}">cm</a>
+          <a target="_blank" href="${parentUrl}/users/account-info/${uid}" title="User Admin Page">mod</a>
+          <a target="_blank" href="/admin/users/${uid}/post-comments" title="All Comments by User">cmnts</a>
+          <a target="_blank" href="${parentUrl}/admin/show-user-votes/${uid}" title="Targeted Votes Tables">votes</a>
+          <a target="_blank" href="${parentUrl}/admin/xref-user-ips/${uid}?daysback=30&threshold=2" title="IP Activity Cross-Reference">xref</a>
+          <a target="_blank" href="${parentUrl}/admin/cm-message/create/${uid}?action=suspicious-voting" title="Compose CM Message (Suspicious Voting)" class="${isChildMeta ? 'd-none' : ''}">cm</a>
         </div>`;
 
       $(this).closest('.user-info, .s-user-card, .js-mod-quicklinks').append($(userlinks));
@@ -112,9 +112,10 @@ addStylesheet(`
 }
 .flex--item + .somu-mod-userlinks {
   position: initial !important;
-  display: inline-block;
+  display: inline-flex;
   width: auto;
   background: none;
+  margin-left: 4px;
   margin-top: 1px;
 }
 /* review stats/leaderboard */
