@@ -3,7 +3,7 @@
 // @description  Replaces the link text in comments and posts with the full question title, and adds post info in the title attribute
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.2
+// @version      1.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -57,8 +57,9 @@ const groupBySiteApiSlug = arr => {
 async function processLinksOnPage() {
 
   const postLinksToProcess = $('a[href!="#"]', '#mainbar, #chat, #transcript, #content').filter(function () {
-    return /\/(questions|q|a|posts)\/\d+/.test(this.href) && // only post links
-      !$(this).closest('.s-post-summary--content-title, .votecell, .post-menu, .post-signature, .user-info, .post-stickyheader').length; // not a child element of these containers
+    return /\/(questions|q|a|posts)\/\d+/i.test(this.href) && // only post links
+      !/\/edit$/i.test(this.href) && // ignore edit links
+      !$(this).closest('.s-post-summary--content-title, .votecell, .post-menu, .post-signature, .user-info, .comment-date, .post-stickyheader').length; // not a child element of these containers
   }).not('.js-smart-link').addClass('js-smart-link');
 
   // Extract siteApiSlug and postId from links
@@ -112,21 +113,32 @@ async function processLinksOnPage() {
       this.dataset.originalHref = this.href;
 
       const decodedPostTitle = htmlDecode(postData.title);
-      const postOwnerInfo = postData.owner ? `${htmlDecode(postData.owner.display_name)} (${postData.owner.reputation.toLocaleString('en-AU')} reputation)` : '(deleted user)';
+      const postOwnerInfo = postData.owner ? `${htmlDecode(postData.owner.display_name)} (${postData.owner.reputation.toLocaleString('en-US')} rep)` : '(deleted user)';
 
       // If link text contains a post URL, replace with full question title
       if (/\/(questions|q|a)\//.test(this.innerText)) {
         this.textContent = decodedPostTitle;
       }
 
+      // Get link type
+      const specialLinkType =
+        this.href.includes('/revisions') ? `revisions for ${postData.post_type} –` :
+          this.href.includes('/timeline') ? 'post timeline –' :
+            this.href.includes('/show-flags') ? `flags on ${postData.post_type} –` : null;
+
+      const viewLinkType = specialLinkType ? `view ${specialLinkType}\n` : '';
+
       // Update title attribute with post info
-      this.title = `${decodedPostTitle}
-${postData.post_type} by ${postOwnerInfo}
-created on  ${dateToIsoString(seApiDateToDate(postData.creation_date))}
-last activity ${dateToIsoString(seApiDateToDate(postData.last_activity_date))}`;
+      this.title = `${viewLinkType}${decodedPostTitle}
+\t${postData.post_type} by\t${postOwnerInfo}
+\tcreated on \t ${dateToIsoString(seApiDateToDate(postData.creation_date))}
+\tlast activity\t ${dateToIsoString(seApiDateToDate(postData.last_activity_date))}`;
 
       // Update link with short permalink
-      this.href = postData.link;
+      // ONLY if not special post link
+      if (!specialLinkType) {
+        this.href = postData.link;
+      }
     });
 
     // Short delay before processing next group
