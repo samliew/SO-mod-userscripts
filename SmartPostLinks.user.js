@@ -3,7 +3,7 @@
 // @description  Replaces the link text in comments and posts with the full question title, and adds post info in the title attribute
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.1
+// @version      1.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -37,6 +37,8 @@
 // Yes, you can declare the variable apikey here and have it picked up by the functions in se-ajax-common.js
 const apikey = 'lSrVEbQTXrJ4eb4c3NEMXQ((';
 
+const canViewDeletedPosts = isModerator() || StackExchange?.options?.user?.reputation >= 10000;
+
 
 const urlToSiteApiSlug = url => new URL(url).hostname.replace(/(\.stackexchange)?\.(com|net|org)$/, '').trim();
 
@@ -55,7 +57,7 @@ const groupBySiteApiSlug = arr => {
 async function processLinksOnPage() {
 
   const postLinksToProcess = $('a[href!="#"]', '#mainbar, #chat, #transcript, #content').filter(function () {
-    return /\/(questions|q|a)\/\d+/.test(this.href) && // only post links
+    return /\/(questions|q|a|posts)\/\d+/.test(this.href) && // only post links
       !$(this).closest('.s-post-summary--content-title, .votecell, .post-menu, .post-signature, .user-info, .post-stickyheader').length; // not a child element of these containers
   }).not('.js-smart-link').addClass('js-smart-link');
 
@@ -63,6 +65,11 @@ async function processLinksOnPage() {
   postLinksToProcess.each(function () {
     this.dataset.siteApiSlug = urlToSiteApiSlug(this.href);
     this.dataset.postId = getPostId(this.href);
+
+    const isRevisionLink = /\/posts\/\d+\/revisions/.test(this.href);
+    if (isRevisionLink) {
+      this.dataset.isRevisionLink = true;
+    }
   });
 
   // Group by site before sending off in separate requests to API
@@ -89,7 +96,13 @@ async function processLinksOnPage() {
       // Find post data from response
       const postData = postsData.find(v => v.post_id === postId && urlToSiteApiSlug(v.link) === linkSiteApiSlug);
       if (!postData) {
-        this.title = '(deleted post)';
+
+        // If can view deleted posts, load revision details?
+        if (canViewDeletedPosts && this.dataset.isRevisionLink === 'true') {
+          // TODO
+        }
+
+        this.title = `(deleted post)`;
         return;
       }
 
@@ -127,8 +140,11 @@ last activity ${dateToIsoString(seApiDateToDate(postData.last_activity_date))}`;
 (function init() {
   processLinksOnPage();
 
-  // After requests have completed
+  // After ajax requests have completed
   $(document).ajaxStop(function () {
-    setTimeout(processLinksOnPage, 200);
+    setTimeout(processLinksOnPage, 500);
   });
+
+  // Occasionally check for new links
+  setTimeout(processLinksOnPage, 8000);
 })();
