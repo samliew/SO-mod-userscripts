@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.2
+// @version      3.2.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -142,6 +142,9 @@ addStylesheet(`
 }
 .question:not(#question) > .post-id {
   top: -20px;
+}
+.s-post-summary--content-title .post-id {
+  top: -7px;
 }
 .js-admin-dashboard .js-flagged-post .post-id {
   transform: translate(0, -90%);
