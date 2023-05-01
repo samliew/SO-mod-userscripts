@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.4.1
+// @version      4.5
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -1390,6 +1390,13 @@ addStylesheet(`
 #msg-form textarea#wmd-input,
 #js-msg-form textarea#wmd-input {
   min-height: 550px;
+}
+#js-msg-form .form-submit.js-form-submit-controls {
+  position: sticky;
+  bottom: 0;
+  margin: 0 -10px;
+  padding: 20px 10px 15px;
+  background: var(--theme-content-background-color);
 }
 #sidebar .module {
   margin-bottom: 30px;
