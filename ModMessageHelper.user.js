@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.5
+// @version      4.5.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -1397,6 +1397,7 @@ addStylesheet(`
   margin: 0 -10px;
   padding: 20px 10px 15px;
   background: var(--theme-content-background-color);
+  z-index: 2;
 }
 #sidebar .module {
   margin-bottom: 30px;
