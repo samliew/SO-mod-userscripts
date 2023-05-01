@@ -3,7 +3,7 @@
 // @description  Replaces the link text in comments and posts with the full question title, and adds post info in the title attribute
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.3.1
+// @version      1.4
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -48,7 +48,7 @@ const groupBySiteApiSlug = arr => {
     const key = urlToSiteApiSlug(item);
     groups[key] = groups[key] || [];
     const postId = getPostId(item);
-    if(postId) groups[key].push(postId);
+    if (postId) groups[key].push(postId);
   }
   return groups;
 };
@@ -124,9 +124,11 @@ async function processLinksOnPage() {
 
       // Get link type
       const specialLinkType =
-        this.href.includes('/revisions') ? `revisions for ${postData.post_type} –` :
-          this.href.includes('/timeline') ? 'post timeline –' :
-            this.href.includes('/show-flags') ? `flags on ${postData.post_type} –` : null;
+        this.href.includes('/revisions') ? `revisions for ${postData.post_type} –` : // post revisions
+          this.href.includes('/timeline') ? 'post timeline –' : // post timeline
+            this.href.includes('#comment') ? `comment on ${postData.post_type} –` : // comment permalink
+              this.href.includes('/show-flags') ? `flags on ${postData.post_type} –` : // mod-only flags page
+                null;
 
       const viewLinkType = specialLinkType ? `view ${specialLinkType}\n` : '';
 
@@ -140,6 +142,13 @@ async function processLinksOnPage() {
       // ONLY if not special post link
       if (!specialLinkType) {
         this.href = postData.link;
+      }
+
+      // If link element has a child element .relativetime, update the title attribute
+      const timeSpan = this.querySelector('.relativetime');
+      if(timeSpan) {
+        timeSpan.originalTitle = timeSpan.title;
+        timeSpan.title = `${timeSpan.title}\n` + this.title;
       }
     });
 
