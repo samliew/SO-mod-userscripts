@@ -30,6 +30,7 @@
 // @connect      superuser.com
 // @connect      askubuntu.com
 // @connect      mathoverflow.com
+// @connect      stackapps.com
 // @connect      stackexchange.com
 //
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/se-ajax-common.js
