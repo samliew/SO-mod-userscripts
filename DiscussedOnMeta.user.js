@@ -3,7 +3,7 @@
 // @description  For questions and answers, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1
+// @version      4.1.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -50,7 +50,7 @@ const siteMetaHostname = metaUrl.replace('https://', '');
 const doSearch = (postElem, searchQuery, searchDomain) => {
   const pid = postElem.dataset.answerid || postElem.dataset.questionid;
   const searchUrl = `https://${searchDomain}/search?tab=newest&q=${searchQuery}&deleted=any`;
-  console.log(`Searching ${searchDomain} for post ${pid}`, searchUrl);
+  //console.log(`Searching ${searchDomain} for post ${pid}`, searchUrl);
 
   ajaxPromise(searchUrl).then(function (data) {
     const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
