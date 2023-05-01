@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.2.1
+// @version      3.2.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -186,8 +186,12 @@ addStylesheet(`
   $(document).ajaxStop(insertPostIds);
 
   // Select when focused
-  $(document).on('click', 'input.post-id', function () { this.select(); });
+  $(document).on('click', 'input.post-id', function () {
+    this.select();
+  });
 
   // Open post timeline in new tab when double clicked
-  $(document).on('dblclick', 'input.post-id', function () { window.open(`${location.origin}/posts/${this.value}/timeline?filter=WithVoteSummaries`, ''); });
+  $(document).on('dblclick', 'input.post-id', function () {
+    window.open(`${location.origin}/posts/${this.value}/timeline?filter=WithVoteSummaries`, '');
+  });
 })();
