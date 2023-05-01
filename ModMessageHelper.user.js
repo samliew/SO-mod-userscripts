@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.5.1
+// @version      4.5.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -1398,6 +1398,24 @@ addStylesheet(`
   padding: 20px 10px 15px;
   background: var(--theme-content-background-color);
   z-index: 2;
+}
+#mainbar > table + div:has(+ h2) {
+  /* Add s-notice styles to this unstyled div */
+  --_no-bc: var(--bc-medium);
+  --_no-bg: var(--black-050);
+  --_no-fc: var(--fc-medium);
+  --_no-btn-bg-focus: var(--black-100);
+  --_no-btn-bg-active: var(--black-150);
+  background: var(--_no-bg);
+  border-color: var(--_no-bc);
+  color: var(--_no-fc);
+  border-style: solid;
+  font-size: var(--fs-body1);
+  border-radius: var(--br-sm);
+  border-width: var(--su-static1);
+  padding: var(--su16);
+
+  margin-bottom: 2rem;
 }
 #sidebar .module {
   margin-bottom: 30px;
