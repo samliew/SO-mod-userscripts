@@ -3,7 +3,7 @@
 // @description  For questions and answers, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      4.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -12,8 +12,8 @@
 // @match        https://*.mathoverflow.net/*
 // @match        https://*.stackapps.com/*
 // @match        https://*.stackexchange.com/*
-// @match        https://stackoverflowteams.com/*
 //
+// @exclude      https://stackoverflowteams.com/*
 // @exclude      https://api.stackexchange.com/*
 // @exclude      https://data.stackexchange.com/*
 // @exclude      https://contests.stackoverflow.com/*
@@ -43,11 +43,36 @@
 
 'use strict';
 
-let metaDomain = 'meta.' + location.hostname;
-const mseDomain = 'meta.stackexchange.com';
-if (location.hostname.indexOf('stackexchange.com') > 0) {
-  metaDomain = location.hostname.split('.')[0] + '.meta.stackexchange.com';
-}
+const siteMetaHostname = metaUrl.replace('https://', '');
+
+
+const doSearch = (postElem, searchQuery, searchDomain) => {
+  const pid = postElem.dataset.answerid || postElem.dataset.questionid;
+  const searchUrl = `https://${searchDomain}/search?tab=newest&q=${searchQuery}&deleted=any`;
+  console.log(`Searching ${searchDomain} for post ${pid}`, searchUrl);
+
+  ajaxPromise(searchUrl).then(function (data) {
+    const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
+    if (!count) return;
+
+    const results = $('.js-search-results .js-post-summary', data);
+    const lastMentioned = results.first().find('.relativetime').text();
+    const lastPermalink = results.first().find('a').first().attr('href');
+    results.find('a').attr('href', (i, v) => 'https://' + searchDomain + v).attr('target', '_blank');
+
+    // Create meta posts container
+    const metaName = searchDomain === 'meta.stackexchange.com' ? 'Meta Stack Exchange' : 'Meta';
+    const metaPosts = $(`
+      <div class="meta-mentioned" target="_blank">
+        <a href="${searchUrl}" target="_blank">${count} posts</a> on ${metaName},
+        last seen <a href="https://${searchDomain}${lastPermalink}" target="_blank">${lastMentioned}</a>
+        <span class="meta-mentions-toggle"></span>
+      </div>`).insertBefore(postElem);
+
+    // Append search results
+    $(`<div class="meta-mentions"></div>`).append(results).appendTo(metaPosts);
+  });
+};
 
 
 // Append styles
@@ -127,54 +152,37 @@ addStylesheet(`
   box-shadow: 5px 5px 5px -3px rgba(0, 0, 0, 0.1);
   z-index: 1;
 }
-.meta-mentions .question-summary {
+.meta-mentions .js-post-summary {
   max-width: 100%;
   padding: 10px 0;
 }
-.meta-mentions .question-summary:last-child {
+.meta-mentions .js-post-summary:last-child {
   border: none;
 }
-.meta-mentions .question-summary .result-link {
+.s-post-summary .s-post-summary--content-title {
   margin-bottom: 6px;
+  line-height: 1;
+}
+.meta-mentions .js-post-summary .s-post-summary--content-title a {
   font-size: 14px;
-  line-height: 1.4;
 }
-.meta-mentions .question-summary .excerpt,
-.meta-mentions .question-summary .started,
-.meta-mentions .question-summary .started * {
-  line-height: 1.4;
-  font-size: 11px !important;
+.meta-mentions .js-post-summary .s-post-summary--content-excerpt {
+  font-size: 12px;
+  line-height: 1.3;
+
+  -webkit-line-clamp: 2;
 }
-.meta-mentions .question-summary .started {
-  margin-right: 10px;
-  text-align: right;
+.meta-mentions .js-post-summary .js-tags .js-post-tag-list-wrapper {
+  margin-bottom: 0;
 }
-.meta-mentions .question-summary .summary {
-  max-width: 600px;
-}
-.meta-mentions .question-summary .post-tag {
-  font-size: 11px;
+.meta-mentions .js-post-summary .js-tags .post-tag {
+  font-size: 10px;
   pointer-events: none;
 }
-.meta-mentions .bounty-award-container {
-  display: none;
+.meta-mentions .s-post-summary--stats {
+  margin-top: 3px;
 }
-.meta-mentions .status {
-  margin: 0;
-}
-.meta-mentions .vote-count-post,
-.meta-mentions .question-summary .stats strong {
-  font-size: 15px;
-  line-height: 0.8;
-}
-.meta-mentions .question-summary .started {
-  margin-top: 0;
-}
-.meta-mentions .statscontainer {
-  padding-top: 5px;
-}
-.meta-mentions .statscontainer .votes,
-.meta-mentions .statscontainer .status {
+.meta-mentions .s-post-summary--stats .s-post-summary--stats-item {
   font-size: 10px;
 }
 `); // end stylesheet
@@ -182,54 +190,24 @@ addStylesheet(`
 
 // On script run
 (function init() {
-  $('.question, .answer').each(function () {
-    const post = $(this);
+
+  // Up to first three questions and answers, unless user is a moderator
+  $('.question, .js-question, .answer, .js-answer').slice(0, isModerator() ? 20 : 3).each(function () {
     const pid = this.dataset.answerid || this.dataset.questionid;
 
     // Ignore if too short, will generate lots of false positives
     if (pid <= 99999) return;
 
-    const query = encodeURIComponent(`url://${location.hostname}/*/${pid}`);
-    const searchUrl = `https://${metaDomain}/search?tab=newest&q=${query}&deleted=any`;
+    // Build search query
+    const searchQuery = encodeURIComponent(`url://${location.hostname}/*/${pid}`);
 
-    ajaxPromise(searchUrl).then(function (data) {
-      const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
-      if (!count) return;
+    // Check if post is discussed on site meta
+    doSearch(this, searchQuery, siteMetaHostname);
 
-      const results = $('.search-results .search-result, .js-search-results .search-result', data);
-      const lastMentioned = results.first().find('.relativetime').text();
-      const lastPermalink = results.first().find('a').first().attr('href');
-      const metaPosts = $(`
-        <div class="meta-mentioned" target="_blank">
-          <a href="${searchUrl}" target="_blank">${count} posts</a> on Meta, last seen <a href="https://${metaDomain}${lastPermalink}" target="_blank">${lastMentioned}</a>
-          <span class="meta-mentions-toggle"></span>
-          <div class="meta-mentions"></div>
-        </div>`);
-      results.find('a').attr('href', (i, v) => 'https://' + metaDomain + v).attr('target', '_blank');
-      metaPosts.insertBefore(post).find('.meta-mentions').append(results);
-    });
-
-    // If we are on Stack Overflow, also check if post is asked on MSE
+    // If we are on Stack Overflow, also check if post is discussed on MSE
     if (location.hostname === 'stackoverflow.com') {
-      const query = encodeURIComponent(`url://${location.hostname}/*/${pid}`);
-      const searchUrl = `https://${mseDomain}/search?tab=newest&q=${query}&deleted=any`;
-
-      ajaxPromise(searchUrl).then(function (data) {
-        const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
-        if (count === 0) return;
-
-        const results = $('.search-results .search-result, .js-search-results .search-result', data);
-        const lastMentioned = results.first().find('.relativetime').text();
-        const lastPermalink = results.first().find('a').first().attr('href');
-        const metaPosts = $(`
-          <div class="meta-mentioned mse-mentioned" target="_blank">
-            <a href="${searchUrl}" target="_blank">${count} posts</a> on Meta Stack Exchange, last seen <a href="https://${mseDomain}${lastPermalink}" target="_blank">${lastMentioned}</a>
-            <span class="meta-mentions-toggle"></span>
-            <div class="meta-mentions"></div>
-          </div>`);
-        results.find('a').attr('href', (i, v) => 'https://' + mseDomain + v).attr('target', '_blank');
-        metaPosts.insertBefore(post).find('.meta-mentions').append(results);
-      });
+      doSearch(this, searchQuery, 'meta.stackexchange.com');
     }
   });
+
 })();
