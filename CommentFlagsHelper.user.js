@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      8.0
+// @version      8.0.1
 //
 // @match        https://*.stackoverflow.com/admin/dashboard*
 // @match        https://*.serverfault.com/admin/dashboard*
@@ -242,9 +242,12 @@ function recurseDeleteUserComments(filter, pageNum) {
 
   fetchUserCommentsPage(filter, pageNum).then(data => {
     const commentIds = $('.js-bulk-select', data).get().map(v => v.dataset.id);
-    bulkDeleteComments(commentIds).then(v => {
+    bulkDeleteComments(commentIds).then(async v => {
       if (pageNum <= 1) location.reload();
-      else recurseDeleteUserComments(filter, pageNum - 1);
+      else {
+        await delay(2000);
+        recurseDeleteUserComments(filter, pageNum - 1);
+      }
     });
   });
 }
