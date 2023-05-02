@@ -3,7 +3,7 @@
 // @description  Better comments layout for easier readability and moderation
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.1
+// @version      3.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -37,11 +37,19 @@ const commentsFontSize = '12.4px';
 
 
 // Append styles to header
+// .comment-body : comment text on post
+// .comment-copy : comment text in mod dashboard
 addStylesheet(`
 /* Main comments UI changes */
-.comment-body {
+.comment-body,
+.comment-copy {
   --comment-font-size: ${commentsFontSize};
+}
+.comment-copy {
   font-size: var(--comment-font-size);
+}
+.comment-body {
+  font-size: 0; /* hides the &nbsp; whitespace so we can adjust individual margins on child elements */
 }
 .comment-body > * {
   display: inline-block;
@@ -49,20 +57,25 @@ addStylesheet(`
   font-size: var(--comment-font-size);
 }
 .comment-body .comment-date,
-.comment-body .comment-date > a {
+.comment-body .comment-date > a,
+.comment-copy .comment-date,
+.comment-copy .comment-date > a {
   color: var(--black-350);
 }
 .comment-body > button,
 .comment-body > .s-btn,
-.comment-body > .s-btn.s-btn__link {
+.comment-body > .s-btn.s-btn__link,
+.comment-copy > button,
+.comment-copy > .s-btn,
+.comment-copy > .s-btn.s-btn__link {
   font-size: var(--comment-font-size);
 }
-.comment-body > button.js-comment-delete {
+.comment-body > button.js-comment-delete,
+.comment-copy > button.js-comment-delete {
   float: right;
   margin-left: 10px;
 }
-ul.comments-list .comment-score span,
-.comment-copy {
+ul.comments-list .comment-score span {
   font-size: var(--comment-font-size);
 }
 .comment-form .comment-copy,
@@ -71,9 +84,6 @@ ul.comments-list .comment-score span,
   margin: 0 0 2px 0;
   line-height: 1.2;
   color: var(--black);
-
-  font-family: Helvetica, Arial, sans-serif;
-  font-size: var(--comment-font-size);
   letter-spacing: 0.02em;
 }
 
@@ -96,10 +106,12 @@ ul.comments-list .comment-score span,
 }
 
 /* Hover only styles */
+ul.comments-list:hover .js-comment-edit .hover-only-label,
 ul.comments-list:hover .js-comment-delete .hover-only-label {
   visibility: visible;
-  opacity: 0.2;
+  opacity: 0.25;
 }
+ul.comments-list .comment:hover .js-comment-edit .hover-only-label,
 ul.comments-list .comment:hover .js-comment-delete .hover-only-label {
   opacity: 1;
 }
