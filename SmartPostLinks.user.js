@@ -3,7 +3,7 @@
 // @description  Replaces the link text in comments and posts with the full question title, and adds post info in the title attribute
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.4
+// @version      1.4.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -134,9 +134,9 @@ async function processLinksOnPage() {
 
       // Update title attribute with post info
       this.title = `${viewLinkType}${decodedPostTitle}
-\t${postData.post_type} by\t${postOwnerInfo}
-\tcreated on \t ${dateToIsoString(seApiDateToDate(postData.creation_date))}
-\tlast activity\t ${dateToIsoString(seApiDateToDate(postData.last_activity_date))}`;
+\t${postData.post_type === 'question' ? 'question by ' : 'answer by    '} ${postOwnerInfo}
+\tcreated on    ${dateToIsoString(seApiDateToDate(postData.creation_date))}
+\tlast activity   ${dateToIsoString(seApiDateToDate(postData.last_activity_date))}`;
 
       // Update link with short permalink
       // ONLY if not special post link
