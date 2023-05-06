@@ -111,6 +111,13 @@ declare function getPostId(url: string): number | null;
 
 /**
  * ================================
+ * Common: User ID Functions
+ * ================================
+ */
+declare function getUserId(url: string): number | null;
+
+/**
+ * ================================
  * Common: Location and History Functions
  * ================================
  */

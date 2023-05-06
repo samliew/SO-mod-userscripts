@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.5.2
+// @version      4.5.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -443,14 +443,16 @@ function toShortLink(str, newdomain = null) {
 }
 
 
-function getDeletedPosts(uid, type) {
+function getDeletedPosts(uid, postType) {
+  if (typeof uid !== 'number') return;
+  if (postType !== 'question' || postType !== 'answer') return;
 
-  const url = `${location.origin}/search?q=user%3a${uid}%20is%3a${type}%20deleted%3a1%20score%3a..0&tab=newest`;
+  const url = `${location.origin}/search?q=user%3a${uid}%20is%3a${postType}%20deleted%3a1%20score%3a..0&tab=newest`;
   $.get(url).done(function (data) {
     const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
     const stats = $(`
       <div class="post-ban-deleted-posts mt24">
-          User has <a href="${url}" target="_blank">${count} deleted ${type}s</a>, score &lt;= 0
+          User has <a href="${url}" target="_blank">${count} deleted ${postType}s</a>, score &lt;= 0
       </div>`).appendTo('#sidebar');
 
     // If no deleted posts, do nothing
@@ -462,7 +464,7 @@ function getDeletedPosts(uid, type) {
     // Add copyable element to the results
     const hyperlinks = results.find('.s-post-summary--content-title a').attr('href', (i, v) => location.origin + v).attr('target', '_blank');
     const hyperlinksMarkdown = hyperlinks.map((i, el) => `[${1 + i}](${toShortLink(el.href)})`).get();
-    const comment = `Specifically, we would like to highlight these ${hyperlinksMarkdown.length} deleted ${type}${hyperlinksMarkdown.length == 1 ? '' : 's'}, which you should try to improve as they are contributing to the [${type} ban](${location.origin}/help/${type}-bans):<br>\n${hyperlinksMarkdown.join(' ')}`;
+    const comment = `Specifically, we would like to highlight these ${hyperlinksMarkdown.length} deleted ${postType}${hyperlinksMarkdown.length == 1 ? '' : 's'}, which you should try to improve as they are contributing to the [${postType} ban](${location.origin}/help/${postType}-bans):<br>\n${hyperlinksMarkdown.join(' ')}`;
     const commentArea = $(`<textarea readonly="readonly" class="h128 s-textarea"></textarea>`).val(comment).appendTo(stats);
   });
 }
@@ -586,9 +588,8 @@ function initModMessageHelper() {
   const template = getQueryParam('action');
 
   // If low-quality-questions template was selected, fetch deleted questions
-  const uid = location.pathname.match(/\/(\d+)/)[1];
   if (template === 'low-quality-questions') {
-    getDeletedPosts(uid, 'question');
+    getDeletedPosts(currentUserId, 'question');
   }
 
   // Restrict max suspension days to 365, otherwise it fails rudely

@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      8.0.1
+// @version      8.1
 //
 // @match        https://*.stackoverflow.com/admin/dashboard*
 // @match        https://*.serverfault.com/admin/dashboard*
@@ -588,7 +588,7 @@ table.comments tr.roa-comment > td {
 `);
 
     $('.js-flag-text a[href*="/post-comments"]').attr('target', '_blank').each(function () {
-      const uid = Number(this.href.match(/\/(\d+)\//)[1]);
+      const uid = getUserId(this.href);
       const post = $(this).closest('.js-flagged-post');
       const postheader = post.find('.js-post-header').hide();
       const flagText = $(this).parents('.js-flag-text');

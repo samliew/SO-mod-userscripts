@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.2
+// @version      3.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -35,10 +35,8 @@
 
 // 404 on a specific user page that has no content
 if (document.body.innerText === 'User not found.') {
-  const uid = Number(location.pathname.match(/\d+/)[0]);
-
   // Redirect to user profile page
-  location = `/users/${uid}`;
+  location = `/users/${currentUserId}`;
   return;
 }
 
@@ -599,7 +597,7 @@ table#posts td {
 
   if (/\d+/.test(location.pathname) === false) return;
   const is404 = document.title.toLowerCase().includes('page not found');
-  const uid = Number(location.pathname.match(/\d+/)[0]);
+  const uid = currentUserId;
   const userUrl = `/users/${uid}`;
 
   // 404 on user page or mod page with an ID in the URL
@@ -641,8 +639,7 @@ table#posts td {
 
   // If on deleted user success page, insert link back to profile
   if (location.pathname.startsWith('/admin/users/') && location.pathname.endsWith('/destroy')) {
-    const uid = location.pathname.replace(/[^\d]+/g, '');
-    $('pre').first().after(`<a href="/users/${uid}">${location.origin}/users/${uid}</a>`);
+    $('pre').first().after(`<a href="/users/${currentUserId}">${location.origin}/users/${currentUserId}</a>`);
   }
 
   // Show posts by deleted user page

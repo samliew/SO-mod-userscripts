@@ -3,7 +3,7 @@
 // @description  Fixes broken links in user annotations, and minor layout improvements
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      4.1
 //
 // @match        https://*.stackoverflow.com/users/history/*
 // @match        https://*.serverfault.com/users/history/*
@@ -33,8 +33,6 @@
 
 // This is a moderator-only userscript
 if (!isModerator()) return;
-
-const uid = Number(location.pathname.match(/\/(\d+)/)[1]);
 
 
 function moveHistoryFilters() {
@@ -402,7 +400,7 @@ body.SOMU-SEDM #annotations tr.user-message td:nth-child(4) {
 
   // Show user links on history page header
   const userheader = $(`<div class="SOMU-userheader"></div>`).prependTo($('#mainbar-full'));
-  userheader.load(`${location.origin}/users/account-info/${uid} .js-user-header`, function () {
+  userheader.load(`${location.origin}/users/account-info/${currentUserId} .js-user-header`, function () {
     userheader.addClass('loaded');
 
     // Fix user profile tab/pills taking up too much space

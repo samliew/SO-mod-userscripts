@@ -3,7 +3,7 @@
 // @description  Dropdown list of migration targets displaying site icon/logo/header images and links to the selected site's on-topic page and mod list. Displays additional information for custom flagger for selected network site.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      4.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -160,8 +160,8 @@ function updateMigrationPane() {
 
   // Preload flagger's network accounts
   if (flags.length > 0 && suggestedSite) {
-    const flaggerLink = suggestedSite.elem.siblings('a').first();
-    flaggerUid = flaggerLink.getUid();
+    const flaggerLink = suggestedSite.elem.siblings('a');
+    flaggerUid = getUserId(flaggerLink.attr('href'));
     flaggerName = flaggerLink.text();
     if (flaggerUid) {
       getFlaggerAccounts(flaggerUid);

@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table. Also provides support for SEDE query https://data.stackexchange.com/stackoverflow/query/968803
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0.1
+// @version      3.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -85,7 +85,7 @@ function mapInvVotePatternItemsToObject() {
 let updateModTemplates = function () {
   updateModTemplates = () => 0; // this function should run once only
 
-  const uid = location.pathname.match(/\d+$/)[0];
+  const uid = currentUserId;
   const userlink = $('.userlink a').filter((i, el) => el.href.includes(`/${uid}/`)).first();
   const template = $('.popup input[name=mod-template]').filter((i, el) => $(el).next().text().includes('suspicious voting'));
 
@@ -293,10 +293,11 @@ function doPageLoad() {
     })
 
       // Highlight same user across IPs
-      .hover(function () {
+      .on('mouseover', function () {
         const uid = this.dataset.uid;
         userrows.removeClass('active').filter(`[data-uid=${uid}]`).addClass('active');
-      }, function () {
+      })
+      .on('mouseout', function () {
         userrows.removeClass('active');
       })
 
@@ -466,7 +467,6 @@ function doPageLoad() {
 
   // User dashboard
   else if (location.pathname.includes('/users/account-info/')) {
-    const uid = location.pathname.match(/\/(\d+)/)[1];
     const networkUid = $('.account-info a[href^="https://stackexchange.com/users/"]').attr('href').match(/\/(\d+)\/?/)[1];
 
     const dateNetworkRegContainer = $(` <span class="d-inline-block ml12"></span>`);

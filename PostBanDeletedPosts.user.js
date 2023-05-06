@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      4.1
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -201,7 +201,7 @@ addStylesheet(`
 
   const post = $('#question');
   const pid = Number(post.attr('data-questionid'));
-  const postOwner = $('.post-signature:last .user-details a[href*="/users/"]', post).first();
+  const postOwnerLink = $('.post-signature:last .user-details a[href*="/users/"]', post).first();
   const postText = ($('h1 .question-hyperlink').text() + $('.js-post-body p', post).text()).toLowerCase();
   const isDeleted = post.find('.js-post-notice a[href="/help/deleted-questions"]').length > 0;
 
@@ -209,11 +209,11 @@ addStylesheet(`
   const isRelativelyNew = postDate.getTime() - Date.now() < 3 * MS.oneDay; // three days
 
   // Is a deleted user, do nothing
-  if (postOwner.length === 0) return;
+  const uid = getUserId(postOwnerLink.attr('href'));
+  if (!uid) return;
 
-  const uid = postOwner.getUid();
-  const username = postOwner.text().trim();
-  const userRep = postOwner.parent().find('.reputation-score').text().replace(',', '') || null;
+  const username = postOwnerLink.text().trim();
+  const userRep = postOwnerLink.parent().find('.reputation-score').text().replace(',', '') || null;
   const hasDupeLink = $('.js-post-notice a, .comments-list a', post).filter((i, el) => /(https:\/\/meta\.stackoverflow\.com)?\/q(uestions)?\/255583\/?.*/.test(el.href)).length > 0;
   const hasTags = $('a.post-tag', post).filter((i, el) => ['post-ban', 'banning', 'deleted-'].some(v => el.innerText.contains(v))).length > 0;
   const hasKeywords = ['unable', 'cannot', 'can\'t', 'cant', 'create', 'block', 'no longer accepting'].some(v => postText.contains(v)) && ['question', 'answer', 'post', 'restrict', 'account'].some(v => postText.contains(v));

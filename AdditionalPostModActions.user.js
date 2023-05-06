@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.2
+// @version      4.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -144,12 +144,12 @@ function initPostDissociationHelper() {
     const dissocPosts = dissocFlags.closest('.js-flagged-post');
     dissocPosts.each(function () {
       const post = $(this);
-      const userlink = post.find('.mod-audit-user-info a').attr('href');
+      const userlink = post.find('.mod-audit-user-info a');
+      const uid = getUserId(userlink.attr('href'));
 
-      // User not found, prob already deleted
-      if (userlink == null) return;
+      // User not found, probably already deleted
+      if (!uid) return;
 
-      const uid = Number(userlink.match(/\/(\d+)\//)[0].replace(/\//g, ''));
       const pid = post.attr('data-post-id') || post.attr('data-questionid') || post.attr('data-answerid');
       $('.js-post-flag-options', this).prepend(`<a href="${location.origin}/admin/cm-message/create/${uid}?action=post-dissociation&pid=${pid}" class="btn" target="_blank">dissociate</a>`);
 
@@ -197,7 +197,8 @@ function addPostModMenuLinks() {
     const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
     const pid = post.attr('data-questionid') || post.attr('data-answerid');
     const userbox = post.find('.post-layout .user-info:last .user-action-time').filter((i, el) => el.innerText.includes('answered') || el.innerText.includes('asked')).parent();
-    const userlink = userbox.find('a').attr('href');
+    const userlink = userbox.find('a');
+    const uid = getUserId(userlink.attr('href'));
     const userrep = userbox.find('.reputation-score').text();
     const username = userbox.find('.user-details a').first().text();
     const postdate = userbox.find('.relativetime').attr('title');
@@ -257,9 +258,8 @@ function addPostModMenuLinks() {
       menuitems += `<a data-action="unlock">unlock</a>`;
     }
 
-    // CM message option won't work on Meta
-    if (userlink && /.*\/\d+\/.*/.test(userlink)) {
-      const uid = Number(userlink.match(/\/\d+\//)[0].replace(/\D+/g, ''));
+    // CM message options, if user is not deleted
+    if (uid) {
 
       menuitems += `<div class="separator"></div>`;
 

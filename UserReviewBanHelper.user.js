@@ -3,7 +3,7 @@
 // @description  Display users' prior review bans in review, Insert review ban button in user review ban history page, Load ban form for user if user ID passed via hash
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      9.0
+// @version      9.1
 //
 // @include      */review/close*
 // @include      */review/reopen*
@@ -299,14 +299,16 @@ function getUsersInfo() {
     const hasModFlair = $(this).next('.mod-flair');
     if (hasModFlair.length) return;
 
-    const userlink = $(this);
-    const uid = $(this).attr('href').match(/\d+/)[0];
+    const uid = getUserId(this.getAttribute('href'));
     const url = '/users/history/' + uid + '?type=User+has+been+suspended+from+reviewing';
     const action = $(this).nextAll('b').last().text().toLowerCase().trim().replace(/\W+/g, '-');
     const reviewActionQuerystring = `&reviewAction=${action}`;
 
+    // Can't get user id
+    if(!uid) return;
+
     // Append review action to suspend link
-    userlink.nextAll('a').first()
+    $(this).nextAll('a').first()
       .attr('href', function (i, href) {
         return href + (href.includes('/suspend-user?') ? reviewActionQuerystring : `/suspend-user?userId=${uid}&reviewTaskId=${reviewTaskId}` + reviewActionQuerystring);
       })
@@ -335,7 +337,7 @@ function getUsersInfo() {
 
           // Add annotation count
           $(`<a class="reviewban-count ${numBans >= 10 ? 'warning' : ''}" href="${url}" title="${numBans} prior review suspensions" target="_blank">${numBans}</a>`)
-            .insertBefore(userlink);
+            .insertBefore(this);
         }
       });
     }
@@ -566,8 +568,7 @@ async function doPageLoad() {
     $(heading.get(0).childNodes).wrapAll(`<span class="pt4"></span>`);
 
     // Add additional links to new pages
-    const uid2 = location.pathname.match(/\d+/)[0];
-    heading.append(`<a href="/admin/review/failed-audits?uid=${uid2}" target="_blank" class="float-right s-btn s-btn__sm mr12" title="view all recently failed audits from all queues on a single page">see all failed audits</a>`);
+    heading.append(`<a href="/admin/review/failed-audits?uid=${currentUserId}" target="_blank" class="float-right s-btn s-btn__sm mr12" title="view all recently failed audits from all queues on a single page">see all failed audits</a>`);
 
     if (isBanned) {
       // Currently banned, show unban button
@@ -575,7 +576,7 @@ async function doPageLoad() {
         .on('click', function () {
           if (confirm('Unban user from reviewing?')) {
             $(this).remove();
-            reviewUnban(uid2);
+            reviewUnban(currentUserId);
           }
         })
         .appendTo(heading);
@@ -1071,13 +1072,10 @@ Breakdown:<br>
 
   // Mod user history - review bans filter
   else if (location.pathname.includes('/users/history') && location.search == "?type=User+has+been+suspended+from+reviewing") {
-
-    const uid2 = location.pathname.match(/\d+/)[0];
-
     const heading = $('#mainbar h2').first();
 
     // Add additional links to new pages
-    heading.after(`<a href="/admin/review/failed-audits?uid=${uid2}" class="float-right s-btn s-btn__sm mr12" title="view all recently failed audits from all queues on a single page">see all failed audits</a>`);
+    heading.after(`<a href="/admin/review/failed-audits?uid=${currentUserId}" class="float-right s-btn s-btn__sm mr12" title="view all recently failed audits from all queues on a single page">see all failed audits</a>`);
 
     // Hide action and ip columns
     const histTable = $('#user-history').addClass('hide-col-action').addClass('hide-col-ip');
@@ -1096,7 +1094,7 @@ Breakdown:<br>
           .on('click', function () {
             if (confirm('Unban user from reviewing?')) {
               $(this).remove();
-              reviewUnban(uid2);
+              reviewUnban(currentUserId);
             }
           })
           .insertAfter(heading);

@@ -4,7 +4,7 @@
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
 // @author       Cody Gray
-// @version      4.2
+// @version      4.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -374,7 +374,8 @@ function addPostModMenuLinks() {
     const hasComments = post.find('.comment, .comments-link.js-show-link:not(.dno)').length > 0;
     const pid = post.attr('data-questionid') || post.attr('data-answerid');
     const userbox = post.find('.post-layout .user-info:last .user-action-time').filter((i, el) => el.innerText.includes('answered') || el.innerText.includes('asked')).parent();
-    const userlink = userbox.find('a').attr('href');
+    const userlink = userbox.find('a').first();
+    const uid = getUserId(userlink.attr('href'));
     const userrep = userbox.find('.reputation-score').text();
     const username = userbox.find('.user-details a').first().text();
     const postdate = userbox.find('.relativetime').attr('title');
@@ -470,8 +471,7 @@ function addPostModMenuLinks() {
     }
 
     // Add user-related links only if there is a user and this is not a Meta site
-    if (!isMetaSite && userlink && /.*\/\d+\/.*/.test(userlink)) {
-      const uid = Number(userlink.match(/\/\d+\//)[0].replace(/\D+/g, ''));
+    if (!isMetaSite && uid) {
       const allowDestroy = (postage < 60 || isSuperuser) &&
         (/^\d+$/.test(userrep) && Number(userrep) < 500);
       menuitems += makeLabel('user');
