@@ -36,6 +36,8 @@
 if (!isModerator()) return;
 
 const superusers = [584192];
+const isSuperuser = superusers.includes(selfId);
+
 const delCommentThreshold = 40;
 let ajaxTimeout;
 
@@ -281,7 +283,7 @@ function doPageLoad() {
       window.scrollTo(0, 999999);
     }).appendTo(actionBtns);
 
-  if (superusers.includes(StackExchange.options.user.userId)) {
+  if (isSuperuser) {
 
     // Move all comments on page to chat
     $('<button class="s-btn s-btn__danger s-btn__filled s-btn__xs">Move ALL to chat</button>')

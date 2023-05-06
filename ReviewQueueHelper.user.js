@@ -56,7 +56,7 @@
  */
 
 const superusers = [584192];
-const isSuperuser = superusers.includes(StackExchange.options.user.userId);
+const isSuperuser = superusers.includes(selfId);
 
 /** @type {QueueType|null} */
 const queueType = /^\/review/.test(location.pathname) ? location.pathname.replace(/\/\d+$/, '').split('/').pop() : null;

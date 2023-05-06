@@ -48,7 +48,7 @@ if (!isModerator()) return;
 
 
 const superusers = [584192];
-const isSuperuser = superusers.includes(StackExchange.options.user.userId);
+const isSuperuser = superusers.includes(selfId);
 
 let reviewFromBottom = false;
 let $eventsTable, $eventsContainer, $events;

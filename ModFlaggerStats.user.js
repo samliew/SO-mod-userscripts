@@ -42,7 +42,7 @@
 'use strict';
 
 const superusers = [584192];
-const isSuperuser = superusers.includes(StackExchange.options.user.userId);
+const isSuperuser = superusers.includes(selfId);
 
 const isModPage = () => document.body.classList.contains('mod-page');
 const repStrToNumeric = v => v.replace(/k/, '000').replace(/[^\d]/g, '') * 1 || 0;
@@ -211,7 +211,7 @@ addStylesheet(`
 // On script run
 (function init() {
 
-  let currUid = StackExchange.options.user.userId;
+  let currUid = selfId;
 
   // If deleted user, do nothing
   if (document.title.indexOf('User deleted') >= 0) return;
@@ -221,7 +221,7 @@ addStylesheet(`
 
     // If on own user profile page
     if (location.pathname.indexOf('/users/' + currUid) === 0) {
-      currUid = StackExchange.options.user.userId
+      currUid = selfId
     }
     // Else must be a mod
     else if (isModerator()) {

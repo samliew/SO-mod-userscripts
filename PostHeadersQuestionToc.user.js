@@ -381,7 +381,12 @@ function initTableOfContentsSidebar() {
 
     const qtoc = $(`
       <div class="module sidebar-linked" id="qtoc">
-        <h4 id="qtoc-header">${v.length} Answer${pluralize(v.length)} <span><input id="qtoc-toggle-del" type="checkbox" checked="checked" /><label for="qtoc-toggle-del" title="toggle deleted">${deletedCount} deleted</label></span></h4>
+        <h4 id="qtoc-header">${v.length} Answer${pluralize(v.length)}
+          <label title="toggle deleted answers">
+            <input class="m0 mr6" id="qtoc-toggle-del" type="checkbox" checked="checked" />
+            ${deletedCount} deleted
+          </label>
+        </h4>
         <div class="linked">${answerlist}</div>
       </div>`);
 
@@ -632,9 +637,14 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
   left: -60px;
   width: calc(100% + 60px);
 }
-#qtoc-header > span {
-  float: right;
-  display: inline-block;
+#qtoc-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+#qtoc-header > label {
+  display: inline-flex;
+  margin-bottom: 3px;
   font-size: 13px;
 }
 #qtoc .relativetime {

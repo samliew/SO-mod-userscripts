@@ -36,6 +36,7 @@
 /* global isSO:readonly          */
 /* global isSOMeta:readonly      */
 /* global isMetaSite:readonly    */
+/* global selfId:readonly        */
 /// <reference types="./globals" />
 
 'use strict';
@@ -50,7 +51,7 @@ const newlines = '\n\n';
 // Add your user ID here (or set the corresponding value in your Local Storage) to promote yourself
 // to a "superuser", which enables rarely-used options and decreases the number of confirmations.
 const superusers = [584192, 366904, 6451573];
-const isSuperuser = superusers.includes(StackExchange.options.user.userId) ||
+const isSuperuser = superusers.includes(selfId) ||
   ((localStorage.getItem('SOMU-aipmm.isSuperuser') ?? 'false') === 'true');
 
 // This option defaults to "false". Manually set it to "true" (or set the corresponding value

@@ -142,7 +142,7 @@ addStylesheet(`
   // Add link to declined flags in topbar
   const flagBadgeLink = $(`
     <li class="-item declined-flags-button-item">
-      <a href="${location.origin}/users/flag-summary/${StackExchange.options.user.userId}?status=3" class="-link js-flagbadge-button" aria-label="Flags" title="Recent inbox messages" role="menuitem" aria-haspopup="true" aria-expanded="false">
+      <a href="${location.origin}/users/flag-summary/${selfId}?status=3" class="-link js-flagbadge-button" aria-label="Flags" title="Recent inbox messages" role="menuitem" aria-haspopup="true" aria-expanded="false">
         <svg aria-hidden="true" class="svg-icon iconFlag" width="20" height="20" viewBox="0 0 18 18"><path d="M3 2v14h2v-6h3.6l.4 1h6V3H9.5L9 2H3z"></path></svg>
         <span class="indicator-badge js-unread-count _important d-none">0</span>
       </a>
@@ -153,7 +153,7 @@ addStylesheet(`
       <div class="header">
         <h3>recently declined flags</h3>
         <div class="-right">
-          <a href="${location.origin}/users/flag-summary/${StackExchange.options.user.userId}?status=3">see declined flags</a>
+          <a href="${location.origin}/users/flag-summary/${selfId}?status=3">see declined flags</a>
         </div>
       </div>
       <div class="modal-content">
@@ -185,7 +185,7 @@ addStylesheet(`
     return false;
   });
 
-  fetchDeclinedFlags(StackExchange.options.user.userId).then(() => {
+  fetchDeclinedFlags(selfId).then(() => {
     console.log('recently declined flags', recentlyDeclinedFlags);
 
     // No declined flags, do nothing

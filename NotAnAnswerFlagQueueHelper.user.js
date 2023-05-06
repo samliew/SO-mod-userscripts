@@ -63,6 +63,8 @@
 if (!isModerator()) return;
 
 const superusers = [584192];
+const isSuperuser = superusers.includes(selfId);
+
 var $postsContainer, $posts;
 
 
@@ -350,7 +352,7 @@ function doPageLoad() {
   $('.js-flagged-post').first().parent().prepend(actionBtns);
 
   // If there are lots of flags and is superuser
-  if ($('.js-flagged-post').length > 3 && superusers.includes(StackExchange.options.user.userId)) {
+  if ($('.js-flagged-post').length > 3 && isSuperuser) {
 
     // Delete all posts left on page button
     $('<button class="s-btn s-btn__xs s-btn__filled s-btn__danger">Delete ALL</button>')

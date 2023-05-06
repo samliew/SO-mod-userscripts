@@ -36,7 +36,7 @@ if (!isModerator()) return;
 
 
 const superusers = [584192, 366904];
-const isSuperuser = superusers.includes(StackExchange.options.user.userId);
+const isSuperuser = superusers.includes(selfId);
 const showHiddenFields = true || isSuperuser;
 
 const newlines = '\n\n';
@@ -1071,7 +1071,7 @@ function appendModMessageMenu() {
       if (typeof uid === 'undefined' || uid == 0) return; // e.g.: deleted user
 
       // if user is self, ignore
-      //if (uid == StackExchange.options.user.userId) return;
+      //if (uid == selfId) return;
 
       const post = userbox.closest('.question, .answer');
       const pid = post.attr('data-questionid') || post.attr('data-answerid');

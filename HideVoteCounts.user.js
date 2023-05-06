@@ -97,7 +97,7 @@ addStylesheet(`
       || ($(this).find('.question-status').last().text().includes('locked') || $(this).find('.js-vote-up-btn').length == 0)
 
       // own posts
-      || $(this).find(`.user-details[itemprop="author"] > a[href^="/users/${StackExchange.options.user.userId}/"]`).length > 0
+      || $(this).find(`.user-details[itemprop="author"] > a[href^="/users/${selfId}/"]`).length > 0
     );
   }).find('.js-voting-container').removeClass('js-score-hidden');
 

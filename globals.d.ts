@@ -60,7 +60,7 @@ declare var parentUrl: string;
 declare var metaUrl: string | undefined;
 declare var siteApiSlug: string;
 
-declare var userId: number | null;
+declare var selfId: number | null;
 declare var currentUserId: number | null;
 declare var fkey: string | null;
 

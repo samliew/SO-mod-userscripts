@@ -39,7 +39,7 @@
 if (!isModerator()) return;
 
 const superusers = [584192, 6296561];
-const isSuperuser = superusers.includes(StackExchange.options.user.userId);
+const isSuperuser = superusers.includes(selfId);
 
 const disableGApiPrompts = true;
 const messageCharLimit = 2000;

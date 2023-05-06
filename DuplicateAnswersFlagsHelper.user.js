@@ -37,6 +37,7 @@ if (!isModerator()) return;
 
 
 const superusers = [584192];
+const isSuperuser = superusers.includes(selfId);
 
 let duplicateComment = `Please [don't post identical answers to multiple questions](https://meta.stackexchange.com/q/104227). Instead, tailor the answer to the question asked. If the questions are exact duplicates of each other, please vote/flag to close instead.`;
 
@@ -107,7 +108,7 @@ addStylesheet(`
   const actionBtns = $('<div id="actionBtns"></div>');
   $('.js-flagged-post').first().parent().prepend(actionBtns);
 
-  if (!superusers.includes(StackExchange.options.user.userId)) return;
+  if (!isSuperuser) return;
 
   // Delete + Comment ALL
   $('<button class="s-btn s-btn__danger s-btn__filled s-btn__xs">Delete + Comment ALL</button>')

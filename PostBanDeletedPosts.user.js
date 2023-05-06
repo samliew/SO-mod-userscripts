@@ -30,26 +30,7 @@
 if (!isModerator()) return;
 
 const superusers = [584192];
-const isSuperuser = superusers.includes(StackExchange.options.user.userId);
-
-
-// Post comment on post
-function addComment(pid, commentText) {
-  return new Promise(function (resolve, reject) {
-    if (typeof pid === 'undefined' || pid === null) { reject(); return; }
-    if (typeof commentText !== 'string' || commentText.trim() === '') { reject(); return; }
-
-    $.post({
-      url: `${location.origin}/posts/${pid}/comments`,
-      data: {
-        'fkey': fkey,
-        'comment': commentText,
-      }
-    })
-      .done(resolve)
-      .fail(reject);
-  });
-}
+const isSuperuser = superusers.includes(selfId);
 
 
 function toShortLink(str, newdomain = null) {
@@ -230,7 +211,7 @@ addStylesheet(`
   // Is a deleted user, do nothing
   if (postOwner.length === 0) return;
 
-  const uid = postOwner.attr('href').match(/\d+/)[0];
+  const uid = postOwner.getUid();
   const username = postOwner.text().trim();
   const userRep = postOwner.parent().find('.reputation-score').text().replace(',', '') || null;
   const hasDupeLink = $('.js-post-notice a, .comments-list a', post).filter((i, el) => /(https:\/\/meta\.stackoverflow\.com)?\/q(uestions)?\/255583\/?.*/.test(el.href)).length > 0;
@@ -244,7 +225,7 @@ addStylesheet(`
   if (!isDeleted && (!hasDupeLink && !hasTags && !hasKeywords)) return;
 
   // Get user ban stats on main
-  ajaxPromise(`${parentUrl}/users/account-info/${uid}`).then(function (data) {
+  ajaxPromise(`${parentUrl}/users/account-info/${uid}`).then(async function (data) {
     const blocked = $('.blocked-no, .blocked-yes', data);
     const qBan = blocked[0].innerText === 'yes';
     const aBan = blocked[1].innerText === 'yes';
@@ -264,18 +245,33 @@ addStylesheet(`
     post.find('.postcell').after(banStats);
 
     // Get deleted posts on main
-    if (qBan) getDeletedPosts(uid, 'question');
-    if (aBan) getDeletedPosts(uid, 'answer');
+    if (qBan) {
+      await getDeletedPosts(uid, 'question');
+    }
+    if (aBan) {
+      await delay(1000);
+      await getDeletedPosts(uid, 'answer');
+    }
+
+    // If not superuser or post is not within past three days, do not auto-post anything
+    if (!isSuperuser || !isRelativelyNew) return;
+    await delay(1000);
+
+    // Check if no comments on post containing the post ban meta post
+    const hasPostBanComment = post.find('.comment-copy').filter((i, el) => el.innerHTML.includes('/255583')).length > 0;
+    if (!hasPostBanComment) {
+      addComment(pid, `Please read this if you can't ask new ${postType}s: **[What can I do when getting “We are no longer accepting ${postType}s from this account”?](//meta.stackoverflow.com/q/255583)**`);
+    }
   });
 
-  function getDeletedPosts(uid, type) {
+  async function getDeletedPosts(uid, postType) {
 
-    const url = `${parentUrl}/search?q=user%3a${uid}%20is%3a${type}%20deleted%3a1%20score%3a..0&pagesize=30&tab=newest`;
+    const url = `${parentUrl}/search?q=user%3a${uid}%20is%3a${postType}%20deleted%3a1%20score%3a..0&pagesize=30&tab=newest`;
     ajaxPromise(url).then(function (data) {
       const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
       const stats = $(`
         <div class="meta-mentioned">
-            ${username} has <a href="${url}" target="_blank">${count} deleted ${type}s</a> on the main site
+            ${username} has <a href="${url}" target="_blank">${count} deleted ${postType}${pluralize(count)}</a> on the main site
             <span class="meta-mentions-toggle"></span>
             <div class="meta-mentions"></div>
         </div>`).insertAfter(post);
@@ -290,24 +286,18 @@ addStylesheet(`
       // Add copyable element to the results
       const hyperlinks = results.find('.s-post-summary--content-title a').attr('href', (i, v) => parentUrl + v).attr('target', '_blank');
       const hyperlinksMarkdown = hyperlinks.map((i, el) => `[${1 + i}](${toShortLink(el.href)})`).get();
-      const comment = `Deleted ${type}${hyperlinksMarkdown.length == 1 ? '' : 's'}, score <= 0, contributing to the [${type} ban](${location.origin}/help/${type}-bans): ${hyperlinksMarkdown.join(' ')}`;
+      const comment = `[Deleted ${postType}${pluralize(count)}](${parentUrl}/users/deleted-${postType}s/current), score <= 0, contributing to the [${postType} ban](${parentUrl}/help/${postType}-bans): ${hyperlinksMarkdown.join(' ')}`;
       const commentArea = $(`<textarea readonly="readonly"></textarea>`).val(comment).appendTo(stats);
 
-      // If post is not within past three days, or has more than 15 links, do not auto-post anything!
-      if (!isSuperuser || !isRelativelyNew || hyperlinksMarkdown.length > 15) return;
+      // If not superuser or post is not within past three days, do not auto-post anything
+      if (!isSuperuser || !isRelativelyNew) return;
 
       // If there are more comments or comments by myself, or deleted comments, ignore
-      const hasMyComments = post.find(`.comment-user[href*="/users/${StackExchange.options.user.userId}/"]`).length > 0;
+      const hasMyComments = post.find(`.comment-user[href*="/users/${selfId}/"]`).length > 0;
       const hasDeletedComments = post.find('.js-fetch-deleted-comments, .js-show-deleted-comments-link').length > 0;
       if (post.find('.js-show-link:visible').length !== 0 || hasMyComments || hasDeletedComments) return;
 
-      // Check if no comments on post containing the post ban meta post
-      const hasPostBanComment = post.find('.comment-copy').filter((i, el) => el.innerHTML.includes('/255583')).length > 0;
-      if (!hasPostBanComment) {
-        addComment(pid, `Please read this if you can't ask new ${type}s: **[What can I do when getting “We are no longer accepting ${type}s from this account”?](//meta.stackoverflow.com/q/255583)**`);
-      }
-
-      // Check if no comments on post starting with "Deleted questions"
+      // Check if no comments on post starting with "Deleted question" or "Deleted answer"
       const hasDeletedComment = post.find('.comment-copy').filter((i, el) => el.innerText.toLowerCase().includes('deleted ' + type)).length > 0;
       if (!hasDeletedComment) {
 

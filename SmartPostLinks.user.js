@@ -37,7 +37,7 @@
 // Yes, you can declare the variable apikey here and have it picked up by the functions in se-ajax-common.js
 const apikey = 'lSrVEbQTXrJ4eb4c3NEMXQ((';
 
-const canViewDeletedPosts = isModerator() || StackExchange?.options?.user?.reputation >= 10000;
+const canViewDeletedPosts = isModerator() || (typeof StackExchange !== 'undefined' && StackExchange.options?.user?.reputation >= 10000);
 
 
 const urlToSiteApiSlug = url => new URL(url).hostname.replace(/(\.stackexchange)?\.(com|net|org)$/, '').trim();
@@ -57,7 +57,7 @@ const groupBySiteApiSlug = arr => {
 async function processLinksOnPage() {
 
   const postLinksToProcess = $('a[href!="#"]', '#mainbar, #chat, #transcript, #content').filter(function () {
-    return /\/(questions|q|a|posts)\/\d+/i.test(this.href) && // only post links
+    return /\/(questions|q|a|posts|staging-ground)\/\d+/i.test(this.href) && // only post links
       !/\/edit$/i.test(this.href) && // ignore edit links
       !$(this).closest('.s-post-summary--content-title, .votecell, .post-menu, .post-signature, .user-info, .comment-date, .post-stickyheader').length; // not a child element of these containers
   }).not('.js-smart-link').addClass('js-smart-link');
@@ -127,8 +127,9 @@ async function processLinksOnPage() {
         this.href.includes('/revisions') ? `revisions for ${postData.post_type} –` : // post revisions
           this.href.includes('/timeline') ? 'post timeline –' : // post timeline
             this.href.includes('#comment') ? `comment on ${postData.post_type} –` : // comment permalink
-              this.href.includes('/show-flags') ? `flags on ${postData.post_type} –` : // mod-only flags page
-                null;
+              this.href.includes('/staging-ground/') ? `staging ground question –` : // staging ground (SO)
+                this.href.includes('/show-flags') ? `flags on ${postData.post_type} –` : // mod-only flags page
+                  null;
 
       const viewLinkType = specialLinkType ? `view ${specialLinkType}\n` : '';
 

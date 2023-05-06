@@ -40,7 +40,6 @@
 
 'use strict';
 
-const myUserId = StackExchange.options.user.userId || 0;
 let electionNum, constituentBadgeId;
 
 
@@ -140,7 +139,7 @@ function initUserElectionParticipation() {
   // Get all unique users on page except own
   let userIds = $('a[href^="/users/"]').map((i, el) => $(el).attr('href').match(/\d+/)[0]).get();
   userIds = userIds.filter(function (value, index, self) {
-    return self.indexOf(value) === index && value !== myUserId.toString();
+    return self.indexOf(value) === index && value !== selfId.toString();
   });
 
   // Stagger ajax calls using timeouts
@@ -182,7 +181,7 @@ addStylesheet(`
     constituentBadgeId = v;
 
     // Which election number to use depends whether user is mod
-    let promise = isModerator() ? getUserElectionNum(myUserId) : getLastElectionNum();
+    let promise = isModerator() ? getUserElectionNum(selfId) : getLastElectionNum();
     promise.then(function (v) {
       electionNum = v;
 

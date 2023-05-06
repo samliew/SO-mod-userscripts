@@ -40,7 +40,7 @@ const apikey = 'lSrVEbQTXrJ4eb4c3NEMXQ((';
 const newlines = '\n\n';
 
 const superusers = [584192, 366904, 6451573];
-const isSuperuser = superusers.includes(StackExchange.options.user.userId);
+const isSuperuser = superusers.includes(selfId);
 
 // Manually switch this variable to true when site under spam attack so you can delete accounts as fast as possible without distractions and multiple confirmations
 const underSpamAttackMode = isSuperuser || false;
