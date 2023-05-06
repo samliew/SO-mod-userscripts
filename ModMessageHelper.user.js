@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.5.3
+// @version      4.6
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -1064,8 +1064,8 @@ function appendModMessageMenu() {
 
       let uid = 0;
       try {
-        uid = (userbox.find('a[href^="/users/"]:not(.deleted-user)').attr('href') || '/0/').match(/\/(\d+)/)[1];
-        uid = Number(uid);
+        const userlink = userbox.find('a[href^="/users/"]:not(.deleted-user)');
+        uid = getUserId(userlink.attr('href'));
         this.dataset.uid = uid;
       }
       catch (ex) { } // can't put return statements in catch blocks?
@@ -1096,18 +1096,19 @@ function appendModMessageMenu() {
     });
 
   // Append link to user header in profile pages
-  $('.js-user-header .s-navigation').last()
-    .not('.js-mod-message-menu')
-    .addClass('js-mod-message-menu')
-    .each(function () {
-      const userHeader = $(this);
-      if (!currentUserId) return;
+  if (currentUserId) {
+    $('.js-user-header .s-navigation').last()
+      .not('.js-mod-message-menu')
+      .addClass('js-mod-message-menu')
+      .each(function () {
 
-      _createMenu({
-        elem: userHeader,
-        uid: currentUserId
+
+        _createMenu({
+          elem: $(this),
+          uid: currentUserId
+        });
       });
-    });
+  }
 
   // If we didn't add an actual mod message link, then remove the js-mod-message-menu class.
   $('.js-mod-message-menu')
