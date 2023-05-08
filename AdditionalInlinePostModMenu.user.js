@@ -858,8 +858,8 @@ addStylesheet(`
   white-space: nowrap;
 }
 .js-better-inline-menu.smaller {
-  font-size: 0.96em;
-  line-height: 1.1;
+  font-size: 0.94em;
+  line-height: 1.05;
 }
 .js-better-inline-menu * {
   font-family: inherit;
