@@ -4,7 +4,7 @@
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
 // @author       Cody Gray
-// @version      5.0
+// @version      5.0.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -111,7 +111,7 @@ Regards,
 A ${StackExchange.options.site.name} moderator`;
 
   // Send CM message
-  return await postCmMessage(pid, 'post-dissociation', messageText);
+  return await sendCmMessage(pid, 'post-dissociation', messageText);
 };
 
 function updateModTemplates() {
