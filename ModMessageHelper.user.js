@@ -1069,7 +1069,7 @@ function appendModMessageMenu() {
         this.dataset.uid = uid;
       }
       catch (ex) { } // can't put return statements in catch blocks?
-      if (typeof uid === 'undefined' || uid == 0) return; // e.g.: deleted user
+      if (typeof uid === 'undefined' || !uid) return; // e.g.: author edit or deleted user
 
       // if user is self, ignore
       //if (uid == selfId) return;
