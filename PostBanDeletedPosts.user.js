@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1
+// @version      4.2
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -234,7 +234,7 @@ addStylesheet(`
 
     const banStats = $(`
       <div class="main-banned postcell post-layout--right">
-          <b>User "${username}" - bans on main: </b>
+          <b>${username} - bans on main: </b>
           <span>${qBan ? 'question' : ''}</span>
           <span>${aBan ? 'answer' : ''}</span>
           <span>${eBan ? 'suggested-edit' : ''}</span>
@@ -254,13 +254,13 @@ addStylesheet(`
     }
 
     // If not superuser or post is not within past three days, do not auto-post anything
-    if (!isSuperuser || !isRelativelyNew) return;
+    if (!isSuperuser || !isRelativelyNew || !isSOMeta) return;
     await delay(1000);
 
     // Check if no comments on post containing the post ban meta post
     const hasPostBanComment = post.find('.comment-copy').filter((i, el) => el.innerHTML.includes('/255583')).length > 0;
-    if (!hasPostBanComment) {
-      addComment(pid, `Please read this if you can't ask new ${postType}s: **[What can I do when getting “We are no longer accepting ${postType}s from this account”?](//meta.stackoverflow.com/q/255583)**`);
+    if (qBan && !hasPostBanComment) {
+      addComment(pid, `Please read this: **[What can I do when getting “We are no longer accepting questions from this account”?](//meta.stackoverflow.com/q/255583)**`);
     }
   });
 
