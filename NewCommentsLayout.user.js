@@ -3,7 +3,7 @@
 // @description  Better comments layout for easier readability and moderation
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.2
+// @version      3.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -33,7 +33,7 @@
 
 'use strict';
 
-const commentsFontSize = '12.4px';
+const commentsFontSize = '13px';
 
 
 // Append styles to header
@@ -84,7 +84,7 @@ ul.comments-list .comment-score span {
   margin: 0 0 2px 0;
   line-height: 1.2;
   color: var(--black);
-  letter-spacing: 0.02em;
+  letter-spacing: 0.006em;
 }
 
 /* Minor comments UI changes */
