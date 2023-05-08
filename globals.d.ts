@@ -204,4 +204,12 @@ declare function moveCommentsOnPostToChat(pid:number): Promise<object>;
  */
 declare function flagPost(pid:number, rudeFlag?: boolean): Promise<object>;
 declare function spamFlagPost(pid:number): Promise<object>;
-declare function rudeFlagPost(pid: number): Promise<object>;
+declare function rudeFlagPost(pid:number): Promise<object>;
+
+
+/**
+ * ================================
+ * Mods
+ * ================================
+ */
+declare function sendCmMessage(userId:number, templateName:string, postText:string): Promise<object>;

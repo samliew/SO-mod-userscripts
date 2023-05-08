@@ -4,7 +4,7 @@
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
 // @author       Cody Gray
-// @version      4.3
+// @version      5.0
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -90,6 +90,117 @@ const reloadPost = async pid => {
 
 
 /*
+ * Post dissociation feature functions
+ */
+const sendCmDissociateMessage = async (uid, pid, postType = 'question') => {
+
+  // Build message
+  const messageText = `Hello,
+
+I'm writing in reference to the Stack Overflow account:
+
+${location.origin}/users/${uid}
+
+The following ${postType} need to be dissociated from the author's profile:
+
+${location.origin}/${postType === 'question' ? 'q' : 'a'}/${pid}
+
+**This was requested by the post author via custom flag.**
+
+Regards,
+A ${StackExchange.options.site.name} moderator`;
+
+  // Send CM message
+  return await postCmMessage(pid, 'post-dissociation', messageText);
+};
+
+function updateModTemplates() {
+
+  const template = $('.popup input[name=mod-template]').filter((i, el) => $(el).next().text().includes('post disassociation'));
+  let addstr = '';
+
+  // Build list of posts
+  const pids = getQueryParam('pid').split('|');
+  pids.forEach(function (v) {
+    if (v.length === 0) return;
+    addstr += `${location.origin}/a/${v}` + newlines;
+  });
+
+  // Build list of meta posts
+  const metaPids = getQueryParam('metapid').split('|');
+  metaPids.forEach(function (v) {
+    if (v.length === 0) return;
+    addstr += `${metaUrl}/a/${v}` + newlines;
+  });
+
+  if (addstr === '') addstr = newlines;
+
+  // Insert to template
+  template.val(template.val()
+    .replace(/:\s+{todo}/, ':<br>\n' + addstr + '**Requested via custom flag.**' + newlines) // replace todo with additional information
+  ).trigger('click');
+
+  $('.popup-submit').trigger('click');
+
+  // Failsafe
+  $('#templateName').val('post disassociation');
+};
+
+function initPostDissociationHelper() {
+
+  // Only on main sites
+  if (isMetaSite) return;
+
+  // Run once, whether on AdditionalPostModActions or AdditionalInlinePostModMenu
+  if (document.body.classList.contains('SOMU-PostDissociationHelper')) return;
+  else document.body.classList.add('SOMU-PostDissociationHelper');
+
+  // If on contact CM page and action = dissocciate
+  if (location.pathname.includes('/admin/cm-message/create/') && getQueryParam('action') == 'post-dissociation') {
+
+    // On any page update
+    $(document).ajaxComplete(function (event, xhr, settings) {
+
+      // If CM templates loaded on contact CM page, and action = dissocciate, update templates
+      if (settings.url.includes('/admin/contact-cm/template-popup/')) {
+
+        // Run once only. Unbind ajaxComplete event
+        $(event.currentTarget).unbind('ajaxComplete');
+
+        // Update CM mod templates
+        setTimeout(updateModTemplates, 500);
+      }
+    });
+
+    // click template link
+    $('#show-templates').trigger('click');
+
+    return;
+  }
+
+  // If on mod flag queues, remove close question and convert to comment buttons when flag message contains "di(sa)?ssociate", and add "dissociate" button
+  if (location.pathname.includes('/admin/dashboard')) {
+    const dissocFlags = $('.revision-comment.active-flag').filter((i, v) => v.innerText.match(/di(sa)?ssociate/));
+    const dissocPosts = dissocFlags.closest('.js-flagged-post');
+    dissocPosts.each(function () {
+      const post = $(this);
+      const userlink = post.find('.mod-audit-user-info a');
+      const uid = getUserId(userlink.attr('href'));
+
+      // User not found, probably already deleted
+      if (!uid) return;
+
+      const pid = post.attr('data-post-id') || post.attr('data-questionid') || post.attr('data-answerid');
+      $('.js-post-flag-options', this).prepend(`<a href="${location.origin}/admin/cm-message/create/${uid}?action=post-dissociation&pid=${pid}" class="btn" target="_blank">dissociate</a>`);
+
+      $('.close-question-button, .js-convert-to-comment', this).hide();
+    });
+    return;
+  }
+};
+
+
+/*
  * Confirm functions
  */
 async function promptToRedFlagPost(pid, postType, rudeFlag, isLocked, isDeleted, isFlagDeleted) {
@@ -119,7 +230,7 @@ async function promptToRedFlagPost(pid, postType, rudeFlag, isLocked, isDeleted,
     }
   }
   return needsRefresh;
-}
+};
 async function promptToNukePostAndUser(pid, isQuestion, isDeleted, uid, uName, spammer, usercardHtml = null) {
   if (typeof uid === 'undefined' || uid === null) { throw new Error('null or undefined uid'); }
 
@@ -346,7 +457,7 @@ async function promptToNukePostAndUser(pid, isQuestion, isDeleted, uid, uName, s
   swal.stopLoading();
   swal.close();
   return needsRefresh;
-}
+};
 
 
 /*
@@ -376,108 +487,76 @@ function addPostModMenuLinks() {
     const userbox = post.find('.post-layout .user-info:last .user-action-time').filter((i, el) => el.innerText.includes('answered') || el.innerText.includes('asked')).parent();
     const userlink = userbox.find('a').first();
     const uid = getUserId(userlink.attr('href'));
-    const userrep = userbox.find('.reputation-score').text();
+    const userRep = userbox.find('.reputation-score').text();
     const username = userbox.find('.user-details a').first().text();
-    const postdate = userbox.find('.relativetime').attr('title');
-    const postage = (Date.now() - new Date(postdate)) / 86400000;
-    const posttype = isQuestion ? 'question' : 'answer';
+    const userAttributes = { uid, username };
+    const postDate = userbox.find('.relativetime').attr('title');
+    const postAge = (Date.now() - new Date(postDate)) / 86400000;
+    const postType = isQuestion ? 'question' : 'answer';
+    const postAttributes = { isClosed, isProtected, isLocked, isDeleted, isFlagDeleted };
+    const dissocPostIdParam = pid ? '&' + (!isMetaSite ? `pid=${pid}` : `metapid=${pid}`) : '';
+    const allowDestroyUser = (postAge < 60 || isSuperuser) && Number(userRep) < 500;
 
     // .js-post-menu is also found on the post revisions page, but we don't want to touch that
     if (typeof pid === 'undefined') return;
 
     // Create menu based on post type and state
     function makeLabel(text) {
-      return `<span class="inline-label post-label">${text}:&nbsp;</span>`
+      return `<span class="inline-label">${text}:&nbsp;</span>`;
     }
-    function makeItem(action, text, title, enabled = true, style = '', dataAttrib) {
-      return `<button type="button" class="s-btn s-btn__link ${style}" data-action="${action}" ${dataAttrib ? dataAttrib : ''} title="${title}" ${enabled ? '' : 'disabled'}>${text}</button>`;
+    function makeItem(action, text, title = '', enabled = true, style = '', dataAttribs = '') {
+      // Convert data attributes object to string
+      if (typeof dataAttribs === 'object' && dataAttribs !== null) {
+        dataAttribs = Object.entries(dataAttribs).map(([key, value]) => `data-${camelToKebab(key)}="${value}"`).join(' ');
+      }
+      return `<button type="button" class="s-btn s-btn__link ${style}" data-action="${action}" ${dataAttribs} title="${title}" ${enabled ? '' : 'disabled'}>${text}</button>`;
     }
 
+    const items = {
+      'redupeLabel': isSO && isOldDupe && needsRedupe && makeLabel('instant'),
+      'redupeOldQuestion': isSO && isOldDupe && needsRedupe &&
+        makeItem('old-redupe', 'close as proper duplicate', '', true, '', { 'redupe-pid': oldDupePid }),
+
+      'instantLabel': makeLabel('instant'),
+      'instantProtect': isQuestion && !isProtected && makeItem('protect', 'protect', 'protect this question to prevent it from being answered by anonymous and low-rep users', !isDeleted),
+      'instantUnprotect': isQuestion && isProtected && makeItem('unprotect', 'unprotect', 'unprotect this question to allow it to be answered by anonymous and low-rep users', !isDeleted),
+      'instantSOClose': isQuestion && isSO && makeItem('close-offtopic', 'close', 'close with default off-topic reason', !isClosed && !isDeleted),
+      'instantSOMetaClose': isQuestion && isSOMeta && makeItem('close-meta', 'close+delete', 'close and delete as not a Meta question', !isDeleted),
+      'instantModDelete': makeItem('mod-delete', !isDeleted ? 'delete' : 'redelete', `re-delete as moderator to prevent undeletion`, true, 'warning'),
+      'instantSpamFlag': makeItem('spam-flag', 'spam..', `prompt for confirmation to ${!isFlagDeleted ? 'flag-nuke' : 're-flag'} this ${postType} as spam`, !isFlagDeleted, 'warning', postAttributes),
+      'instantAbusiveFlag': makeItem('abusive-flag', 'abusive..', `prompt for confirmation to ${!isFlagDeleted ? 'flag-nuke' : 're-flag'} this ${postType} as rude/abusive`, true, 'warning', postAttributes),
+
+      // Convert answers
+      'convertLabel': !isQuestion && makeLabel('convert'),
+      'convertToComment': !isQuestion && makeItem('convert-comment', 'to-comment', 'convert this answer to a comment on the question'),
+      'convertToEdit': !isQuestion && makeItem('convert-edit', 'to-edit', 'append this answer as an edit to the question'),
+
+      // Lock posts
+      'lockLabel': makeLabel('lock'),
+      'lockDispute': !isLocked && makeItem('lock-dispute', 'dispute..', `prompt for number of days to apply a content-dispute lock to this ${postType}`),
+      'lockComments': !isLocked && makeItem('lock-comments', 'cmnts..', `prompt for number of days to apply a comment lock to this ${postType}`),
+      'lockWiki': !isLocked && makeItem('lock-wiki', 'wiki..', `prompt for confirmation to apply a permanent wiki lock to this ${postType}`),
+      'lockObsolete': !isLocked && makeItem('lock-obsolete', 'obsolete..', `prompt for confirmation to apply a permanent obsolete lock to this ${postType}`),
+      'lockHistorical': !isLocked && isQuestion && makeItem('lock-historical', 'hist..', `prompt for confirmation to apply a permanent historical lock to this ${postType}`, (postAge >= 60 && postScore >= 20) || isSuperuser),
+      'lockUnlock': isLocked && makeItem('unlock', 'unlock', `unlock this ${postType}`),
+
+      // Add user-related links only if there is a post author, and is not a Meta site
+      'userLabel': !isMetaSite && uid && makeLabel('user'),
+      'userSpammer': !isMetaSite && uid && makeItem('nuke-spammer', 'spammer..', `prompt for options and confirmation to nuke this ${postType} and the user as a spammer (promotional content)`, allowDestroyUser, 'danger', userAttributes),
+      'userTroll': !isMetaSite && uid && makeItem('nuke-troll', 'troll..', `prompt for options and confirmation to nuke this ${postType} and the user as a troll/abusive`, allowDestroyUser, 'danger', userAttributes),
+      'userNoLongerWelcome': !isMetaSite && uid && makeItem('no-longer-welcome', 'nlw..', `prompt for confirmation to delete the user as &quot;no longer welcome&quot;`, true, 'danger', userAttributes),
+
+      // Add CM message options, if user is not deleted
+      'cmLabel': uid && makeLabel('cm'),
+      'cmPostDissociation': uid && makeItem('cm-post-dissociation', 'dissociate post..', isSuperuser ? `send CM dissociation message for this ${postType}` : `compose CM dissociation message in a new window`, true, '', userAttributes),
+      'cmSuspiciousVotes': uid && makeItem('cm-suspicious-votes', 'suspicious votes..', `compose CM suspicious voting message in a new window`, true, '', userAttributes),
+    };
+
+    // Add menu items to menu
     let menuitems = '';
-
-    menuitems += makeLabel('instant');
-    if (isQuestion) {
-      const protectVerb = !isProtected ? 'protect' : 'unprotect';
-      menuitems += makeItem(protectVerb,
-        protectVerb,
-        !isProtected ? 'protect this question to prevent it from being answered by anonymous and low-rep users'
-          : 'unprotect this question to allow it to be answered by anonymous and low-rep users',
-        !isDeleted);
-      if (isSO) {
-        menuitems += makeItem('close-offtopic',
-          'close',
-          'close with default off-topic reason',
-          !isClosed && !isDeleted);
-      }
-      if (isSOMeta) {
-        menuitems += makeItem('close-meta',
-          'close+delete',
-          'close and delete as not a Meta question',
-          !isDeleted);
-      }
-    }
-    menuitems += makeItem('mod-delete',
-      !isDeleted ? 'delete' : 'redelete',
-      `(re-)delete ${isQuestion ? 'question' : 'answer'} as moderator to prevent undeletion`,
-      true,
-      'warning');
-    menuitems += makeItem('spam-flag',
-      'spam&hellip;',
-      `prompt for confirmation to ${!isFlagDeleted ? 'flag-nuke' : 're-flag'} this ${posttype} as spam`,
-      !isFlagDeleted,
-      'warning',
-      `data-islocked="${isLocked}" data-isdeleted="${isDeleted}" data-isflagdeleted="${isFlagDeleted}"`);
-    // TODO: If post was already nuked with an R/A flag, disable the following item.
-    menuitems += makeItem('abusive-flag',
-      'abusive&hellip;',
-      `prompt for confirmation to ${!isFlagDeleted ? 'flag-nuke' : 're-flag'} this ${posttype} as rude/abusive`,
-      true,
-      'warning',
-      `data-islocked="${isLocked}" data-isdeleted="${isDeleted}" data-isflagdeleted="${isFlagDeleted}"`);
-
-    if (!isQuestion) {
-      menuitems += makeLabel('convert');
-      menuitems += makeItem('convert-comment',
-        'to-comment',
-        'convert this answer to a comment on the question');
-      menuitems += makeItem('convert-edit',
-        'to-edit',
-        'append this answer as an edit to the question');
-    }
-
-    menuitems += makeLabel('lock');
-    if (!isLocked) {
-      menuitems += makeItem('lock-dispute',
-        'dispute&hellip;',
-        `prompt for number of days to apply a content-dispute lock to this ${posttype}`);
-      menuitems += makeItem('lock-comments',
-        'cmnts&hellip;',
-        `prompt for number of days to apply a comment lock to this ${posttype}`);
-      menuitems += makeItem('lock-wiki',
-        'wiki&hellip;',
-        `prompt for confirmation to apply a permanent wiki lock to this ${posttype}`);
-      menuitems += makeItem('lock-obsolete',
-        'obsolete&hellip;',
-        `prompt for confirmation to apply a permanent obsolete lock to this ${posttype}`);
-      if (isQuestion) {  // old, good questions only
-        menuitems += makeItem('lock-historical',
-          'hist&hellip;',
-          `prompt for confirmation to apply a permanent historical lock to this ${posttype}`,
-          (postage >= 60 && postScore >= 20) || isSuperuser);
-      }
-    }
-    else {
-      menuitems += makeItem('unlock', 'unlock', `unlock this ${posttype}`);
-    }
-
-    // Add user-related links only if there is a user and this is not a Meta site
-    if (!isMetaSite && uid) {
-      const allowDestroy = (postage < 60 || isSuperuser) &&
-        (/^\d+$/.test(userrep) && Number(userrep) < 500);
-      menuitems += makeLabel('user');
-      menuitems += makeItem('nuke-spammer', 'spammer&hellip;', `prompt for options and confirmation to nuke this ${posttype} and the user as a spammer (promotional content)`, allowDestroy, 'danger', `data-uid="${uid}" data-username="${username}"`);
-      menuitems += makeItem('nuke-troll', 'troll&hellip;', `prompt for options and confirmation to nuke this ${posttype} and the user as a troll/abusive`, allowDestroy, 'danger', `data-uid="${uid}" data-username="${username}"`);
-      menuitems += makeItem('no-longer-welcome', 'nlw&hellip;', `prompt for confirmation to delete the user as &quot;no longer welcome&quot;`, true, 'danger', `data-uid="${uid}" data-username="${username}"`);
+    for (const item in items) {
+      const val = items[item];
+      if (val) menuitems += val;
     }
 
     $(this).append(`<div class="js-better-inline-menu ${smallerQuicklinks ? 'smaller' : ''}" data-pid="${pid}">${menuitems}</div>`);
@@ -486,9 +565,9 @@ function addPostModMenuLinks() {
 
 function initPostModMenuLinks() {
   // Handle clicks on links in the mod quicklinks menu.
-  // NOTE: We have to use the tag "main" for mobile web because it doesn't contain the wrapping elem "#content".
+  // NOTE: We have to include the tag "main" for mobile web because it doesn't contain the wrapping elem "#content".
   $('#content, main').on('click', '.js-better-inline-menu button[data-action]', function () {
-    if ($(this).hasClass('disabled') || $(this).hasClass('dno')) return false;
+    if (this.disabled) return; // should not need this because s-btn[disabled] already has pointer-events: none
 
     // Get question link if in mod queue
     const qlink = $(this).closest('.js-flagged-post').find('.js-body-loader a').first().attr('href');
@@ -500,7 +579,7 @@ function initPostModMenuLinks() {
     const uid = Number(this.dataset.uid);
     const uName = this.dataset.username;
     //console.log(pid, qid);
-    if (isNaN(pid) || isNaN(qid)) return false;
+    if (isNaN(pid) || isNaN(qid)) return;
 
     const post = $(this).closest('.answer, .question');
     const isQuestion = post.hasClass('question');
@@ -509,19 +588,28 @@ function initPostModMenuLinks() {
     const action = this.dataset.action;
     //console.log(action);
 
-    function removePostFromModQueue() {
+    const removePostFromModQueue = pid => {
       if (location.pathname.includes('/admin/dashboard')) {
         post.parents('.js-flagged-post').remove();
+        return true;
       }
-    }
+      return false;
+    };
+    const removePostFromModQueueOrReloadPage = pid => {
+      removePostFromModQueue() || reloadPage();
+    };
 
     switch (action) {
+      case 'old-redupe':
+        const redupePid = Number(this.dataset.redupePid);
+        if (!redupePid) return;
+        reopenQuestion(pid).then(function (v) {
+          closeQuestionAsDuplicate(pid, redupePid).finally(reloadPage);
+        });
+        break;
       case 'convert-comment':
         undeletePost(pid).then(function () {
-          convertToComment(pid, qid).then(function () {
-            removePostFromModQueue();
-            reloadPage();
-          });
+          convertToComment(pid, qid).then(removePostFromModQueueOrReloadPage);
         });
         break;
       case 'convert-edit':
@@ -544,38 +632,35 @@ function initPostModMenuLinks() {
         });
         break;
       case 'close-offtopic':
-        closeQuestionAsOfftopic(pid).then(function () {
+        closeQuestionAsOfftopic(pid).finally(function () {
           removePostFromModQueue();
           goToPost(qid);
         });
         break;
       case 'mod-delete':
-        modUndelDelete(pid).then(reloadPage);
+        modUndelDelete(pid).finally(removePostFromModQueueOrReloadPage);
         break;
       case 'spam-flag':
       case 'abusive-flag':
         promptToRedFlagPost(pid,
           postType,
           action === 'abusive-flag',
-          $(this).data('islocked'),
-          $(this).data('isdeleted'),
-          $(this).data('isflagdeleted')
+          this.dataset.isLocked,
+          this.dataset.isDeleted,
+          this.dataset.isFlagDeleted
         ).then(function (result) {
-          if (result) {
-            removePostFromModQueue();
-            reloadPage();
-          }
+          if (result) removePostFromModQueueOrReloadPage();
         });
         break;
       case 'lock-dispute': {
-        const d = Number(prompt(`Apply a CONTENT-DISPUTE LOCK to this ${postType} for how many days?`, '3').trim());
-        if (!isNaN(d)) lockPost(pid, 20, 24 * d).then(reloadPage);
+        const d = Number(prompt(`Apply a CONTENT-DISPUTE LOCK to this ${postType} for how many days?`, '3')?.trim());
+        if (!isNaN(d) && d > 0) lockPost(pid, 20, 24 * d).then(reloadPage);
         else StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'Invalid number of days');
         break;
       }
       case 'lock-comments': {
-        const d = Number(prompt(`Apply a COMMENT LOCK to this ${postType} for how many days?`, '1').trim());
-        if (!isNaN(d)) lockPost(pid, 21, 24 * d).then(reloadPage);
+        const d = Number(prompt(`Apply a COMMENT LOCK to this ${postType} for how many days?`, '1')?.trim());
+        if (!isNaN(d) && d > 0) lockPost(pid, 21, 24 * d).then(reloadPage);
         else StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'Invalid number of days');
         break;
       }
@@ -599,7 +684,8 @@ function initPostModMenuLinks() {
         break;
       case 'nuke-spammer':
       case 'nuke-troll':
-        promptToNukePostAndUser(pid,
+        promptToNukePostAndUser(
+          pid,
           isQuestion,
           isDeleted,
           uid,
@@ -608,8 +694,11 @@ function initPostModMenuLinks() {
           post.find('.post-signature:last .user-info')[0]?.outerHTML
         ).then(function (result) {
           if (result) {
-            removePostFromModQueue();
-            reloadPage();
+            // Show deleted user page in new window/tab
+            if (!isSuperuser && !underSpamAttackMode) {
+              window.open(`${parentUrl}/users/${uid}`);
+            }
+            removePostFromModQueueOrReloadPage();
           }
         });
         break;
@@ -620,15 +709,34 @@ function initPostModMenuLinks() {
             '', // no details needed
             'This user is no longer welcome to participate on the site'
           ).then(function () {
-            reloadPage();
+            // Show deleted user page in new window/tab
+            if (!isSuperuser && !underSpamAttackMode) {
+              window.open(`${parentUrl}/users/${uid}`);
+            }
+            removePostFromModQueueOrReloadPage();
           });
         }
         break;
+      case 'cm-post-dissociation':
+        if (isSuperuser && confirm(`Are you sure you want to SEND (without review) a CM message to dissociate this ${postType} (ID: ${pid}) by "${uName}"?`)) {
+          sendCmDissociateMessage(uid, pid, postType).then(function () {
+            StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'CM dissociation message sent successfully.');
+          });
+          return;
+        }
+        else if (!isSuperuser) {
+          // Open CM message in new window/tab
+          window.open(`${parentUrl}/admin/cm-message/create/21849755?action=post-dissociation`);
+        }
+        break;
+      case 'cm-suspicious-votes':
+        // Open CM message in new window/tab
+        window.open(`${parentUrl}/admin/cm-message/create/21849755?action=suspicious-voting`);
+        break;
       default:
-        return true;
     }
 
-    return false;
+    return;
   });
 }
 
@@ -687,7 +795,7 @@ function initPostCommentsModLinks() {
 
   d.on('click', 'a.js-move-comments-link', function (e) {
     e.preventDefault();
-    const post = this.closest('.answer, .question');
+    const post = $(this).closest('.answer, .question');
     const pid = Number(this.dataset.postId) || null;
     $(this).remove();
     moveCommentsOnPostToChat(pid);
@@ -705,8 +813,11 @@ function initPostCommentsModLinks() {
 // Append styles
 addStylesheet(`
 /* Better post menu links */
+.js-post-menu {
+  margin-top: 7px !important;
+}
 .js-post-menu .s-anchors > .flex--item {
-  text-transform: lowercase;
+  margin-top: 0 !important;
 }
 .js-post-menu .s-anchors > div.flex--item {
   margin-left:  0;  /* Move margins from container to item... */
@@ -738,12 +849,12 @@ addStylesheet(`
 .js-better-inline-menu {
   clear: both;
   float: left;
-  min-width: 200px;
-  margin: 8px 0 10px;
+  min-width: 260px;
+  margin: 14px 0;
   font-size: 0.97em;
 }
 .js-better-inline-menu.smaller {
-  margin-top: 8px;
+  margin-top: 10px;
   font-size: 0.88em;
   line-height: 1;
 }
@@ -761,9 +872,6 @@ addStylesheet(`
   color: var(--black-500);
   text-decoration: none;
 }
-.js-better-inline-menu button.s-btn.s-btn__link.dno {
-  display: none;
-}
 .js-better-inline-menu button.s-btn.s-btn__link:hover {
   color: var(--black-300);
 }
@@ -774,9 +882,6 @@ addStylesheet(`
 .js-better-inline-menu button.s-btn.s-btn__link.danger:hover {
   background-color: var(--red-500);
   color: var(--white);
-}
-.js-better-inline-menu button.s-btn.s-btn__link:disabled {
-  cursor: not-allowed;
 }
 
 
@@ -958,11 +1063,25 @@ body.theme-system .theme-dark__forced .swal-modal {
   // Non-election pages
   else {
 
+    // If spam mode is switched on
+    if (underSpamAttackMode) {
+      document.body.classList.add('js-spam-mode'); // CSS styling purposes only
+
+      // If filtered to spamoffensive flags in mod dashboard, expand all flagged posts
+      if (location.search.includes('flags=spamoffensive')) {
+        setTimeout(function () {
+          $('.js-expand-body:visible').trigger('click');
+        }, 1000); // short wait for dashboard scripts to init
+      }
+    }
+
     // Once on page load
     initPostModMenuLinks();
     addPostModMenuLinks();
     initPostCommentsModLinks();
     addPostCommentsModLinks();
+
+    initPostDissociationHelper();
 
     // After requests have completed
     $(document).ajaxStop(function () {
