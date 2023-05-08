@@ -32,6 +32,8 @@ Direct installation links (raw files)
 
 [Saved Posts Helper](https://github.com/samliew/SO-mod-userscripts/raw/master/SavedPostsHelper.user.js)
 
+[HNQ Site Names](https://github.com/samliew/SO-mod-userscripts/raw/master/HNQSiteNames.user.js)
+
 
 
 <br>

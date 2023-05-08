@@ -163,6 +163,12 @@ Recommended chat userscripts:
 - Quick move dropdown after saving in Q&A
 
 
+### [HNQ Site Names](https://github.com/samliew/SO-mod-userscripts/blob/master/HNQSiteNames.user.js)
+
+- Adds site names to link in Hot Network Questions sidebar module
+- Links open in new tab/window
+
+
 
 <br>
 
