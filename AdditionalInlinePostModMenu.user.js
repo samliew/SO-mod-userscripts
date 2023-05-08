@@ -4,7 +4,7 @@
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
 // @author       Cody Gray
-// @version      5.0.1
+// @version      5.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -521,7 +521,7 @@ function addPostModMenuLinks() {
       'instantProtect': isQuestion && !isProtected && makeItem('protect', 'protect', 'protect this question to prevent it from being answered by anonymous and low-rep users', !isDeleted),
       'instantUnprotect': isQuestion && isProtected && makeItem('unprotect', 'unprotect', 'unprotect this question to allow it to be answered by anonymous and low-rep users', !isDeleted),
       'instantSOClose': isQuestion && isSO && makeItem('close-offtopic', 'close', 'close with default off-topic reason', !isClosed && !isDeleted),
-      'instantSOMetaClose': isQuestion && isSOMeta && makeItem('close-meta', 'close+delete', 'close and delete as not a Meta question', !isDeleted),
+      'instantSOMetaClose': isQuestion && isSOMeta && makeItem('close-meta', 'close+del', 'close and delete as not a Meta question', !isDeleted),
       'instantModDelete': makeItem('mod-delete', !isDeleted ? 'delete' : 'redelete', `re-delete as moderator to prevent undeletion`, true, 'warning'),
       'instantSpamFlag': makeItem('spam-flag', 'spam..', `prompt for confirmation to ${!isFlagDeleted ? 'flag-nuke' : 're-flag'} this ${postType} as spam`, !isFlagDeleted, 'warning', postAttributes),
       'instantAbusiveFlag': makeItem('abusive-flag', 'abusive..', `prompt for confirmation to ${!isFlagDeleted ? 'flag-nuke' : 're-flag'} this ${postType} as rude/abusive`, true, 'warning', postAttributes),
@@ -653,15 +653,17 @@ function initPostModMenuLinks() {
         });
         break;
       case 'lock-dispute': {
-        const d = Number(prompt(`Apply a CONTENT-DISPUTE LOCK to this ${postType} for how many days?`, '3')?.trim());
-        if (!isNaN(d) && d > 0) lockPost(pid, 20, 24 * d).then(reloadPage);
-        else StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'Invalid number of days');
+        const input = prompt(`Apply a CONTENT-DISPUTE LOCK to this ${postType} for how many days?`, '3')?.trim();
+        const days = Number(input);
+        if (!isNaN(days) && days > 0) lockPost(pid, 20, 24 * days).then(reloadPage);
+        else if (input && isNaN(days)) StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'Invalid number of days');
         break;
       }
       case 'lock-comments': {
-        const d = Number(prompt(`Apply a COMMENT LOCK to this ${postType} for how many days?`, '1')?.trim());
-        if (!isNaN(d) && d > 0) lockPost(pid, 21, 24 * d).then(reloadPage);
-        else StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'Invalid number of days');
+        const input = prompt(`Apply a COMMENT LOCK to this ${postType} for how many days?`, '1')?.trim();
+        const days = Number(input);
+        if (!isNaN(days) && days > 0) lockPost(pid, 21, 24 * days).then(reloadPage);
+        else if (input && isNaN(days)) StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'Invalid number of days');
         break;
       }
       case 'lock-wiki':
@@ -720,7 +722,7 @@ function initPostModMenuLinks() {
       case 'cm-post-dissociation':
         if (isSuperuser && confirm(`Are you sure you want to SEND (without review) a CM message to dissociate this ${postType} (ID: ${pid}) by "${uName}"?`)) {
           sendCmDissociateMessage(uid, pid, postType).then(function () {
-            StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'CM dissociation message sent successfully.');
+            StackExchange.helpers.showSuccessMessage(menuEl.parentNode, 'CM dissociation message sent successfully.');
           });
           return;
         }
@@ -851,12 +853,18 @@ addStylesheet(`
   float: left;
   min-width: 260px;
   margin: 14px 0;
-  font-size: 0.97em;
+
+  text-align: left;
+  white-space: nowrap;
 }
 .js-better-inline-menu.smaller {
-  margin-top: 10px;
-  font-size: 0.88em;
-  line-height: 1;
+  font-size: 0.96em;
+  line-height: 1.1;
+}
+.js-better-inline-menu * {
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
 }
 .js-better-inline-menu .inline-label,
 .js-better-inline-menu button.s-btn.s-btn__link {

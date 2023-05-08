@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.0.1
+// @version      5.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -682,15 +682,17 @@ function initPostModMenuLinks() {
         });
         break;
       case 'lock-dispute': {
-        const d = Number(prompt(`Apply a CONTENT-DISPUTE LOCK to this ${postType} for how many days?`, '3')?.trim());
-        if (!isNaN(d) && d > 0) lockPost(pid, 20, 24 * d).then(reloadPage);
-        else StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'Invalid number of days');
+        const input = prompt(`Apply a CONTENT-DISPUTE LOCK to this ${postType} for how many days?`, '3')?.trim();
+        const days = Number(input);
+        if (!isNaN(days) && days > 0) lockPost(pid, 20, 24 * days).then(reloadPage);
+        else if (input && isNaN(days)) StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'Invalid number of days');
         break;
       }
       case 'lock-comments': {
-        const d = Number(prompt(`Apply a COMMENT LOCK to this ${postType} for how many days?`, '1')?.trim());
-        if (!isNaN(d) && d > 0) lockPost(pid, 21, 24 * d).then(reloadPage);
-        else StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'Invalid number of days');
+        const input = prompt(`Apply a COMMENT LOCK to this ${postType} for how many days?`, '1')?.trim();
+        const days = Number(input);
+        if (!isNaN(days) && days > 0) lockPost(pid, 21, 24 * days).then(reloadPage);
+        else if (input && isNaN(days)) StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'Invalid number of days');
         break;
       }
       case 'lock-wiki':
@@ -749,7 +751,7 @@ function initPostModMenuLinks() {
       case 'cm-post-dissociation':
         if (isSuperuser && confirm(`Are you sure you want to SEND (without review) a CM message to dissociate this ${postType} (ID: ${pid}) by "${uName}"?`)) {
           sendCmDissociateMessage(uid, pid, postType).then(function () {
-            StackExchange.helpers.showErrorMessage(menuEl.parentNode, 'CM dissociation message sent successfully.');
+            StackExchange.helpers.showSuccessMessage(menuEl.parentNode, 'CM dissociation message sent successfully.');
           });
           return;
         }
@@ -924,11 +926,12 @@ addStylesheet(`
   box-shadow: 0 8px 10px 1px rgba(0,0,0,0.14), 0 3px 14px 2px rgba(0,0,0,0.12), 0 5px 5px -3px rgba(0,0,0,0.2);
 
   text-align: left;
-  font-size: 0.923rem;
-  font-family: Roboto,RobotoDraft,Helvetica,Arial,sans-serif;
-  letter-spacing: .2px;
-  line-height: 20px;
   white-space: nowrap;
+}
+.js-post-mod-menu-link * {
+  font-family: inherit;
+  font-size: inherit;
+  letter-spacing: inherit;
 }
 .js-post-mod-menu .js-post-mod-menu-header {
   display: block !important;
@@ -955,9 +958,11 @@ addStylesheet(`
   user-select: none;
 }
 .js-post-mod-menu .inline-label {
-  margin-top: -0.75rem;
-  margin-bottom: -0.5rem;
+  margin-top: -0.5rem;
+  margin-bottom: 0rem;
   padding-left: 2px;
+  font-size: 0.85rem;
+  pointer-events: none;
   z-index: 1;
 }
 .js-post-mod-menu > button:hover {
@@ -972,11 +977,15 @@ addStylesheet(`
   background-color: var(--red-500);
   color: var(--white);
 }
-.js-post-mod-menu > .separator {
+.js-post-mod-menu .js-post-mod-menu-header + .separator {
+  display: none;
+}
+.js-post-mod-menu .separator {
   display: block;
   width: 100%;
-  border-top: 1px solid var(--black-100);
   margin: 5px 0;
+  border-top: 1px solid var(--black-100);
+  pointer-events: none;
 }
 
 @media screen and (max-width: 500px) {
