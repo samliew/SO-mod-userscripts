@@ -3,7 +3,7 @@
 // @description  Batch-move saved posts between private lists, quick move after saving in Q&A, import/export lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0.5
+// @version      3.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -79,7 +79,7 @@ const toShortLink = (str, newdomain = null) => {
 
 /**
  * @summary Create saved list
- * @param {string} [listName] new list name
+ * @param {string} listName new list name
  * @returns {number} listId
  */
 const createSavedList = async (listName) => {
@@ -110,12 +110,13 @@ const createSavedList = async (listName) => {
 
 /**
  * @summary Save item
- * @param {number} [pid] post id
+ * @param {number} pid post id
  * @param {number} [listId] list id
- * @param {string} [listName] list name (Optional)
+ * @param {string} [listName] list name
+ * @param {boolean} [unsaveItem] unsave item
  * @returns {string} html
  */
-const saveItem = async (pid, listId = '', listName = '') => {
+const saveItem = async (pid, listId = '', listName = '', unsaveItem = false) => {
   //console.log('saveItem', pid, listName);
 
   const formData = new FormData();
@@ -123,7 +124,9 @@ const saveItem = async (pid, listId = '', listName = '') => {
   if (listId) formData.append("listId", listId);
   if (listName) formData.append("listName", listName);
 
-  return await fetch(`${location.origin}/posts/${pid}/save`, {
+  const isUndo = unsaveItem ? '?isUndo=true' : '';
+
+  return await fetch(`${location.origin}/posts/${pid}/save${isUndo}`, {
     "method": "POST",
     "body": formData,
   }).then(resp => resp.json());
@@ -132,9 +135,10 @@ const saveItem = async (pid, listId = '', listName = '') => {
 
 /**
  * @summary Move saved item
- * @param {number} [pid] post id
- * @param {number} [listId] list id
- * @param {string} [listName] list name (Optional)
+ * @param {number} pid post id
+ * @param {number} listId list id
+ * @param {string} [listName] list name
+ *
  * @returns {string} html
  */
 const moveSavedItem = async (pid, listId, listName = '') => {
@@ -199,6 +203,7 @@ const getSavesLists = async (postId = 1) => {
 /**
  * @summary Recursive get all items in a saved list
  * @param {number} [listId] list id
+ * @param {string} [sort] sort type
  * @param {number} [page] page number
  * @returns {object[]} list of { pid, title, url }
  *
