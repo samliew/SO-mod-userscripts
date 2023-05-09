@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.4
+// @version      3.4.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -319,8 +319,8 @@ function formatDeletedUserPage() {
       this.select();
     });
 
-  // Show gravatar and Google account avatar
-  $('a[href^="https://www.gravatar.com/avatar/"], a[href*="googleusercontent.com/a/"]', ".del-reason").each(function() {
+  // Show gravatar, imgur, and Google account avatar
+  $('a[href^="https://www.gravatar.com/avatar/"], a[href^="https://i.stack.imgur.com/"], a[href*="googleusercontent.com/a/"]', ".del-reason").each(function() {
     $(this).html(`<img src="${this.href}" style="max-width:128px; max-height:128px;">`);
   });
 
