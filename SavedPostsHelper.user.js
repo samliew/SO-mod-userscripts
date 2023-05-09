@@ -3,7 +3,7 @@
 // @description  Batch-move saved posts between private lists, quick move after saving in Q&A, import/export lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0.2
+// @version      3.0.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -704,7 +704,10 @@ addStylesheet(`
             Import items into "${currListName}"
           </h1>
           <div class="mt12 mb16">
-            <div class="mb12 mb4 s-notice s-notice__info">Insert one post ID per line (or export data), OR a line of comma, semicolon, or space-delimited post IDs</div>
+            <div class="mb12 mb4 s-notice s-notice__info">
+              Insert one post ID per line (or export data), OR a line of comma, semicolon, or space-delimited post IDs.
+              Posts will be saved and moved to the current list.
+            </div>
             <textarea class="s-textarea s-textarea__sm hs3 js-list-textarea js-modal-initial-focus"></textarea>
           </div>
           <div class="d-flex gs8 gsx s-modal--footer mt16 jc-center">
@@ -848,8 +851,12 @@ addStylesheet(`
         return;
       }
 
-      // Import items
+      // Disable import button and show spinner
       StackExchange.helpers.addSpinner(importBtn);
+      StackExchange.helpers.showSuccessMessage(toastElement, 'Importing items...');
+      importBtn.disabled = true;
+
+      // Import items
       let successCount = 0, errorCount = 0, alreadySaved = 0;
       for (let i = 0; i < postIds.length; i++) {
         await delay(500); // delay to avoid rate-limiting
@@ -871,8 +878,10 @@ addStylesheet(`
       // Hide import and show refresh link
       importBtn.previousElementSibling.classList.remove('d-none');
       importBtn.classList.add('d-none');
+      importBtn.disabled = false;
       importBtn.nextElementSibling.classList.add('d-none');
 
+      // Show success message
       StackExchange.helpers.removeSpinner(importBtn);
       StackExchange.helpers.showSuccessMessage(toastElement, !errorCount ?
         `${successCount} unique post${pluralize(successCount)} imported successfully.` :
@@ -886,8 +895,9 @@ addStylesheet(`
       const textarea = exportModal.querySelector('textarea');
       textarea.select();
 
-      // don't use document.execCommand because it is deprecated
-      navigator.clipboard.writeText(textarea.value);
+      // Don't use document.execCommand because it is deprecated
+      if (typeof navigator.clipboard?.writeText === 'function')
+        navigator.clipboard?.writeText(textarea.value);
 
       StackExchange.helpers.showSuccessMessage(exportCopyBtn.parentElement, 'Copied to clipboard.');
     });
