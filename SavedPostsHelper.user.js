@@ -3,7 +3,7 @@
 // @description  Batch-move saved posts between private lists, quick move after saving in Q&A
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0
+// @version      3.0.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -222,8 +222,8 @@ const getSavedListItems = async (listId = null, sort = 'Added', page = 1) => {
 
   // Select items on page
   const items = [...el.querySelectorAll('.s-post-summary')].map(v => {
-    const questionLink = v.querySelector('.s-post-summary--content-title a.s-link');
-    const postLinks = v.querySelectorAll('.s-post-summary--content a.s-link');
+    const questionLink = v.querySelector('.s-post-summary--content-title .s-link');
+    const postLinks = v.querySelectorAll('.s-post-summary--content-title .s-link, .js-post-summary-answer-link');
     const postLink = [...postLinks].pop(); // last link is post link (could be saved answer)
     return {
       //postType: postLinks.length > 1 ? 'answer' : 'question',
