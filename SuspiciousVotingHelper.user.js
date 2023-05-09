@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table. Also provides support for SEDE query https://data.stackexchange.com/stackoverflow/query/968803
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.1
+// @version      3.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -34,11 +34,11 @@
 // This is a moderator-only userscript
 if (!isModerator()) return;
 
-const newlines = '\n\n';
 const apikey = 'yZcUvuGAMj25rYZ)a5YNqg((';
+const newlines = '\n\n';
 
 
-// Mapper functions
+// jQuery mapping functions to build object from table rows in votes tables page for suspicious votes canned message
 function mapVotePatternItemsToObject() {
   const link = $('.user-details a', this);
   const uRep = $('.reputation-score', this);
@@ -61,7 +61,6 @@ function mapVotePatternItemsToObject() {
     used: false,
   }
 }
-
 function mapInvVotePatternItemsToObject() {
   const link = $('.user-details a', this);
   const uRep = $('.reputation-score', this);
@@ -89,8 +88,8 @@ let updateModTemplates = function () {
   const userlink = $('.userlink a').filter((i, el) => el.href.includes(`/${uid}/`)).first();
   const template = $('.popup input[name=mod-template]').filter((i, el) => $(el).next().text().includes('suspicious voting'));
 
-  let addstr = `This user has a [suspicious history](${location.origin}/admin/show-user-votes/${uid}) of cross-voting and/or targeted votes.` + newlines;
-  let appstr = `*(there may also be other minor instances of targeted votes that are unknown to us, as we can only view votes between users if they are above a certain threshold)*`;
+  let prefixString = `This user has a [suspicious history](${location.origin}/admin/show-user-votes/${uid}) of cross-voting and/or targeted votes.` + newlines;
+  let appendString = `*(there may also be other minor instances of targeted votes that are unknown to us, as we can only view votes between users if they are above a certain threshold)*`;
   let additionalInfo = getQueryParam('info');
 
   // After template dialog has opened
@@ -236,36 +235,39 @@ it doesn't seem that this account is a sockpuppet due to different PII and are m
 
     // Display flags from users
     if (flags.length > 0) {
-      let flagtext = `\nReported via [custom flag](${location.origin}/users/flagged-posts/${uid}):\n\n`;
+      let flagText = `\nReported via [custom flag](${location.origin}/users/flagged-posts/${uid}):\n\n`;
       flags.forEach(function (v) {
-        flagtext += '> ' + v + newlines;
+        flagText += '> ' + v + newlines;
       });
 
-      appstr = flagtext + newlines + appstr;
+      appendString = flagText + newlines + appendString;
     }
 
     // Additional information from querystring, mostly for use with
-    // https://data.stackexchange.com/stackoverflow/query/968803
+    // https://data.stackexchange.com/stackoverflow/query/968803 (original)
+    // https://data.stackexchange.com/stackoverflow/query/1464298 (latest)
     if (additionalInfo) {
       let infotext = `Additional information:` + newlines + ' - ' + decodeURIComponent(additionalInfo) + newlines;
-      appstr = infotext + newlines + appstr;
+      appendString = infotext + newlines + appendString;
     }
 
-    // Insert to template
-    addstr += evidence;
+    // Insert to CM suspicious voting template
+    prefixString += evidence;
     template.val(
       template.val()
         .replace(/:\n/, ':<br>') // remove newline after :
         .replace(/(https[^\s]+)/, '$1?tab=reputation') // change userlink to rep tab
-        .replace(/\n\n{todo}/, addstr + appstr) // replace todo with evidence
+        .replace(/\n\n{todo}/, prefixString + appendString) // replace todo with evidence
     );
 
     // Show help message if template selected
     var selBtn = template.closest('.popup').find('.popup-submit');
     selBtn.on('click', function () {
       if (template.is(':checked')) {
-        //StackExchange.helpers.showMessage($('#show-templates').parent(),
-        //   'Ensure confirmed socks (matching IP & PII) are deleted first. Then in this canned message, remove users that are not cross-voting or targeted voting.');
+        StackExchange.helpers.showMessage(
+          $('#show-templates').parent(),
+          'Ensure confirmed socks (matching IP & PII) are deleted first before using this template. Then, in this canned message, remove users that are not cross or targeted voting.'
+        );
       }
     });
 
@@ -286,28 +288,32 @@ function doPageLoad() {
 
   // If on xref-user-ips page
   if (location.pathname.includes('/admin/xref-user-ips/')) {
+    const svhActiveClass = 'svh-active';
+    const svhFocusClass = 'svh-focus';
+    const svhCurrUserClass = 'svh-curruser';
 
     // Populate each user row with their uid
-    const userrows = $('#xref-ids td tbody tr').each(function () {
-      $(this).attr('data-uid', $(this).find('a').first().attr('href').match(/\d+$/)[0]);
-    })
+    const userRows = $('#xref-ids td tbody tr')
+      .each(function () {
+        this.dataset.uid = this.querySelector('a')?.href?.match(/\d+$/)[0];
+      })
 
       // Highlight same user across IPs
       .on('mouseover', function () {
         const uid = this.dataset.uid;
-        userrows.removeClass('active').filter(`[data-uid=${uid}]`).addClass('active');
+        userRows.removeClass(svhActiveClass).filter(`[data-uid=${uid}]`).addClass(svhActiveClass);
       })
       .on('mouseout', function () {
-        userrows.removeClass('active');
+        userRows.removeClass(svhActiveClass);
       })
 
       // Pin highlight on clicked user
-      .on('click', function (evt, curruser) {
+      .on('click', function (evt, currUser) {
         const uid = this.dataset.uid;
-        const isFocus = $(this).hasClass('focus');
-        userrows.removeClass('focus');
-        if (curruser) userrows.filter(`[data-uid=${uid}]`).addClass('curruser');
-        if (!isFocus) userrows.filter(`[data-uid=${uid}]`).addClass('focus');
+        const isFocus = $(this).hasClass(svhFocusClass);
+        userRows.removeClass('focus');
+        if (currUser) userRows.filter(`[data-uid=${uid}]`).addClass(svhCurrUserClass);
+        if (!isFocus) userRows.filter(`[data-uid=${uid}]`).addClass(svhFocusClass);
       });
 
     // Select current user on page load
@@ -316,11 +322,9 @@ function doPageLoad() {
 
     // Fix compare links that are on the same date, so we don't get the "to date precedes or equal to start date" error
     $('a[href^="/admin/user-activity"]').each(function () {
-      const params = this.href.split('#')[1].split('|');
-      const date1 = params[0];
-      const date2 = params[1];
-      const users = params[2];
-      if (date1 == date2) {
+      const [date1, date2, users] = this.href.split('#')[1].split('|');
+
+      if (date1 === date2) {
         let y = Number(date1.split('/')[0]);
         let m = Number(date1.split('/')[1]);
         let d = Number(date1.split('/')[2]) - 1;
@@ -345,59 +349,68 @@ function doPageLoad() {
 
   // If on user votes page
   else if (location.pathname.includes('/show-user-votes/')) {
+    const svhSortClass = 'bg-yellow-100';
 
-    // Sort invalidated votes table by date of invalidation instead, but still allow sorting by other columns
-    const activeVotesTables = $('.cast-votes:first table');
-    const invalidatedVotesTables = $('.cast-votes:last table');
+    function _sortByUser(a, b) {
+      let aVal = a.querySelector('.user-details a').innerText,
+        bVal = b.querySelector('.user-details a').innerText;
+
+      if (aVal === bVal) return 0;
+      return (aVal > bVal) ? 1 : -1;
+    }
+
+    function _sortByType(a, b) {
+      let aVal = a.querySelector('.ta-center span').innerText,
+        bVal = b.querySelector('.ta-center span').innerText;
+
+      if (aVal === bVal) return 0;
+      return (aVal < bVal) ? 1 : -1;
+    };
+
+    function _sortByVotes(a, b) {
+      let aVal = Number(a.children[2].innerText.match(/\d+/)[0]),
+        bVal = Number(b.children[2].innerText.match(/\d+/)[0]);
+      //console.log(a.children[2].innerText, aVal);
+
+      if (aVal === bVal) return 0;
+      return (aVal < bVal) ? 1 : -1;
+    };
+
+    function _sortByPerc(a, b) {
+      let aVal = Number(a.querySelector('.number span')?.innerText.replace('%', '')),
+        bVal = Number(b.querySelector('.number span')?.innerText.replace('%', ''));
+
+      if (aVal === bVal || isNaN(aVal) || isNaN(bVal)) return 0;
+      return (aVal < bVal) ? 1 : -1;
+    };
+
+    function _sortByNum(a, b) {
+      let aVal = Number(a.children[1].innerText.match(/\d+/)[0]),
+        bVal = Number(b.children[1].innerText.match(/\d+/)[0]);
+
+      if (aVal === bVal) return 0;
+      return (aVal < bVal) ? 1 : -1;
+    };
+
+    function _sortByDate(a, b) {
+      let aVal = new Date(a.querySelector('.relativetime').title),
+        bVal = new Date(b.querySelector('.relativetime').title);
+
+      if (aVal === bVal) return 0;
+      return (aVal < bVal) ? 1 : -1;
+    };
+
+    const activeVotesTables = $('#mainbar-full > div:first table');
+    const invalidatedVotesTables = $('#mainbar-full > div:last table');
 
     activeVotesTables.on('click', 'th', function () {
-      let sortFunction;
-      switch ($(this).index()) {
+      const thIndex = $(this).index();
+      const sortFunction = [_sortByUser, _sortByType, _sortByVotes, _sortByPerc, null][thIndex];
+      if (!sortFunction) return;
 
-        case 0: // user
-          sortFunction = function (a, b) {
-            let aTxt = $(a).find('.user-details a').text(),
-              bTxt = $(b).find('.user-details a').text();
+      // Toggle sort class
+      $(this).addClass(svhSortClass).siblings().removeClass(svhSortClass);
 
-            if (aTxt == bTxt) return 0;
-            return (aTxt > bTxt) ? 1 : -1;
-          };
-          break;
-
-        case 1: // type
-          sortFunction = function (a, b) {
-            let aTxt = $(a).find('.vote-type span').text(),
-              bTxt = $(b).find('.vote-type span').text();
-
-            if (aTxt == bTxt) return 0;
-            return (aTxt > bTxt) ? 1 : -1;
-          };
-          break;
-
-        case 2: // num
-          sortFunction = function (a, b) {
-            let aTxt = Number(a.children[2].innerText.split(' / ')[0]),
-              bTxt = Number(b.children[2].innerText.split(' / ')[0]);
-
-            console.log(a.children[2].innerText, aTxt);
-            if (aTxt == bTxt) return 0;
-            return (aTxt < bTxt) ? 1 : -1;
-          };
-          break;
-
-        case 3: // perc
-          sortFunction = function (a, b) {
-            let aTxt = Number($(a).find('.number span').text().replace('%', '')),
-              bTxt = Number($(b).find('.number span').text().replace('%', ''));
-
-            if (aTxt == bTxt) return 0;
-            return (aTxt < bTxt) ? 1 : -1;
-          };
-          break;
-
-        default:
-          return; // do nothing
-      }
       // Sort posts in-memory then reattach to container
       const tbody = $(this).closest('table').find('tbody');
       tbody.children().sort(sortFunction).detach().appendTo(tbody);
@@ -405,48 +418,29 @@ function doPageLoad() {
       return false;
     });
 
+    // Sort activeVotesTables by given by default
+    activeVotesTables.each(function () {
+      $(this).find('th').eq(2).addClass(svhSortClass);
+    });
+
     invalidatedVotesTables.on('click', 'th', function () {
-      let sortFunction;
-      switch ($(this).index()) {
+      const thIndex = $(this).index();
+      const sortFunction = [_sortByUser, _sortByNum, _sortByDate, null][thIndex];
+      if (!sortFunction) return;
 
-        case 0: // user
-          sortFunction = function (a, b) {
-            let aTxt = $(a).find('.user-details a').text(),
-              bTxt = $(b).find('.user-details a').text();
+      // Toggle sort class
+      $(this).addClass(svhSortClass).siblings().removeClass(svhSortClass);
 
-            if (aTxt == bTxt) return 0;
-            return (aTxt > bTxt) ? 1 : -1;
-          };
-          break;
-
-        case 1: // num
-          sortFunction = function (a, b) {
-            let aTxt = Number($(a).find('.number').text()),
-              bTxt = Number($(b).find('.number').text());
-
-            if (aTxt == bTxt) return 0;
-            return (aTxt < bTxt) ? 1 : -1;
-          };
-          break;
-
-        case 2: // date
-          sortFunction = function (a, b) {
-            let aTxt = $(a).find('.relativetime').attr('title'),
-              bTxt = $(b).find('.relativetime').attr('title');
-
-            if (aTxt == bTxt) return 0;
-            return (aTxt < bTxt) ? 1 : -1;
-          };
-          break;
-
-        default:
-          return; // do nothing
-      }
       // Sort posts in-memory then reattach to container
       const tbody = $(this).closest('table').find('tbody');
       tbody.children().sort(sortFunction).detach().appendTo(tbody);
 
       return false;
+    });
+
+    // Sort invalidatedVotesTables by date by default
+    invalidatedVotesTables.each(function () {
+      $(this).find('th').eq(2).trigger('click');
     });
   }
 
@@ -497,17 +491,41 @@ addStylesheet(`
 tr[data-uid] {
   cursor: cell;
 }
-tr[data-uid].active {
+tr[data-uid].svh-active {
   background: var(--powder-400);
 }
-tr[data-uid].focus {
+tr[data-uid].svh-focus {
   background: var(--powder-400);
 }
-tr[data-uid].curruser {
+tr[data-uid].svh-curruser {
   background: var(--green-300);
 }
-.sorter th {
+
+/* All vote tables */
+#mainbar-full > .flex__allitems6 > .flex--item > table.s-table th {
+  padding: 10px 4px 10px 8px;
+  white-space: nowrap !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
+}
+#mainbar-full > .flex__allitems6 > .flex--item > table.s-table td {
+  padding: 2px 8px;
+}
+#mainbar-full > .flex__allitems6 > .flex--item > table.s-table td:last-child {
+  padding: 2px 4px;
+}
+#mainbar-full > .flex__allitems6 > .flex--item > table.s-table .user-info {
+  margin-right: -5px;
+  padding: 5px 0 6px 0px;
+}
+/* Active vote tables */
+#mainbar-full > .flex__allitems6:first-child > .flex--item > table.s-table {
+
+}
+/* Invalidated vote tables */
+#mainbar-full > .flex__allitems6:last-child > .flex--item > table.s-table {
+
 }
 `); // end stylesheet
 
@@ -517,7 +535,8 @@ tr[data-uid].curruser {
   doPageLoad();
 
   // On any page update
-  $(document).ajaxComplete(function (event, xhr, settings) {
+  $(document).ajaxComplete(function (_event, _xhr, settings) {
+
     // If mod popup loaded
     if (settings.url.includes('/admin/contact-cm/template-popup/')) {
       setTimeout(updateModTemplates, 200);
