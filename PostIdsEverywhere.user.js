@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.2.2
+// @version      3.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -36,11 +36,25 @@ function insertPostIds() {
   const modQueuePostLinks = $('.js-body-loader').find('a:first');
 
   // Lists
-  $('a.question-hyperlink, a.answer-hyperlink, .s-post-summary--content-title > a, .s-post-summary--content-title.s-link, .js-post-title-link, .originals-of-duplicate li > a, .originals-of-duplicate .js-originals-list > a')
+  const listsLinkSelectors = [
+    'a.question-hyperlink',
+    'a.answer-hyperlink',
+    'a.js-post-title-link',
+    '.s-post-summary--content-title > a',
+    '.s-post-summary--content-title.s-link',
+    '.originals-of-duplicate li > a',
+    '.originals-of-duplicate .js-originals-list > a',
+    '.question-summary a.js-link',
+    '.event-comment span a',
+    '.js-revision > div:first-child li > a',
+  ].join(',');
+
+  $(listsLinkSelectors)
     .add(modQueuePostLinks)
     .not('.js-somu-post-ids').addClass('js-somu-post-ids')
     .each((i, el) => {
       if (el.href.includes('/election')) return; // ignore election pages
+      if (location.hostname !== el.hostname) return; // ignore links from other sites
       const pid = getPostId(el.href);
       const input = $(`<input class="post-id" title="double click to view timeline" value="${pid}" readonly />`).insertAfter(el);
       input.dynamicWidth();
@@ -89,7 +103,9 @@ addStylesheet(`
 .reviewable-post h1,
 .js-flag-text li,
 .originals-of-duplicate li,
-.js-expandable-posts .break-word {
+.js-expandable-posts .break-word,
+.post-timeline .event-comment,
+.js-revision > div:first-child li {
   position: relative;
 }
 .popup[data-questionid],
