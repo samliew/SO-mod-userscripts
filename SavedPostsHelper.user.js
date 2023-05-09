@@ -3,7 +3,7 @@
 // @description  Batch-move saved posts between private lists, quick move after saving in Q&A
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      2.0
+// @version      3.0
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -28,17 +28,17 @@
 
 'use strict';
 
-const enableConsoleLog = false;
-let clog = enableConsoleLog ? console.log : () => { };
+const listSidebarNav = document.querySelector('.js-saves-sidebar-nav');
+const currListId = listSidebarNav.querySelector('a.is-selected')?.parentElement.dataset.listId;
+const currListName = document.querySelector('.js-saves-list-header')?.innerText.trim();
 
-const currListId = document.querySelector('.js-saves-sidebar-item .is-selected')?.parentElement.dataset.listId;
 const isOnQnaPages = location.pathname.startsWith('/questions/');
 const isOnSavesPages = location.pathname.startsWith('/users/saves/');
 const isOnAllSavesPage = location.pathname.endsWith('/all');
 const isOnForLaterPage = !!document.querySelector('[data-is-forlater="True"]') || (!currListId && !isOnAllSavesPage);
 
 if (isOnSavesPages) {
-  clog(`Current saves list: ${currListId ? currListId : (isOnForLaterPage ? 'For later' : 'All saves')}`);
+  console.log(`Current saves list: ${currListId ? currListId : (isOnForLaterPage ? 'For later' : 'All saves')}`);
 }
 
 // Validation
@@ -54,13 +54,36 @@ if (!(isOnQnaPages || currListId || isOnAllSavesPage || isOnForLaterPage)) {
 let savesList, cAll, cAllSelect, elSavesCount;
 
 
+const toShortLink = (str, newdomain = null) => {
+
+  // Match ids in string, prefixed with either a / or #
+  const ids = str.match(/[\/#](\d+)/g);
+
+  // Get last occurance of numeric id in string
+  const pid = ids.pop().replace(/\D+/g, '');
+
+  // Q (single id) or A (multiple ids)
+  const qa = ids.length > 1 ? 'a' : 'q';
+
+  // Use domain if set, otherwise use domain from string, fallback to relative path
+  const baseDomain = newdomain ?
+    // Ensure trailing slash is added to newdomain
+    newdomain.replace(/\/$/, '') + '/' :
+    // Get domain from string
+    (str.match(/\/+([a-z]+\.)+[a-z]{2,3}\//) || ['/'])[0];
+
+  // Format of short link on the Stack Exchange network
+  return pid ? baseDomain + qa + '/' + pid : str;
+};
+
+
 /**
  * @summary Create saved list
  * @param {string} [listName] new list name
  * @returns {number} listId
  */
 const createSavedList = async (listName) => {
-  clog('createSavedList', listName);
+  //console.log('createSavedList', listName);
 
   // Validation
   listName = listName.trim();
@@ -93,7 +116,7 @@ const createSavedList = async (listName) => {
  * @returns {string} html
  */
 const saveItem = async (pid, listId = '', listName = '') => {
-  clog('saveItem', pid, listName);
+  //console.log('saveItem', pid, listName);
 
   const formData = new FormData();
   formData.append("fkey", fkey);
@@ -115,7 +138,7 @@ const saveItem = async (pid, listId = '', listName = '') => {
  * @returns {string} html
  */
 const moveSavedItem = async (pid, listId, listName = '') => {
-  clog('moveSavedItem', pid, listId, listName);
+  //console.log('moveSavedItem', pid, listId, listName);
 
   const formData = new FormData();
   formData.append("fkey", fkey);
@@ -138,7 +161,7 @@ const moveSavedItem = async (pid, listId, listName = '') => {
  * @returns {string} html
  */
 const getSavesModal = async (pid = 1, isMove = false, currListId = null) => {
-  clog('getSavesModal', pid, isMove, currListId);
+  //console.log('getSavesModal', pid, isMove, currListId);
 
   if (!pid) return;
   return await fetch(`${location.origin}/posts/${pid}/open-save-modal?isMoveTo=${isMove}&listId=${currListId}&_=${Date.now()}`, {
@@ -153,7 +176,7 @@ const getSavesModal = async (pid = 1, isMove = false, currListId = null) => {
  * @returns {object[]} list of { name, id, count }
  */
 const getSavesLists = async (postId = 1) => {
-  clog('getSavesLists', postId);
+  //console.log('getSavesLists', postId);
 
   const modalBody = await getSavesModal(postId);
   const el = document.createElement('div');
@@ -174,6 +197,55 @@ const getSavesLists = async (postId = 1) => {
 
 
 /**
+ * @summary Recursive get all items in a saved list
+ * @param {number} [listId] list id
+ * @param {number} [page] page number
+ * @returns {object[]} list of { pid, title, url }
+ *
+ * If listId is null: get uncategorised (For later) items
+ * If listId is "all": get all items
+ */
+const getSavedListItems = async (listId = null, sort = 'Added', page = 1) => {
+  //console.log('getSavedListItems', listId, sort, page);
+
+  // Validate listId param
+  if (listId !== null && listId !== 'all' && listId <= 0) return [];
+
+  const resp = await fetch(`${location.origin}/users/saves/${currentUserId}${listId === 'all' ? '' : `/${listId || 'all'}`}?sort=${sort}&page=${page}&_=${Date.now()}`, {
+    "method": "GET",
+  });
+  pageHtml = await resp.text();
+
+  // Make page dom
+  const el = document.createElement('div');
+  el.innerHTML = pageHtml;
+
+  // Select items on page
+  const items = [...el.querySelectorAll('.s-post-summary')].map(v => {
+    const questionLink = v.querySelector('.s-post-summary--content-title a.s-link');
+    const postLinks = v.querySelectorAll('.s-post-summary--content a.s-link');
+    const postLink = [...postLinks].pop(); // last link is post link (could be saved answer)
+    return {
+      //postType: postLinks.length > 1 ? 'answer' : 'question',
+      pid: getPostId(postLink.href),
+      url: 'https:' + toShortLink(postLink.href), //.replace(/\?.*$/, ''), // strip ?r=Saves_AllUserSaves from end
+      title: questionLink.innerText.replace(/;/g, ',').replace(/\s*\[\w+\]\s*$/i, '').trim(),
+    }
+  });
+
+  // Detect next page
+  const nextPage = el.querySelector('a.s-pagination--item[rel="next"]');
+  if (nextPage) {
+    await delay(1000);
+    const nextPageItems = await getSavedListItems(listId, sort, page + 1);
+    return [...items, ...nextPageItems];
+  }
+
+  return items;
+};
+
+
+/**
  * @summary Update move dropdown list and sidebar counts
  */
 const updateMoveDropdown = async (postId = null, isQuestion = false) => {
@@ -187,7 +259,7 @@ const updateMoveDropdown = async (postId = null, isQuestion = false) => {
     postId = document.querySelector('a[href^="/questions/"]')?.href.match(/\d+/)?.shift() ?? null;
   }
 
-  clog('updateMoveDropdown', postId, isQuestion);
+  //console.log('updateMoveDropdown', postId, isQuestion);
 
   // Get saved lists
   const savedLists = await getSavesLists(postId);
@@ -388,12 +460,12 @@ const postUnsavedEvent = async (postId, isQuestion = false) => {
   const handleUndoClickEvent = async (evt) => {
     const postId = evt.target.value;
     const resp = await saveItem(postId);
-    clog(`${isQuestion ? 'Question' : 'Answer'} was resaved.`, postId, resp);
+    //console.log(`${isQuestion ? 'Question' : 'Answer'} was resaved.`, postId, resp);
 
     // If we know the current list id, move it back there
     if (Number(currListId)) {
       const resp2 = await moveSavedItem(postId, currListId);
-      clog(`${isQuestion ? 'Question' : 'Answer'} was moved to ${currListId}.`, postId, currListId, resp);
+      //console.log(`${isQuestion ? 'Question' : 'Answer'} was moved to ${currListId}.`, postId, currListId, resp);
     }
 
     // Toast success message
@@ -461,7 +533,7 @@ const addEventListeners = () => {
       if (/\/posts\/\d+\/save$/.test(settings.url)) {
         const postId = Number(settings.url.match(/\/posts\/(\d+)\/save$/)?.pop());
         const isQuestion = xhr.responseJSON?.NextTooltip?.includes('question');
-        clog(`${isQuestion ? 'Question' : 'Answer'} was saved.`, postId, xhr.responseJSON);
+        //console.log(`${isQuestion ? 'Question' : 'Answer'} was saved.`, postId, xhr.responseJSON);
 
         setTimeout(() => {
           postSavedEvent(postId, isQuestion);
@@ -480,7 +552,7 @@ const addEventListeners = () => {
     if (/\/posts\/\d+\/save\?isUndo=true$/.test(settings.url)) {
       const postId = Number(settings.url.match(/\/posts\/(\d+)\/save\?isUndo=true$/)?.pop());
       const isQuestion = xhr.responseJSON?.NextTooltip.includes('question');
-      clog(`${isQuestion ? 'Question' : 'Answer'} was unsaved.`, postId, xhr.responseJSON);
+      //console.log(`${isQuestion ? 'Question' : 'Answer'} was unsaved.`, postId, xhr.responseJSON);
 
       setTimeout(() => {
         postUnsavedEvent(postId, isQuestion);
@@ -606,10 +678,140 @@ addStylesheet(`
     filterWrapper.classList.add('filter-wrapper', 'ai-center');
 
     // Move saves count to list header
-    const elSavesHeader = document.querySelector('.js-saves-list-header');
+    const elSavesHeader = document.querySelector('.js-saves-lists-posts');
+    const elSavesHeaderTitle = elSavesHeader.querySelector('.js-saves-list-header');
     elSavesCount.innerText = elSavesCount.dataset.savesCount;
-    elSavesHeader.appendChild(elSavesCount);
+    elSavesHeaderTitle.appendChild(elSavesCount);
 
+    // UI fix: Remove pe-none from create/edit list modals, otherwise use can click on elements behind them
+    document.querySelectorAll('aside.pe-none').forEach(modal => modal.classList.remove('pe-none'));
+
+    // Create import modal
+    const importModal = makeElem('aside', {
+      'class': 's-modal js-save-modal js-list-action-modal',
+      'id': 'import-list-modal',
+      'tabindex': "-1",
+      'role': "dialog",
+      'aria-hidden': "true",
+      'data-controller': "s-modal",
+      'data-s-modal-target': "modal",
+      'data-modal-action': "Import",
+    }, null);
+    importModal.innerHTML = `
+      <div class="s-modal--dialog js-modal-dialog js-keyboard-navigable-modal pe-auto ws12">
+        <form class="js-import-list-form">
+          <h1 class="s-modal--header fs-headline1 fw-bold mr48 js-first-tabbable" id="modal-title" tabindex="0">
+            Import items into "${currListName}"
+          </h1>
+          <div class="mt12 mb16">
+            <div class="mb12 mb4 s-notice s-notice__info">Insert one post ID per line (or export data), OR a line of comma, semicolon, or space-delimited post IDs</div>
+            <textarea class="s-textarea s-textarea__sm hs3 js-list-textarea js-modal-initial-focus"></textarea>
+          </div>
+          <div class="d-flex gs8 gsx s-modal--footer mt16 jc-center">
+            <div class="flex-item">
+              <a href=${location.href} class="flex--item s-btn s-btn__primary d-none" type="button">Close &amp; Refresh</a>
+              <button class="flex--item s-btn s-btn__primary" type="button">Import</button>
+              <button class="flex--item s-btn" data-action="s-modal#hide" type="button">Close</button>
+            </div>
+          </div>
+          <button class="s-modal--close s-btn s-btn__muted js-last-tabbable" type="button" aria-label="Close" data-action="s-modal#hide">
+            <svg aria-hidden="true" class="m0 svg-icon iconClearSm" width="14" height="14" viewBox="0 0 14 14"><path d="M12 3.41 10.59 2 7 5.59 3.41 2 2 3.41 5.59 7 2 10.59 3.41 12 7 8.41 10.59 12 12 10.59 8.41 7 12 3.41Z"></path></svg>
+          </button>
+        </form>
+      </div>`;
+    elSavesHeader.parentElement.appendChild(importModal);
+
+    // Create export modal
+    const exportModal = makeElem('aside', {
+      'class': 's-modal js-save-modal js-list-action-modal',
+      'id': 'export-list-modal',
+      'tabindex': "-1",
+      'role': "dialog",
+      'aria-hidden': "true",
+      'data-controller': "s-modal",
+      'data-s-modal-target': "modal",
+      'data-modal-action': "Export",
+    }, null);
+    exportModal.innerHTML = `
+      <div class="s-modal--dialog js-modal-dialog js-keyboard-navigable-modal pe-auto ws12">
+        <form class="js-export-list-form">
+          <h1 class="s-modal--header fs-headline1 fw-bold mr48 js-first-tabbable" id="modal-title" tabindex="0">
+            Export list "${currListName}"
+          </h1>
+          <div class="mt12 mb16">
+            <textarea class="s-textarea s-textarea__sm hs3 js-list-textarea js-modal-initial-focus fc-black bg-white" style="cursor:text;" readonly></textarea>
+          </div>
+          <div class="d-flex gs8 gsx s-modal--footer mt16 jc-center">
+            <div class="flex-item">
+              <button class="flex--item s-btn s-btn__primary" type="button">Copy CSV</button>
+              <button class="flex--item s-btn" data-action="s-modal#hide" type="button">Close</button>
+            </div>
+          </div>
+          <button class="s-modal--close s-btn s-btn__muted js-last-tabbable" type="button" aria-label="Close" data-action="s-modal#hide">
+            <svg aria-hidden="true" class="m0 svg-icon iconClearSm" width="14" height="14" viewBox="0 0 14 14"><path d="M12 3.41 10.59 2 7 5.59 3.41 2 2 3.41 5.59 7 2 10.59 3.41 12 7 8.41 10.59 12 12 10.59 8.41 7 12 3.41Z"></path></svg>
+          </button>
+        </form>
+      </div>`;
+    elSavesHeader.parentElement.appendChild(exportModal);
+
+    // Create import/export buttons
+    const importListBtn = makeElem('button', {
+      'type': 'button',
+      'class': 'flex-item s-btn s-btn__muted s-btn__outlined js-import-list-modal',
+      'data-action': 's-modal#show',
+      'data-modal-action': 'Import',
+    }, 'Import list');
+    importListBtn.addEventListener('click', () => {
+
+      // Reset buttons and links
+      const importBtn = importModal.querySelector('button.s-btn__primary');
+      importBtn.previousElementSibling?.classList.add('d-none');
+      importBtn.classList.remove('d-none');
+      importBtn.nextElementSibling?.classList.remove('d-none');
+
+      // Reset textarea
+      const textarea = importModal.querySelector('textarea');
+      textarea.value = '';
+      textarea.focus();
+
+      // Show modal
+      importModal.setAttribute('aria-hidden', 'false');
+    });
+
+    const exportListBtn = makeElem('button', {
+      'type': 'button',
+      'class': 'flex-item s-btn s-btn__muted s-btn__outlined js-export-list-modal d-flex ai-center',
+      'data-action': 's-modal#show',
+      'data-modal-action': 'Export',
+    }, 'Export list');
+    exportListBtn.addEventListener('click', async () => {
+
+      // Get saved list items
+      StackExchange.helpers.addSpinner(exportListBtn);
+      const listItems = await getSavedListItems(currListId);
+      const delimitedList = listItems.map(v => Object.values(v).join(';')).join('\n');
+      const textarea = exportModal.querySelector('textarea');
+      textarea.value = delimitedList;
+      textarea.focus();
+      textarea.select();
+      StackExchange.helpers.removeSpinner(exportListBtn);
+
+      // Show modal
+      exportModal.setAttribute('aria-hidden', 'false');
+    });
+
+    const impExpBtnGroup = makeElem('div', {
+      'class': 'd-flex s-btn-group ml12'
+    }, null, [importListBtn, exportListBtn]);
+
+    // Wrap "Edit list" button in a div
+    const editListBtn = document.querySelector('.js-saves-lists-posts .js-open-list-modal');
+    const editListBtnWrapper = makeElem('div', {
+      'class': 'd-flex'
+    }, null, [editListBtn, impExpBtnGroup]);
+    elSavesHeader.appendChild(editListBtnWrapper);
+
+    // Add bulk checkboxes to each saved post
     savesList.querySelectorAll('.js-saves-post-summary').forEach(item => {
       const answer = item.querySelector('.s-post-summary--answer'); // saved post may be an answer
       const pid = answer?.dataset.postId || item.dataset.postId;
@@ -620,6 +822,76 @@ addStylesheet(`
       });
       item.insertBefore(c, item.children[0]);
     });
+
+    // Add import button handler
+    const importBtn = importModal.querySelector('button.s-btn__primary');
+    importBtn.addEventListener('click', async () => {
+      StackExchange.helpers.removeMessages();
+      const textarea = importModal.querySelector('textarea');
+      const toastElement = textarea.parentElement;
+
+      // Default: If only one line in textarea, assume semicolon, comma, or space-delimited
+      let postIds = textarea.value.split(/[,;\s]+/).filter(Number);
+
+      // If more than one line, assume one item per line
+      const rowItems = textarea.value.split(/[\n\r]+/);
+      if (rowItems.length > 1) {
+        postIds = rowItems.map(v => v.split(';')[0]).filter(Number);
+      }
+
+      // Unique post IDs
+      postIds = [...new Set(postIds)];
+
+      // If still no post IDs, show error
+      if (!postIds.length) {
+        StackExchange.helpers.showErrorMessage(toastElement, 'No post IDs found in textarea.');
+        return;
+      }
+
+      // Import items
+      StackExchange.helpers.addSpinner(importBtn);
+      let successCount = 0, errorCount = 0, alreadySaved = 0;
+      for (let i = 0; i < postIds.length; i++) {
+        await delay(500); // delay to avoid rate-limiting
+        const saveRes = await saveItem(postIds[i], currListId);
+
+        // Couldn't save item, because post doesn't exist
+        if (!saveRes) {
+          errorCount++;
+          continue;
+        }
+
+        // Couldn't save item, because it was already saved
+        if (!saveRes.Success) alreadySaved++;
+
+        const moveRes = await moveSavedItem(postIds[i], currListId);
+        successCount++;
+      }
+
+      // Hide import and show refresh link
+      importBtn.previousElementSibling.classList.remove('d-none');
+      importBtn.classList.add('d-none');
+      importBtn.nextElementSibling.classList.add('d-none');
+
+      StackExchange.helpers.removeSpinner(importBtn);
+      StackExchange.helpers.showSuccessMessage(toastElement, !errorCount ?
+        `${successCount} unique post${pluralize(successCount)} imported successfully.` :
+        `${successCount} unique post${pluralize(successCount)} imported successfully (${errorCount} post${pluralize(errorCount)} doesn't exist).`
+      );
+    });
+
+    // Add export copy button handler
+    const exportCopyBtn = exportModal.querySelector('button.s-btn__primary');
+    exportCopyBtn.addEventListener('click', () => {
+      const textarea = exportModal.querySelector('textarea');
+      textarea.select();
+
+      // don't use document.execCommand because it is deprecated
+      navigator.clipboard.writeText(textarea.value);
+
+      StackExchange.helpers.showSuccessMessage(exportCopyBtn.parentElement, 'Copied to clipboard.');
+    });
+
   }
   // On Q&A pages
   else if (isOnQnaPages) {
