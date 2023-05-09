@@ -3,7 +3,7 @@
 // @description  Batch-move saved posts between private lists, quick move after saving in Q&A, import/export lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0.3
+// @version      3.0.4
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -29,7 +29,7 @@
 'use strict';
 
 const listSidebarNav = document.querySelector('.js-saves-sidebar-nav');
-const currListId = listSidebarNav.querySelector('a.is-selected')?.parentElement.dataset.listId;
+const currListId = listSidebarNav?.querySelector('a.is-selected')?.parentElement.dataset.listId;
 const currListName = document.querySelector('.js-saves-list-header')?.innerText.trim();
 
 const isOnQnaPages = location.pathname.startsWith('/questions/');
