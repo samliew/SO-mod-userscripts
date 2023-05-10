@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurrences of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1
+// @version      4.2
 //
 // @match        https://chat.stackoverflow.com/*
 // @match        https://chat.stackexchange.com/*
@@ -350,7 +350,7 @@ function initMessageParser() {
 
       // Display message id
       if (el.href.includes('/message/') || el.href.includes('?m=')) {
-        el.innerHTML = chatDomain.name +
+        el.textContent = chatDomain.name +
           (!isNaN(Number(roomName)) && !el.href.includes('/message/') ? ', room #' + roomName : '') +
           ', message #' + messageId + transcriptIndicator;
       }
@@ -362,15 +362,15 @@ function initMessageParser() {
           // Properly capitalize common room names
           roomName = roomName.replace('Javascript', 'JavaScript');
 
-          el.innerHTML = roomName + transcriptIndicator;
+          el.textContent = roomName + transcriptIndicator;
         }
         else {
-          el.innerHTML += transcriptIndicator;
+          el.textContent += transcriptIndicator;
         }
       }
       // Fallback to generic domain since no room slug
       else {
-        el.innerHTML = chatDomain.name + ', room #' + roomName + transcriptIndicator;
+        el.textContent = chatDomain.name + ', room #' + roomName + transcriptIndicator;
       }
 
       // Verbose links should not wrap across lines
@@ -486,18 +486,21 @@ function initMessageParser() {
   function parseRoomMini(i, el) {
 
     // Convert main chatroom title link to the room transcript
-    const roomLink = el.querySelector('a');
+    const roomLink = el.querySelector('a[href*="/rooms/"]');
     roomLink.href = roomLink.href.replace('/rooms/', '/transcript/');
-    roomLink.innerText = roomLink.innerText.replace('/rooms/', '/transcript/');
+    roomLink.textContent = roomLink.title;
+    roomLink.title = '';
 
-    // Show longer description
-    const desc = $(el).find('.room-mini-description').each(function (i, el) {
-      el.innerHTML = el.title.replace(/https?:\/\/[^\s]+/gi, '<a href="$&" rel="nofollow noopener noreferrer">$&</a>');
-      el.title = "";
-    });
+    // Show longer description and link links
+    // This also allows SmartPostLinks to fetch post data
+    const desc = el.querySelector('.room-mini-description');
+    desc.innerHTML = desc.title.replace(/https?:\/\/[^\s]+/gi, '<a href="$&">$&</a>');
+    desc.title = '';
   }
 
   function parseMessagesForUsernames(i, el) {
+
+    const mentionRegex = /(^|\s)@([\w\u00C0-\u017F.-]+[^.\s])(\.?(?:\b|\s))/g;
 
     // Ignore oneboxes
     if ($(el).find('.onebox').length > 0) return;
@@ -505,7 +508,21 @@ function initMessageParser() {
     // Has mentions, wrap in span tag so we can select and highlight it
     // (\b|\s) instead of just \b so it allows usernames ending with periods '.'
     if (el.textContent.includes('@')) {
-      el.innerHTML = el.innerHTML.replace(/(^@|\s@)([\w\u00C0-\u017F.-]+[^.\s])(\.?(\b|\s))/g, ' <span class="mention-others" data-username="$2">@$2</span>$3');
+
+      // Loop through all child nodes
+      el.childNodes.forEach(function (node) {
+
+        // If text node and contains mention
+        if (node.nodeType == 3 && mentionRegex.test(node.textContent)) {
+
+          // Replace @username with <span class="mention-others" data-username="username">@username</span>
+          const replacedHtml = node.textContent.replace(mentionRegex, '$1<span class="mention-others" data-username="$2">@$2</span>$3');
+
+          // Insert new html before text node, then remove text node
+          node.parentNode.insertBefore(document.createRange().createContextualFragment(replacedHtml), node);
+          node.remove();
+        }
+      });
     }
   }
 
