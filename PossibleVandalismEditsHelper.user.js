@@ -3,7 +3,7 @@
 // @description  Display revision count and post age
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0
+// @version      3.1
 //
 // @match        https://*.stackoverflow.com/admin/dashboard?flagtype=postvandalismeditsauto*
 // @match        https://*.serverfault.com/admin/dashboard?flagtype=postvandalismeditsauto*
@@ -33,6 +33,8 @@
 
 // This is a moderator-only userscript
 if (!isModerator()) return;
+
+const apikey = 'ENmQ1YxlYnp725at*EkjEg((';
 
 
 // Append styles
@@ -86,29 +88,28 @@ p[title="question originally asked"],
 
 
 // On script run
-(function init() {
+(async function init() {
 
-  $('.post-list .revision-comment a').each(function () {
-    const flag = $(this).parents('.flagged-post-row');
-    const link = $(this);
-    const pid = this.href.match(/\d+/)[0];
-
-    // Get post info
-    $.get({
-      url: `https://stackoverflow.com/posts/${pid}/timeline`,
-      success: function (data) {
-        const eventrows = $('.event-rows tr', data);
-        const dateCreated = new Date(eventrows.filter('[data-eventtype="history"]').last().find('.relativetime').attr('title'));
-        const dateDiff = Date.now() - dateCreated;
-        const age = Math.floor(dateDiff / 86400000); // 86400000 = 1 day
-        const revisions = eventrows.filter(function () {
-          return $(this).find('.event-verb, .wmn1').text().includes('edited');
-        });
-        //console.log(eventrows, dateCreated, age, revisions.length);
-
-        link.before(`<span class="info-num rev-count ${revisions.length >= 5 ? 'red' : ''}" title="post revisions">${revisions.length}</span>`);
-        link.before(`<span class="info-num post-age ${age > 365 ? 'red' : ''}" title="post age">${age}d</span>`);
-      }
-    });
+  // Move flagged post to post-list
+  $('.js-flagged-post').each(function() {
+    const link = $(this).find('.answer-hyperlink, .question-hyperlink').first().clone();
+    link.removeClass();
+    $(this).find('.flag-action-card-text ul.post-list').prepend(`<li><span class="revision-comment">${link[0].outerHTML}</span></li>`)
   });
+
+  const flaggedPosts = $('.post-list .revision-comment a').each(function() {
+    this.dataset.postId = getPostId(this.href);
+  });
+  const postIds = flaggedPosts.map((_i, v) => v.dataset.postId).get();
+  const postsData = await getPostsFromApi(postIds);
+
+  // Add post info to each link
+  flaggedPosts.each(function (_i, link) {
+    const postData = postsData.find(v => v.post_id == link.dataset.postId);
+    if (!postData) return;
+
+    const age = Math.floor((Date.now() - postData.creation_date * 1000) / MS.oneDay);
+    $(link).before(`<span class="info-num post-age ${age > 365 ? 'red' : ''}" title="post age">${age}d</span>`);
+  });
+
 })();
