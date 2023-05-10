@@ -3,7 +3,7 @@
 // @description  Expand all sections, and adds additional post type filters
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.1
+// @version      3.2
 //
 // @match        https://*.stackoverflow.com/tools*
 // @match        https://*.serverfault.com/tools*
@@ -87,6 +87,11 @@ const callbackWhenPageLoaded = () => {
 
 // Append styles
 addStylesheet(`
+/* General 10k tools UI improvements */
+.island div[data-mode="newTags"] table.summary-table.no-collapse tr {
+  display: flex;
+  flex-wrap: wrap;
+}
 .summary-table tr td {
   vertical-align: middle;
 }
@@ -99,11 +104,11 @@ addStylesheet(`
 .summary-table tr a.question-hyperlink:before {
   content: 'Q: ';
 }
-/*
 .summary-table tr a.answer-hyperlink:before {
-  content: 'A: ';
+  /* content: 'A: '; */
 }
-*/
+
+/* Show all collapsed items */
 .summary-table tr.collapsing {
   display: table-row;
 }
@@ -111,6 +116,8 @@ addStylesheet(`
 .summary-table tr.d-none {
   display: none !important;
 }
+
+/* Delete tabs filters */
 .modtools-filters-wrapper {
 
 }
