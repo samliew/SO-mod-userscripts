@@ -3,7 +3,7 @@
 // @description  Detect OpenAI in post content
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.2
+// @version      1.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -36,12 +36,12 @@
 let oaiUrl = 'https://openai-openai-detector--8j7k8.hf.space/';
 
 const detectGpt = async content => {
-  content = content.replace(/\s*[\n\r]+\s*/gi, ' ').trim();
+  content = content.trim();
   const resp = await fetch(`${oaiUrl}?${encodeURIComponent(content)}`);
 
   // Request failed
   if (!resp?.ok) {
-    return { success: false, error: resp?.error };
+    return { success: false, error: resp?.error, content };
   }
 
   // Request successful
@@ -61,10 +61,6 @@ addStylesheet(`
 // On script run
 (async function init() {
 
-  // Get final URL of OpenAI Detector load balancer redirect
-  oaiUrl = await getFinalUrl('https://huggingface.co/openai-detector') || oaiUrl;
-  console.info('OpenAI Detector URL', oaiUrl);
-
   // Add Detect GPT buttons to each post menu
   document.querySelectorAll('.js-post-menu > .s-anchors').forEach(el => {
     const menuItem = makeElemFromHtml(`
@@ -76,6 +72,7 @@ addStylesheet(`
     el.append(menuItem);
   });
 
+  // Click event for Detect GPT buttons
   document.addEventListener('click', async (evt) => {
     const target = evt.target;
 
@@ -93,7 +90,7 @@ addStylesheet(`
     // Make a shadow copy of post body, remove aside elements
     const postBodyClone = postBody.cloneNode(true);
     postBodyClone.querySelectorAll('aside').forEach(el => el.remove());
-    const content = postBodyClone.innerText.trim();
+    const content = postBodyClone.textContent.trim();
 
     // Has not detected yet
     if (!target.classList.contains('js-detect-gpt-loading')) {
@@ -139,5 +136,9 @@ addStylesheet(`
       }
     }
   });
+
+  // Get final URL of OpenAI Detector load balancer redirect
+  oaiUrl = await getFinalUrl('https://huggingface.co/openai-detector') || oaiUrl;
+  console.info('OpenAI Detector URL', oaiUrl);
 
 })();
