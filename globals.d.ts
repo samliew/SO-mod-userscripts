@@ -131,6 +131,7 @@ declare function goToPost(pid: number): void;
  */
 declare function setAttributes(el: HTMLElement, attrs: object): void;
 declare function makeElem(tagName: string, attrs?: object, text?: string, children?: HTMLElement[]): HTMLElement;
+declare function makeElemFromHtml(html: string): HTMLElement;
 declare function addStylesheet(css: string, atDocumentEnd?: boolean): void;
 declare function addExternalStylesheet(url: string, atDocumentEnd?: boolean): void;
 
