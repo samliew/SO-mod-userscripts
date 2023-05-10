@@ -3,7 +3,7 @@
 // @description  Display revision count and post age
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.1
+// @version      3.1.1
 //
 // @match        https://*.stackoverflow.com/admin/dashboard?flagtype=postvandalismeditsauto*
 // @match        https://*.serverfault.com/admin/dashboard?flagtype=postvandalismeditsauto*
@@ -46,21 +46,23 @@ addStylesheet(`
 .delete-post,
 p[title="question originally asked"],
 .user-action-time,
-.mod-audit-user-info + br {
+.mod-audit-user-info + br,
+.js-post-flag-group > .d-flex > .flex--item:last-child {
   display: none !important;
 }
 .post-list {
-  margin-left: 0;
+  margin: 10px 0;
+  list-style: none;
 }
-.post-list .title-divider {
-  margin-top: 5px;
+.post-list li {
+  margin-bottom: 2px;
 }
 .revision-comment {
   position: relative;
-  display: block;
+  display: flex;
 }
 .revision-comment:hover {
-  background: cornsilk;
+  background-color: transparent;
 }
 .info-num {
   display: inline-block;
@@ -97,8 +99,9 @@ p[title="question originally asked"],
     $(this).find('.flag-action-card-text ul.post-list').prepend(`<li><span class="revision-comment">${link[0].outerHTML}</span></li>`)
   });
 
-  const flaggedPosts = $('.post-list .revision-comment a').each(function() {
+  const flaggedPosts = $('.post-list a').each(function() {
     this.dataset.postId = getPostId(this.href);
+    this.target = '_blank';
   });
   const postIds = flaggedPosts.map((_i, v) => v.dataset.postId).get();
   const postsData = await getPostsFromApi(postIds);
