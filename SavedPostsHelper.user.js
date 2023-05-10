@@ -879,9 +879,7 @@ addStylesheet(`
       const textarea = exportModal.querySelector('textarea');
       textarea.select();
 
-      // Don't use document.execCommand because it is deprecated
-      if (typeof navigator.clipboard?.writeText === 'function')
-        navigator.clipboard?.writeText(textarea.value);
+      copyToClipboard(textarea);
 
       StackExchange.helpers.showSuccessMessage(exportCopyBtn.parentElement, 'Copied to clipboard.');
     });

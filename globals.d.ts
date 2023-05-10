@@ -145,6 +145,13 @@ declare function waitForElement(selector: string, context: HTMLElement | Documen
 
 /**
  * ================================
+ * Common: Storage Functions
+ * ================================
+ */
+declare function copyToClipboard(content: string | HTMLElement): Promise<void>
+
+/**
+ * ================================
  * SE: Users
  * ================================
  */
