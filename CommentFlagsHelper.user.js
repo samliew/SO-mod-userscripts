@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      8.1
+// @version      8.2
 //
 // @match        https://*.stackoverflow.com/admin/dashboard*
 // @match        https://*.serverfault.com/admin/dashboard*
@@ -590,8 +590,11 @@ table.comments tr.roa-comment > td {
     $('.js-flag-text a[href*="/post-comments"]').attr('target', '_blank').each(function () {
       const uid = getUserId(this.href);
       const post = $(this).closest('.js-flagged-post');
-      const postheader = post.find('.js-post-header').hide();
       const flagText = $(this).parents('.js-flag-text');
+      post.find('.js-post-header').hide();
+
+      const commentsPageUrl = this.href.replace('http:', 'https:').replace('?state=All&flagState=all', '?state=deleted&flagState=all');
+      this.href = commentsPageUrl;
 
       // Add links to user and comment history
       const userinfo = $(`<div class="ra-userlinks">[
@@ -599,42 +602,48 @@ table.comments tr.roa-comment > td {
           <a href="${location.origin}/users/account-info/${uid}" target="_blank">Dashboard</a> |
           <a href="${location.origin}/users/history/${uid}?type=User+suspended" target="_blank">Susp. History</a> |
           <a href="${location.origin}/users/message/create/${uid}" target="_blank">Message/Suspend</a> |
-          <a href="http://${location.hostname}/admin/users/${uid}/post-comments?state=All&flagState=all" target="_blank">Comments</a>
+          <a href="${location.origin}/admin/users/${uid}/post-comments?state=deleted&flagState=all" target="_blank">Comments</a>
         ]</div>`).appendTo(flagText);
 
-      const flaggroup = post.find('.js-post-flag-group');
-      const cmmtsContainer = $(`<table class="comments"></table>`).insertAfter(flaggroup);
-
-      const flagpage = this.href.replace('http:', 'https:').replace('?state=flagged', '?state=All&flagState=all');
-      this.href = flagpage;
+      const flagGroup = post.find('.js-post-flag-group');
+      const commentsContainer = $(`<table class="comments"></table>`).insertAfter(flagGroup);
 
       // Load latest R/A helpful comments
-      $.get(flagpage, function (data) {
+      $.get(commentsPageUrl, function (data) {
 
         // Filter and Transform
-        const result = $('tbody tr', data)
-          .filter((i, el) => el.innerText.indexOf('Rude/Abusive') >= 0 || el.innerText.indexOf('Unfriendly') >= 0)
-          .each(function () {
-            const commentCell = $(this).children().eq(1).children(0).html();
+        const results = $('tbody tr', data).get()
+        const rudeUnkindComments = results.filter(tr => tr.innerText.includes('Rude/Abusive') || tr.innerText.includes('Unfriendly'));
 
-            // Create new element and add data as attributes
-            $('<tr class="comment roa-comment"></tr>')
-              .html('<td>' + commentCell + '</td>')
-              .toggleClass('deleted-comment', $(this).hasClass('bg-red-050'))
-              .attr({
-                'data-postid': this.dataset.postid,
-                'data-id': this.dataset.id,
-                'data-date': $(this).find('.relativetime').text(),
-              })
-              .appendTo(cmmtsContainer)
-              .each(replaceKeywords)
-              .each(function () {
-                $(`<a class="relativetime" href="/q/${this.dataset.postid}" target="_blank">${this.dataset.date}</a>`).appendTo(this.children[0]);
-              });
-          })
+        rudeUnkindComments.forEach(tr => {
+          const commentText = tr.children[1].children[0].innerText;
+          const commentId = tr.dataset.id;
+          const postId = tr.dataset.postid;
+          //const permalink = toShortLink(tr.children[1].querySelector('.s-link').href);
+          const timelinePermalink = `${location.origin}/posts/${postId}/timeline?filter=WithVoteSummaries#comment_${commentId}`;
+
+          // Create new element and add data as attributes
+          $(`<tr class="comment roa-comment"><td>${commentText}</td></tr>`)
+            .toggleClass('deleted-comment', tr.classList.contains('bg-red-050'))
+            .attr({
+              'data-post-id': tr.dataset.postid,
+              'data-id': tr.dataset.id,
+              'data-timestamp': tr.querySelector('.relativetime').title,
+            })
+            .appendTo(commentsContainer)
+            .each(replaceKeywords)
+            .each(function () {
+              $(`<a href="${timelinePermalink}" target="_blank">
+                <span class="relativetime" title="${this.dataset.timestamp}">${this.dataset.timestamp}</span>
+              </a>`).appendTo(this.children[0]);
+            });
+        });
+
+        // Update relativetime links
+        StackExchange.realtime.updateRelativeDates();
 
         // Remove old comments
-        $('.comments .relativetime').filter((i, el) => el.innerText.indexOf("'") >= 0).closest('.roa-comment').remove();
+        $('.comments .relativetime').filter((i, el) => el.innerText.includes("'")).closest('.roa-comment').remove();
       });
     });
   }
