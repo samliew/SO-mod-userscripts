@@ -4,7 +4,7 @@
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
 // @author       Cody Gray
-// @version      5.1
+// @version      5.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -696,10 +696,6 @@ function initPostModMenuLinks() {
           post.find('.post-signature:last .user-info')[0]?.outerHTML
         ).then(function (result) {
           if (result) {
-            // Show deleted user page in new window/tab
-            if (!isSuperuser && !underSpamAttackMode) {
-              window.open(`${parentUrl}/users/${uid}`);
-            }
             removePostFromModQueueOrReloadPage();
           }
         });
@@ -711,10 +707,6 @@ function initPostModMenuLinks() {
             '', // no details needed
             'This user is no longer welcome to participate on the site'
           ).then(function () {
-            // Show deleted user page in new window/tab
-            if (!isSuperuser && !underSpamAttackMode) {
-              window.open(`${parentUrl}/users/${uid}`);
-            }
             removePostFromModQueueOrReloadPage();
           });
         }
