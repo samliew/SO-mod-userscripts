@@ -87,6 +87,7 @@ declare function isModerator(): boolean;
  */
 declare function delay(ms: number): Promise<void>;
 declare function ajaxPromise(opts: string | object, type?: string): Promise<Document>;
+declare function getFinalUrl(url: string): Promise<Document>;
 declare function jQueryXhrOverride(): XMLHttpRequest;
 declare function hasBackoff(): boolean;
 declare function addBackoff(sec: number): void;

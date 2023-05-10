@@ -85,7 +85,7 @@ function doChatSidebar() {
   const userDashboardPage = getChatParentUser().replace('/users/', '/users/account-info/').replace(/\D+$/, '');
   const mainSiteHostname = userDashboardPage.split('/users/')[0];
 
-  ajaxPromise(userDashboardPage, 'document').then(function (data) {
+  ajaxPromise(userDashboardPage).then(function (data) {
 
     const modContent = $('#mod-content', data);
 

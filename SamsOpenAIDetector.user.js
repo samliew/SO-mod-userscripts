@@ -3,7 +3,7 @@
 // @description  Detect OpenAI in post content
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.1
+// @version      1.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -24,6 +24,8 @@
 //
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/se-ajax-common.js
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
+//
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
 /* globals StackExchange */
@@ -31,7 +33,7 @@
 
 'use strict';
 
-const oaiUrl = 'https://openai-openai-detector--8j7k8.hf.space/';
+let oaiUrl = 'https://openai-openai-detector--8j7k8.hf.space/';
 
 const detectGpt = async content => {
   content = content.replace(/\s*[\n\r]+\s*/gi, ' ').trim();
@@ -57,7 +59,11 @@ addStylesheet(`
 
 
 // On script run
-(function init() {
+(async function init() {
+
+  // Get final URL of OpenAI Detector load balancer redirect
+  oaiUrl = await getFinalUrl('https://huggingface.co/openai-detector') || oaiUrl;
+  console.info('OpenAI Detector URL', oaiUrl);
 
   // Add Detect GPT buttons to each post menu
   document.querySelectorAll('.js-post-menu > .s-anchors').forEach(el => {

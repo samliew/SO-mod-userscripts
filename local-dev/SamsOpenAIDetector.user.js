@@ -26,4 +26,6 @@
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 //
 // @require      file://C:/projects/SO-mod-userscripts/SamsOpenAIDetector.user.js
+//
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==

@@ -178,7 +178,7 @@ function getSiteElectionPage(site, next = 0) {
     ajaxCount++;
 
     // Scrape election page
-    ajaxPromise(site.site_url + '/election' + (next == 0 ? '' : '/' + next), 'html').then(function (data) {
+    ajaxPromise(`${site.site_url}/election${next == 0 ? '' : '/' + next}`).then(function (data) {
 
       const html = $($.parseHTML(data));
 
