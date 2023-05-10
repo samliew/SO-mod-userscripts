@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurrences of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0.3
+// @version      4.1
 //
 // @match        https://chat.stackoverflow.com/*
 // @match        https://chat.stackexchange.com/*
@@ -37,33 +37,6 @@ const newuserlist = $(`<div id="present-users-list"><span class="users-count"></
 const isTranscriptPage = window.location.href.includes("transcript");
 
 let messageEvents = [];
-
-
-// Never unfreeze room 4 - old teacher's lounge
-const doNotUnfreeze = [4];
-// Unfreeze room
-function unfreezeRoom(roomId, domain = 'chat.stackoverflow.com') {
-  roomId = Number(roomId);
-  return new Promise(function (resolve, reject) {
-    if (isNaN(roomId)) { reject(); return; }
-    if (doNotUnfreeze.includes(roomId)) { reject(); return; }
-
-    $.post(`https://${domain}/rooms/setfrozen/${roomId}`, {
-      fkey: fkey,
-      freeze: false
-    })
-      .done(resolve)
-      .fail(reject);
-  });
-}
-// Unfreeze current room
-function unfreezeCurrentRoom() {
-  if (typeof CHAT !== 'undefined' && !isNaN(CHAT.CURRENT_ROOM_ID)) unfreezeRoom(CHAT.CURRENT_ROOM_ID);
-}
-// Unfreeze rooms displayed in sidebar
-function unfreezeRooms() {
-  $('#my-rooms li').each((i, el) => unfreezeRoom(el.id.replace(/^\D+/, '')));
-}
 
 
 // Get message info
@@ -1352,10 +1325,6 @@ function initLiveChat() {
   const roomId = CHAT.CURRENT_ROOM_ID;
 
   initMessageParser();
-
-  if (CHAT.user.canModerate()) {
-    setTimeout(unfreezeRooms, 5000);
-  }
 
   // Rejoin favourite rooms on link click
   let rejoinFavsBtn = $(`<a href="#">rejoin starred</a><span class="divider"> / </span>`).prependTo($('#my-rooms').parent('.sidebar-widget').find('.msg-small').first());
