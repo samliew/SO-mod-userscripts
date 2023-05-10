@@ -3,7 +3,7 @@
 // @description  Detect OpenAI in post content
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.0
+// @version      1.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -34,8 +34,8 @@
 const oaiUrl = 'https://openai-openai-detector--8j7k8.hf.space/';
 
 const detectGpt = async content => {
-  const sanitisedContent = content.replace(/\s*[\n\r]+\s*/gi, ' ').replace(/\s*/gi, '%20');
-  const resp = await fetch(`${oaiUrl}?${sanitisedContent}`);
+  content = content.replace(/\s*[\n\r]+\s*/gi, ' ').trim();
+  const resp = await fetch(`${oaiUrl}?${encodeURIComponent(content)}`);
 
   // Request failed
   if (!resp.ok) {
@@ -72,8 +72,15 @@ const detectGpt = async content => {
     // Get post content
     const post = target.closest('.question, .answer');
     const postId = post.dataset.questionid || post.dataset.answerid;
-    const content = post.querySelector('.js-post-body, .s-prose, [itemprop="text"]')?.innerText;
-    if (!content) return console.error(`No content found for ${postId}!`);
+
+    // Get post body
+    const postBody = post.querySelector('.js-post-body, .s-prose, [itemprop="text"]');
+    if (!postBody) return console.error(`No post body found for ${postId}!`);
+
+    // Make a shadow copy of post body, remove aside elements
+    const postBodyClone = postBody.cloneNode(true);
+    postBodyClone.querySelectorAll('aside').forEach(el => el.remove());
+    const content = postBodyClone.innerText;
 
     // Has ran, do nothing
     if (target.classList.contains('js-detect-gpt-loading')) return;
@@ -83,7 +90,7 @@ const detectGpt = async content => {
     StackExchange.helpers.addSpinner(target);
     const result = await detectGpt(content);
     StackExchange.helpers.removeSpinner();
-    //console.log(`Detect GPT result for ${postId}`, result);
+    //console.log(`Detect GPT result for ${postId}`, content, result);
 
     if (result.success && result.data?.fake_probability) {
       const percFake = result.data.fake_probability * 100;
