@@ -3,7 +3,7 @@
 // @description  Expand all sections, and adds additional post type filters
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0
+// @version      3.1
 //
 // @match        https://*.stackoverflow.com/tools*
 // @match        https://*.serverfault.com/tools*
@@ -51,31 +51,34 @@ const callbackWhenPageLoaded = () => {
   else if (currentTabName === 'delete') {
 
     // Add question and answer filters
-    const buttonWrapper = $(`<div class="modtools-filters-wrapper grid">Quick filters:&nbsp;<div class="modtools-filters grid tt-capitalize">
-  <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap is-selected" data-filter="q">questions</a>
-  <a class="flex--item s-btn s-btn__muted s-btn__outlined py8 ws-nowrap is-selected" data-filter="a">answers</a>
-</div><div>`).appendTo('.tools-index-subtabs');
-    const buttons = buttonWrapper.find('[data-filter]');
+    const buttonWrapper = makeElemFromHtml(`
+<div class="modtools-filters-wrapper d-flex ai-center">Quick filters:&nbsp;
+  <div class="modtools-filters flex--item fw-nowrap ml12 d-flex s-btn-group js-filter-btn">
+    <button type="button" class="flex--item s-btn s-btn__muted s-btn__outlined" data-filter="q">Questions</button>
+    <button type="button" class="flex--item s-btn s-btn__muted s-btn__outlined" data-filter="a">Answers</button>
+  </div>
+<div>`);
+    document.querySelector('.tools-index-subtabs').appendChild(buttonWrapper);
 
-    // Get all deleted items
-    const items = $('.summary-table tr').each(function () {
-      this.dataset.posttype = $(this).find('.question-hyperlink').length ? 'q' : 'a';
-    });
+    // Get all items, and add post type data attribute
+    const items = document.querySelectorAll('.summary-table tr');
+    items.forEach(tr => tr.dataset.postType = tr.querySelectorAll('.question-hyperlink').length ? 'q' : 'a');
 
     // On click, toggle items
-    buttons.on('click', function () {
-      $(this).toggleClass('is-selected');
-      const selectedButtons = buttons.filter('.is-selected');
+    buttonWrapper.addEventListener('click', function (evt) {
+      if (!evt.target.matches('button[data-filter]')) return;
+
+      evt.target.classList.toggle('is-selected');
+      const selectedButtons = buttonWrapper.querySelectorAll('button[data-filter].is-selected');
 
       // If both selected or unselected, show all
       if (selectedButtons.length != 1) {
-        console.log('show all');
-        items.removeClass('d-none');
+        items.forEach(el => el.classList.remove('d-none'));
       }
+      // Show only selected post type
       else {
-        const activeFilter = selectedButtons.attr('data-filter');
-        console.log('show ' + activeFilter);
-        items.addClass('d-none').filter((i, el) => el.dataset.posttype == activeFilter).removeClass('d-none');
+        const activeFilter = selectedButtons[0].dataset.filter;
+        items.forEach(el => el.classList.toggle('d-none', el.dataset.postType != activeFilter));
       }
     });
   }
@@ -84,6 +87,23 @@ const callbackWhenPageLoaded = () => {
 
 // Append styles
 addStylesheet(`
+.summary-table tr td {
+  vertical-align: middle;
+}
+.summary-table tr a {
+  word-break: break-word;
+}
+.summary-table tr a.question-hyperlink {
+  font-size: var(--fs-body2);
+}
+.summary-table tr a.question-hyperlink:before {
+  content: 'Q: ';
+}
+/*
+.summary-table tr a.answer-hyperlink:before {
+  content: 'A: ';
+}
+*/
 .summary-table tr.collapsing {
   display: table-row;
 }
@@ -91,28 +111,11 @@ addStylesheet(`
 .summary-table tr.d-none {
   display: none !important;
 }
-.modtools-filters,
 .modtools-filters-wrapper {
-  display: inline-flex;
-  align-items: center;
+
 }
-.modtools-filters .is-selected {
-  box-shadow: inset 1px 1px 2px 0px rgba(0,0,0,0.3);
-}
-.modtools-filters a {
-  float: none;
-  padding: .8em;
-  line-height: 1.15384615;
-}
-.modtools-filters a:first-child {
-  border-bottom-right-radius: 0 !important;
-  border-top-right-radius: 0 !important;
-}
-.modtools-filters a + a {
-  border-bottom-left-radius: 0 !important;
-  border-top-left-radius: 0 !important;
-  border-left: 0;
-  margin-left: -1px;
+.modtools-filters-wrapper .modtools-filters {
+
 }
 `); // end stylesheet
 
