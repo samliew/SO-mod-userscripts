@@ -3,7 +3,7 @@
 // @description  Batch-move saved posts between private lists, quick move after saving in Q&A, import/export lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.1
+// @version      3.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -37,9 +37,12 @@ const isOnSavesPages = location.pathname.startsWith('/users/saves/');
 const isOnAllSavesPage = location.pathname.endsWith('/all');
 const isOnForLaterPage = !!document.querySelector('[data-is-forlater="True"]') || (!currListId && !isOnAllSavesPage);
 
+let savesList, cAll, cAllSelect, elSavesCount;
+
 if (isOnSavesPages) {
   console.log(`Current saves list: ${currListId ? currListId : (isOnForLaterPage ? 'For later' : 'All saves')}`);
 }
+
 
 // Validation
 if (!fkey) {
@@ -50,31 +53,6 @@ if (!(isOnQnaPages || currListId || isOnAllSavesPage || isOnForLaterPage)) {
   console.error(`Unable to detect current saved list id.`);
   return;
 }
-
-let savesList, cAll, cAllSelect, elSavesCount;
-
-
-const toShortLink = (str, newdomain = null) => {
-
-  // Match ids in string, prefixed with either a / or #
-  const ids = str.match(/[\/#](\d+)/g);
-
-  // Get last occurance of numeric id in string
-  const pid = ids.pop().replace(/\D+/g, '');
-
-  // Q (single id) or A (multiple ids)
-  const qa = ids.length > 1 ? 'a' : 'q';
-
-  // Use domain if set, otherwise use domain from string, fallback to relative path
-  const baseDomain = newdomain ?
-    // Ensure trailing slash is added to newdomain
-    newdomain.replace(/\/$/, '') + '/' :
-    // Get domain from string
-    (str.match(/\/+([a-z]+\.)+[a-z]{2,3}\//) || ['/'])[0];
-
-  // Format of short link on the Stack Exchange network
-  return pid ? baseDomain + qa + '/' + pid : str;
-};
 
 
 /**

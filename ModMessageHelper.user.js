@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.6
+// @version      4.7
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -419,27 +419,6 @@ function modMessage(uid, message = '', sendEmail = true, suspendDays = 0) {
       .done(resolve)
       .fail(reject);
   });
-}
-
-
-function toShortLink(str, newdomain = null) {
-
-  // Match ids in string, prefixed with either a / or #
-  const ids = str.match(/[\/#](\d+)/g);
-
-  // Get last occurance of numeric id in string
-  const pid = ids.pop().replace(/\D+/g, '');
-
-  // Q (single id) or A (multiple ids)
-  const qa = ids.length > 1 ? 'a' : 'q';
-
-  // Use domain if set, otherwise use domain from string, fallback to relative path
-  const baseDomain = newdomain ?
-    newdomain.replace(/\/$/, '') + '/' :
-    (str.match(/\/+([a-z]+\.)+[a-z]{2,3}\//) || ['/'])[0];
-
-  // Format of short link on the Stack Exchange network
-  return pid ? baseDomain + qa + '/' + pid : str;
 }
 
 

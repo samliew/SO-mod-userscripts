@@ -108,6 +108,7 @@ declare function tryGetNumber(v: any): number;
  */
 declare function hasInvalidIds(): boolean;
 declare function getPostId(url: string): number | null;
+declare function toShortLink(url: string, baseDomain?: string | null): string;
 
 /**
  * ================================

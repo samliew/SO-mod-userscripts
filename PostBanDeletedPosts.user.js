@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.2
+// @version      4.3
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -31,27 +31,6 @@ if (!isModerator()) return;
 
 const superusers = [584192];
 const isSuperuser = superusers.includes(selfId);
-
-
-function toShortLink(str, newdomain = null) {
-
-  // Match ids in string, prefixed with either a / or #
-  const ids = str.match(/[\/#](\d+)/g);
-
-  // Get last occurance of numeric id in string
-  const pid = ids.pop().replace(/\D+/g, '');
-
-  // Q (single id) or A (multiple ids)
-  const qa = ids.length > 1 ? 'a' : 'q';
-
-  // Use domain if set, otherwise use domain from string, fallback to relative path
-  const baseDomain = newdomain ?
-    newdomain.replace(/\/$/, '') + '/' :
-    (str.match(/\/+([a-z]+\.)+[a-z]{2,3}\//) || ['/'])[0];
-
-  // Format of short link on the Stack Exchange network
-  return pid ? baseDomain + qa + '/' + pid : str;
-}
 
 
 // Append styles
