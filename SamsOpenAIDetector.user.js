@@ -3,7 +3,7 @@
 // @description  Detect OpenAI in post content
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.4
+// @version      1.4.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -131,7 +131,7 @@ addStylesheet(`
           type: 'success',
           useRawHtml: false,
           transient: true,
-          transientTimeout: 5e3,
+          transientTimeout: 3e3,
         });
       }
     }
