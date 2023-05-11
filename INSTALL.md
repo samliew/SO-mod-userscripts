@@ -198,4 +198,6 @@ Direct installation links (raw files)
 
 [SOMU Options](https://github.com/samliew/SO-mod-userscripts/raw/master/SOMU-options.user.js)
 
+[Sam's OpenAI Detector](https://github.com/samliew/SO-mod-userscripts/raw/master/SamsOpenAIDetector.user.js)
+
 [Election Supporter Flairs](https://github.com/samliew/SO-mod-userscripts/raw/master/ElectionSupporterFlairs.user.js)
