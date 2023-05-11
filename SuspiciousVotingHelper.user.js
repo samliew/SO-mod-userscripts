@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table. Also provides support for SEDE query https://data.stackexchange.com/stackoverflow/query/968803
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.3
+// @version      3.4
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -352,6 +352,9 @@ function doPageLoad() {
     const svhSortClass = 'bg-yellow-100';
 
     function _sortByUser(a, b) {
+      let aRow = a.closest('tr'), bRow = b.closest('tr');
+      if (aRow.children.length === 3 || bRow.children.length === 3) return 0;
+
       let aVal = a.querySelector('.user-details a').innerText,
         bVal = b.querySelector('.user-details a').innerText;
 
@@ -360,6 +363,9 @@ function doPageLoad() {
     }
 
     function _sortByType(a, b) {
+      let aRow = a.closest('tr'), bRow = b.closest('tr');
+      if (aRow.children.length === 3 || bRow.children.length === 3) return 0;
+
       let aVal = a.querySelector('.ta-center span').innerText,
         bVal = b.querySelector('.ta-center span').innerText;
 
@@ -368,6 +374,9 @@ function doPageLoad() {
     };
 
     function _sortByVotes(a, b) {
+      let aRow = a.closest('tr'), bRow = b.closest('tr');
+      if (aRow.children.length === 3 || bRow.children.length === 3) return 0;
+
       let aVal = Number(a.children[2].innerText.match(/\d+/)[0]),
         bVal = Number(b.children[2].innerText.match(/\d+/)[0]);
       //console.log(a.children[2].innerText, aVal);
@@ -377,14 +386,20 @@ function doPageLoad() {
     };
 
     function _sortByPerc(a, b) {
-      let aVal = Number(a.querySelector('.number span')?.innerText.replace('%', '')),
-        bVal = Number(b.querySelector('.number span')?.innerText.replace('%', ''));
+      let aRow = a.closest('tr'), bRow = b.closest('tr');
+      if (aRow.children.length === 3 || bRow.children.length === 3) return 0;
+
+      let aVal = Number(a.querySelector('.ta-right[title] span')?.innerText.replace('%', '')) || 0,
+        bVal = Number(b.querySelector('.ta-right[title] span')?.innerText.replace('%', '')) || 0;
 
       if (aVal === bVal || isNaN(aVal) || isNaN(bVal)) return 0;
       return (aVal < bVal) ? 1 : -1;
     };
 
     function _sortByNum(a, b) {
+      let aRow = a.closest('tr'), bRow = b.closest('tr');
+      if (aRow.children.length === 3 || bRow.children.length === 3) return 0;
+
       let aVal = Number(a.children[1].innerText.match(/\d+/)[0]),
         bVal = Number(b.children[1].innerText.match(/\d+/)[0]);
 
@@ -393,6 +408,9 @@ function doPageLoad() {
     };
 
     function _sortByDate(a, b) {
+      let aRow = a.closest('tr'), bRow = b.closest('tr');
+      if (aRow.children.length === 3 || bRow.children.length === 3) return 0;
+
       let aVal = new Date(a.querySelector('.relativetime').title),
         bVal = new Date(b.querySelector('.relativetime').title);
 
@@ -403,6 +421,10 @@ function doPageLoad() {
     const sections = $('#mainbar-full > div');
     const activeVotesTables = sections.eq(0).find('table');
     const invalidatedVotesTables = sections.eq(1).find('table');
+
+    // Show all users
+    activeVotesTables.find('tr.d-none').removeClass('d-none');
+    invalidatedVotesTables.find('tr.d-none').removeClass('d-none');
 
     // Table header click event
     activeVotesTables.on('click', 'th', function () {
@@ -516,6 +538,9 @@ tr[data-uid].svh-curruser {
 /* All vote tables */
 #mainbar-full > .flex__allitems6 > .flex--item > table {
   border: 1px solid var(--_ta-td-bc);
+}
+#mainbar-full > .flex__allitems6 > .flex--item > table tfoot {
+  display: none;
 }
 #mainbar-full > .flex__allitems6 > .flex--item > table th {
   padding: 10px 4px 10px 8px;
