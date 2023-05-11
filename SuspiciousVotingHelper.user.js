@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table. Also provides support for SEDE query https://data.stackexchange.com/stackoverflow/query/968803
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.2
+// @version      3.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -400,9 +400,11 @@ function doPageLoad() {
       return (aVal < bVal) ? 1 : -1;
     };
 
-    const activeVotesTables = $('#mainbar-full > div:first table');
-    const invalidatedVotesTables = $('#mainbar-full > div:last table');
+    const sections = $('#mainbar-full > div');
+    const activeVotesTables = sections.eq(0).find('table');
+    const invalidatedVotesTables = sections.eq(1).find('table');
 
+    // Table header click event
     activeVotesTables.on('click', 'th', function () {
       const thIndex = $(this).index();
       const sortFunction = [_sortByUser, _sortByType, _sortByVotes, _sortByPerc, null][thIndex];
@@ -413,7 +415,15 @@ function doPageLoad() {
 
       // Sort posts in-memory then reattach to container
       const tbody = $(this).closest('table').find('tbody');
-      tbody.children().sort(sortFunction).detach().appendTo(tbody);
+      const rows = tbody.children();
+      rows.sort(sortFunction).detach().appendTo(tbody);
+
+      // Some rows only contain three cells, re-insert them after the row with the same [data-user-id]
+      rows.filter(function () { return this.children.length === 3 }).each(function () {
+        const userId = this.dataset.userId;
+        const matchedRow = rows.not(this).filter(function () { return this.dataset.userId === userId }).first();
+        if (matchedRow.length) matchedRow.after(this);
+      });
 
       return false;
     });
@@ -423,6 +433,7 @@ function doPageLoad() {
       $(this).find('th').eq(2).addClass(svhSortClass);
     });
 
+    // Table header click event
     invalidatedVotesTables.on('click', 'th', function () {
       const thIndex = $(this).index();
       const sortFunction = [_sortByUser, _sortByNum, _sortByDate, null][thIndex];
@@ -433,7 +444,8 @@ function doPageLoad() {
 
       // Sort posts in-memory then reattach to container
       const tbody = $(this).closest('table').find('tbody');
-      tbody.children().sort(sortFunction).detach().appendTo(tbody);
+      const rows = tbody.children();
+      rows.sort(sortFunction).detach().appendTo(tbody);
 
       return false;
     });
@@ -502,29 +514,32 @@ tr[data-uid].svh-curruser {
 }
 
 /* All vote tables */
-#mainbar-full > .flex__allitems6 > .flex--item > table.s-table th {
+#mainbar-full > .flex__allitems6 > .flex--item > table {
+  border: 1px solid var(--_ta-td-bc);
+}
+#mainbar-full > .flex__allitems6 > .flex--item > table th {
   padding: 10px 4px 10px 8px;
   white-space: nowrap !important;
   overflow: hidden;
   text-overflow: ellipsis;
   cursor: pointer;
 }
-#mainbar-full > .flex__allitems6 > .flex--item > table.s-table td {
+#mainbar-full > .flex__allitems6 > .flex--item > table td {
   padding: 2px 8px;
 }
-#mainbar-full > .flex__allitems6 > .flex--item > table.s-table td:last-child {
+#mainbar-full > .flex__allitems6 > .flex--item > table td:last-child:not(.ta-right) {
   padding: 2px 4px;
 }
-#mainbar-full > .flex__allitems6 > .flex--item > table.s-table .user-info {
+#mainbar-full > .flex__allitems6 > .flex--item > table .user-info {
   margin-right: -5px;
   padding: 5px 0 6px 0px;
 }
 /* Active vote tables */
-#mainbar-full > .flex__allitems6:first-child > .flex--item > table.s-table {
+#mainbar-full > .flex__allitems6:first-child > .flex--item > table {
 
 }
 /* Invalidated vote tables */
-#mainbar-full > .flex__allitems6:last-child > .flex--item > table.s-table {
+#mainbar-full > .flex__allitems6:last-child > .flex--item > table {
 
 }
 `); // end stylesheet
