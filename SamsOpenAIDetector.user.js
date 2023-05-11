@@ -3,7 +3,7 @@
 // @description  Detect OpenAI in post content
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.3
+// @version      1.4
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -80,8 +80,8 @@ addStylesheet(`
     if (!['js-detect-gpt-btn', 'js-detect-copy'].some(v => target.classList.contains(v))) return;
 
     // Get post content
-    const post = target.closest('.question, .answer');
-    const postId = post.dataset.questionid || post.dataset.answerid;
+    const post = target.closest('.question, .answer, .candidate-row');
+    const postId = post.dataset.questionid || post.dataset.answerid || post.dataset.postid;
 
     // Get post body
     const postBody = post.querySelector('.js-post-body, .s-prose, [itemprop="text"]');
@@ -108,7 +108,7 @@ addStylesheet(`
 
         // Insert result after button
         const resultElem = makeElem('a', {
-          class: `js-detect-gpt-result ml4 ${percFake > 90 ? 'fc-red-600' : percFake > 75 ? 'fc-orange-600' : 'fc-black-800'}`,
+          class: `js-detect-gpt-result ml12 ${percFake > 90 ? 'fc-red-600' : percFake > 75 ? 'fc-orange-600' : 'fc-black-800'}`,
           title: 'Probability of content being fake/GPT-generated',
           href: oaiUrl,
           target: '_blank',
