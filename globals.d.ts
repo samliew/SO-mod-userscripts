@@ -78,6 +78,7 @@ declare function dateToRelativeString(date: Date): string;
  * Common: Validation/Boolean Functions
  * ================================
  */
+declare function containsDiamondUnicode(str: string): boolean;
 declare function isModerator(): boolean;
 
 /**
