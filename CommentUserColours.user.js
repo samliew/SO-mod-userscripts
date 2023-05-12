@@ -3,7 +3,7 @@
 // @description  Unique colour for each user in comments to make following users in long comment threads easier
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0
+// @version      3.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -46,7 +46,8 @@ function updateUsers() {
   // Pre-parse user ids
   $('.comment-user').not('[data-uid]').each(function () {
     // No href if deleted user, fallback to innerText
-    this.dataset.uid = (this.href || this.innerText).match(/\d+/, '')[0];
+    const commentUserId = getUserId(this.href) || this.innerText.match(/\d+/, '')?.pop();
+    this.dataset.uid = commentUserId ?? 'undefined';
   });
 
   // If more than one comment per comment section, set user color
