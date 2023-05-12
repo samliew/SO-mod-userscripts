@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1
+// @version      4.2
 //
 // @match        https://*.stackoverflow.com/questions/*
 // @match        https://*.serverfault.com/questions/*
@@ -62,7 +62,8 @@ function getShowDeleted() {
 // (Promise) Get post timeline
 function getPostTimeline(pid) {
   return new Promise(function (resolve, reject) {
-    if (typeof pid !== 'number' || pid <= 0) { reject(); return; }
+    // Strict validation for pid: must be a positive integer
+    if (typeof pid !== 'number' || isNaN(pid) || pid <= 0) { reject(); return; }
 
     $.ajax(`${location.origin}/posts/${pid}/timeline`, {
       xhr: jQueryXhrOverride
@@ -77,7 +78,8 @@ function getPostTimeline(pid) {
 // (Promise) Get post answers from timeline
 function getPostAnswers(pid) {
   return new Promise(function (resolve, reject) {
-    if (typeof pid !== 'number' || pid <= 0) { reject(); return; }
+    // Strict validation for pid: must be a positive integer
+    if (typeof pid !== 'number' || isNaN(pid) || pid <= 0) { reject(); return; }
 
     getPostTimeline(pid).then(function (v) {
       const answers = $(v).children().filter(function () {
@@ -237,7 +239,7 @@ async function loadNewCommentsOnElectionPage() {
 function initTableOfContentsSidebar() {
 
   const postsOnPage = $('#answers > .answer');
-  const qid = $('#question').attr('data-questionid');
+  const qid = Number($('#question').attr('data-questionid'));
   let sortby = 'score';
 
   // New answer sort dropdown is used
