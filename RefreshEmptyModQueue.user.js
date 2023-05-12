@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      4.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -96,7 +96,7 @@ addStylesheet(`
   }
 
   // If not on mod flag pages, ignore rest of script
-  if (!location.pathname.includes('/admin/dashboard') || ($('.js-admin-dashboard').length == 0 && !document.body.classList.contains('flag-page'))) return;
+  if (!isModDashboardPage || ($('.js-admin-dashboard').length == 0 && !document.body.classList.contains('flag-page'))) return;
 
   // If completely no post flags, redirect to main
   if ($('.s-sidebarwidget--header .bounty-indicator-tab').length === 0 && $('.so-flag, .m-flag, .c-flag').length === 0) {

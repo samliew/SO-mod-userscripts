@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      4.1
 //
 // @match        https://*.stackoverflow.com/questions/*
 // @match        https://*.serverfault.com/questions/*
@@ -41,7 +41,6 @@
 
 'use strict';
 
-const isElectionPage = document.body.classList.contains('election-page');
 const modflair = '<span class="mod-flair" title="moderator">♦</span>';
 const hasFixedHeader = $('.top-bar').hasClass('_fixed');
 const postBaseUrl = $('#question-header h1 a').attr('href');
@@ -51,7 +50,7 @@ const sortDropdown = $('#answer-sort-dropdown-select-menu');
 // Fetch and store option
 const delKeyRoot = 'PostToC-ShowDeleted';
 function saveShowDeleted(val) {
-  if (typeof val === 'undefined' || val == null) return;
+  if (typeof val !== 'boolean') return;
   store.setItem(delKeyRoot, val);
 }
 function getShowDeleted() {
@@ -63,7 +62,7 @@ function getShowDeleted() {
 // (Promise) Get post timeline
 function getPostTimeline(pid) {
   return new Promise(function (resolve, reject) {
-    if (pid == null) { reject(); return; }
+    if (typeof pid !== 'number' || pid <= 0) { reject(); return; }
 
     $.ajax(`${location.origin}/posts/${pid}/timeline`, {
       xhr: jQueryXhrOverride
@@ -78,7 +77,7 @@ function getPostTimeline(pid) {
 // (Promise) Get post answers from timeline
 function getPostAnswers(pid) {
   return new Promise(function (resolve, reject) {
-    if (pid == null) { reject(); return; }
+    if (typeof pid !== 'number' || pid <= 0) { reject(); return; }
 
     getPostTimeline(pid).then(function (v) {
       const answers = $(v).children().filter(function () {
@@ -243,10 +242,14 @@ function initTableOfContentsSidebar() {
 
   // New answer sort dropdown is used
   if (sortDropdown.length) {
+    /*
+      Possible values:
+        scoredesc - Highest score (default)
+        trending - Trending (recent votes count more)
+        modifieddesc - Date modified (newest first)
+        createdasc - Date created (oldest first)
+     */
     sortby = sortDropdown.val();
-  }
-  else {
-    sortby = $('#answers-header .js-filter-btn .youarehere, #answers-header #tabs .youarehere').text().toLowerCase().trim();
   }
 
   if (isElectionPage) {
@@ -316,8 +319,24 @@ function initTableOfContentsSidebar() {
   getPostAnswers(qid).then(function (v) {
     v = v.get();
 
-    // Sorting
-    if (sortby == 'score' || sortby == 'scoredesc' || sortby == 'votes') {
+    // Sort by oldest first
+    if (sortby === 'createdasc') {
+      v = v.reverse();
+    }
+    // Sort by active first
+    else if (sortby === 'modifieddesc') {
+      v = v.sort((a, b) => {
+        const aid = $(a).find('.event-comment a.timeline').attr('href').match(/[0-9]+/)[0];
+        const bid = $(b).find('.event-comment a.timeline').attr('href').match(/[0-9]+/)[0];
+        const apost = $('#answer-' + aid).get(0);
+        const bpost = $('#answer-' + bid).get(0);
+
+        if (apost == null || bpost == null) return 0;
+        return apost.offsetTop - bpost.offsetTop;
+      });
+    }
+    // Sort by default (score)
+    else {
       v = v.sort((a, b) => {
         const ax = Number($(a).find('.event-comment span:not(.badge-earned-check)').last().text().match(/[-0-9]+$/)[0]);
         const bx = Number($(b).find('.event-comment span:not(.badge-earned-check)').last().text().match(/[-0-9]+$/)[0]);
@@ -327,20 +346,6 @@ function initTableOfContentsSidebar() {
         const bdel = $(b).hasClass('deleted-event');
 
         return (adel && bdel) || (!adel && !bdel) ? bx - ax : (adel ? 1 : -1); // desc
-      });
-    }
-    else if (sortby == 'oldest' || sortby == 'createdasc') {
-      v = v.reverse();
-    }
-    else if (sortby == 'active' || sortby == 'modifieddesc') {
-      v = v.sort((a, b) => {
-        const aid = $(a).find('.event-comment a.timeline').attr('href').match(/[0-9]+/)[0];
-        const bid = $(b).find('.event-comment a.timeline').attr('href').match(/[0-9]+/)[0];
-        const apost = $('#answer-' + aid).get(0);
-        const bpost = $('#answer-' + bid).get(0);
-
-        if (apost == null || bpost == null) return 0;
-        return apost.offsetTop - bpost.offsetTop;
       });
     }
 

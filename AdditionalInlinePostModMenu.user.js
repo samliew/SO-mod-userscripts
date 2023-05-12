@@ -4,7 +4,7 @@
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
 // @author       Cody Gray
-// @version      5.2
+// @version      5.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -69,7 +69,7 @@ const smallerQuicklinks = (localStorage.getItem('SOMU-aipmm.smallerQuicklinks') 
  */
 const reloadPage = () => {
   // If in mod queues, do not reload
-  if (location.pathname.includes('/admin/dashboard')) return false;
+  if (isModDashboardPage) return false;
   location.reload();
 };
 const reloadWhenDone = () => {
@@ -179,7 +179,7 @@ function initPostDissociationHelper() {
   }
 
   // If on mod flag queues, remove close question and convert to comment buttons when flag message contains "di(sa)?ssociate", and add "dissociate" button
-  if (location.pathname.includes('/admin/dashboard')) {
+  if (isModDashboardPage) {
     const dissocFlags = $('.revision-comment.active-flag').filter((i, v) => v.innerText.match(/di(sa)?ssociate/));
     const dissocPosts = dissocFlags.closest('.js-flagged-post');
     dissocPosts.each(function () {
@@ -477,7 +477,7 @@ function addPostModMenuLinks() {
     const isProtected = postStatusEl.find('b').text().toLowerCase().includes('highly active question');
     const isLocked = isMigrated || postStatus.includes('locked');
     const isDeleted = post.hasClass('deleted-answer');
-    const isModDeleted = isDeleted && (postStatus.includes('deleted') && postStatus.includes('\u2666'));
+    const isModDeleted = isDeleted && (postStatus.includes('deleted') && containsDiamondUnicode(postStatus));
     const isBotDeleted = isDeleted && (postStatus.includes('deleted') && postStatusEl.html().toLowerCase().includes('/users/-1/community'));
     const isFlagDeleted = isBotDeleted && isLocked && postStatus.includes('flagged as spam or offensive content');
     const isOldDupe = isQuestion && post.find('.js-post-body blockquote').first().find('strong').text().includes('Possible Duplicate');
@@ -589,7 +589,7 @@ function initPostModMenuLinks() {
     //console.log(action);
 
     const removePostFromModQueue = pid => {
-      if (location.pathname.includes('/admin/dashboard')) {
+      if (isModDashboardPage) {
         post.parents('.js-flagged-post').remove();
         return true;
       }
@@ -1031,7 +1031,6 @@ body.theme-system .theme-dark__forced .swal-modal {
 
 // On script run
 (function init() {
-  const isElectionPage = document.body.classList.contains('election-page');
 
   // Election pages
   if (isElectionPage) {

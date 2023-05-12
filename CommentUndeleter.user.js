@@ -3,7 +3,7 @@
 // @description  Allows moderators to undelete user-deleted comments
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0
+// @version      3.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -95,7 +95,7 @@ addStylesheet(`
 (function init() {
 
   // Only on mod flag queue "commentvandalismdeletionsauto"
-  if (location.pathname.includes('/admin/dashboard') && location.search.includes('flagtype=commentvandalismdeletionsauto')) {
+  if (isModDashboardPage && location.search.includes('flagtype=commentvandalismdeletionsauto')) {
 
     // Add global event for undelete button clicks
     $(document).on('click', '.js-comment-undelete', function () {
