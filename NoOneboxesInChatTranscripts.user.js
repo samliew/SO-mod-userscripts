@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         No Oneboxes in Chat Transcripts
-// @description  Collapses oneboxes from chat transcripts, click to display onebox
+// @description  Collapses oneboxes from chat transcripts/bookmarks, click to display onebox
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0
+// @version      3.1
 //
 // @match        https://chat.stackoverflow.com/transcript/*
 // @match        https://chat.stackexchange.com/transcript/*
@@ -22,88 +22,97 @@
 
 'use strict';
 
-/* Call hideOneboxes() from other scripts to hide all new oneboxes on any page update
- * Params:
- *     mid : message ID to re-hide its expanded onebox, OR
- *           -1 to re-hide all expanded oneboxes
+const showOneboxTitle = 'click to show onebox';
+const hideOneboxTitle = 'click to hide onebox';
+
+/**
+ * @summary Hide all oneboxes on any page update
+ * @param {number} mid - message ID to re-hide its expanded onebox, OR -1 to re-hide all expanded oneboxes
+ * @example hideOneboxes(12345678); // re-hide onebox for message ID 12345678
  */
-const hideOneboxes = (mid = null) => {
+const hideOneboxes = function (mid = null) {
 
-  // Display original link and hide oneboxes who hasn't been hidden before
-  $('.onebox').not('.js-onebox-hidden').addClass('js-onebox-hidden').hide().each(function () {
+  // Process new oneboxes on page
+  document.querySelectorAll('.onebox').forEach(ob => {
+    if(ob.classList.contains('js-onebox-hidden')) return; // already processed
 
-    // Onebox permalink is usually the first URL in the onebox
-    let url = $(this).find('a').first().attr('href');
+    // Hide onebox
+    ob.classList.add('js-onebox-hidden');
+
+    // Get onebox permalink is usually the first URL in the onebox
+    let url = ob.querySelector('a[href]').href;
 
     // If onebox type is a tweet, permalink is the last link in onebox
-    if ($(this).hasClass('ob-tweet'))
-      url = $(this).find('a').last().attr('href');
+    if (ob.classList.contains('ob-tweet')) url = ob.querySelector('a:last-of-type').href;
 
-    const loadOneboxText = 'click to load onebox';
-    const hideOneboxText = 'click to hide onebox';
-    let isVisible = false;
-    // Click placeholder to show onebox
-    $(`<span class="has-onebox" title="${loadOneboxText}"><a href="${url}" class="print-onebox">${url}</a><span>${url}</span></span>`)
-      .on('click', function () {
-        isVisible = !isVisible;
-        if (isVisible) {
-          $(this).addClass('js-show-onebox');
-          $(this).attr('title', hideOneboxText);
-        } else {
-          $(this).removeClass('js-show-onebox');
-          $(this).attr('title', loadOneboxText);
-        }
-      }).insertBefore(this);
+    // If onebox type is an image, preload
+    if (ob.classList.contains('ob-image')) ob.querySelector('img').src = url;
+
+    // Make placeholder element to toggle onebox
+    const obPlaceholder = makeElemFromHtml(
+      `<span class="has-onebox" title="${showOneboxTitle}"><a href="${url}" class="onebox-url" target="_blank">${url}</a></span>`
+    );
+
+    // Placeholder click event handler
+    obPlaceholder.addEventListener('click', function () {
+      this.classList.toggle('js-show-onebox');
+      this.title = ob.classList.contains('js-show-onebox') ? showOneboxTitle : hideOneboxTitle;
+    });
+    ob.insertAdjacentElement('beforebegin', obPlaceholder);
 
     // Also collapse user signature (use tiny-signature)
-    $(this).parents('.monologue').find('.tiny-signature').fadeIn(200).siblings().hide();
+    const tinySignature = ob.closest('.monologue').querySelector('.tiny-signature');
+    tinySignature.style.display = 'inline-block';
+    tinySignature.parentElement.querySelectorAll(':scope > *:not(.tiny-signature)').forEach(el => el.style.display = 'none');
   });
 
-  // Re-hide oneboxes if mid is set
+  // Re-hide all expanded oneboxes
   if (mid === -1) {
-    // Re-hide all expanded oneboxes
-    $('.js-show-onebox').removeClass('js-show-onebox');
+    document.querySelectorAll('.js-show-onebox').forEach(el =>{
+      el.classList.remove('js-show-onebox');
+      el.title = showOneboxTitle;
+    });
   }
+  // Re-hide specific message's onebox
   else if (mid) {
-    // Re-hide specific message's onebox
-    $(`#message-${mid}`).find('.js-show-onebox').removeClass('js-show-onebox');
+    const ob = document.getElementById(`message-${mid}`).querySelector('.js-show-onebox');
+    if (ob) {
+      ob.classList.remove('js-show-onebox');
+      ob.title = showOneboxTitle;
+    }
   }
 };
-
-// Promote function to global scope for other scripts to call
+// Function promotion: Call window.hideOneboxes() from other scripts to hide all new oneboxes
 _window.hideOneboxes = hideOneboxes;
 
 
 // Append styles
 addStylesheet(`
 .has-onebox {
-  padding-left: 10px;
+  display: block;
+  padding: 0 1rem;
   border-left: 3px solid orange;
   cursor: zoom-in;
 }
 .js-show-onebox {
   cursor: zoom-out;
 }
+.js-onebox-hidden {
+  display: none !important;
+}
 .js-show-onebox + .js-onebox-hidden {
   display: block !important;
 }
-.has-onebox .print-onebox {
-  display: none;
-  word-break: break-all;
-}
-
-@media print {
-  .print-onebox {
-    display: inline !important;
-  }
-  .print-onebox + span {
-    display: none !important;
-  }
+.onebox-url {
+  pointer-events: none;
 }
 `); // end stylesheet
 
 
 // On script run
 (function init() {
-  hideOneboxes();
+
+  // Once on page load, process oneboxes on page
+  hideOneboxes(-1);
+
 })();

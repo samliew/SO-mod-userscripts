@@ -3,7 +3,7 @@
 // @description  Replaces the link text in comments and posts with the full question title, and adds post info in the title attribute
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.4.2
+// @version      1.4.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -56,10 +56,10 @@ const groupBySiteApiSlug = arr => {
 
 async function processLinksOnPage() {
 
-  const postLinksToProcess = $('a[href!="#"]', '#mainbar, #chat, #transcript, #content').filter(function () {
+  const postLinksToProcess = $('a[href!="#"]', '#mainbar, #chat, #transcript, #content, #sidebar').filter(function () {
     return /\/(questions|q|a|posts|staging-ground)\/\d+/i.test(this.href) && // only post links
       !/\/edit$/i.test(this.href) && // ignore edit links
-      !$(this).closest('.s-post-summary--content-title, .votecell, .post-menu, .post-signature, .user-info, .comment-date, .post-stickyheader, #hot-network-questions').length; // not a child element of these containers
+      !$(this).closest('.s-post-summary--content-title, .votecell, .post-menu, .post-signature, .user-info, .comment-date, .post-stickyheader, .onebox, #hot-network-questions').length; // not a child element of these containers
   }).not('.js-smart-link').addClass('js-smart-link');
 
   // Extract siteApiSlug and postId from links

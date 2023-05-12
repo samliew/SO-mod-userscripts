@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurrences of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.2
+// @version      4.3
 //
 // @match        https://chat.stackoverflow.com/*
 // @match        https://chat.stackexchange.com/*
@@ -308,6 +308,217 @@ function applyTimestampsToNewMessages() {
 
 
 
+/* Message parser functions */
+function _parseMessageLink(i, el) {
+
+  // Ignore links to bookmarked conversations
+  if (/\/rooms\/\d+\/conversation\//.test(el.href)) { }
+  // Ignore X messages moved links
+  else if (/^\d+ messages?$/.test(el.innerText)) { }
+  // Ignore room info links
+  else if (el.href.includes('/info/')) { }
+  // Convert all other chatroom links to the room transcript
+  else if (el.href.includes('chat.') && el.href.includes('/rooms/')) {
+    el.href = el.href.replace('/rooms/', '/transcript/');
+    el.innerText = el.innerText.replace('/rooms/', '/transcript/');
+  }
+
+  // Attempt to display chat domain, and room name or message id with (transcript) label
+  if (el.href.includes('chat.') && el.href.includes('/transcript/') && /stack(overflow|exchange)\.com/.test(el.innerText)) {
+    let chatDomain = [
+      { host: 'chat.stackexchange.com', name: 'SE chat' },
+      { host: 'chat.meta.stackexchange.com', name: 'MSE chat' },
+      { host: 'chat.stackoverflow.com', name: 'SO chat' }
+    ].filter(v => v.host == el.hostname).pop() || '';
+    let roomName = el.href.split('/').pop()
+      .replace(/[?#].+$/, '').replace(/-/g, ' ') // remove non-title bit from url
+      .replace(/\b./g, m => m.toUpperCase()) // title case
+      .replace(/\b\w{2}\b/g, m => m.toUpperCase()); // capitalize two-letter words
+    let messageId = Number((el.href.match(/(#|\?m=)(\d+)/) || [0]).pop());
+
+    // Check if we have a valid parsed message id
+    if (messageId == 0) messageId = roomName;
+
+    // Display message id
+    if (el.href.includes('/message/') || el.href.includes('?m=')) {
+      el.textContent = chatDomain.name +
+        (!isNaN(Number(roomName)) && !el.href.includes('/message/') ? ', room #' + roomName : '') +
+        ', message #' + messageId + transcriptIndicator;
+    }
+    // Display room name
+    else if (isNaN(Number(roomName))) {
+      // Change link text to room name only if link text is a URL
+      if (/(^https?|\.com)/.test(el.innerText)) {
+
+        // Properly capitalize common room names
+        roomName = roomName.replace('Javascript', 'JavaScript');
+
+        el.textContent = roomName + transcriptIndicator;
+      }
+      else {
+        el.textContent += transcriptIndicator;
+      }
+    }
+    // Fallback to generic domain since no room slug
+    else {
+      el.textContent = chatDomain.name + ', room #' + roomName + transcriptIndicator;
+    }
+
+    // Verbose links should not wrap across lines
+    $(this).addClass('nowrap');
+  }
+
+  // Shorten Q&A links
+  else if (((el.href.includes('/questions/') && !el.href.includes('/tagged/')) || el.href.includes('/q/') || el.href.includes('/a/')) && el.innerText.includes('…')) {
+
+    var displayUrl = el.href;
+
+    // Strip certain querystrings
+    displayUrl = displayUrl.replace(/[?&]noredirect=1/, '');
+
+    // Get comment target (is it on a question or answer), based on second parameter
+    let commentId = null, commentTarget = null;
+    if (/#comment\d+_\d+$/.test(el.href)) {
+      commentId = el.href.match(/#comment(\d+)_\d+$/)[1];
+      commentTarget = Number(el.href.match(/#comment\d+_(\d+)$/)[1]);
+    }
+
+    // If long answer link
+    if (el.href.includes('/questions/') && /\/\d+\/[\w-]+\/\d+/.test(el.href)) {
+
+      // If has comment in url, check if comment target is answer
+      if (commentId != null && commentTarget != null) {
+        const answerId = Number(el.href.match(/\/\d+\/[\w-]+\/(\d+)/)[1]);
+
+        if (commentTarget == answerId) {
+          // Convert to short answer link text with comment hash
+          displayUrl = displayUrl.replace(/\/questions\/\d+\/[^\/]+\/(\d+)(#\d+)?(#comment\d+_\d+)?$/i, '/a/$1') +
+            '#comment' + commentId;
+        }
+        else {
+          // Convert to short question link text with comment hash
+          displayUrl = displayUrl.replace(/\/questions\/(\d+)\/[^\/]+\/(\d+)(#\d+)?(#comment\d+_\d+)?$/i, '/q/$1') +
+            '#comment' + commentId;
+        }
+      }
+      else {
+        // Convert to short answer link text
+        displayUrl = displayUrl.replace(/\/questions\/\d+\/[^\/]+\/(\d+)(#\d+)?(#comment\d+_\d+)?$/i, '/a/$1');
+      }
+    }
+    // If long question link
+    else {
+
+      // Convert to short question link text
+      // Avoid truncating inline question links
+      displayUrl = displayUrl.replace('/questions/', '/q/').replace(/\?(&?(cb|noredirect)=\d+)+/i, '').replace(/(\/\D[\w-]*)+((\/\d+)?#comment\d+_\d+)?$/, '') +
+        (commentId != null ? '#comment' + commentId : '');
+    }
+
+    el.innerText = displayUrl;
+  }
+
+  // Shorten /questions/tagged links, but ignore tag inline-boxes
+  else if (el.href.includes('/questions/tagged/') && el.children.length == 0) {
+
+    el.innerText = el.href.replace('/questions/tagged/', '/tags/');
+  }
+
+  // Remove user id if question or answer
+  if ((el.href.includes('/q/') || el.href.includes('/a/')) && /\/\d+\/\d+$/.test(el.href)) {
+    el.href = el.href.replace(/\/\d+$/, '');
+    el.innerText = el.innerText.replace(/\/\d+$/, '');
+  }
+
+  // For all other links that are still truncated at this stage,
+  if (el.innerText.includes('…')) {
+
+    // display full url if url is <64 chars incl protocol
+    if (el.href.length < 64) {
+      el.innerText = el.href;
+    }
+    // else display next directory path if it's short enough
+    else {
+      let displayed = el.innerText.replace('…', '');
+      let hiddenPath = el.href.replace(/^https?:\/\/(www\.)?/, '').replace(displayed, '').replace(/\/$/, '').split('/');
+      let hiddenPathLastIndex = hiddenPath.length - 1;
+      let shown1;
+      //console.log(hiddenPath);
+
+      // If next hidden path is short, or is only hidden path
+      if (hiddenPath[0].length <= 25 || (hiddenPath.length == 1 && hiddenPath[hiddenPathLastIndex].length <= 50)) {
+        el.innerText = displayed + hiddenPath[0];
+        shown1 = true;
+
+        // if there are >1 hidden paths, continue displaying ellipsis at the end
+        if (hiddenPath.length > 1) {
+          el.innerText += '/…';
+        }
+      }
+
+      // Display last directory path if it's short enough
+      if (hiddenPath.length > 1 && hiddenPath[hiddenPathLastIndex].length <= 50) {
+        el.innerText += '/' + hiddenPath[hiddenPathLastIndex];
+
+        // if full url is shown at this stage, strip ellipsis
+        if (shown1 && hiddenPath.length <= 2) {
+          el.innerText = el.innerText.replace('/…', '');
+        }
+      }
+    }
+  }
+
+  // Finally we trim all protocols and trailing slashes for shorter URLs
+  if (/(^https?|\/$)/.test(el.innerText)) {
+    el.innerText = el.innerText.replace(/^https?:\/\//i, '').replace(/\/$/, '');
+  }
+}
+
+function _parseRoomMini(i, el) {
+
+  // Convert main chatroom title link to the room transcript
+  const roomLink = el.querySelector('a[href*="/rooms/"]');
+  roomLink.href = roomLink.href.replace('/rooms/', '/transcript/');
+  roomLink.textContent = roomLink.title;
+  roomLink.title = '';
+
+  // Show longer description and link links
+  // This also allows SmartPostLinks to fetch post data
+  const desc = el.querySelector('.room-mini-description');
+  desc.innerHTML = desc.title.replace(/https?:\/\/[^\s]+/gi, '<a href="$&">$&</a>');
+  desc.title = '';
+}
+
+function _parseMessagesForUsernames(i, el) {
+
+  const mentionRegex = /(^|\s)@([\w\u00C0-\u017F.-]+[^.\s])(\.?(?:\b|\s))/g;
+
+  // Ignore oneboxes
+  if ($(el).find('.onebox').length > 0) return;
+
+  // Has mentions, wrap in span tag so we can select and highlight it
+  // (\b|\s) instead of just \b so it allows usernames ending with periods '.'
+  if (el.textContent.includes('@')) {
+
+    // Loop through all child nodes
+    el.childNodes.forEach(function (node) {
+
+      // If text node and contains mention
+      if (node.nodeType == 3 && mentionRegex.test(node.textContent)) {
+
+        // Replace @username with <span class="mention-others" data-username="username">@username</span>
+        const replacedHtml = node.textContent.replace(mentionRegex, '$1<span class="mention-others" data-username="$2">@$2</span>$3');
+
+        // Insert new html before text node, then remove text node
+        node.parentNode.insertBefore(document.createRange().createContextualFragment(replacedHtml), node);
+        node.remove();
+      }
+    });
+  }
+}
+
+
+
 /*
    This function is intended to check for new messages and parse the message text
    - It converts non-transcript chatroom links to the room transcript
@@ -318,214 +529,6 @@ function initMessageParser() {
 
   const transcriptIndicator = ' <i class="transcript-link">(transcript)</i>';
 
-  function parseMessageLink(i, el) {
-
-    // Ignore links to bookmarked conversations
-    if (/\/rooms\/\d+\/conversation\//.test(el.href)) { }
-    // Ignore X messages moved links
-    else if (/^\d+ messages?$/.test(el.innerText)) { }
-    // Ignore room info links
-    else if (el.href.includes('/info/')) { }
-    // Convert all other chatroom links to the room transcript
-    else if (el.href.includes('chat.') && el.href.includes('/rooms/')) {
-      el.href = el.href.replace('/rooms/', '/transcript/');
-      el.innerText = el.innerText.replace('/rooms/', '/transcript/');
-    }
-
-    // Attempt to display chat domain, and room name or message id with (transcript) label
-    if (el.href.includes('chat.') && el.href.includes('/transcript/') && /stack(overflow|exchange)\.com/.test(el.innerText)) {
-      let chatDomain = [
-        { host: 'chat.stackexchange.com', name: 'SE chat' },
-        { host: 'chat.meta.stackexchange.com', name: 'MSE chat' },
-        { host: 'chat.stackoverflow.com', name: 'SO chat' }
-      ].filter(v => v.host == el.hostname).pop() || '';
-      let roomName = el.href.split('/').pop()
-        .replace(/[?#].+$/, '').replace(/-/g, ' ') // remove non-title bit from url
-        .replace(/\b./g, m => m.toUpperCase()) // title case
-        .replace(/\b\w{2}\b/g, m => m.toUpperCase()); // capitalize two-letter words
-      let messageId = Number((el.href.match(/(#|\?m=)(\d+)/) || [0]).pop());
-
-      // Check if we have a valid parsed message id
-      if (messageId == 0) messageId = roomName;
-
-      // Display message id
-      if (el.href.includes('/message/') || el.href.includes('?m=')) {
-        el.textContent = chatDomain.name +
-          (!isNaN(Number(roomName)) && !el.href.includes('/message/') ? ', room #' + roomName : '') +
-          ', message #' + messageId + transcriptIndicator;
-      }
-      // Display room name
-      else if (isNaN(Number(roomName))) {
-        // Change link text to room name only if link text is a URL
-        if (/(^https?|\.com)/.test(el.innerText)) {
-
-          // Properly capitalize common room names
-          roomName = roomName.replace('Javascript', 'JavaScript');
-
-          el.textContent = roomName + transcriptIndicator;
-        }
-        else {
-          el.textContent += transcriptIndicator;
-        }
-      }
-      // Fallback to generic domain since no room slug
-      else {
-        el.textContent = chatDomain.name + ', room #' + roomName + transcriptIndicator;
-      }
-
-      // Verbose links should not wrap across lines
-      $(this).addClass('nowrap');
-    }
-
-    // Shorten Q&A links
-    else if (((el.href.includes('/questions/') && !el.href.includes('/tagged/')) || el.href.includes('/q/') || el.href.includes('/a/')) && el.innerText.includes('…')) {
-
-      var displayUrl = el.href;
-
-      // Strip certain querystrings
-      displayUrl = displayUrl.replace(/[?&]noredirect=1/, '');
-
-      // Get comment target (is it on a question or answer), based on second parameter
-      let commentId = null, commentTarget = null;
-      if (/#comment\d+_\d+$/.test(el.href)) {
-        commentId = el.href.match(/#comment(\d+)_\d+$/)[1];
-        commentTarget = Number(el.href.match(/#comment\d+_(\d+)$/)[1]);
-      }
-
-      // If long answer link
-      if (el.href.includes('/questions/') && /\/\d+\/[\w-]+\/\d+/.test(el.href)) {
-
-        // If has comment in url, check if comment target is answer
-        if (commentId != null && commentTarget != null) {
-          const answerId = Number(el.href.match(/\/\d+\/[\w-]+\/(\d+)/)[1]);
-
-          if (commentTarget == answerId) {
-            // Convert to short answer link text with comment hash
-            displayUrl = displayUrl.replace(/\/questions\/\d+\/[^\/]+\/(\d+)(#\d+)?(#comment\d+_\d+)?$/i, '/a/$1') +
-              '#comment' + commentId;
-          }
-          else {
-            // Convert to short question link text with comment hash
-            displayUrl = displayUrl.replace(/\/questions\/(\d+)\/[^\/]+\/(\d+)(#\d+)?(#comment\d+_\d+)?$/i, '/q/$1') +
-              '#comment' + commentId;
-          }
-        }
-        else {
-          // Convert to short answer link text
-          displayUrl = displayUrl.replace(/\/questions\/\d+\/[^\/]+\/(\d+)(#\d+)?(#comment\d+_\d+)?$/i, '/a/$1');
-        }
-      }
-      // If long question link
-      else {
-
-        // Convert to short question link text
-        // Avoid truncating inline question links
-        displayUrl = displayUrl.replace('/questions/', '/q/').replace(/\?(&?(cb|noredirect)=\d+)+/i, '').replace(/(\/\D[\w-]*)+((\/\d+)?#comment\d+_\d+)?$/, '') +
-          (commentId != null ? '#comment' + commentId : '');
-      }
-
-      el.innerText = displayUrl;
-    }
-
-    // Shorten /questions/tagged links, but ignore tag inline-boxes
-    else if (el.href.includes('/questions/tagged/') && el.children.length == 0) {
-
-      el.innerText = el.href.replace('/questions/tagged/', '/tags/');
-    }
-
-    // Remove user id if question or answer
-    if ((el.href.includes('/q/') || el.href.includes('/a/')) && /\/\d+\/\d+$/.test(el.href)) {
-      el.href = el.href.replace(/\/\d+$/, '');
-      el.innerText = el.innerText.replace(/\/\d+$/, '');
-    }
-
-    // For all other links that are still truncated at this stage,
-    if (el.innerText.includes('…')) {
-
-      // display full url if url is <64 chars incl protocol
-      if (el.href.length < 64) {
-        el.innerText = el.href;
-      }
-      // else display next directory path if it's short enough
-      else {
-        let displayed = el.innerText.replace('…', '');
-        let hiddenPath = el.href.replace(/^https?:\/\/(www\.)?/, '').replace(displayed, '').replace(/\/$/, '').split('/');
-        let hiddenPathLastIndex = hiddenPath.length - 1;
-        let shown1;
-        //console.log(hiddenPath);
-
-        // If next hidden path is short, or is only hidden path
-        if (hiddenPath[0].length <= 25 || (hiddenPath.length == 1 && hiddenPath[hiddenPathLastIndex].length <= 50)) {
-          el.innerText = displayed + hiddenPath[0];
-          shown1 = true;
-
-          // if there are >1 hidden paths, continue displaying ellipsis at the end
-          if (hiddenPath.length > 1) {
-            el.innerText += '/…';
-          }
-        }
-
-        // Display last directory path if it's short enough
-        if (hiddenPath.length > 1 && hiddenPath[hiddenPathLastIndex].length <= 50) {
-          el.innerText += '/' + hiddenPath[hiddenPathLastIndex];
-
-          // if full url is shown at this stage, strip ellipsis
-          if (shown1 && hiddenPath.length <= 2) {
-            el.innerText = el.innerText.replace('/…', '');
-          }
-        }
-      }
-    }
-
-    // Finally we trim all protocols and trailing slashes for shorter URLs
-    if (/(^https?|\/$)/.test(el.innerText)) {
-      el.innerText = el.innerText.replace(/^https?:\/\//i, '').replace(/\/$/, '');
-    }
-  }
-
-  function parseRoomMini(i, el) {
-
-    // Convert main chatroom title link to the room transcript
-    const roomLink = el.querySelector('a[href*="/rooms/"]');
-    roomLink.href = roomLink.href.replace('/rooms/', '/transcript/');
-    roomLink.textContent = roomLink.title;
-    roomLink.title = '';
-
-    // Show longer description and link links
-    // This also allows SmartPostLinks to fetch post data
-    const desc = el.querySelector('.room-mini-description');
-    desc.innerHTML = desc.title.replace(/https?:\/\/[^\s]+/gi, '<a href="$&">$&</a>');
-    desc.title = '';
-  }
-
-  function parseMessagesForUsernames(i, el) {
-
-    const mentionRegex = /(^|\s)@([\w\u00C0-\u017F.-]+[^.\s])(\.?(?:\b|\s))/g;
-
-    // Ignore oneboxes
-    if ($(el).find('.onebox').length > 0) return;
-
-    // Has mentions, wrap in span tag so we can select and highlight it
-    // (\b|\s) instead of just \b so it allows usernames ending with periods '.'
-    if (el.textContent.includes('@')) {
-
-      // Loop through all child nodes
-      el.childNodes.forEach(function (node) {
-
-        // If text node and contains mention
-        if (node.nodeType == 3 && mentionRegex.test(node.textContent)) {
-
-          // Replace @username with <span class="mention-others" data-username="username">@username</span>
-          const replacedHtml = node.textContent.replace(mentionRegex, '$1<span class="mention-others" data-username="$2">@$2</span>$3');
-
-          // Insert new html before text node, then remove text node
-          node.parentNode.insertBefore(document.createRange().createContextualFragment(replacedHtml), node);
-          node.remove();
-        }
-      });
-    }
-  }
-
   setInterval(function () {
 
     // Get new messages
@@ -533,15 +536,15 @@ function initMessageParser() {
     if (newMsgs.length > 0) {
 
       // Try to detect usernames and mentions in messages
-      newMsgs.find('.content').each(parseMessagesForUsernames);
+      newMsgs.find('.content').each(_parseMessagesForUsernames);
 
       // Parse message links, but ignoring oneboxes, room minis, and quotes
       newMsgs.find('.content a').filter(function () {
         return $(this).parents('.onebox, .quote, .room-mini').length == 0;
-      }).each(parseMessageLink);
+      }).each(_parseMessageLink);
 
       // Parse room minis
-      newMsgs.find('.room-mini').each(parseRoomMini);
+      newMsgs.find('.room-mini').each(_parseRoomMini);
     }
 
     // Get new starred messages
@@ -551,19 +554,19 @@ function initMessageParser() {
       // Parse links, but ignoring transcript links
       newStarredMsgs.find('a').filter(function () {
         return !this.href.includes('/transcript/');
-      }).each(parseMessageLink);
+      }).each(_parseMessageLink);
     }
 
     // Parse user-popups, if it's a room link, convert to transcript link
     const userpopup = $('.user-popup');
     userpopup.find('a').filter(function () {
       return this.pathname.indexOf('/rooms/') == 0 && $(this).attr('href') != '#';
-    }).each(parseMessageLink);
+    }).each(_parseMessageLink);
 
     // Parse notifications (room invites)
     const notificationLinks = $('.notification-message a').filter(function () {
       return this.pathname.indexOf('/rooms/') == 0 && $(this).attr('href') != '#';
-    }).each(parseMessageLink);
+    }).each(_parseMessageLink);
 
   }, 1000);
 }
@@ -685,7 +688,14 @@ function initBetterMessageLinks() {
 
   });
 
-  if (isTranscript) return;
+  // Only for chat transcript and conversations
+  if (isTranscript) {
+
+    // Improve room mini
+    $('.room-mini').each(_parseRoomMini);
+
+    return;
+  }
 
   // Dialog message replies
 
