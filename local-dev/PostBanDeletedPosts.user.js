@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Post Ban Deleted Posts
-// @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment. Assists in building low-quality-questions mod messages.
+// @description  Assists in building low-quality-questions mod messages. For SO Meta only, fetch and display user's deleted posts in markdown format.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
 // @version      99999

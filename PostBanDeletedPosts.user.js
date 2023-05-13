@@ -1,12 +1,19 @@
 // ==UserScript==
 // @name         Post Ban Deleted Posts
-// @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment. Assists in building low-quality-questions mod messages.
+// @description  Assists in building low-quality-questions mod messages. For SO Meta only, fetch and display user's deleted posts in markdown format.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.1
+// @version      5.2
 //
 // @match        https://meta.stackoverflow.com/questions/*
-// @match        https://stackoverflow.com/users/message/create/*?action=low-quality-questions*
+//
+// @match        https://*.stackoverflow.com/users/message/create/*?action=low-quality-questions*
+// @match        https://*.serverfault.com/users/message/create/*?action=low-quality-questions*
+// @match        https://*.superuser.com/users/message/create/*?action=low-quality-questions*
+// @match        https://*.askubuntu.com/users/message/create/*?action=low-quality-questions*
+// @match        https://*.mathoverflow.net/users/message/create/*?action=low-quality-questions*
+// @match        https://*.stackapps.com/users/message/create/*?action=low-quality-questions*
+// @match        https://*.stackexchange.com/users/message/create/*?action=low-quality-questions*
 //
 // @exclude      https://stackoverflowteams.com/*
 // @exclude      https://api.stackexchange.com/*
@@ -277,6 +284,9 @@ addStylesheet(`
     return;
   }
 
+  // Rest of the script is only for SO Meta
+  if(!isSOMeta) return;
+
   // SO Meta
   const post = $('#question');
   const pid = Number(post.attr('data-questionid'));
@@ -305,6 +315,10 @@ addStylesheet(`
   // Definitely not a post ban question, ignore post
   if (!isDeleted && (!hasDupeLink && !hasTags && !hasKeywords)) return;
 
+  // Status of comments section
+  const hasMyComments = post.find(`.comment-user[href*="/users/${selfId}/"]`).length > 0;
+  const hasDeletedComments = post.find('.js-fetch-deleted-comments, .js-show-deleted-comments-link').length > 0;
+
   // Get user ban stats on main
   const userDashboard = await ajaxPromise(`${parentUrl}/users/account-info/${uid}`);
   const blocked = $('.blocked-no, .blocked-yes', userDashboard);
@@ -312,6 +326,12 @@ addStylesheet(`
   const aBan = blocked[1].innerText === 'yes';
   const eBan = blocked[2].innerText === 'yes';
   const rBan = blocked[3].innerText === 'yes';
+  const isSuspended = $('#mainbar-full > .system-alert', userDashboard).length > 0;
+
+  const suspendedNotice = $(`
+<div class="main-banned postcell post-layout--right">
+  <b>${username} is currently suspended on main.</b>
+</div>`);
 
   const banStats = $(`
 <div class="main-banned postcell post-layout--right">
@@ -322,7 +342,11 @@ addStylesheet(`
   <span>${rBan ? 'review' : ''}</span>
   <span>${!qBan && !aBan && !eBan && !rBan ? 'none!' : ''}</span>
 </div>`);
-  post.find('.postcell').after(banStats);
+
+  post.find('.postcell').after(isSuspended ? suspendedNotice : banStats);
+
+  // User is currently suspended, do nothing
+  if (isSuspended) return;
 
   // Get deleted questions on main
   if (qBan) {
@@ -355,9 +379,10 @@ addStylesheet(`
     if (!isSuperuser || !isRelativelyNew) return;
 
     // If there are more comments or comments by myself, or deleted comments, ignore
-    const hasMyComments = post.find(`.comment-user[href*="/users/${selfId}/"]`).length > 0;
-    const hasDeletedComments = post.find('.js-fetch-deleted-comments, .js-show-deleted-comments-link').length > 0;
     if (post.find('.js-show-link:visible').length !== 0 || hasMyComments || hasDeletedComments) return;
+
+    // Close as duplicate
+    await closeQuestionAsDuplicate(pid, 255583);
 
     // Check if no comments on post starting with "Deleted question" or "Deleted answer"
     const hasDeletedComment = post.find('.comment-copy').filter((i, el) => el.innerText.toLowerCase().includes('deleted ' + postType)).length > 0;
@@ -373,15 +398,5 @@ addStylesheet(`
   // if (aBan) {
   //   await delay(1000);
   //   const posts = await getDeletedPosts(uid, username, 'answer');
-  // }
-
-  // If not superuser or post is not within past three days, do not auto-post anything
-  // if (!isSuperuser || !isRelativelyNew || !isSOMeta) return;
-  // await delay(1000);
-
-  // // Check if no comments on post containing the post ban meta post
-  // const hasPostBanComment = post.find('.comment-copy').filter((i, el) => el.innerHTML.includes('/255583')).length > 0;
-  // if (qBan && !hasPostBanComment) {
-  //   addComment(pid, `If you're question banned you should read this: **[What can I do when getting “We are no longer accepting questions from this account”?](//meta.stackoverflow.com/q/255583)**`);
   // }
 })();
