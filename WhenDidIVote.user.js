@@ -3,7 +3,7 @@
 // @description  Get the timestamp of when you voted on a post
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.2
+// @version      1.2.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -89,7 +89,6 @@ const searchVoteTimestampFromVotesPage = async (postId, postDate, voteType, page
   // If last timestamp is before post date, terminate search
   // We should not need this though, because we are calling this function from the question/answer page where the vote status is known
   const lastTimestamp = [...doc.querySelectorAll('#user-tab-votes .relativetime')].pop()?.title;
-  console.log(lastTimestamp, new Date(lastTimestamp), postDate);
   if (lastTimestamp && new Date(lastTimestamp) < postDate) {
     return { success: false };
   }
@@ -159,7 +158,7 @@ const searchVoteTimestampFromVotesPage = async (postId, postDate, voteType, page
     StackExchange.helpers.addSpinner(target);
     const { success, voteDate, foundPageLink } = await searchVoteTimestampFromVotesPage(postId, postDate, voteType);
     StackExchange.helpers.removeSpinner();
-    //console.log(`When Did I Vote result for ${postId}`, result);
+    console.log(`WDIV: result for ${postId}`, result);
 
     // Show result
     if (success) {
