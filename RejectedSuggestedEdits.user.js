@@ -137,7 +137,7 @@ function getRejected(page = 1) {
           <span class="userspan">${proposingUser}</span>
           <a href="/suggested-edits/${v.suggested_edit_id}">suggested edit</a>
           on <a href="/${posttype}/${v.post_id}" class="answer-hyperlink">${posttype}${v.post_id}</a>
-          was rejected <span title="${dateToIsoString(rejectionDate)}" class="relativetime">${dateToRelativeString(rejectionDate)}</span>
+          was rejected <span title="${dateToIsoString(rejectionDate)}" class="relativetime">${dateToRelativeTime(rejectionDate)}</span>
         </div>`;
     });
 

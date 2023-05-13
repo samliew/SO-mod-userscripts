@@ -260,8 +260,8 @@ async function promptToNukePostAndUser(pid, isQuestion, isDeleted, uid, uName, s
       &quot;<a href="${userInfo.link}"><strong>${uName}</strong></a>&quot;
       (ID&nbsp;<code>${uid}</code>${userInfo?.account_id ? `; <a href="https://stackexchange.com/users/${userInfo.account_id}?tab=accounts">network&nbsp;account</a>&nbsp;ID&nbsp;<code>${userInfo.account_id}</code>` : ''}),
       was
-      <strong>created&nbsp;<span title="${dateToIsoString(creationDate).replaceAll(' ', '&nbsp;')}">${dateToRelativeString(creationDate).replaceAll(' ', '&nbsp;')}</span></strong>${modifiedDate ? `, last&nbsp;<strong>modified&nbsp;<span title="${dateToIsoString(modifiedDate).replaceAll(' ', '&nbsp;')}">${dateToRelativeString(modifiedDate).replaceAll(' ', '&nbsp;')}</span></strong>,` : ''}
-      and <strong>last&nbsp;seen&nbsp;<span title="${dateToIsoString(accessDate).replaceAll(' ', '&nbsp;')}">${dateToRelativeString(accessDate).replaceAll(' ', '&nbsp;')}</span></strong>.
+      <strong>created&nbsp;<span title="${dateToIsoString(creationDate).replaceAll(' ', '&nbsp;')}">${dateToRelativeTime(creationDate).replaceAll(' ', '&nbsp;')}</span></strong>${modifiedDate ? `, last&nbsp;<strong>modified&nbsp;<span title="${dateToIsoString(modifiedDate).replaceAll(' ', '&nbsp;')}">${dateToRelativeTime(modifiedDate).replaceAll(' ', '&nbsp;')}</span></strong>,` : ''}
+      and <strong>last&nbsp;seen&nbsp;<span title="${dateToIsoString(accessDate).replaceAll(' ', '&nbsp;')}">${dateToRelativeTime(accessDate).replaceAll(' ', '&nbsp;')}</span></strong>.
       They have
       <a href="${userInfo.link}?tab=questions&sort=newest"><strong>${userInfo.question_count}</strong>&nbsp;non&#8209;deleted&nbsp;question${userInfo.question_count !== 1 ? 's' : ''}</a>
       and

@@ -71,7 +71,7 @@ declare var fkey: string | null;
  */
 declare function seApiDateToDate(apiDate: string): Date | null;
 declare function dateToIsoString(date: Date): string;
-declare function dateToRelativeString(date: Date): string;
+declare function dateToRelativeTime(date: Date): string;
 
 /**
  * ================================

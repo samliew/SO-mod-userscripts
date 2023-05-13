@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat. Lightbox images that are displayed smaller than it's original size.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.1
+// @version      3.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -34,6 +34,7 @@ const ignoredParentClasses = [
   'gravatar-wrapper-64',
   'gravatar-wrapper-128',
   'fancybox-content',
+  'js-post-menu',
 ];
 
 
@@ -44,7 +45,7 @@ function linkUnlinkedImages() {
   // Process unprocessed images
   // If image does not have a parent link, wrap a link around it
   $('img').not('.js-checked-link').addClass('js-checked-link').filter(function () {
-    return typeof this.parentNode.href === 'undefined' && !this.parentNode.classList.value.split(' ').some(v => ignoredParentClasses.includes(v));
+    return this.closest('.' + ignoredParentClasses.join(',.')) === null;
   }).wrap(function () {
     return `<a class="js-was-unlinked" data-src="${this.src}"></a>`;
   });
