@@ -3,7 +3,7 @@
 // @description  Get the timestamp of when you voted on a post
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.2.1
+// @version      1.2.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -35,7 +35,7 @@
 if (!selfId) return;
 
 // We need to get the full user profile link with slug from the topbar so we can avoid the extra 301 redirects, fallback in case
-const fallbackSelfProfileLink = `/users/${selfId}`;
+const fallbackSelfProfileLink = `${teamsRoutePrefix}/users/${selfId}`;
 const selfProfileLink = document.querySelector(`a[href*="${fallbackSelfProfileLink}/"]`)?.href || fallbackSelfProfileLink;
 
 
