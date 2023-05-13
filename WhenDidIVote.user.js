@@ -3,7 +3,7 @@
 // @description  Get the timestamp of when you voted on a post
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.0
+// @version      1.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -35,7 +35,16 @@
 if (!selfId) return;
 
 
-const searchVoteTimestampFromVotesPage = async (postId, voteType, pageNum = 1, lastPage = null) => {
+/**
+ * Recursive function to search for vote timestamp from votes page for a post
+ * @param {Number} postId Post ID
+ * @param {Date} postDate Post date
+ * @param {String} voteType 'upvote' or 'downvote'
+ * @param {Number} [pageNum] Page number to start searching from
+ * @param {Number} [lastPage] Last known page number
+ * @returns {Promise<{ success: Boolean, postId: Number, voteType: String, voteDate: Date, foundPageNum: Number, foundPageLink: String }>}
+ */
+const searchVoteTimestampFromVotesPage = async (postId, postDate, voteType, pageNum = 1, lastPage = null) => {
   // Validation
   if (typeof postId !== 'number' || isNaN(postId) || postId <= 0) throw new Error('Invalid postId');
   if (typeof voteType !== 'string' || !['upvote', 'downvote'].includes(voteType)) throw new Error('Invalid voteType');
@@ -73,15 +82,22 @@ const searchVoteTimestampFromVotesPage = async (postId, voteType, pageNum = 1, l
     };
   }
 
-  // Post not found
+  // If last timestamp is before post date, terminate search
+  // We should not need this though, because we are calling this function from the question/answer page where the vote status is known
+  const lastTimestamp = [...doc.querySelectorAll('#user-tab-votes .relativetime')].pop()?.title;
+  console.log(lastTimestamp, new Date(lastTimestamp), postDate);
+  if (lastTimestamp && new Date(lastTimestamp) < postDate) {
+    return { success: false };
+  }
+
   // Get next page link and last page number
   const nextPageLink = doc.querySelector('.js-user-tab-paging a[rel="next"]');
   lastPage = lastPage || Number(nextPageLink?.previousElementSibling?.textContent?.trim());
 
   // If there is a next page, continue searching
   if (nextPageLink && pageNum < lastPage) {
-    await delay(1000); // delay to avoid rate limiting
-    return await searchVoteTimestampFromVotesPage(postId, voteType, pageNum + 1, lastPage);
+    await delay(1200); // delay to avoid rate limiting
+    return await searchVoteTimestampFromVotesPage(postId, postDate, voteType, pageNum + 1, lastPage);
   }
 
   // No more pages, terminate search
@@ -112,6 +128,7 @@ const searchVoteTimestampFromVotesPage = async (postId, voteType, pageNum = 1, l
     const post = target.closest('.question, .answer, .candidate-row');
     const postId = Number(post.dataset.questionid || post.dataset.answerid || post.dataset.postid);
     const postType = post.dataset.questionid ? 'question' : post.dataset.answerid ? 'answer' : 'candidate';
+    const postDate = new Date([...post.querySelectorAll('.post-signature .relativetime')]?.pop()?.title);
 
     // Get vote status
     const isUpvoted = post.querySelector('.js-vote-up-btn[aria-pressed="true"]');
@@ -125,7 +142,7 @@ const searchVoteTimestampFromVotesPage = async (postId, voteType, pageNum = 1, l
         type: 'danger',
         useRawHtml: false,
         transient: true,
-        transientTimeout: 3e3,
+        transientTimeout: 2e3,
       });
       return;
     }
@@ -136,14 +153,14 @@ const searchVoteTimestampFromVotesPage = async (postId, voteType, pageNum = 1, l
 
     // Try to get vote timestamp
     StackExchange.helpers.addSpinner(target);
-    const result = await searchVoteTimestampFromVotesPage(postId, voteType);
+    const { success, voteDate, foundPageLink } = await searchVoteTimestampFromVotesPage(postId, postDate, voteType);
     StackExchange.helpers.removeSpinner();
     //console.log(`When Did I Vote result for ${postId}`, result);
 
     // Show result
-    if (result.success) {
+    if (success) {
       StackExchange.helpers.showToast(
-        `You <a href="${result.foundPageLink}" target="_blank">${voteType}d this post</a> on ${dateToIsoString(result.voteDate)} (${dateToRelativeTime(result.voteDate)})`, {
+        `You <a href="${foundPageLink}" target="_blank">${voteType}d this post</a> on ${dateToIsoString(voteDate)} (${dateToRelativeTime(voteDate)})`, {
         type: 'success',
         useRawHtml: true,
         transient: false,
@@ -153,8 +170,7 @@ const searchVoteTimestampFromVotesPage = async (postId, voteType, pageNum = 1, l
       StackExchange.helpers.showToast(`Could not find vote date for ${postType} (#${postId})`, {
         type: 'danger',
         useRawHtml: false,
-        transient: true,
-        transientTimeout: 20e3,
+        transient: false,
       });
     }
 
