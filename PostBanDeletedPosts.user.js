@@ -36,9 +36,6 @@ const isSuperuser = superusers.includes(selfId);
 const newlines = '\n\n';
 
 
-let post, username;
-
-
 /**
  * @summary Get deleted posts
  * @param {number} uid
@@ -49,7 +46,8 @@ const getDeletedPosts = async (uid, postType) => {
   if (typeof uid !== 'number' || isNaN(uid) || uid <= 0) throw new Error('PBDP: Invalid user id');
   if (postType !== 'question' && postType !== 'answer') throw new Error('PBDP: Invalid post type');
 
-  const url = `${parentUrl}/search?q=user%3a${uid}%20is%3a${postType}%20deleted%3a1%20score%3a..0&pagesize=30&tab=newest`;
+  // Best if default pagesize is larger, but don't override the user's preference
+  const url = `${parentUrl}/search?q=user%3a${uid}%20is%3a${postType}%20deleted%3a1%20score%3a..0&tab=newest`;
   const data = await ajaxPromise(url);
   const items = $('.js-search-results .s-post-summary', data).get()
     .map(post => {
@@ -265,15 +263,6 @@ addStylesheet(`
 // On script run
 (async function init() {
 
-  post = $('#question');
-  const pid = Number(post.attr('data-questionid'));
-  const postOwnerLink = $('.post-signature:last .user-details a[href*="/users/"]', post).first();
-  const postText = ($('h1 .question-hyperlink').text() + $('.js-post-body p', post).text()).toLowerCase();
-  const isDeleted = post.find('.js-post-notice a[href="/help/deleted-questions"]').length > 0;
-
-  const postDate = new Date(post.find('.post-signature').last().find('.relativetime').attr('title'));
-  const isRelativelyNew = postDate.getTime() - Date.now() < 3 * MS.oneDay; // three days
-
   // On mod message create page
   if (location.pathname.startsWith('/users/message/create/')) {
 
@@ -289,15 +278,26 @@ addStylesheet(`
   }
 
   // SO Meta
+  const post = $('#question');
+  const pid = Number(post.attr('data-questionid'));
+  const postOwnerLink = $('.post-signature:last .user-details a[href*="/users/"]', post).first();
+  const postText = ($('h1 .question-hyperlink').text() + $('.js-post-body p', post).text()).toLowerCase();
+  const isDeleted = post.find('.js-post-notice a[href="/help/deleted-questions"]').length > 0;
+
+  const postDate = new Date(post.find('.post-signature').last().find('.relativetime').attr('title'));
+  const isRelativelyNew = postDate.getTime() - Date.now() < 3 * MS.oneDay; // three days
+
   // Is a deleted user, do nothing
   const uid = getUserId(postOwnerLink.attr('href'));
   if (!uid) return;
 
-  username = postOwnerLink.text().trim();
+  const username = postOwnerLink.text().trim();
   const userRep = postOwnerLink.parent().find('.reputation-score').text().replace(',', '') || null;
-  const hasDupeLink = $('.js-post-notice a, .comments-list a', post).filter((i, el) => /(https:\/\/meta\.stackoverflow\.com)?\/q(uestions)?\/255583\/?.*/.test(el.href)).length > 0;
+  const hasDupeLink = $('.js-post-notice a, .comments-list a', post)
+    .filter((i, el) => /(https:\/\/meta\.stackoverflow\.com)?\/q(uestions)?\/255583\/?.*/.test(el.href)).length > 0;
   const hasTags = $('a.post-tag', post).filter((i, el) => ['post-ban', 'banning', 'deleted-'].some(v => el.innerText.contains(v))).length > 0;
-  const hasKeywords = ['unable', 'cannot', 'can\'t', 'cant', 'create', 'block', 'no longer accepting'].some(v => postText.contains(v)) && ['question', 'answer', 'post', 'restrict', 'account'].some(v => postText.contains(v));
+  const hasKeywords = ['unable', 'cannot', 'can\'t', 'cant', 'create', 'block', 'no longer accepting']
+    .some(v => postText.contains(v)) && ['question', 'answer', 'post', 'restrict', 'account'].some(v => postText.contains(v));
 
   // User rep too high, don't bother checking
   if (userRep == null || userRep.indexOf('k') > 0 || Number(userRep) >= 1000) return;
@@ -314,14 +314,14 @@ addStylesheet(`
   const rBan = blocked[3].innerText === 'yes';
 
   const banStats = $(`
-    <div class="main-banned postcell post-layout--right">
-        <b>${username} - bans on main: </b>
-        <span>${qBan ? 'question' : ''}</span>
-        <span>${aBan ? 'answer' : ''}</span>
-        <span>${eBan ? 'suggested-edit' : ''}</span>
-        <span>${rBan ? 'review' : ''}</span>
-        <span>${!qBan && !aBan && !eBan && !rBan ? 'none!' : ''}</span>
-    </div>`);
+<div class="main-banned postcell post-layout--right">
+  <b>${username} - bans on main: </b>
+  <span>${qBan ? 'question' : ''}</span>
+  <span>${aBan ? 'answer' : ''}</span>
+  <span>${eBan ? 'suggested-edit' : ''}</span>
+  <span>${rBan ? 'review' : ''}</span>
+  <span>${!qBan && !aBan && !eBan && !rBan ? 'none!' : ''}</span>
+</div>`);
   post.find('.postcell').after(banStats);
 
   // Get deleted questions on main
@@ -329,11 +329,11 @@ addStylesheet(`
     const { total, items, postType, searchUrl } = await getDeletedPosts(uid, 'question');
 
     const stats = $(`
-  <div class="meta-mentioned">
-      ${username} has <a href="${searchUrl}" target="_blank">${total} deleted ${postType}${pluralize(total)}</a> on the main site
-      <span class="meta-mentions-toggle"></span>
-      <div class="meta-mentions"></div>
-  </div>`).insertAfter(post);
+<div class="meta-mentioned">
+  ${username} has <a href="${searchUrl}" target="_blank">${total} deleted ${postType}${pluralize(total)}</a> on the main site
+  <span class="meta-mentions-toggle"></span>
+  <div class="meta-mentions"></div>
+</div>`).insertAfter(post);
 
     // If no deleted posts, do nothing
     if (isNaN(total) || total <= 0) return;
