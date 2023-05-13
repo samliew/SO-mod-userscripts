@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.3
+// @version      5.4
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -749,12 +749,12 @@ function initPostModMenuLinks() {
         }
         else if (!isSuperuser) {
           // Open CM message in new window/tab
-          window.open(`${parentUrl}/admin/cm-message/create/21849755?action=post-dissociation`);
+          window.open(`${parentUrl}/admin/cm-message/create/${uid}?action=post-dissociation`);
         }
         break;
       case 'cm-suspicious-votes':
         // Open CM message in new window/tab
-        window.open(`${parentUrl}/admin/cm-message/create/21849755?action=suspicious-voting`);
+        window.open(`${parentUrl}/admin/cm-message/create/${uid}?action=suspicious-voting`);
         break;
       default:
     }
