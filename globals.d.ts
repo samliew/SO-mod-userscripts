@@ -223,4 +223,5 @@ declare function rudeFlagPost(pid:number): Promise<object>;
  * Mods
  * ================================
  */
+declare function sendModMessage(userId:number, templateName:string, postText:string, sendEmail?:boolean, suspendReason?:string, suspendDays?:number): Promise<object>;
 declare function sendCmMessage(userId:number, templateName:string, postText:string): Promise<object>;
