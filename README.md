@@ -388,7 +388,8 @@ Better comments layout for easier readability and moderation.
 
 ### [Post Ban Deleted Posts](https://github.com/samliew/SO-mod-userscripts/blob/master/PostBanDeletedPosts.user.js) ♦
 
-- When user posts on Meta Stack Overflow regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
+- Assists in building low-quality-questions mod messages.
+- For SO Meta only, fetch and display user's deleted posts in markdown format.
 <br>![screenshot](https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/images/Screenshot_2018-07-09_100703.png)
 
 

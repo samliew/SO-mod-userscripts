@@ -6,7 +6,14 @@
 // @version      99999
 //
 // @match        https://meta.stackoverflow.com/questions/*
-// @match        https://stackoverflow.com/users/message/create/*?action=low-quality-questions*
+//
+// @match        https://*.stackoverflow.com/users/message/create/*?action=low-quality-questions*
+// @match        https://*.serverfault.com/users/message/create/*?action=low-quality-questions*
+// @match        https://*.superuser.com/users/message/create/*?action=low-quality-questions*
+// @match        https://*.askubuntu.com/users/message/create/*?action=low-quality-questions*
+// @match        https://*.mathoverflow.net/users/message/create/*?action=low-quality-questions*
+// @match        https://*.stackapps.com/users/message/create/*?action=low-quality-questions*
+// @match        https://*.stackexchange.com/users/message/create/*?action=low-quality-questions*
 //
 // @exclude      https://stackoverflowteams.com/*
 // @exclude      https://api.stackexchange.com/*
