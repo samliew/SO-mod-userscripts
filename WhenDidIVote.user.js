@@ -158,7 +158,6 @@ const searchVoteTimestampFromVotesPage = async (postId, postDate, voteType, page
     StackExchange.helpers.addSpinner(target);
     const { success, voteDate, foundPageLink } = await searchVoteTimestampFromVotesPage(postId, postDate, voteType);
     StackExchange.helpers.removeSpinner();
-    console.log(`WDIV: result for ${postId}`, result);
 
     // Show result
     if (success) {
