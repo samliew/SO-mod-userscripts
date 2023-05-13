@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.3
+// @version      4.3.1
 //
 // @include      https://meta.stackoverflow.com/questions/*
 //
@@ -239,7 +239,7 @@ addStylesheet(`
     // Check if no comments on post containing the post ban meta post
     const hasPostBanComment = post.find('.comment-copy').filter((i, el) => el.innerHTML.includes('/255583')).length > 0;
     if (qBan && !hasPostBanComment) {
-      addComment(pid, `Please read this: **[What can I do when getting “We are no longer accepting questions from this account”?](//meta.stackoverflow.com/q/255583)**`);
+      addComment(pid, `If you're question banned you should read this: **[What can I do when getting “We are no longer accepting questions from this account”?](//meta.stackoverflow.com/q/255583)**`);
     }
   });
 
@@ -277,7 +277,7 @@ addStylesheet(`
       if (post.find('.js-show-link:visible').length !== 0 || hasMyComments || hasDeletedComments) return;
 
       // Check if no comments on post starting with "Deleted question" or "Deleted answer"
-      const hasDeletedComment = post.find('.comment-copy').filter((i, el) => el.innerText.toLowerCase().includes('deleted ' + type)).length > 0;
+      const hasDeletedComment = post.find('.comment-copy').filter((i, el) => el.innerText.toLowerCase().includes('deleted ' + postType)).length > 0;
       if (!hasDeletedComment) {
 
         if (comment.length <= 600) {
