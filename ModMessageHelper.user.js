@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.7
+// @version      4.8
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -375,81 +375,7 @@ const customCmMessages = [
 ];
 
 
-// Send mod message + optional suspension
-function modMessage(uid, message = '', sendEmail = true, suspendDays = 0) {
-  return new Promise(function (resolve, reject) {
-    if (typeof uid === 'undefined' || uid === null) { reject(); return; }
-    if (suspendDays < 0 || suspendDays > 365) { reject(); return; }
-
-    // Message cannot be empty
-    if (message == null || message.trim().length == 0) {
-      alert('Mod message cannot be empty.'); reject(); return;
-    }
-
-    let suspendUser = false;
-    let suspendChoice = 0;
-    if (suspendDays > 0) {
-      suspendUser = true;
-      suspendChoice = suspendDays;
-    }
-
-    let templateName = 'something else...';
-    let suspendReason = 'for rule violations';
-    if (message == 'goodbye') {
-      templateName = 'a farewell';
-    }
-
-    $.post({
-      url: `${location.origin}/users/message/save`,
-      data: {
-        'fkey': fkey,
-        'userId': uid,
-        'lastMessageDate': 0,
-        'email': sendEmail,
-        'suspendUser': suspendUser,
-        'suspend-choice': suspendChoice,
-        'suspendDays': suspendDays,
-        'templateName': templateName,
-        'suspendReason': suspendReason,
-        'templateEdited': false,
-        'post-text': message,
-        'author': null
-      }
-    })
-      .done(resolve)
-      .fail(reject);
-  });
-}
-
-
-function getDeletedPosts(uid, postType) {
-  if (typeof uid !== 'number') return;
-  if (postType !== 'question' || postType !== 'answer') return;
-
-  const url = `${location.origin}/search?q=user%3a${uid}%20is%3a${postType}%20deleted%3a1%20score%3a..0&tab=newest`;
-  $.get(url).done(function (data) {
-    const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
-    const stats = $(`
-      <div class="post-ban-deleted-posts mt24">
-          User has <a href="${url}" target="_blank">${count} deleted ${postType}s</a>, score &lt;= 0
-      </div>`).appendTo('#sidebar');
-
-    // If no deleted posts, do nothing
-    if (isNaN(count) || count <= 0) return;
-
-    // Add deleted posts to the stats element
-    const results = $('.js-search-results .s-post-summary', data);
-
-    // Add copyable element to the results
-    const hyperlinks = results.find('.s-post-summary--content-title a').attr('href', (i, v) => location.origin + v).attr('target', '_blank');
-    const hyperlinksMarkdown = hyperlinks.map((i, el) => `[${1 + i}](${toShortLink(el.href)})`).get();
-    const comment = `Specifically, we would like to highlight these ${hyperlinksMarkdown.length} deleted ${postType}${hyperlinksMarkdown.length == 1 ? '' : 's'}, which you should try to improve as they are contributing to the [${postType} ban](${location.origin}/help/${postType}-bans):<br>\n${hyperlinksMarkdown.join(' ')}`;
-    const commentArea = $(`<textarea readonly="readonly" class="h128 s-textarea"></textarea>`).val(comment).appendTo(stats);
-  });
-}
-
-
-function initModMessageHelper() {
+async function initModMessageHelper() {
 
   if (location.pathname.includes('/users/message/')) {
 
@@ -563,16 +489,15 @@ function initModMessageHelper() {
     }, delay);
   }
 
-
-  const template = getQueryParam('action');
-
-  // If low-quality-questions template was selected, fetch deleted questions
-  if (template === 'low-quality-questions') {
-    getDeletedPosts(currentUserId, 'question');
-  }
-
   // Restrict max suspension days to 365, otherwise it fails rudely
   $('#js-suspend-days').attr('type', 'number').attr('max', '365').attr('min', 1);
+
+  const template = getQueryParam('action');
+  console.log('MMH: Selected mod message template:', template);
+
+  // Do not support low-quality-questions template, since we have "PostBanDeletedPosts" userscript for that
+  // Download from https://github.com/samliew/SO-mod-userscripts/blob/master/PostBanDeletedPosts.user.js
+  if (template === 'low-quality-questions') return;
 
   // On any page update
   let hasRun = false;
@@ -780,6 +705,7 @@ function initCmMessageHelper() {
   if (!location.pathname.includes('/admin/cm-message/create/')) return;
 
   const template = getQueryParam('action');
+  console.log('MMH: Selected CM message template:', template);
 
   // Do not support suspicious-voting template, since we have "SuspiciousVotingHelper" userscript for that
   // Download from https://github.com/samliew/SO-mod-userscripts/blob/master/SuspiciousVotingHelper.user.js
@@ -1419,6 +1345,9 @@ addStylesheet(`
 }
 .somu-templateName-too-long .somu-templateName-too-long-span {
   display: block;
+}
+.post-ban-textarea {
+  min-height: 200px;
 }
 `); // end stylesheet
 

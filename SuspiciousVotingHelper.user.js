@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table. Also provides support for SEDE query https://data.stackexchange.com/stackoverflow/query/968803
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.4
+// @version      3.4.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -12,8 +12,8 @@
 // @match        https://*.mathoverflow.net/*
 // @match        https://*.stackapps.com/*
 // @match        https://*.stackexchange.com/*
-// @match        https://stackoverflowteams.com/*
 //
+// @exclude      https://stackoverflowteams.com/*
 // @exclude      https://api.stackexchange.com/*
 // @exclude      https://data.stackexchange.com/*
 // @exclude      https://contests.stackoverflow.com/*
@@ -81,6 +81,7 @@ function mapInvVotePatternItemsToObject() {
 
 
 // Main functions
+// After CM message template dialog has loaded/opened
 let updateModTemplates = function () {
   updateModTemplates = () => 0; // this function should run once only
 
@@ -92,7 +93,6 @@ let updateModTemplates = function () {
   let appendString = `*(there may also be other minor instances of targeted votes that are unknown to us, as we can only view votes between users if they are above a certain threshold)*`;
   let additionalInfo = getQueryParam('info');
 
-  // After template dialog has opened
   let flags, votesFrom, votesTo, votesFromInv = [], votesToInv = [];
   $.when(
 
