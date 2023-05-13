@@ -3,7 +3,7 @@
 // @description  Get the timestamp of when you voted on a post
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.1
+// @version      1.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -34,6 +34,10 @@
 // Need to be logged in to use this userscript
 if (!selfId) return;
 
+// We need to get the full user profile link with slug from the topbar so we can avoid the extra 301 redirects, fallback in case
+const fallbackSelfProfileLink = `/users/${selfId}`;
+const selfProfileLink = document.querySelector(`a[href*="${fallbackSelfProfileLink}/"]`)?.href || fallbackSelfProfileLink;
+
 
 /**
  * Recursive function to search for vote timestamp from votes page for a post
@@ -59,7 +63,7 @@ const searchVoteTimestampFromVotesPage = async (postId, postDate, voteType, page
   });
 
   // Get votes page
-  const url = `${location.origin}/users/${selfId}/?tab=votes&sort=${voteType}&page=${pageNum}`;
+  const url = `${selfProfileLink}?tab=votes&sort=${voteType}&page=${pageNum}`;
   const result = await fetch(url);
   const html = await result.text();
   const doc = new DOMParser().parseFromString(html, 'text/html');
