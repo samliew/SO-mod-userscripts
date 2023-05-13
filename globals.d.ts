@@ -51,17 +51,29 @@ declare var daysOfWeek: string[];
 declare var MS: object;
 
 declare var _hostname: string;
+declare var _chatSiteLink: string;
+declare var _chatSiteName: string;
+declare var _chatUserId: string;
+
+declare var isChat: boolean;
 declare var isMSE: boolean;
 declare var isSO: boolean;
 declare var isSOMeta: boolean;
 declare var isMetaSite: boolean;
+declare var isSOTeams: boolean;
+
+declare var isElectionPage: boolean;
+declare var isModDashboardPage: boolean;
+
 declare var parentName: string;
 declare var parentUrl: string;
 declare var metaUrl: string | undefined;
 declare var siteApiSlug: string;
+declare var teamsRoutePrefix: string;
 
 declare var selfId: number | null;
 declare var currentUserId: number | null;
+declare function _getFkey(): string | null;
 declare var fkey: string | null;
 
 /**
