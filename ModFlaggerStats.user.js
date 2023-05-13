@@ -3,7 +3,7 @@
 // @description  Post hover in mod flag queue, get and display flaggers stats. Badge links to user's flag history. Non-mods only can view their own flag badge on profile.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.0
+// @version      5.0.1
 //
 // @match        https://*.stackoverflow.com/users/*
 // @match        https://*.serverfault.com/users/*
@@ -146,7 +146,7 @@ function loadFlaggingFn() {
 
   getUserFlagStats(uid).then(function (v) {
     const tier = calculateFlagTier(v[1], v[3]);
-    const badge = `<a href="/users/flag-summary/${uid}" class="flag-badge ${tier.name}" title="${tier.name} flagger: ${v[1]} flags, ${v[2]} declined (accuracy ${(100 - v[3]).toFixed(2)}%)" target="_blank"><svg aria-hidden="true" class="svg-icon iconFlag" width="17" height="17" viewBox="0 0 17 17"><path d="M3 2v14h2v-6h3.6l.4 1h6V3H9.5L9 2H3z"></path></svg></a>`;
+    const badge = `<a href="/users/flag-summary/${uid}" class="flag-badge ${tier.name}" title="${tier.name} flagger: ${v[1]} post flags, ${v[2]} declined (accuracy ${(100 - v[3]).toFixed(2)}%)" target="_blank"><svg aria-hidden="true" class="svg-icon iconFlag" width="17" height="17" viewBox="0 0 17 17"><path d="M3 2v14h2v-6h3.6l.4 1h6V3H9.5L9 2H3z"></path></svg></a>`;
 
     // Apply to all instances of same user on page
     sameUserLinks.not('js-userflagstats-loaded').addClass('js-userflagstats-loaded').after(badge);
@@ -231,7 +231,7 @@ addStylesheet(`
 
     getUserFlagStats(currUid).then(function (v) {
       const tier = calculateFlagTier(v[1], v[3]);
-      const badge = `<a href="/users/flag-summary/${currUid}" class="flag-badge large ${tier.name}" title="${tier.name} flagger\n${v[1]} flags, ${v[2]} declined (accuracy ${(100 - v[3]).toFixed(2)}%)" target="_blank"><svg aria-hidden="true" class="svg-icon iconFlag" width="17" height="17" viewBox="0 0 17 17"><path d="M3 2v14h2v-6h3.6l.4 1h6V3H9.5L9 2H3z"></path></svg></a>`;
+      const badge = `<a href="/users/flag-summary/${currUid}" class="flag-badge large ${tier.name}" title="${tier.name} flagger\n${v[1]} post flags, ${v[2]} declined (accuracy ${(100 - v[3]).toFixed(2)}%)" target="_blank"><svg aria-hidden="true" class="svg-icon iconFlag" width="17" height="17" viewBox="0 0 17 17"><path d="M3 2v14h2v-6h3.6l.4 1h6V3H9.5L9 2H3z"></path></svg></a>`;
       $("#content .fs-headline2").after(badge);
     });
   }
