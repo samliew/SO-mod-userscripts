@@ -3,7 +3,7 @@
 // @description  When user posts on SO Meta regarding a post ban, fetch and display deleted posts (must be mod) and provide easy way to copy the results into a comment. Assists in building low-quality-questions mod messages.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.0
+// @version      5.1
 //
 // @match        https://meta.stackoverflow.com/questions/*
 // @match        https://stackoverflow.com/users/message/create/*?action=low-quality-questions*
@@ -36,71 +36,39 @@ const isSuperuser = superusers.includes(selfId);
 const newlines = '\n\n';
 
 
+let post, username;
+
+
+/**
+ * @summary Get deleted posts
+ * @param {number} uid
+ * @param {string} postType
+ * @returns {Promise<{success: boolean, total: number, items: {title: string, url: string, score: number}[], searchUrl: string, postType: string, uid: number}>}
+ */
 const getDeletedPosts = async (uid, postType) => {
-  if (typeof uid !== 'number' || isNaN(uid) || uid <= 0) return;
-  if (postType !== 'question' && postType !== 'answer') return;
+  if (typeof uid !== 'number' || isNaN(uid) || uid <= 0) throw new Error('PBDP: Invalid user id');
+  if (postType !== 'question' && postType !== 'answer') throw new Error('PBDP: Invalid post type');
 
   const url = `${parentUrl}/search?q=user%3a${uid}%20is%3a${postType}%20deleted%3a1%20score%3a..0&pagesize=30&tab=newest`;
-  ajaxPromise(url).then(function (data) {
-    const count = Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, ''));
-    const stats = $(`
-      <div class="meta-mentioned">
-          ${username} has <a href="${url}" target="_blank">${count} deleted ${postType}${pluralize(count)}</a> on the main site
-          <span class="meta-mentions-toggle"></span>
-          <div class="meta-mentions"></div>
-      </div>`).insertAfter(post);
-
-    // If no deleted posts, do nothing
-    if (isNaN(count) || count <= 0) return;
-
-    // Add deleted posts to the stats element
-    const results = $('.js-search-results .s-post-summary, .js-search-results .s-card', data);
-    stats.find('.meta-mentions').append(results);
-
-    // Add copyable element to the results
-    const hyperlinks = results.find('.s-post-summary--content-title a').attr('href', (i, v) => parentUrl + v).attr('target', '_blank');
-    const hyperlinksMarkdown = hyperlinks.map((i, el) => `[${1 + i}](${toShortLink(el.href)})`).get();
-    const comment = `[Deleted ${postType}${pluralize(count)}](${parentUrl}/users/deleted-${postType}s/current), score <= 0, contributing to the [${postType} ban](${parentUrl}/help/${postType}-bans): ${hyperlinksMarkdown.join(' ')}`;
-    const commentArea = $(`<textarea readonly="readonly"></textarea>`).val(comment).appendTo(stats);
-    commentArea.on('focus', function () {
-      $(this).trigger('select');
-    });
-
-    // If not superuser or post is not within past three days, do not auto-post anything
-    if (!isSuperuser || !isRelativelyNew) return;
-
-    // If there are more comments or comments by myself, or deleted comments, ignore
-    const hasMyComments = post.find(`.comment-user[href*="/users/${selfId}/"]`).length > 0;
-    const hasDeletedComments = post.find('.js-fetch-deleted-comments, .js-show-deleted-comments-link').length > 0;
-    if (post.find('.js-show-link:visible').length !== 0 || hasMyComments || hasDeletedComments) return;
-
-    // Check if no comments on post starting with "Deleted question" or "Deleted answer"
-    const hasDeletedComment = post.find('.comment-copy').filter((i, el) => el.innerText.toLowerCase().includes('deleted ' + postType)).length > 0;
-    if (!hasDeletedComment) {
-
-      if (comment.length <= 600) {
-        addComment(pid, comment).then(() => location.reload());
-      }
-    }
-  });
-};
-
-
-const getDeletedPostsForModMessage = async (uid, postType) => {
-  if (typeof uid !== 'number' || isNaN(uid) || uid <= 0) return;
-  if (postType !== 'question' && postType !== 'answer') return;
-
-  const url = `${parentUrl}/search?q=user%3a${uid}%20is%3a${postType}%20deleted%3a1%20score%3a..0&pagesize=30&tab=newest`;
-  const data = await $.get(url);
-  const hyperlinks = $('.js-search-results .s-post-summary', data).find('.s-post-summary--content-title a').get()
-    .map(v => {
+  const data = await ajaxPromise(url);
+  const items = $('.js-search-results .s-post-summary', data).get()
+    .map(post => {
+      const postLink = post.querySelector('.s-post-summary--content-title a');
       return {
-        title: v.innerText.replace(/ \[\w+\]$/, ''), // remove closed state
-        url: v.href.replace(/\?.*$/, ''), // remove search referral query string
+        title: postLink.innerText.replace(/ \[\w+\]$/, ''), // remove closed state
+        url: postLink.getAttribute('href').replace(/\?.*$/, ''), // remove search referral query string
+        score: Number(post.querySelector('.s-post-summary--stats-item-number')?.innerText) || 0,
       }
     });
 
-  return hyperlinks || [];
+  return {
+    success: true,
+    total: Number($('.results-header h2, .fs-body3', data).first().text().replace(/[^\d]+/g, '')),
+    items,
+    searchUrl: url,
+    postType,
+    uid,
+  };
 };
 
 
@@ -112,11 +80,10 @@ let updateModTemplates = async function () {
   const modal = $('.s-modal');
   const template = modal.find('input[name=mod-template]').filter((i, el) => $(el).nextAll('.js-action-name').text().includes('consistently low quality questions over time')).first();
 
-  const postType = 'question';
-  const hyperlinks = await getDeletedPostsForModMessage(uid, postType);
-  const hyperlinksMarkdown = hyperlinks.map(v => ` - [${v.title}](${v.url})\n`).join('');
+  const { items, postType } = await getDeletedPosts(uid, 'question');
+  const hyperlinksMd = items.map(v => ` - [${v.title}](${parentUrl}${v.url})\n`).join('');
 
-  const deletedPosts = `Specifically, we would like to highlight these ${hyperlinks.length} deleted ${postType}${hyperlinks.length == 1 ? '' : 's'}, which you should try to improve and flag for undeletion, as deleted ${postType}s contribute to the [${postType} ban](${location.origin}/help/${postType}-bans):<br>\n\n${hyperlinksMarkdown}`;
+  const deletedPosts = `Specifically, we would like to highlight these ${items.length} deleted ${postType}${items.length == 1 ? '' : 's'}, which you should try to improve and flag for undeletion, as deleted ${postType}s contribute to the [${postType} ban](${location.origin}/help/${postType}-bans):<br>\n\n${hyperlinksMd}`;
 
   // Insert to low-quality-questions template
   template[0].value = template[0].value
@@ -128,7 +95,7 @@ let updateModTemplates = async function () {
     if (template.is(':checked')) {
       StackExchange.helpers.showMessage(
         $('.js-load-modal').parent(),
-        hyperlinks.length ? `The template has been populated with the user's negatively-scored deleted posts` :
+        items.length ? `The template has been populated with the user's negatively-scored deleted posts` :
           `The user has no negatively-scored deleted posts, are you sure you want to use this template?`,
         {
           type: "success",
@@ -282,8 +249,12 @@ addStylesheet(`
   position: relative;
   display: block;
   width: calc(100% - 28px);
-  height: 4.2em;
+  height: var(--su-static64);
   margin-top: 10px;
+  line-height: 1.15;
+  background: var(--white);
+  color: var(--black-700);
+  cursor: text;
 }
 .main-banned {
   margin: 15px 0;
@@ -292,9 +263,9 @@ addStylesheet(`
 
 
 // On script run
-(function init() {
+(async function init() {
 
-  const post = $('#question');
+  post = $('#question');
   const pid = Number(post.attr('data-questionid'));
   const postOwnerLink = $('.post-signature:last .user-details a[href*="/users/"]', post).first();
   const postText = ($('h1 .question-hyperlink').text() + $('.js-post-body p', post).text()).toLowerCase();
@@ -322,7 +293,7 @@ addStylesheet(`
   const uid = getUserId(postOwnerLink.attr('href'));
   if (!uid) return;
 
-  const username = postOwnerLink.text().trim();
+  username = postOwnerLink.text().trim();
   const userRep = postOwnerLink.parent().find('.reputation-score').text().replace(',', '') || null;
   const hasDupeLink = $('.js-post-notice a, .comments-list a', post).filter((i, el) => /(https:\/\/meta\.stackoverflow\.com)?\/q(uestions)?\/255583\/?.*/.test(el.href)).length > 0;
   const hasTags = $('a.post-tag', post).filter((i, el) => ['post-ban', 'banning', 'deleted-'].some(v => el.innerText.contains(v))).length > 0;
@@ -335,42 +306,82 @@ addStylesheet(`
   if (!isDeleted && (!hasDupeLink && !hasTags && !hasKeywords)) return;
 
   // Get user ban stats on main
-  ajaxPromise(`${parentUrl}/users/account-info/${uid}`).then(async function (data) {
-    const blocked = $('.blocked-no, .blocked-yes', data);
-    const qBan = blocked[0].innerText === 'yes';
-    const aBan = blocked[1].innerText === 'yes';
-    const eBan = blocked[2].innerText === 'yes';
-    const rBan = blocked[3].innerText === 'yes';
+  const userDashboard = await ajaxPromise(`${parentUrl}/users/account-info/${uid}`);
+  const blocked = $('.blocked-no, .blocked-yes', userDashboard);
+  const qBan = blocked[0].innerText === 'yes';
+  const aBan = blocked[1].innerText === 'yes';
+  const eBan = blocked[2].innerText === 'yes';
+  const rBan = blocked[3].innerText === 'yes';
 
-    const banStats = $(`
-      <div class="main-banned postcell post-layout--right">
-          <b>${username} - bans on main: </b>
-          <span>${qBan ? 'question' : ''}</span>
-          <span>${aBan ? 'answer' : ''}</span>
-          <span>${eBan ? 'suggested-edit' : ''}</span>
-          <span>${rBan ? 'review' : ''}</span>
-          <span>${!qBan && !aBan && !eBan && !rBan ? 'none!' : ''}</span>
-      </div>`);
+  const banStats = $(`
+    <div class="main-banned postcell post-layout--right">
+        <b>${username} - bans on main: </b>
+        <span>${qBan ? 'question' : ''}</span>
+        <span>${aBan ? 'answer' : ''}</span>
+        <span>${eBan ? 'suggested-edit' : ''}</span>
+        <span>${rBan ? 'review' : ''}</span>
+        <span>${!qBan && !aBan && !eBan && !rBan ? 'none!' : ''}</span>
+    </div>`);
+  post.find('.postcell').after(banStats);
 
-    post.find('.postcell').after(banStats);
+  // Get deleted questions on main
+  if (qBan) {
+    const { total, items, postType, searchUrl } = await getDeletedPosts(uid, 'question');
 
-    // Get deleted posts on main
-    if (qBan) {
-      await getDeletedPosts(uid, 'question');
-    }
-    if (aBan) {
-      await delay(1000);
-      await getDeletedPosts(uid, 'answer');
-    }
+    const stats = $(`
+  <div class="meta-mentioned">
+      ${username} has <a href="${searchUrl}" target="_blank">${total} deleted ${postType}${pluralize(total)}</a> on the main site
+      <span class="meta-mentions-toggle"></span>
+      <div class="meta-mentions"></div>
+  </div>`).insertAfter(post);
+
+    // If no deleted posts, do nothing
+    if (isNaN(total) || total <= 0) return;
+
+    // Add deleted posts to the stats element
+    const listHtml = items.map(item => `<div class="d-flex ai-center mb8"><span class="answer-votes bg-black-050 mr12">${item.score}</span><a href="${parentUrl}${item.url}" target="_blank">${item.title}</a></div>`).join('');
+    stats.find('.meta-mentions').append(listHtml);
+
+    // Add copyable element to the results
+    const parentShortDomain = parentUrl.replace(/^https?:\/\//, '//');
+    const hyperlinksMarkdown = items.map((v, i) => `[${1 + i}](${toShortLink(v.url, parentShortDomain)})`);
+    const comment = `[Deleted ${postType}${pluralize(total)}](${parentUrl}/users/deleted-${postType}s/current), score <= 0, contributing to the [${postType} ban](${parentUrl}/help/${postType}-bans): ${hyperlinksMarkdown.join(' ')}`;
+    const commentArea = $(`<textarea class="s-textarea s-textarea__sm" readonly="readonly"></textarea>`).val(comment).appendTo(stats);
+    commentArea.on('focus', function () {
+      $(this).trigger('select');
+    });
 
     // If not superuser or post is not within past three days, do not auto-post anything
-    if (!isSuperuser || !isRelativelyNew || !isSOMeta) return;
-    await delay(1000);
+    if (!isSuperuser || !isRelativelyNew) return;
 
-    // Check if no comments on post containing the post ban meta post
-    const hasPostBanComment = post.find('.comment-copy').filter((i, el) => el.innerHTML.includes('/255583')).length > 0;
-    if (qBan && !hasPostBanComment) {
-      addComment(pid, `If you're question banned you should read this: **[What can I do when getting “We are no longer accepting questions from this account”?](//meta.stackoverflow.com/q/255583)**`);
+    // If there are more comments or comments by myself, or deleted comments, ignore
+    const hasMyComments = post.find(`.comment-user[href*="/users/${selfId}/"]`).length > 0;
+    const hasDeletedComments = post.find('.js-fetch-deleted-comments, .js-show-deleted-comments-link').length > 0;
+    if (post.find('.js-show-link:visible').length !== 0 || hasMyComments || hasDeletedComments) return;
+
+    // Check if no comments on post starting with "Deleted question" or "Deleted answer"
+    const hasDeletedComment = post.find('.comment-copy').filter((i, el) => el.innerText.toLowerCase().includes('deleted ' + postType)).length > 0;
+    if (!hasDeletedComment) {
+
+      if (comment.length <= 600) {
+        addComment(pid, comment).then(() => location.reload());
+      }
     }
-  });
+  }
+
+  // Get deleted answers on main
+  // if (aBan) {
+  //   await delay(1000);
+  //   const posts = await getDeletedPosts(uid, username, 'answer');
+  // }
+
+  // If not superuser or post is not within past three days, do not auto-post anything
+  // if (!isSuperuser || !isRelativelyNew || !isSOMeta) return;
+  // await delay(1000);
+
+  // // Check if no comments on post containing the post ban meta post
+  // const hasPostBanComment = post.find('.comment-copy').filter((i, el) => el.innerHTML.includes('/255583')).length > 0;
+  // if (qBan && !hasPostBanComment) {
+  //   addComment(pid, `If you're question banned you should read this: **[What can I do when getting “We are no longer accepting questions from this account”?](//meta.stackoverflow.com/q/255583)**`);
+  // }
 })();
