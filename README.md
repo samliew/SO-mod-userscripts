@@ -289,6 +289,16 @@ Recommended chat userscripts:
 - Remove your referral user id when copying a post share link
 
 
+### [Sam's OpenAI Detector](https://github.com/samliew/SO-mod-userscripts/raw/master/SamsOpenAIDetector.user.js)
+
+- Add post menu item to send request to OAI Detector to get probability of AI-generated content
+
+
+### [When Did I Vote?](https://github.com/samliew/SO-mod-userscripts/raw/master/WhenDidIVote.user.js)
+
+- Add post menu item to trawl through your votes pages to find the date/time you voted for a post
+
+
 
 <br>
 
@@ -707,7 +717,6 @@ Works with "No Oneboxes In Chat" and "Stack Exchange Dark Mode".
 - Required for userscripts that allows further customization
 - See options under each userscript above for info on what is available
 - Options sidebar will appear on pages that the respective userscripts are running on
-
 
 ### [Election Supporter Flairs](https://github.com/samliew/SO-mod-userscripts/blob/master/ElectionSupporterFlairs.user.js)
 

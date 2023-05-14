@@ -68,6 +68,10 @@ Direct installation links (raw files)
 
 [No User Id Share Links](https://github.com/samliew/SO-mod-userscripts/raw/master/NoUserIdShareLinks.user.js)
 
+[Sam's OpenAI Detector](https://github.com/samliew/SO-mod-userscripts/raw/master/SamsOpenAIDetector.user.js)
+
+[When Did I Vote?](https://github.com/samliew/SO-mod-userscripts/raw/master/WhenDidIVote.user.js)
+
 
 
 <br>
@@ -197,7 +201,5 @@ Direct installation links (raw files)
 ## Miscellaneous
 
 [SOMU Options](https://github.com/samliew/SO-mod-userscripts/raw/master/SOMU-options.user.js)
-
-[Sam's OpenAI Detector](https://github.com/samliew/SO-mod-userscripts/raw/master/SamsOpenAIDetector.user.js)
 
 [Election Supporter Flairs](https://github.com/samliew/SO-mod-userscripts/raw/master/ElectionSupporterFlairs.user.js)
