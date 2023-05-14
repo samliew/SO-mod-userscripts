@@ -3,7 +3,7 @@
 // @description  Batch-move saved posts between private lists, quick move after saving in Q&A, import/export lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.2
+// @version      3.2.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -23,7 +23,7 @@
 // @require      https://raw.githubusercontent.com/samliew/SO-mod-userscripts/master/lib/common.js
 // ==/UserScript==
 
-/* globals StackExchange, scriptName, userId, fkey */
+/* globals StackExchange, scriptName, selfId, fkey */
 /// <reference types="./globals" />
 
 'use strict';
@@ -71,7 +71,7 @@ const createSavedList = async (listName) => {
   formData.append("fkey", fkey);
   formData.append("listName", listName);
 
-  const resp = await fetch(`${location.origin}/users/saves/${userId}/create-list`, {
+  const resp = await fetch(`${location.origin}/users/saves/${selfId}/create-list`, {
     "method": "POST",
     "body": formData,
   }).then(resp => resp.json());
@@ -194,8 +194,7 @@ const getSavedListItems = async (listId = null, sort = 'Added', page = 1) => {
   // Validate listId param
   if (listId !== null && listId !== 'all' && listId <= 0) return [];
 
-  const userId = selfId || StackExchange.options.user.userId;
-  const resp = await fetch(`${location.origin}/users/saves/${userId}${listId === 'all' ? '' : `/${listId || 'all'}`}?sort=${sort}&page=${page}&_=${Date.now()}`, {
+  const resp = await fetch(`${location.origin}/users/saves/${selfId}${listId === 'all' ? '' : `/${listId || 'all'}`}?sort=${sort}&page=${page}&_=${Date.now()}`, {
     "method": "GET",
   });
   pageHtml = await resp.text();
