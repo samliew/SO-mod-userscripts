@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat. Lightbox images that are displayed smaller than it's original size.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.2
+// @version      3.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -27,7 +27,6 @@ const lbSelector = '.image-lightbox, .ob-image a, a[href$=".jpg"], a[href$=".png
 const ignoredParentClasses = [
   'avatar',
   'hat',
-  '-logo',
   'gravatar-wrapper-24',
   'gravatar-wrapper-32',
   'gravatar-wrapper-48',
@@ -45,7 +44,7 @@ function linkUnlinkedImages() {
   // Process unprocessed images
   // If image does not have a parent link, wrap a link around it
   $('img').not('.js-checked-link').addClass('js-checked-link').filter(function () {
-    return this.closest('.' + ignoredParentClasses.join(',.')) === null;
+    return this.parentElement.nodeName !== 'A' && this.closest('.' + ignoredParentClasses.join(',.')) === null;
   }).wrap(function () {
     return `<a class="js-was-unlinked" data-src="${this.src}"></a>`;
   });
@@ -74,6 +73,10 @@ addStylesheet(`
 }
 .image-lightbox {
   cursor: zoom-in;
+}
+.fancybox-image {
+  scale: 1;
+  transition: 0.4s all ease;
 }
 .fancybox-container button {
   box-shadow: none;
@@ -104,6 +107,7 @@ addStylesheet(`
   // Load fancybox 3 - https://fancyapps.com/fancybox/3/docs/#options
   $(`<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.css">`).appendTo(document.body);
   $.getCachedScript('https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.3.5/jquery.fancybox.min.js', function () {
+
     $().fancybox({
       selector: lbSelector
     });
@@ -116,7 +120,39 @@ addStylesheet(`
     // Visually display a zoom-in cursor so we can identify which text links are lightboxes
     $(lbSelector).addClass('image-lightbox')
       // Init lightboxes on dynamically loaded elements which have not been init previously
-      .not('.js-lightbox-init').addClass('js-lightbox-init').fancybox();
+      .not('.js-lightbox-init').addClass('js-lightbox-init').fancybox({
+
+        afterShow: function (instance) {
+          //console.log('afterShow', instance);
+
+          // When lightbox is opened, add event listener to allow mouse scroll to zoom in/out
+          const stage = instance.$refs.stage.get()[0];
+          const content = stage.querySelector('.fancybox-content');
+          const img = content.querySelector('img');
+
+          instance.$refs.stage.on('wheel', function (evt) {
+            evt.stopPropagation();
+            evt.preventDefault();
+
+            const direction = evt.originalEvent?.deltaY > 0 ? -1 : 1;
+            const currentScale = Number(img.style.scale || 1);
+            const scaleAmount = Math.max(1, Math.min(3, currentScale + (direction * 0.2)));
+            img.style.scale = scaleAmount;
+
+            //console.log('zoom', evt, direction, currentScale, scaleAmount);
+          });
+        },
+
+        beforeClose: function (instance) {
+          //console.log('beforeClose', instance);
+
+          // When lightbox is closed, reset image zoom
+          const stage = instance.$refs.stage.get()[0];
+          const content = stage.querySelector('.fancybox-content');
+          const img = content.querySelector('img');
+          img.style.scale = 1;
+        },
+      });
 
   }, 2000);
 })();
