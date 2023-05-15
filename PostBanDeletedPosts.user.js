@@ -3,7 +3,7 @@
 // @description  Assists in building low-quality-questions mod messages. For SO Meta only, fetch and display user's deleted posts in markdown format.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.2
+// @version      5.2.1
 //
 // @match        https://meta.stackoverflow.com/questions/*
 //
@@ -88,7 +88,7 @@ let updateModTemplates = async function () {
   const { items, postType } = await getDeletedPosts(uid, 'question');
   const hyperlinksMd = items.map(v => ` - [${v.title}](${parentUrl}${v.url})\n`).join('');
 
-  const deletedPosts = `Specifically, we would like to highlight these ${items.length} deleted ${postType}${items.length == 1 ? '' : 's'}, which you should try to improve and flag for undeletion, as deleted ${postType}s contribute to the [${postType} ban](${location.origin}/help/${postType}-bans):<br>\n\n${hyperlinksMd}`;
+  const deletedPosts = `Specifically, we would like to highlight ${items.length == 1 ? 'this' : 'these'} ${items.length} deleted ${postType}${items.length == 1 ? '' : 's'}, which you should try to improve and flag for undeletion, as deleted ${postType}s contribute to the [${postType} ban](${location.origin}/help/${postType}-bans):<br>\n\n${hyperlinksMd}`;
 
   // Insert to low-quality-questions template
   template[0].value = template[0].value
