@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.3
+// @version      3.3.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -82,6 +82,9 @@ function insertPostIds() {
 
   // Remove duplicates just in case duplicates were added somehow
   $('.post-id ~ .post-id').remove();
+
+  // Remove post ids from sidebar
+  $('#sidebar .post-id').remove();
 }
 
 
