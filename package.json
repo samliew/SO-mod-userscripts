@@ -1,12 +1,43 @@
 {
+  "name": "so-mod-userscripts",
+  "version": "1.0.0",
+  "author": {
+    "name": "Samuel Liew",
+    "url": "https://so-user.com/584192?tab=profile"
+  },
+  "scripts": {
+    "test": "mocha test/**/*.spec.js"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/samliew/SO-mod-userscripts.git"
+  },
+  "bugs": {
+    "url": "https://github.com/samliew/SO-mod-userscripts/issues"
+  },
+  "homepage": "https://github.com/samliew/SO-mod-userscripts#readme",
   "devDependencies": {
     "@types/gapi": "^0.0.41",
     "@types/gapi.auth2": "^0.0.55",
     "@types/greasemonkey": "^4.0.2",
     "@types/jquery": "^3.5.11",
+    "@types/jsdom-global": "^3.0.4",
+    "@types/mocha": "^10.0.1",
     "@types/tampermonkey": "^4.0.5",
     "@userscripters/stackexchange-global-types": "^2.4.0",
     "@userscripters/storage": "^0.1.2",
-    "eslint": "^8.39.0"
-  }
+    "chai": "^4.3.7",
+    "eslint": "^8.39.0",
+    "jQuery": "^1.7.4",
+    "jsdom-global": "3.0.2",
+    "mocha": "^10.2.0"
+  },
+  "mocha": {
+    "require": [
+      "jsdom-global/register",
+      "test/setup.js"
+    ]
+  },
+  "type": "module"
 }
