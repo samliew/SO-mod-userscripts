@@ -38,6 +38,5 @@
       "jsdom-global/register",
       "test/setup.js"
     ]
-  },
-  "type": "module"
+  }
 }

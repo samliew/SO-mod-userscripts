@@ -1,5 +1,5 @@
-import { expect } from 'chai';
-import { isPositiveInteger } from '../../lib/common.js';
+var expect = require('chai').expect;
+require('../../lib/common.js');
 
 describe('isPositiveInteger()', function () {
 
