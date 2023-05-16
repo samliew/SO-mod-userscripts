@@ -3,7 +3,7 @@
 // @description  Assists in building low-quality-questions mod messages. For SO Meta only, fetch and display user's deleted posts in markdown format.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.2.2
+// @version      5.2.3
 //
 // @match        https://meta.stackoverflow.com/questions/*
 //
@@ -59,10 +59,12 @@ const getDeletedPosts = async (uid, postType) => {
   const items = $('.js-search-results .s-post-summary', data).get()
     .map(post => {
       const postLink = post.querySelector('.s-post-summary--content-title a');
+      const postDate = post.querySelector('.s-user-card--time .relativetime');
       return {
         title: postLink.innerText.replace(/ \[\w+\]$/, ''), // remove closed state
         url: postLink.getAttribute('href').replace(/\?.*$/, ''), // remove search referral query string
         score: Number(post.querySelector('.s-post-summary--stats-item-number')?.innerText) || 0,
+        created: new Date(postDate?.title) || null,
       }
     });
 
@@ -86,9 +88,9 @@ let updateModTemplates = async function () {
   const template = modal.find('input[name=mod-template]').filter((i, el) => $(el).nextAll('.js-action-name').text().includes('consistently low quality questions over time')).first();
 
   const { items, postType } = await getDeletedPosts(uid, 'question');
-  const hyperlinksMd = items.map(v => ` - [${v.title}](${parentUrl}${v.url})\n`).join('');
+  const hyperlinksMd = items.map(v => ` - [${v.title}](${parentUrl}${v.url})<br><sup>– asked on ${dateToIsoString(v.created)} with score ${v.score}</sup>\n`).join('');
 
-  const deletedPosts = `Specifically, we would like to highlight ${items.length == 1 ? 'this' : `these ${items.length}`} deleted ${postType}${items.length == 1 ? '' : 's'}, which you should try to improve and flag for undeletion, as deleted ${postType}s contribute to the [system ${postType} ban](${location.origin}/help/${postType}-bans):<br>\n\n${hyperlinksMd}`;
+  const deletedPosts = `Specifically, we would like to highlight ${items.length == 1 ? 'this' : `these ${items.length}`} deleted ${postType}${items.length == 1 ? '' : 's'}, which you should try to improve and flag for undeletion, as **deleted ${postType}s contribute to the [system ${postType} ban](${location.origin}/help/${postType}-bans)**:<br>\n\n${hyperlinksMd}`;
 
   // Insert to low-quality-questions template
   template[0].value = template[0].value
