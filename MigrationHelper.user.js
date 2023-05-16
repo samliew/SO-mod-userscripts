@@ -3,7 +3,7 @@
 // @description  Dropdown list of migration targets displaying site icon/logo/header images and links to the selected site's on-topic page and mod list. Displays additional information for custom flagger for selected network site.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1
+// @version      4.1.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -47,7 +47,7 @@ function getNetworkSites() {
   return new Promise(function (resolve, reject) {
     if (v != null) { resolve(v); return; }
 
-    $.get(`https://api.stackexchange.com/2.2/sites?pagesize=999&filter=!)QmDp1jjtiQg0J)1qAulk5k1&key=${apikey}`)
+    $.get(`${seApiUrl}/sites?pagesize=999&filter=!)QmDp1jjtiQg0J)1qAulk5k1&key=${apikey}`)
       .done(function (data) {
         store.setItem(fullkey, JSON.stringify(data.items));
         resolve(data.items);
@@ -85,7 +85,7 @@ function getNetworkAccountsViaApi(networkUid) {
     if (typeof networkUid === 'undefined' || networkUid == null) { reject(); return; }
 
     // via API
-    $.get(`https://api.stackexchange.com/2.2/users/${networkUid}/associated?filter=!*LB1tJQ3xNMaIJ-W`)
+    $.get(`${seApiUrl}/users/${networkUid}/associated?filter=!*LB1tJQ3xNMaIJ-W`)
       .done(function (data) {
         resolve(data.items);
       })

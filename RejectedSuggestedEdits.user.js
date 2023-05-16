@@ -3,7 +3,7 @@
 // @description  New page to review rejected suggested edits
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0
+// @version      3.0.1
 //
 // @match        https://*.stackoverflow.com/review/suggested-edits*
 // @match        https://*.serverfault.com/review/suggested-edits*
@@ -116,7 +116,7 @@ function getRejected(page = 1) {
   resultsDiv.empty();
   StackExchange.helpers.addSpinner('#reviews');
 
-  $.get(`https://api.stackexchange.com/2.2/suggested-edits?page=${page}&pagesize=100&order=desc&sort=rejection&filter=!*KkBP6Je7loS9)xf&site=${location.hostname}&key=${apikey}`, function (data) {
+  $.get(`${seApiUrl}/suggested-edits?page=${page}&pagesize=100&order=desc&sort=rejection&filter=!*KkBP6Je7loS9)xf&site=${location.hostname}&key=${apikey}`, function (data) {
     StackExchange.helpers.removeSpinner();
 
     addBackoff(data.backoff);

@@ -121,7 +121,7 @@ function getNetworkSites() {
       return;
     }
 
-    $.get(`https://api.stackexchange.com/2.2/sites?pagesize=999&filter=!2*nS2udIcg(YRE6ca*rtD&key=${apikey}`)
+    $.get(`${seApiUrl}/sites?pagesize=999&filter=!2*nS2udIcg(YRE6ca*rtD&key=${apikey}`)
       .done(function (data) {
         store.setItem(fullkey, JSON.stringify({
           lastChecked: Date.now(),

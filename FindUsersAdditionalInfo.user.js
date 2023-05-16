@@ -3,7 +3,7 @@
 // @description  Loads more user details from the API on the find users page (/admin/find-users)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      2.0
+// @version      2.0.1
 //
 // @match        https://*.stackoverflow.com/admin/find-users*
 // @match        https://*.serverfault.com/admin/find-users*
@@ -55,7 +55,7 @@ function getUsers(arrUids) {
   return new Promise(function (resolve, reject) {
     if (typeof arrUids === 'undefined' || arrUids === null || arrUids.length == 0) { reject(); return; }
 
-    $.get(`https://api.stackexchange.com/2.2/users/${arrUids.join(';')}?pagesize=100&sort=reputation&site=${location.hostname}&filter=!BTeL)VYJZTHLffEZa-Pp0vhpUAyDVM&key=${apikey}`)
+    $.get(`${seApiUrl}/users/${arrUids.join(';')}?pagesize=100&sort=reputation&site=${location.hostname}&filter=!BTeL)VYJZTHLffEZa-Pp0vhpUAyDVM&key=${apikey}`)
       .done(function (data) {
         resolve(data.items);
         return;

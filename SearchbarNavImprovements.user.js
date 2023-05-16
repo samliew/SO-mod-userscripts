@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      7.0.1
+// @version      7.0.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -108,7 +108,7 @@ jQuery.fn.dnLookup = function (multiple = false, delay = 800) {
     const query = encodeURIComponent(multiple ? el.value.trim().replace(/^.+\s/, '') : el.value.trim());
     const resultElem = $(el).nextAll('.aclookup_results').html('<li class="disabled" data-val>loading...</li>');
     const field = $(el).addClass('js-aclookup-complete');
-    $.get('https://api.stackexchange.com/2.2/users?filter=!)RwcIFN1JaCrhVpgyYeR_oO*&order=desc&sort=reputation&inname=' + query + '&site=' + siteApiSlug, function (data) {
+    $.get('${seApiUrl}/users?filter=!)RwcIFN1JaCrhVpgyYeR_oO*&order=desc&sort=reputation&inname=' + query + '&site=' + siteApiSlug, function (data) {
       const resultlist = data.items.map(v => `<li data-val="${v.user_id}"><img src="${v.profile_image.replace('=128', '=16')}" /> ${v.display_name}</li>`).join('');
       resultElem.html(resultlist);
     });
@@ -147,7 +147,7 @@ jQuery.fn.tagLookup = function (multiple = false, delay = 800) {
     const query = encodeURIComponent(multiple ? el.value.trim().replace(/^.+\s/, '') : el.value.trim());
     const resultElem = $(el).siblings('.aclookup_results').html('<li class="disabled" data-val>loading...</li>');
     const field = $(el).addClass('js-aclookup-complete');
-    $.get('https://api.stackexchange.com/2.2/tags?filter=!*MPoAL(KAgsdNw0T&order=desc&sort=popular&inname=' + query + '&site=' + siteApiSlug, function (data) {
+    $.get('${seApiUrl}/tags?filter=!*MPoAL(KAgsdNw0T&order=desc&sort=popular&inname=' + query + '&site=' + siteApiSlug, function (data) {
       const resultlist = data.items.map(v => `<li data-val="${v.name}">${v.name}</li>`).join('');
       resultElem.html(resultlist);
     });

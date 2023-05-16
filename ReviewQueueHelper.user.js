@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.0.2
+// @version      5.0.3
 //
 // @match        https://*.stackoverflow.com/review/*
 // @match        https://*.serverfault.com/review/*
@@ -1374,7 +1374,7 @@ function listenToPageUpdates() {
             if (closeLink.not('.js-close-count') && !closeLink.text().includes('(') && !closeLink.text().includes('reopen')) {
               closeLink.addClass('js-close-count');
 
-              $.get(`https://api.stackexchange.com/2.2/questions/${pid}?order=desc&sort=activity&site=${siteApiSlug}&filter=!)5IW-1CBJh-k0T7yaaeIcKxo)Nsr&key=ViEjavpQX)kK3lob1h2Nxw((`, results => {
+              $.get(`${seApiUrl}/questions/${pid}?order=desc&sort=activity&site=${siteApiSlug}&filter=!)5IW-1CBJh-k0T7yaaeIcKxo)Nsr&key=ViEjavpQX)kK3lob1h2Nxw((`, results => {
                 if (results && results.items && results.items.length > 0) {
                   const cvCount = Number(results.items[0].close_vote_count);
                   if (cvCount > 0 && /\d/.test(closeLink.text()) === false) {

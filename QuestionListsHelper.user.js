@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists, adds post filters to sidebar, adds delete buttons to posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      4.0.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -99,7 +99,7 @@ const getQuestions = async function (pids) {
   if (pids.length > 100) pids = pids.slice(0, 100);
 
   // Fetch question details from API
-  return await fetch(`https://api.stackexchange.com/2.3/questions/${pids.join(';')}?pagesize=${pids.length}&order=desc&sort=creation&site=${siteApiSlug}&filter=!0XA5-PIRJe4ut-7QzJK2bGYQO&key=${apikey}`)
+  return await fetch(`${seApiUrl}/questions/${pids.join(';')}?pagesize=${pids.length}&order=desc&sort=creation&site=${siteApiSlug}&filter=!0XA5-PIRJe4ut-7QzJK2bGYQO&key=${apikey}`)
     .then(response => response.ok ? response.json() : null)
     .then(data => {
       // Respect backoff
