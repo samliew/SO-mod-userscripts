@@ -3,7 +3,7 @@
 // @description  Detect OpenAI in post content and revisions
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      2.1
+// @version      2.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -72,7 +72,7 @@ const detectGpt = async content => {
 // Add Detect GPT buttons to each post menu, and post revisions menu
 const addGptButtons = () => {
 
-  document.querySelectorAll('.js-post-menu > .s-anchors, .js-revision .s-anchors').forEach(el => {
+  document.querySelectorAll('.js-post-menu > .s-anchors, .js-revision .s-anchors, .s-post-summary .s-post-summary--stats').forEach(el => {
     // Skip if already added
     if (el.classList.contains('js-detect-gpt-added')) return;
     el.classList.add('js-detect-gpt-added');
@@ -114,10 +114,10 @@ const handleClickEvent = async evt => {
   target.classList.add('js-detect-gpt-loading');
 
   // Get post content
-  const post = target.closest('.question, .answer, .candidate-row, .js-revision');
+  const post = target.closest('.question, .answer, .candidate-row, .js-revision, .s-post-summary');
   const isPostRevision = post.classList.contains('js-revision');
   const postRevisionUrl = isPostRevision && target.closest('.s-anchors')?.children[0]?.getAttribute('href');
-  const postId = isPostRevision ? getPostId(location.pathname) : (post.dataset.questionid || post.dataset.answerid || post.dataset.postid);
+  const postId = isPostRevision ? getPostId(location.pathname) : (post.dataset.questionid || post.dataset.answerid || post.dataset.postid || post.dataset.postId);
 
   // Get content
   const content = postRevisionUrl ? await getRevisionSource(postRevisionUrl) : await getLatestPostRevisionSource(postId);
