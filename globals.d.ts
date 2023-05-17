@@ -204,6 +204,12 @@ declare function convertToEdit(pid:number, targetId:number): Promise<object>;
 declare function deleteAsPlagiarism(pid: number): Promise<object>;
 declare function flagAsPlagiarism(pid:number, flagText:string, source:string): Promise<object>;
 declare function flagAndDeleteAsPlagiarism(pid:number, flagText:string, source:string): Promise<object>;
+declare async function getPostTimeline(pid: number): Promise<object>;
+declare async function getPostRevisionsFromTimeline(pid: number): Promise<object>;
+declare async function getLatestPostRevisionGuid(pid: number): Promise<string>;
+declare async function getRevisionSource(guidOrUrl: string): Promise<string>;
+declare async function getLatestPostRevisionSource(pid: number): Promise<string>;
+
 
 /**
  * ================================
