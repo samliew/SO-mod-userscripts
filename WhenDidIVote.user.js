@@ -3,7 +3,7 @@
 // @description  Get the timestamp of when you voted on a post
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.2.2
+// @version      1.2.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -137,16 +137,19 @@ const searchVoteTimestampFromVotesPage = async (postId, postDate, voteType, page
     const isUpvoted = post.querySelector('.js-vote-up-btn[aria-pressed="true"]');
     const isDownvoted = post.querySelector('.js-vote-down-btn[aria-pressed="true"]');
     //const isSaved = post.querySelector('.js-saves-btn[aria-pressed="true"]');
+    const postAuthor = [...post.querySelectorAll('.post-signature')]?.pop(); // last post signature
+    const isOwnPost = postAuthor.querySelector(`a[href*="/users/${selfId}/"]`) !== null;
     const voteType = isUpvoted ? 'upvote' : isDownvoted ? 'downvote' : null;
 
     // User has not voted on this post
     if (!voteType) {
-      StackExchange.helpers.showToast(`You have not voted on this post yet.`, {
-        type: 'danger',
-        useRawHtml: false,
-        transient: true,
-        transientTimeout: 2e3,
-      });
+      StackExchange.helpers.showToast(
+        isOwnPost ? `You can't vote for your own post` : `You have not voted on this post`, {
+          type: 'danger',
+          useRawHtml: false,
+          transient: true,
+          transientTimeout: 2e3,
+        });
       return;
     }
 
