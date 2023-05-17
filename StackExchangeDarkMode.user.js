@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      4.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -1069,26 +1069,25 @@ a.comment-user.owner {
 .cancel-comment-flag .cancel-delete-comment-flag {
   background-color: var(--red-500);
 }
-.post-mod-menu-link .post-mod-menu {
+.js-post-mod-menu-link .js-post-mod-menu {
   background-color: ${bgcolor};
   box-shadow: 0px 0px 5px 0px white;
 }
-.mod-userlinks,
-.mod-userlinks a {
+.somu-mod-userlinks,
+.somu-mod-userlinks a {
   color: var(--black-500);
 }
-.deleted-answer .mod-userlinks,
-.deleted-answer .post-mod-menu-link .post-mod-menu {
+.deleted-answer .somu-mod-userlinks {
   background-color: #220000;
 }
-.post-mod-menu-link .post-mod-menu a.disabled,
-.post-mod-menu-link .post-mod-menu a.disabled:hover {
-  background-color: #222;
-  color: var(--black-400);
+.js-post-mod-menu-link .js-post-mod-menu {
+  background-color: ${bgcolor};
 }
-.post-mod-menu-link .post-mod-menu a:hover {
-  background-color: var(--black-500);
-  color: var(--black-100);
+.js-post-mod-menu-link .js-post-mod-menu * {
+  background-color: transparent;
+}
+.js-post-mod-menu-link .js-post-mod-menu button {
+  border: none;
 }
 #search-helper {
   padding-bottom: 20px;
