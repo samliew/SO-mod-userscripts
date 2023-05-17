@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Sam's OpenAI Detector
-// @description  Detect OpenAI in post content
+// @description  Detect OpenAI in post content and revisions
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.4.1
+// @version      2.0
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -36,17 +36,34 @@
 let oaiUrl = 'https://openai-openai-detector--8j7k8.hf.space/';
 
 const detectGpt = async content => {
-  content = content.trim();
-  const resp = await fetch(`${oaiUrl}?${encodeURIComponent(content)}`);
+  content = content?.trim(); // trim whitespace
 
-  // Request failed
-  if (!resp?.ok) {
-    return { success: false, error: resp?.error, content };
+  const returnData = {
+    success: false,
+    content,
+    length: content.length
+  };
+
+  // Validation
+  if (content?.length < 100) {
+    returnData.error = 'Content too short';
+  }
+  else {
+    // Send to API
+    const resp = await fetch(`${oaiUrl}?${encodeURIComponent(content)}`);
+    returnData.fetch = resp;
+
+    if (!resp?.ok) {
+      returnData.error = resp?.error;
+    }
+    else {
+      const data = await resp.json();
+      returnData.success = true;
+      returnData.data = data;
+    }
   }
 
-  // Request successful
-  const data = await resp.json();
-  return { success: true, data, content };
+  return returnData;
 };
 
 
@@ -61,8 +78,8 @@ addStylesheet(`
 // On script run
 (async function init() {
 
-  // Add Detect GPT buttons to each post menu
-  document.querySelectorAll('.js-post-menu > .s-anchors').forEach(el => {
+  // Add Detect GPT buttons to each post menu, and post revisions menu
+  document.querySelectorAll('.js-post-menu > .s-anchors, .js-revision .s-anchors').forEach(el => {
     const menuItem = makeElemFromHtml(`
       <div class="flex--item">
         <button type="button" class="js-detect-gpt-btn s-btn s-btn__link" title="Detect GPT">
@@ -79,53 +96,9 @@ addStylesheet(`
     // Only run on "Detect GPT" or "Copy" button
     if (!['js-detect-gpt-btn', 'js-detect-copy'].some(v => target.classList.contains(v))) return;
 
-    // Get post content
-    const post = target.closest('.question, .answer, .candidate-row');
-    const postId = post.dataset.questionid || post.dataset.answerid || post.dataset.postid;
-
-    // Get post body
-    const postBody = post.querySelector('.js-post-body, .s-prose, [itemprop="text"]');
-    if (!postBody) return console.error(`No post body found for ${postId}!`);
-
-    // Make a shadow copy of post body, remove aside elements
-    const postBodyClone = postBody.cloneNode(true);
-    postBodyClone.querySelectorAll('aside').forEach(el => el.remove());
-    const content = postBodyClone.textContent.trim();
-
-    // Has not detected yet
-    if (!target.classList.contains('js-detect-gpt-loading')) {
-      target.classList.add('js-detect-gpt-loading');
-
-      // Detect GPT
-      StackExchange.helpers.addSpinner(target);
-      const result = await detectGpt(content);
-      StackExchange.helpers.removeSpinner();
-      console.log(`Detect GPT result for ${postId}`, result);
-
-      if (result.success && result.data?.fake_probability) {
-        const percFake = result.data.fake_probability * 100;
-        if (isNaN(percFake)) return console.error(`Invalid detect GPT result for ${postId}!`, result.data);
-
-        // Insert result after button
-        const resultElem = makeElem('a', {
-          class: `js-detect-gpt-result ml12 ${percFake > 90 ? 'fc-red-600' : percFake > 75 ? 'fc-orange-600' : 'fc-black-800'}`,
-          title: 'Probability of content being fake/GPT-generated',
-          href: oaiUrl,
-          target: '_blank',
-        }, `${percFake.toFixed(2)}%`);
-        target.parentElement.insertBefore(resultElem, target.nextSibling);
-
-        // Change button text to copy to clipboard
-        target.innerText = 'Copy';
-        target.title = 'Copy post content to clipboard';
-        target.classList.remove('js-detect-gpt-btn');
-        target.classList.add('js-detect-copy');
-      }
-    }
-
-    // Has detected, copy to clipboard instead
-    else {
-      const copied = copyToClipboard(content);
+    // Copy to clipboard
+    if (target.classList.contains('js-detect-copy') && target.dataset.content) {
+      const copied = copyToClipboard(target.dataset.content);
       if (copied) {
         StackExchange.helpers.showToast('Post content copied to clipboard!', {
           type: 'success',
@@ -134,6 +107,66 @@ addStylesheet(`
           transientTimeout: 3e3,
         });
       }
+      return;
+    }
+
+    // Detecting, do nothing
+    if (target.classList.contains('js-detect-gpt-loading')) return;
+    target.classList.add('js-detect-gpt-loading');
+
+    // Get post content
+    const post = target.closest('.question, .answer, .candidate-row, .js-revision');
+    const isPostRevision = post.classList.contains('js-revision');
+    const postRevisionUrl = isPostRevision && target.closest('.s-anchors')?.children[0]?.getAttribute('href');
+    const postId = isPostRevision ? getPostId(location.pathname) : (post.dataset.questionid || post.dataset.answerid || post.dataset.postid);
+
+    // Get content
+    const content = postRevisionUrl ? await getRevisionSource(postRevisionUrl) : await getLatestPostRevisionSource(postId);
+
+    // No content found
+    if (typeof content !== 'string' || !content?.length) {
+      StackExchange.helpers.showToast(`Could not detect GPT for ${postId}: No post body found`, {
+        type: 'danger',
+        useRawHtml: false,
+        transient: false,
+      });
+    }
+
+    // Detect GPT
+    StackExchange.helpers.addSpinner(target);
+    const result = await detectGpt(content);
+    StackExchange.helpers.removeSpinner();
+    console.log(`Detect GPT result for ${postId}`, result);
+
+    if (result.success && !isNaN(result.data?.fake_probability)) {
+      const percFake = result.data.fake_probability * 100;
+
+      // Insert result after button
+      const resultElem = makeElem('a', {
+        class: `js-detect-gpt-result ml12 ${percFake > 90 ? 'fc-red-600' : percFake > 75 ? 'fc-orange-600' : 'fc-black-800'}`,
+        title: 'Probability of content being fake/GPT-generated',
+        href: oaiUrl,
+        target: '_blank',
+      }, `${percFake.toFixed(2)}%`);
+      target.parentElement.insertBefore(resultElem, target.nextSibling);
+
+      // Change button text to copy to clipboard
+      target.innerText = 'Copy';
+      target.title = 'Copy post content to clipboard';
+      target.classList.remove('js-detect-gpt-btn');
+      target.classList.add('js-detect-copy');
+      target.dataset.content = content;
+    }
+    else {
+      // Show error
+      StackExchange.helpers.showToast(`Could not detect GPT for ${postId}:<br>${result.error}`, {
+        type: 'danger',
+        useRawHtml: true,
+        transient: false,
+      });
+
+      // Reset button, allow retry
+      target.classList.remove('js-detect-gpt-loading');
     }
   });
 
