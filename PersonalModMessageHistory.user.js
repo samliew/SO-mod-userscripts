@@ -3,7 +3,7 @@
 // @description  Displays your sent mod messages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0
+// @version      3.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -110,12 +110,6 @@ addStylesheet(`
 
 // On script run
 (function init() {
-
-  // If on account info dashboard page, show username in page title
-  if (location.pathname.includes('/users/account-info/')) {
-    const username = $('#mod-content h1').text().trim().replace(/\s+\(.+$/g, '').trim();
-    document.title = username + ' - Account Information';
-  }
 
   // On any page update
   $(document).ajaxComplete(function (event, xhr, settings) {

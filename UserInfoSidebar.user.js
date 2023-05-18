@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1.2
+// @version      4.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -44,49 +44,29 @@ if (!isModerator()) return;
 
 let uid;
 
-
-function getChatParentUser() {
-  const parentuser = $('.user-stats a').last().attr('href');
-  return parentuser ? 'https:' + parentuser : '';
-}
-
 function getCurrentUserId() {
-
-  // Mod & CM messages
-  if (location.pathname.includes('/users/message/') || location.pathname.includes('/admin/cm-message/')) {
-    const userLink = $('.msg-moderator:first a[href^="/users/"], #js-msg-form .user-details a, #msg-form .user-details a:first').last();
-    return userLink.attr('href').match(/\d+/)?.shift() ?? null;
-  }
-
-  // User & user admin pages
-  if (document.body.classList.contains('user-page') || (/[/-]users?[/-]/.test(location.href)) && document.body.classList.contains('mod-page')) {
-    return location.href.match(/\d+/)?.shift() ?? null;
-  }
-
   // Chat
-  if (isChat && location.pathname.includes('/users/')) {
-    const parentuser = getChatParentUser();
-    return parentuser?.match(/\d+/)?.shift() ?? null;
-  }
+  const chatUser = isChat && location.pathname.includes('/users/') &&
+    document.querySelector('.user-stats a[href*="/users/"]')?.href.match(/\d+/)?.shift();
 
-  // Question asker
-  const questionUser = $('#question .post-signature:last a[href*="/users/"]').first();
-  if (questionUser.length) {
-    return questionUser.attr('href').match(/\d+/)?.shift() ?? null;
-  }
+  // Question Author
+  const isQuestionPage = location.pathname.startsWith('/questions/');
+  const questionUser = isQuestionPage && [...document.querySelectorAll('#question .post-signature')].pop()?.querySelector('a[href*="/users/"]')?.href.match(/\d+/)?.shift();
 
   // Default
-  return null;
+  return Number(chatUser || questionUser || currentUserId) || null;
 }
 
 
 function doChatSidebar() {
 
-  const userDashboardPage = getChatParentUser().replace('/users/', '/users/account-info/').replace(/\D+$/, '');
+  const parentUserHref = document.querySelector('.user-stats a[href*="/users/"]')?.href;
+  if (!parentUserHref) return;
+
+  const userDashboardPage = parentUserHref.replace('/users/', '/users/account-info/').replace(/\D+$/, '');
   const mainSiteHostname = userDashboardPage.split('/users/')[0];
 
   ajaxPromise(userDashboardPage).then(function (data) {
-
     const modContent = $('#mod-content', data);
 
     // Get username
@@ -410,10 +390,21 @@ addStylesheet(`
 
 // On script run
 (function init() {
+
+  // If on account info dashboard page, show username in page title
+  if (location.pathname.includes('/users/account-info/')) {
+    const username = $('#mod-content h1').text().trim().replace(/\s+\(.+$/g, '').trim();
+    document.title = username + ' - Account Information';
+  }
+
   setTimeout(() => {
     uid = getCurrentUserId();
-    if (!uid) return;
+    if (!uid) {
+      console.log('UIS: No current user ID');
+      return;
+    }
 
+    // If on chat page, show chat sidebar
     isChat ? doChatSidebar() : doMainSidebar();
   }, 100);
 })();
