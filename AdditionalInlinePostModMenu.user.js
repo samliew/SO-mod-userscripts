@@ -4,7 +4,7 @@
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
 // @author       Cody Gray
-// @version      5.4
+// @version      5.5
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -638,7 +638,7 @@ function initPostModMenuLinks() {
         });
         break;
       case 'mod-delete':
-        modUndelDelete(pid).finally(removePostFromModQueueOrReloadPage);
+        redeletePost(pid).finally(removePostFromModQueueOrReloadPage);
         break;
       case 'spam-flag':
       case 'abusive-flag':

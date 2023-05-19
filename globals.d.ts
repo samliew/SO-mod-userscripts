@@ -193,8 +193,11 @@ declare function closeQuestionAsDuplicate(pid:number, targetPid:number): Promise
 declare function closeSOMetaQuestionAsOfftopic(pid:number, closeReason?: string, offtopicReasonId?:number): Promise<object>;
 declare function reopenQuestion(pid:number): Promise<object>;
 declare function deletePost(pid:number): Promise<object>;
+declare function deletePosts(pids:number[]): Promise<object>;
 declare function undeletePost(pid:number): Promise<object>;
-declare function modUndelDelete(pid:number): Promise<object>;
+declare function undeletePosts(pids:number[]): Promise<object>;
+declare function redeletePost(pid:number): Promise<object>;
+declare function redeletePosts(pids:number[]): Promise<object>;
 declare function lockPost(pid:number, type, hours?: number): Promise<object>;
 declare function unlockPost(pid:number): Promise<object>;
 declare function protectPost(pid:number): Promise<object>;
