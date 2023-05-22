@@ -3,7 +3,7 @@
 // @description  Assists in building low-quality-questions mod messages. For SO Meta only, fetch and display user's deleted posts in markdown format.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.2.4
+// @version      5.3
 //
 // @match        https://meta.stackoverflow.com/questions/*
 //
@@ -292,6 +292,7 @@ addStylesheet(`
 
   // SO Meta
   const post = $('#question');
+  const answerWrapper = $('#answers');
   const pid = Number(post.attr('data-questionid'));
   const postOwnerLink = $('.post-signature:last .user-details a[href*="/users/"]', post).first();
   const postText = ($('h1 .question-hyperlink').text() + $('.js-post-body p', post).text()).toLowerCase();
@@ -333,12 +334,12 @@ addStylesheet(`
   const isSuspended = $('#mainbar-full > .system-alert', userDashboard).length > 0;
 
   const suspendedNotice = $(`
-<div class="main-banned postcell post-layout--right">
+<div class="main-banned">
   <b>${username} is currently suspended on main.</b>
 </div>`);
 
   const banStats = $(`
-<div class="main-banned postcell post-layout--right">
+<div class="main-banned">
   <b>${username} - bans on main: </b>
   <span>${qBan ? 'question' : ''}</span>
   <span>${aBan ? 'answer' : ''}</span>
@@ -347,7 +348,7 @@ addStylesheet(`
   <span>${!qBan && !aBan && !eBan && !rBan ? 'none!' : ''}</span>
 </div>`);
 
-  post.find('.postcell').after(isSuspended ? suspendedNotice : banStats);
+answerWrapper.before(isSuspended ? suspendedNotice : banStats);
 
   // User is currently suspended, do nothing
   if (isSuspended) return;
@@ -361,13 +362,17 @@ addStylesheet(`
   ${username} has <a href="${searchUrl}" target="_blank">${total} deleted ${postType}${pluralize(total)}</a> on the main site
   <span class="meta-mentions-toggle"></span>
   <div class="meta-mentions"></div>
-</div>`).insertAfter(post);
+</div>`).insertBefore(answerWrapper);
 
     // If no deleted posts, do nothing
     if (isNaN(total) || total <= 0) return;
 
     // Add deleted posts to the stats element
-    const listHtml = items.map(item => `<div class="d-flex ai-center mb8"><span class="answer-votes bg-black-050 mr12">${item.score}</span><a href="${parentUrl}${item.url}" target="_blank">${item.title}</a></div>`).join('');
+    const listHtml = items.map(item => `
+<div class="d-flex ai-center mb8">
+  <span class="answer-votes bg-black-050 mr12">${item.score}</span>
+  <a href="${parentUrl}${item.url}" target="_blank">${item.title}</a>
+</div>`).join('');
     stats.find('.meta-mentions').append(listHtml);
 
     // Add copyable element to the results
@@ -391,19 +396,11 @@ addStylesheet(`
 
     // Check if no comments on post starting with "Deleted question" or "Deleted answer"
     const hasDeletedComment = post.find('.comment-copy').filter((i, el) => el.innerText.toLowerCase().includes('deleted ' + postType)).length > 0;
-    if (!hasDeletedComment) {
-
-      if (comment.length <= 600) {
-        await addComment(pid, comment)
-          .then(() => location.reload())
-          .catch(() => console.error(`PBDP: failed to add comment: \n${comment}`));
-      }
+    if (!hasDeletedComment && comment.length <= 600) { // 600 is the max comment length
+      await addComment(pid, comment)
+        .then(() => location.reload())
+        .catch(() => console.error(`PBDP: failed to add comment: \n${comment}`));
     }
   }
 
-  // Get deleted answers on main
-  // if (aBan) {
-  //   await delay(1000);
-  //   const posts = await getDeletedPosts(uid, username, 'answer');
-  // }
 })();
