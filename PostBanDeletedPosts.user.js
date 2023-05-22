@@ -3,7 +3,7 @@
 // @description  Assists in building low-quality-questions mod messages. For SO Meta only, fetch and display user's deleted posts in markdown format.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.2.3
+// @version      5.2.4
 //
 // @match        https://meta.stackoverflow.com/questions/*
 //
@@ -55,7 +55,8 @@ const getDeletedPosts = async (uid, postType) => {
 
   // Best if default pagesize is larger, but don't override the user's preference
   const url = `${parentUrl}/search?q=user%3a${uid}%20is%3a${postType}%20deleted%3a1%20score%3a..0&tab=newest`;
-  const data = await ajaxPromise(url);
+  const data = await ajaxPromise(url)
+    .catch(() => console.error(`PBDP: getDeletedPosts() failed`));
   const items = $('.js-search-results .s-post-summary', data).get()
     .map(post => {
       const postLink = post.querySelector('.s-post-summary--content-title a');
@@ -287,7 +288,7 @@ addStylesheet(`
   }
 
   // Rest of the script is only for SO Meta
-  if(!isSOMeta) return;
+  if (!isSOMeta) return;
 
   // SO Meta
   const post = $('#question');
@@ -322,7 +323,8 @@ addStylesheet(`
   const hasDeletedComments = post.find('.js-fetch-deleted-comments, .js-show-deleted-comments-link').length > 0;
 
   // Get user ban stats on main
-  const userDashboard = await ajaxPromise(`${parentUrl}/users/account-info/${uid}`);
+  const userDashboard = await ajaxPromise(`${parentUrl}/users/account-info/${uid}`)
+    .catch(() => console.error(`PBDP: failed to get userDashboard`));
   const blocked = $('.blocked-no, .blocked-yes', userDashboard);
   const qBan = blocked[0].innerText === 'yes';
   const aBan = blocked[1].innerText === 'yes';
@@ -384,14 +386,17 @@ addStylesheet(`
     if (post.find('.js-show-link:visible').length !== 0 || hasMyComments || hasDeletedComments) return;
 
     // Close as duplicate
-    await closeQuestionAsDuplicate(pid, 255583);
+    await closeQuestionAsDuplicate(pid, 255583)
+      .catch(() => console.error(`PBDP: failed to close question ${pid} as duplicate of 255583`));
 
     // Check if no comments on post starting with "Deleted question" or "Deleted answer"
     const hasDeletedComment = post.find('.comment-copy').filter((i, el) => el.innerText.toLowerCase().includes('deleted ' + postType)).length > 0;
     if (!hasDeletedComment) {
 
       if (comment.length <= 600) {
-        addComment(pid, comment).then(() => location.reload());
+        await addComment(pid, comment)
+          .then(() => location.reload())
+          .catch(() => console.error(`PBDP: failed to add comment: \n${comment}`));
       }
     }
   }
