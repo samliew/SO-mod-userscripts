@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.4.2
+// @version      3.5
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -389,17 +389,8 @@ function listenToPageUpdates() {
 
 // Append styles
 addStylesheet(`
-.deleted-user {
-  display: inline-block;
-  margin-bottom: 2px;
-  padding: 3px 5px;
-  background: var(--red-500);
-  color: var(--white) !important;
-}
-.deleted-user:hover {
-  color: #ffffdd !important;
-}
 .orig-username {
+  margin-top: 2px;
   color: var(--red-700);
 }
 .orig-username:before {
@@ -408,10 +399,13 @@ addStylesheet(`
 .orig-username:after {
   content: '"';
 }
+.deleted-user,
 .comment-user .deleted-user {
-  background: none !important;
-  color: var(--red-700) !important;
-  padding: 0 4px;
+  display: inline-block;
+  padding: 3px 5px;
+  background: var(--red-600) !important;
+  color: var(--white) !important;
+  font-style: italic;
 }
 .comment-user .deleted-user + div.orig-username {
   display: inline-block;

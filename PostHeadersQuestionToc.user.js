@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.2
+// @version      4.3
 //
 // @match        https://*.stackoverflow.com/questions/*
 // @match        https://*.serverfault.com/questions/*
@@ -367,9 +367,9 @@ function initTableOfContentsSidebar() {
     answers.each(function () {
       const isDel = $(this).hasClass('deleted-event');
       const postUserCell = $(this).children('td').eq(3);
-      const postuser = postUserCell.find('a').first();
-      const isPostuserDeleted = postuser.length === 0;
-      const postusername = postuser.text().replace('♦', ' ♦');
+      const postuserLink = postUserCell.find('a').first();
+      const isPostuserDeleted = postuserLink.length === 0;
+      const postusername = postUserCell.text().replace('♦', ' ♦');
       const pid = $(this).find('.event-comment a.timeline').attr('href').match(/[0-9]+/)[0];
       const votes = $(this).find('.event-comment span:not(.badge-earned-check)').last().text().match(/[-0-9]+$/)[0];
       const datetime = $(this).find('.relativetime')[0].outerHTML;
@@ -584,15 +584,17 @@ addStylesheet(`
 .post-stickyheader .absolutetime {
   font-size: 0.95em;
 }
-.post-stickyheader > span:not(.absolutetime) { /* CW user */
-  color: var(--red-700);
-  font-style: italic;
-}
 .post-stickyheader .sticky-tools {
   float: right;
 }
-.post-stickyheader .deleted-user {
-  margin: -3px 0;
+.post-stickyheader > span:not(.absolutetime) { /* CW user */
+  font-style: italic;
+}
+.post-stickyheader .deleted-user { /* Deleted user */
+  display: inline-block;
+  padding: 3px 5px;
+  background: var(--red-600) !important;
+  color: var(--white) !important;
 }
 .election-page .post-stickyheader .sticky-tools {
   display: none;
@@ -662,6 +664,9 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
   padding-right: 10px;
 }
 #sidebar #qtoc .spacer {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
   margin-bottom: 7px;
   font-size: 12px;
   font-weight: normal;
@@ -683,19 +688,21 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
   font-size: 11px;
 }
 #qtoc .post-hyperlink {
-  display: inline-block;
-  width: calc(100% - 48px);
-  height: 1.4em;
-  margin-bottom: 0;
-  padding-top: 2px;
+  display: inline-flex;
+  flex-grow: 1;
+  align-items: center;
+  justify-content: flex-start;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  line-height: 1.3;
   font-size: 12px;
 }
-#qtoc .deleted-user {
-  margin: -3px 0;
+#qtoc .deleted-user { /* Deleted user */
+  display: inline-block;
+  padding: 3px 5px;
+  background: var(--red-600) !important;
+  color: var(--white) !important;
+  font-style: italic;
 }
 #qtoc .deleted-answer {
   margin-left: 0;

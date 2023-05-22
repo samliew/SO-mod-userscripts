@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1
+// @version      4.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -1168,12 +1168,6 @@ span.mod-flair {
 .orig-username:before ,
 .orig-username:after {
   background-color: transparent;
-}
-.deleted-user,
-#answers .deleted-answer .deleted-user,
-#question.deleted-answer .deleted-user {
-  background: var(--red-600);
-  color: var(--white);
 }
 .somu-mod-message-link {
   background: transparent;
