@@ -3,7 +3,7 @@
 // @description  Detect OpenAI in post content and revisions
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      2.2
+// @version      2.2.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -115,9 +115,13 @@ const handleClickEvent = async evt => {
 
   // Get post content
   const post = target.closest('.question, .answer, .candidate-row, .js-revision, .s-post-summary');
+  const postUrl = toShortLink(post.querySelector('.js-share-link')?.href);
   const isPostRevision = post.classList.contains('js-revision');
   const postRevisionUrl = isPostRevision && target.closest('.s-anchors')?.children[0]?.getAttribute('href');
-  const postId = isPostRevision ? getPostId(location.pathname) : (post.dataset.questionid || post.dataset.answerid || post.dataset.postid || post.dataset.postId);
+  const postId = Number(isPostRevision ? getPostId(location.pathname) : // revision, get post id from URL
+    (post.dataset.questionid || post.dataset.answerid || post.dataset.postid || post.dataset.postId) // question or answer, get post id from data attribute
+  );
+  const postType = isPostRevision ? 'revision' : (post.dataset.answerid ? 'answer' : 'question');
 
   // Get content
   const content = postRevisionUrl ? await getRevisionSource(postRevisionUrl) : await getLatestPostRevisionSource(postId);
@@ -135,8 +139,19 @@ const handleClickEvent = async evt => {
   StackExchange.helpers.addSpinner(target);
   const result = await detectGpt(content);
   StackExchange.helpers.removeSpinner();
+
+  result.post = {
+    postId,
+    postType,
+    postUrl,
+    isPostRevision,
+    postRevisionUrl,
+    content,
+    length: content?.length,
+  };
   console.log(`Detect GPT result for ${postId}`, result);
 
+  // If success, show result
   if (result.success && !isNaN(result.data?.fake_probability)) {
     const percFake = result.data.fake_probability * 100;
 
@@ -156,8 +171,8 @@ const handleClickEvent = async evt => {
     target.classList.add('js-detect-copy');
     target.dataset.content = content;
   }
+  // Toast error
   else {
-    // Show error
     StackExchange.helpers.showToast(`Could not detect GPT for ${postId}:<br>${result.error}`, {
       type: 'danger',
       useRawHtml: true,
