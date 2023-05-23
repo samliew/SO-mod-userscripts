@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.4
+// @version      4.5
 //
 // @match        https://*.stackoverflow.com/questions/*
 // @match        https://*.serverfault.com/questions/*
@@ -213,7 +213,8 @@ function initStickyPostHeaders() {
 async function loadNewCommentsOnElectionPage() {
   if (!isElectionPage) return;
 
-  const posts = document.querySelectorAll('.candidate-row');
+  const posts = [...document.querySelectorAll('.candidate-row')]
+    .filter(el => el.querySelector('.comments, .js-comments-container')); // only load comments for posts that have a comments container (nomination tab)
 
   posts.forEach(async function (el, i) {
     const pid = el.id.match(/\d+$/)[0];
@@ -224,14 +225,14 @@ async function loadNewCommentsOnElectionPage() {
       url: `/posts/${pid}/comments?includeDeleted=true&_=${Date.now()}`,
       type: 'GET',
       success: function (data) {
-        $('#comments-' + pid).show().children('ul.comments-list').html(data);
+        $(`#comments-${pid}`).show().children('ul.comments-list').html(data);
       },
     });
   });
 
   $('.js-show-link.comments-link, .js-load-deleted-comments-link').prev('.js-link-separator').addBack().remove();
 
-  await delay(15000);
+  await delay(30000);
   loadNewCommentsOnElectionPage();
 }
 
@@ -255,6 +256,7 @@ function initTableOfContentsSidebar() {
   }
 
   if (isElectionPage) {
+    loadNewCommentsOnElectionPage();
 
     // Missing sidebar, add it
     if ($('#sidebar').length === 0) {
@@ -309,10 +311,6 @@ function initTableOfContentsSidebar() {
 
     // Append to sidebar
     $('#sidebar').append(qtoc);
-
-    loadNewCommentsOnElectionPage();
-
-    return;
   }
 
   // If no answers, do nothing else
