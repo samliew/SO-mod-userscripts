@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.5
+// @version      4.6
 //
 // @match        https://*.stackoverflow.com/questions/*
 // @match        https://*.serverfault.com/questions/*
@@ -279,20 +279,20 @@ function initTableOfContentsSidebar() {
       answerContainer.append(nominations);
     }
 
-    let answerlist = '';
+    let answerList = '';
     nominations.each(function () {
-      const postuser = $(this).find('.user-details a').first();
-      const postusername = postuser.text();
+      const postUser = $(this).find('.user-details a').first();
+      const postUsername = postUser.text();
       const pid = this.id.replace('post-', '') || this.dataset.candidateId;
       const votes = $(this).find('.js-vote-count').text();
       const datetime = $(this).find('.relativetime')[0].outerHTML;
 
-      answerlist += `
+      answerList += `
         <div class="spacer" data-answerid="${pid}">
           <a href="#${pid}" title="Vote score (upvotes - downvotes)">
             <div class="answer-votes large">${votes}</div>
           </a>
-          <a href="#${pid}" class="post-hyperlink">${postusername}</a>
+          <a href="#${pid}" class="post-hyperlink">${postUsername}</a>
           ${datetime}
         </div>`;
     });
@@ -300,7 +300,7 @@ function initTableOfContentsSidebar() {
     const qtoc = $(`
       <div class="module sidebar-linked mt24" id="qtoc">
         <h4 id="qtoc-header">${nominations.length} Candidate${pluralize(nominations.length)}</h4>
-        <div class="linked">${answerlist}</div>
+        <div class="linked">${answerList}</div>
       </div>`);
 
     // If answer is on current page, clicking on them scrolls to the answer
@@ -359,26 +359,30 @@ function initTableOfContentsSidebar() {
     });
 
     const answers = $(v);
-    let answerlist = '';
+    const modFlairHtml = `<span class="flex--item s-badge ml2 s-badge__moderator s-badge__xs mtn2" title="Moderator">Mod</span>`;
+    const staffFlairHtml = `<span class="flex--item s-badge ml2 s-badge__staff s-badge__xs mtn2" title="Staff">Staff</span>`;
+    let answerList = '';
     let deletedCount = 0;
 
     answers.each(function () {
       const isDel = $(this).hasClass('deleted-event');
       const postUserCell = $(this).children('td').eq(3);
-      const postuserLink = postUserCell.find('a').first();
-      const isPostuserDeleted = postuserLink.length === 0;
-      const postusername = postUserCell.text().replace('♦', ' ♦');
+      const postUserLink = postUserCell.find('a').first();
+      const postUserIsDeleted = postUserLink.length === 0;
+      const postUsername = (postUserLink || postUserCell).text().replace('♦', ' ♦');
+      const postUserIsStaff = postUserCell.find('.s-badge__staff').length > 0;
+      const postUserIsMod = postUserCell.find('.s-badge__moderator').length > 0;
       const pid = $(this).find('.event-comment a.timeline').attr('href').match(/[0-9]+/)[0];
       const votes = $(this).find('.event-comment span:not(.badge-earned-check)').last().text().match(/[-0-9]+$/)[0];
       const datetime = $(this).find('.relativetime')[0].outerHTML;
       const isAccepted = $(this).find('.badge-earned-check').length == 1;
 
-      answerlist += `
+      answerList += `
         <div class="spacer ${isDel ? 'deleted-answer' : ''}" data-answerid="${pid}" data-votes="${votes}" data-datetime="${votes}">
           <a href="${postBaseUrl}/${pid}#${pid}" title="Vote score (upvotes - downvotes)">
             <div class="answer-votes large ${isAccepted ? 'answered-accepted' : ''}">${votes}</div>
           </a>
-          <a href="${postBaseUrl}/${pid}#${pid}" class="post-hyperlink">${isPostuserDeleted ? '<span class="deleted-user">' : ''}${postusername}</a>
+          <a href="${postBaseUrl}/${pid}#${pid}" class="post-hyperlink">${postUserIsDeleted ? '<span class="deleted-user">' : ''}${postUsername}${postUserIsStaff ? staffFlairHtml : postUserIsMod ? modFlairHtml : ''}</a>
           ${datetime}
         </div>`;
       if (isDel) deletedCount++;
@@ -393,7 +397,7 @@ function initTableOfContentsSidebar() {
             ${deletedCount} deleted
           </label>
         </h4>
-        <div class="linked">${answerlist}</div>
+        <div class="linked">${answerList}</div>
       </div>`);
 
     // Back to question click
@@ -696,6 +700,7 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
 }
 #qtoc .post-hyperlink {
   display: inline-flex;
+  flex-wrap: wrap;
   flex-grow: 1;
   align-items: center;
   justify-content: flex-start;
@@ -715,6 +720,10 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
   margin-left: 0;
   padding-left: 0;
   border: 0;
+}
+#qtoc .s-badge__moderator,
+#qtoc .s-badge__staff {
+  margin: 1px 0 0 4px !important;
 }
 
 /* Compat with us-bookmarkers */
