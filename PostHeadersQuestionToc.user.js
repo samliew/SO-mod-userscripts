@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.3
+// @version      4.4
 //
 // @match        https://*.stackoverflow.com/questions/*
 // @match        https://*.serverfault.com/questions/*
@@ -388,7 +388,8 @@ function initTableOfContentsSidebar() {
 
     const qtoc = $(`
       <div class="module sidebar-linked" id="qtoc">
-        <h4 id="qtoc-header">${v.length} Answer${pluralize(v.length)}
+        <h4 id="qtoc-header">
+          <span class="back-to-question" title="Back to question">${v.length} Answer${pluralize(v.length)}</span>
           <label title="toggle deleted answers">
             <input class="m0 mr6" id="qtoc-toggle-del" type="checkbox" checked="checked" />
             ${deletedCount} deleted
@@ -396,6 +397,11 @@ function initTableOfContentsSidebar() {
         </h4>
         <div class="linked">${answerlist}</div>
       </div>`);
+
+    // Back to question click
+    qtoc.find('.back-to-question').on('click', function () {
+      return !gotoPost(qid, true);
+    });
 
     // Accepted answer first
     qtoc.find('.answered-accepted').parents('.spacer').prependTo(qtoc.find('.linked'));
@@ -655,6 +661,9 @@ body:not(.no-grid-post-layout) .post-layout--full .question-status {
   display: inline-flex;
   margin-bottom: 3px;
   font-size: 13px;
+}
+#qtoc-header .back-to-question {
+  cursor: pointer;
 }
 #qtoc .relativetime {
   padding-top: 2px;
