@@ -3,7 +3,7 @@
 // @description  Detect OpenAI in post content and revisions
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      2.2.1
+// @version      2.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -89,7 +89,7 @@ const addGptButtons = () => {
 
 
 // Detect GPT button click event
-const handleClickEvent = async evt => {
+const handleGptButtonClick = async evt => {
   const target = evt.target;
 
   // Only run on "Detect GPT" or "Copy" button
@@ -113,33 +113,25 @@ const handleClickEvent = async evt => {
   if (target.classList.contains('js-detect-gpt-loading')) return;
   target.classList.add('js-detect-gpt-loading');
 
-  // Get post content
+  // Store post details
   const post = target.closest('.question, .answer, .candidate-row, .js-revision, .s-post-summary');
   const postUrl = toShortLink(post.querySelector('.js-share-link')?.href);
   const isPostRevision = post.classList.contains('js-revision');
   const postRevisionUrl = isPostRevision && target.closest('.s-anchors')?.children[0]?.getAttribute('href');
   const postId = Number(isPostRevision ? getPostId(location.pathname) : // revision, get post id from URL
     (post.dataset.questionid || post.dataset.answerid || post.dataset.postid || post.dataset.postId) // question or answer, get post id from data attribute
+    || post.id?.replace('post-', '') // nomination post
   );
   const postType = isPostRevision ? 'revision' : (post.dataset.answerid ? 'answer' : 'question');
 
-  // Get content
+  // Get post revision source
+  StackExchange.helpers.addSpinner(target);
   const content = postRevisionUrl ? await getRevisionSource(postRevisionUrl) : await getLatestPostRevisionSource(postId);
 
-  // No content found
-  if (typeof content !== 'string' || !content?.length) {
-    StackExchange.helpers.showToast(`Could not detect GPT for ${postId}: No post body found`, {
-      type: 'danger',
-      useRawHtml: false,
-      transient: false,
-    });
-  }
-
   // Detect GPT
-  StackExchange.helpers.addSpinner(target);
   const result = await detectGpt(content);
-  StackExchange.helpers.removeSpinner();
 
+  // Debug
   result.post = {
     postId,
     postType,
@@ -149,7 +141,7 @@ const handleClickEvent = async evt => {
     content,
     length: content?.length,
   };
-  console.log(`Detect GPT result for ${postId}`, result);
+  console.log(`Detect GPT result for ${postType} ${postId}`, result);
 
   // If success, show result
   if (result.success && !isNaN(result.data?.fake_probability)) {
@@ -173,7 +165,7 @@ const handleClickEvent = async evt => {
   }
   // Toast error
   else {
-    StackExchange.helpers.showToast(`Could not detect GPT for ${postId}:<br>${result.error}`, {
+    StackExchange.helpers.showToast(`Could not detect GPT for ${postType} ${postId}: ${result.error}`, {
       type: 'danger',
       useRawHtml: true,
       transient: false,
@@ -182,6 +174,8 @@ const handleClickEvent = async evt => {
     // Reset button, allow retry
     target.classList.remove('js-detect-gpt-loading');
   }
+
+  StackExchange.helpers.removeSpinner();
 };
 
 
@@ -200,7 +194,7 @@ addStylesheet(`
   setInterval(addGptButtons, 1000);
 
   // Click event for Detect GPT buttons
-  document.addEventListener('click', handleClickEvent);
+  document.addEventListener('click', handleGptButtonClick);
 
   // Get final URL of OpenAI Detector load balancer redirect
   oaiUrl = await getFinalUrl('https://huggingface.co/openai-detector') || oaiUrl;
