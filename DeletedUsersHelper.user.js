@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.5
+// @version      3.5.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -598,7 +598,7 @@ table#posts td {
   });
 
   if (/\d+/.test(location.pathname) === false) return;
-  const is404 = document.title.toLowerCase().includes('page not found');
+  const is404 = /(page not|no user) found/i.test(document.title);
   const uid = currentUserId;
   const userUrl = `/users/${uid}`;
 
