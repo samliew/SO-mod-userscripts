@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.1
+// @version      3.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -359,6 +359,25 @@ table.post-timeline {
   display: none;
 }
 
+/* Highlighted event rows */
+tr.highlighted-post > td:first-child {
+  border-left: 5px solid var(--yellow-400) !important;
+  background-color: var(--yellow-050) !important;
+}
+tr.highlighted-post > td {
+  border-top: 2px solid var(--yellow-400) !important;
+  border-bottom: 2px solid var(--yellow-400) !important;
+}
+tr.highlighted-post > td:last-child {
+  border-right: 2px solid var(--yellow-400) !important;
+}
+tr.highlighted-post + tr.highlighted-post > td {
+  position: relative;
+  top: -2px;
+  padding-top: 2px;
+  border-top: none !important;
+}
+
 /* I hate the light blue bg for aggregate and deletion votes */
 .post-timeline-v2 .post-timeline tr[data-eventtype="voteaggregate"] .event-type>span.vote {
   background-color: var(--black-600);
@@ -457,6 +476,8 @@ td.event-type span.event-type {
       location.reload();
     }
 
+    const $timelineTable = $('table.post-timeline');
+
     // Display whether this is a question or answer, and link to question if it's an answer...
     const title = $('.subheader h1');
     const link = title.find('a').first();
@@ -527,6 +548,34 @@ td.event-type span.event-type {
     else {
       $('#newdefault').trigger('click');
     }
+
+    // Fix bug where clicking on an event permalink doesn't undo other row's .bc-yellow-600 on .creation-date
+    // Add the class to the row instead
+    $timelineTable.find('.creation-date a').off('click');
+    $timelineTable.find('.creation-date a').on('click', async function (evt) {
+      await delay(20);
+      $('.bc-yellow-600, .highlighted-post').removeClass('border-highlight bc-yellow-600 highlighted-post bl blw3 bb blw0');
+
+      // Get row of clicked event
+      const eventRow = $(this).closest('tr').addClass('highlighted-post');
+
+      // See if previous row has the same hash
+      const prev = eventRow.prev().find('.creation-date a');
+      if (prev.length && prev[0].hash === this.hash) {
+        prev.closest('tr').addClass('highlighted-post');
+      }
+
+      // Find link with same hash and simultaneous class and set row to highlighted-post
+      $timelineTable.find('.creation-date a').filter((i, el) => el.hash === this.hash).closest('tr.simultaneous').addClass('highlighted-post');
+
+      // Update url hash
+      history.replaceState(null, document.title, this.hash);
+
+      return false;
+    });
+
+    // On page load, fix the highlighted event
+    $('.bc-yellow-600, .highlighted-post').removeClass('border-highlight bc-yellow-600 highlighted-post bl blw3 bb blw0').closest('tr').addClass('highlighted-post');
 
     // Draw reviews flowchat on post timeline page
     drawReviewsFlowchart();
