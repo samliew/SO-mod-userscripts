@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.5.1
+// @version      3.6
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -277,7 +277,7 @@ function initMultiPostsTable() {
       reloadWhenDone();
     });
 
-  // Linkify userid in header to return to deleted user page
+  // Linkify user id in header to return to deleted user page
   $('#content h1').first().html((i, v) => v.replace(/(\d+)/, '<a href="/users/$1" target="_blank">$1</a>'));
 }
 
@@ -288,31 +288,34 @@ function formatDeletedUserPage() {
   const pre = $('#mainbar-full pre');
   const details = pre.text().split(/\r?\n/);
 
-  const deldate = details[0].split('on ')[1].replace(/(\d+)\/(\d+)\/(\d+) (\d+):(\d+):(\d+) ([AP]M)/, function (match, p1, p2, p3, p4, p5, p6, p7) {
+  const deletedDate = details[0].split('on ')[1].replace(/(\d+)\/(\d+)\/(\d+) (\d+):(\d+):(\d+) ([AP]M)/, function (match, p1, p2, p3, p4, p5, p6, p7) {
     const hourOffset = p7 == 'PM' ? 12 : 0;
     return `${p3}-0${p1}-0${p2} 0${(Number(p4) + hourOffset) % 24}:0${p5}:0${p6}Z`;
   }).replace(/([^\d])\d?(\d\d)/g, '$1$2'); // cheat way of padding zeros
   const username = details[1].match(/: ([^\(]+)/)[1].trim();
-  const userid = details[1].match(/\((\d+)\)/)[1];
-  const networkid = details[1].match(/=(\d+)\)/)[1];
-  const networkAccountsUrl = `https://stackexchange.com/users/${networkid}?tab=accounts`;
-  const modname = details[1].match(/deleted by ([^\(]+)/)[1].trim();
-  const modid = details[1].match(/\((\d+)\)/g)[1].replace(/[^\d]+/g, '');
-  const lastip = details.filter((line) => line.includes('IP:')).reverse()[0].split(': ')[1];
+  const email = details.filter(line => line.includes('Email:'))?.pop()?.split(/: +/).pop() || '';
+  const emailUser = email ? email.split('@').shift() : '';
+  const emailDomain = email ? email.split('@').pop() : '';
+  const userId = details[1].match(/\((\d+)\)/)[1];
+  const networkId = details[1].match(/=(\d+)\)/)[1];
+  const networkAccountsUrl = `https://stackexchange.com/users/${networkId}?tab=accounts`;
+  const modName = details[1].match(/deleted by ([^\(]+)/)[1].trim();
+  const modId = details[1].match(/\((\d+)\)/g)[1].replace(/[^\d]+/g, '');
+  const lastIp = details.filter(line => line.includes('IP:')).reverse()[0].split(': ')[1];
   const reason = details.slice(2, details.length - 2).join('\n').replace('Reason: ', '<b>Reason</b><br>').replace('Detail: ', '<br><b>Additional Details</b><br>').replace(/(https?:\/\/[^\s\)]+)\b/gi, '<a href="$1" target="_blank">$1</a>');
-  const delInfo = username != modname ? `deleted on <input value="${deldate}"> by <a href="/users/${modid}" target="_blank">${modname}♦</a>` : `SELF-deleted on <input value="${deldate}">`;
+  const delInfo = username != modName ? `deleted on <input value="${deletedDate}"> by <a href="/users/${modId}" target="_blank">${modName}♦</a>` : `SELF-deleted on <input value="${deletedDate}">`;
 
-  const $html = $(`
+  const userInfoEl = $(`
     <div class="del-user-info">
-      <div>User <input value="${username}"> (#<input value="${userid}">, network#<input value="${networkid}" ondblclick="window.open('${networkAccountsUrl}')">) was ${delInfo}</div>
+      <div>User <input value="${username}"> (#<input value="${userId}">, network#<input value="${networkId}" ondblclick="window.open('${networkAccountsUrl}')">) was ${delInfo}</div>
       <div class="del-reason">${reason}</div>
-      <div>Last seen from IP: <input value="${lastip}"></div>
+      <div>Last seen from IP: <input value="${lastIp}"></div>
       <div>Network accounts: &nbsp;<a href="${networkAccountsUrl}" target="_blank">${networkAccountsUrl}</a></div>
     </div>`);
 
-  pre.after($html).remove();
+  pre.after(userInfoEl).remove();
 
-  $html.find('input')
+  userInfoEl.find('input')
     .attr('readonly', 'readonly')
     .dynamicWidth()
     .on('click dblclick', function () {
@@ -320,30 +323,42 @@ function formatDeletedUserPage() {
     });
 
   // Show gravatar, imgur, and Google account avatar
-  $('a[href^="https://www.gravatar.com/avatar/"], a[href^="https://i.stack.imgur.com/"], a[href*="googleusercontent.com/a/"]', ".del-reason").each(function() {
+  $('a[href^="https://www.gravatar.com/avatar/"], a[href^="https://i.stack.imgur.com/"], a[href*="googleusercontent.com/a/"]', ".del-reason").each(function () {
     $(this).html(`<img src="${this.href}" style="max-width:128px; max-height:128px;">`);
   });
 
-  // Format links section
-  const userlinks = $('#mainbar-full').next('ul').attr('id', 'del-user-links');
-  userlinks.append(`<li><a href="/admin/users-with-ip/${lastip}">Other users with IP address "${lastip}"</a></li>`);
-  userlinks.append(`<li><a href="/admin/find-users?q=${username}">Find users with "${username}"</a></li>`);
+  // Format links section and add more links
+  const userLinks = $('#mainbar-full').next('ul').attr('id', 'del-user-links');
+  // Search for other users on the same IP
+  userLinks.append(`<li><a href="/admin/users-with-ip/${lastIp}">Other users with IP address "${lastIp}"</a></li>`);
+  // Search for users with same display name
+  userLinks.append(`<li><a href="/admin/find-users?type=all&scope=contains&q=${username}">Find users with "${username}"</a></li>`);
+  // Search for users with same email username
+  if (emailUser && username !== emailUser) {
+    userLinks.append(`<li><a href="/admin/find-users?type=all&scope=contains&q=${emailUser}">Find users with "${emailUser}"</a></li>`);
+  }
+  // Search for users with same email domain
+  if (emailDomain) {
+    userLinks.append(`<li><a href="/admin/find-users?type=email&scope=endswith&q=@${emailDomain}">Find users with email domain "@${emailDomain}"</a></li>`);
+  }
+  // Links open in new tab
+  userLinks.find('a').attr('target', '_blank');
 
   // Fetch network accounts
   // Note: can't use https://api.stackexchange.com/docs/associated-users#pagesize=100&ids=851&types=main_site&filter=!mxdR15FV-W&run=true as max-page size limit is 100
-  const networkaccsList = $(`<ul id="del-user-networkaccs" class="js-loading"></ul>`).insertAfter(userlinks);
+  const networkAccountsList = $(`<ul id="del-user-networkaccs" class="js-loading"></ul>`).insertAfter(userLinks);
   ajaxPromise(networkAccountsUrl)
-    .then(function (data) {1
-      networkaccsList.removeClass('js-loading');
+    .then(function (data) {
+      networkAccountsList.removeClass('js-loading');
       const accounts = $('.account-container', data);
       if (accounts.length > 0) {
         accounts.find('a').attr('target', '_blank');
         accounts.each(function () {
-          $(this).appendTo(networkaccsList);
+          $(this).appendTo(networkAccountsList);
         });
       }
       else {
-        networkaccsList.addClass('js-no-accounts');
+        networkAccountsList.addClass('js-no-accounts');
       }
     });
 
@@ -358,19 +373,19 @@ function showDetailsFieldWhenPiiClicked() {
   const d = new Date();
   const year = d.getFullYear().toString();
   const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][d.getMonth()];
-  const piidiv = $('#mod-content .mod-credentials').parent();
-  const piisection = piidiv.closest('.mod-section');
+  const piiDiv = $('#mod-content .mod-credentials').parent();
+  const piiSection = piiDiv.closest('.mod-section');
 
   const networkAccounts = '\n\nNetwork Account: ' + $('.details a').first().attr('href');
-  const regdate = '\n' + $('.details .row').first().find('span').remove().end().text().trim().replace(/\s+/g, ' ').replace('Joined network:', 'Joined network: ').replace('Joined site:', '\nJoined site:    ').split(/\s*\n\s*/).map(function (v) {
+  const regDate = '\n' + $('.details .row').first().find('span').remove().end().text().trim().replace(/\s+/g, ' ').replace('Joined network:', 'Joined network: ').replace('Joined site:', '\nJoined site:    ').split(/\s*\n\s*/).map(function (v) {
     if (v.contains('ago')) v = v.split(':')[0] + ':  ' + month + " " + d.getDate() + " '" + year;
     else if (v.contains('yesterday')) v = v.split(':')[0] + ':  ' + month + ' ' + d.getDate() + " '" + year;
     else if (!v.contains(", ")) v = v + ", " + year;
     return v;
   }).join('\n');
-  const str = piidiv.children('div').slice(0, 2).text().trim().replace(/\s+/g, ' ').replace('Email:', 'Email:     ').replace(' Real Name:', '\nReal Name: ').replace(' IP Address:', '\nIP Address:');
-  const ta = $(`<textarea id="pii-info" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>`).val(str + networkAccounts + regdate);
-  ta.insertBefore(piidiv).on('focus dblclick', evt => evt.target.select());
+  const str = piiDiv.children('div').slice(0, 2).text().trim().replace(/\s+/g, ' ').replace('Email:', 'Email:     ').replace(' Real Name:', '\nReal Name: ').replace(' IP Address:', '\nIP Address:');
+  const ta = $(`<textarea id="pii-info" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>`).val(str + networkAccounts + regDate);
+  ta.insertBefore(piiDiv).on('focus dblclick', evt => evt.target.select());
 }
 
 function listenToPageUpdates() {
