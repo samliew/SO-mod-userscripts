@@ -129,7 +129,7 @@ function drawReviewsFlowchart() {
     .sort(function (a, b) { // asc
       return a.id - b.id;
     });
-  console.table(reviews);
+  console.log("Post reviews", { reviews });
 
   // If no reviews, do nothing
   if (reviews.length == 0) return;
@@ -504,14 +504,13 @@ td.event-type span.event-type {
     $eventsContainer = $('table.post-timeline');
     $events = $('.event-rows > tr').not('.separator'); // .filter((i, el) => el.dataset.eventtype !== 'flag' && $(el).find('span.event-type').text() !== 'flag')
 
-    const userType = StackExchange.options.user.isModerator ? 'mod' : 'normal';
+    const isMod = isModerator();
     const postType = $('td.event-verb span').filter((i, el) => el.innerText === 'asked' || el.innerText === 'answered').text() === 'asked' ? 'question' : 'answer';
-
-    console.log(userType, postType);
+    console.log('Post Timeline', {isMod, postType});
 
     // Insert sort options
     const $filterOpts = $(`
-      <div id="post-timeline-tabs" class="tabs posttype-${postType} usertype-${userType}">
+      <div id="post-timeline-tabs" class="tabs posttype-${postType} usertype-${isMod ? 'mod' : 'normal'}">
         <a data-filter="all" class="youarehere">Show All</a>
         <a data-filter="hide-votes" id="newdefault">Hide Votes</a>
         <a data-filter="hide-votes-comments">Hide Votes & Comments</a>
@@ -568,7 +567,7 @@ td.event-type span.event-type {
       // Find link with same hash and simultaneous class and set row to highlighted-post
       $timelineTable.find('.creation-date a').filter((i, el) => el.hash === this.hash).closest('tr.simultaneous').addClass('highlighted-post');
 
-      // Update url hash
+      // Replace history
       history.replaceState(null, document.title, this.hash);
 
       return false;
