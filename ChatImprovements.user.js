@@ -3,7 +3,7 @@
 // @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurrences of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.3
+// @version      4.3.1
 //
 // @match        https://chat.stackoverflow.com/*
 // @match        https://chat.stackexchange.com/*
@@ -479,8 +479,10 @@ function _parseRoomMini(i, el) {
   // Convert main chatroom title link to the room transcript
   const roomLink = el.querySelector('a[href*="/rooms/"]');
   roomLink.href = roomLink.href.replace('/rooms/', '/transcript/');
-  roomLink.textContent = roomLink.title;
-  roomLink.title = '';
+  if (roomLink.title && roomLink.title.length > roomLink.textContent.trim()) {
+    roomLink.textContent = roomLink.title;
+    roomLink.title = '';
+  }
 
   // Show longer description and link links
   // This also allows SmartPostLinks to fetch post data
@@ -1514,8 +1516,6 @@ function listenToPageUpdates() {
       const clname = $('#chat .user-container').last().attr('class').match(/user-\d+/)[0];
       if (clname) newuserlist.children('.' + clname).prependTo(newuserlist);
     }
-
-    // What does '/rooms/pingable' do? Can ignore this.
 
     // On new events fetch (on page load and loading older messages), update cache and insert timestamps
     if (settings.url.includes('/events')) {
