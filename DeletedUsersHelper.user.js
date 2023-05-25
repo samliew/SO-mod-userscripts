@@ -3,7 +3,7 @@
 // @description  Additional capability and improvements to display/handle deleted users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.6
+// @version      3.7
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -208,9 +208,17 @@ function linkifyDeletedUser(i, elem) {
 
 
 function findDeletedUsers() {
+
+  // Posts and post comments
   $('.post-signature .user-details').each(linkifyDeletedUser);
   $('span.comment-user').each(linkifyDeletedUser);
+
+  // Mod messages
   $('.msg.msg-moderator .user-details').each(linkifyDeletedUser);
+
+  // Post timeline, excluding "N/A" entries
+  $('.post-timeline tbody tr').find('td:nth-child(4)').not(':has(a)').find('span').filter((i, el) => !el.innerText.contains('N/A')).each(linkifyDeletedUser);
+
   if (location.href.indexOf('post-comments-by-deleted-user') !== -1) {
     const header = document.querySelector('div.subheader h1');
     if (!header) return;
