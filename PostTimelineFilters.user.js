@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.2
+// @version      3.3
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -278,6 +278,39 @@ function filterPosts(filter) {
 }
 
 
+function betterDuplicatesComment() {
+
+  $('.event-comment').filter((i, el) => el.innerText.startsWith('duplicates list edited from ')).each(function (i, el) {
+
+    let replacedHtml = el.innerHTML
+      .replace('duplicates list edited from', '<span>duplicates list edited from</span> <ul class="originals-of-duplicate">')
+      .replace(/<\/a>\s+to\s+<a/, '</a></ul><span>to</span><ul class="originals-of-duplicate"><a')
+      .replace(/\s*<\/a>,\s*/g, '</a>');
+    el.innerHTML = replacedHtml + '</ul>';
+    $(this).addClass('somu-duplicates-edited').find('a').wrap('<li>');
+
+    // Highlight changes
+    $(this).find('li').each(function () {
+      this.dataset.linkedpostid = $(this).children('a').attr('href').match(/\/(\d+)\//)[1];
+    });
+    const firstList = $(this).find('.originals-of-duplicate').first();
+    const secondList = $(this).find('.originals-of-duplicate').last();
+
+    // Find removals
+    firstList.children('li').each(function (i, el) {
+      const removed = !secondList.children('li').get().map(v => v.dataset.linkedpostid).some(id => el.dataset.linkedpostid === id);
+      $(this).toggleClass('somu-dupe-removed', removed);
+    });
+
+    // Find additions
+    secondList.children('li').each(function (i, el) {
+      const added = !firstList.children('li').get().map(v => v.dataset.linkedpostid).some(id => el.dataset.linkedpostid === id);
+      $(this).toggleClass('somu-dupe-added', added);
+    });
+  });
+}
+
+
 // Append styles
 addStylesheet(`
 .tabs:after,
@@ -430,6 +463,45 @@ td.event-type span.event-type {
   display: inline-block;
   margin-left: -0.2em;
 }
+
+/*
+  Better "duplicates edited list" in post timeline page
+  Works with "betterDuplicatesComment()" function
+*/
+.event-comment.somu-duplicates-edited {
+  display: block;
+  padding-top: 5px;
+}
+.event-comment.somu-duplicates-edited ul.originals-of-duplicate {
+  margin-bottom: 0;
+}
+.event-comment.somu-duplicates-edited ul.originals-of-duplicate li {
+  position: relative;
+  padding-top: 0;
+  cursor: initial;
+  list-style-type: none;
+}
+.event-comment.somu-duplicates-edited ul.originals-of-duplicate li:before {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: -16px;
+  font-size: 1.2em;
+  font-weight: bold;
+  content: '•';
+  color: var(--black-300);
+}
+.event-comment.somu-duplicates-edited ul.originals-of-duplicate li.somu-dupe-added:before {
+  content: '+';
+  color: var(--green-600);
+  left: -18px;
+}
+.event-comment.somu-duplicates-edited ul.originals-of-duplicate li.somu-dupe-removed:before {
+  content: '–';
+  color: var(--red-600);
+  top: -2px;
+  left: -18px;
+}
 `); // end stylesheet
 
 
@@ -576,8 +648,11 @@ td.event-type span.event-type {
     // On page load, fix the highlighted event
     $('.bc-yellow-600, .highlighted-post').removeClass('border-highlight bc-yellow-600 highlighted-post bl blw3 bb blw0').closest('tr').addClass('highlighted-post');
 
-    // Draw reviews flowchat on post timeline page
+    // Draw reviews flowchart on post timeline page
     drawReviewsFlowchart();
+
+    // Improve display of duplicates edited list comment
+    betterDuplicatesComment();
   }
 
   // All other pages
