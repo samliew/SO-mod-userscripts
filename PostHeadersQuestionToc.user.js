@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.6
+// @version      4.7
 //
 // @match        https://*.stackoverflow.com/questions/*
 // @match        https://*.serverfault.com/questions/*
@@ -369,7 +369,7 @@ function initTableOfContentsSidebar() {
       const postUserCell = $(this).children('td').eq(3);
       const postUserLink = postUserCell.find('a').first();
       const postUserIsDeleted = postUserLink.length === 0;
-      const postUsername = (postUserLink || postUserCell).text().replace('♦', ' ♦');
+      const postUsername = (postUserLink.text() || postUserCell.text()).trim().replace('♦', ' ♦');
       const postUserIsStaff = postUserCell.find('.s-badge__staff').length > 0;
       const postUserIsMod = postUserCell.find('.s-badge__moderator').length > 0;
       const pid = $(this).find('.event-comment a.timeline').attr('href').match(/[0-9]+/)[0];
