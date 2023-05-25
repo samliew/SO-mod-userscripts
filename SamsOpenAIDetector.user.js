@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Sam's OpenAI Detector
-// @description  Detect OpenAI in post content and revisions
+// @description  Detect OpenAI in post content and revisions, and on user answers tab
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      2.3
+// @version      2.4
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -184,6 +184,11 @@ addStylesheet(`
 .js-detect-gpt-result {
   font-weight: bold;
 }
+.js-detect-gpt-all {
+  position: relative;
+  top: -5px;
+  margin-bottom: -9px;
+}
 `); // end stylesheet
 
 
@@ -195,6 +200,38 @@ addStylesheet(`
 
   // Click event for Detect GPT buttons
   document.addEventListener('click', handleGptButtonClick);
+
+  // If on user answers page
+  if (location.pathname.includes('/users/') && location.search.includes('tab=answers')) {
+
+    // Add a "Detect all" button to the tab title
+    const tabTitle = document.querySelector('#user-tab-answers h2');
+    const detectAllBtn = makeElem('button', {
+      class: 'js-detect-gpt-all s-btn s-btn__filled s-btn__sm ml12',
+      title: 'Detect GPT for recent answers',
+    }, 'Detect GPT Recent');
+    tabTitle.append(detectAllBtn);
+
+    // Click event for "Detect all" button
+    detectAllBtn.addEventListener('click', async evt => {
+      detectAllBtn.disabled = true;
+      detectAllBtn.remove();
+
+      // Filter posts later than Jan 2023, when GPT-3 was released
+      const posts = document.querySelectorAll('.js-post-summary');
+      const recentPosts = [...posts].filter(v => {
+        const dateEl = v.querySelector('.relativetime');
+        return dateEl.title && new Date(dateEl.title) >= new Date('2023-01-01');
+      });
+
+      // Click on each "Detect GPT" button, with 2 second delay between each
+      recentPosts.forEach((v, i) => {
+        setTimeout(() => {
+          v.querySelector('.js-detect-gpt-btn')?.click()
+        }, i * 2000);
+      });
+    });
+  }
 
   // Get final URL of OpenAI Detector load balancer redirect
   oaiUrl = await getFinalUrl('https://huggingface.co/openai-detector') || oaiUrl;
