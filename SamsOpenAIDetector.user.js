@@ -3,7 +3,7 @@
 // @description  Detect OpenAI in post content and revisions, and on user answers tab
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      2.4
+// @version      2.4.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -218,7 +218,7 @@ addStylesheet(`
       detectAllBtn.remove();
 
       // Filter posts later than Jan 2023, when GPT-3 was released
-      const posts = document.querySelectorAll('.js-post-summary');
+      const posts = document.querySelectorAll('.js-post-summary:has(.js-detect-gpt-btn)'); // hasn't been detected yet
       const recentPosts = [...posts].filter(v => {
         const dateEl = v.querySelector('.relativetime');
         return dateEl.title && new Date(dateEl.title) >= new Date('2023-01-01');
