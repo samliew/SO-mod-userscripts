@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time, Load entire day into single page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0
+// @version      5.0
 //
 // @match        https://chat.stackoverflow.com/transcript/*
 // @match        https://chat.stackexchange.com/transcript/*
@@ -22,88 +22,178 @@
 
 'use strict';
 
-const isMob = document.body.classList.contains('mob');
+// Customisable variables
+const scrollOffset = 35 + 20; // approx 35px for header and nav, 20px for padding
+
+// Private variables
+const isMobile = document.body.classList.contains('mob');
 const tzOffset = new Date().getTimezoneOffset();
-const tzHours = -(tzOffset / 60);
-const tzSymbol = (tzHours >= 0 ? '+' : '') + tzHours;
+const tzHours = -(tzOffset / 60); // e.g. 8.0 or -7.5
+const tzHoursWhole = Math.trunc(tzHours); // e.g. 8 or -7
+const tzMins = tzOffset % 60; // e.g. usually 0, could be 30
+const tzMinsFraction = tzMins / 60; // e.g. 0 or 0.5
+const tzSymbol = (tzHours >= 0 ? '+' : '') + tzHours; // e.g. +8.0 or -7.5
+console.log(`[CTH] Local timezone offset: ${tzOffset} (${tzSymbol} hours)`);
+
+// Get [rel="canonical"] link, which is assumed to always exist on transcript pages (not search results)
+const canonicalLink = document.querySelector('link[rel="canonical"]')?.getAttribute('href');
+const [_, utcYear, utcMonth, utcDay, subPage] = canonicalLink?.match(/^\/transcript\/\d+\/(\d+)\/(\d+)\/(\d+)\/(\d+-\d+)?/) || [null, NaN, NaN, NaN, null];
+console.log(`[CTH] Transcript UTC date: ${utcYear}/${utcMonth}/${utcDay} (${subPage})`);
 
 
-function parseSearchTimestamps() {
+/**
+ * Convert a UTC time string to a Date object
+ * @param {string} str time string in UTC
+ * @param {Date} [startOfUTCDay] Date object for start of UTC day, or today if not provided
+ * @returns {Date} Date object
+ * @example
+ *   parseTime("3:22 AM") // returns Date object for today at 3:22 AM UTC
+ *   parseTime("3:22 PM") // returns Date object for today at 3:22 PM UTC
+ */
+const parseChatTimestamp = (timeStr, startOfUTCDay = new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()))) => {
+  if (!timeStr) return null;
 
-  $('.timestamp').not('[data-orig-timestamp]').each(function (i, el) {
-    const str = el.innerText;
-    let prefix = str.split(/\s*\d+:\d+\s[AP]M/)[0];
-    prefix += prefix.length > 0 && !prefix.includes('yst') ? ', ' : '';
-    const time = str.match(/\d+:\d+\s(AM|PM)/)[0];
-    let h = Number(time.split(':')[0]);
-    const m = time.split(':')[1].split(' ')[0];
-    const a = time.split(' ')[1];
-    if (a == 'PM' && h < 12) h += 12;
-    else if (a == 'AM' && h == 12) h = 0;
-    h += tzHours;
-    if (h < 0) h += 24;
-    else if (h >= 24) h %= 24;
-    if (h.toString().length != 2) h = '0' + h;
-    $(this).text(`${prefix} ${h}:${m}`).attr('data-orig-timestamp', str);
+  // If time is "yesterday", set startOfUTCDay to yesterday
+  if (timeStr.startsWith('yst ')) {
+    startOfUTCDay = new Date(Date.UTC(startOfUTCDay.getFullYear(), startOfUTCDay.getMonth(), startOfUTCDay.getDate() - 1));
+  }
+  // Try to extract date from timestamp
+  else {
+    let [_, month, day, year] = timeStr.match(/(\w+) (\d+)(?:, (\d+))?/) || [null, NaN, NaN, NaN];
+    day = Number(day);
+    year = Number(year);
+    if (!year) year = new Date().getFullYear();
+    if (typeof month !== 'undefined') {
+      month = monthsOfYear.indexOf(month);
+    }
+    // If date is valid, set startOfUTCDay to that date
+    if (typeof month !== 'undefined' && !isNaN(month) && !isNaN(day) && !isNaN(year)) {
+      startOfUTCDay = new Date(Date.UTC(year, month, day));
+    }
+  }
+
+  // Extract hour, min, AM/PM
+  let [__, yst, hour, min, ap] = timeStr.match(/(yst )?(\d+):(\d+)(?:\s(AM|PM))?/);
+  hour = Number(hour);
+  min = Number(min);
+
+  // Convert hour to 24h time
+  if (ap === 'PM' && hour < 12) hour += 12;
+  else if (ap === 'AM' && hour === 12) hour = 0;
+
+  return new Date(Date.UTC(startOfUTCDay.getFullYear(), startOfUTCDay.getMonth(), startOfUTCDay.getDate(), hour, min));
+};
+
+
+/**
+ * Convert a Date object to a time string in local time
+ * @param {Date} date Date object (not millis)
+ * @param {object} [options] Options object
+ * @returns {string} datetime string in local time
+ * @example
+ *   toLocalTime(new Date()) // returns "3:22 PM"
+ *   toLocalTime(new Date(), { showDate: true }) // returns "3:22 PM"
+ *   toLocalTime(new Date(), { showDate: true, showYear: true, hours24: true }) // returns "15:22"
+ */
+const toLocalTimestamp = (date, options = {}) => {
+  // Check if valid Date
+  if (!date || Object.prototype.toString.call(date) !== '[object Date]' || isNaN(date.getTime())) return null;
+
+  // Merge defaults with options
+  options = Object.assign({
+    showDate: true,
+    showYear: false,
+    hours24: false,
+  }, options);
+
+  let ap = '',
+    hour = date.getHours(),
+    min = date.getMinutes().toString().padStart(2, '0');
+
+  // Convert to 12h time
+  if (!options.hours24) {
+    ap = hour >= 12 ? ' PM' : ' AM';
+    if (hour > 12) hour -= 12;
+    else if (hour === 0) hour = 12;
+  }
+  // 24h time, pad hour
+  else {
+    hour = hour.toString().padStart(2, '0');
+  }
+
+  // If not this year, add date with year
+  if (options.showDate && options.showYear && date.getFullYear() !== new Date().getFullYear()) {
+    return `${monthsOfYear[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()} ${hour}:${min}${ap}`;
+  }
+  // If not today, add date and month
+  else if (options.showDate && date.getDate() !== new Date().getDate()) {
+    return `${monthsOfYear[date.getMonth()]} ${date.getDate()}, ${hour}:${min}${ap}`;
+  }
+
+  return `${hour}:${min}${ap}`;
+};
+
+
+function convertTranscriptTimestamps() {
+
+  // Set UTC day from canonical link
+  const startOfUTCDay = new Date(Date.UTC(utcYear, utcMonth - 1, utcDay));
+
+  document.querySelectorAll('.timestamp').forEach(el => {
+    el.dataset.originalTimestamp = el.innerText;
+    el.textContent = toLocalTimestamp(
+      parseChatTimestamp(el.innerText, startOfUTCDay), {
+      hours24: true,
+      showYear: false
+    });
   });
-}
 
-
-function parseTimestamps() {
-
-  $('.timestamp').not('[data-orig-timestamp]').each(function (i, el) {
-    const str = el.innerText;
-    let h = Number(str.split(':')[0]);
-    const m = str.split(':')[1].split(' ')[0];
-    const a = str.split(' ')[1];
-    if (a == 'PM' && h < 12) h += 12;
-    else if (a == 'AM' && h == 12) h = 0;
-    h += tzHours;
-    if (h < 0) h += 24;
-    else if (h >= 24) h %= 24;
-    if (h.toString().length != 2) h = '0' + h;
-    $(this).text(`${h}:${m}`).attr('data-orig-timestamp', str);
+  document.querySelectorAll('.msplab').forEach(el => {
+    el.dataset.originalTimestamp = el.innerText;
+    el.textContent = toLocalTimestamp(
+      parseChatTimestamp(el.innerText, startOfUTCDay), {
+      hours24: true,
+      showDate: false
+    });
   });
 
-  $('.msplab').not('[data-orig-timestamp]').each(function (i, el) {
-    const str = el.innerText;
-    let h = Number(str.split(':')[0]) + tzHours;
-    const m = str.split(':')[1];
-    if (h < 0) h += 24;
-    else if (h >= 24) h %= 24;
-    if (h.toString().length != 2) h = '0' + h;
-    $(this).text(`${h}:${m}`).attr('data-orig-timestamp', str);
-  });
+  document.querySelectorAll('.pager span.page-numbers').forEach(el => {
+    const str = el.textContent;
+    const [t1, t2] = str.split(' - ');
+    let h1, h2, m1, m2;
 
-  $('.pager span.page-numbers').not('[data-orig-text]').each(function (i, el) {
-    const str = $(this).text();
-    const t1 = str.split(' - ')[0];
-    const t2 = str.split(' - ')[1];
-
-    let h1, h2;
-    if (isMob) {
-      h1 = Number(t1) + tzHours;
-      h2 = Number(t2.replace('h', '')) + tzHours;
+    if (isMobile) {
+      [h1, h2] = [t1, t2].map(t => Number(t.replace('h', '')) + tzHoursWhole);
     }
     else {
-      h1 = Number(t1.split(':')[0]) + tzHours;
-      h2 = Number(t2.split(':')[0]) + tzHours;
+      [h1, h2] = [t1, t2].map(t => Number(t.split(':')[0]) + tzHoursWhole);
     }
 
+    // Handle overflow
     if (h1 < 0) h1 += 24;
     else if (h1 >= 24) h1 %= 24;
     if (h2 < 0) h2 += 24;
     else if (h2 >= 24) h2 %= 24;
 
-    if (isNaN(h1) || isNaN(h2)) debugger;
+    // Calculate offset mins
+    [m1, m2] = [t1, t2].map(t => (Number(t.split(':')[1]) || 0) + tzMins);
 
-    if (h1.toString().length != 2) h1 = '0' + h1;
-    if (h2.toString().length != 2) h2 = '0' + h2;
-    $(this).text(`${h1}:00 - ${h2}:00`).attr('data-orig-text', str);
+    // Validation
+    if (isNaN(h1) || isNaN(h2)) {
+      debugger;
+      return;
+    }
+
+    // Convert to string and pad everything
+    [h1, h2, m1, m2] = [h1, h2, m1, m2].map(n => n.toString().padStart(2, '0'));
+
+    el.dataset.originalText = str;
+    el.textContent = `${h1}:${m1} - ${h2}:${m2}`;
   });
 
-  // Amend timezone message in sidebar
-  $('#info .msg-small').text(`all times have been converted to local time (UTC${tzSymbol})`);
+  // Amend timezone message in desktop sidebar
+  const msgSmall = document.querySelector('#info .msg-small');
+  if(msgSmall) msgSmall.textContent = `all times have been converted to local time (UTC${tzSymbol})`;
 }
 
 
@@ -125,113 +215,25 @@ function highlightMessageReplies() {
 }
 
 
-function scrollToRepliedToMessage() {
+function scrollToMessageIfExist(mid) {
+  const msgElem = document.getElementById('message-' + mid);
+  if (!msgElem) return false;
 
-  // If replied-to message is on the same page, scroll to it instead
-  $('#transcript').on('click', '.reply-info', function () {
+  // Clear all message highlights on page
+  document.querySelectorAll('.message').forEach(el => el.classList.remove('reply-parent', 'reply-child', 'highlight'));
 
-    const pMid = this.href.split('#')[1];
+  // Highlight current message
+  msgElem.classList.add('highlight');
 
-    // Scroll to if exists on page
-    const msg = $('#message-' + pMid);
-    if (msg.length !== 0) {
+  // Perform scroll
+  const offsetTop = msgElem.getBoundingClientRect().top + window.scrollY - scrollOffset;
+  window.scrollTo({ top: offsetTop, behavior: 'smooth' });
 
-      // clear all message highlights on page
-      $('.message').removeClass('reply-parent reply-child highlight');
+  // Replace browser history
+  window.history.replaceState({}, null, this.href);
 
-      // highlight current message
-      msg.addClass('highlight');
-
-      // perform scroll
-      $('html, body').animate({ scrollTop: msg.offset().top }, 400);
-
-      // replace browser history
-      window.history.replaceState({}, null, this.href);
-
-      // prevent default link action
-      return false;
-    }
-  });
-}
-
-
-function addLoadEntireDayButton() {
-
-  // Fix transcript nav
-  const main = $('#main');
-  const tsWrapper = $('#transcript');
-  let btns = main.children('.button');
-  let btns2 = btns.slice(Math.floor(btns.length / 2));
-  let nav = $('<div class="transcript-nav"></div>').prependTo(main).append(btns2)
-    .clone(true, true).appendTo(main).end().end();
-  main.children('.button').remove();
-
-  // Add domain to document title when printing
-  $(window).one('beforeprint', function () {
-    document.title = location.hostname + ' - ' + document.title;
-  });
-
-  // If there are no other hourly links/pagination, do nothing
-  const currentHoursItem = $('.pager > span.current');
-  if (currentHoursItem.length == 0) return;
-
-  // Wrap current transcript messages into an hourly div
-  const currHours = currentHoursItem.attr('data-orig-text').split(' - ');
-  const currStartHour = Number(currHours[0].split(':').shift());
-  const currEndHour = Number(currHours[1].split(':').shift());
-  const currHour = $(`<div class="hourly" data-hour-start="${currStartHour}" data-hour-end="${currEndHour}"></div>`).appendTo(tsWrapper);
-  tsWrapper.children('.monologue, .system-message-container').appendTo(currHour);
-
-  // Get today's date from sidebar
-  const date = $('#info > .icon').attr('title').split('-');
-
-  // Get current room ID from sidebar
-  const roomId = Number($('#info .room-name a').attr('href').match(/\/(\d+)\//)[1]);
-
-  // Note the pages we need to fetch
-  const otherPageLinks = $('.pager').first().children('a').get().map(el => el.href);
-
-  console.log(date, roomId, otherPageLinks);
-
-  // Add load-entire-day-button to top nav
-  const loadDayBtn = $(`<a href="#" class="button noprint load-entire-day-btn" title="Load entire day into this page for easier reading/printing/searching">Load entire day</a>`).appendTo(nav);
-  loadDayBtn.on('click', function () {
-
-    // This button can only be clicked once
-    $(this).remove();
-
-    // Change URL to start of "today"
-    history.replaceState(null, '', '/transcript/' + roomId + '/' + date.join('/'));
-
-    // Remove pagination from document title
-    document.title = document.title.replace(/ \(.+$/, '');
-
-    // Fetch content of hourly pages and attach to current page
-    otherPageLinks.forEach(function (v) {
-      const hours = v.split('/').pop();
-      const n = Number(hours.split('-')[0]);
-      const m = Number(hours.split('-')[1]);
-      const wrapper = $(`<div class="hourly" data-hour-start="${n}" data-hour-end="${m}"></div>`).load(v + ' #transcript');
-
-      if (m <= currEndHour) {
-        wrapper.insertBefore(currHour);
-      }
-      else {
-        wrapper.appendTo(tsWrapper);
-      }
-    });
-
-    // Remove highlight and hourly selectors from sidebar
-    $('#info .mspark .msparea').remove();
-
-    // Remove hourly selectors from subnavs
-    $('#main').children('.pager').remove();
-
-    return false;
-  });
-
-  // Parse timestamps for loaded pages
-  $(document).ajaxStop(parseTimestamps);
+  //console.log('[CTH] scrollToMessageIfExist', mid, msgElem, offsetTop);
+  return msgElem;
 }
 
 
@@ -244,19 +246,6 @@ addStylesheet(`
 .transcript-nav .button {
   margin-right: 5px;
 }
-.transcript-nav .load-entire-day-btn {
-  border: 2px solid #822d00;
-}
-.load-entire-day-button {
-  position: fixed !important;
-  bottom: 3px;
-  right: 3px;
-  z-index: 999999;
-  opacity: 0.5;
-}
-.load-entire-day-button:hover {
-  opacity: 1;
-}
 #transcript > .hourly > div[id="transcript"] {
   padding-bottom: 0px;
 }
@@ -265,13 +254,66 @@ addStylesheet(`
 
 // On script run
 (function init() {
+
+  // Search page
   if (location.pathname.includes('/search')) {
-    parseSearchTimestamps();
+
+    // Parse search timestamps
+    document.querySelectorAll('.timestamp').forEach(el => {
+      el.dataset.originalTimestamp = el.innerText;
+      el.textContent = toLocalTimestamp(parseChatTimestamp(el.innerText));
+    });
   }
+
+  // Transcript page
   else if (location.pathname.includes('/transcript')) {
-    parseTimestamps();
+
+    // Always redirect to full day page "/0-24" if we are on a partial day page
+    if (subPage && subPage !== '0-24') {
+      window.location = canonicalLink.replace(subPage, '0-24') + location.hash;
+      return;
+    }
+
+    // If there is a hash, highlight and scroll to it
+    const msgId = location.hash.split('#').pop();
+    // If page already loaded
+    if (document.readyState === 'complete') {
+      scrollToMessageIfExist(msgId);
+    }
+    // Wait for page to load
+    else {
+      window.addEventListener('load', function () {
+        setTimeout(() => {
+          scrollToMessageIfExist(msgId);
+        }, 100);
+      });
+    }
+
+    // Setup
+    convertTranscriptTimestamps();
     highlightMessageReplies();
-    scrollToRepliedToMessage();
-    addLoadEntireDayButton();
+
+    // The rest of the code is for desktop only
+    if (isMobile) return;
+
+    // Desktop: If clicked replied-to message is on the same page, scroll to it instead
+    document.querySelector('#transcript').addEventListener('click', function (e) {
+      if (e.target.classList.contains('reply-info')) {
+        const msgId = e.target.href.split('#').pop();
+        if (scrollToMessageIfExist(msgId)) e.preventDefault();
+      }
+    });
+
+    // jQuery for the .one()
+    // Add domain to document title when printing
+    $(window).one('beforeprint', function () {
+      document.title = location.hostname + ' - ' + document.title;
+
+      // Remove domain from document title when printing dialog is closed
+      $(window).one('afterprint', function () {
+        document.title = document.title.replace(location.hostname + ' - ', '');
+      });
+    });
   }
+
 })();
