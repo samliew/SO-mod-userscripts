@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time, Load entire day into single page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.0
+// @version      5.1
 //
 // @match        https://chat.stackoverflow.com/transcript/*
 // @match        https://chat.stackexchange.com/transcript/*
@@ -37,8 +37,8 @@ console.log(`[CTH] Local timezone offset: ${tzOffset} (${tzSymbol} hours)`);
 
 // Get [rel="canonical"] link, which is assumed to always exist on transcript pages (not search results)
 const canonicalLink = document.querySelector('link[rel="canonical"]')?.getAttribute('href');
-const [_, utcYear, utcMonth, utcDay, subPage] = canonicalLink?.match(/^\/transcript\/\d+\/(\d+)\/(\d+)\/(\d+)\/(\d+-\d+)?/) || [null, NaN, NaN, NaN, null];
-console.log(`[CTH] Transcript UTC date: ${utcYear}/${utcMonth}/${utcDay} (${subPage})`);
+const [_, utcYear, utcMonth, utcDate, subPage] = canonicalLink?.match(/^\/transcript\/\d+\/(\d+)\/(\d+)\/(\d+)\/(\d+-\d+)?/) || [null, NaN, NaN, NaN, null];
+console.log(`[CTH] Transcript UTC date: ${utcYear}/${utcMonth}/${utcDate} (${subPage})`);
 
 
 /**
@@ -50,12 +50,27 @@ console.log(`[CTH] Transcript UTC date: ${utcYear}/${utcMonth}/${utcDay} (${subP
  *   parseTime("3:22 AM") // returns Date object for today at 3:22 AM UTC
  *   parseTime("3:22 PM") // returns Date object for today at 3:22 PM UTC
  */
-const parseChatTimestamp = (timeStr, startOfUTCDay = new Date(Date.UTC(new Date().getFullYear(), new Date().getMonth(), new Date().getDate()))) => {
+const parseChatTimestamp = (timeStr, startOfUTCDay = new Date(Date.UTC(new Date().getUTCFullYear(), new Date().getUTCMonth(), new Date().getUTCDate()))) => {
   if (!timeStr) return null;
+
+  // Extract hour, min, AM/PM
+  let dateObj, dayOfWeek = timeStr.substr(0, 3);
+  let [__, yst, hour, min, ap] = timeStr.match(/(yst )?(\d+):(\d+)(?:\s(AM|PM))?/);
+  hour = Number(hour);
+  min = Number(min);
+
+  // Convert hour to 24h time
+  if (ap === 'PM' && hour < 12) hour += 12;
+  else if (ap === 'AM' && hour === 12) hour = 0;
 
   // If time is "yesterday", set startOfUTCDay to yesterday
   if (timeStr.startsWith('yst ')) {
-    startOfUTCDay = new Date(Date.UTC(startOfUTCDay.getFullYear(), startOfUTCDay.getMonth(), startOfUTCDay.getDate() - 1));
+    dateObj = new Date(Date.UTC(startOfUTCDay.getUTCFullYear(), startOfUTCDay.getUTCMonth(), startOfUTCDay.getUTCDate() - 1, hour, min));
+  }
+  // If time starts with a day of week, set startOfUTCDay to that day of week
+  else if (daysOfWeek.includes(dayOfWeek)) {
+    const daysDiff = daysOfWeek.indexOf(dayOfWeek) - startOfUTCDay.getDay();
+    dateObj = new Date(Date.UTC(startOfUTCDay.getUTCFullYear(), startOfUTCDay.getUTCMonth(), startOfUTCDay.getUTCDate() + daysDiff, hour, min));
   }
   // Try to extract date from timestamp
   else {
@@ -68,20 +83,14 @@ const parseChatTimestamp = (timeStr, startOfUTCDay = new Date(Date.UTC(new Date(
     }
     // If date is valid, set startOfUTCDay to that date
     if (typeof month !== 'undefined' && !isNaN(month) && !isNaN(day) && !isNaN(year)) {
-      startOfUTCDay = new Date(Date.UTC(year, month, day));
+      dateObj = new Date(Date.UTC(year, month, day, hour, min));
+    }
+    else {
+      dateObj = new Date(Date.UTC(startOfUTCDay.getUTCFullYear(), startOfUTCDay.getUTCMonth(), startOfUTCDay.getUTCDate(), hour, min));
     }
   }
 
-  // Extract hour, min, AM/PM
-  let [__, yst, hour, min, ap] = timeStr.match(/(yst )?(\d+):(\d+)(?:\s(AM|PM))?/);
-  hour = Number(hour);
-  min = Number(min);
-
-  // Convert hour to 24h time
-  if (ap === 'PM' && hour < 12) hour += 12;
-  else if (ap === 'AM' && hour === 12) hour = 0;
-
-  return new Date(Date.UTC(startOfUTCDay.getFullYear(), startOfUTCDay.getMonth(), startOfUTCDay.getDate(), hour, min));
+  return dateObj;
 };
 
 
@@ -137,24 +146,20 @@ const toLocalTimestamp = (date, options = {}) => {
 function convertTranscriptTimestamps() {
 
   // Set UTC day from canonical link
-  const startOfUTCDay = new Date(Date.UTC(utcYear, utcMonth - 1, utcDay));
+  const startOfUTCDay = new Date(Date.UTC(utcYear, utcMonth - 1, utcDate));
 
   document.querySelectorAll('.timestamp').forEach(el => {
+    const date = parseChatTimestamp(el.innerText, startOfUTCDay);
     el.dataset.originalTimestamp = el.innerText;
-    el.textContent = toLocalTimestamp(
-      parseChatTimestamp(el.innerText, startOfUTCDay), {
-      hours24: true,
-      showYear: false
-    });
+    el.title = dateToIsoString(date);
+    el.textContent = toLocalTimestamp(date, { hours24: true, showYear: false });
   });
 
   document.querySelectorAll('.msplab').forEach(el => {
+    const date = parseChatTimestamp(el.innerText, startOfUTCDay);
     el.dataset.originalTimestamp = el.innerText;
-    el.textContent = toLocalTimestamp(
-      parseChatTimestamp(el.innerText, startOfUTCDay), {
-      hours24: true,
-      showDate: false
-    });
+    el.title = dateToIsoString(date);
+    el.textContent = toLocalTimestamp(date, { hours24: true, showDate: false });
   });
 
   document.querySelectorAll('.pager span.page-numbers').forEach(el => {
@@ -193,7 +198,7 @@ function convertTranscriptTimestamps() {
 
   // Amend timezone message in desktop sidebar
   const msgSmall = document.querySelector('#info .msg-small');
-  if(msgSmall) msgSmall.textContent = `all times have been converted to local time (UTC${tzSymbol})`;
+  if (msgSmall) msgSmall.textContent = `all times have been converted to local time (UTC${tzSymbol})`;
 }
 
 
@@ -260,8 +265,10 @@ addStylesheet(`
 
     // Parse search timestamps
     document.querySelectorAll('.timestamp').forEach(el => {
+      const date = parseChatTimestamp(el.innerText);
       el.dataset.originalTimestamp = el.innerText;
-      el.textContent = toLocalTimestamp(parseChatTimestamp(el.innerText));
+      el.title = dateToIsoString(date);
+      el.textContent = toLocalTimestamp(date);
     });
   }
 
@@ -269,7 +276,8 @@ addStylesheet(`
   else if (location.pathname.includes('/transcript')) {
 
     // Always redirect to full day page "/0-24" if we are on a partial day page
-    if (subPage && subPage !== '0-24') {
+    const hasSubPage = document.querySelectorAll('.pager span.page-numbers').length > 0;
+    if (hasSubPage) {
       window.location = canonicalLink.replace(subPage, '0-24') + location.hash;
       return;
     }
