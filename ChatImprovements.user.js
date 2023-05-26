@@ -3,7 +3,7 @@
 // @description  New responsive user list with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurrences of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.3.3
+// @version      4.4
 //
 // @match        https://chat.stackoverflow.com/*
 // @match        https://chat.stackexchange.com/*
@@ -29,7 +29,7 @@
 
 'use strict';
 
-const transcriptIndicator = ' <i class="transcript-link">(transcript)</i>';
+const transcriptIndicator = ' <i class="transcript-link">(chat transcript)</i>';
 
 const tzOffset = new Date().getTimezoneOffset();
 const now = new Date();
@@ -824,8 +824,9 @@ const addTopbarStyles = () => {
   background: linear-gradient(180deg, white, transparent);
 }
 #sidebar {
-  padding-top: 40px;
+  padding-top: 48px;
 }
+#transcript-body #container,
 #chat-body #container {
   padding-top: 50px;
 }
@@ -1982,7 +1983,7 @@ body.dragging #dropTarget {
 #transcript-body #searchbox {
   width: 150px;
   margin-top: -1px;
-  padding: 2px 5px;
+  padding: 2px 5px 2px 24px !important;
 }
 ul#my-rooms .quickleave {
   float: left;
