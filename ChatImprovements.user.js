@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Chat Improvements
-// @description  New responsive userlist with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurrences of same user link, room owner changelog, pretty print styles, and more...
+// @description  New responsive user list with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurrences of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.3.1
+// @version      4.3.2
 //
 // @match        https://chat.stackoverflow.com/*
 // @match        https://chat.stackexchange.com/*
@@ -28,12 +28,14 @@
 /// <reference types="./globals" />
 
 'use strict';
+
+const transcriptIndicator = ' <i class="transcript-link">(transcript)</i>';
+
 const tzOffset = new Date().getTimezoneOffset();
 const now = new Date();
 const dayAgo = Date.now() - MS.oneDay;
 const weekAgo = Date.now() - MS.oneWeek;
-
-const newuserlist = $(`<div id="present-users-list"><span class="users-count"></span></div>`);
+const newUserList = $(`<div id="present-users-list"><span class="users-count"></span></div>`);
 const isTranscriptPage = window.location.href.includes("transcript");
 
 let messageEvents = [];
@@ -159,20 +161,20 @@ function getMessageEvents(beforeMsgId = 0, num = 100) {
 function updateUserlist(init = false) {
 
   // Do not update new user list if mouse is on
-  if (newuserlist.hasClass('mouseon')) return;
+  if (newUserList.hasClass('mouseon')) return;
 
   // Do not update user list if updated less than X seconds ago
   if (init) {
-    newuserlist.addClass('js-no-update');
+    newUserList.addClass('js-no-update');
   }
-  else if (!init && newuserlist.hasClass('js-no-update')) {
+  else if (!init && newUserList.hasClass('js-no-update')) {
     return;
   }
 
   // Add new list to parent if not initialized yet
   const userlist = $('#present-users');
-  if (newuserlist.parents('#present-users').length == 0) {
-    newuserlist.insertAfter(userlist);
+  if (newUserList.parents('#present-users').length == 0) {
+    newUserList.insertAfter(userlist);
   }
 
   // Bugfix: remove dupes from original list, e.g.: when any new message posted
@@ -199,29 +201,29 @@ function updateUserlist(init = false) {
 
   if (init) {
     // Redo list
-    newuserlist.children('.user-container').remove();
-    newuserlist.append(templist.children());
+    newUserList.children('.user-container').remove();
+    newUserList.append(templist.children());
   }
   else {
     // Compare list with temp list and copy changes over
     templist.children().reverse().each(function () {
       const clname = '.' + this.className.match(/(user-\d+)/)[0];
-      if (newuserlist.find(clname).length == 0) {
-        newuserlist.prepend(this);
+      if (newUserList.find(clname).length == 0) {
+        newUserList.prepend(this);
       }
     });
   }
   //console.log('userlist updated', init, users.length);
 
   // Add count of users below
-  newuserlist.find('.users-count').text(users.length);
+  newUserList.find('.users-count').text(users.length);
 
   // Add "currentuser" class to own userlist items
   $('#sidebar .user-' + CHAT.CURRENT_USER_ID).addClass('user-currentuser');
 
   // Remove full update blocker after X seconds
   setTimeout(() => {
-    newuserlist.removeClass('js-no-update');
+    newUserList.removeClass('js-no-update');
   }, 10000);
 }
 
@@ -528,8 +530,6 @@ function _parseMessagesForUsernames(i, el) {
    - Also unshortens Q&A links that are truncated by default with ellipsis
 */
 function initMessageParser() {
-
-  const transcriptIndicator = ' <i class="transcript-link">(transcript)</i>';
 
   setInterval(function () {
 
@@ -1411,9 +1411,9 @@ function initLiveChat() {
   setInterval(() => { updateUserlist(true); }, 30000); // full update
 
   // Track if userlist has mouse focus, to prevent update if in use
-  newuserlist
-    .on('mouseover', null, evt => newuserlist.addClass('mouseon'))
-    .on('mouseout', null, evt => newuserlist.removeClass('mouseon'));
+  newUserList
+    .on('mouseover', null, evt => newUserList.addClass('mouseon'))
+    .on('mouseout', null, evt => newUserList.removeClass('mouseon'));
 
   // Apply message timestamps to new messages
   applyTimestampsToNewMessages();
@@ -1511,10 +1511,10 @@ function listenToPageUpdates() {
       setTimeout(() => { updateUserlist(true); }, 1000);
     }
 
-    // On new message, quick update newuserlist by moving user to front
+    // On new message, quick update newUserList by moving user to front
     if (settings.url.includes('/messages/new')) {
       const clname = $('#chat .user-container').last().attr('class').match(/user-\d+/)[0];
-      if (clname) newuserlist.children('.' + clname).prependTo(newuserlist);
+      if (clname) newUserList.children('.' + clname).prependTo(newUserList);
     }
 
     // On new events fetch (on page load and loading older messages), update cache and insert timestamps
