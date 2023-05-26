@@ -4,7 +4,7 @@
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
 // @author       Cody Gray
-// @version      5.5
+// @version      5.6
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -343,8 +343,9 @@ async function promptToNukePostAndUser(pid, isQuestion, isDeleted, uid, uName, s
     }
   });
   let needsRefresh = false;
+  const skipAllDialogs = selfId === 584192;
   try {
-    const confirmed = await swal({
+    const confirmed = skipAllDialogs || await swal({
       title: `Nuke ${nukePost ? `this post as ${postType} and ` : ''} the user "${uName}" as a ${userType}?`,
       buttons:
       {
@@ -371,11 +372,11 @@ async function promptToNukePostAndUser(pid, isQuestion, isDeleted, uid, uName, s
       backdrop: false,
       content: swalContent,
     });
-    if (confirmed) {
-      const bowdlerize = document.querySelector('#aipmm-bowdlerize-toggle').checked;
-      const rudeFlag = !spammer || document.querySelector('#aipmm-noaudit-toggle').checked;
-      const suspendOnly = document.querySelector('#aipmm-suspendonly-toggle').checked;
-      const details = document.querySelector('.swal-content textarea').value.trim();
+    if (skipAllDialogs || confirmed) {
+      const bowdlerize = skipAllDialogs ? false : document.querySelector('#aipmm-bowdlerize-toggle').checked;
+      const rudeFlag = skipAllDialogs ? false : !spammer || document.querySelector('#aipmm-noaudit-toggle').checked;
+      const suspendOnly = skipAllDialogs ? false : document.querySelector('#aipmm-suspendonly-toggle').checked;
+      const details = skipAllDialogs ? '' : document.querySelector('.swal-content textarea').value.trim();
       if ((spammer && underSpamAttackMode) ||
         isSuperuser ||
         confirm(`Are you certain that you want to${nukePost ? ' nuke this post and ' : ' '}${suspendOnly ? 'SUSPEND' : 'DESTROY'} the account "${uName}" as a ${userType}?`)) {
@@ -451,11 +452,18 @@ async function promptToNukePostAndUser(pid, isQuestion, isDeleted, uid, uName, s
     }
   }
   catch (e) {
+    console.error(e);
     alert('An error occurred; please see the console for details on exactly what failed.');
     needsRefresh = false;  // unconditionally prevent refresh to avoid clearing the console
   }
-  swal.stopLoading();
-  swal.close();
+
+  // Try closing swal dialog
+  try {
+    swal.stopLoading();
+    swal.close();
+  }
+  catch (e) { }
+
   return needsRefresh;
 };
 
