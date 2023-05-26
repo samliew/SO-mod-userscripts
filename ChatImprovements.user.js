@@ -3,7 +3,7 @@
 // @description  New responsive user list with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurrences of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.3.2
+// @version      4.3.3
 //
 // @match        https://chat.stackoverflow.com/*
 // @match        https://chat.stackexchange.com/*
@@ -642,7 +642,8 @@ function initBetterMessageLinks() {
 
   const isTranscript = $('#transcript-body').length;
   const hasTopbar = $('#topbar, .topbar').length;
-  const topbarOffset = hasTopbar ? 50 : 0;
+
+  const scrollOffset = 67 + 10; // 67px for header and nav, 10px for padding
   window.hiTimeout = null;
 
   // Try loading more messages once
@@ -663,7 +664,7 @@ function initBetterMessageLinks() {
 
     // Check if message is on page
     if (parentMsg.length) {
-      $('html, body').animate({ scrollTop: (parentMsg.offset().top - topbarOffset) + 'px' }, 400, function () {
+      $('html, body').animate({ scrollTop: parentMsg.offset().top - scrollOffset }, 400, function () {
         window.hiTimeout = setTimeout(() => { parentMsg.removeClass('highlight'); }, 3000);
       });
       return false;
