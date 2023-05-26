@@ -3,7 +3,7 @@
 // @description  New responsive user list with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurrences of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.4
+// @version      4.5
 //
 // @match        https://chat.stackoverflow.com/*
 // @match        https://chat.stackexchange.com/*
@@ -36,7 +36,7 @@ const now = new Date();
 const dayAgo = Date.now() - MS.oneDay;
 const weekAgo = Date.now() - MS.oneWeek;
 const newUserList = $(`<div id="present-users-list"><span class="users-count"></span></div>`);
-const isTranscriptPage = window.location.href.includes("transcript");
+const isTranscriptPage = location.href.includes("/transcript/") || location.href.includes("/conversation/");
 
 let messageEvents = [];
 
@@ -640,43 +640,42 @@ function addLinksToOtherChatDomains() {
 // Improve reply-info marker hover & click
 function initBetterMessageLinks() {
 
-  const isTranscript = $('#transcript-body').length;
-  const hasTopbar = $('#topbar, .topbar').length;
-
   const scrollOffset = 67 + 10; // 67px for header and nav, 10px for padding
   window.hiTimeout = null;
 
-  // Try loading more messages once
-  $('#chat').one('mouseover', '.reply-info', function (evt) {
-    $('#getmore').trigger('click');
-  });
+  if (!isTranscriptPage) {
 
-  // Re-implement scroll to message, and for transcripts
-  $('#chat, #transcript').on('click', '.reply-info', function (evt) {
-    // Clear all message highlights on page
-    if (window.hiTimeout) clearTimeout(window.hiTimeout);
-    $('.highlight').removeClass('highlight');
+    // Try loading more messages once on page load
+    $('#chat').one('mouseover', '.reply-info', function (evt) {
+      $('#getmore').trigger('click');
+    });
 
-    const message = $(this).closest('.message');
-    const parentMid = Number(this.href.match(/#(\d+)/).pop());
-    const parentMsg = $('#message-' + parentMid).addClass('highlight');
-    const dialogMsg = $('#dialog-message-' + parentMid);
+    // Re-implement scroll to message, but not transcripts (use ChatTranscriptHelper)
+    $('#chat').on('click', '.reply-info', function (evt) {
+      // Clear all message highlights on page
+      if (window.hiTimeout) clearTimeout(window.hiTimeout);
+      $('.highlight').removeClass('highlight');
 
-    // Check if message is on page
-    if (parentMsg.length) {
-      $('html, body').animate({ scrollTop: parentMsg.offset().top - scrollOffset }, 400, function () {
-        window.hiTimeout = setTimeout(() => { parentMsg.removeClass('highlight'); }, 3000);
-      });
-      return false;
-    }
+      const message = $(this).closest('.message');
+      const parentMid = Number(this.href.match(/#(\d+)/).pop());
+      const parentMsg = $('#message-' + parentMid).addClass('highlight');
+      const dialogMsg = $('#dialog-message-' + parentMid);
 
-    // Else message is off page, show in popup first
-    // second clicking will trigger default behaviour (open in new window)
-    else if (!dialogMsg.length) {
+      // Check if message is on page
+      if (parentMsg.length) {
+        $('html, body').animate({ scrollTop: parentMsg.offset().top - scrollOffset }, 400, function () {
+          window.hiTimeout = setTimeout(() => { parentMsg.removeClass('highlight'); }, 3000);
+        });
+        return false;
+      }
 
-      getMessage(parentMid).then(function (msg) {
-        const parentIcon = isNaN(msg.parentId) ? `<a class="reply-info" title="This is a reply to an earlier message" href="/transcript/message/${msg.parentId}#${msg.parentId}"> </a>` : '';
-        const parentDialog = $(`
+      // Else message is off page, show in popup first
+      // second clicking will trigger default behaviour (open in new window)
+      else if (!dialogMsg.length) {
+
+        getMessage(parentMid).then(function (msg) {
+          const parentIcon = isNaN(msg.parentId) ? `<a class="reply-info" title="This is a reply to an earlier message" href="/transcript/message/${msg.parentId}#${msg.parentId}"> </a>` : '';
+          const parentDialog = $(`
           <div class="dialog-message" id="dialog-message-${msg.id}">
             <a class="action-link" href="/transcript/message/${msg.id}#${msg.id}"><span class="img menu"> </span></a>
             ${parentIcon}
@@ -684,20 +683,17 @@ function initBetterMessageLinks() {
             <span class="meta"><span class="newreply" data-mid="${msg.id}" title="link my next chat message as a reply to this"></span></span>
             <span class="flash"><span class="stars vote-count-container"><span class="img vote" title="star this message as useful / interesting for the transcript"></span><span class="times">${msg.stars > 0 ? msg.stars : ''}</span></span></span>
           </div>`);
-        message.addClass('show-parent-dialog').prepend(parentDialog);
-      });
-      return false;
-    }
-
-  });
+          message.addClass('show-parent-dialog').prepend(parentDialog);
+        });
+        return false;
+      }
+    });
+  }
 
   // Only for chat transcript and conversations
-  if (isTranscript) {
-
+  else if (isTranscriptPage) {
     // Improve room mini
     $('.room-mini').each(_parseRoomMini);
-
-    return;
   }
 
   // Dialog message replies
@@ -1316,6 +1312,7 @@ function rejoinFavRooms() {
 
 // Our own drag-drop uploader
 function initDragDropUploader() {
+  if(isTranscriptPage) return;
 
   const uploadFrame = $(`<iframe name="SOMU-dropUploadFrame" style="display:none;" src="about:blank"></iframe>`).appendTo('body');
   const uploadForm = $(`<form action="/upload/image" method="post" enctype="multipart/form-data" target="SOMU-dropUploadFrame" style="display:none;"></form>`).appendTo('body');
@@ -1353,6 +1350,8 @@ function initDragDropUploader() {
 
 
 function initLiveChat() {
+  if (isTranscriptPage) return;
+
   const roomId = CHAT.CURRENT_ROOM_ID;
 
   initMessageParser();
@@ -2392,7 +2391,7 @@ ul#my-rooms li {
   initTopBar();
 
   // When joining a chat room
-  if (location.pathname.includes('/rooms/') && !location.pathname.includes('/info/')) {
+  if (location.pathname.includes('/rooms/') && !location.pathname.includes('/info/') && !isTranscriptPage) {
     setTimeout(initLiveChat, 1000);
   }
   // When viewing page transcripts and bookmarks
