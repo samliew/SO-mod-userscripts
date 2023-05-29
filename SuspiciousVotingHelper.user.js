@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table. Also provides support for SEDE query https://data.stackexchange.com/stackoverflow/query/968803
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.5
+// @version      3.6
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -96,6 +96,18 @@ function splitUserActivity() {
   // Only run split once
   if (comp.hasClass('js-split-init')) return;
   comp.addClass('js-split-init');
+
+  // Insert day of week into day-header
+  const [fromDate, toDate, uids] = location.hash.slice(1).split('|');
+  const dateStr = document.querySelector('#fromDate').value || fromDate;
+  const [y, m, d] = dateStr.split('/').map(Number);
+  const startDate = new Date(Date.UTC(y, m - 1, d - 1));
+  const dayHeaders = document.querySelectorAll('.day-header');
+  dayHeaders.forEach((el, i) => {
+    const date = new Date(startDate);
+    date.setDate(date.getDate() + i);
+    el.textContent += ' (' + date.toLocaleDateString('en-US', { weekday: 'short' }) + ')';
+  });
 
   const table = comp.find('table.activity-graph');
   const cols = table.find('thead td').length;
