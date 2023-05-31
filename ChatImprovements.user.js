@@ -3,7 +3,7 @@
 // @description  New responsive user list with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurrences of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.5
+// @version      4.5.1
 //
 // @match        https://chat.stackoverflow.com/*
 // @match        https://chat.stackexchange.com/*
@@ -542,7 +542,7 @@ function initMessageParser() {
 
       // Parse message links, but ignoring oneboxes, room minis, and quotes
       newMsgs.find('.content a').filter(function () {
-        return $(this).parents('.onebox, .quote, .room-mini').length == 0;
+        return $(this).parents('.onebox, .has-onebox, .quote, .room-mini').length == 0;
       }).each(_parseMessageLink);
 
       // Parse room minis
@@ -700,14 +700,30 @@ function initBetterMessageLinks() {
 
 
   // For live chat, implement additional helpers
+  const topbarOffset = 34 + 10; // 34px for topbar, 10px for padding
   $('#chat, #transcript').on('mouseover', '.reply-info', function (evt) {
     const parentMid = Number(this.href.match(/#(\d+)/).pop());
     const parentMsg = $('#message-' + parentMid);
+    const parentMsgOnAnotherPage = parentMsg.length === 0;
+    if(parentMsgOnAnotherPage) return; // Parent message not on page, do nothing
+
+    const parentMsgTop = parentMsg.offset().top;
+    const parentMsgHeight = parentMsg.outerHeight();
+    const parentMsgBottom = parentMsgTop + parentMsgHeight;
 
     // Check if message is off screen, show in popup
-    if (parentMsg.length && (parentMsg.offset().top <= window.scrollY + topbarOffset || parentMsg.offset().top >= window.scrollY)) {
-      // TODO
+    const scrollPos = window.scrollY;
+    const screenHeight = window.innerHeight;
 
+    const parentMsgAboveScreen = parentMsgBottom < scrollPos + topbarOffset;
+    const parentMsgBelowScreen = parentMsgTop > scrollPos + screenHeight;
+
+    if (parentMsg.length && (parentMsgAboveScreen || parentMsgBelowScreen)) {
+      // TODO
+      console.log('TODO: on hover, show parent message in popup', {
+        parentMsgAboveScreen,
+        parentMsgBelowScreen,
+      });
     }
 
   }).on('click', '.newreply', function (evt) {
