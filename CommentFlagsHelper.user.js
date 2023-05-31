@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      8.2
+// @version      8.2.1
 //
 // @match        https://*.stackoverflow.com/admin/dashboard*
 // @match        https://*.serverfault.com/admin/dashboard*
@@ -460,9 +460,9 @@ table.flagged-posts tr.js-flagged-post:first-child > td {
   display: block;
   position: absolute;
   top: 0;
-  left: -3px;
+  left: -6px;
   bottom: 0;
-  width: 3px;
+  width: 4px;
   background: var(--orange-400) !important;
 }
 mark {
