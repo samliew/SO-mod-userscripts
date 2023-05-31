@@ -3,7 +3,7 @@
 // @description  Adds menu to quickly send mod messages to users
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.8
+// @version      4.9
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -69,6 +69,24 @@ const modMenuOnClick = true;
  *       {optionalSuspensionAutoMessage}    Is automatically replaced by a suspension message, if the moderator selects suspension in the UI.
  */
 const customModMessages = [
+  {
+    templateName: "low quality answers",
+    suspensionReason: "because of low-quality contributions",
+    suspensionDefaultDays: 0,
+    templateBody: `One or more of your answers do not meet the quality standards of the site and have been deleted.
+
+Common [reasons for deletion](${parentUrl}/help/deleted-answers) include:
+
+- Answers that do not address the original question
+- Answers that contain incorrect information and do not appear to be your own original work
+- Answers that consist primarily of a link to an answer elsewhere
+- Answers in a language other than English
+- Answers that contain code, data, or other text in images that does not also appear as text
+
+To review your deleted answers, please visit your ["deleted answers" page](${parentUrl}/users/deleted-answers/current). The link can also be found at the bottom of the [answers tab](${parentUrl}/users/current?tab=answers) on your profile.
+
+If you believe a specific answer should not have been deleted, you can flag the post with an "*In need of moderator intervention*" flag and provide an explanation.`,
+  },
   {
     templateName: "closing spam",
     suspensionReason: "for rule violations",
@@ -297,7 +315,7 @@ If you do include a link to something, then the link needs to be directly releva
 
 **Answers must be a self-contained answer to the question:**  \nYour answers need to be actual, complete answers to the question. Just a link to something off-site doesn't make for an answer. [Answers must actually answer the question](https://meta.stackexchange.com/q/225370), without requiring the user to click to some other site to get enough information to solve the problem / answer the question. Please [add context around links](https://meta.stackoverflow.com/a/8259). _[Always quote](${parentUrl}/help/referencing) the most relevant part of an important link, in case the target site is unreachable or goes permanently offline._ If you are linking to a library or framework, then [explain _why_ and _how_ it solves the problem, _and provide code on how to use it_](https://meta.stackoverflow.com/a/251605). Take into account that being _barely more than a link to an external site_ is a reason as to [Why and how are some answers deleted?](${parentUrl}/help/deleted-answers).`,
   },
-  {
+/*{
     soOnly: true, // because template has SO-only meta links
     templateName: "ChatGPT banned; plagiarism (AI); inaccurate AI content",
     suspensionReason: "for rule violations",
@@ -321,7 +339,7 @@ The policies for what, if any, use will be acceptable of AI or similar technolog
 It's expected that whatever is decided upon as the new policy for using such tools will have *at least* the above requirements, if not be even more stringent, perhaps prohibiting the use of such technologies altogether.
 
 **Some, many, or all of your posts have been deleted:**  \nSome, many, or all of your posts may have been or will be deleted, because we believe they violate the rules and guidelines mentioned above. If you believe we are in error regarding a specific post, then feel free to raise an "in need of moderator intervention" flag on that post explaining the issue and request the post be reevaluated. You can find links to your deleted posts from your "[deleted questions](${parentUrl}/users/deleted-questions/current)" and your "[deleted answers](${parentUrl}/users/deleted-answers/current)" pages. Links to the above mentioned deleted post pages can be found at the bottom of the respective [questions](${parentUrl}/users/current?tab=questions) and [answers](${parentUrl}/users/current?tab=answers) tabs in your profile.`,
-  },
+  }, */ // Temporarily removed, for now
   {
     templateName: "voluntary suspension",
     suspensionReason: "upon request",
