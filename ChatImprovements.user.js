@@ -3,7 +3,7 @@
 // @description  New responsive user list with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurrences of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.5.2
+// @version      4.6
 //
 // @match        https://chat.stackoverflow.com/*
 // @match        https://chat.stackexchange.com/*
@@ -30,6 +30,11 @@
 'use strict';
 
 const transcriptIndicatorText = ' (transcript)';
+const chatDomains = [
+  { host: 'chat.stackexchange.com', name: 'chat.se' },
+  { host: 'chat.meta.stackexchange.com', name: 'chat.mse' },
+  { host: 'chat.stackoverflow.com', name: 'chat.so' }
+];
 
 const tzOffset = new Date().getTimezoneOffset();
 const now = new Date();
@@ -41,42 +46,91 @@ const isTranscriptPage = location.href.includes("/transcript/") || location.href
 let messageEvents = [];
 
 
-// Get message info
-function getMessage(mid) {
-  return new Promise(function (resolve, reject) {
-    if (typeof mid === 'undefined' || mid == null) { reject(); return; }
+// Get room name for chat message id
+async function getRoomForMessage(mid, hostname = location.hostname) {
+  mid = Number(mid);
+  if (isNaN(mid) || mid <= 0 || Math.round(mid) !== mid) { throw new Error('getRoomForMessage: Invalid message id', ...arguments); }
+  if (!['chat.stackoverflow.com', 'chat.stackexchange.com', 'chat.meta.stackexchange.com'].includes(hostname)) { throw new Error('getRoomForMessage: Invalid chat hostname', ...arguments); }
+  if (hostname !== location.hostname) { throw new Error('getMessage: No support for external hosts yet', ...arguments); }
 
-    $.get(`${location.origin}/messages/${mid}/history`)
-      .done(function (v) {
-        //console.log('fetched message info', mid);
+  const resp = await fetch(`${location.origin}/transcript/message/${mid}`);
+  const data = await resp.text();
+  const document = new DOMParser().parseFromString(data, 'text/html');
 
-        const msg = $('.message:first', v);
-        const msgContent = msg.find('.content');
-        const userId = Number(msg.closest('.monologue')[0].className.match(/user-(-?\d+)/)[1]);
-        const userName = msg.closest('.monologue').find('.username a').text();
-        const timestamp = msg.prev('.timestamp').text();
-        const permalink = msg.children('a').first().attr('href');
-        const roomId = Number(permalink.match(/\/(\d+)/)[1]);
-
-        const parentId = Number(($('.message-source:last', v).text().match(/^:(\d+)/) || ['0']).pop()) || null;
-
-        resolve({
-          id: mid,
-          parentId: parentId,
-          roomId: roomId,
-          timestamp: timestamp,
-          permalink: permalink,
-          userId: userId,
-          username: userName,
-          html: msgContent.html().trim(),
-          text: msgContent.text().trim(),
-          stars: Number(msg.find('.stars .times').text()) || 0,
-          isPinned: msg.find('.owner-star').length == 1,
-        });
-      })
-      .fail(reject);
-  });
+  return {
+    name: document.title.split(' - ')?.shift() ?? document.title,
+    id: Number(document.querySelector('link[rel="canonical"]')?.getAttribute('href')?.match(/\/transcript\/(\d+)\//)?.pop()) || null,
+    hostname
+  }
 }
+
+
+// Get chat message details from history page
+async function getMessage(mid, hostname = location.hostname) {
+  mid = Number(mid);
+  if (isNaN(mid) || mid <= 0 || Math.round(mid) !== mid) { throw new Error('getMessage: Invalid message id', ...arguments); }
+  if (!['chat.stackoverflow.com', 'chat.stackexchange.com', 'chat.meta.stackexchange.com'].includes(hostname)) { throw new Error('getMessage: Invalid chat hostname', ...arguments); }
+  if (hostname !== location.hostname) { throw new Error('getMessage: No support for external hosts yet', ...arguments); }
+
+  const resp = await fetch(`https://${hostname}/messages/${mid}/history`);
+  const data = await resp.text();
+  const document = new DOMParser().parseFromString(data, 'text/html');
+
+  const msg = document.querySelector('.message');
+  const msgContent = msg.querySelector('.content');
+  const userId = Number(msg.closest('.monologue')?.className.match(/(?<=user--?)\d+/)?.pop());
+  const username = msg.closest('.monologue').querySelector('.username a')?.innerText;
+  const timestamp = msg.parentElement.querySelector('.timestamp')?.innerText;
+  const permalink = msg.querySelector('a')?.getAttribute('href');
+  const parentId = Number(document.querySelector('.message-source')?.innerText.match(/(?<=^:)\d+/)?.pop()) || null;
+  const stars = Number(msg.querySelector('.stars .times')?.innerText) || 0;
+  const isPinned = !!msg.querySelector('.owner-star');
+  const { name: roomName, roomId: _rid } = await getRoomForMessage(mid, hostname);
+  const roomId = _rid || Number(permalink.match(/(?<=\/transcript\/)\d+/)?.pop()) || null;
+
+  return {
+    id: mid,
+    parentId,
+    roomId,
+    roomName,
+    hostname,
+    timestamp,
+    permalink,
+    userId,
+    username,
+    html: msgContent?.innerHTML.trim(),
+    text: msgContent?.innerText.trim(),
+    stars,
+    isPinned
+  };
+}
+
+
+// Get room name for chat message id
+async function getRoomDetails(roomId, hostname = location.hostname) {
+  roomId = Number(roomId);
+  if (isNaN(roomId) || roomId <= 0 || Math.round(roomId) !== roomId) { throw new Error('getRoomDetails: Invalid room id', ...arguments); }
+  if (!['chat.stackoverflow.com', 'chat.stackexchange.com', 'chat.meta.stackexchange.com'].includes(hostname)) { throw new Error('getRoomDetails: Invalid chat hostname', ...arguments); }
+  if (hostname !== location.hostname) { throw new Error('getRoomDetails: No support for external hosts yet', ...arguments); }
+
+  const resp = await fetch(`https://${hostname}/rooms/info/${roomId}`);
+  const data = await resp.text();
+  const document = new DOMParser().parseFromString(data, 'text/html');
+
+  const [firstMessage, lastMessage] = [...document.querySelectorAll('.room-stats')[1].querySelectorAll('td:not(.room-keycell')].map(v => v.innerText.trim());
+
+  return {
+    roomName: document.querySelector('h1').innerText,
+    roomId,
+    hostname,
+    description: document.querySelector('.roomcard-xxl h1').nextElementSibling?.innerText.trim().replace(/\s+edit$/, ''),
+    totalMessages: Number(document.querySelector('.room-message-count-xxl')?.innerText.trim()) || 0,
+    allTimeUsers: Number(document.querySelector('.room-user-count-xxl')?.innerText.trim()) || 0,
+    firstMessage,
+    lastMessage,
+  };
+}
+
 
 // Send new message in current room
 function sendMessage(message) {
@@ -311,7 +365,7 @@ function applyTimestampsToNewMessages() {
 
 
 /* Message parser functions */
-function _parseMessageLink(i, el) {
+async function _parseMessageLink(i, el) {
 
   // Ignore links to bookmarked conversations
   if (/\/rooms\/\d+\/conversation\//.test(el.href)) { }
@@ -325,49 +379,58 @@ function _parseMessageLink(i, el) {
     el.innerText = el.innerText.replace('/rooms/', '/transcript/');
   }
 
+  // Detect type of link
+  const textContainsUrl = /(^(?:https?:)?\/\/)/.test(el.innerText) || el.href.includes(el.innerText);
+  const isChatTranscript = /chat\.(?:meta\.)?stack(overflow|exchange)\.com\/(?:transcript(?:\/message)?\/\d+|\/rooms\/\d+\/conversation\/)/.test(el.href);
+
+  // Try to get room and message ID from link
+  let roomName, isPinned, stars;
+  let roomId = Number(el.href.match(/(?<=\/(?:rooms(?:\/message)?|transcript)\/)(\d+)/)?.pop()) || null;
+  let messageId = Number(el.href.match(/(?<=#|\?m=)\d+/)?.pop()) || null;
+  if (messageId && !roomId && el.hostname === location.hostname) {
+    const msg = await getMessage(messageId, el.hostname);
+    roomId = msg.roomId;
+    roomName = msg.roomName;
+    isPinned = msg.isPinned;
+    stars = msg.stars;
+  }
+  else if (roomId && !roomName && el.hostname === location.hostname) {
+    const room = await getRoomDetails(roomId);
+    roomName = room.roomName;
+  }
+
   // Attempt to display chat domain, and room name or message id with (transcript) label
-  if (el.href.includes('chat.') && el.href.includes('/transcript/') && /stack(overflow|exchange)\.com/.test(el.innerText)) {
-    let chatDomain = [
-      { host: 'chat.stackexchange.com', name: 'SE chat' },
-      { host: 'chat.meta.stackexchange.com', name: 'MSE chat' },
-      { host: 'chat.stackoverflow.com', name: 'SO chat' }
-    ].filter(v => v.host == el.hostname).pop() || '';
-    let roomName = el.href.split('/').pop()
-      .replace(/[?#].+$/, '').replace(/-/g, ' ') // remove non-title bit from url
-      .replace(/\b./g, m => m.toUpperCase()) // title case
-      .replace(/\b\w{2}\b/g, m => m.toUpperCase()); // capitalize two-letter words
-    let messageId = Number((el.href.match(/(#|\?m=)(\d+)/) || [0]).pop());
+  if (isChatTranscript) {
 
-    // Check if we have a valid parsed message id
-    if (messageId == 0) messageId = roomName;
+    // If link text is a plain URL, change text to show room name
+    if (textContainsUrl) {
 
-    // Display message id
-    if (el.href.includes('/message/') || el.href.includes('?m=')) {
-      el.textContent = chatDomain.name +
-        (!isNaN(Number(roomName)) && !el.href.includes('/message/') ? ', room #' + roomName : '') +
-        ', message #' + messageId + transcriptIndicatorText;
-    }
-    // Display room name
-    else if (isNaN(Number(roomName))) {
-      // Change link text to room name only if link text is a URL
-      if (/(^https?|\.com)/.test(el.innerText)) {
-
-        // Properly capitalize common room names
-        roomName = roomName.replace('Javascript', 'JavaScript');
-
-        el.textContent = roomName + transcriptIndicatorText;
+      // Link has messageId and roomName
+      if (messageId && roomName) {
+        el.textContent = `${isPinned ? '📌 ' : ''}${stars > 1 ? `${stars}x⭐ ` : stars ? '⭐' : ''}#${messageId} in ${roomName}${transcriptIndicatorText}`;
+      }
+      else if (roomName) {
+        el.textContent = `${roomName}${transcriptIndicatorText}`;
       }
       else {
-        el.textContent += transcriptIndicatorText;
-      }
-    }
-    // Fallback to generic domain since no room slug
-    else {
-      el.textContent = chatDomain.name + ', room #' + roomName + transcriptIndicatorText;
-    }
+        const { name: hostname } = chatDomains.filter(d => el.hostname === d.host)?.pop() || { name: el.hostname };
 
-    // Verbose links should not wrap across lines
-    $(this).addClass('nowrap');
+        if (messageId && roomId) {
+          el.textContent = `#${messageId} in room #${roomId}, ${hostname}${transcriptIndicatorText}`;
+        }
+        else if (messageId) {
+          el.textContent = `#${messageId}, ${hostname}${transcriptIndicatorText}`;
+        }
+        else if (roomId) {
+          el.textContent = `Room #${roomId}, ${hostname}${transcriptIndicatorText}`;
+        }
+
+        debugger;
+      }
+
+      // Links should not wrap across lines
+      el.classList.add('nowrap');
+    }
   }
 
   // Shorten Q&A links
@@ -489,8 +552,10 @@ function _parseRoomMini(i, el) {
   // Show longer description and link links
   // This also allows SmartPostLinks to fetch post data
   const desc = el.querySelector('.room-mini-description');
-  desc.innerHTML = desc.title.replace(/https?:\/\/[^\s]+/gi, '<a href="$&">$&</a>');
-  desc.title = '';
+  if (desc.title?.length) {
+    desc.innerHTML = desc.title?.replace(/https?:\/\/[^\s]+/gi, '<a href="$&">$&</a>');
+    desc.title = '';
+  }
 }
 
 function _parseMessagesForUsernames(i, el) {
@@ -705,7 +770,7 @@ function initBetterMessageLinks() {
     const parentMid = Number(this.href.match(/#(\d+)/).pop());
     const parentMsg = $('#message-' + parentMid);
     const parentMsgOnAnotherPage = parentMsg.length === 0;
-    if(parentMsgOnAnotherPage) return; // Parent message not on page, do nothing
+    if (parentMsgOnAnotherPage) return; // Parent message not on page, do nothing
 
     const parentMsgTop = parentMsg.offset().top;
     const parentMsgHeight = parentMsg.outerHeight();
@@ -1328,7 +1393,7 @@ function rejoinFavRooms() {
 
 // Our own drag-drop uploader
 function initDragDropUploader() {
-  if(isTranscriptPage) return;
+  if (isTranscriptPage) return;
 
   const uploadFrame = $(`<iframe name="SOMU-dropUploadFrame" style="display:none;" src="about:blank"></iframe>`).appendTo('body');
   const uploadForm = $(`<form action="/upload/image" method="post" enctype="multipart/form-data" target="SOMU-dropUploadFrame" style="display:none;"></form>`).appendTo('body');
