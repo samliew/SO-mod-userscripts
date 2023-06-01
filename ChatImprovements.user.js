@@ -3,7 +3,7 @@
 // @description  New responsive user list with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurrences of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.6
+// @version      4.6.1
 //
 // @match        https://chat.stackoverflow.com/*
 // @match        https://chat.stackexchange.com/*
@@ -31,9 +31,9 @@
 
 const transcriptIndicatorText = ' (transcript)';
 const chatDomains = [
-  { host: 'chat.stackexchange.com', name: 'chat.se' },
-  { host: 'chat.meta.stackexchange.com', name: 'chat.mse' },
-  { host: 'chat.stackoverflow.com', name: 'chat.so' }
+  { host: 'chat.stackexchange.com', name: 'Chat.SE' },
+  { host: 'chat.meta.stackexchange.com', name: 'Chat.MSE' },
+  { host: 'chat.stackoverflow.com', name: 'Chat.SO' }
 ];
 
 const tzOffset = new Date().getTimezoneOffset();
@@ -416,16 +416,14 @@ async function _parseMessageLink(i, el) {
         const { name: hostname } = chatDomains.filter(d => el.hostname === d.host)?.pop() || { name: el.hostname };
 
         if (messageId && roomId) {
-          el.textContent = `#${messageId} in room #${roomId}, ${hostname}${transcriptIndicatorText}`;
+          el.textContent = `#${messageId} in room #${roomId} ${hostname}${transcriptIndicatorText}`;
         }
         else if (messageId) {
-          el.textContent = `#${messageId}, ${hostname}${transcriptIndicatorText}`;
+          el.textContent = `#${messageId} ${hostname}${transcriptIndicatorText}`;
         }
         else if (roomId) {
-          el.textContent = `Room #${roomId}, ${hostname}${transcriptIndicatorText}`;
+          el.textContent = `Room #${roomId} ${hostname}${transcriptIndicatorText}`;
         }
-
-        debugger;
       }
 
       // Links should not wrap across lines
