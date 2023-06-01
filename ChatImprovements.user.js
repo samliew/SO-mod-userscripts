@@ -3,7 +3,7 @@
 // @description  New responsive user list with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurrences of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.5.1
+// @version      4.5.2
 //
 // @match        https://chat.stackoverflow.com/*
 // @match        https://chat.stackexchange.com/*
@@ -29,7 +29,7 @@
 
 'use strict';
 
-const transcriptIndicator = ' <i class="transcript-link">(chat transcript)</i>';
+const transcriptIndicatorText = ' (transcript)';
 
 const tzOffset = new Date().getTimezoneOffset();
 const now = new Date();
@@ -345,7 +345,7 @@ function _parseMessageLink(i, el) {
     if (el.href.includes('/message/') || el.href.includes('?m=')) {
       el.textContent = chatDomain.name +
         (!isNaN(Number(roomName)) && !el.href.includes('/message/') ? ', room #' + roomName : '') +
-        ', message #' + messageId + transcriptIndicator;
+        ', message #' + messageId + transcriptIndicatorText;
     }
     // Display room name
     else if (isNaN(Number(roomName))) {
@@ -355,15 +355,15 @@ function _parseMessageLink(i, el) {
         // Properly capitalize common room names
         roomName = roomName.replace('Javascript', 'JavaScript');
 
-        el.textContent = roomName + transcriptIndicator;
+        el.textContent = roomName + transcriptIndicatorText;
       }
       else {
-        el.textContent += transcriptIndicator;
+        el.textContent += transcriptIndicatorText;
       }
     }
     // Fallback to generic domain since no room slug
     else {
-      el.textContent = chatDomain.name + ', room #' + roomName + transcriptIndicator;
+      el.textContent = chatDomain.name + ', room #' + roomName + transcriptIndicatorText;
     }
 
     // Verbose links should not wrap across lines
