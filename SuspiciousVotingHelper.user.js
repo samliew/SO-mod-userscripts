@@ -3,7 +3,7 @@
 // @description  Assists in building suspicious votes CM messages. Highlight same users across IPxref table. Also provides support for SEDE query https://data.stackexchange.com/stackoverflow/query/968803
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.6
+// @version      3.7
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -736,11 +736,15 @@ tr[data-uid].svh-curruser {
   vertical-align: middle;
   background-color: var(--black-150);
 }
-.user-activity .row-odd {
-  background-color: var(--black-050);
-}
+.user-activity .row-odd,
 .user-activity .row-even {
-  background-color: var(--white);
+  background-color: transparent;
+}
+.user-activity .compare table tbody tr:nth-child(even) {
+  background-color: var(--black-050) !important;
+}
+.user-activity .compare table tbody tr:nth-child(odd) {
+  background-color: var(--white) !important;
 }
 .user-activity .compare table,
 .user-activity .compare table td,
@@ -776,14 +780,15 @@ tr[data-uid].svh-curruser {
   transform-origin: top;
 }
 .user-activity .mspark::before {
-  /* svg background with vertical lines for each hour */
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%"><defs><pattern id="pattern" x="0" y="0" width="1" height="1"><line x1="0" y1="0" x2="0" y2="100%" stroke="var(--black-100)" stroke-width="1" /></pattern></defs><rect x="0" y="0" width="100%" height="100%" fill="url(pattern)" /></svg>');
+  background-image: linear-gradient(90deg, transparent 98.5%, #cccccc 100%);
+  background-size: 60px 1px;
+  background-color: transparent;
 }
 .user-activity .msbar {
   min-height: 3px;
