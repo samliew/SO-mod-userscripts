@@ -3,7 +3,7 @@
 // @description  Converts mod pages to mobile-friendly UI
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      2.0
+// @version      2.0.10
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

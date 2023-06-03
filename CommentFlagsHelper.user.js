@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      8.2.1
+// @version      8.2.10
 //
 // @match        https://*.stackoverflow.com/admin/dashboard*
 // @match        https://*.serverfault.com/admin/dashboard*

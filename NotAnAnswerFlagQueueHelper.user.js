@@ -3,7 +3,7 @@
 // @description  Inserts several sort options for the NAA / VLQ / Review LQ Disputed queues
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.0
+// @version      5.0.10
 //
 // @match        https://*.stackoverflow.com/admin/dashboard?flagtype=postother*
 // @match        https://*.serverfault.com/admin/dashboard?flagtype=postother*

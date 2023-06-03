@@ -3,7 +3,7 @@
 // @description  Get the timestamp of when you voted on a post
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.2.3
+// @version      1.2.10
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

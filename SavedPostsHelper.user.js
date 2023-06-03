@@ -3,7 +3,7 @@
 // @description  Batch-move saved posts between private lists, quick move after saving in Q&A, import/export lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.2.1
+// @version      3.2.10
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
