@@ -3,7 +3,7 @@
 // @description  Batch-move Saved Questions between private lists
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.2.10
+// @version      1.2.11
 //
 // @match        https://*.stackoverflow.com/users/saves/*
 // @match        https://*.serverfault.com/users/saves/*

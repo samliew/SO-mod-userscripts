@@ -3,7 +3,7 @@
 // @description  Detect OpenAI in post content and revisions, and on user answers tab
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      2.4.10
+// @version      2.4.11
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

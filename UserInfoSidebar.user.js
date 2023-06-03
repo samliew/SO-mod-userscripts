@@ -3,7 +3,7 @@
 // @description  Adds user moderation links sidebar with quicklinks & user details (from Mod Dashboard) to user-specific pages
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.2.10
+// @version      4.2.11
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

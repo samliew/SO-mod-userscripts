@@ -4,7 +4,7 @@
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
 // @author       Cody Gray
-// @version      5.6.10
+// @version      5.6.11
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

@@ -3,7 +3,7 @@
 // @description  Loads more user details from the API on the find users page (/admin/find-users)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      2.0.10
+// @version      2.0.11
 //
 // @match        https://*.stackoverflow.com/admin/find-users*
 // @match        https://*.serverfault.com/admin/find-users*

@@ -3,7 +3,7 @@
 // @description  Hides post score until voted
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0.10
+// @version      3.0.11
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

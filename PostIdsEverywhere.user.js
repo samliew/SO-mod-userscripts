@@ -3,7 +3,7 @@
 // @description  Inserts post IDs everywhere where there's a post or post link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.3.10
+// @version      3.3.11
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

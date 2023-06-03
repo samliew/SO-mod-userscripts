@@ -3,7 +3,7 @@
 // @description  Display notifications on user profile when new activity is detected since page load
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      2.0.10
+// @version      2.0.11
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

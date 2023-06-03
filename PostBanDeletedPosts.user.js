@@ -3,7 +3,7 @@
 // @description  Assists in building low-quality-questions mod messages. For SO Meta only, fetch and display user's deleted posts in markdown format.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.3.10
+// @version      5.3.11
 //
 // @match        https://meta.stackoverflow.com/questions/*
 //

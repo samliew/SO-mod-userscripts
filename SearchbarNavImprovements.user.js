@@ -3,7 +3,7 @@
 // @description  Searchbar & Nav Improvements. Advanced search helper when search box is focused. Bookmark any search for reuse (stored locally, per-site).
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      7.0.10
+// @version      7.0.11
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

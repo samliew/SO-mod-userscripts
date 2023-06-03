@@ -3,7 +3,7 @@
 // @description  Expands user network links menu and add chat profile links
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      2.0.10
+// @version      2.0.11
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

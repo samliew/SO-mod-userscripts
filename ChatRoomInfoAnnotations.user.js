@@ -3,7 +3,7 @@
 // @description  Display users' annotations in chat room info
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0.10
+// @version      3.0.11
 //
 // @match        https://chat.stackoverflow.com/rooms/info/*
 // @match        https://chat.stackexchange.com/rooms/info/*

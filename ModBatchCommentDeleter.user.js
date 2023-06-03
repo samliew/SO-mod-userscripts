@@ -3,7 +3,7 @@
 // @description  Batch delete comments using comment IDs or permalinks (e.g.: from SEDE https://data.stackexchange.com/stackoverflow/query/1131935)
 // @homepage     https://github.com/samliew/personal-userscripts
 // @author       Samuel Liew
-// @version      4.0.10
+// @version      4.0.11
 //
 // @match        https://*.stackoverflow.com/admin/deleter
 // @match        https://*.serverfault.com/admin/deleter
