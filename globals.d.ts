@@ -45,6 +45,7 @@ declare var scriptName: string;
 declare var scriptSlug: string;
 declare var _window: Window;
 declare var store: WindowLocalStorage;
+declare var sessionStore: WindowSessionStorage;
 
 declare var monthsOfYear: string[];
 declare var daysOfWeek: string[];
