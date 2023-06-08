@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time, Load entire day into single page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.2
+// @version      5.3
 //
 // @match        https://chat.stackoverflow.com/transcript/*
 // @match        https://chat.stackexchange.com/transcript/*
@@ -73,7 +73,8 @@ const parseChatTimestamp = (timeStr, startOfUTCDay = new Date(Date.UTC(new Date(
   }
   // If time starts with a day of week, set startOfUTCDay to that day of week
   else if (daysOfWeek.includes(dayOfWeek)) {
-    const daysDiff = daysOfWeek.indexOf(dayOfWeek) - startOfUTCDay.getDay();
+    let daysDiff = daysOfWeek.indexOf(dayOfWeek) - startOfUTCDay.getUTCDay();
+    if (daysDiff > 0) daysDiff -= 7;
     dateObj = new Date(Date.UTC(startOfUTCDay.getUTCFullYear(), startOfUTCDay.getUTCMonth(), startOfUTCDay.getUTCDate() + daysDiff, hour, min));
   }
   // Try to extract date from timestamp
@@ -95,7 +96,7 @@ const parseChatTimestamp = (timeStr, startOfUTCDay = new Date(Date.UTC(new Date(
   }
 
   if (dateObj > new Date()) {
-    console.error(`[CTH] Possible Invalid Future Date`, dateObj, timeStr);
+    console.error(`[CTH] Possible Invalid Future Date`, dateObj, timeStr, daysDiff, startOfUTCDay);
   }
 
   return dateObj;
