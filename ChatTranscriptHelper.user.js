@@ -90,6 +90,10 @@ const parseChatTimestamp = (timeStr, startOfUTCDay = new Date(Date.UTC(new Date(
     }
   }
 
+  if (dateObj > new Date()) {
+    console.error(`[CTH] Possible Invalid Future Date`, dateObj, timeStr);
+  }
+
   return dateObj;
 };
 
