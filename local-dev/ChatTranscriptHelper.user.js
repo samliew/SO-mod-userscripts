@@ -9,6 +9,10 @@
 // @match        https://chat.stackexchange.com/transcript/*
 // @match        https://chat.meta.stackexchange.com/transcript/*
 //
+// @match        https://chat.stackoverflow.com/rooms/*/conversation/*
+// @match        https://chat.stackexchange.com/rooms/*/conversation/*
+// @match        https://chat.meta.stackexchange.com/rooms/*/conversation/*
+//
 // @match        https://chat.stackoverflow.com/search*
 // @match        https://chat.stackexchange.com/search*
 // @match        https://chat.meta.stackexchange.com/search*

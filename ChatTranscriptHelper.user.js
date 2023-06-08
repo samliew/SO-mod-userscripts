@@ -3,11 +3,15 @@
 // @description  Converts UTC timestamps to local time, Load entire day into single page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.1.11
+// @version      5.2
 //
 // @match        https://chat.stackoverflow.com/transcript/*
 // @match        https://chat.stackexchange.com/transcript/*
 // @match        https://chat.meta.stackexchange.com/transcript/*
+//
+// @match        https://chat.stackoverflow.com/rooms/*/conversation/*
+// @match        https://chat.stackexchange.com/rooms/*/conversation/*
+// @match        https://chat.meta.stackexchange.com/rooms/*/conversation/*
 //
 // @match        https://chat.stackoverflow.com/search*
 // @match        https://chat.stackexchange.com/search*
@@ -276,8 +280,8 @@ addStylesheet(`
     });
   }
 
-  // Transcript page
-  else if (location.pathname.includes('/transcript')) {
+  // Transcript or conversation page
+  else if (/\/(transcript|rooms\/\d+\/conversation\/)/.test(location.pathname)) {
 
     // Always redirect to full day page "/0-24" if we are on a partial day page
     const hasSubPage = document.querySelectorAll('.pager span.page-numbers').length > 0;
@@ -305,11 +309,23 @@ addStylesheet(`
     convertTranscriptTimestamps();
     highlightMessageReplies();
 
+    // If conversation page, parse date in system messages
+    // E.g.: "Conversation started Jan 20 at 0:13."
+    if (location.pathname.includes('/conversation/')) {
+      document.querySelectorAll('.system-message').forEach(el => {
+        const [_, prefix, dateStr] = el.innerText.match(/^(.*?)(\w{3} \d{1,2} at \d{1,2}:\d{2})/) || [null, null, null];
+        if (!prefix || !dateStr) return;
+        const date = parseChatTimestamp(dateStr);
+        el.dataset.originalText = el.innerText;
+        el.innerText = prefix + toLocalTimestamp(date);
+      });
+    }
+
     // The rest of the code is for desktop only
     if (isMobile) return;
 
     // Desktop: If clicked replied-to message is on the same page, scroll to it instead
-    document.querySelector('#transcript').addEventListener('click', function (e) {
+    document.querySelector('#transcript, #conversation').addEventListener('click', function (e) {
       if (e.target.classList.contains('reply-info')) {
         const msgId = e.target.href.split('#').pop();
         if (scrollToMessageIfExist(msgId)) e.preventDefault();
