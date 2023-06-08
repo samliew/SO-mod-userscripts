@@ -3,7 +3,7 @@
 // @description  New responsive user list with usernames and total count, more timestamps, use small signatures only, mods with diamonds, message parser (smart links), timestamps on every message, collapse room description and room tags, mobile improvements, expand starred messages on hover, highlight occurrences of same user link, room owner changelog, pretty print styles, and more...
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.6.11
+// @version      4.7
 //
 // @match        https://chat.stackoverflow.com/*
 // @match        https://chat.stackexchange.com/*
@@ -168,21 +168,27 @@ function processMessageTimestamps(events) {
   }
   */
 
-  // Find messages without timestamp, then insert timestamp
+  // Find messages for each event
   events.forEach(function (event) {
-    const msgs = $('#message-' + event.message_id).parent('.messages');
-    if (msgs.length && msgs.children('.timestamp').length == 0) {
-      const d = new Date(event.time_stamp * 1000);
-      let time = d.getHours() + ':' + (d.getMinutes().toString().length != 2 ? '0' : '') + d.getMinutes();
-      let prefix = '';
-      if (d < weekAgo) {
-        prefix = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(d) + ', ';
-      }
-      else if (d.getDate() != now.getDate()) {
-        prefix = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(d) + ' ';
-      }
-      msgs.prepend(`<div class="timestamp js-dynamic-timestamp">${prefix}${time}</div>`);
+    const msgEl = $('#message-' + event.message_id).parent('.messages');
+    if (!msgEl.length) return;
+
+    // Remove existing timestamp so we can replace with a timestamp that contains seconds
+    msgEl.find('.timestamp').remove();
+
+    // Make and insert timestamp
+    const d = new Date(event.time_stamp * 1000);
+    let time = `${d.getHours().toString().padStart(2, '0')}:${d.getMinutes().toString().padStart(2, '0')}`;
+
+    let prefix = '';
+    if (d < weekAgo) {
+      prefix = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric' }).format(d) + ', ';
     }
+    else if (d.getDate() != now.getDate()) {
+      prefix = new Intl.DateTimeFormat('en-US', { weekday: 'short' }).format(d) + ' ';
+    }
+
+    msgEl.prepend(`<div class="timestamp js-dynamic-timestamp" title="${dateToIsoString(d)}">${prefix}${time}</div>`);
   });
 
   // Cache results
