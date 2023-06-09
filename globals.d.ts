@@ -166,6 +166,9 @@ declare function waitForElement(selector: string, context: HTMLElement | Documen
  * Common: Storage Functions
  * ================================
  */
+declare function getCookie(key: string): string;
+declare function deleteCookie(key: string): boolean;
+declare function setCookie(key: string, value: string, options: object): boolean;
 declare function copyToClipboard(content: string | HTMLElement): Promise<void>
 
 /**
