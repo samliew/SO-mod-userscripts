@@ -3,7 +3,7 @@
 // @description  Keyboard shortcuts, skips accepted questions and audits (to save review quota)
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.0.11
+// @version      5.0.12
 //
 // @match        https://*.stackoverflow.com/review/*
 // @match        https://*.serverfault.com/review/*

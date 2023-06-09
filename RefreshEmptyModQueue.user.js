@@ -3,7 +3,7 @@
 // @description  If current mod queue is empty, reload page occasionally
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1.11
+// @version      4.1.12
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

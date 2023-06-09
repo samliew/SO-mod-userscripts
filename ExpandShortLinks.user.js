@@ -3,7 +3,7 @@
 // @description  Appends more characters to short link texts in posts and comments so they can be easily seen and clicked on
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0.11
+// @version      3.0.12
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

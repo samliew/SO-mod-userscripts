@@ -3,7 +3,7 @@
 // @description  Unique colour for each user in comments to make following users in long comment threads easier
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.1.11
+// @version      3.1.12
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

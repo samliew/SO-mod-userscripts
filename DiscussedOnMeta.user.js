@@ -3,7 +3,7 @@
 // @description  For questions and answers, displays info if it's discussed on Meta. On arrow mouseover, displays the Meta posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1.11
+// @version      4.1.12
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

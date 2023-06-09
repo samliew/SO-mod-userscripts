@@ -3,7 +3,7 @@
 // @description  In Q&A posts and comments, rewrites chat room links to chat transcript to avoid accidentally joining the room
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.2
+// @version      3.2.12
 //
 // @match        https://*.stackoverflow.com/questions/*
 // @match        https://*.serverfault.com/questions/*

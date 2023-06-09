@@ -3,7 +3,7 @@
 // @description  Adds a menu with mod-only quick actions in post sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.6.11
+// @version      5.6.12
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

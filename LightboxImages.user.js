@@ -3,7 +3,7 @@
 // @description  Opens image links in a lightbox instead of new window/tab in main & chat. Lightbox images that are displayed smaller than it's original size.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.3.11
+// @version      3.3.12
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

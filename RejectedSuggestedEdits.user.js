@@ -3,7 +3,7 @@
 // @description  New page to review rejected suggested edits
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.0.11
+// @version      3.0.12
 //
 // @match        https://*.stackoverflow.com/review/suggested-edits*
 // @match        https://*.serverfault.com/review/suggested-edits*

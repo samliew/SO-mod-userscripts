@@ -3,7 +3,7 @@
 // @description  Adds site names to HNQ sidebar
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.0.11
+// @version      1.0.12
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

@@ -3,7 +3,7 @@
 // @description  Expand all sections, and adds additional post type filters
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.2.11
+// @version      3.2.12
 //
 // @match        https://*.stackoverflow.com/tools*
 // @match        https://*.serverfault.com/tools*

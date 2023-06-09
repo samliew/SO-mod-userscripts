@@ -3,7 +3,7 @@
 // @description  Replaces the link text in comments and posts with the full question title, and adds post info in the title attribute
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.4.11
+// @version      1.4.12
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

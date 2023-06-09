@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.2.11
+// @version      4.2.12
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
