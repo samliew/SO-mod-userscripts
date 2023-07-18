@@ -3,7 +3,7 @@
 // @description  Assists in building low-quality-questions mod messages. For SO Meta only, fetch and display user's deleted posts in markdown format.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.3.12
+// @version      5.4
 //
 // @match        https://meta.stackoverflow.com/questions/*
 //
@@ -371,7 +371,7 @@ answerWrapper.before(isSuspended ? suspendedNotice : banStats);
     const listHtml = items.map(item => `
 <div class="d-flex ai-center mb8">
   <span class="answer-votes bg-black-050 mr12">${item.score}</span>
-  <a href="${parentUrl}${item.url}" target="_blank">${item.title}</a>
+  <a href="${parentUrl}${item.url}" target="_blank">${htmlEncode(item.title)}</a>
 </div>`).join('');
     stats.find('.meta-mentions').append(listHtml);
 
