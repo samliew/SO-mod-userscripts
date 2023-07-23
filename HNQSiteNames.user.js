@@ -54,4 +54,11 @@ addStylesheet(`
 `);
 
 // Links open in a new tab/window
-document.querySelectorAll('#hot-network-questions a').forEach(v => v.target = "_blank");
+document.querySelectorAll('#hot-network-questions a').forEach(v => {
+  v.target = "_blank";
+});
+
+// Strip "Stack Exchange" from site names
+document.querySelectorAll('#hot-network-questions .favicon').forEach(v => {
+  v.title = v.title?.replace(/ Stack Exchange$/i, "") ?? "";
+});
