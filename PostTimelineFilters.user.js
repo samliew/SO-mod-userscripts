@@ -3,7 +3,7 @@
 // @description  Inserts several filter options for post timelines
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      3.3.12
+// @version      3.3.13
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

@@ -3,7 +3,7 @@
 // @description  Displays a list of upcoming and ongoing elections on https://stackexchange.com/elections
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       @samliew
-// @version      0.3.11
+// @version      0.3.13
 //
 // @match        https://stackexchange.com/elections
 //

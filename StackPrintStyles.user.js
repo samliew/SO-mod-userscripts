@@ -3,7 +3,7 @@
 // @description  Print preprocessor and print styles for Stack Exchange Q&A, blog, and chat. Includes a handy load all comments button at bottom right.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      2.0.12
+// @version      2.0.13
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

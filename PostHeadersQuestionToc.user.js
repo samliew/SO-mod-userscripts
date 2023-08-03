@@ -3,7 +3,7 @@
 // @description  Sticky post headers while you view each post (helps for long posts). Question ToC of Answers in sidebar.
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.7.12
+// @version      4.7.13
 //
 // @match        https://*.stackoverflow.com/questions/*
 // @match        https://*.serverfault.com/questions/*

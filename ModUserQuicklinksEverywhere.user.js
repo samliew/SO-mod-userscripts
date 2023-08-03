@@ -3,7 +3,7 @@
 // @description  Adds quicklinks to user infobox in posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.1.12
+// @version      4.1.13
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

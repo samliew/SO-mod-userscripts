@@ -3,7 +3,7 @@
 // @description  Add "Redact + Purge + Delete" button to message history page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0.12
+// @version      4.0.13
 //
 // @match        https://chat.stackoverflow.com/*
 // @match        https://chat.stackexchange.com/*

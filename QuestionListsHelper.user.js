@@ -3,7 +3,7 @@
 // @description  Adds more information about questions to question lists, adds post filters to sidebar, adds delete buttons to posts
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0.12
+// @version      4.0.13
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

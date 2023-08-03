@@ -3,7 +3,7 @@
 // @description  Insert line numbers into code blocks
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.0
+// @version      1.0.13
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

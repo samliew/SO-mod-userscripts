@@ -3,7 +3,7 @@
 // @description  Display deleted comments and user who deleted the comments
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.0.12
+// @version      4.0.13
 //
 // @match        https://*.stackoverflow.com/admin/dashboard?flagtype=commentvandalismdeletionsauto*
 // @match        https://*.serverfault.com/admin/dashboard?flagtype=commentvandalismdeletionsauto*

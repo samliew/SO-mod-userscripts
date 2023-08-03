@@ -3,7 +3,7 @@
 // @description  Inserts quicklinks to "Move comments to chat + delete" and "Delete all comments"
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      6.0.12
+// @version      6.0.13
 //
 // @match        https://*.stackoverflow.com/admin/dashboard?flagtype=posttoomanycommentsauto*
 // @match        https://*.serverfault.com/admin/dashboard?flagtype=posttoomanycommentsauto*

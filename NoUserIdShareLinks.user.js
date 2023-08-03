@@ -3,7 +3,7 @@
 // @description  Remove your referral user id when copying a post share link
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      2.0.12
+// @version      2.0.13
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*

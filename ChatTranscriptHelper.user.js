@@ -3,7 +3,7 @@
 // @description  Converts UTC timestamps to local time, Load entire day into single page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.3.12
+// @version      5.3.13
 //
 // @match        https://chat.stackoverflow.com/transcript/*
 // @match        https://chat.stackexchange.com/transcript/*
