@@ -3,7 +3,7 @@
 // @description  Dark theme for sites and chat on the Stack Exchange Network
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      4.2.13
+// @version      4.3.13
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -192,7 +192,7 @@ body {
   --bs-lg: 0 1px 4px rgba(255, 255, 255, 0.09),0 3px 8px rgba(255, 255, 255, 0.09),0 4px 13px rgba(255, 255, 255, 0.13);
   --scrollbar: rgba(255, 255, 255, 0.2);
 }
-*:not(svg):not(path):not(img):not(span),
+*:not(svg):not(path):not(img):not(span):not(td),
 *:not(.s-award-bling):before,
 *:after,
 #search-channel-selector,
