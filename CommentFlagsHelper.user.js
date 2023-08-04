@@ -3,7 +3,7 @@
 // @description  Always expand comments (with deleted) and highlight expanded flagged comments, Highlight common chatty and rude keywords
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      8.3.13
+// @version      8.4.13
 //
 // @match        https://*.stackoverflow.com/admin/dashboard*
 // @match        https://*.serverfault.com/admin/dashboard*
@@ -593,7 +593,7 @@ table.comments tr.roa-comment > td {
       const flagText = $(this).parents('.js-flag-text');
       post.find('.js-post-header').hide();
 
-      const commentsPageUrl = this.href.replace('http:', 'https:').replace('?state=All&flagState=all', '?state=deleted&flagState=all');
+      const commentsPageUrl = this.href.replace('http:', 'https:').replace('?state=All&flagState=all', '?flagState=all');
       this.href = commentsPageUrl;
 
       // Add links to user and comment history
@@ -602,7 +602,7 @@ table.comments tr.roa-comment > td {
           <a href="${location.origin}/users/account-info/${uid}" target="_blank">Dashboard</a> |
           <a href="${location.origin}/users/history/${uid}?type=User+suspended" target="_blank">Susp. History</a> |
           <a href="${location.origin}/users/message/create/${uid}?action=abusive" target="_blank">Message/Suspend</a> |
-          <a href="${location.origin}/admin/users/${uid}/post-comments?state=deleted&flagState=all" target="_blank">Comments</a>
+          <a href="${location.origin}/admin/users/${uid}/post-comments?flagState=all" target="_blank">Comments</a>
         ]</div>`).appendTo(flagText);
 
       const flagGroup = post.find('.js-post-flag-group');
