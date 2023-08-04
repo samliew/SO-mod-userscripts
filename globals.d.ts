@@ -179,6 +179,7 @@ declare function copyToClipboard(content: string | HTMLElement): Promise<void>
  */
 declare function getUserInfoFromApi(uid: number): Promise<object>;
 declare function getUserPii(uid: number): Promise<object>;
+declare function getComparePii(susUid: number, targetUid: number): Promise<object>;
 declare async function editUserProfile(uid: number, data: object): Promise<object>;
 declare async function resetUserDisplayName(uid: number, displayName: string): Promise<object>;
 declare async function resetUserProfile(uid: number, displayName: string): Promise<object>;
