@@ -3,11 +3,15 @@
 // @description  Converts UTC timestamps to local time, Load entire day into single page
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      5.3.13
+// @version      5.4
 //
 // @match        https://chat.stackoverflow.com/transcript/*
 // @match        https://chat.stackexchange.com/transcript/*
 // @match        https://chat.meta.stackexchange.com/transcript/*
+//
+// @match        https://chat.stackoverflow.com//transcript/*
+// @match        https://chat.stackexchange.com//transcript/*
+// @match        https://chat.meta.stackexchange.com//transcript/*
 //
 // @match        https://chat.stackoverflow.com/rooms/*/conversation/*
 // @match        https://chat.stackexchange.com/rooms/*/conversation/*
@@ -28,6 +32,13 @@
 
 // Customisable variables
 const scrollOffset = 35 + 20; // approx 35px for header and nav, 20px for padding
+
+// Fix SE Inbox Bug
+// Links to chat transcript contain an additional leading slash: //transcript/...
+// Redirect to correct transcript URL until this is fixed
+if (location.pathname.startsWith('//transcript')) {
+  location.pathname = location.pathname.replace(/^\/\//, '/');
+}
 
 // Private variables
 const isMobile = document.body.classList.contains('mob');
@@ -58,6 +69,7 @@ const parseChatTimestamp = (timeStr, startOfUTCDay = new Date(Date.UTC(new Date(
   if (!timeStr) return null;
 
   // Extract hour, min, AM/PM
+  let daysDiff = null;
   let dateObj, dayOfWeek = timeStr.substr(0, 3);
   let [__, yst, hour, min, ap] = timeStr.match(/(yst )?(\d+):(\d+)(?:\s(AM|PM))?/);
   hour = Number(hour);
@@ -73,7 +85,7 @@ const parseChatTimestamp = (timeStr, startOfUTCDay = new Date(Date.UTC(new Date(
   }
   // If time starts with a day of week, set startOfUTCDay to that day of week
   else if (daysOfWeek.includes(dayOfWeek)) {
-    let daysDiff = daysOfWeek.indexOf(dayOfWeek) - startOfUTCDay.getUTCDay();
+    daysDiff = daysOfWeek.indexOf(dayOfWeek) - startOfUTCDay.getUTCDay();
     if (daysDiff > 0) daysDiff -= 7;
     dateObj = new Date(Date.UTC(startOfUTCDay.getUTCFullYear(), startOfUTCDay.getUTCMonth(), startOfUTCDay.getUTCDate() + daysDiff, hour, min));
   }
