@@ -3,7 +3,7 @@
 // @description  Insert line numbers into code blocks
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.0.13
+// @version      1.1
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -34,6 +34,10 @@
 
 // Append styles
 addStylesheet(`
+.s-prose,
+.js-post-body {
+  position: relative;
+}
 .s-prose pre,
 .js-post-body pre {
   position: relative;
@@ -57,6 +61,20 @@ addStylesheet(`
   pointer-events: none;
   user-select: none;
 }
+.s-prose .copy-code,
+.js-post-body .copy-code {
+  position: absolute;
+  right: 0;
+  margin: 0 !important;
+  z-index: 1;
+  opacity: 0;
+}
+.copy-code:has(+ pre:hover) {
+  opacity: 0.5;
+}
+.copy-code:hover {
+  opacity: 1;
+}
 `); // end stylesheet
 
 
@@ -73,6 +91,17 @@ function addLineNumbers() {
     ln.textContent = pre.querySelector('code').textContent.split('\n')
       .map((_, i) => i + 1).slice(0, -1).join('\n');
     pre.prepend(ln);
+
+    // Add copy button
+    const copyBtn = makeElem('button', { class: 's-btn s-btn__muted s-btn__outlined s-btn__xs s-btn__icon copy-code' }, 'copy');
+    pre.insertAdjacentElement('beforebegin', copyBtn);
+
+    // Copy code on click
+    copyBtn.addEventListener('click', function () {
+      copyToClipboard(pre.querySelector('code').textContent);
+      this.textContent = 'copied!';
+      setTimeout(() => this.textContent = 'copy', 1400);
+    });
   });
 }
 
