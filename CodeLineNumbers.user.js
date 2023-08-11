@@ -36,6 +36,7 @@
 addStylesheet(`
 .s-prose pre,
 .js-post-body pre {
+  position: relative;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
@@ -43,8 +44,14 @@ addStylesheet(`
 }
 .s-prose pre > .line-numbers,
 .js-post-body pre > .line-numbers {
-  padding-right: var(--su12);
+  position: sticky;
+  top: 0;
+  left: calc(-1 * var(--su12));
+  margin: calc(-1 * var(--su12));
+  margin-right: var(--su12);
+  padding: var(--su12);
   font-size: var(--_pr-code-fs);
+  background-color: white;
   color: var(--black-300);
   text-align: right;
   pointer-events: none;
