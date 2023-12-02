@@ -3,7 +3,7 @@
 // @description  Insert line numbers into code blocks
 // @homepage     https://github.com/samliew/SO-mod-userscripts
 // @author       Samuel Liew
-// @version      1.1
+// @version      1.2
 //
 // @match        https://*.stackoverflow.com/*
 // @match        https://*.serverfault.com/*
@@ -87,9 +87,9 @@ function addLineNumbers() {
     if (pre.querySelector('.line-numbers, [class*="line-numbers"]')) return;
 
     // Make line numbers element and insert before code block
+    const lineNumbers = pre.querySelector('code').textContent.split('\n').filter(((v, i, a) => i < a.length - 1 || v !== '')).map((_, i) => i + 1);
     const ln = makeElem('div', { class: 'line-numbers' });
-    ln.textContent = pre.querySelector('code').textContent.split('\n')
-      .map((_, i) => i + 1).slice(0, -1).join('\n');
+    ln.textContent = lineNumbers.join('\n');
     pre.prepend(ln);
 
     // Add copy button
